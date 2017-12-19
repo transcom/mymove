@@ -6,7 +6,7 @@ This project was bootstrapped with [create-react-app](https://github.com/faceboo
 
 Prerequisites:
 
-* [pre-commit](http://pre-commit.com/) for running git precomit checks.
+* [pre-commit](http://pre-commit.com/) for running git pre-commit checks.
   * Install on MacOS with: `brew install pre-commit`
 
 Getting started:
