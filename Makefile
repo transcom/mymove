@@ -8,7 +8,7 @@ pre-commit: .git/hooks/pre-commit
 
 client_deps:
 	cd client && \
-	yarn install
+	yarn --frozen-lockfile install
 client_build: client_deps
 	cd client && \
 	yarn build
