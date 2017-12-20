@@ -2,8 +2,6 @@
 
 set -eux -o pipefail
 
-brew install shellcheck
-
 # Install Node and Yarn
 # Throwing away stdout logs because they were too plentiful and
 # Circle couldn't display them in their web interface.
