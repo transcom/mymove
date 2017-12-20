@@ -8,6 +8,7 @@ Prerequisites:
 
 * [pre-commit](http://pre-commit.com/) for running git pre-commit checks.
   * Install on MacOS with: `brew install pre-commit`
+  * Install the shell linter with `brew install shellcheck`
 
 Getting started:
 

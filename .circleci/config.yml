@@ -15,3 +15,5 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - run: bin/install-dependencies.sh
+      - run: make client_build
