@@ -2,6 +2,18 @@
 
 set -eux -o pipefail
 
+# Install utilities
+
+# Throwing away stdout logs because they were too plentiful and
+# Circle couldn't display them in their web interface.
+# Errors should still post to the console.
+apt-get update
+apt-get -qq install -y git-all build-essential curl > /dev/null
+
+# Install brew
+/usr/bin/ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"
+brew install shellcheck
+
 # Install Node and Yarn
 # Throwing away stdout logs because they were too plentiful and
 # Circle couldn't display them in their web interface.
