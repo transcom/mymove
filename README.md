@@ -11,4 +11,5 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 ```bash
 brew install pre-commit
 pre-commit install
+brew install shellcheck
 ```
