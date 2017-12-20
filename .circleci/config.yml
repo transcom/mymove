@@ -3,9 +3,7 @@ jobs:
   build:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
-    environment:
-      - GOPATH: "/root/ppp/server"
-      - PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/local/go/bin:/root/ppp/server/bin"
+      - PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
     steps:
       - checkout
       - restore_cache:
