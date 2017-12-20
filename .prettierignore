@@ -1,0 +1,6 @@
+# Prettier is having a hard time with this file:
+#   [error] client/public/index.html: SyntaxError: Unexpected token (1:2)
+#   [error] > 1 | <!DOCTYPE html>
+# It seems to not like the <!DOCTYPE> tag or comments. Since I'm unwilling to
+# remove the comments, excluding that file.
+client/public/index.html

@@ -23,6 +23,7 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
+
   - repo: https://github.com/prettier/prettier
     sha: 1.9.1
     hooks:
