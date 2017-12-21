@@ -14,7 +14,7 @@ Prerequisites:
 Getting started:
 
 * Run `pre-commit install` to install git pre-commit checks.
-* Enter the `client/` directory
-* Run `yarn install` to install the dependenices.
+* Enter the `client/` directory.
+* Run `yarn install` to install the dependencies.
 * Run `yarn start` to run a local development server with live-refresh.
 * Run `yarn test` to run the test suite with live-refresh.
