@@ -6,9 +6,6 @@ repos:
       - id: check-merge-conflict
       - id: check-yaml
       - id: detect-private-key
-      - id: pretty-format-json
-        args:
-          - --autofix
       - id: trailing-whitespace
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
@@ -26,3 +23,11 @@ repos:
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
+
+  - repo: local
+    hooks:
+      - id: prettier
+        name: prettier
+        entry: client/node_modules/.bin/prettier --trailing-comma=all --single-quote=all --write
+        language: node
+        files: \.(js|jsx)$

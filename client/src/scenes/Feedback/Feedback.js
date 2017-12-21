@@ -2,19 +2,18 @@ import React, { Component } from 'react';
 import FeedbackForm from './FeedbackForm';
 
 class Feedback extends Component {
-
   constructor(props) {
     super(props);
-    this.state = {value: ''}
+    this.state = { value: '' };
   }
 
-  handleChange = (e) => {
-    this.setState({value: e.target.value});
-  }
+  handleChange = e => {
+    this.setState({ value: e.target.value });
+  };
 
-  handleSubmit = (e) => {
+  handleSubmit = e => {
     e.preventDefault();
-  }
+  };
 
   render() {
     return (
@@ -27,7 +26,7 @@ class Feedback extends Component {
         />
       </div>
     );
-  };
+  }
 }
 
 export default Feedback;

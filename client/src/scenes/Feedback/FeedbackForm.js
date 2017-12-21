@@ -2,7 +2,7 @@ import React from 'react';
 
 function FeedbackForm({ handleChange, handleSubmit, textValue }) {
   return (
-    <form onSubmit={handleSubmit} >
+    <form onSubmit={handleSubmit}>
       <textarea
         onChange={handleChange}
         placeholder="Type feedback here."
