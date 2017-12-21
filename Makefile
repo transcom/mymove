@@ -8,6 +8,8 @@ pre-commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
+deps: pre-commit client_deps server_deps
+
 client_deps:
 	cd client && \
 	yarn install
