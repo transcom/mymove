@@ -24,7 +24,10 @@ repos:
       - id: terraform_fmt
       - id: terraform_validate
 
-  - repo: https://github.com/prettier/prettier
-    sha: 1.9.1
+  - repo: local
     hooks:
       - id: prettier
+        name: prettier
+        entry: client/node_modules/.bin/prettier --trailing-comma=all --single-quote=all --write
+        language: node
+        files: \.(js|jsx)$

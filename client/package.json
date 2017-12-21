@@ -12,5 +12,8 @@
     "start": "react-scripts start",
     "test": "react-scripts test --env=jsdom"
   },
-  "version": "0.1.0"
+  "version": "0.1.0",
+  "devDependencies": {
+    "prettier": "^1.9.2"
+  }
 }
