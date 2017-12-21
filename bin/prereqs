@@ -18,8 +18,7 @@ function has() {
 has go "brew install go"
 has glide "brew install glide"
 has yarn "brew install yarn"
-has pre-commit "brew install pre-commit && pre-commit install --install-hooks"
-has terraform "brew install terraform"
+has pre-commit "brew install pre-commit && pre-commit install"
 has golint "go get -u github.com/golang/lint/golint"
 has shellcheck "brew install shellcheck"
 
