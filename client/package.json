@@ -2,7 +2,8 @@
   "dependencies": {
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts": "1.0.17"
+    "react-scripts": "1.0.17",
+    "uswds": "^1.4.4"
   },
   "name": "client",
   "private": true,
