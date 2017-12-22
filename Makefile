@@ -39,3 +39,5 @@ server_run: server_build client_build server_run_only
 server_run_dev: server_build_only server_run_only
 server_test:
 	go test -v dp3/pkg/api
+
+.PHONY: pre-commit deps
