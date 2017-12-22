@@ -20,12 +20,12 @@ func Mux() *goji.Mux {
 	return apiMux
 }
 
-// Greeting represents a greeting
+// Incoming body for POST /issues
 type issue struct {
 	Issue string `json:"issue"`
 }
 
-// Message is a message.
+// Response to POST /issues
 type newIssueResponse struct {
 	ID int64 `json:"id"`
 }
