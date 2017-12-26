@@ -17,7 +17,7 @@ class Feedback extends Component {
 
   render() {
     return (
-      <div>
+      <div className="usa-grid">
         <h1>Report a Bug!</h1>
         <FeedbackForm
           handleChange={this.handleChange}

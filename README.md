@@ -10,7 +10,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+Run `bin/prereqs` and install everything it tells you to. Then run `make client deps` and `make server deps`.
 
 ### Setup: Server
 
