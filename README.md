@@ -8,8 +8,28 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ## Development
 
-```bash
-brew install pre-commit
-pre-commit install
-brew install shellcheck
-```
+### Prerequisites
+
+Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+
+### Setup: Server
+
+`make db_dev_init`: Creates the local docker postgres container and starts it running.
+
+`make db_migrate`: Runs migrate up for any new migrations. (You must run this on first setup before running `make server_run`. It depends on `db_dev_run`)
+
+`make server_run`: installs dependencies and builds both the client and the server, then runs the server.
+
+For faster development, use `make server_run_dev`. This builds and runs the server but skips updating dependences and re-building the client. Those tasks can be accomplished as needed with `make server_deps` and `make client_build`
+
+Dependencies are managed by glide. To add a new dependency:
+`GOPATH=/path/to/ProtoWebapp glide get new/dependency`
+
+### Setup: Client
+
+`make server_run`
+`make client_run_dev`
+
+The above will start the server running and starts the webpack dev server, proxied to our running go server.
+
+Dependencies are managed by yarn

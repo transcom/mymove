@@ -1,0 +1,4 @@
+package: protowebapp
+import:
+- package: goji.io
+- package: go.uber.org/zap
