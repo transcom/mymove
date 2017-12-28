@@ -18,6 +18,14 @@ Run `bin/prereqs` and install everything it tells you to. Then run `make client 
 
 For faster development, use `make server_run_dev`. This builds and runs the server but skips updating dependences and re-building the client. Those tasks can be accomplished as needed with `make server_deps` and `make client_build`
 
+You can verify the server is working as follows:
+
+`> curl http://localhost:8080/api/v1/issues --data "{ \"issue\": \"This is a test issue\"}"`
+
+from which the response should be
+
+`{"id":1}`
+
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/ProtoWebapp glide get new/dependency`
 
