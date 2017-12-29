@@ -8,7 +8,11 @@ pre-commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
-deps: pre-commit client_deps server_deps
+server/bin/golint:
+	go get -u github.com/golang/lint/golint
+golint: server/bin/golint
+
+deps: golint pre-commit client_deps server_deps
 
 client_deps:
 	cd client && \
