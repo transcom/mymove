@@ -15,8 +15,9 @@ sudo apt-get -qq install -y apt-transport-https > /dev/null
 # Throwing away stdout logs because they were too plentiful and
 # Circle couldn't display them in their web interface.
 # Errors should still post to the console.
-curl -O https://storage.googleapis.com/golang/go1.8.1.linux-amd64.tar.gz
-sudo tar xvf go1.8.1.linux-amd64.tar.gz -C /usr/local
+curl -O https://redirector.gvt1.com/edgedl/go/go1.9.2.linux-amd64.tar.gz
+sudo tar xvf go1.9.2.linux-amd64.tar.gz -C /usr/local
+sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
 
 # Install Server dependencies
 go get github.com/Masterminds/glide
