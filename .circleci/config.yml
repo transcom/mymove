@@ -6,7 +6,7 @@ jobs:
     steps:
       - checkout
       - run: bin/install-dependencies.sh
-      - run: make client_deps
+      - run: make deps
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -18,3 +18,5 @@ jobs:
           paths:
             - ~/.cache/pre-commit
       - run: make client_build
+      - run: make server_tests
+      - run: make server_build
