@@ -19,9 +19,6 @@ curl -L -O https://redirector.gvt1.com/edgedl/go/go1.9.2.linux-amd64.tar.gz
 sudo tar xvf go1.9.2.linux-amd64.tar.gz -C /usr/local > /dev/null
 sudo ln -s /usr/local/go/bin/go /usr/local/bin/go
 
-# Install Server dependencies
-go get github.com/Masterminds/glide
-
 # Install Node and Yarn
 # Throwing away stdout logs because they were too plentiful and
 # Circle couldn't display them in their web interface.

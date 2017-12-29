@@ -28,6 +28,7 @@ client_run: client_run_dev
 glide_update:
 	cd server/src/dp3 && glide update
 server_deps:
+	go get github.com/Masterminds/glide
 	cd server/src/dp3 && glide install
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
