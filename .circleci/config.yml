@@ -5,9 +5,10 @@ jobs:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
     steps:
       - checkout
-      - run: echo 'export GOPATH=$(pwd)/server' >> $BASH_ENV
       - run: bin/install-dependencies.sh
       - run: make deps
+      - run: echo 'export GOPATH=$(pwd)/server' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:$(pwd)/server/bin' >> $BASH_ENV
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
