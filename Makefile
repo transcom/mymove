@@ -1,7 +1,7 @@
 NAME = ppp
 export GOPATH = $(CURDIR)/server
 export GOBIN = $(GOPATH)/bin
-export GLIDE = $(GOBIN)/glide
+export PATH := $(PATH):$(GOBIN)
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -27,10 +27,10 @@ client_run_dev:
 client_run: client_run_dev
 
 glide_update:
-	cd server/src/dp3 && $(GLIDE) update
+	cd server/src/dp3 && glide update
 server_deps:
 	go get github.com/Masterminds/glide
-	cd server/src/dp3 && $(GLIDE) install
+	cd server/src/dp3 && glide install
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
 	go install
