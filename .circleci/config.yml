@@ -3,10 +3,9 @@ jobs:
   build:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
-    environment:
-      - GOPATH: server/
     steps:
       - checkout
+      - run: echo 'export GOPATH=$(CIRCLE_WORKING_DIRECTORY)/server/bin' >> $BASH_ENV
       - run: bin/install-dependencies.sh
       - run: make deps
       - restore_cache:
