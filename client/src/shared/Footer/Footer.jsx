@@ -1,27 +1,31 @@
 import React from 'react';
+import transcomEmblem from '../../transcom-emblem.svg';
 
 function Footer() {
   return (
-    <footer class="usa-footer usa-footer-medium" role="contentinfo">
-      <div class="usa-grid usa-footer-return-to-top">
-        <a href="">Return to top</a>
+    <footer className="usa-footer usa-footer-medium" role="contentinfo">
+      <div className="usa-grid usa-footer-return-to-top">
+        <a href>Return to top</a>
       </div>
-      <div class="usa-footer-primary-section">
-        <div class="usa-grid-full">
-          <nav class="usa-footer-nav">
-            <ul class="usa-unstyled-list">
-              <li class="usa-width-one-fourth usa-footer-primary-content">
-                <a class="usa-footer-primary-link" href="https://www.move.mil/">
+      <div className="usa-footer-primary-section">
+        <div className="usa-grid-full">
+          <nav className="usa-footer-nav">
+            <ul className="usa-unstyled-list">
+              <li className="usa-width-one-fourth usa-footer-primary-content">
+                <a
+                  className="usa-footer-primary-link"
+                  href="https://www.move.mil/"
+                >
                   Move.mil
                 </a>
               </li>
-              <li class="usa-width-one-fourth usa-footer-primary-content">
-                <a class="usa-footer-primary-link" href="">
+              <li className="usa-width-one-fourth usa-footer-primary-content">
+                <a className="usa-footer-primary-link" href>
                   Help Me
                 </a>
               </li>
-              <li class="usa-width-one-fourth usa-footer-primary-content">
-                <a class="usa-footer-primary-link" href="">
+              <li className="usa-width-one-fourth usa-footer-primary-content">
+                <a className="usa-footer-primary-link" href>
                   Site policies (example)
                 </a>
               </li>
@@ -29,31 +33,30 @@ function Footer() {
           </nav>
         </div>
       </div>
-
-      <div class="usa-footer-secondary_section">
-        <div class="usa-grid">
-          <div class="usa-footer-logo usa-width-one-half">
+      <div className="usa-footer-secondary_section">
+        <div className="usa-grid">
+          <div className="usa-footer-logo usa-width-one-half">
             <a href="https://www.ustranscom.mil/">
               <img
-                class="usa-footer-logo-img"
-                src=""
+                className="usa-footer-logo-img"
+                src={transcomEmblem}
                 alt="United States Transportation Command Emblem"
               />
               <br />
-              <h3 class="usa-footer-big-logo-heading">USTRANSCOM</h3>
+              <h3 className="usa-footer-big-logo-heading">USTRANSCOM</h3>
               <span>United States Transportation Command</span>
               <br />
             </a>
           </div>
-          <div class="usa-footer-contact-links usa-width-one-half">
-            <a class="usa-link-twitter" href="">
+          <div className="usa-footer-contact-links usa-width-one-half">
+            <a className="usa-link-twitter" href>
               <span>Twitter</span>
             </a>
-            <a class="usa-link-rss" href="">
+            <a className="usa-link-rss" href>
               <span>RSS</span>
             </a>
             <address>
-              <h3 class="usa-footer-contact-heading">Contact Us</h3>
+              <h3 className="usa-footer-contact-heading">Contact Us</h3>
               <p>(800) CALL-GOVT</p>
               <a href="mailto:info@agency.gov">info@agency.gov</a>
             </address>
