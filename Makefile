@@ -1,7 +1,9 @@
 NAME = ppp
+DB_DOCKER_CONTAINER = db-dev
 export GOPATH = $(CURDIR)/server
 export GOBIN = $(GOPATH)/bin
 export PATH := $(PATH):$(GOBIN)
+export PGPASSWORD=mysecretpassword
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -43,7 +45,27 @@ server_run_only:
 		-debug_logging
 server_run: server_build client_build server_run_only
 server_run_dev: server_build_only server_run_only
-server_test:
-	go test -v dp3/pkg/api
+server_test: db_dev_run db_dev_migrate
+	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		go test -v dp3/pkg/api
 
-.PHONY: pre-commit deps
+db_dev_init:
+	docker run --name $(DB_DOCKER_CONTAINER) \
+	-e \
+	POSTGRES_PASSWORD=$(PGPASSWORD) \
+	-d \
+	-p 5432:5432 \
+	postgres:latest
+	bin/wait-for-dev-db
+	createdb -p 5432 -h localhost -U postgres test_db
+db_dev_run:
+	docker start $(DB_DOCKER_CONTAINER)
+db_dev_reset:
+	echo "Attempting to reset local dev database..."
+	docker kill $(DB_DOCKER_CONTAINER) &&	\
+		docker rm $(DB_DOCKER_CONTAINER) || \
+		echo "No dev database"
+db_dev_migrate:
+	flyway -configFiles=flyway_test.conf migrate
+
+.PHONY: pre-commit deps db_dev_migrate

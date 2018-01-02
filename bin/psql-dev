@@ -1,0 +1,7 @@
+#!/bin/bash
+
+set -eu -o pipefail
+
+DB_PASSWORD="mysecretpassword"
+
+exec psql postgres://postgres:${DB_PASSWORD}@localhost/postgres
