@@ -5,7 +5,7 @@ function Footer() {
   return (
     <footer className="usa-footer usa-footer-medium" role="contentinfo">
       <div className="usa-grid usa-footer-return-to-top">
-        <a href>Return to top</a>
+        <a>Return to top</a>
       </div>
       <div className="usa-footer-primary-section">
         <div className="usa-grid-full">
@@ -20,12 +20,10 @@ function Footer() {
                 </a>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a className="usa-footer-primary-link" href>
-                  Help Me
-                </a>
+                <a className="usa-footer-primary-link">Help Me</a>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a className="usa-footer-primary-link" href>
+                <a className="usa-footer-primary-link">
                   Site policies (example)
                 </a>
               </li>
@@ -49,10 +47,10 @@ function Footer() {
             </a>
           </div>
           <div className="usa-footer-contact-links usa-width-one-half">
-            <a className="usa-link-twitter" href>
+            <a className="usa-link-twitter">
               <span>Twitter</span>
             </a>
-            <a className="usa-link-rss" href>
+            <a className="usa-link-rss">
               <span>RSS</span>
             </a>
             <address>

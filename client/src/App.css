@@ -1,1 +1,13 @@
+/*
+ * site & site_content are used to push the footer to
+ * the bottom of the page
+ */
+.site {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+}
 
+.site__content {
+  flex: 1;
+}

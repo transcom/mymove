@@ -7,9 +7,11 @@ import './App.css';
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <div className="App site">
         <Header />
-        <Feedback />
+        <main className="site__content">
+          <Feedback />
+        </main>
         <Footer />
       </div>
     );
