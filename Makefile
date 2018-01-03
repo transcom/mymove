@@ -56,11 +56,11 @@ server_test: db_dev_run
 
 db_dev_init:
 	docker run --name $(DB_DOCKER_CONTAINER) \
-	-e \
-	POSTGRES_PASSWORD=$(PGPASSWORD) \
-	-d \
-	-p 5432:5432 \
-	postgres:latest
+		-e \
+		POSTGRES_PASSWORD=$(PGPASSWORD) \
+		-d \
+		-p 5432:5432 \
+		postgres:latest
 	bin/wait-for-dev-db
 	createdb -p 5432 -h localhost -U postgres dev_db
 db_dev_run:
