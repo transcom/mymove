@@ -9,7 +9,7 @@ import (
 )
 
 func TestSubmitIssueHandler(t *testing.T) {
-	newIssue := issue{"This is a test issue. The tests are not working. 🍏🍎😍"}
+	newIssue := incomingIssue{"This is a test issue. The tests are not working. 🍏🍎😍"}
 
 	body, err := json.Marshal(newIssue)
 	if err != nil {

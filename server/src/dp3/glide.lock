@@ -1,6 +1,10 @@
-hash: 22db85089e9f8e815acceacc9885f499efe77e38459e1820514d34cfb7265136
-updated: 2017-12-28T16:46:52.259476-08:00
+hash: eaf403a77a25e99a23409b170831c143b52428225455c42aa887b523321b6ad5
+updated: 2018-01-03T16:45:30.642474-05:00
 imports:
+- name: github.com/markbates/pop
+  version: b75753936c38f382be88b1ea4221b771994996c9
+  subpackages:
+  - '...'
 - name: go.uber.org/atomic
   version: 8474b86a5a6f79c443ce4b2992817ff32cf208b8
 - name: go.uber.org/zap

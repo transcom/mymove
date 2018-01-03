@@ -33,6 +33,8 @@ glide_update:
 server_deps:
 	go get github.com/Masterminds/glide
 	cd server/src/dp3 && glide install
+	go get github.com/markbates/pop/soda
+	go install github.com/markbates/pop/soda
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
 	go install

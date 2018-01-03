@@ -3,6 +3,7 @@ package main
 import (
 	"dp3/pkg/api"
 	"flag"
+	"github.com/markbates/pop"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
@@ -43,6 +44,15 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	//DB connection
+	dbConnection, err := pop.Connect("development")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// initialize api pkg with dbConnection created above
+	api.Init(dbConnection)
 
 	// api routes
 	api := api.Mux()
