@@ -46,10 +46,11 @@ server_run_only: db_dev_run
 server_run: server_build client_build server_run_only
 server_run_dev: server_build_only server_run_only
 server_test: db_dev_run
-	# We are running tests against a different database than the standard
-	# dev db, so we will need to initialize it here.
-	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
-	createdb -p 5432 -h localhost -U postgres test_db
+	# Initialize a test database if we're not in a CircleCI environment.
+	[ -z "$(CIRCLECI)" ] && \
+		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
+		createdb -p 5432 -h localhost -U postgres test_db || \
+		echo "Relying on CircleCI's test database setup."
 	flyway -configFile=flyway_test.conf migrate
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		go test -v dp3/pkg/api
