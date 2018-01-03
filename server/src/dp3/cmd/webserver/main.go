@@ -38,6 +38,7 @@ func main() {
 	} else {
 		logger, err = zap.NewProduction()
 	}
+
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}

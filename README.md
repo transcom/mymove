@@ -27,7 +27,7 @@ from which the response should be
 `{"id":1}`
 
 Dependencies are managed by glide. To add a new dependency:
-`GOPATH=/path/to/ProtoWebapp glide get new/dependency`
+`GOPATH=/path/to/dp3 glide get new/dependency`
 
 ### Setup: Client
 

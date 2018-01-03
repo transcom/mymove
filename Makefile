@@ -1,6 +1,7 @@
 NAME = ppp
 export GOPATH = $(CURDIR)/server
 export GOBIN = $(GOPATH)/bin
+export PATH := $(PATH):$(GOBIN)
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -8,7 +9,11 @@ pre-commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
-deps: pre-commit client_deps server_deps
+server/bin/golint:
+	go get -u github.com/golang/lint/golint
+golint: server/bin/golint
+
+deps: golint pre-commit client_deps server_deps
 
 client_deps:
 	cd client && \
@@ -24,6 +29,7 @@ client_run: client_run_dev
 glide_update:
 	cd server/src/dp3 && glide update
 server_deps:
+	go get github.com/Masterminds/glide
 	cd server/src/dp3 && glide install
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
