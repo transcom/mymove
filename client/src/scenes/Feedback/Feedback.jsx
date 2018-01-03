@@ -6,6 +6,8 @@ class Feedback extends Component {
   constructor(props) {
     super(props);
     this.state = { value: '' };
+    this.handleChange = this.handleChange.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange = e => {
@@ -20,12 +22,14 @@ class Feedback extends Component {
     };
     fetch('http://localhost:8080/api/v1/issues', config)
       .then(response => {
+        alert(response);
         console.log(response);
-        const confirmationText = 'Response received!';
+        // const confirmationText = 'Response received!';
       })
       .catch(response => {
+        alert(response);
         console.log(response);
-        const confirmationText = 'Error submitting feedback';
+        // const confirmationText = 'Error submitting feedback';
       });
   };
 
@@ -38,7 +42,7 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={this.state.value}
         />
-        <FeedbackConfirmation confirmationText={this.confirmationText} />
+        <FeedbackConfirmation />
       </div>
     );
   }
