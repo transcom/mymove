@@ -3,7 +3,7 @@
 # reached. Useful to test database connectivity, or wait for local Docker
 # instances to spin up.
 
-set -eu -o pipefail
+set -eux -o pipefail
 
 db_password="${DB_PASSWORD:-mysecretpassword}"
 db_host="${DB_HOST:-localhost}"
