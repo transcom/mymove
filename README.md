@@ -68,3 +68,8 @@ _*TBD* It looks like we'll be using [Pop](https://github.com/markbates/pop), thi
 Running migrations:
 
 1. Use `make db_dev_migrate` to run migrations against your local dev envrionment. Production migrations TBD.
+
+### Troubleshooting
+
+* Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
+* If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
