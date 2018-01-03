@@ -15,6 +15,7 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
+	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
 	return apiMux
@@ -28,6 +29,10 @@ type issue struct {
 // Response to POST /issues
 type newIssueResponse struct {
 	ID int64 `json:"id"`
+}
+
+func swaggerYAMLHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, "./swagger.yaml")
 }
 
 func submitIssueHandler(w http.ResponseWriter, r *http.Request) {

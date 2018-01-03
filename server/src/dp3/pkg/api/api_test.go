@@ -8,6 +8,19 @@ import (
 	"testing"
 )
 
+func TestSwaggerYAMLHandler(t *testing.T) {
+	response, err := http.Get("http://localhost:8080/api/v1/swagger.yaml")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if response.StatusCode != 200 {
+		fmt.Println("Returned status code: ", response.StatusCode)
+		t.Fail()
+	}
+
+}
+
 func TestSubmitIssueHandler(t *testing.T) {
 	newIssue := issue{"This is a test issue. The tests are not working. 🍏🍎😍"}
 
