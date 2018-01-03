@@ -2,6 +2,6 @@
 
 set -eu -o pipefail
 
-DB_PASSWORD="mysecretpassword"
+db_password="mysecretpassword"
 
-exec psql postgres://postgres:${DB_PASSWORD}@localhost/dev_db
+exec psql postgres://postgres:${db_password}@localhost/dev_db
