@@ -12,6 +12,14 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
 
+### Setup: Database
+
+You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
+
+1. `make db_dev_init`: initializes a Docker container with a Postgres database.
+1. `make db_dev_migrate`: runs all existing database migrations, which do things like creating table structures, etc.
+1. You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
+
 ### Setup: Server
 
 `make server_run`: installs dependencies and builds both the client and the server, then runs the server.
@@ -37,3 +45,31 @@ Dependencies are managed by glide. To add a new dependency:
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
 Dependencies are managed by yarn
+
+### Database
+
+#### Dev Commands
+
+There are a few handy targets in the Makefile to help you interact with the dev database:
+
+* `make db_dev_init`: Initializes a new postgres Docker container with a test database and runs it. You must do this before any other database operations.
+* `make db_dev_run`: Starts the previously initialized Docker container if it has been stopped.
+* `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
+* `make db_dev_migrate`: Applies database migrations against your running database container.
+
+#### Migrations (WORK IN PROGRESS)
+
+If you need to change the datata base schema, you'll need to write a migration.
+
+Creating a migration:
+
+_*TBD* It looks like we'll be using [Pop](https://github.com/markbates/pop), this section will need to be updated when we set it up._
+
+Running migrations:
+
+1. Use `make db_dev_migrate` to run migrations against your local dev envrionment. Production migrations TBD.
+
+### Troubleshooting
+
+* Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
+* If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
