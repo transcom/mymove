@@ -9,5 +9,8 @@ it('renders without crashing', () => {
   ReactDOM.render(<Feedback />, div);
 });
 
-const wrapper = shallow(<Feedback />);
-expect(wrapper.instance().handleChange()).equals('something');
+// https://stackoverflow.com/questions/45236277/how-to-test-react-component-class-methods
+test('it should change state when provided a key and value', () => {
+  const wrapper = shallow(<Feedback />);
+  expect(wrapper.instance().handleChange({ target: 'test text' }));
+});
