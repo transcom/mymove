@@ -8,7 +8,6 @@ import (
 	"goji.io/pat"
 	"log"
 	"net/http"
-	"path"
 )
 
 var logger *zap.Logger
@@ -45,15 +44,17 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
+	// Serves files out of build folder
+	fileHandler := http.FileServer(http.Dir(*build))
+
 	// api routes
 	api := api.Mux()
 
 	// Base routes
 	root := goji.NewMux()
 	root.Handle(pat.New("/api/*"), api)
-	root.Handle(pat.Get("/static/*"),
-		http.StripPrefix("/static", http.FileServer(http.Dir(path.Join(*build, "static")))))
-	root.HandleFunc(pat.Get("/favicon.ico"), FaviconHandler(build))
+	root.Handle(pat.Get("/static/*"), fileHandler)
+	root.Handle(pat.Get("/favicon.ico"), fileHandler)
 	root.HandleFunc(pat.Get("/*"), IndexHandler(entry))
 
 	// And request logging
@@ -67,12 +68,5 @@ func main() {
 func IndexHandler(entrypoint *string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, *entrypoint)
-	}
-}
-
-// FaviconHandler serves up favicon
-func FaviconHandler(build *string) http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		http.ServeFile(w, r, path.Join(*build, "favicon.ico"))
 	}
 }
