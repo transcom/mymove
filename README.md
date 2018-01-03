@@ -63,7 +63,7 @@ If you need to change the datata base schema, you'll need to write a migration. 
 
 Creating a migration:
 
-1. Use `bin/db-generate-migraion $NAME` to create a new migration file. You should supply a descriptive name, such as "create_users_table" or "add_description_column_to_user".
+1. Use `bin/db-generate-migration $NAME` to create a new migration file. You should supply a descriptive name, such as "create_users_table" or "add_description_column_to_user".
 1. Edit the file that was created in the previous step, and write the appropriate SQL to make the needed changes.
 1. Use `make db_dev_migrate` to apply the migration and test your changes.
 
