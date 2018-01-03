@@ -52,6 +52,8 @@ server_test: db_dev_run
 		createdb -p 5432 -h localhost -U postgres test_db || \
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		bin/wait-for-db
+	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		go test -v dp3/pkg/api
 
 db_dev_init:
@@ -61,7 +63,7 @@ db_dev_init:
 		-d \
 		-p 5432:5432 \
 		postgres:latest
-	bin/wait-for-dev-db
+	bin/wait-for-db
 	createdb -p 5432 -h localhost -U postgres dev_db
 db_dev_run:
 	# We don't want to utilize Docker to start the database if we're

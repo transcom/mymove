@@ -9,6 +9,9 @@ set -eux -o pipefail
 # Errors should still post to the console.
 sudo apt-get update
 sudo apt-get -qq install -y apt-transport-https > /dev/null
+# This is needed to use `psql` to test DB connectivity, until the app itself
+# starts making database connections.
+sudo apt-get -qq install -y postgresql-client-common > /dev/null
 
 # Install Go
 
