@@ -2,9 +2,12 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
@@ -15,7 +18,7 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
-	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
+	version1Mux.HandleFunc(pat.Get("/swagger.yml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
 	return apiMux
@@ -32,7 +35,16 @@ type newIssueResponse struct {
 }
 
 func swaggerYAMLHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeFile(w, r, "./swagger.yaml")
+	fmt.Println("WEOIFNWEOIFNWIOEFNOWINF")
+	files, err := ioutil.ReadDir("./")
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	for _, f := range files {
+		fmt.Println(f.Name())
+	}
+	http.ServeFile(w, r, "./swagger.yml")
 }
 
 func submitIssueHandler(w http.ResponseWriter, r *http.Request) {

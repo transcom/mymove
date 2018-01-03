@@ -3,19 +3,23 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 )
 
 func TestSwaggerYAMLHandler(t *testing.T) {
-	response, err := http.Get("http://localhost:8080/api/v1/swagger.yaml")
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	if response.StatusCode != 200 {
-		fmt.Println("Returned status code: ", response.StatusCode)
+	req := httptest.NewRequest("GET", "/swagger.yaml", nil)
+	w := httptest.NewRecorder()
+
+	swaggerYAMLHandler(w, req)
+
+	resp := w.Result()
+
+	if resp.StatusCode != 200 {
+		fmt.Println("Returned status code: ", resp.StatusCode)
 		t.Fail()
 	}
 
