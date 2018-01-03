@@ -55,8 +55,8 @@ function Footer() {
             </a>
             <address>
               <h3 className="usa-footer-contact-heading">Contact Us</h3>
-              <p>(800) CALL-GOVT</p>
-              <a href="mailto:info@agency.gov">info@agency.gov</a>
+              <p>(800) CALL-MIL</p>
+              <a href="mailto:info@agency.mil">info@agency.mil</a>
             </address>
           </div>
         </div>

@@ -36,7 +36,7 @@ function Header() {
               />
               <div className="usa-media_block-body">
                 <p>
-                  <strong>The .gov means it’s official.</strong>
+                  <strong>The .mil means it’s official.</strong>
                   <br />
                   Federal government websites always use a .gov or .mil domain.
                   Before sharing sensitive information online, make sure you’re

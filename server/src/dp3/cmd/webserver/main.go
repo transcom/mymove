@@ -8,6 +8,7 @@ import (
 	"goji.io/pat"
 	"log"
 	"net/http"
+	"path"
 )
 
 var logger *zap.Logger
@@ -26,7 +27,7 @@ func requestLogger(h http.Handler) http.Handler {
 func main() {
 
 	entry := flag.String("entry", "../client/build/index.html", "the entrypoint to serve.")
-	static := flag.String("static", "../client/build/static", "the directory to serve static files from.")
+	build := flag.String("build", "../client/build", "the directory of the built React app.")
 	port := flag.String("port", ":8080", "the `port` to listen on.")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
@@ -51,7 +52,8 @@ func main() {
 	root := goji.NewMux()
 	root.Handle(pat.New("/api/*"), api)
 	root.Handle(pat.Get("/static/*"),
-		http.StripPrefix("/static", http.FileServer(http.Dir(*static))))
+		http.StripPrefix("/static", http.FileServer(http.Dir(path.Join(*build, "static")))))
+	root.HandleFunc(pat.Get("/favicon.ico"), FaviconHandler(build))
 	root.HandleFunc(pat.Get("/*"), IndexHandler(entry))
 
 	// And request logging
@@ -65,5 +67,12 @@ func main() {
 func IndexHandler(entrypoint *string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, *entrypoint)
+	}
+}
+
+// FaviconHandler serves up favicon
+func FaviconHandler(build *string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeFile(w, r, path.Join(*build, "favicon.ico"))
 	}
 }

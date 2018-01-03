@@ -40,7 +40,7 @@ server_build: server_deps server_build_only
 server_run_only: db_dev_run
 	./server/bin/webserver \
 		-entry client/build/index.html \
-		-static client/build/static \
+		-build client/build \
 		-port :8080 \
 		-debug_logging
 server_run: server_build client_build server_run_only
