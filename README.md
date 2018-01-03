@@ -18,6 +18,7 @@ You will need to setup a local database before you can begin working on the loca
 
 1. `make db_dev_init`: initializes a Docker container with a Postgres database.
 1. `make db_migrate`: runs all existing database migrations, which do things like creating table structures, etc.
+1. You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
 
 ### Setup: Server
 
