@@ -51,7 +51,6 @@ server_test: db_dev_run
 		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
 		createdb -p 5432 -h localhost -U postgres test_db || \
 		echo "Relying on CircleCI's test database setup."
-	flyway -configFile=flyway_test.conf migrate
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		go test -v dp3/pkg/api
 
@@ -77,6 +76,6 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	flyway -configFiles=flyway.conf migrate
+	echo "TODO: make some database migrations"
 
 .PHONY: pre-commit deps db_dev_migrate
