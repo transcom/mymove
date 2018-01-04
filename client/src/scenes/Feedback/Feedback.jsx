@@ -29,13 +29,9 @@ class Feedback extends Component {
     };
     fetch('http://localhost:8080/api/v1/issues', config)
       .then(response => {
-        alert(response);
-        console.log(response);
         this.setState({ confirmationText: 'Response received!' });
       })
       .catch(response => {
-        alert(response);
-        console.log(response);
         this.setState({ confirmationText: 'Error submitting feedback' });
       });
   };
