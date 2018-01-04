@@ -5,10 +5,12 @@ import FeedbackConfirmation from './FeedbackConfirmation';
 class Feedback extends Component {
   constructor(props) {
     super(props);
-    this.state = { value: '' };
+    this.state = {
+      value: '',
+      confirmationText: '',
+    };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
-    this.confirmationText = 'sample';
   }
 
   handleChange = e => {
@@ -31,7 +33,6 @@ class Feedback extends Component {
         alert(response);
         console.log(response);
         this.setState({ confirmationText: 'Error submitting feedback' });
-        // console.log(this.confirmationText); this is getting set as hoped.
       });
   };
 
@@ -44,7 +45,7 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={this.state.value}
         />
-        <FeedbackConfirmation confirmationText={this.confirmationText} />
+        <FeedbackConfirmation confirmationText={this.state.confirmationText} />
       </div>
     );
   }
