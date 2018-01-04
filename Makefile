@@ -27,7 +27,9 @@ client_run_dev:
 	cd client && \
 	yarn start
 client_run: client_run_dev
-
+client_test:
+	cd client && \
+	yarn test
 glide_update:
 	cd server/src/dp3 && glide update
 server_deps:
