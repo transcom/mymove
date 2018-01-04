@@ -21,6 +21,10 @@ class Feedback extends Component {
     e.preventDefault();
     const config = {
       method: 'POST',
+      headers: {
+        'Content-Type': 'text/plain',
+      },
+      mode: 'no-cors',
       body: JSON.stringify({ issue: 'my issue' }),
     };
     fetch('http://localhost:8080/api/v1/issues', config)
