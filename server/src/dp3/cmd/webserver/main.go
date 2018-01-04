@@ -32,6 +32,7 @@ func main() {
 	build := flag.String("build", "client/build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "server/src/dp3/config", "The location of server config files")
 	port := flag.String("port", ":8080", "the `port` to listen on.")
+	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
 
@@ -56,7 +57,7 @@ func main() {
 	}
 
 	// initialize api pkg with dbConnection created above
-	api.Init(dbConnection)
+	api.Init(dbConnection, *swagger)
 
 	// Serves files out of build folder
 	fileHandler := http.FileServer(http.Dir(*build))

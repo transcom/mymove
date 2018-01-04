@@ -28,11 +28,11 @@ For faster development, use `make server_run_dev`. This builds and runs the serv
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"issue\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
 
-from which the response should be
+from which the response should be like
 
-`{"id":1}`
+`{"id":"116a53150-f0e3-11e7-8c3f-9a214cf093ae", "body": "This is a test issue", "created_at": "2017-12-02 12:33:22.121", "updated": "2017-12-02 12:33:22.121"}`
 
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/dp3 glide get new/dependency`
@@ -45,6 +45,10 @@ Dependencies are managed by glide. To add a new dependency:
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
 Dependencies are managed by yarn
+
+### API
+
+The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. it is the single source of truth for what the API contract between client and server should be.
 
 ### Database
 
