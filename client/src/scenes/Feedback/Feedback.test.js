@@ -13,4 +13,5 @@ it('renders without crashing', () => {
 test('it should change state when provided a key and value', () => {
   const wrapper = shallow(<Feedback />);
   expect(wrapper.instance().handleChange({ target: 'test text' }));
+  console.log(wrapper.instance());
 });
