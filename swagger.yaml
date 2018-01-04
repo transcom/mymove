@@ -27,9 +27,9 @@ paths:
         schema:
           type: object
           required:
-          - issue
+          - body
           properties:
-            issue:
+            body:
               type: string
               example: This is a test issue
       responses:
@@ -60,11 +60,18 @@ definitions:
     type: object
     required:
     - id
-    - issue
+    - body
+    - created_at
+    - updated_at
     properties:
       id:
         type: string
-        example: 1
-      issue:
+        format: uuid
+        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
+      body:
         type: string
         example: This is a test issue
+      created_at:
+        type: dateTime
+      updated_at:
+        type: dateTime
