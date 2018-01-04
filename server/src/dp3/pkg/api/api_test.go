@@ -3,9 +3,15 @@ package api
 import (
 	"bytes"
 	"encoding/json"
+	"log"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
+
+	"github.com/markbates/pop"
+
+	"dp3/pkg/models"
 )
 
 func TestSubmitIssueHandler(t *testing.T) {
@@ -29,9 +35,27 @@ func TestSubmitIssueHandler(t *testing.T) {
 	}
 
 	// Check the response body is what we expect.
-	var response newIssueResponse
+	var response models.Issue
 	err = json.NewDecoder(rr.Body).Decode(&response)
 	if err != nil {
 		t.Errorf("Failed to decode submitIssueResponse response - %s", err)
 	}
+}
+
+func setupDBConnection() {
+
+	configLocation := "../../config"
+	pop.AddLookupPaths(configLocation)
+	dbConnection, err := pop.Connect("test")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	Init(dbConnection)
+
+}
+
+func TestMain(m *testing.M) {
+	setupDBConnection()
+	os.Exit(m.Run())
 }

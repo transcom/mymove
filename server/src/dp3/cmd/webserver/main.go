@@ -1,14 +1,16 @@
 package main
 
 import (
-	"dp3/pkg/api"
 	"flag"
+	"log"
+	"net/http"
+
 	"github.com/markbates/pop"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
-	"log"
-	"net/http"
+
+	"dp3/pkg/api"
 )
 
 var logger *zap.Logger
