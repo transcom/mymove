@@ -42,8 +42,7 @@ CREATE TABLE issues (
     id uuid NOT NULL,
     body text NOT NULL,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    name character varying(255) DEFAULT ''::character varying NOT NULL
+    updated_at timestamp without time zone NOT NULL
 );
 
 

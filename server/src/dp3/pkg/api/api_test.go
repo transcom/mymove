@@ -29,9 +29,9 @@ func TestSubmitIssueHandler(t *testing.T) {
 	rr := httptest.NewRecorder()
 	handler := http.HandlerFunc(submitIssueHandler)
 	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusOK {
+	if status := rr.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
-			status, http.StatusOK)
+			status, http.StatusCreated)
 	}
 
 	// Check the response body is what we expect.

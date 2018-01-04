@@ -57,6 +57,7 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 				zap.L().Error("Encode Response", zap.Error(err))
 				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			} else {
+				w.WriteHeader(http.StatusCreated)
 				w.Write(responseJSON)
 			}
 		}
