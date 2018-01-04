@@ -2,9 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
-	"io/ioutil"
-	"log"
 	"net/http"
 
 	"github.com/markbates/pop"
@@ -17,10 +14,12 @@ import (
 
 // pkg global variable for db connection
 var dbConnection *pop.Connection
+var swaggerPath string
 
 // Init the API package with its database connection
-func Init(dbInitialConnection *pop.Connection) {
+func Init(dbInitialConnection *pop.Connection, initialSwaggerPath string) {
 	dbConnection = dbInitialConnection
+	swaggerPath = initialSwaggerPath
 }
 
 // Mux creates the API router and returns it for inclusion in the app router
@@ -30,7 +29,7 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
-	version1Mux.HandleFunc(pat.Get("/swagger.yml"), swaggerYAMLHandler)
+	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
 	return apiMux
@@ -42,16 +41,7 @@ type incomingIssue struct {
 }
 
 func swaggerYAMLHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("WEOIFNWEOIFNWIOEFNOWINF")
-	files, err := ioutil.ReadDir("./")
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	for _, f := range files {
-		fmt.Println(f.Name())
-	}
-	http.ServeFile(w, r, "./swagger.yml")
+	http.ServeFile(w, r, swaggerPath)
 }
 
 func submitIssueHandler(w http.ResponseWriter, r *http.Request) {

@@ -60,13 +60,14 @@ func TestSubmitIssueHandler(t *testing.T) {
 func setupDBConnection() {
 
 	configLocation := "../../config"
+	swaggerLocation := "../../../../../swagger.yaml" // ugh.
 	pop.AddLookupPaths(configLocation)
 	dbConnection, err := pop.Connect("test")
 	if err != nil {
 		log.Panic(err)
 	}
 
-	Init(dbConnection)
+	Init(dbConnection, swaggerLocation)
 
 }
 
