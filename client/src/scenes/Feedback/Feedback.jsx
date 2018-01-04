@@ -8,6 +8,7 @@ class Feedback extends Component {
     this.state = { value: '' };
     this.handleChange = this.handleChange.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
+    this.confirmationText = 'sample';
   }
 
   handleChange = e => {
@@ -24,12 +25,13 @@ class Feedback extends Component {
       .then(response => {
         alert(response);
         console.log(response);
-        // const confirmationText = 'Response received!';
+        this.setState({ confirmationText: 'Response received!' });
       })
       .catch(response => {
         alert(response);
         console.log(response);
-        // const confirmationText = 'Error submitting feedback';
+        this.setState({ confirmationText: 'Error submitting feedback' });
+        // console.log(this.confirmationText); this is getting set as hoped.
       });
   };
 
@@ -42,7 +44,7 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={this.state.value}
         />
-        <FeedbackConfirmation />
+        <FeedbackConfirmation confirmationText={this.confirmationText} />
       </div>
     );
   }
