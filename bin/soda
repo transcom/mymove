@@ -4,7 +4,6 @@
 
 GOPATH=$PWD/server
 export GOPATH
-GOBIN=$GOPATH/bin
 
 cd server/src/dp3/pkg
 
