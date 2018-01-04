@@ -80,6 +80,7 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	echo "TODO: make some database migrations"
+	cd server/src/dp3 && \
+	soda migrate up
 
 .PHONY: pre-commit deps db_dev_migrate

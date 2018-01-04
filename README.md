@@ -57,17 +57,21 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
 
-#### Migrations (WORK IN PROGRESS)
+#### Migrations
 
-If you need to change the datata base schema, you'll need to write a migration.
+If you need to change the database schema, you'll need to write a migration.
 
 Creating a migration:
 
-_*TBD* It looks like we'll be using [Pop](https://github.com/markbates/pop), this section will need to be updated when we set it up._
+Use soda (a part of [pop](https://github.com/markbates/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `/bin/soda` that sets the go environment and working directory correctly.
+
+If you are generating a new model, use `/bin/soda generate model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
+
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/markbates/pop/blob/master/fizz/README.md) yourself to the created files.
 
 Running migrations:
 
-1. Use `make db_dev_migrate` to run migrations against your local dev envrionment. Production migrations TBD.
+1. Use `make db_dev_migrate` to run migrations against your local dev environment. Production migrations TBD.
 
 ### Troubleshooting
 
