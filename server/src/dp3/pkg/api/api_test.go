@@ -42,6 +42,20 @@ func TestSubmitIssueHandler(t *testing.T) {
 	}
 }
 
+func TestIndexIssuesHandler(t *testing.T) {
+
+	req := httptest.NewRequest("GET", "/issues", nil)
+	w := httptest.NewRecorder()
+
+	indexIssueHandler(w, req)
+
+	resp := w.Result()
+
+	if resp.StatusCode != 200 {
+		t.Errorf("Returned status code: %d", resp.StatusCode)
+	}
+}
+
 func setupDBConnection() {
 
 	configLocation := "../../config"

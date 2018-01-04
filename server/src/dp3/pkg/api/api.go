@@ -17,8 +17,11 @@ var dbConnection *pop.Connection
 
 // Init the API package with its database connection
 func Init(dbInitialConnection *pop.Connection) {
+	issues = make([]models.Issue, 0)
 	dbConnection = dbInitialConnection
 }
+
+var issues []models.Issue
 
 // Mux creates the API router and returns it for inclusion in the app router
 func Mux() *goji.Mux {
@@ -27,6 +30,7 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
+	version1Mux.HandleFunc(pat.Get("/issues"), indexIssueHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
 	return apiMux
@@ -52,6 +56,9 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 			zap.L().Error("DB Insertion", zap.Error(err))
 			http.Error(w, http.StatusText(400), http.StatusBadRequest)
 		} else {
+			// also append it for the INDEX request
+			issues = append(issues, newIssue)
+
 			responseJSON, err := json.Marshal(newIssue)
 			if err != nil {
 				zap.L().Error("Encode Response", zap.Error(err))
@@ -62,4 +69,16 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
+
+	responseJSON, err := json.Marshal(issues)
+	if err != nil {
+		zap.L().Error("Encode issues", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	} else {
+		w.Write(responseJSON)
+	}
+
 }
