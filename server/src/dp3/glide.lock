@@ -1,10 +1,92 @@
-hash: eaf403a77a25e99a23409b170831c143b52428225455c42aa887b523321b6ad5
-updated: 2018-01-03T16:45:30.642474-05:00
+hash: 647b150105214e0b2d5382b7ca2d5355100818496f73af3d93f7f12709637721
+updated: 2018-01-03T15:54:21.965972-08:00
 imports:
+- name: github.com/daviddengcn/go-colortext
+  version: 17e75f6184bc9e727756cd0d82e0af58b1fc7191
+- name: github.com/fatih/color
+  version: 5df930a27be2502f99b292b7cc09ebad4d0891f4
+- name: github.com/go-sql-driver/mysql
+  version: 9181e3a86a19bacd63e68d43ae8b7b36320d8092
+- name: github.com/gobuffalo/envy
+  version: a1789093e51b497900a240e15b39d8a97bfbc5d0
+- name: github.com/gobuffalo/packr
+  version: 4b0f48d8d84a37866d21c8857a23fa7dc0779134
+- name: github.com/jmoiron/sqlx
+  version: de8647470aafe4854c976707c431dbe1eb2822c6
+  subpackages:
+  - reflectx
+- name: github.com/joho/godotenv
+  version: 06e67b5ef3bef2e1a8696e1c04b94b44cbc5d9a5
+- name: github.com/lib/pq
+  version: 2704adc878c21e1329f46f6e56a1c387d788ff94
+  subpackages:
+  - oid
+- name: github.com/markbates/going
+  version: 0576708c56cea02331f864fe6e157ac7841923e4
+  subpackages:
+  - defaults
+  - randx
+  - wait
+- name: github.com/markbates/inflect
+  version: a12c3aec81a6a938bf584a4bac567afed9256586
 - name: github.com/markbates/pop
   version: b75753936c38f382be88b1ea4221b771994996c9
   subpackages:
   - '...'
+  - columns
+  - fizz
+  - fizz/translators
+- name: github.com/markbates/validate
+  version: cd8cc34c703420d6b084fbbfd5085e8e71c5b830
+  subpackages:
+  - validators
+- name: github.com/mattn/anko
+  version: c58a8226f5b4374c7710c1e1ce4c4bf4dfd83987
+  subpackages:
+  - ast
+  - builtins
+  - builtins/encoding/json
+  - builtins/errors
+  - builtins/flag
+  - builtins/fmt
+  - builtins/github.com/daviddengcn/go-colortext
+  - builtins/io
+  - builtins/io/ioutil
+  - builtins/math
+  - builtins/math/big
+  - builtins/math/rand
+  - builtins/net
+  - builtins/net/http
+  - builtins/net/url
+  - builtins/os
+  - builtins/os/exec
+  - builtins/os/signal
+  - builtins/path
+  - builtins/path/filepath
+  - builtins/regexp
+  - builtins/runtime
+  - builtins/sort
+  - builtins/strconv
+  - builtins/strings
+  - builtins/time
+  - parser
+  - vm
+- name: github.com/mattn/go-colorable
+  version: 5411d3eea5978e6cdc258b30de592b60df6aba96
+  repo: https://github.com/mattn/go-colorable
+- name: github.com/mattn/go-isatty
+  version: 57fdcb988a5c543893cc61bce354a6e24ab70022
+  repo: https://github.com/mattn/go-isatty
+- name: github.com/mattn/go-sqlite3
+  version: d5ffb5c0cca8778699a929b236766f4a7af674e8
+- name: github.com/mitchellh/go-homedir
+  version: b8bc1bf767474819792c23f32d8286a45736f1c6
+- name: github.com/pkg/errors
+  version: e881fd58d78e04cf6d0de1217f8707c8cc2249bc
+- name: github.com/satori/go.uuid
+  version: 36e9d2ebbde5e3f13ab2e25625fd453271d6522e
+- name: github.com/serenize/snaker
+  version: a683aaf2d516deecd70cad0c72e3ca773ecfcef0
 - name: go.uber.org/atomic
   version: 8474b86a5a6f79c443ce4b2992817ff32cf208b8
 - name: go.uber.org/zap
@@ -22,4 +104,23 @@ imports:
   - internal
   - pat
   - pattern
+- name: golang.org/x/net
+  version: d866cfc389cec985d6fda2859936a575a55a3ab6
+  subpackages:
+  - context
+- name: golang.org/x/sync
+  version: fd80eb99c8f653c847d294a001bdf2a3a6f768f5
+  subpackages:
+  - errgroup
+- name: golang.org/x/sys
+  version: e24f485414aeafb646f6fca458b0bf869c0880a1
+  repo: https://go.googlesource.com/sys
+  subpackages:
+  - unix
+- name: google.golang.org/appengine
+  version: 5bee14b453b4c71be47ec1781b0fa61c2ea182db
+  subpackages:
+  - cloudsql
+- name: gopkg.in/yaml.v2
+  version: c95af922eae69f190717a0b7148960af8c55a072
 testImports: []

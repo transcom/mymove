@@ -6,3 +6,4 @@ import:
   version: ^3.41.10
   subpackages:
   - '...'
+- package: github.com/serenize/snaker

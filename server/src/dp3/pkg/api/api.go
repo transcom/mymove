@@ -2,17 +2,20 @@ package api
 
 import (
 	"encoding/json"
+	"net/http"
+
 	"github.com/markbates/pop"
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
-	"net/http"
+
+	"dp3/pkg/models"
 )
 
 // pkg global variable for db connection
 var dbConnection *pop.Connection
 
-// Create db connection
+// Init the API package with its database connection
 func Init(dbInitialConnection *pop.Connection) {
 	dbConnection = dbInitialConnection
 }
@@ -34,27 +37,28 @@ type incomingIssue struct {
 	Body string `json:"body"`
 }
 
-// Response to POST /issues
-type newIssueResponse struct {
-	ID int64 `json:"id"`
-}
-
 func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
-	var newIssue incomingIssue
+	var incomingIssue incomingIssue
 
-	if err := json.NewDecoder(r.Body).Decode(&newIssue); err != nil {
+	if err := json.NewDecoder(r.Body).Decode(&incomingIssue); err != nil {
 		zap.L().Error("Json decode", zap.Error(err))
 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
 	} else {
-		// fmt.Println(newIssue)
-		resp := newIssueResponse{1}
-		responseJSON, err := json.Marshal(resp)
-
-		if err != nil {
-			zap.L().Error("Encode message", zap.Error(err))
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		// Create the issue in the database
+		newIssue := models.Issue{
+			Body: incomingIssue.Body,
+		}
+		if err := dbConnection.Create(&newIssue); err != nil {
+			zap.L().Error("DB Insertion", zap.Error(err))
+			http.Error(w, http.StatusText(400), http.StatusBadRequest)
 		} else {
-			w.Write(responseJSON)
+			responseJSON, err := json.Marshal(newIssue)
+			if err != nil {
+				zap.L().Error("Encode Response", zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			} else {
+				w.Write(responseJSON)
+			}
 		}
 	}
 }
