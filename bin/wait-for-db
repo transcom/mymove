@@ -10,8 +10,8 @@ db_host="${DB_HOST:-localhost}"
 db_user="${DB_USER:-postgres}"
 db_name="${DB_NAME:-postgres}"
 retries=0
-timeout=5
-db_check_command="psql postgres://${db_user}:${db_password}@${db_host}/${db_name} -c 'select 1;' > /dev/null"
+timeout=10
+db_check_command="psql postgres://${db_user}:${db_password}@${db_host}/${db_name} -c 'select 1;' > /dev/null 2>&1"
 
 echo "> ${db_check_command}"
 echo -n "Checking for database connectivity.."

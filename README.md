@@ -10,14 +10,14 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make client deps` and `make server deps`.
+Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
 
 ### Setup: Database
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
 1. `make db_dev_init`: initializes a Docker container with a Postgres database.
-1. `make db_migrate`: runs all existing database migrations, which do things like creating table structures, etc.
+1. `make db_dev_migrate`: runs all existing database migrations, which do things like creating table structures, etc.
 1. You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
 
 ### Setup: Server
@@ -68,3 +68,8 @@ _*TBD* It looks like we'll be using [Pop](https://github.com/markbates/pop), thi
 Running migrations:
 
 1. Use `make db_dev_migrate` to run migrations against your local dev envrionment. Production migrations TBD.
+
+### Troubleshooting
+
+* Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
+* If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.

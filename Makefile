@@ -42,7 +42,7 @@ server_build: server_deps server_build_only
 server_run_only: db_dev_run
 	./server/bin/webserver \
 		-entry client/build/index.html \
-		-static client/build/static \
+		-build client/build \
 		-port :8080 \
 		-debug_logging
 server_run: server_build client_build server_run_only
@@ -69,7 +69,7 @@ db_dev_init:
 	createdb -p 5432 -h localhost -U postgres dev_db
 db_dev_run:
 	# We don't want to utilize Docker to start the database if we're
-	# in the CirlceCI environment. It has its own configuration to launch
+	# in the CircleCI environment. It has its own configuration to launch
 	# a DB.
 	[ -z "$(CIRCLECI)" ] && \
 		docker start $(DB_DOCKER_CONTAINER) || \
