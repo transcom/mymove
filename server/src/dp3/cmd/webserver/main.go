@@ -27,7 +27,7 @@ func requestLogger(h http.Handler) http.Handler {
 func main() {
 
 	entry := flag.String("entry", "client/build/index.html", "the entrypoint to serve.")
-	static := flag.String("static", "client/build/static", "the directory to serve static files from.")
+	build := flag.String("build", "client/build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "server/src/dp3/config", "The location of server config files")
 	port := flag.String("port", ":8080", "the `port` to listen on.")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
