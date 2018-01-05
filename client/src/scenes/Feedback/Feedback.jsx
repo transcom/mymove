@@ -9,8 +9,6 @@ class Feedback extends Component {
       value: '',
       confirmationText: '',
     };
-    this.handleChange = this.handleChange.bind(this);
-    this.handleSubmit = this.handleSubmit.bind(this);
   }
 
   handleChange = e => {
