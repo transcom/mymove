@@ -10,6 +10,7 @@ class SubmittedFeedback extends Component {
   }
   componentDidMount() {
     this.loadIssues();
+    document.title = 'Transcom PPP: Submitted Feedback';
   }
   render() {
     const { issues } = this.state;
