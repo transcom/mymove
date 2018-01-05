@@ -1,0 +1,10 @@
+#!/bin/bash
+
+# This file allows running soda from the top level directory, it correctly runs with the correct go env vars and in the correct directory.
+
+GOPATH=$PWD/server
+export GOPATH
+
+cd server/src/dp3/pkg
+
+"$GOBIN"/soda "$@" --path ../migrations
