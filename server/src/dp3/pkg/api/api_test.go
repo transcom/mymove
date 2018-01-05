@@ -43,7 +43,23 @@ func TestSubmitIssueHandler(t *testing.T) {
 }
 
 func TestIndexIssuesHandler(t *testing.T) {
+	// Given: An issue
+	newIssue := incomingIssue{"This is a test issue. The tests are not working. 🍏🍎😍"}
 
+	body, err := json.Marshal(newIssue)
+	if err != nil {
+		t.Fatal(err)
+	}
+	req, err := http.NewRequest("POST", "/issues", bytes.NewReader(body))
+	if err != nil {
+		t.Fatal(err)
+	}
+	// When: New issue is posted
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(submitIssueHandler)
+	handler.ServeHTTP(rr, req)
+
+	// And: All issues are queried
 	req := httptest.NewRequest("GET", "/issues", nil)
 	w := httptest.NewRecorder()
 
@@ -51,8 +67,15 @@ func TestIndexIssuesHandler(t *testing.T) {
 
 	resp := w.Result()
 
+	// Then: Expect a 200 status code
 	if resp.StatusCode != 200 {
 		t.Errorf("Returned status code: %d", resp.StatusCode)
+	}
+	// And: Returned query to include our posted issue
+	expected := `{"body": "This is a test issue. The tests are not working. 🍏🍎😍"}`
+	if rr.Body.String() != expected {
+		t.Errorf("handler returned unexpected body: got %v want %v",
+			rr.Body.String(), expected)
 	}
 }
 
