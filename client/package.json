@@ -15,7 +15,11 @@
     "start": "react-scripts start",
     "test": "react-scripts test --env=jsdom",
     "prettier": "prettier"
-
+  },
+  "proxy": {
+    "/api": {
+      "target": "http://localhost:8080"
+    }
   },
   "version": "0.1.0",
   "devDependencies": {
