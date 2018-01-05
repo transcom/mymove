@@ -17,7 +17,6 @@ var dbConnection *pop.Connection
 
 // Init the API package with its database connection
 func Init(dbInitialConnection *pop.Connection) {
-	issues = make([]models.Issue, 0)
 	dbConnection = dbInitialConnection
 }
 
@@ -68,6 +67,7 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
 	// Query all issues in the db
+	issues := []models.Issue{}
 	if err := dbConnection.All(&issues); err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 		http.Error(w, http.StatusText(400), http.StatusBadRequest)
