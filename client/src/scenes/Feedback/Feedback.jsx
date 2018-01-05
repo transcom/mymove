@@ -23,7 +23,7 @@ class Feedback extends Component {
         'Content-Type': 'text/plain',
       },
       mode: 'no-cors',
-      body: JSON.stringify({ issue: this.state.value }),
+      body: JSON.stringify({ body: this.state.value }),
     };
     fetch('http://localhost:8080/api/v1/issues', config).then(response => {
       if (response.ok) {
