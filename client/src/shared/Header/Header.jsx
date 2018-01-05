@@ -72,9 +72,9 @@ function Header() {
           <button className="usa-menu-btn">Menu</button>
           <div className="usa-logo" id="basic-logo">
             <em className="usa-logo-text">
-              <a title="Home" aria-label="Transcom PPP Home">
+              <NavLink to="/" title="Home" aria-label="Transcom PPP Home">
                 Transcom PPP
-              </a>
+              </NavLink>
             </em>
           </div>
         </div>
