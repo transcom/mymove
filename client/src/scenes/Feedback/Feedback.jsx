@@ -28,7 +28,6 @@ class Feedback extends Component {
       body: JSON.stringify({ issue: this.state.value }),
     };
     fetch('http://localhost:8080/api/v1/issues', config).then(response => {
-      console.log(response.ok);
       if (response.ok) {
         this.setState({ confirmationText: 'Response received!' });
       } else {
