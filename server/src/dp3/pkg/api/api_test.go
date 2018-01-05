@@ -60,7 +60,7 @@ func TestIndexIssuesHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	// And: All issues are queried
-	req := httptest.NewRequest("GET", "/issues", nil)
+	req = httptest.NewRequest("GET", "/issues", nil)
 	w := httptest.NewRecorder()
 
 	indexIssueHandler(w, req)
