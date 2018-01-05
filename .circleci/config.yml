@@ -26,7 +26,7 @@ jobs:
             - ~/.cache/pre-commit
       - run: make client_build
       - run: make server_test
-      - run: make server_build
+      - run: make server_build_docker
       - run:
           name: Tag and push image
           command: |

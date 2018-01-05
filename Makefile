@@ -39,10 +39,14 @@ server_deps:
 	go install github.com/markbates/pop/soda
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
+	go install
+server_build_only_docker:
+	cd server/src/dp3/cmd/webserver && \
 	GOOS=linux GOARCH=amd64 go build \
 		-o ../../../../bin/webserver-linux
 	docker build . -t ppp:dev
 server_build: server_deps server_build_only
+server_build_docker: server_deps server_build_only_docker
 server_run_only: db_dev_run
 	./server/bin/webserver \
 		-entry client/build/index.html \
