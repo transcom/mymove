@@ -10,7 +10,7 @@ const IssueCards = ({ issues }) => {
     return <h2> There is no feedback at the moment! </h2>;
   return (
     <div className="issue-cards">
-      {(issues || []).map(issue => (
+      {issues.map(issue => (
         <div key={issue.id} className="issue-card">
           {issue.body}
         </div>
