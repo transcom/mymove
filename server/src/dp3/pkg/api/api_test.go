@@ -44,7 +44,8 @@ func TestSubmitIssueHandler(t *testing.T) {
 
 func TestIndexIssuesHandler(t *testing.T) {
 	// Given: An issue
-	newIssue := incomingIssue{"This is a test issue. The tests are not working. 🍏🍎😍"}
+	issueBody := "This is a test issue. The tests are not working. 🍏🍎😍"
+	newIssue := incomingIssue{issueBody}
 
 	body, err := json.Marshal(newIssue)
 	if err != nil {
@@ -72,10 +73,11 @@ func TestIndexIssuesHandler(t *testing.T) {
 		t.Errorf("Returned status code: %d", resp.StatusCode)
 	}
 	// And: Returned query to include our posted issue
-	expected := `{"body": "This is a test issue. The tests are not working. 🍏🍎😍"}`
-	if rr.Body.String() != expected {
-		t.Errorf("handler returned unexpected body: got %v want %v",
-			rr.Body.String(), expected)
+	var m map[string]interface{}
+	json.Unmarshal(rr.Body.Bytes(), &m)
+
+	if m["body"] != issueBody {
+		t.Errorf("Expected issue body to be '%v'. Got '%v'", issueBody, m["body"])
 	}
 }
 

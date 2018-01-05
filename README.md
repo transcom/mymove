@@ -10,7 +10,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Install Go with Homebrew. Make sure you do not have other installations.
+* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
 
 ### Setup: Database
 
@@ -45,6 +46,14 @@ Dependencies are managed by glide. To add a new dependency:
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
 Dependencies are managed by yarn
+
+### Testing
+
+There are a few handy targets in the Makefile to help you run tests:
+
+* `make client_test`: Run frontend testing suites.
+* `make server_test`: Run backend testing suites.
+* `make all_test`: Run both client- and server-side testing suites.
 
 ### Database
 
