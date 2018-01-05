@@ -25,15 +25,16 @@ class Feedback extends Component {
         'Content-Type': 'text/plain',
       },
       mode: 'no-cors',
-      body: JSON.stringify({ issue: 'my issue' }),
+      body: JSON.stringify({ issue: this.state.value }),
     };
-    fetch('http://localhost:8080/api/v1/issues', config)
-      .then(response => {
+    fetch('http://localhost:8080/api/v1/issues', config).then(response => {
+      console.log(response.ok);
+      if (response.ok) {
         this.setState({ confirmationText: 'Response received!' });
-      })
-      .catch(response => {
+      } else {
         this.setState({ confirmationText: 'Error submitting feedback' });
-      });
+      }
+    });
   };
 
   render() {
