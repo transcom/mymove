@@ -21,10 +21,7 @@ class SubmittedFeedback extends Component {
     );
   }
   loadIssues = () => {
-    const config = {
-      mode: 'no-cors',
-    };
-    fetch('http://localhost:8080/api/v1/issues', config)
+    fetch('/api/v1/issues')
       .then(response => response.json())
       .then(data => this.setState({ issues: data }))
       .catch(response => console.error(response));
