@@ -35,28 +35,31 @@ glide_update:
 server_deps:
 	go get github.com/Masterminds/glide
 	cd server/src/dp3 && glide install
+	go get github.com/markbates/pop/soda
+	go install github.com/markbates/pop/soda
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
 	go install
+server_build_only_docker:
+	cd server/src/dp3/cmd/webserver && \
+	GOOS=linux GOARCH=amd64 go build \
+		-o ../../../../bin/webserver-linux
+	docker build . -t ppp:dev
 server_build: server_deps server_build_only
+server_build_docker: server_deps server_build_only_docker
 server_run_only: db_dev_run
 	./server/bin/webserver \
 		-entry client/build/index.html \
 		-build client/build \
 		-port :8080 \
 		-debug_logging
+server_run_docker:
+	docker run -p 8080:8080 ppp:dev
 server_run: server_build client_build server_run_only
 server_run_dev: server_build_only server_run_only
-server_test: db_dev_run
-	# Initialize a test database if we're not in a CircleCI environment.
-	[ -z "$(CIRCLECI)" ] && \
-		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
-		createdb -p 5432 -h localhost -U postgres test_db || \
-		echo "Relying on CircleCI's test database setup."
+server_test: db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		bin/wait-for-db
-	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		go test -v dp3/pkg/api
+		cd server/src/dp3 && go test ./...
 
 db_dev_init:
 	docker run --name $(DB_DOCKER_CONTAINER) \
@@ -80,6 +83,18 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	echo "TODO: make some database migrations"
+	cd server/src/dp3 && \
+	soda migrate up
+
+db_test_reset:
+	# Initialize a test database if we're not in a CircleCI environment.
+	[ -z "$(CIRCLECI)" ] && \
+		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
+		createdb -p 5432 -h localhost -U postgres test_db || \
+		echo "Relying on CircleCI's test database setup."
+	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		bin/wait-for-db
+	cd server/src/dp3 && \
+	soda -e test migrate up
 
 .PHONY: pre-commit deps db_dev_migrate

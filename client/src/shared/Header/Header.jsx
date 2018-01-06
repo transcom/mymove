@@ -1,4 +1,6 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
+
 import usaFlag from '../images/us-flag.png';
 import govIcon from '../images/icon-dot-gov.svg';
 import sslIcon from '../images/icon-https.svg';
@@ -70,9 +72,9 @@ function Header() {
           <button className="usa-menu-btn">Menu</button>
           <div className="usa-logo" id="basic-logo">
             <em className="usa-logo-text">
-              <a title="Home" aria-label="Transcom PPP Home">
+              <NavLink to="/" title="Home" aria-label="Transcom PPP Home">
                 Transcom PPP
-              </a>
+              </NavLink>
             </em>
           </div>
         </div>
@@ -120,9 +122,9 @@ function Header() {
               </ul>
             </li>
             <li>
-              <a className="usa-nav-link">
-                <span>Distinct from each other</span>
-              </a>
+              <NavLink to="/submitted" className="usa-nav-link">
+                <span>Submitted Feedback</span>
+              </NavLink>
             </li>
           </ul>
           <form className="usa-search usa-search-small">
