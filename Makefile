@@ -41,13 +41,21 @@ server_deps:
 server_build_only:
 	cd server/src/dp3/cmd/webserver && \
 	go install
+server_build_only_docker:
+	cd server/src/dp3/cmd/webserver && \
+	GOOS=linux GOARCH=amd64 go build \
+		-o ../../../../bin/webserver-linux
+	docker build . -t ppp:dev
 server_build: server_deps server_build_only
+server_build_docker: server_deps server_build_only_docker
 server_run_only: db_dev_run
 	./server/bin/webserver \
 		-entry client/build/index.html \
 		-build client/build \
 		-port :8080 \
 		-debug_logging
+server_run_docker:
+	docker run -p 8080:8080 ppp:dev
 server_run: server_build client_build server_run_only
 server_run_dev: server_build_only server_run_only
 server_test: db_dev_run db_test_reset

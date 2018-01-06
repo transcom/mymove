@@ -1,4 +1,4 @@
-dev:
+development:
   dialect: "postgres"
   database: "dev_db"
   host: "localhost"
