@@ -37,9 +37,19 @@ server_deps:
 	cd server/src/dp3 && glide install
 	go get github.com/markbates/pop/soda
 	go install github.com/markbates/pop/soda
-server_build:
+server_build_only:
+	cd server/src/dp3/cmd/webserver && \
+	go install
+server_build: server_deps server_build_only
+server_build_docker:
 	docker build . -t ppp:dev
 server_run_only: db_dev_run
+	./server/bin/webserver \
+		-entry client/build/index.html \
+		-build client/build \
+		-port :8080 \
+		-debug_logging
+server_run_only_docker: db_dev_run
 	docker run --name ppp -p 8080:8080 ppp:dev
 server_run: client_build server_build server_run_only
 server_run_dev: server_build server_run_only
