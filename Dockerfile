@@ -14,10 +14,6 @@ WORKDIR /go/src/dp3/
 # Install library dependencies
 RUN glide install
 
-# Install soda
-RUN go get github.com/markbates/pop/soda
-RUN go install github.com/markbates/pop/soda
-
 # Copy all project and build it
 # This layer will be rebuilt when ever a file has changed in the project directory
 COPY server/src/dp3 /go/src/dp3/
@@ -28,11 +24,14 @@ RUN go build -o /bin/dp3-server -ldflags "-linkmode external -extldflags -static
 # This results in a single layer image
 FROM scratch
 COPY --from=build /bin/dp3-server /bin/dp3-server
+COPY --from=build /go/src/dp3/config /server_config
 COPY /client/build /app/client
 ENTRYPOINT ["/bin/dp3-server"]
 CMD ["-entry", "/app/client/index.html", \
      "-build", "/app/client/", \
      "-port", ":8080", \
+     "-config-dir", "/server_config", \
+     "-env", "prod", \
      "-debug_logging"]
 
 EXPOSE 8080
