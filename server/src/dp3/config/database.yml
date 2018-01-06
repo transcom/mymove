@@ -21,4 +21,4 @@ prod:
   port: "5432"
   user: "master"
   password: "FCvxPgghJndw7pGOiF5k75yI" # I AM MADE OF SHAME
-  # If the above line still exists in February 2017, fire MacRae.
+  # If the above line still exists in February 2018, fire MacRae.
