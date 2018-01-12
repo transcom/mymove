@@ -21,22 +21,18 @@ func TestSubmitIssueHandler(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	req, err := http.NewRequest("POST", "/issues", bytes.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
+	req := httptest.NewRequest("POST", "/issues", bytes.NewReader(body))
 
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(submitIssueHandler)
-	handler.ServeHTTP(rr, req)
-	if status := rr.Code; status != http.StatusCreated {
+	postResp := httptest.NewRecorder()
+	submitIssueHandler(postResp, req)
+	if status := postResp.Code; status != http.StatusCreated {
 		t.Errorf("handler returned wrong status code: got %v want %v",
 			status, http.StatusCreated)
 	}
 
 	// Check the response body is what we expect.
 	var response models.Issue
-	err = json.NewDecoder(rr.Body).Decode(&response)
+	err = json.NewDecoder(postResp.Body).Decode(&response)
 	if err != nil {
 		t.Errorf("Failed to decode submitIssueResponse response - %s", err)
 	}
@@ -44,40 +40,44 @@ func TestSubmitIssueHandler(t *testing.T) {
 
 func TestIndexIssuesHandler(t *testing.T) {
 	// Given: An issue
-	issueBody := "This is a test issue. The tests are not working. 🍏🍎😍"
+	issueBody := "This is a test issue for your indexIssueHandler."
 	newIssue := incomingIssue{issueBody}
 
 	body, err := json.Marshal(newIssue)
 	if err != nil {
 		t.Fatal(err)
 	}
-	req, err := http.NewRequest("POST", "/issues", bytes.NewReader(body))
-	if err != nil {
-		t.Fatal(err)
-	}
+	postReq := httptest.NewRequest("POST", "/issues", bytes.NewReader(body))
+
 	// When: New issue is posted
-	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(submitIssueHandler)
-	handler.ServeHTTP(rr, req)
+	postResp := httptest.NewRecorder()
+	submitIssueHandler(postResp, postReq)
 
 	// And: All issues are queried
-	req = httptest.NewRequest("GET", "/issues", nil)
-	w := httptest.NewRecorder()
-
-	indexIssueHandler(w, req)
-
-	resp := w.Result()
+	getReq := httptest.NewRequest("GET", "/issues", nil)
+	getReqResp := httptest.NewRecorder()
+	indexIssueHandler(getReqResp, getReq)
+	resp := getReqResp.Result()
 
 	// Then: Expect a 200 status code
 	if resp.StatusCode != 200 {
 		t.Errorf("Returned status code: %d", resp.StatusCode)
 	}
-	// And: Returned query to include our posted issue
-	var m map[string]interface{}
-	json.Unmarshal(rr.Body.Bytes(), &m)
 
-	if m["body"] != issueBody {
-		t.Errorf("Expected issue body to be '%v'. Got '%v'", issueBody, m["body"])
+	// And: Returned query to include our posted issue
+	var issues []map[string]interface{}
+	json.Unmarshal(getReqResp.Body.Bytes(), &issues)
+
+	issueExists := false
+	for _, issue := range issues {
+		if issue["body"] == issueBody {
+			issueExists = true
+			break
+		}
+	}
+
+	if issueExists == false {
+		t.Errorf("Expected an issue to contain '%v'. None do.", issueBody)
 	}
 }
 

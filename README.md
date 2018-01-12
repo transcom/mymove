@@ -53,7 +53,7 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run frontend testing suites.
 * `make server_test`: Run backend testing suites.
-* `make all_test`: Run both client- and server-side testing suites.
+* `make test`: Run both client- and server-side testing suites.
 
 ### Database
 
