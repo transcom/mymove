@@ -29,11 +29,11 @@ For faster development, use `make server_run_dev`. This builds and runs the serv
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"issue\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
 
 from which the response should be
 
-`{"id":1}`
+`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/dp3 glide get new/dependency`
