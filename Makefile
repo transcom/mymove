@@ -16,6 +16,7 @@ server/bin/golint:
 golint: server/bin/golint
 
 deps: golint pre-commit client_deps server_deps
+test: client_test server_test
 
 client_deps:
 	cd client && \

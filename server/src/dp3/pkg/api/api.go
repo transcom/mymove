@@ -17,11 +17,8 @@ var dbConnection *pop.Connection
 
 // Init the API package with its database connection
 func Init(dbInitialConnection *pop.Connection) {
-	issues = make([]models.Issue, 0)
 	dbConnection = dbInitialConnection
 }
-
-var issues []models.Issue
 
 // Mux creates the API router and returns it for inclusion in the app router
 func Mux() *goji.Mux {
@@ -56,9 +53,6 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 			zap.L().Error("DB Insertion", zap.Error(err))
 			http.Error(w, http.StatusText(400), http.StatusBadRequest)
 		} else {
-			// also append it for the INDEX request
-			issues = append(issues, newIssue)
-
 			responseJSON, err := json.Marshal(newIssue)
 			if err != nil {
 				zap.L().Error("Encode Response", zap.Error(err))
@@ -72,6 +66,12 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
+	// Query all issues in the db
+	issues := []models.Issue{}
+	if err := dbConnection.All(&issues); err != nil {
+		zap.L().Error("DB Query", zap.Error(err))
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+	}
 
 	responseJSON, err := json.Marshal(issues)
 	if err != nil {
