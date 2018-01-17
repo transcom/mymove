@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import FeedbackForm from './FeedbackForm';
 
 class Feedback extends Component {
@@ -6,7 +7,9 @@ class Feedback extends Component {
     super(props);
     this.state = { value: '' };
   }
-
+  componentDidMount() {
+    document.title = 'Transcom PPP: Submit Feedback';
+  }
   handleChange = e => {
     this.setState({ value: e.target.value });
   };

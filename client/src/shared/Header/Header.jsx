@@ -82,8 +82,7 @@ function Header() {
           <ul className="usa-nav-primary usa-accordion">
             <li>
               <button
-                className="
-              usa-accordion-button usa-nav-link"
+                className="usa-accordion-button usa-nav-link"
                 aria-expanded="false"
                 aria-controls="side-nav-1"
               >
