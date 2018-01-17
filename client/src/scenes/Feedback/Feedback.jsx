@@ -24,13 +24,17 @@ class Feedback extends Component {
       },
       body: JSON.stringify({ body: this.state.value }),
     };
-    fetch('/api/v1/issues', config).then(response => {
-      if (response.ok) {
-        this.setState({ confirmationText: 'Response received!' });
-      } else {
+    fetch('/api/v1/issues', config)
+      .then(response => {
+        if (response.ok) {
+          this.setState({ confirmationText: 'Response received!' });
+        } else {
+          this.setState({ confirmationText: 'Error submitting feedback' });
+        }
+      })
+      .catch(response => {
         this.setState({ confirmationText: 'Error submitting feedback' });
-      }
-    });
+      });
   };
 
   render() {
