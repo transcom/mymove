@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+
 import FeedbackForm from './FeedbackForm';
 import FeedbackConfirmation from './FeedbackConfirmation';
 
@@ -10,7 +11,9 @@ class Feedback extends Component {
       confirmationText: '',
     };
   }
-
+  componentDidMount() {
+    document.title = 'Transcom PPP: Submit Feedback';
+  }
   handleChange = e => {
     this.setState({ value: e.target.value });
   };
