@@ -22,10 +22,9 @@ class Feedback extends Component {
       headers: {
         'Content-Type': 'text/plain',
       },
-      mode: 'no-cors',
       body: JSON.stringify({ body: this.state.value }),
     };
-    fetch('http://localhost:8080/api/v1/issues', config).then(response => {
+    fetch('/api/v1/issues', config).then(response => {
       if (response.ok) {
         this.setState({ confirmationText: 'Response received!' });
       } else {
