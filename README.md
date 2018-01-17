@@ -12,6 +12,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 * Install Go with Homebrew. Make sure you do not have other installations.
 * Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
 ### Setup: Database
 
