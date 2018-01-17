@@ -12,5 +12,5 @@ it('renders without crashing', () => {
 test('it should change state when provided a key and value', () => {
   const wrapper = shallow(<Feedback />);
   wrapper.instance().handleChange({ target: { value: 'test text' } });
-  expect(wrapper.instance().state.value).toEqual('dogs r cute');
+  expect(wrapper.instance().state.value).toEqual('test text');
 });
