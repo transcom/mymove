@@ -1,0 +1,24 @@
+development:
+  dialect: "postgres"
+  database: "dev_db"
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "mysecretpassword"
+
+test:
+  dialect: "postgres"
+  database: "test_db"
+  host: "localhost"
+  port: "5432"
+  user: "postgres"
+  password: "mysecretpassword"
+
+prod:
+  dialect: "postgres"
+  database: "app"
+  host: "app-staging.clnb6tcnzkdi.us-west-2.rds.amazonaws.com"
+  port: "5432"
+  user: "master"
+  password: "FCvxPgghJndw7pGOiF5k75yI" # I AM MADE OF SHAME
+  # If the above line still exists in February 2018, fire MacRae.

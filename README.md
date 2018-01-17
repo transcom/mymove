@@ -10,7 +10,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Install Go with Homebrew. Make sure you do not have other installations.
+* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
 
 ### Setup: Database
 
@@ -28,11 +29,11 @@ For faster development, use `make server_run_dev`. This builds and runs the serv
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"issue\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
 
 from which the response should be
 
-`{"id":1}`
+`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/dp3 glide get new/dependency`
@@ -46,6 +47,14 @@ The above will start the server running and starts the webpack dev server, proxi
 
 Dependencies are managed by yarn
 
+### Testing
+
+There are a few handy targets in the Makefile to help you run tests:
+
+* `make client_test`: Run frontend testing suites.
+* `make server_test`: Run backend testing suites.
+* `make test`: Run both client- and server-side testing suites.
+
 ### Database
 
 #### Dev Commands
@@ -57,17 +66,21 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
 
-#### Migrations (WORK IN PROGRESS)
+#### Migrations
 
-If you need to change the datata base schema, you'll need to write a migration.
+If you need to change the database schema, you'll need to write a migration.
 
 Creating a migration:
 
-_*TBD* It looks like we'll be using [Pop](https://github.com/markbates/pop), this section will need to be updated when we set it up._
+Use soda (a part of [pop](https://github.com/markbates/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
+
+If you are generating a new model, use `./bin/soda generate model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
+
+If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/markbates/pop/blob/master/fizz/README.md) yourself to the created files.
 
 Running migrations:
 
-1. Use `make db_dev_migrate` to run migrations against your local dev envrionment. Production migrations TBD.
+1. Use `make db_dev_migrate` to run migrations against your local dev environment. Production migrations TBD.
 
 ### Troubleshooting
 
