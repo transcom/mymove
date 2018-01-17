@@ -10,7 +10,9 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Install Go with Homebrew. Make sure you do not have other installations.
+* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
 ### Setup: Database
 
@@ -28,11 +30,11 @@ For faster development, use `make server_run_dev`. This builds and runs the serv
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"issue\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
 
 from which the response should be
 
-`{"id":1}`
+`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/dp3 glide get new/dependency`
@@ -45,6 +47,14 @@ Dependencies are managed by glide. To add a new dependency:
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
 Dependencies are managed by yarn
+
+### Testing
+
+There are a few handy targets in the Makefile to help you run tests:
+
+* `make client_test`: Run frontend testing suites.
+* `make server_test`: Run backend testing suites.
+* `make test`: Run both client- and server-side testing suites.
 
 ### Database
 
