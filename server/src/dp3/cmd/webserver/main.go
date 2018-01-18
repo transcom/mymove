@@ -31,6 +31,7 @@ func main() {
 	entry := flag.String("entry", "client/build/index.html", "the entrypoint to serve.")
 	build := flag.String("build", "client/build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "server/src/dp3/config", "The location of server config files")
+	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
 	port := flag.String("port", ":8080", "the `port` to listen on.")
 	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -51,7 +52,7 @@ func main() {
 
 	//DB connection
 	pop.AddLookupPaths(*config)
-	dbConnection, err := pop.Connect("development")
+	dbConnection, err := pop.Connect(*env)
 	if err != nil {
 		log.Panic(err)
 	}

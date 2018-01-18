@@ -29,6 +29,7 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
+	version1Mux.HandleFunc(pat.Get("/issues"), indexIssueHandler)
 	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
@@ -69,4 +70,22 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}
+}
+
+func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
+	// Query all issues in the db
+	issues := []models.Issue{}
+	if err := dbConnection.All(&issues); err != nil {
+		zap.L().Error("DB Query", zap.Error(err))
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+	}
+
+	responseJSON, err := json.Marshal(issues)
+	if err != nil {
+		zap.L().Error("Encode issues", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	} else {
+		w.Write(responseJSON)
+	}
+
 }

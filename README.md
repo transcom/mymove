@@ -10,7 +10,9 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Prerequisites
 
-Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Install Go with Homebrew. Make sure you do not have other installations.
+* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
 ### Setup: Database
 
@@ -32,7 +34,7 @@ You can verify the server is working as follows:
 
 from which the response should be like
 
-`{"id":"116a53150-f0e3-11e7-8c3f-9a214cf093ae", "body": "This is a test issue", "created_at": "2017-12-02 12:33:22.121", "updated": "2017-12-02 12:33:22.121"}`
+`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
 Dependencies are managed by glide. To add a new dependency:
 `GOPATH=/path/to/dp3 glide get new/dependency`
@@ -49,6 +51,14 @@ Dependencies are managed by yarn
 ### API
 
 The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. it is the single source of truth for what the API contract between client and server should be.
+
+### Testing
+
+There are a few handy targets in the Makefile to help you run tests:
+
+* `make client_test`: Run frontend testing suites.
+* `make server_test`: Run backend testing suites.
+* `make test`: Run both client- and server-side testing suites.
 
 ### Database
 
@@ -67,9 +77,9 @@ If you need to change the database schema, you'll need to write a migration.
 
 Creating a migration:
 
-Use soda (a part of [pop](https://github.com/markbates/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `/bin/soda` that sets the go environment and working directory correctly.
+Use soda (a part of [pop](https://github.com/markbates/pop/)) to generate migrations. In order to make using soda easy, a wrapper is in `./bin/soda` that sets the go environment and working directory correctly.
 
-If you are generating a new model, use `/bin/soda generate model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
+If you are generating a new model, use `./bin/soda generate model model-name column-name:type column-name:type ...`. id, created_at and updated_at are all created automatically.
 
 If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/markbates/pop/blob/master/fizz/README.md) yourself to the created files.
 

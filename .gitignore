@@ -23,3 +23,5 @@ yarn-error.log*
 
 *.swp
 *.sublime-*
+
+server/src/dp3/migrations/schema.sql
