@@ -14,6 +14,21 @@ import (
 	"dp3/pkg/models"
 )
 
+func TestSwaggerYAMLHandler(t *testing.T) {
+
+	req := httptest.NewRequest("GET", "/swagger.yaml", nil)
+	w := httptest.NewRecorder()
+
+	swaggerYAMLHandler(w, req)
+
+	resp := w.Result()
+
+	if resp.StatusCode != 200 {
+		t.Errorf("Returned status code: %d", resp.StatusCode)
+	}
+
+}
+
 func TestSubmitIssueHandler(t *testing.T) {
 	newIssue := incomingIssue{"This is a test issue. The tests are not working. 🍏🍎😍"}
 
@@ -84,13 +99,14 @@ func TestIndexIssuesHandler(t *testing.T) {
 func setupDBConnection() {
 
 	configLocation := "../../config"
+	swaggerLocation := "../../../../../swagger.yaml" // ugh.
 	pop.AddLookupPaths(configLocation)
 	dbConnection, err := pop.Connect("test")
 	if err != nil {
 		log.Panic(err)
 	}
 
-	Init(dbConnection)
+	Init(dbConnection, swaggerLocation)
 
 }
 
