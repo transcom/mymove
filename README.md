@@ -8,6 +8,19 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ## Development
 
+### Project location
+
+All of Go's tooling expects Go code to be checked out in a specific location. Please read [How to Write Go code](https://golang.org/doc/code.html) for a full explaination, but if you just want to get started, then decide where you want all your go code to live and configure the GOPATH envionment variable accordingly. For example, if you want your go code to live at ~/code/go, then in your .bash_profile you should add the following two lines:
+
+```bash
+export GOPATH=~/code/go
+PATH=~/code/go/bin:$PATH
+```
+
+Once that's done, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove` You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+
+If you have already checked out the code somewhere else, you can just move it to be in the above locaiton and everything will work correctly.
+
 ### Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.

@@ -10,6 +10,7 @@ __snapshots__
 
 # production
 /build
+/bin/webserver
 
 # misc
 .DS_Store
@@ -25,6 +26,6 @@ yarn-error.log*
 *.swp
 *.sublime-*
 
-server/migrations/schema.sql
+migrations/schema.sql
 
 *.stamp

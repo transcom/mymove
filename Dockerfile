@@ -7,7 +7,6 @@ FROM golang AS build
 RUN apt-get install git
 RUN go get github.com/Masterminds/glide
 
-# glide.yaml and glide.lock lists project dependencies
 # These layers will only be re-built when Gopkg files are updated
 COPY server/src/dp3/glide.lock server/src/dp3/glide.yaml /go/src/dp3/
 WORKDIR /go/src/dp3/

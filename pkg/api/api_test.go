@@ -11,7 +11,7 @@ import (
 
 	"github.com/markbates/pop"
 
-	"github.com/transcom/mymove/server/pkg/models"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func TestSubmitIssueHandler(t *testing.T) {

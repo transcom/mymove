@@ -11,32 +11,30 @@ pre-commit: .git/hooks/pre-commit
 deps: pre-commit client_deps server_deps
 test: client_test server_test
 
-client_deps:
-	cd client && \
+client_deps: .client_deps.stamp
+.client_deps.stamp: yarn.lock
 	yarn install
+	touch .client_deps.stamp
 client_build: client_deps
-	cd client && \
 	yarn build
-client_run_dev:
-	cd client && \
+client_run: client_deps
 	yarn start
-client_run: client_run_dev
-client_test:
-	cd client && \
+client_test: client_deps
 	yarn test
 
 server_deps_update:
 	dep ensure -update
 server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
+	bin/check_gopath.sh
 	dep ensure
 	go install ./vendor/github.com/markbates/pop/soda
 	go install ./vendor/github.com/golang/lint/golint
 	touch .server_deps.stamp
 server_build: server_deps
-	go build -o build/mymove ./server/cmd/mymove
+	go build -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
-	./build/mymove \
+	./bin/webserver \
 		-entry client/build/index.html \
 		-build client/build \
 		-port :8080 \
@@ -75,10 +73,8 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	cd server/ && \
 	soda migrate up
 db_dev_migrate_down: db_dev_run
-	cd server/ && \
 	soda migrate down
 
 db_test_reset:
@@ -89,7 +85,8 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	cd server/ && \
 	soda -e test migrate up
 
-.PHONY: pre-commit deps db_dev_migrate
+.PHONY: pre-commit deps test client_deps client_build client_run client_test
+.PHONY: server_deps_update server_deps server_build server_run_only server_run server_run_dev server_build_docker server_run_only_docker server_test
+.PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset

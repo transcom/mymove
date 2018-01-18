@@ -10,7 +10,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/server/pkg/api"
+	"github.com/transcom/mymove/pkg/api"
 )
 
 var logger *zap.Logger
