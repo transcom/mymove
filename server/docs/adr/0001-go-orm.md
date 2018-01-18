@@ -7,28 +7,28 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 
 ## Considered Alternatives
 
-* *No ORM*
-* *Pop*
-* *Other Go ORMs*
+* No ORM
+* Pop
+* Other Go ORMs
 
 ## Decision Outcome
 
 * Chosen Alternative: *Pop*
-* *Pop is one of the more mature Go ORMs around*
-* *Written by the same author as Buffalo framework and used in Buffalo*
-* *Don't have to write our own SQL migrations and models; instead, we can check in the generated Fizz migrations that come with Pop*
-* *We have not spent significant time looking into all our options--Pop seemed good enough for our purposes.*
+* Pop is one of the more mature Go ORMs around
+* Written by the same author as Buffalo framework and used in Buffalo
+* Don't have to write our own SQL migrations and models; instead, we can check in the generated Fizz migrations that come with Pop
+* We have not spent significant time looking into all our options--Pop seemed good enough for our purposes.
 
 ## Pros and Cons of the Alternatives
 
-### *No ORM*
+### No ORM
 
-* `+` *Don't have to rely on another tool over your database layer*
-* `-` *Have to write SQL for migrations etc*
-* `-` *Have to write models and migrations rather than having them generated.*
+* `+` Don't have to rely on another tool over your database layer
+* `-` Have to write SQL for migrations etc
+* `-` Have to write models and migrations rather than having them generated.
 
-### *Other Go ORM*
+### Other Go ORM
 
-* `+` *Don't have to write SQL for migrations etc*
-* `-` *Not as mature as Pop*
-* `-` *Not used in Buffalo framework*
+* `+` Don't have to write SQL for migrations etc
+* `-` Not as mature as Pop
+* `-` Not used in Buffalo framework
