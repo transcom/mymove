@@ -1,6 +1,7 @@
 *.swp
 
 # dependencies
+/vendor
 /node_modules
 
 # testing
@@ -24,4 +25,6 @@ yarn-error.log*
 *.swp
 *.sublime-*
 
-server/src/dp3/migrations/schema.sql
+server/migrations/schema.sql
+
+*.stamp

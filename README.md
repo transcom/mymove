@@ -36,8 +36,7 @@ from which the response should be
 
 `{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
-Dependencies are managed by glide. To add a new dependency:
-`GOPATH=/path/to/dp3 glide get new/dependency`
+Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
 ### Setup: Client
 

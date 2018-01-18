@@ -9,7 +9,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"dp3/pkg/models"
+	"github.com/transcom/mymove/server/pkg/models"
 )
 
 // pkg global variable for db connection
