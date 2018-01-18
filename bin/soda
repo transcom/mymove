@@ -3,6 +3,9 @@
 # This file allows running soda from the top level directory, it
 # runs in the correct directory, with the right pointer to migrations.
 
+# This does not appear to work for running migrations, just generating models.
+# To run migrations, use `make db_dev_migrate`
+
 cd server/pkg
 
-soda "$@" --path ../migrations
+soda "$@" --path ../migrations -c ../config/database.yml

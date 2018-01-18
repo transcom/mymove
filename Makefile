@@ -77,6 +77,9 @@ db_dev_reset:
 db_dev_migrate: db_dev_run
 	cd server/ && \
 	soda migrate up
+db_dev_migrate_down: db_dev_run
+	cd server/ && \
+	soda migrate down
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
