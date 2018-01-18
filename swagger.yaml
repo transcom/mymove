@@ -1,0 +1,77 @@
+swagger: '2.0'
+info:
+  description: The API for my.move.mil
+  version: 0.0.1
+  title: my.move.mil
+  contact:
+    email: ppp@truss.works
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+
+basePath: /api/v1
+
+paths:
+  /issues:
+    post:
+      summary: Create a new issue
+      description: Issues represent problems or suggestions for the app, this creates a new one.
+      operationId: createIssue
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: issue
+        schema:
+          type: object
+          required:
+          - body
+          properties:
+            body:
+              type: string
+              example: This is a test issue
+      responses:
+        201:
+          description: created issue
+          schema:
+            $ref: '#/definitions/Issue'
+        400:
+          description: invalid request
+    get:
+      summary: List all issues
+      description: List all issues
+      operationId: indexIssues
+      produces:
+      - application/json
+      responses:
+        200:
+          description: list of issues
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Issue'
+        400:
+          description: invalid request
+
+definitions:
+  Issue:
+    type: object
+    required:
+    - id
+    - body
+    - created_at
+    - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
+      body:
+        type: string
+        example: This is a test issue
+      created_at:
+        type: dateTime
+      updated_at:
+        type: dateTime

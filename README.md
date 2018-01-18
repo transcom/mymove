@@ -45,7 +45,7 @@ You can verify the server is working as follows:
 
 `> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
 
-from which the response should be
+from which the response should be like
 
 `{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
@@ -59,6 +59,10 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
 Dependencies are managed by yarn
+
+### API
+
+The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. it is the single source of truth for what the API contract between client and server should be.
 
 ### Testing
 
@@ -99,3 +103,4 @@ Running migrations:
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
 * If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
+* If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
