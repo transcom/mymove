@@ -34,6 +34,21 @@ jobs:
             docker tag ppp:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
 
+  migrate:
+    docker:
+      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+    steps:
+      - checkout
+      - setup_remote_docker
+      - run: make db_build_docker
+      - run:
+          name: Tag and push migrations image
+          command: |
+            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
+            docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+            docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+
+
   deploy:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
