@@ -8,14 +8,14 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 ## Considered Alternatives
 
 * No ORM
-* Pop
+* [Pop](https://github.com/markbates/pop)
 * Other Go ORMs
 
 ## Decision Outcome
 
-* Chosen Alternative: *Pop*
+* Chosen Alternative: *[Pop](https://github.com/markbates/pop)*
 * Pop is one of the more mature Go ORMs around
-* Written by the same author as Buffalo framework and used in Buffalo
+* Written by the same author as [Buffalo](https://gobuffalo.io/) framework and used in Buffalo
 * Don't have to write our own SQL migrations and models; instead, we can check in the generated Fizz migrations that come with Pop
 * We have not spent significant time looking into all our options--Pop seemed good enough for our purposes.
 
@@ -30,5 +30,5 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 ### Other Go ORM
 
 * `+` Don't have to write SQL for migrations etc
-* `-` Not as mature as Pop
-* `-` Not used in Buffalo framework
+* `-` Not as mature as [Pop](https://github.com/markbates/pop)
+* `-` Not used in [Buffalo](https://gobuffalo.io/) framework
