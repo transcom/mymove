@@ -12,6 +12,23 @@ info:
 basePath: /api/v1
 
 paths:
+  /shipmentapplication:
+    post:
+      summary: Create a new shipment or storage of personal property application
+      description: Create an instance of form 1299
+      operationId: createShipmentAppForm
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: shipmentAppForm
+        schema:
+          $ref: "#/definitions/ShipmentAppForm"
+      responses:
+        400:
+          description: invalid request
   /issues:
     post:
       summary: Create a new issue
@@ -71,6 +88,25 @@ definitions:
       body:
         type: string
         example: This is a test issue
+      created_at:
+        type: dateTime
+      updated_at:
+        type: dateTime
+  ShipmentAppForm:
+    type: object
+    required:
+    - id
+    - name_of_preparing_office
+    - created_at
+    - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
+      name_of_preparing_office:
+        type: string
+        example: pumperknickle office
       created_at:
         type: dateTime
       updated_at:

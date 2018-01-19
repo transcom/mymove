@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/http"
 
 	"github.com/markbates/pop"
@@ -29,7 +30,9 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
+	version1Mux.HandleFunc(pat.Post("/shipmentapplication"), submitShipmentApplicationHandler)
 	version1Mux.HandleFunc(pat.Get("/issues"), indexIssueHandler)
+	version1Mux.HandleFunc(pat.Get("/shipmentapplications"), indexShipmentAppsHandler)
 	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
@@ -39,6 +42,11 @@ func Mux() *goji.Mux {
 // Incoming body for POST /issues
 type incomingIssue struct {
 	Body string `json:"body"`
+}
+
+// Incoming body for POST /shipmentapplication
+type incomingShipmentApplication struct {
+	NameOfPreparingOffice string `json:"name_of_preparing_office"`
 }
 
 func swaggerYAMLHandler(w http.ResponseWriter, r *http.Request) {
@@ -72,6 +80,33 @@ func submitIssueHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func submitShipmentApplicationHandler(w http.ResponseWriter, r *http.Request) {
+	var incomingShipmentApplication incomingShipmentApplication
+
+	if err := json.NewDecoder(r.Body).Decode(&incomingShipmentApplication); err != nil {
+		zap.L().Error("Json decode", zap.Error(err))
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+	} else {
+		// Create the shipment application in the database
+		newShipmentApplication := models.ShipmentApplication{
+			NameOfPreparingOffice: incomingShipmentApplication.NameOfPreparingOffice,
+		}
+		if err := dbConnection.Create(&newShipmentApplication); err != nil {
+			zap.L().Error("DB Insertion", zap.Error(err))
+			http.Error(w, http.StatusText(400), http.StatusBadRequest)
+		} else {
+			responseJSON, err := json.Marshal(newShipmentApplication)
+			if err != nil {
+				zap.L().Error("Encode Response", zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			} else {
+				w.WriteHeader(http.StatusCreated)
+				w.Write(responseJSON)
+			}
+		}
+	}
+}
+
 func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
 	// Query all issues in the db
 	issues := []models.Issue{}
@@ -83,6 +118,25 @@ func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
 	responseJSON, err := json.Marshal(issues)
 	if err != nil {
 		zap.L().Error("Encode issues", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	} else {
+		w.Write(responseJSON)
+	}
+
+}
+
+func indexShipmentAppsHandler(w http.ResponseWriter, r *http.Request) {
+	// Query all shipment apps in the db
+	fmt.Fprint(w, "welcome home")
+	shipmentApps := []models.ShipmentApplication{}
+	if err := dbConnection.All(&shipmentApps); err != nil {
+		zap.L().Error("DB Query", zap.Error(err))
+		http.Error(w, http.StatusText(400), http.StatusBadRequest)
+	}
+
+	responseJSON, err := json.Marshal(shipmentApps)
+	if err != nil {
+		zap.L().Error("Encode shipment apps", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	} else {
 		w.Write(responseJSON)
