@@ -99,7 +99,7 @@ func TestIndexIssuesHandler(t *testing.T) {
 func setupDBConnection() {
 
 	configLocation := "../../config"
-	swaggerLocation := "../../../../../swagger.yaml" // ugh.
+	swaggerLocation := "../../swagger.yaml" // ugh.
 	pop.AddLookupPaths(configLocation)
 	dbConnection, err := pop.Connect("test")
 	if err != nil {

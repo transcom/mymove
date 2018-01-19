@@ -11,6 +11,8 @@ pre-commit: .git/hooks/pre-commit
 deps: pre-commit client_deps server_deps
 test: client_test server_test
 
+client_deps_update:
+	yarn upgrade
 client_deps: .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
@@ -35,8 +37,6 @@ server_build: server_deps
 	go build -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
 	./bin/webserver \
-		-entry client/build/index.html \
-		-build client/build \
 		-port :8080 \
 		-debug_logging
 server_run: client_build server_build server_run_only
@@ -49,7 +49,7 @@ server_run_only_docker: db_dev_run
 
 server_test: db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		cd server/ && go test ./...
+		go test ./...
 
 db_dev_init:
 	docker run --name $(DB_DOCKER_CONTAINER) \
