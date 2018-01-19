@@ -1,7 +1,7 @@
 version: 2
 jobs:
   build:
-    working_directory: /go/src/github.com/transcom/mymove
+    working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
       - image: postgres:latest
