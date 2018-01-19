@@ -29,9 +29,9 @@ func Mux() *goji.Mux {
 
 	version1Mux := goji.SubMux()
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
-	version1Mux.HandleFunc(pat.Post("/shipmentapplication"), submitShipmentApplicationHandler)
+	version1Mux.HandleFunc(pat.Post("/shipmentapplications"), submitShipmentApplicationHandler)
 	version1Mux.HandleFunc(pat.Get("/issues"), indexIssueHandler)
-	version1Mux.HandleFunc(pat.Get("/shipmentapplications"), indexShipmentAppsHandler)
+	version1Mux.HandleFunc(pat.Get("/shipmentapplications"), indexShipmentApplicationHandler)
 	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
@@ -43,7 +43,7 @@ type incomingIssue struct {
 	Body string `json:"body"`
 }
 
-// Incoming body for POST /shipmentapplication
+// Incoming body for POST /shipmentapplications
 type incomingShipmentApplication struct {
 	NameOfPreparingOffice string `json:"name_of_preparing_office"`
 }
@@ -124,7 +124,7 @@ func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
 
 }
 
-func indexShipmentAppsHandler(w http.ResponseWriter, r *http.Request) {
+func indexShipmentApplicationHandler(w http.ResponseWriter, r *http.Request) {
 	// Query all shipment apps in the db
 	shipmentApps := []models.ShipmentApplication{}
 	if err := dbConnection.All(&shipmentApps); err != nil {
