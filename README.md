@@ -10,7 +10,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Project location
 
-All of Go's tooling expects Go code to be checked out in a specific location. Please read [How to Write Go code](https://golang.org/doc/code.html) for a full explaination, but if you just want to get started, then decide where you want all your go code to live and configure the GOPATH envionment variable accordingly. For example, if you want your go code to live at ~/code/go, then in your .bash_profile you should add the following two lines:
+All of Go's tooling expects Go code to be checked out in a specific location. Please read [How to Write Go code](https://golang.org/doc/code.html) for a full explanation, but if you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at ~/code/go, then in your .bash_profile you should add the following two lines:
 
 ```bash
 export GOPATH=~/code/go
@@ -19,7 +19,23 @@ PATH=~/code/go/bin:$PATH
 
 Once that's done, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove` You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
-If you have already checked out the code somewhere else, you can just move it to be in the above locaiton and everything will work correctly.
+If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
+
+### Project Layout
+
+All of our code is intermingled in the top level directory of mymove. Here is an explanation of what some of these directories contain:
+
+`bin`: A location for tools helpful for developing this project \
+`build`: The build output directory for the client. This is what the development server serves \
+`cmd`: The location of main packages for any go binaries we build (right now, just webserver) \
+`config`: Config files can be dropped here \
+`docs`: A location for docs for the project. This is where ADRs are \
+`migrations`: database migrations live here \
+`node_modules`: Cached dependencies for the client \
+`pkg`: The location of all of our go libraries, most of our go code lives here \
+`public`: The client's static resources \
+`src`: The react source code for the client \
+`vendor`: Cached dependencies for the server
 
 ### Prerequisites
 
@@ -37,7 +53,7 @@ You will need to setup a local database before you can begin working on the loca
 
 ### Setup: Server
 
-`make server_run`: installs dependencies and builds both the client and the server, then runs the server.
+1. `make server_run`: installs dependencies and builds both the client and the server, then runs the server.
 
 For faster development, use `make server_run_dev`. This builds and runs the server but skips updating dependences and re-building the client. Those tasks can be accomplished as needed with `make server_deps` and `make client_build`
 
@@ -53,8 +69,8 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 ### Setup: Client
 
-`make server_run`
-`make client_run_dev`
+1. `make server_run`
+1. `make client_run_dev`
 
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
