@@ -2,7 +2,6 @@ package api
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"github.com/markbates/pop"
@@ -127,7 +126,6 @@ func indexIssueHandler(w http.ResponseWriter, r *http.Request) {
 
 func indexShipmentAppsHandler(w http.ResponseWriter, r *http.Request) {
 	// Query all shipment apps in the db
-	fmt.Fprint(w, "welcome home")
 	shipmentApps := []models.ShipmentApplication{}
 	if err := dbConnection.All(&shipmentApps); err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
