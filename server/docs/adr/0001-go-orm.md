@@ -17,6 +17,8 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 * Pop is one of the more mature Go ORMs around
 * Written by the same author as [Buffalo](https://gobuffalo.io/) framework and used in Buffalo
 * Don't have to write our own SQL migrations and models; instead, we can check in the generated Fizz migrations that come with Pop
+* Pop handles simple loading and saving models to the db
+* Pop does not include features for doing joins /magically/ which can be a dangerous ORM feature
 * We have not spent significant time looking into all our options--Pop seemed good enough for our purposes.
 
 ## Pros and Cons of the Alternatives
