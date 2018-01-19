@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 
-import FeedbackForm from './FeedbackForm';
-import FeedbackConfirmation from './FeedbackConfirmation';
+import FeedbackForm from 'scenes/Feedback/FeedbackForm';
+import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
 
 class Feedback extends Component {
   constructor(props) {

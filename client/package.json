@@ -11,10 +11,10 @@
   "name": "client",
   "private": true,
   "scripts": {
-    "build": "react-scripts build",
-    "eject": "react-scripts eject",
-    "start": "react-scripts start",
-    "test": "react-scripts test --env=jsdom",
+    "build": "NODE_PATH=./src react-scripts build",
+    "eject": "NODE_PATH=./src react-scripts eject",
+    "start": "NODE_PATH=./src react-scripts start",
+    "test": "NODE_PATH=./src react-scripts test --env=jsdom",
     "prettier": "prettier"
   },
   "proxy": {

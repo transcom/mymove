@@ -1,9 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
-import usaFlag from '../images/us-flag.png';
-import govIcon from '../images/icon-dot-gov.svg';
-import sslIcon from '../images/icon-https.svg';
+import usaFlag from 'shared/images/us-flag.png';
+import govIcon from 'shared/images/icon-dot-gov.svg';
+import sslIcon from 'shared/images/icon-https.svg';
 
 function Header() {
   return (

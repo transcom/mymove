@@ -1,8 +1,8 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 
-import LoadingPlaceholder from '../../shared/LoadingPlaceholder';
-import './IssueCards.css';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import 'scenes/SubmittedFeedback/IssueCards.css';
 
 const IssueCards = ({ issues }) => {
   if (!issues) return <LoadingPlaceholder />;

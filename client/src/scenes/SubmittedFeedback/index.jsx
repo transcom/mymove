@@ -1,7 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 
-import IssueCards from './IssueCards';
+import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
 
 class SubmittedFeedback extends Component {
   constructor(props) {

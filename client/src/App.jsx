@@ -1,10 +1,10 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
 
-import Feedback from './scenes/Feedback/Feedback';
-import SubmittedFeedback from './scenes/SubmittedFeedback';
-import Header from './shared/Header/Header';
-import Footer from './shared/Footer/Footer';
+import Feedback from 'scenes/Feedback/Feedback';
+import SubmittedFeedback from 'scenes/SubmittedFeedback';
+import Header from 'shared/Header/Header';
+import Footer from 'shared/Footer/Footer';
 
 import './App.css';
 
