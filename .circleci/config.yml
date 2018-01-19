@@ -12,7 +12,7 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: bin/install-dependencies.sh
-      - run: echo 'export PATH=${PATH}:/go/bin' >> $BASH_ENV
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make deps
       - restore_cache:
           keys:
