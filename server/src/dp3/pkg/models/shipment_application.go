@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-// Issue is a problem with the product, submitted by any user.
+// ShipmentApplication is the form 1299, submitted by service members creating or updating an application.
 type ShipmentApplication struct {
 	ID                    uuid.UUID `json:"id" db:"id"`
 	CreatedAt             time.Time `json:"created_at" db:"created_at"`

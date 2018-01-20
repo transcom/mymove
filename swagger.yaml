@@ -106,7 +106,7 @@ definitions:
         example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
       name_of_preparing_office:
         type: string
-        example: pumperknickle office
+        example: pumpernickle office
       created_at:
         type: dateTime
       updated_at:
