@@ -1,5 +1,5 @@
 import React from 'react';
-import transcomEmblem from '../images/transcom-emblem.svg';
+import transcomEmblem from 'shared/images/transcom-emblem.svg';
 
 function Footer() {
   return (
