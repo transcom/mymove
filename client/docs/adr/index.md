@@ -1,11 +1,10 @@
 # Architectural Decision Log
 
-This log lists the architectural decisions for DP3 server-side code.
+This log lists the architectural decisions for DP3 client-side code.
 
 <!-- adrlog -- Regenerate the content by using "adr-log -i". You can install it via "npm install -g adr-log" -->
 
-- [ADR-0000](0000-server-framework.md) - Use Truss' [golang](https://golang.org/) web server skeleton to build API for dp3
-- [ADR-0001](0001-go-orm.md) - Use [Pop](https://github.com/markbates/pop) as Go ORM for dp3
+- [ADR-0000](0000-absolute-path-imports.md) - Use absolute paths rather than relative paths for imports where possible in client-side code.
 
 <!-- adrlogstop -->
 
