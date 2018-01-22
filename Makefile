@@ -94,6 +94,6 @@ db_test_reset:
 		bin/wait-for-db
 	soda -e test migrate up
 
-.PHONY: pre-commit deps test client_deps client_build client_run client_test
+.PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_deps server_build server_run_only server_run server_run_dev server_build_docker server_run_only_docker server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
