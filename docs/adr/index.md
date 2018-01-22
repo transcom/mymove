@@ -1,6 +1,6 @@
 # Architectural Decision Log
 
-This log lists the architectural decisions for DP3 server-side code.
+This log lists the architectural decisions for DP3 server- and client-side code.
 
 <!-- adrlog -- Regenerate the content by using "adr-log -i". You can install it via "npm install -g adr-log" -->
 
