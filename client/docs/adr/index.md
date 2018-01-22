@@ -4,7 +4,7 @@ This log lists the architectural decisions for DP3 client-side code.
 
 <!-- adrlog -- Regenerate the content by using "adr-log -i". You can install it via "npm install -g adr-log" -->
 
-- [ADR-0000](0000-absolute-path-imports.md) - Use absolute paths rather than relative paths for imports where possible in client-side code.
+- [ADR-0000](0000-path-imports.md) - Using Both Absolute and Relative Paths for Imports
 
 <!-- adrlogstop -->
 
