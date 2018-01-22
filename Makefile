@@ -45,6 +45,8 @@ server_run_dev: server_build server_run_only
 server_build_docker:
 	docker build . -t ppp:dev
 server_run_only_docker: db_dev_run
+	docker stop ppp || true
+	docker rm ppp || true
 	docker run --name ppp -p 8080:8080 ppp:dev
 
 server_test: db_dev_run db_test_reset

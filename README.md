@@ -30,7 +30,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 `cmd`: The location of main packages for any go binaries we build (right now, just webserver) \
 `config`: Config files can be dropped here \
 `docs`: A location for docs for the project. This is where ADRs are \
-`migrations`: database migrations live here \
+`migrations`: Database migrations live here \
 `node_modules`: Cached dependencies for the client \
 `pkg`: The location of all of our go libraries, most of our go code lives here \
 `public`: The client's static resources \

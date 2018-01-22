@@ -5,7 +5,7 @@ FROM golang AS build
 # Install tools required to build the project
 # We will need to run `docker build --no-cache .` to update those dependencies
 RUN apt-get install git
-RUN go get github.com/golang/dep
+RUN go get github.com/golang/dep/cmd/dep
 
 # Copy all project and build it
 # This layer will be rebuilt when ever a file has changed in the project directory
