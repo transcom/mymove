@@ -2,6 +2,7 @@
   "dependencies": {
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "js-yaml": "^3.10.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
@@ -10,6 +11,7 @@
     "react-scripts": "1.0.17",
     "redux": "^3.7.2",
     "redux-thunk": "^2.2.0",
+    "swagger-client": "^3.4.6",
     "swagger-ui-dist": "^3.9.2",
     "uswds": "^1.4.4"
   },

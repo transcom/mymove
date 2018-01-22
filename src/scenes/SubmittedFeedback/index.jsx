@@ -2,6 +2,7 @@
 import React, { Component } from 'react';
 
 import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
+import { IssuesIndex } from 'shared/api.js';
 
 class SubmittedFeedback extends Component {
   constructor(props) {
@@ -11,6 +12,7 @@ class SubmittedFeedback extends Component {
   componentDidMount() {
     this.loadIssues();
     document.title = 'Transcom PPP: Submitted Feedback';
+    IssuesIndex().then(data => console.log(data));
   }
   render() {
     const { issues } = this.state;
