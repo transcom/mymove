@@ -12,7 +12,6 @@ class SubmittedFeedback extends Component {
   componentDidMount() {
     this.loadIssues();
     document.title = 'Transcom PPP: Submitted Feedback';
-    IssuesIndex().then(data => console.log(data));
   }
   render() {
     const { issues } = this.state;
@@ -24,10 +23,13 @@ class SubmittedFeedback extends Component {
     );
   }
   loadIssues = () => {
-    fetch('/api/v1/issues')
-      .then(response => response.json())
-      .then(data => this.setState({ issues: data }))
-      .catch(response => console.error(response));
+    IssuesIndex().then(response => {
+      if (response.ok) {
+        this.setState({ issues: response.body });
+      } else {
+        console.error(response);
+      }
+    });
   };
 }
 export default SubmittedFeedback;
