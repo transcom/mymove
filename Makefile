@@ -8,7 +8,12 @@ pre-commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
-deps: pre-commit client_deps server_deps
+prereqs: .prereqs.stamp
+.prereqs.stamp: bin/prereqs
+	bin/prereqs
+	touch .prereqs.stamp
+
+deps: prereqs pre-commit client_deps server_deps
 test: client_test server_test
 
 client_deps_update:
@@ -34,7 +39,7 @@ server_deps: .server_deps.stamp
 	go install ./vendor/github.com/golang/lint/golint
 	touch .server_deps.stamp
 server_build: server_deps
-	go build -io bin/webserver ./cmd/webserver
+	go build -i -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
 	./bin/webserver \
 		-port :8080 \
@@ -45,6 +50,8 @@ server_run_dev: server_build server_run_only
 server_build_docker:
 	docker build . -t ppp:dev
 server_run_only_docker: db_dev_run
+	docker stop ppp || true
+	docker rm ppp || true
 	docker run --name ppp -p 8080:8080 ppp:dev
 
 server_test: db_dev_run db_test_reset
@@ -87,6 +94,6 @@ db_test_reset:
 		bin/wait-for-db
 	soda -e test migrate up
 
-.PHONY: pre-commit deps test client_deps client_build client_run client_test
+.PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_deps server_build server_run_only server_run server_run_dev server_build_docker server_run_only_docker server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
