@@ -23,7 +23,8 @@ Developers should maintain consistent patterns, best set early on.
 
 * Chosen Alternative: *Combination*
 * Absolute Paths allow developers to immediately understand where imports are coming from. They also allow files to be moved without changing all the local import statements. The clarity of these imports will become more valuable should our project structure become more nested.
-* Meanwhile, using relative paths allows developers not to be dogmatic when importing a module from within the same dir, and acknowledges that all imports outside of the .src dir requier relative paths.
+* Meanwhile, using relative paths allows developers not to be dogmatic when importing a module from within the same dir, and acknowledges that all imports outside of the .src dir require relative paths.
+* Our policy is that relative paths should only be used on imports **outside of the src dir and when importing from within the same directory**.
 
 * Consequence: Our implementation sets the NODE_PATH environment variable before each build script in packages.json
 
