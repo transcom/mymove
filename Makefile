@@ -8,7 +8,12 @@ pre-commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
-deps: pre-commit client_deps server_deps
+prereqs: .prereqs.stamp
+.prereqs.stamp: bin/prereqs
+	bin/prereqs
+	touch .prereqs.stamp
+
+deps: prereqs pre-commit client_deps server_deps
 test: client_test server_test
 
 client_deps_update:
