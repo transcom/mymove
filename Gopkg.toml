@@ -1,0 +1,11 @@
+required = [
+	"github.com/markbates/pop/soda",
+	"github.com/golang/lint/golint",
+	]
+
+# This override is due to this delightful cluster:
+# https://github.com/satori/go.uuid/issues/66
+# It should be removable once uuid adds a new tag for the latest version.
+[[override]]
+	name = "github.com/satori/go.uuid"
+	branch = "master"
