@@ -1,6 +1,0 @@
-# Server side exclude
-/bin/
-/pkg/
-/src/*
-!/src/dp3
-/src/dp3/vendor/

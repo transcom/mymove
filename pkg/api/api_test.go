@@ -11,7 +11,7 @@ import (
 
 	"github.com/markbates/pop"
 
-	"dp3/pkg/models"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func TestSwaggerYAMLHandler(t *testing.T) {
@@ -166,7 +166,7 @@ func TestIndexShipmentApplicationsHandler(t *testing.T) {
 func setupDBConnection() {
 
 	configLocation := "../../config"
-	swaggerLocation := "../../../../../swagger.yaml" // ugh.
+	swaggerLocation := "../../swagger.yaml" // ugh.
 	pop.AddLookupPaths(configLocation)
 	dbConnection, err := pop.Connect("test")
 	if err != nil {
