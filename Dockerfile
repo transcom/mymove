@@ -11,6 +11,7 @@ RUN go get github.com/golang/dep
 # This layer will be rebuilt when ever a file has changed in the project directory
 COPY ./ /go/src/github.com/transcom/mymove/
 WORKDIR /go/src/github.com/transcom/mymove/
+RUN dep ensure
 # These linker flags create a standalone binary that will run in scratch.
 RUN go build -o /bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
 

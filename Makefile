@@ -34,7 +34,7 @@ server_deps: .server_deps.stamp
 	go install ./vendor/github.com/golang/lint/golint
 	touch .server_deps.stamp
 server_build: server_deps
-	go build -io bin/webserver ./cmd/webserver
+	go build -i -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
 	./bin/webserver \
 		-port :8080 \
