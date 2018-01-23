@@ -1,0 +1,4 @@
+create_table("shipment_applications", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("name_of_preparing_office", "string", {})
+})
