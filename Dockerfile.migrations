@@ -13,8 +13,8 @@ RUN go get -ldflags "-linkmode external -extldflags -static" github.com/markbate
 # layer image.
 FROM scratch
 COPY --from=build /go/bin/soda /bin/soda
-COPY server/src/dp3/migrations /migrate/migrations
-COPY server/src/dp3/config/database.yml /migrate
+COPY migrations /migrate/migrations
+COPY config/database.yml /migrate
 ENV environment=production
 
 ENTRYPOINT ["/bin/soda"]
