@@ -17,19 +17,22 @@ paths:
       summary: Create a new issue
       description: Issues represent problems or suggestions for the app, this creates a new one.
       operationId: createIssue
+      tags:
+        - issues
       consumes:
       - application/json
       produces:
       - application/json
       parameters:
       - in: body
-        name: issue
+        name: createIssuePayload
+        required: true
         schema:
           type: object
           required:
-          - body
+            - description
           properties:
-            body:
+            description:
               type: string
               example: This is a test issue
       responses:
@@ -43,6 +46,8 @@ paths:
       summary: List all issues
       description: List all issues
       operationId: indexIssues
+      tags:
+        - issues
       produces:
       - application/json
       responses:
@@ -60,18 +65,20 @@ definitions:
     type: object
     required:
     - id
-    - body
+    - description
     - created_at
     - updated_at
     properties:
       id:
         type: string
         format: uuid
-        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
-      body:
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      description:
         type: string
         example: This is a test issue
       created_at:
-        type: dateTime
+        type: string
+        format: date-time
       updated_at:
-        type: dateTime
+        type: string
+        format: date-time
