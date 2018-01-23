@@ -3,6 +3,12 @@
 
 [[projects]]
   branch = "master"
+  name = "github.com/cockroachdb/cockroach-go"
+  packages = ["crdb"]
+  revision = "0d8b4682f140f0fe486ef7e3d2f70665f3066906"
+
+[[projects]]
+  branch = "master"
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
@@ -65,7 +71,7 @@
   branch = "master"
   name = "github.com/lib/pq"
   packages = [".","oid"]
-  revision = "83612a56d3dd153a94a629cd64925371c9adad78"
+  revision = "27ea5d92de30060e7121ddd543fe14e9a327e0cc"
 
 [[projects]]
   branch = "master"
@@ -82,8 +88,8 @@
 [[projects]]
   name = "github.com/markbates/pop"
   packages = [".","columns","fizz","fizz/translators","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
-  revision = "b4656b41fc8dbd16e86737e066370f3272746a1d"
-  version = "3.42.0"
+  revision = "00570ee9e436f66a8de394beeb5110489c728b87"
+  version = "3.51.1"
 
 [[projects]]
   branch = "master"
@@ -191,13 +197,13 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "2c42eef0765b9837fbdab12011af7830f55f88f0"
+  revision = "af50095a40f9041b3b38960738837185c26e9419"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
   packages = ["go/gcexportdata","go/gcimporter15","go/types/typeutil"]
-  revision = "af2bfe26b6891a197d033db63786cf8eb6bebd7b"
+  revision = "99037e3760ed7d9c772c980caee42b17779b80ce"
 
 [[projects]]
   branch = "v2"
