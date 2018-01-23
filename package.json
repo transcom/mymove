@@ -15,7 +15,8 @@
     "eject": "NODE_PATH=./src react-scripts eject",
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
-    "prettier": "prettier"
+    "prettier": "prettier",
+    "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
   },
   "proxy": {
     "/api": {
