@@ -59,7 +59,7 @@ jobs:
           name: Deploy demo site
           command: |
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            ecs-deploy -c app-staging -n app -t 300 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+            ecs-deploy -c app-staging -n app -t 600 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
 
 workflows:
   version: 2
