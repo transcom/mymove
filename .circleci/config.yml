@@ -49,7 +49,6 @@ jobs:
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
 
-
   deploy:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
@@ -70,8 +69,7 @@ workflows:
       - migrate:
           filters:
             branches:
-              # TODO: change this to master before PR
-              only: ak-run-migrations-on-staging
+              only: master
       - deploy:
           requires:
             - build
