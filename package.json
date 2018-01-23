@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "adr-log": "^2.1.1",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "react": "^16.2.0",
@@ -25,7 +26,6 @@
   },
   "version": "0.1.0",
   "devDependencies": {
-    "adr-log": "^2.1.1",
     "prettier": "^1.9.2"
   }
 }
