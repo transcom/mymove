@@ -67,9 +67,15 @@ workflows:
   pipeline:
     jobs:
       - build
+      - migrate:
+          filters:
+            branches:
+              # TODO: change this to master before PR
+              only: ak-run-migrations-on-staging
       - deploy:
           requires:
             - build
+            - migrate
           filters:
             branches:
               only: master
