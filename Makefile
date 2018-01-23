@@ -71,9 +71,9 @@ db_dev_run:
 	# We don't want to utilize Docker to start the database if we're
 	# in the CircleCI environment. It has its own configuration to launch
 	# a DB.
-	[ -z "$(CIRCLECI)" ] && \
-		docker start $(DB_DOCKER_CONTAINER) || \
-		echo "Relying on CircleCI's database container."
+	[ ! -z "$(CIRCLECI)" ] && \
+		echo "Relying on CircleCI's database container." || \
+		docker start $(DB_DOCKER_CONTAINER)
 db_dev_reset:
 	echo "Attempting to reset local dev database..."
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
