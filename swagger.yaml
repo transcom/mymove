@@ -54,6 +54,48 @@ paths:
               $ref: '#/definitions/Issue'
         400:
           description: invalid request
+  /form1299:
+    post:
+      summary: Create a new shipment or storage of personal property application
+      description: Create an instance of form 1299
+      operationId: createForm1299
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - in: body
+        name: form1299
+        schema:
+          type: object
+          required:
+          - body
+          properties:
+            body:
+              type: string
+              example: This is a test form 1299
+      responses:
+        201:
+          description: created instance of form 1299
+          schema:
+            $ref: '#/definitions/Form1299'
+        400:
+          description: invalid request
+    get:
+      summary: List all submitted 1299 forms
+      description: List all submitted 1299 forms
+      operationId: indexForm1299
+      produces:
+      - application/json
+      responses:
+        200:
+          description: list of submitted form 1299s
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Form1299'
+        400:
+          description: invalid request
 
 definitions:
   Issue:
@@ -75,3 +117,317 @@ definitions:
         type: dateTime
       updated_at:
         type: dateTime
+  Form1299:
+    type: object
+    required:
+    - id
+    - date_prepared
+    - shipment_number
+    - name_of_preparing_office
+    - origin_office_address_name
+    - origin_office_address_number
+    - origin_office_address_street
+    - origin_office_address_city
+    - origin_office_address_state
+    - origin_office_address_zip
+    - service_member_first_name
+    - service_member_last_name
+    - service_member_rank
+    - service_member_ssn
+    - service_member_agency
+    - hhg_total_pounds
+    - station_orders_type
+    - station_orders_issued_by
+    - station_orders_new_assignment
+    - station_orders_date
+    - station_orders_number
+    - station_orders_paragraph_number
+    - station_orders_in_transit_telephone
+    - in_transit_address_number
+    - in_transit_address_street
+    - in_transit_address_city
+    - in_transit_address_state
+    - in_transit_address_zip
+    - pickup_address_number
+    - pickup_address_street
+    - pickup_address_city
+    - pickup_address_county
+    - pickup_address_state
+    - pickup_address_zip
+    - pickup_address_mobile_court_name
+    - pickup_telephone
+    - dest_address_number
+    - dest_address_street
+    - dest_address_city
+    - dest_address_county
+    - dest_address_state
+    - dest_address_zip
+    - dest_address_mobile_court_name
+    - agent_to_receive_hhg
+    - pack_scheduled_date
+    - pickup_scheduled_date
+    - delivery_scheduled_date
+    - remarks
+    - service_member_signature
+    - date_signed
+    - contractor_address_number
+    - contractor_address_street
+    - contractor_address_city
+    - contractor_address_state
+    - contractor_address_zip
+    - certified_by_signature
+    - title
+    - created_at
+    - updated_at
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
+      date_prepared:
+        type: string
+        format: date
+        example: 2018-01-03
+      shipment_number:
+        type: string
+        example: 4550
+      name_of_preparing_office:
+        type: string
+        example: pumpernickel office
+      origin_office_address_name:
+        type: string
+        example: Office manager John Dough
+      origin_office_address_number:
+        type: string
+        example: '3450'
+      origin_office_address_street:
+        type: string
+        example: Kneading Way
+      origin_office_address_city:
+        type: string
+        example: San Francisco
+      origin_office_address_state:
+        type: string
+        example: California
+      origin_office_address_zip:
+        type: string
+        example: 94104
+      service_member_first_name:
+        type: string
+        example: Focaccia
+      service_member_middle_initial (u):
+        type: string
+        example: L.
+        nullable: true
+      service_member_last_name:
+        type: string
+        example: Roll
+      service_member_rank:
+        type: string
+        example: Commodore
+      service_member_ssn:
+        type: string
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: 888888888
+      service_member_agency:
+        type: string
+        example: Air Force
+      hhg_total_pounds:
+        type: number
+        format: double
+        example: 125.25
+      hhg_progear_pounds:
+        type: number
+        format: double
+        example: 35.11
+        nullable: true
+      hhg_valuable_items_cartons:
+        type: integer
+        example: 3
+        nullable: true
+      mobile_home_serial_number:
+        type: string
+        example: 45kljs98kljlkwj5
+        nullable: true
+      mobile_home_length:
+        type: number
+        example: 15.4
+        nullable: true
+      mobile_home_width:
+        type: number
+        example: 72
+        nullable: true
+      mobile_home_height:
+        type: number
+        example: 10
+        nullable: true
+      mobile_home_type_expando:
+        type: string
+        example: bathroom and shower unit
+        nullable: true
+      mobile_home_services_requested:
+        type: string
+        enum:
+        - contents packed
+        - mobile home blocked
+        - mobile home unblocked
+        - stored at origin
+        - stored at destination
+        nullable: true
+      station_orders_type:
+        type: string
+        enum:
+        - permanent
+        - temporary
+      station_orders_issued_by:
+        type: string
+        example: Sergeant Naan
+      station_orders_new_assignment:
+        type: string
+        example: ACCOUNTING OPS
+      station_orders_date:
+        type: string
+        format: date
+        example: 2018-03-15
+      station_orders_number:
+        type: string
+        example: 98374
+      station_orders_paragraph_number:
+        type: string
+        example: 5
+      station_orders_in_transit_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-666-6666
+      in_transit_address_number:
+        type: string string
+      in_transit_address_street:
+        type: string
+      in_transit_address_city:
+        type: string
+      in_transit_address_state:
+        type: string
+      in_transit_address_zip:
+        type: string
+      pickup_address_number:
+        type: string
+      pickup_address_street:
+        type: string
+      pickup_address_city:
+        type: string
+      pickup_address_county:
+        type: string
+      pickup_address_state:
+        type: string
+      pickup_address_zip:
+        type: string
+      pickup_address_mobile_court_name:
+        type: string
+        example: Winnebagel court
+      pickup_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-666-6634
+      dest_address_number:
+        type: string
+      dest_address_street:
+        type: string
+      dest_address_city:
+        type: string
+      dest_address_county:
+        type: string
+      dest_address_state:
+        type: string
+      dest_address_zip:
+        type: string
+      dest_address_mobile_court_name:
+        type: String
+        example: Carraway Court
+      agent_to_receive_hhg:
+        type: string
+      extra_address_number:
+        type: string
+        nullable: true
+      extra_address_street:
+        type: string
+        nullable: true
+      extra_address_city:
+        type: string
+        nullable: true
+      extra_address_county:
+        type: string
+        nullable: true
+      extra_address_state:
+        type: string
+        nullable: true
+      extra_address_zip:
+        type: string
+        nullable: true
+      pack_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-08
+      pickup_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-09
+      delivery_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-10
+      remarks:
+        type: string
+        example: please be careful with my stuff
+      other_move_from:
+        type: string
+        nullable: true
+      other_move_to:
+        type: string
+        nullable: true
+      other_move_net_pounds:
+        type: number
+        format: double
+        example: 4.50
+        nullable: true
+      other_move_progear_pounds:
+        type: number
+        format: float
+        example: 99.09
+        nullable: true
+      service_member_signature:
+        type: string
+        example: Focaccia Roll
+      date_signed:
+        type: string
+        format: date
+        example: 2018-01-23
+      contractor_address_number:
+        type: string
+      contractor_address_street:
+        type: string
+      contractor_address_city:
+        type: string
+      contractor_address_state:
+        type: string
+      contractor_address_zip:
+        type: string
+      contractor_name:
+        type: string
+        example: Mayflower Transit
+        nullable: true
+      nonavailability_of_signature_reason:
+        type: string
+        example: service member not present
+        nullable: true
+      certified_by_signature:
+        type: string
+        example: Sally Crumpet
+      title:
+        type: string
+        example: Colonel Crumpet
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
