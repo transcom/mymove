@@ -83,6 +83,8 @@ db_dev_migrate: db_dev_run
 	soda migrate up
 db_dev_migrate_down: db_dev_run
 	soda migrate down
+db_build_docker:
+	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
