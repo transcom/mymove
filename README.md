@@ -17,7 +17,7 @@ export GOPATH=~/code/go
 PATH=~/code/go/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove` You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove` (This will emit an error "can't load package:" but will have cloned the source correctly) You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
