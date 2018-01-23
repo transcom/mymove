@@ -111,9 +111,19 @@ If you are generating a new model, use `./bin/soda generate model model-name col
 
 If you are modifying an existing model, use `./bin/soda generate migration migration-name` and add the [Fizz instructions](https://github.com/markbates/pop/blob/master/fizz/README.md) yourself to the created files.
 
-Running migrations:
+Running migrations in local development:
 
-1. Use `make db_dev_migrate` to run migrations against your local dev environment. Production migrations TBD.
+1. Use `make db_dev_migrate` to run migrations against your local dev environment.
+
+Running migrations on Staging / Production:
+
+Migrations are run automatically by CircleCI as part of the standard deploy process.
+
+1. CircleCI builds and registers a container that includes the `soda` binary, along with migrations files.
+1. CircleCI deploys this container to ECS and runs it as a one-off 'task'.
+1. Migrations run inside the container against the environment's database.
+1. If migrations fail, CircleCI fails the deploy.
+1. If migrations pass, CircleCI continues with the deploy.
 
 ### Troubleshooting
 
