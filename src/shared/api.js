@@ -9,10 +9,17 @@ async function ensureClientIsLoaded() {
 
 export async function IssuesIndex() {
   await ensureClientIsLoaded();
-  return client.apis.default.indexIssues();
+  const result = await client.apis.default.indexIssues();
+  if (result.ok) return result.body;
+  else {
+    throw new Error('failed to load issues index');
+  }
 }
 
 export async function CreateIssue(issueBody) {
   await ensureClientIsLoaded();
-  return client.apis.default.createIssue({ issue: { body: issueBody } });
+  const result = await client.apis.default.createIssue({
+    issue: { body: issueBody },
+  });
+  if (!result.ok) throw new Error('failed to createIssue');
 }

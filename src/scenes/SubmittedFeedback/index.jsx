@@ -23,12 +23,8 @@ class SubmittedFeedback extends Component {
     );
   }
   loadIssues = () => {
-    IssuesIndex().then(response => {
-      if (response.ok) {
-        this.setState({ issues: response.body });
-      } else {
-        console.error(response);
-      }
+    IssuesIndex().then(result => {
+      this.setState({ issues: result });
     });
   };
 }
