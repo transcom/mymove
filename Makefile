@@ -37,6 +37,7 @@ server_deps: .server_deps.stamp
 	dep ensure
 	go install ./vendor/github.com/markbates/pop/soda
 	go install ./vendor/github.com/golang/lint/golint
+	go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_build: server_deps
 	go build -i -o bin/webserver ./cmd/webserver
