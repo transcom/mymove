@@ -1,6 +1,7 @@
 version: 2
 jobs:
   build:
+    working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
       - image: postgres:latest
@@ -11,9 +12,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - run: bin/install-dependencies.sh
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make deps
-      - run: echo 'export GOPATH=$(pwd)/server' >> $BASH_ENV
-      - run: echo 'export PATH=${PATH}:$(pwd)/server/bin' >> $BASH_ENV
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -25,6 +25,7 @@ jobs:
           paths:
             - ~/.cache/pre-commit
       - run: make client_build
+      - run: make client_test
       - run: make server_test
       - run: make server_build_docker
       - run:
