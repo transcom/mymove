@@ -24,6 +24,7 @@ client_deps: .client_deps.stamp
 	touch .client_deps.stamp
 client_build: client_deps
 	yarn build
+	bin/copy_swagger_ui.sh
 client_run: client_deps
 	yarn start
 client_test: client_deps
