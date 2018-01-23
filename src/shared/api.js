@@ -1,11 +1,18 @@
 import Swagger from 'swagger-client';
+let client = null;
 
-export const IssuesIndex = () =>
-  Swagger('api/v1/swagger.yaml').then(client => {
-    return client.apis.default.indexIssues();
-  });
+async function ensureClientIsLoaded() {
+  if (!client) {
+    client = await Swagger('api/v1/swagger.yaml');
+  }
+}
 
-export const CreateIndex = issueBody =>
-  Swagger('api/v1/swagger.yaml').then(client => {
-    return client.apis.default.createIssue({ body: issueBody });
-  });
+export async function IssuesIndex() {
+  await ensureClientIsLoaded();
+  return client.apis.default.indexIssues();
+}
+
+export async function CreateIssue(issueBody) {
+  await ensureClientIsLoaded();
+  return client.apis.default.createIssue({ body: issueBody });
+}
