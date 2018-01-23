@@ -14,5 +14,5 @@ export async function IssuesIndex() {
 
 export async function CreateIssue(issueBody) {
   await ensureClientIsLoaded();
-  return client.apis.default.createIssue({ body: issueBody });
+  return client.apis.default.createIssue({ issue: { body: issueBody } });
 }
