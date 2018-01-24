@@ -1,26 +1,27 @@
 import React, { Component } from 'react';
-import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { createStore, applyMiddleware } from 'redux';
+import { Provider } from 'react-redux';
+import { BrowserRouter as Router } from 'react-router-dom';
+import thunk from 'redux-thunk';
 
-import Feedback from 'scenes/Feedback/Feedback';
-import SubmittedFeedback from 'scenes/SubmittedFeedback';
-import Header from 'shared/Header/Header';
-import Footer from 'shared/Footer/Footer';
+import AppWrapper from 'shared/App/AppWrapper';
 
 import './App.css';
+
+function issues(state = [], action) {
+  return state;
+}
+
+const store = createStore(issues, {}, applyMiddleware(thunk));
 
 class App extends Component {
   render() {
     return (
-      <Router>
-        <div className="App site">
-          <Header />
-          <main className="site__content">
-            <Route exact path="/" component={Feedback} />
-            <Route path="/submitted" component={SubmittedFeedback} />
-          </main>
-          <Footer />
-        </div>
-      </Router>
+      <Provider store={store}>
+        <Router>
+          <AppWrapper />
+        </Router>
+      </Provider>
     );
   }
 }
