@@ -1,4 +1,4 @@
-# Use Redux to manage state and Redux Thunk middleware to write action creators that return functions
+# Use [Redux](https://redux.js.org) to manage state and [Redux Thunk](https://github.com/gaearon/redux-thunk) middleware to write action creators that return functions
 
 In React, though parent components can pass information to their children components, it's atypical for children components to pass information to parent components. This makes it difficult to handle state that is consistent across multiple components (such as authentication and authorization). Doing so using only React causes a loss in modularity.
 Redux is by far the most popular tool used to address the above issue. It also allows for easier testing. Because we'd also like to be able to use thunks (functions that wrap expressions to delay their evaluations) to exert control on when an action is dispatched, we chose redux-thunk middleware once we had settled on using redux.
