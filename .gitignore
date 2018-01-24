@@ -4,6 +4,8 @@
 /vendor
 /node_modules
 
+/pkg/gen
+
 # testing
 /coverage
 __snapshots__

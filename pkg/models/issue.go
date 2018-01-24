@@ -12,10 +12,10 @@ import (
 
 // Issue is a problem with the product, submitted by any user.
 type Issue struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-	Body      string    `json:"body" db:"body"`
+	ID          uuid.UUID `json:"id" db:"id"`
+	CreatedAt   time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at" db:"updated_at"`
+	Description string    `json:"description" db:"description"`
 }
 
 // String is not required by pop and may be deleted
@@ -37,7 +37,7 @@ func (i Issues) String() string {
 // This method is not required and may be deleted.
 func (i *Issue) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: i.Body, Name: "Body"},
+		&validators.StringIsPresent{Field: i.Description, Name: "Description"},
 	), nil
 }
 

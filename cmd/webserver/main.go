@@ -12,11 +12,9 @@ import (
 	// "goji.io/pat"
 	"github.com/go-openapi/loads"
 
-	"github.com/transcom/mymove/pkg/api"
-
-	"github.com/transcom/mymove/pkg/genserver"
-	"github.com/transcom/mymove/pkg/genserver/operations"
-	"github.com/transcom/mymove/pkg/genserver/operations/issues"
+	"github.com/transcom/mymove/pkg/gen/genserver"
+	"github.com/transcom/mymove/pkg/gen/genserver/operations"
+	"github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -40,7 +38,7 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
+	// swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
 
@@ -65,7 +63,7 @@ func main() {
 	}
 
 	// initialize api pkg with dbConnection created above
-	api.Init(dbConnection, *swagger)
+	handlers.Init(dbConnection)
 
 	swaggerSpec, err := loads.Analyzed(genserver.SwaggerJSON, "")
 	if err != nil {

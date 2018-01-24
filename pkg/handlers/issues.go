@@ -3,11 +3,13 @@ package handlers
 import (
 	"fmt"
 
-	middleware "github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/genserver/operations/issues"
-	"github.com/transcom/mymove/pkg/messages"
+	"github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
+	"github.com/transcom/mymove/pkg/gen/messages"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // func CreateMoveHandler(params issues.CreateMoveParams) middleware.Responder {
@@ -32,21 +34,27 @@ import (
 func CreateIssueHandler(params issues.CreateIssueParams) middleware.Responder {
 	fmt.Println("NEW ISSUE TIME")
 
-	payload := params.CreateIssuePayload
-	fmt.Println(*payload.Description)
-
-	desc := "THis is not hte issue you are looking for"
-	var id strfmt.UUID = "c56a4180-65aa-42ec-a945-5fd21dec0538"
-	dt := strfmt.NewDateTime()
-
-	issueResponse := messages.Issue{
-		CreatedAt:   &dt,
-		Description: &desc,
-		ID:          &id,
-		UpdatedAt:   &dt,
+	payload := *params.CreateIssuePayload
+	newIssue := models.Issue{
+		Description: *payload.Description,
 	}
+	var response middleware.Responder
+	if err := dbConnection.Create(&newIssue); err != nil {
+		zap.L().Error("DB Insertion", zap.Error(err))
+		// how do I raise an erorr?
+		response = issues.NewCreateIssueBadRequest()
+	} else {
+		ca := strfmt.DateTime(newIssue.CreatedAt)
+		id := strfmt.UUID(newIssue.ID.String())
+		ua := strfmt.DateTime(newIssue.UpdatedAt)
+		issueResponse := messages.Issue{
+			CreatedAt:   &ca,
+			Description: &newIssue.Description,
+			ID:          &id,
+			UpdatedAt:   &ua,
+		}
+		response = issues.NewCreateIssueCreated().WithPayload(&issueResponse)
 
-	response := issues.NewCreateIssueCreated().WithPayload(&issueResponse)
+	}
 	return response
-
 }
