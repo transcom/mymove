@@ -215,8 +215,7 @@ definitions:
       service_member_first_name:
         type: string
         example: Focaccia
-      service_member_middle_initial (u):
-        type: string
+      service_member_middle_initial:
         example: L.
         nullable: true
       service_member_last_name:
@@ -228,7 +227,7 @@ definitions:
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 888888888
+        example: 555-555-5555
       service_member_agency:
         type: string
         example: Air Force
@@ -251,11 +250,11 @@ definitions:
         nullable: true
       mobile_home_length:
         type: number
-        example: 15.4
+        example: 72
         nullable: true
       mobile_home_width:
         type: number
-        example: 72
+        example: 15.4
         nullable: true
       mobile_home_height:
         type: number
@@ -327,7 +326,7 @@ definitions:
       pickup_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-666-6634
+        example: 212-555-5555
       dest_address_number:
         type: string
       dest_address_street:
