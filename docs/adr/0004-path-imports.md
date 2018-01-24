@@ -1,4 +1,4 @@
-# Using Both Absolute and Relative Paths for Imports
+# Use Both Absolute and Relative Paths for Imports
 
 Imports should be as easy to use and consistent as possible across the project.
 

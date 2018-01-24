@@ -1,4 +1,4 @@
-# Using Create React App
+# Use [Create React App](https://github.com/facebook/create-react-app)
 
 After landing on our decision to use React for this project, we wanted a template to start from that would provide as many sane defaults as possible.
 

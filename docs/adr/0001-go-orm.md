@@ -1,4 +1,4 @@
-# Use Pop as the ORM for 3M
+# Use [Pop](https://github.com/markbates/pop) as the ORM for 3M
 
 3M will have include evolving data structures that we anticipate will change significantly throughout development.
 We'd like to have a way to handle such changes with as little pain as possible. One of the things orms do well is to help with all the boilerplate when the data model changes..
