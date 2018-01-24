@@ -43,7 +43,6 @@ server_build: server_deps
 	go build -i -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
 	./bin/webserver \
-		-port :8080 \
 		-debug_logging
 server_run: client_build server_build server_run_only
 server_run_dev: server_build server_run_only

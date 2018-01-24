@@ -8,9 +8,11 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-
 basePath: /api/v1
-
+consumes:
+  - application/json
+produces:
+  - application/json
 paths:
   /issues:
     post:
@@ -19,22 +21,12 @@ paths:
       operationId: createIssue
       tags:
         - issues
-      consumes:
-      - application/json
-      produces:
-      - application/json
       parameters:
-      - in: body
-        name: createIssuePayload
-        required: true
-        schema:
-          type: object
-          required:
-            - description
-          properties:
-            description:
-              type: string
-              example: This is a test issue
+        - in: body
+          name: createIssuePayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateIssuePayload'
       responses:
         201:
           description: created issue
@@ -48,26 +40,29 @@ paths:
       operationId: indexIssues
       tags:
         - issues
-      produces:
-      - application/json
       responses:
         200:
           description: list of issues
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Issue'
+            $ref: '#/definitions/IndexIssuesResponse'
         400:
           description: invalid request
 
 definitions:
+  CreateIssuePayload:
+    type: object
+    properties:
+      description:
+        type: string
+        example: This is a test issue
+    required:
+      - description
+  IndexIssuesResponse:
+    type: array
+    items:
+      $ref: '#/definitions/Issue'
   Issue:
     type: object
-    required:
-    - id
-    - description
-    - created_at
-    - updated_at
     properties:
       id:
         type: string
@@ -82,3 +77,8 @@ definitions:
       updated_at:
         type: string
         format: date-time
+    required:
+      - id
+      - description
+      - created_at
+      - updated_at
