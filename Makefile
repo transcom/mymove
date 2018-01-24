@@ -18,7 +18,11 @@ test: client_test server_test
 
 client_deps_update:
 	yarn upgrade
-client_deps: .client_deps.stamp
+# This will execute when any file in the public/swagger-ui folder changes
+.swagger-ui_deps.stamp: $(shell find public/swagger-ui -type f)
+	bin/copy_swagger_ui.sh
+	touch .swagger-ui_deps.stamp
+client_deps: .client_deps.stamp .swagger-ui_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
 	touch .client_deps.stamp
@@ -71,9 +75,9 @@ db_dev_run:
 	# We don't want to utilize Docker to start the database if we're
 	# in the CircleCI environment. It has its own configuration to launch
 	# a DB.
-	[ -z "$(CIRCLECI)" ] && \
-		docker start $(DB_DOCKER_CONTAINER) || \
-		echo "Relying on CircleCI's database container."
+	[ ! -z "$(CIRCLECI)" ] && \
+		echo "Relying on CircleCI's database container." || \
+		docker start $(DB_DOCKER_CONTAINER)
 db_dev_reset:
 	echo "Attempting to reset local dev database..."
 	docker kill $(DB_DOCKER_CONTAINER) &&	\

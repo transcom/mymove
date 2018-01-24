@@ -7,6 +7,7 @@ repos:
       - id: check-yaml
       - id: detect-private-key
       - id: trailing-whitespace
+        exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
     sha: v0.5.0

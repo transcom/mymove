@@ -29,6 +29,21 @@ func TestSwaggerYAMLHandler(t *testing.T) {
 
 }
 
+func TestSwaggerUIHandler(t *testing.T) {
+
+	req := httptest.NewRequest("GET", "/docs", nil)
+	w := httptest.NewRecorder()
+
+	swaggerUIHandler(w, req)
+
+	resp := w.Result()
+
+	if resp.StatusCode != 301 {
+		t.Errorf("Returned status code: %d", resp.StatusCode)
+	}
+
+}
+
 func TestSubmitIssueHandler(t *testing.T) {
 	newIssue := incomingIssue{"This is a test issue. The tests are not working. 🍏🍎😍"}
 
@@ -100,13 +115,14 @@ func setupDBConnection() {
 
 	configLocation := "../../config"
 	swaggerLocation := "../../swagger.yaml" // ugh.
+	swaggerUILocation := "../../build/swagger-ui/"
 	pop.AddLookupPaths(configLocation)
 	dbConnection, err := pop.Connect("test")
 	if err != nil {
 		log.Panic(err)
 	}
 
-	Init(dbConnection, swaggerLocation)
+	Init(dbConnection, swaggerLocation, swaggerUILocation)
 
 }
 
