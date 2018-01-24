@@ -12,6 +12,7 @@ Redux is by far the most popular tool used to address the above issue. It also a
 
 * Chosen Alternative: Redux
 * Redux is the most obvious choice to address this issue. There are many supporting tools (such as redux-thunk) already built to address features Redux itself doesn't address. A few of our team members also already had experience with Redux.
+* We can also use [Redux dev tools](https://github.com/zalmoxisus/redux-devtools-extension) for debugging. Users of redux devtools must add the extension to their browser of choice (follow instructions in the link above).
 
 ## Pros and Cons of the Alternatives
 
@@ -19,6 +20,7 @@ Redux is by far the most popular tool used to address the above issue. It also a
 
 * `+` Truss has used in other projects (ProtoWeb App)
 * `+` Most commonly used tool to address state management in React.
+* `+` Helpful dev tools.
 * `-` Haven't explored using other tools thoroughly, so don't really know if this is the 'best' for this specific app.
 
 ### Mobx
