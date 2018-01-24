@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router } from 'react-router-dom';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
 
@@ -18,9 +17,7 @@ class App extends Component {
   render() {
     return (
       <Provider store={store}>
-        <Router>
-          <AppWrapper />
-        </Router>
+        <AppWrapper />
       </Provider>
     );
   }
