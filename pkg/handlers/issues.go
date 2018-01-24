@@ -7,31 +7,26 @@ import (
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
+	issueop "github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
 	"github.com/transcom/mymove/pkg/gen/messages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// func CreateMoveHandler(params issues.CreateMoveParams) middleware.Responder {
-// 		fmt.Println("HELLO HANDLER")
-// 		fmt.Println(params.Move)
-// 		moveParams := params.Move
-
-// 		fmt.Println("AND NOW, MAGIC")
-// 		newMove := &messages.Move{}
-// 		newMove.URL = "http://localhost:12324/moves/112-ebf"
-// 		newMove.Name = moveParams.Name
-// 		newMove.Email = moveParams.Email
-
-// 		myMoves = append(myMoves, *newMove)
-
-// 		fmt.Println(newMove.Email)
-// 		success := issues.NewCreateMoveCreated().WithPayload(newMove)
-// 		return success
-// 	}
+func responseForIssueModel(issue models.Issue) messages.Issue {
+	ca := strfmt.DateTime(issue.CreatedAt)
+	id := strfmt.UUID(issue.ID.String())
+	ua := strfmt.DateTime(issue.UpdatedAt)
+	issueResponse := messages.Issue{
+		CreatedAt:   &ca,
+		Description: &issue.Description,
+		ID:          &id,
+		UpdatedAt:   &ua,
+	}
+	return issueResponse
+}
 
 // Creates a new issue via POST /issue
-func CreateIssueHandler(params issues.CreateIssueParams) middleware.Responder {
+func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 	fmt.Println("NEW ISSUE TIME")
 
 	payload := *params.CreateIssuePayload
@@ -42,19 +37,31 @@ func CreateIssueHandler(params issues.CreateIssueParams) middleware.Responder {
 	if err := dbConnection.Create(&newIssue); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
-		response = issues.NewCreateIssueBadRequest()
+		response = issueop.NewCreateIssueBadRequest()
 	} else {
-		ca := strfmt.DateTime(newIssue.CreatedAt)
-		id := strfmt.UUID(newIssue.ID.String())
-		ua := strfmt.DateTime(newIssue.UpdatedAt)
-		issueResponse := messages.Issue{
-			CreatedAt:   &ca,
-			Description: &newIssue.Description,
-			ID:          &id,
-			UpdatedAt:   &ua,
-		}
-		response = issues.NewCreateIssueCreated().WithPayload(&issueResponse)
+		issueResponse := responseForIssueModel(newIssue)
+		response = issueop.NewCreateIssueCreated().WithPayload(&issueResponse)
 
+	}
+	return response
+}
+
+// Returns a list of all issues
+func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
+	fmt.Println("INDEXISSUES TIME")
+
+	var issues models.Issues
+	var response middleware.Responder
+	if err := dbConnection.All(&issues); err != nil {
+		zap.L().Error("DB Query", zap.Error(err))
+		response = issueop.NewIndexIssuesBadRequest()
+	} else {
+		issueResponses := make(messages.IndexIssuesResponse, len(issues))
+		for i, issue := range issues {
+			issueResponse := responseForIssueModel(issue)
+			issueResponses[i] = &issueResponse
+		}
+		response = issueop.NewIndexIssuesOK().WithPayload(issueResponses)
 	}
 	return response
 }

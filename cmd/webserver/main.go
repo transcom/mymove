@@ -14,7 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/genserver"
 	"github.com/transcom/mymove/pkg/gen/genserver/operations"
-	"github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
+	issueop "github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -73,7 +73,8 @@ func main() {
 	api := operations.NewMymoveAPI(swaggerSpec)
 	api.Logger = log.Printf
 
-	api.IssuesCreateIssueHandler = issues.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
+	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
+	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
 
 	server := genserver.NewServer(api)
 	server.Port, err = strconv.Atoi(*port)
