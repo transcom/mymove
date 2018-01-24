@@ -1,0 +1,57 @@
+#!/bin/bash
+#
+#   Creates and runs a migration task using the given image and environment.
+#
+set -eo pipefail
+
+usage() {
+    echo "$0 <image> <environment>"
+    exit 1
+}
+[[ -z $1 || -z $2 ]] && usage
+
+set -u
+
+readonly image=$1
+readonly environment=$2
+
+readonly family=app-migrations-${environment}
+readonly cluster=app-${environment}
+
+check_arn() {
+    arn=$1
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+}
+
+# get the latest container definition
+container_definition=$(aws ecs list-task-definitions --family-prefix "$family" --sort DESC --query 'taskDefinitionArns[0]' --output text)
+if [[ $container_definition = None ]]; then
+    echo "Error: No existing $family task definitions found."
+    echo "There should be at least one task definition already created by Terraform."
+    exit 1
+fi
+container_definition_json=$(aws ecs describe-task-definition --task-definition "$container_definition" --query 'taskDefinition.containerDefinitions[0]')
+
+# create new task definition with the given image
+task_definition_json=$(echo "$container_definition_json" | perl -pe 's/"image":.+/"image": "'"$image"'",/;')
+task_definition_arn=$(aws ecs register-task-definition --family "$family" --container-definitions "$task_definition_json" --query 'taskDefinition.taskDefinitionArn' --output text)
+check_arn "$task_definition_arn"
+
+# run the task
+echo "Running task …"
+task_arn=$(aws ecs run-task --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
+check_arn "$task_arn"
+time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
+echo
+
+# check for success
+exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
+if [[ $exit_code = "0" ]]; then
+    echo "Task finished."
+    exit 0
+fi
+
+# announce task run failure
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
+echo "Task failed!"
+exit 1
