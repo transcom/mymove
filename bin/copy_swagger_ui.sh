@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp node_modules/swagger-ui-dist/{*.js,*.css,*.png} build/swagger-ui
+cp node_modules/swagger-ui-dist/{*.js,*.css,*.png} public/swagger-ui
