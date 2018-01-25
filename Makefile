@@ -63,7 +63,7 @@ server_run_only_docker: db_dev_run
 	docker rm ppp || true
 	docker run --name ppp -p 8080:8080 ppp:dev
 
-server_test: db_dev_run db_test_reset
+server_test: db_dev_run db_test_reset server_deps server_generate
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		go test ./...
 
