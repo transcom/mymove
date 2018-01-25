@@ -7,19 +7,29 @@ async function ensureClientIsLoaded() {
   }
 }
 
+// because these are async functions,
+// they return a promise that is resolved with the return value
+// if there is an error, the promise is rejected with that error
 export async function IssuesIndex() {
   await ensureClientIsLoaded();
-  const result = await client.apis.default.indexIssues();
-  if (result.ok) return result.body;
-  else {
-    throw new Error('failed to load issues index');
+  const response = await client.apis.default.indexIssues();
+  if (!response.ok) {
+    throw new Error(
+      `failed to load issues index due to server error:
+      ${response.url}: ${response.statusText}`,
+    );
   }
+  return response.body;
 }
 
 export async function CreateIssue(issueBody) {
   await ensureClientIsLoaded();
-  const result = await client.apis.default.createIssue({
+  const response = await client.apis.default.createIssue({
     issue: { body: issueBody },
   });
-  if (!result.ok) throw new Error('failed to createIssue');
+  if (!response.ok)
+    new Error(
+      `failed to create issue due to server error:
+      ${response.url}: ${response.statusText}`,
+    );
 }
