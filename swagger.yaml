@@ -114,8 +114,6 @@ definitions:
         type: dateTime
   CreateForm1299Payload:
     type: object
-    required:
-      - service_member_ssn
     properties:
       date_prepared:
         type: string
@@ -130,29 +128,16 @@ definitions:
         type: string
         example: pumpernickel office
         nullable: true
+      dest_office_name:
+        type: string
+        nullable: true
       origin_office_address_name:
         type: string
         example: Office manager John Dough
         nullable: true
-      origin_office_address_number:
+      origin_office_address:
         type: string
-        example: '3450'
-        nullable: true
-      origin_office_address_street:
-        type: string
-        example: Kneading Way
-        nullable: true
-      origin_office_address_city:
-        type: string
-        example: San Francisco
-        nullable: true
-      origin_office_address_state:
-        type: string
-        example: California
-        nullable: true
-      origin_office_address_zip:
-        type: string
-        example: 94104
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
       service_member_first_name:
         type: string
@@ -174,6 +159,7 @@ definitions:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-555-5555
+        nullable: true
       service_member_agency:
         type: string
         example: Air Force
@@ -253,38 +239,13 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         nullable: true
-      in_transit_address_number:
+      in_transit_address:
         type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
-      in_transit_address_street:
+      pickup_address:
         type: string
-        nullable: true
-      in_transit_address_city:
-        type: string
-        nullable: true
-      in_transit_address_state:
-        type: string
-        nullable: true
-      in_transit_address_zip:
-        type: string
-        nullable: true
-      pickup_address_number:
-        type: string
-        nullable: true
-      pickup_address_street:
-        type: string
-        nullable: true
-      pickup_address_city:
-        type: string
-        nullable: true
-      pickup_address_county:
-        type: string
-        nullable: true
-      pickup_address_state:
-        type: string
-        nullable: true
-      pickup_address_zip:
-        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
       pickup_address_mobile_court_name:
         type: string
@@ -295,23 +256,9 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         nullable: true
-      dest_address_number:
+      dest_address:
         type: string
-        nullable: true
-      dest_address_street:
-        type: string
-        nullable: true
-      dest_address_city:
-        type: string
-        nullable: true
-      dest_address_county:
-        type: string
-        nullable: true
-      dest_address_state:
-        type: string
-        nullable: true
-      dest_address_zip:
-        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
       dest_address_mobile_court_name:
         type: string
@@ -320,23 +267,9 @@ definitions:
       agent_to_receive_hhg:
         type: string
         nullable: true
-      extra_address_number:
+      extra_address:
         type: string
-        nullable: true
-      extra_address_street:
-        type: string
-        nullable: true
-      extra_address_city:
-        type: string
-        nullable: true
-      extra_address_county:
-        type: string
-        nullable: true
-      extra_address_state:
-        type: string
-        nullable: true
-      extra_address_zip:
-        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
       pack_scheduled_date:
         type: string
@@ -382,20 +315,9 @@ definitions:
         format: date
         example: 2018-01-23
         nullable: true
-      contractor_address_number:
+      contractor_address:
         type: string
-        nullable: true
-      contractor_address_street:
-        type: string
-        nullable: true
-      contractor_address_city:
-        type: string
-        nullable: true
-      contractor_address_state:
-        type: string
-        nullable: true
-      contractor_address_zip:
-        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
         nullable: true
       contractor_name:
         type: string
