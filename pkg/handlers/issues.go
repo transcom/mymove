@@ -12,11 +12,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func responseForIssueModel(issue models.Issue) messages.Issue {
+func responseForIssueModel(issue models.Issue) messages.IssueResponse {
 	ca := strfmt.DateTime(issue.CreatedAt)
 	id := strfmt.UUID(issue.ID.String())
 	ua := strfmt.DateTime(issue.UpdatedAt)
-	issueResponse := messages.Issue{
+	issueResponse := messages.IssueResponse{
 		CreatedAt:   &ca,
 		Description: &issue.Description,
 		ID:          &id,

@@ -42,7 +42,7 @@ func TestSubmitIssueHandler(t *testing.T) {
 	}
 
 	// Check the response contains what we expect.
-	var response messages.Issue
+	var response messages.IssueResponse
 	err = json.NewDecoder(postResp.Body).Decode(&response)
 	if err != nil {
 		t.Errorf("Failed to decode submitIssueResponse response - %s", err)

@@ -31,7 +31,7 @@ paths:
         201:
           description: created issue
           schema:
-            $ref: '#/definitions/Issue'
+            $ref: '#/definitions/IssueResponse'
         400:
           description: invalid request
     get:
@@ -60,8 +60,8 @@ definitions:
   IndexIssuesResponse:
     type: array
     items:
-      $ref: '#/definitions/Issue'
-  Issue:
+      $ref: '#/definitions/IssueResponse'
+  IssueResponse:
     type: object
     properties:
       id:
