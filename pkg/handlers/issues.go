@@ -10,17 +10,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func responseForIssueModel(issue models.Issue) messages.IssueResponse {
+func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 	createdAt := strfmt.DateTime(issue.CreatedAt)
 	id := strfmt.UUID(issue.ID.String())
 	updatedAt := strfmt.DateTime(issue.UpdatedAt)
-	issueResponse := messages.IssueResponse{
+	issuePayload := messages.IssuePayload{
 		CreatedAt:   &createdAt,
 		Description: &issue.Description,
 		ID:          &id,
 		UpdatedAt:   &updatedAt,
 	}
-	return issueResponse
+	return issuePayload
 }
 
 // CreateIssueHandler creates a new issue via POST /issue
@@ -34,8 +34,8 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
 	} else {
-		issueResponse := responseForIssueModel(newIssue)
-		response = issueop.NewCreateIssueCreated().WithPayload(&issueResponse)
+		issuePayload := payloadForIssueModel(newIssue)
+		response = issueop.NewCreateIssueCreated().WithPayload(&issuePayload)
 
 	}
 	return response
@@ -49,12 +49,12 @@ func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
-		issueResponses := make(messages.IndexIssuesResponse, len(issues))
+		issuePayloads := make(messages.IndexIssuesPayload, len(issues))
 		for i, issue := range issues {
-			issueResponse := responseForIssueModel(issue)
-			issueResponses[i] = &issueResponse
+			issuePayload := payloadForIssueModel(issue)
+			issuePayloads[i] = &issuePayload
 		}
-		response = issueop.NewIndexIssuesOK().WithPayload(issueResponses)
+		response = issueop.NewIndexIssuesOK().WithPayload(issuePayloads)
 	}
 	return response
 }

@@ -31,7 +31,7 @@ paths:
         201:
           description: created issue
           schema:
-            $ref: '#/definitions/IssueResponse'
+            $ref: '#/definitions/IssuePayload'
         400:
           description: invalid request
     get:
@@ -44,7 +44,7 @@ paths:
         200:
           description: list of issues
           schema:
-            $ref: '#/definitions/IndexIssuesResponse'
+            $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
 
@@ -57,11 +57,11 @@ definitions:
         example: This is a test issue
     required:
       - description
-  IndexIssuesResponse:
+  IndexIssuesPayload:
     type: array
     items:
-      $ref: '#/definitions/IssueResponse'
-  IssueResponse:
+      $ref: '#/definitions/IssuePayload'
+  IssuePayload:
     type: object
     properties:
       id:
