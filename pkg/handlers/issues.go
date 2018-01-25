@@ -25,9 +25,8 @@ func responseForIssueModel(issue models.Issue) messages.IssueResponse {
 
 // CreateIssueHandler creates a new issue via POST /issue
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
-	payload := *params.CreateIssuePayload
 	newIssue := models.Issue{
-		Description: *payload.Description,
+		Description: *params.CreateIssuePayload.Description,
 	}
 	var response middleware.Responder
 	if err := dbConnection.Create(&newIssue); err != nil {
