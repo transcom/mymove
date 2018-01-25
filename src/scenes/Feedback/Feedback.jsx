@@ -18,16 +18,16 @@ class Feedback extends Component {
     this.setState({ value: e.target.value });
   };
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
 
-    CreateIssue(this.state.value)
-      .then(result => {
-        this.setState({ confirmationText: 'Response received!' });
-      })
-      .catch(response => {
-        this.setState({ confirmationText: 'Error submitting feedback' });
-      });
+    try {
+      await CreateIssue(this.state.value);
+      this.setState({ confirmationText: 'Response received!' });
+    } catch (e) {
+      //todo: how do we want to monitor errors
+      this.setState({ confirmationText: 'Error submitting feedback' });
+    }
   };
 
   render() {
