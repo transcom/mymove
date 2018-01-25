@@ -65,26 +65,21 @@ paths:
       - application/json
       parameters:
       - in: body
-        name: form1299
+        name: createForm1299Payload
+        required: true
         schema:
-          type: object
-          required:
-          - body
-          properties:
-            body:
-              type: string
-              example: This is a test form 1299
+          $ref: "#/definitions/CreateForm1299Payload"
       responses:
         201:
           description: created instance of form 1299
           schema:
-            $ref: '#/definitions/Form1299'
+            $ref: '#/definitions/Form1299Response'
         400:
           description: invalid request
     get:
       summary: List all submitted 1299 forms
       description: List all submitted 1299 forms
-      operationId: indexForm1299
+      operationId: indexForm1299s
       produces:
       - application/json
       responses:
@@ -93,7 +88,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Form1299'
+              $ref: '#/definitions/IndexForm1299sResponse'
         400:
           description: invalid request
 
@@ -117,57 +112,64 @@ definitions:
         type: dateTime
       updated_at:
         type: dateTime
-  Form1299:
+  CreateForm1299Payload:
     type: object
     required:
-    - id
-    - created_at
-    - updated_at
+      - service_member_ssn
     properties:
-      id:
-        type: string
-        format: uuid
-        example: 116a53150-f0e3-11e7-8c3f-9a214cf093ae
       date_prepared:
         type: string
         format: date
         example: 2018-01-03
+        nullable: true
       shipment_number:
         type: string
         example: 4550
+        nullable: true
       name_of_preparing_office:
         type: string
         example: pumpernickel office
+        nullable: true
       origin_office_address_name:
         type: string
         example: Office manager John Dough
+        nullable: true
       origin_office_address_number:
         type: string
         example: '3450'
+        nullable: true
       origin_office_address_street:
         type: string
         example: Kneading Way
+        nullable: true
       origin_office_address_city:
         type: string
         example: San Francisco
+        nullable: true
       origin_office_address_state:
         type: string
         example: California
+        nullable: true
       origin_office_address_zip:
         type: string
         example: 94104
+        nullable: true
       service_member_first_name:
         type: string
         example: Focaccia
+        nullable: true
       service_member_middle_initial:
         example: L.
+        nullable: true
         nullable: true
       service_member_last_name:
         type: string
         example: Roll
+        nullable: true
       service_member_rank:
         type: string
         example: Commodore
+        nullable: true
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
@@ -175,10 +177,12 @@ definitions:
       service_member_agency:
         type: string
         example: Air Force
+        nullable: true
       hhg_total_pounds:
         type: number
         format: double
         example: 125.25
+        nullable: true
       hhg_progear_pounds:
         type: number
         format: double
@@ -222,72 +226,100 @@ definitions:
         enum:
         - permanent
         - temporary
+        nullable: true
       station_orders_issued_by:
         type: string
         example: Sergeant Naan
+        nullable: true
       station_orders_new_assignment:
         type: string
         example: ACCOUNTING OPS
+        nullable: true
       station_orders_date:
         type: string
         format: date
         example: 2018-03-15
+        nullable: true
       station_orders_number:
         type: string
         example: 98374
+        nullable: true
       station_orders_paragraph_number:
         type: string
         example: 5
+        nullable: true
       station_orders_in_transit_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
+        nullable: true
       in_transit_address_number:
         type: string string
+        nullable: true
       in_transit_address_street:
         type: string
+        nullable: true
       in_transit_address_city:
         type: string
+        nullable: true
       in_transit_address_state:
         type: string
+        nullable: true
       in_transit_address_zip:
         type: string
+        nullable: true
       pickup_address_number:
         type: string
+        nullable: true
       pickup_address_street:
         type: string
+        nullable: true
       pickup_address_city:
         type: string
+        nullable: true
       pickup_address_county:
         type: string
+        nullable: true
       pickup_address_state:
         type: string
+        nullable: true
       pickup_address_zip:
         type: string
+        nullable: true
       pickup_address_mobile_court_name:
         type: string
         example: Winnebagel court
+        nullable: true
       pickup_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+        nullable: true
       dest_address_number:
         type: string
+        nullable: true
       dest_address_street:
         type: string
+        nullable: true
       dest_address_city:
         type: string
+        nullable: true
       dest_address_county:
         type: string
+        nullable: true
       dest_address_state:
         type: string
+        nullable: true
       dest_address_zip:
         type: string
+        nullable: true
       dest_address_mobile_court_name:
         type: String
         example: Carraway Court
+        nullable: true
       agent_to_receive_hhg:
         type: string
+        nullable: true
       extra_address_number:
         type: string
         nullable: true
@@ -310,17 +342,21 @@ definitions:
         type: string
         format: date
         example: 2018-03-08
+        nullable: true
       pickup_scheduled_date:
         type: string
         format: date
         example: 2018-03-09
+        nullable: true
       delivery_scheduled_date:
         type: string
         format: date
         example: 2018-03-10
+        nullable: true
       remarks:
         type: string
         example: please be careful with my stuff
+        nullable: true
       other_move_from:
         type: string
         nullable: true
@@ -340,20 +376,27 @@ definitions:
       service_member_signature:
         type: string
         example: Focaccia Roll
+        nullable: true
       date_signed:
         type: string
         format: date
         example: 2018-01-23
+        nullable: true
       contractor_address_number:
         type: string
+        nullable: true
       contractor_address_street:
         type: string
+        nullable: true
       contractor_address_city:
         type: string
+        nullable: true
       contractor_address_state:
         type: string
+        nullable: true
       contractor_address_zip:
         type: string
+        nullable: true
       contractor_name:
         type: string
         example: Mayflower Transit
@@ -365,12 +408,34 @@ definitions:
       certified_by_signature:
         type: string
         example: Sally Crumpet
+        nullable: true
       title:
         type: string
         example: Colonel Crumpet
+        nullable: true
+  IndexForm1299Response:
+    type: array
+    items:
+      $ref: '#/definitions/Form1299Response'
+  Form1299Response:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
+      form_completed:
+        type: boolean
+        example: false
+      other_params: # TODO ADD all the params to return in the response
+    required:
+    - id
+    - created_at
+    - updated_at
+    - form_completed
