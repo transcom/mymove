@@ -11,14 +11,14 @@ import (
 )
 
 func responseForIssueModel(issue models.Issue) messages.IssueResponse {
-	ca := strfmt.DateTime(issue.CreatedAt)
+	createdAt := strfmt.DateTime(issue.CreatedAt)
 	id := strfmt.UUID(issue.ID.String())
-	ua := strfmt.DateTime(issue.UpdatedAt)
+	updatedAt := strfmt.DateTime(issue.UpdatedAt)
 	issueResponse := messages.IssueResponse{
-		CreatedAt:   &ca,
+		CreatedAt:   &createdAt,
 		Description: &issue.Description,
 		ID:          &id,
-		UpdatedAt:   &ua,
+		UpdatedAt:   &updatedAt,
 	}
 	return issueResponse
 }
