@@ -80,8 +80,10 @@ func main() {
 	// Base routes
 	root := goji.NewMux()
 	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*swagger))
+	root.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 	root.Handle(pat.Get("/static/*"), clientHandler)
+	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
 

@@ -31,3 +31,6 @@ yarn-error.log*
 migrations/schema.sql
 
 *.stamp
+
+public/swagger-ui/*
+!public/swagger-ui/index.html
