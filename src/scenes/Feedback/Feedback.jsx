@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 
-import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
+import FeedbackForm from 'scenes/Feedback/FeedbackForm';
+
 import { CreateIssue } from 'shared/api.js';
+
 class Feedback extends Component {
   constructor(props) {
     super(props);

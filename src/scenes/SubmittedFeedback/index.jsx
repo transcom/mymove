@@ -1,8 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 
-import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
 import Alert from 'shared/Alert';
+import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
+
 import { IssuesIndex } from 'shared/api.js';
 
 class SubmittedFeedback extends Component {
