@@ -4,7 +4,7 @@ import { ConnectedRouter } from 'react-router-redux';
 import Feedback from 'scenes/Feedback/Feedback';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/Header';
-import history from 'shared/store';
+import { history } from 'shared/store';
 import Footer from 'shared/Footer/Footer';
 
 const AppWrapper = () => (
