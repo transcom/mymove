@@ -164,13 +164,11 @@ definitions:
         example: Air Force
         nullable: true
       hhg_total_pounds:
-        type: number
-        format: double
-        example: 125.25
+        type: integer
+        example: 10000
         nullable: true
       hhg_progear_pounds:
-        type: number
-        format: double
+        type: integer
         example: 35.11
         nullable: true
       hhg_valuable_items_cartons:
@@ -181,17 +179,29 @@ definitions:
         type: string
         example: 45kljs98kljlkwj5
         nullable: true
-      mobile_home_length:
-        type: number
+      mobile_home_length_ft:
+        type: integer
         example: 72
         nullable: true
-      mobile_home_width:
-        type: number
-        example: 15.4
+      mobile_home_length_inches:
+        type: integer
+        example: 4
         nullable: true
-      mobile_home_height:
-        type: number
+      mobile_home_width_ft:
+        type: integer
+        example: 15
+        nullable: true
+      mobile_home_width_inches:
+        type: integer
+        example: 4
+        nullable: true
+      mobile_home_height_ft:
+        type: integer
         example: 10
+        nullable: true
+      mobile_home_height_inches:
+        type: integer
+        example: 3
         nullable: true
       mobile_home_type_expando:
         type: string
@@ -296,14 +306,12 @@ definitions:
         type: string
         nullable: true
       other_move_net_pounds:
-        type: number
-        format: double
-        example: 4.50
+        type: integer
+        example: 2000
         nullable: true
       other_move_progear_pounds:
-        type: number
-        format: float
-        example: 99.09
+        type: integer
+        example: 100
         nullable: true
       service_member_signature:
         type: string
@@ -361,9 +369,12 @@ definitions:
     - hhg_progear_pounds
     - hhg_valuable_items_cartons
     - mobile_home_serial_number
-    - mobile_home_length
-    - mobile_home_width
-    - mobile_home_height
+    - mobile_home_length_ft
+    - mobile_home_length_inches
+    - mobile_home_width_ft
+    - mobile_home_width_inches
+    - mobile_home_height_ft
+    - mobile_home_height_inches
     - mobile_home_type_expando
     - mobile_home_services_requested
     - station_orders_type
@@ -447,28 +458,35 @@ definitions:
         type: string
         example: Air Force
       hhg_total_pounds:
-        type: number
-        format: double
-        example: 125.25
+        type: integer
+        example: 10000
       hhg_progear_pounds:
-        type: number
-        format: double
-        example: 35.11
+        type: integer
+        example: 3000
       hhg_valuable_items_cartons:
         type: integer
         example: 3
       mobile_home_serial_number:
         type: string
         example: 45kljs98kljlkwj5
-      mobile_home_length:
-        type: number
+      mobile_home_length_ft:
+        type: integer
         example: 72
-      mobile_home_width:
-        type: number
-        example: 15.4
-      mobile_home_height:
-        type: number
+      mobile_home_length_inches:
+        type: integer
+        example: 4
+      mobile_home_width_ft:
+        type: integer
+        example: 15
+      mobile_home_width_inches:
+        type: integer
+        example: 4
+      mobile_home_height_ft:
+        type: integer
         example: 10
+      mobile_home_height_inches:
+        type: integer
+        example: 3
       mobile_home_type_expando:
         type: string
         example: bathroom and shower unit
@@ -549,13 +567,11 @@ definitions:
       other_move_to:
         type: string
       other_move_net_pounds:
-        type: number
-        format: double
-        example: 4.50
+        type: integer
+        example: 4000
       other_move_progear_pounds:
-        type: number
-        format: float
-        example: 99.09
+        type: integer
+        example: 88
       service_member_signature:
         type: string
         example: Focaccia Roll
