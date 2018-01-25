@@ -12,10 +12,10 @@ import (
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
 
-	"github.com/transcom/mymove/pkg/gen/genserver"
-	"github.com/transcom/mymove/pkg/gen/genserver/operations"
-	issueop "github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
 	"github.com/transcom/mymove/pkg/gen/messages"
+	"github.com/transcom/mymove/pkg/gen/restapi"
+	"github.com/transcom/mymove/pkg/gen/restapi/operations"
+	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
 )
 
 var testHandler http.Handler
@@ -123,7 +123,7 @@ func setupDBConnection() {
 func TestMain(m *testing.M) {
 	setupDBConnection()
 
-	swaggerSpec, err := loads.Analyzed(genserver.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}

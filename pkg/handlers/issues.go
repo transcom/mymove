@@ -5,8 +5,8 @@ import (
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
 
-	issueop "github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
 	"github.com/transcom/mymove/pkg/gen/messages"
+	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
 	"github.com/transcom/mymove/pkg/models"
 )
 

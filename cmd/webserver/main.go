@@ -12,9 +12,9 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/gen/genserver"
-	"github.com/transcom/mymove/pkg/gen/genserver/operations"
-	issueop "github.com/transcom/mymove/pkg/gen/genserver/operations/issues"
+	"github.com/transcom/mymove/pkg/gen/restapi"
+	"github.com/transcom/mymove/pkg/gen/restapi/operations"
+	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -64,7 +64,7 @@ func main() {
 	// initialize api pkg with dbConnection created above
 	handlers.Init(dbConnection)
 
-	swaggerSpec, err := loads.Analyzed(genserver.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
