@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -25,10 +23,8 @@ func responseForIssueModel(issue models.Issue) messages.IssueResponse {
 	return issueResponse
 }
 
-// Creates a new issue via POST /issue
+// CreateIssueHandler creates a new issue via POST /issue
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
-	fmt.Println("NEW ISSUE TIME")
-
 	payload := *params.CreateIssuePayload
 	newIssue := models.Issue{
 		Description: *payload.Description,
@@ -46,10 +42,8 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 	return response
 }
 
-// Returns a list of all issues
+// IndexIssuesHandler returns a list of all issues
 func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
-	fmt.Println("INDEXISSUES TIME")
-
 	var issues models.Issues
 	var response middleware.Responder
 	if err := dbConnection.All(&issues); err != nil {
