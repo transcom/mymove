@@ -4,6 +4,7 @@ import (
 	"flag"
 	"log"
 	"net/http"
+	"path"
 
 	"github.com/markbates/pop"
 	"go.uber.org/zap"
@@ -58,7 +59,7 @@ func main() {
 	}
 
 	// initialize api pkg with dbConnection created above
-	api.Init(dbConnection, *swagger)
+	api.Init(dbConnection, *swagger, path.Join(*build, "swagger-ui", "index.html"))
 
 	// Serves files out of build folder
 	fileHandler := http.FileServer(http.Dir(*build))
@@ -70,6 +71,7 @@ func main() {
 	root := goji.NewMux()
 	root.Handle(pat.New("/api/*"), api)
 	root.Handle(pat.Get("/static/*"), fileHandler)
+	root.Handle(pat.Get("/swagger-ui/*"), fileHandler)
 	root.Handle(pat.Get("/favicon.ico"), fileHandler)
 	root.HandleFunc(pat.Get("/*"), IndexHandler(entry))
 

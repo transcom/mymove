@@ -15,11 +15,13 @@ import (
 // pkg global variable for db connection
 var dbConnection *pop.Connection
 var swaggerPath string
+var swaggerUIPath string
 
 // Init the API package with its database connection
-func Init(dbInitialConnection *pop.Connection, initialSwaggerPath string) {
+func Init(dbInitialConnection *pop.Connection, initialSwaggerPath string, initialSwaggerUIPath string) {
 	dbConnection = dbInitialConnection
 	swaggerPath = initialSwaggerPath
+	swaggerUIPath = initialSwaggerUIPath
 }
 
 // Mux creates the API router and returns it for inclusion in the app router
@@ -31,6 +33,7 @@ func Mux() *goji.Mux {
 	version1Mux.HandleFunc(pat.Post("/issues"), submitIssueHandler)
 	version1Mux.HandleFunc(pat.Get("/issues"), indexIssueHandler)
 	version1Mux.HandleFunc(pat.Get("/swagger.yaml"), swaggerYAMLHandler)
+	version1Mux.HandleFunc(pat.Get("/docs"), swaggerUIHandler)
 	apiMux.Handle(pat.New("/v1/*"), version1Mux)
 
 	return apiMux
@@ -43,6 +46,10 @@ type incomingIssue struct {
 
 func swaggerYAMLHandler(w http.ResponseWriter, r *http.Request) {
 	http.ServeFile(w, r, swaggerPath)
+}
+
+func swaggerUIHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, swaggerUIPath)
 }
 
 func submitIssueHandler(w http.ResponseWriter, r *http.Request) {

@@ -1,0 +1,22 @@
+#!/bin/bash
+#
+#   Creates a snapshot of the app database for the given environment.
+#
+set -eo pipefail
+
+usage() {
+    echo "$0 <environment>"
+    exit 1
+}
+[[ -z $1 ]] && usage
+
+set -u
+
+readonly environment=$1
+
+readonly db_instance_identifer=app-$environment
+readonly db_snapshot_identifer=$db_instance_identifer-$(date +%s)
+readonly tags=("Key=Environment,Value=$environment" "Key=Tool,Value=$(basename "$0")")
+
+aws rds create-db-snapshot --db-instance-identifier "$db_instance_identifer" --db-snapshot-identifier "$db_snapshot_identifer" --tags "${tags[@]}"
+time aws rds wait db-snapshot-completed --db-instance-identifier "$db_instance_identifer" --db-snapshot-identifier "$db_snapshot_identifer"

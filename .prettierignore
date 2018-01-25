@@ -1,0 +1,2 @@
+public/swagger-ui/*
+!public/swagger-ui/index.html

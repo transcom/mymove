@@ -1,0 +1,25 @@
+# This container will be used by the CI system to run migrations in the Staging
+# and Production environments.
+
+# Start from a Debian image with the latest version of Go installed
+# and a workspace (GOPATH) configured at /go.
+FROM golang AS build
+
+# Install tools required to build the project
+# These linker flags create a standalone binary that will run in scratch.
+RUN go get -ldflags "-linkmode external -extldflags -static" github.com/markbates/pop/soda
+
+# We don't need any of the Go mechanics, just the Soda binary. Copy into a single
+# layer image.
+FROM scratch
+COPY --from=build /go/bin/soda /bin/soda
+COPY migrations /migrate/migrations
+COPY config/database.yml /migrate
+ENV environment=production
+
+ENTRYPOINT ["/bin/soda"]
+CMD ["migrate", "-d", \
+     "-c", "/migrate/database.yml", \
+     "-p", "/migrate/migrations", \
+     "up", \
+     "-e"]
