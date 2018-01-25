@@ -74,7 +74,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
-Dependencies are managed by yarn
+Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### API
 

@@ -34,7 +34,7 @@ server_deps_update:
 server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
-	dep ensure
+	dep ensure -vendor-only
 	go install ./vendor/github.com/markbates/pop/soda
 	go install ./vendor/github.com/golang/lint/golint
 	go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
