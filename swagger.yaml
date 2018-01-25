@@ -254,7 +254,7 @@ definitions:
         example: 212-666-6666
         nullable: true
       in_transit_address_number:
-        type: string string
+        type: string
         nullable: true
       in_transit_address_street:
         type: string
@@ -314,7 +314,7 @@ definitions:
         type: string
         nullable: true
       dest_address_mobile_court_name:
-        type: String
+        type: string
         example: Carraway Court
         nullable: true
       agent_to_receive_hhg:
