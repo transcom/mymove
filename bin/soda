@@ -8,4 +8,4 @@
 
 cd pkg
 
-soda "$@" --path ../migrations -c ../config/database.yml
+$GOPATH/bin/soda "$@" --path ../migrations -c ../config/database.yml
