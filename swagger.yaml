@@ -73,7 +73,7 @@ paths:
         201:
           description: created instance of form 1299
           schema:
-            $ref: '#/definitions/Form1299Response'
+            $ref: '#/definitions/Form1299Payload'
         400:
           description: invalid request
     get:
@@ -88,7 +88,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/IndexForm1299sResponse'
+              $ref: '#/definitions/IndexForms1299Payload'
         400:
           description: invalid request
 
@@ -119,94 +119,71 @@ definitions:
         type: string
         format: date
         example: 2018-01-03
-        nullable: true
       shipment_number:
         type: string
         example: 4550
-        nullable: true
       name_of_preparing_office:
         type: string
         example: pumpernickel office
-        nullable: true
       dest_office_name:
         type: string
-        nullable: true
       origin_office_address_name:
         type: string
         example: Office manager John Dough
-        nullable: true
       origin_office_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       service_member_first_name:
         type: string
         example: Focaccia
-        nullable: true
       service_member_middle_initial:
         example: L.
-        nullable: true
       service_member_last_name:
         type: string
         example: Roll
-        nullable: true
       service_member_rank:
         type: string
         example: Commodore
-        nullable: true
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-555-5555
-        nullable: true
       service_member_agency:
         type: string
         example: Air Force
-        nullable: true
       hhg_total_pounds:
         type: integer
         example: 10000
-        nullable: true
       hhg_progear_pounds:
         type: integer
         example: 35.11
-        nullable: true
       hhg_valuable_items_cartons:
         type: integer
         example: 3
-        nullable: true
       mobile_home_serial_number:
         type: string
         example: 45kljs98kljlkwj5
-        nullable: true
       mobile_home_length_ft:
         type: integer
         example: 72
-        nullable: true
       mobile_home_length_inches:
         type: integer
         example: 4
-        nullable: true
       mobile_home_width_ft:
         type: integer
         example: 15
-        nullable: true
       mobile_home_width_inches:
         type: integer
         example: 4
-        nullable: true
       mobile_home_height_ft:
         type: integer
         example: 10
-        nullable: true
       mobile_home_height_inches:
         type: integer
         example: 3
-        nullable: true
       mobile_home_type_expando:
         type: string
         example: bathroom and shower unit
-        nullable: true
       mobile_home_services_requested:
         type: string
         enum:
@@ -215,138 +192,107 @@ definitions:
         - mobile home unblocked
         - stored at origin
         - stored at destination
-        nullable: true
       station_orders_type:
         type: string
         enum:
         - permanent
         - temporary
-        nullable: true
       station_orders_issued_by:
         type: string
         example: Sergeant Naan
-        nullable: true
       station_orders_new_assignment:
         type: string
         example: ACCOUNTING OPS
-        nullable: true
       station_orders_date:
         type: string
         format: date
         example: 2018-03-15
-        nullable: true
       station_orders_number:
         type: string
         example: 98374
-        nullable: true
       station_orders_paragraph_number:
         type: string
         example: 5
-        nullable: true
       station_orders_in_transit_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
-        nullable: true
       in_transit_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       pickup_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       pickup_address_mobile_court_name:
         type: string
         example: Winnebagel court
-        nullable: true
       pickup_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
-        nullable: true
       dest_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       dest_address_mobile_court_name:
         type: string
         example: Carraway Court
-        nullable: true
       agent_to_receive_hhg:
         type: string
-        nullable: true
       extra_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       pack_scheduled_date:
         type: string
         format: date
         example: 2018-03-08
-        nullable: true
       pickup_scheduled_date:
         type: string
         format: date
         example: 2018-03-09
-        nullable: true
       delivery_scheduled_date:
         type: string
         format: date
         example: 2018-03-10
-        nullable: true
       remarks:
         type: string
         example: please be careful with my stuff
-        nullable: true
       other_move_from:
         type: string
-        nullable: true
       other_move_to:
         type: string
-        nullable: true
       other_move_net_pounds:
         type: integer
         example: 2000
-        nullable: true
       other_move_progear_pounds:
         type: integer
         example: 100
-        nullable: true
       service_member_signature:
         type: string
         example: Focaccia Roll
-        nullable: true
       date_signed:
         type: string
         format: date
         example: 2018-01-23
-        nullable: true
       contractor_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
-        nullable: true
       contractor_name:
         type: string
         example: Mayflower Transit
-        nullable: true
       nonavailability_of_signature_reason:
         type: string
         example: service member not present
-        nullable: true
       certified_by_signature:
         type: string
         example: Sally Crumpet
-        nullable: true
       title_of_certified_by_signature:
         type: string
         example: Colonel Crumpet
-        nullable: true
-  IndexForm1299Response:
+  IndexForms1299Payload:
     type: array
     items:
-      $ref: '#/definitions/Form1299Response'
-  Form1299Response:
+      $ref: '#/definitions/Form1299Payload'
+  Form1299Payload:
     type: object
     required:
     - id
