@@ -1,5 +1,5 @@
 import { combineReducers } from 'redux';
-import { showIssues } from 'reducers/index';
+import showIssues from 'reducers/index';
 
 import { routerReducer } from 'react-router-redux';
 
