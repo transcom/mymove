@@ -79,12 +79,12 @@ paths:
     get:
       summary: List all submitted 1299 forms
       description: List all submitted 1299 forms
-      operationId: indexForm1299s
+      operationId: indexForms1299
       produces:
       - application/json
       responses:
         200:
-          description: list of submitted form 1299s
+          description: list of submitted forms 1299
           schema:
             type: array
             items:
