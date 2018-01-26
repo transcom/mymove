@@ -255,21 +255,22 @@ const fieldsYaml = `
             type: string
             example: Mayflower Transit
             nullable: true
-            label:
-      nonavailability_of_signature_reason:
-        type: string
-        example: service member not present
-        nullable: true
-      certified_by_signature:
-        type: string
-        example: Sally Crumpet
-      title:
-        type: string
-        example: Colonel Crumpet
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
+            label: Name of Contractor
+      cert_in_lieu_of_signature:
+        type: group
+        label: Certificate In Lieu Of Signature On This Form Is Required When Regulations So Authorize. Property Is Baggagehousehold goods, mobile home, and/or professional books, papers and equipment authorized to be shipped at government expense.
+        fields:
+          nonavailability_of_signature_reason:
+            type: string
+            example: service member not present
+            nullable: true
+            label: Reason For Nonavailability Of Signature
+          certified_by_signature:
+            type: string
+            example: Sally Crumpet
+            label: Certified By Signature
+          title:
+            type: string
+            example: Colonel Crumpet
+            label: Title
         `;

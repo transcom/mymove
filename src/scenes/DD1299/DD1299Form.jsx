@@ -28,12 +28,7 @@ const renderField = (name, fields) => {
     <div key={name}>
       <label htmlFor={name}>
         {field.label || name}
-        <Field
-          name={name}
-          component="input"
-          type={field.format}
-          placeholder={field.example}
-        />
+        <Field name={name} component="input" type={field.format} />
       </label>
     </div>
   );
@@ -43,6 +38,7 @@ const DD1299 = props => {
   const fields = getFields();
   return (
     <form className="dd1299" onSubmit={handleSubmit}>
+      <h1>Application For Shipment And Or Storage Of Personal Property</h1>
       {Object.keys(fields).map(f => renderGroupOrField(f, fields))}
 
       <button type="submit">Submit</button>
