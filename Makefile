@@ -89,9 +89,9 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	$GOPATH/bin/soda migrate up
+	soda migrate up
 db_dev_migrate_down: db_dev_run
-	$GOPATH/bin/soda migrate down
+	soda migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
@@ -103,7 +103,7 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	$GOPATH/bin/soda -e test migrate up
+	soda -e test migrate up
 
 adr_update:
 	yarn run adr-log
