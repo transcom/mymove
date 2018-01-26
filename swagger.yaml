@@ -47,6 +47,37 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
+  /form1299:
+    post:
+      summary: Create a new shipment or storage of personal property application
+      description: Create an instance of form 1299
+      operationId: createForm1299
+      parameters:
+      - in: body
+        name: createForm1299Payload
+        required: true
+        schema:
+          $ref: "#/definitions/CreateForm1299Payload"
+      responses:
+        201:
+          description: created instance of form 1299
+          schema:
+            $ref: '#/definitions/Form1299Payload'
+        400:
+          description: invalid request
+    get:
+      summary: List all submitted 1299 forms
+      description: List all submitted 1299 forms
+      operationId: indexForms1299
+      responses:
+        200:
+          description: list of submitted forms 1299
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/IndexForms1299Payload'
+        400:
+          description: invalid request
 
 definitions:
   CreateIssuePayload:
@@ -82,3 +113,432 @@ definitions:
       - description
       - created_at
       - updated_at
+
+  CreateForm1299Payload:
+    type: object
+    properties:
+      date_prepared:
+        type: string
+        format: date
+        example: 2018-01-03
+      shipment_number:
+        type: string
+        example: 4550
+      name_of_preparing_office:
+        type: string
+        example: pumpernickel office
+      dest_office_name:
+        type: string
+      origin_office_address_name:
+        type: string
+        example: Office manager John Dough
+      origin_office_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      service_member_first_name:
+        type: string
+        example: Focaccia
+      service_member_middle_initial:
+        example: L.
+      service_member_last_name:
+        type: string
+        example: Roll
+      service_member_rank:
+        type: string
+        example: Commodore
+      service_member_ssn:
+        type: string
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: 555-555-5555
+      service_member_agency:
+        type: string
+        example: Air Force
+      hhg_total_pounds:
+        type: integer
+        example: 10000
+      hhg_progear_pounds:
+        type: integer
+        example: 350
+      hhg_valuable_items_cartons:
+        type: integer
+        example: 3
+      mobile_home_serial_number:
+        type: string
+        example: 45kljs98kljlkwj5
+      mobile_home_length_ft:
+        type: integer
+        example: 72
+      mobile_home_length_inches:
+        type: integer
+        example: 4
+      mobile_home_width_ft:
+        type: integer
+        example: 15
+      mobile_home_width_inches:
+        type: integer
+        example: 4
+      mobile_home_height_ft:
+        type: integer
+        example: 10
+      mobile_home_height_inches:
+        type: integer
+        example: 3
+      mobile_home_type_expando:
+        type: string
+        example: bathroom and shower unit
+      mobile_home_services_requested:
+        type: string
+        enum:
+        - contents packed
+        - mobile home blocked
+        - mobile home unblocked
+        - stored at origin
+        - stored at destination
+      station_orders_type:
+        type: string
+        enum:
+        - permanent
+        - temporary
+      station_orders_issued_by:
+        type: string
+        example: Sergeant Naan
+      station_orders_new_assignment:
+        type: string
+        example: ACCOUNTING OPS
+      station_orders_date:
+        type: string
+        format: date
+        example: 2018-03-15
+      station_orders_number:
+        type: string
+        example: 98374
+      station_orders_paragraph_number:
+        type: string
+        example: 5
+      station_orders_in_transit_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-666-6666
+      in_transit_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pickup_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pickup_address_mobile_court_name:
+        type: string
+        example: Winnebagel court
+      pickup_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+      dest_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      dest_address_mobile_court_name:
+        type: string
+        example: Carraway Court
+      agent_to_receive_hhg:
+        type: string
+      extra_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pack_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-08
+      pickup_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-09
+      delivery_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-10
+      remarks:
+        type: string
+        example: please be careful with my stuff
+      other_move_from:
+        type: string
+      other_move_to:
+        type: string
+      other_move_net_pounds:
+        type: integer
+        example: 2000
+      other_move_progear_pounds:
+        type: integer
+        example: 100
+      service_member_signature:
+        type: string
+        example: Focaccia Roll
+      date_signed:
+        type: string
+        format: date
+        example: 2018-01-23
+      contractor_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      contractor_name:
+        type: string
+        example: Mayflower Transit
+      nonavailability_of_signature_reason:
+        type: string
+        example: service member not present
+      certified_by_signature:
+        type: string
+        example: Sally Crumpet
+      title_of_certified_by_signature:
+        type: string
+        example: Colonel Crumpet
+  IndexForms1299Payload:
+    type: array
+    items:
+      $ref: '#/definitions/Form1299Payload'
+  Form1299Payload:
+    type: object
+    required:
+    - id
+    - created_at
+    - updated_at
+    - form_completed
+    - date_prepared
+    - shipment_number
+    - name_of_preparing_office
+    - dest_office_name
+    - origin_office_address_name
+    - origin_office_address
+    - service_member_first_name
+    - service_member_middle_initial
+    - service_member_last_name
+    - service_member_rank
+    - service_member_ssn
+    - service_member_agency
+    - hhg_total_pounds
+    - hhg_progear_pounds
+    - hhg_valuable_items_cartons
+    - mobile_home_serial_number
+    - mobile_home_length_ft
+    - mobile_home_length_inches
+    - mobile_home_width_ft
+    - mobile_home_width_inches
+    - mobile_home_height_ft
+    - mobile_home_height_inches
+    - mobile_home_type_expando
+    - mobile_home_services_requested
+    - station_orders_type
+    - station_orders_issued_by
+    - station_orders_new_assignment
+    - station_orders_date
+    - station_orders_number
+    - station_orders_paragraph_number
+    - station_orders_in_transit_telephone
+    - in_transit_address
+    - pickup_address
+    - pickup_address_mobile_court_name
+    - pickup_telephone
+    - dest_address
+    - dest_address_mobile_court_name
+    - agent_to_receive_hhg
+    - extra_address
+    - pack_scheduled_date
+    - pickup_scheduled_date
+    - delivery_scheduled_date
+    - remarks
+    - other_move_from
+    - other_move_to
+    - other_move_net_pounds
+    - other_move_progear_pounds
+    - service_member_signature
+    - date_signed
+    - contractor_address
+    - contractor_name
+    - nonavailability_of_signature_reason
+    - certified_by_signature
+    - title_of_certified_by_signature
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      form_completed:
+        type: boolean
+        example: false
+      date_prepared:
+        type: string
+        format: date
+        example: 2018-01-03
+      shipment_number:
+        type: string
+        example: 4550
+      name_of_preparing_office:
+        type: string
+        example: pumpernickel office
+      dest_office_name:
+        type: string
+      origin_office_address_name:
+        type: string
+        example: Office manager John Dough
+      origin_office_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      service_member_first_name:
+        type: string
+        example: Focaccia
+      service_member_middle_initial:
+        example: L.
+      service_member_last_name:
+        type: string
+        example: Roll
+      service_member_rank:
+        type: string
+        example: Commodore
+      service_member_ssn:
+        type: string
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: 555-555-5555
+      service_member_agency:
+        type: string
+        example: Air Force
+      hhg_total_pounds:
+        type: integer
+        example: 10000
+      hhg_progear_pounds:
+        type: integer
+        example: 3000
+      hhg_valuable_items_cartons:
+        type: integer
+        example: 3
+      mobile_home_serial_number:
+        type: string
+        example: 45kljs98kljlkwj5
+      mobile_home_length_ft:
+        type: integer
+        example: 72
+      mobile_home_length_inches:
+        type: integer
+        example: 4
+      mobile_home_width_ft:
+        type: integer
+        example: 15
+      mobile_home_width_inches:
+        type: integer
+        example: 4
+      mobile_home_height_ft:
+        type: integer
+        example: 10
+      mobile_home_height_inches:
+        type: integer
+        example: 3
+      mobile_home_type_expando:
+        type: string
+        example: bathroom and shower unit
+      mobile_home_services_requested:
+        type: string
+        enum:
+        - contents packed
+        - mobile home blocked
+        - mobile home unblocked
+        - stored at origin
+        - stored at destination
+      station_orders_type:
+        type: string
+        enum:
+        - permanent
+        - temporary
+      station_orders_issued_by:
+        type: string
+        example: Sergeant Naan
+      station_orders_new_assignment:
+        type: string
+        example: ACCOUNTING OPS
+      station_orders_date:
+        type: string
+        format: date
+        example: 2018-03-15
+      station_orders_number:
+        type: string
+        example: 98374
+      station_orders_paragraph_number:
+        type: string
+        example: 5
+      station_orders_in_transit_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-666-6666
+      in_transit_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pickup_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pickup_address_mobile_court_name:
+        type: string
+        example: Winnebagel court
+      pickup_telephone:
+        type: string
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+      dest_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      dest_address_mobile_court_name:
+        type: string
+        example: Carraway Court
+      agent_to_receive_hhg:
+        type: string
+      extra_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      pack_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-08
+      pickup_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-09
+      delivery_scheduled_date:
+        type: string
+        format: date
+        example: 2018-03-10
+      remarks:
+        type: string
+        example: please be careful with my stuff
+      other_move_from:
+        type: string
+      other_move_to:
+        type: string
+      other_move_net_pounds:
+        type: integer
+        example: 4000
+      other_move_progear_pounds:
+        type: integer
+        example: 88
+      service_member_signature:
+        type: string
+        example: Focaccia Roll
+      date_signed:
+        type: string
+        format: date
+        example: 2018-01-23
+      contractor_address:
+        type: string
+        example: '3450 Kneading Way, San Francisco, California 94104'
+      contractor_name:
+        type: string
+        example: Mayflower Transit
+      nonavailability_of_signature_reason:
+        type: string
+        example: service member not present
+      certified_by_signature:
+        type: string
+        example: Sally Crumpet
+      title_of_certified_by_signature:
+        type: string
+        example: Colonel Crumpet

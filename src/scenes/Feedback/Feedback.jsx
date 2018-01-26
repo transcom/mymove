@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
 
-import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
+import FeedbackForm from 'scenes/Feedback/FeedbackForm';
+
+import { CreateIssue } from 'shared/api.js';
 
 class Feedback extends Component {
   constructor(props) {
@@ -18,26 +20,16 @@ class Feedback extends Component {
     this.setState({ value: e.target.value });
   };
 
-  handleSubmit = e => {
+  handleSubmit = async e => {
     e.preventDefault();
-    const config = {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'text/plain',
-      },
-      body: JSON.stringify({ body: this.state.value }),
-    };
-    fetch('/api/v1/issues', config)
-      .then(response => {
-        if (response.ok) {
-          this.setState({ confirmationText: 'Response received!' });
-        } else {
-          this.setState({ confirmationText: 'Error submitting feedback' });
-        }
-      })
-      .catch(response => {
-        this.setState({ confirmationText: 'Error submitting feedback' });
-      });
+
+    try {
+      await CreateIssue(this.state.value);
+      this.setState({ confirmationText: 'Response received!' });
+    } catch (e) {
+      //todo: how do we want to monitor errors
+      this.setState({ confirmationText: 'Error submitting feedback' });
+    }
   };
 
   render() {
