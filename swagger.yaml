@@ -156,7 +156,7 @@ definitions:
         example: 10000
       hhg_progear_pounds:
         type: integer
-        example: 35.11
+        example: 350
       hhg_valuable_items_cartons:
         type: integer
         example: 3
