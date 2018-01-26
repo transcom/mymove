@@ -50,7 +50,7 @@ jobs:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
       - run:
           name: Run migration task on ECS
-          command:
+          command: |
             bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
 
   deploy:

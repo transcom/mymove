@@ -33,13 +33,20 @@ fi
 container_definition_json=$(aws ecs describe-task-definition --task-definition "$container_definition" --query 'taskDefinition.containerDefinitions[0]')
 
 # create new task definition with the given image
-task_definition_json=$(echo "$container_definition_json" | perl -pe 's/"image":.+/"image": "'"$image"'",/;')
+task_definition_json=$(echo "$container_definition_json" | perl -pe 's/"image":.+/"image": "'"${image//\//\\/}"'",/;')
 task_definition_arn=$(aws ecs register-task-definition --family "$family" --container-definitions "$task_definition_json" --query 'taskDefinition.taskDefinitionArn' --output text)
 check_arn "$task_definition_arn"
 
+# build migration parameters
+# see https://docs.aws.amazon.com/cli/latest/reference/ecs/run-task.html#options
+# TODO: Our database.yml is incorrectly identifying the staging database
+#       as 'prod' right now. Once this is fixed, we can have ECS set an
+#       environment variable based on the $environment in this script.
+overrides_json='{"containerOverrides": [{"environment": [{"GO_ENV": "prod"] }]}'
+
 # run the task
 echo "Running task …"
-task_arn=$(aws ecs run-task --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
+task_arn=$(aws ecs run-task --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --overrides "$overrides_json" --output text)
 check_arn "$task_arn"
 time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
 echo
