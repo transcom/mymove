@@ -11,7 +11,7 @@ const fieldsYaml = `
       shipment_number:
         type: string
         example: 4550
-        label: Shipment number
+        label: Shipment Number
       name_of_preparing_office:
         type: string
         example: pumpernickel office
@@ -34,7 +34,7 @@ const fieldsYaml = `
             label: Address
       service_member_information:
         type: group
-        label: Member or Employee Information
+        label: Member Or Employee Information
         fields:
           service_member_first_name:
             type: string
@@ -54,196 +54,208 @@ const fieldsYaml = `
             label: Rank/Grade
           service_member_ssn:
             type: string
-            pattern: '^\d{3}-\d{2}-\d{4}$'
+            pattern: '^\\d{3}-\\d{2}-\\d{4}$'
             example: 555-555-5555
             label: SSN
           service_member_agency:
             type: string
             example: Air Force
             label: Agency
-      hhg_total_pounds:
-        type: number
-        format: double
-        example: 125.25
-      hhg_progear_pounds:
-        type: number
-        format: double
-        example: 35.11
-        nullable: true
-      hhg_valuable_items_cartons:
-        type: integer
-        example: 3
-        nullable: true
-      mobile_home_serial_number:
-        type: string
-        example: 45kljs98kljlkwj5
-        nullable: true
-      mobile_home_length:
-        type: number
-        example: 72
-        nullable: true
-      mobile_home_width:
-        type: number
-        example: 15.4
-        nullable: true
-      mobile_home_height:
-        type: number
-        example: 10
-        nullable: true
-      mobile_home_type_expando:
-        type: string
-        example: bathroom and shower unit
-        nullable: true
-      mobile_home_services_requested:
-        type: string
-        enum:
-        - contents packed
-        - mobile home blocked
-        - mobile home unblocked
-        - stored at origin
-        - stored at destination
-        nullable: true
-      station_orders_type:
-        type: string
-        enum:
-        - permanent
-        - temporary
-      station_orders_issued_by:
-        type: string
-        example: Sergeant Naan
-      station_orders_new_assignment:
-        type: string
-        example: ACCOUNTING OPS
-      station_orders_date:
-        type: string
-        format: date
-        example: 2018-03-15
-      station_orders_number:
-        type: string
-        example: 98374
-      station_orders_paragraph_number:
-        type: string
-        example: 5
-      station_orders_in_transit_telephone:
-        type: string
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-666-6666
-      in_transit_address_number:
-        type: string string
-      in_transit_address_street:
-        type: string
-      in_transit_address_city:
-        type: string
-      in_transit_address_state:
-        type: string
-      in_transit_address_zip:
-        type: string
-      pickup_address_number:
-        type: string
-      pickup_address_street:
-        type: string
-      pickup_address_city:
-        type: string
-      pickup_address_county:
-        type: string
-      pickup_address_state:
-        type: string
-      pickup_address_zip:
-        type: string
-      pickup_address_mobile_court_name:
-        type: string
-        example: Winnebagel court
-      pickup_telephone:
-        type: string
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-      dest_address_number:
-        type: string
-      dest_address_street:
-        type: string
-      dest_address_city:
-        type: string
-      dest_address_county:
-        type: string
-      dest_address_state:
-        type: string
-      dest_address_zip:
-        type: string
-      dest_address_mobile_court_name:
-        type: String
-        example: Carraway Court
-      agent_to_receive_hhg:
-        type: string
-      extra_address_number:
-        type: string
-        nullable: true
-      extra_address_street:
-        type: string
-        nullable: true
-      extra_address_city:
-        type: string
-        nullable: true
-      extra_address_county:
-        type: string
-        nullable: true
-      extra_address_state:
+      item_information:
+        type: group
+        label: Request Action Be Taken to transport or store the following
+        fields:
+          household_goods:
+            type: group
+            label: HOUSEHOLD GOODS/UNACCOMPANIED BAGGAGE/ITEMS/NO. OF CONTAINERS (Enter quantity estimate)
+            fields:
+              hhg_total_pounds:
+                type: number
+                format: double
+                example: 125.25
+                label: Pounds
+              hhg_progear_pounds:
+                type: number
+                format: double
+                example: 35.11
+                nullable: true
+                label: Pounds of Professional Books, Papers, and Equipment (PBP&E) (Enter "none" if not applicable)
+              hhg_valuable_items_cartons:
+                type: integer
+                example: 3
+                nullable: true
+                label: EXPENSIVE AND VALUABLE ITEMS (Number of cartons)
+          mobile_home:
+            type: group
+            label: MOBILE HOME INFORMATION (Enter dimensions in feet and inches)
+            fields:
+              mobile_home_serial_number:
+                type: string
+                example: 45kljs98kljlkwj5
+                nullable: true
+                label: SERIAL NUMBER
+              mobile_home_length:
+                type: number
+                example: 72
+                nullable: true
+                label: LENGTH
+              mobile_home_width:
+                type: number
+                example: 15.4
+                nullable: true
+                label: WIDTH
+              mobile_home_height:
+                type: number
+                example: 10
+                nullable: true
+                label: HEIGHT
+              mobile_home_type_expando:
+                type: string
+                example: bathroom and shower unit
+                nullable: true
+                label: TYPE EXPANDO
+              mobile_home_services_requested:
+                type: string
+                enum:
+                - contents packed
+                - mobile home blocked
+                - mobile home unblocked
+                - stored at origin
+                - stored at destination
+                nullable: true
+      orders_information:
+        type: group
+        label: This Shipment Storage Is Required Incident To The Following Change Of Station Orders
+        fields:
+            station_orders_type:
+              type: string
+              label: Type Orders
+              enum:
+              - permanent
+              - temporary
+            station_orders_issued_by:
+              type: string
+              example: Sergeant Naan
+              label: Issued by
+            station_orders_new_assignment:
+              type: string
+              example: ACCOUNTING OPS
+              label: New duty Assignment
+            station_orders_date:
+              type: string
+              format: date
+              example: 2018-03-15
+              label: Date Of Orders
+            station_orders_number:
+              type: string
+              example: 98374
+              label: Orders Number
+            station_orders_paragraph_number:
+              type: string
+              example: 5
+              label: Paragraph Number
+            station_orders_in_transit_telephone:
+              type: string
+              pattern: '^[2-9]\\d{2}-\\d{3}-\\d{4}$'
+              example: 212-666-6666
+              label: In Transit Telephone No
+            in_transit_address:
+              type: string
+              label: In Transit Address
+      pickup_information:
+        type: group
+        label: Pickup Origin Information
+        fields:
+          pickup_address:
+            type: string
+            label: Address (Street, Apartment Number, City, County, State, ZIP Code)(If a mobile home park, include mobile home court name)
+          pickup_telephone:
+            type: string
+            pattern: '^[2-9]\\d{2}-\\d{3}-\\d{4}$'
+            example: 212-555-5555
+            label: Telephone Number (Include Area Code)
+      destination_information:
+        type: group
+        label: Destination information
+        fields:
+          dest_address:
+            type: string
+            label: Address (Street, Apartment Number, City, County, State, ZIP Code)(If a mobile home park, include mobile home court name)
+          agent_to_receive_hhg:
+            type: string
+            label: Agent Designated To Receive Property
+      extra_address:
         type: string
         nullable: true
-      extra_address_zip:
-        type: string
-        nullable: true
-      pack_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-08
-      pickup_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-09
-      delivery_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-10
+        label: Extra Pickup/Delivery Address (if applicable)
+      scheduled_dates:
+        type: group
+        label: Scheduled Date for
+        fields:
+          pack_scheduled_date:
+            type: string
+            format: date
+            example: 2018-03-08
+            label: Pack
+          pickup_scheduled_date:
+            type: string
+            format: date
+            example: 2018-03-09
+            label: Pickup
+          delivery_scheduled_date:
+            type: string
+            format: date
+            example: 2018-03-10
+            label: Delivery
       remarks:
         type: string
         example: please be careful with my stuff
-      other_move_from:
-        type: string
-        nullable: true
-      other_move_to:
-        type: string
-        nullable: true
-      other_move_net_pounds:
-        type: number
-        format: double
-        example: 4.50
-        nullable: true
-      other_move_progear_pounds:
-        type: number
-        format: float
-        example: 99.09
-        nullable: true
-      service_member_signature:
-        type: string
-        example: Focaccia Roll
-      date_signed:
-        type: string
-        format: date
-        example: 2018-01-23
-      contractor_address_number:
-        type: string
-      contractor_address_street:
-        type: string
-      contractor_address_city:
-        type: string
-      contractor_address_state:
-        type: string
-      contractor_address_zip:
-        type: string
-      contractor_name:
-        type: string
-        example: Mayflower Transit
-        nullable: true
+        label: Remarks
+      other_move_information:
+        type: group
+        label: I Certify That No Other Shipments And Or Nontemporary Storage Have Been Made Under These Orders Except As Indicated Below If None Indicate None
+        fields:
+          other_move_from:
+            type: string
+            nullable: true
+            label: From
+          other_move_to:
+            type: string
+            nullable: true
+            label: To
+          other_move_net_pounds:
+            type: number
+            format: double
+            example: 4.50
+            nullable: true
+            label: Net Pounds (Actual Or Estimated)
+          other_move_progear_pounds:
+            type: number
+            format: float
+            example: 99.09
+            nullable: true
+            label: Pounds Of PBP&E
+      certification_of_shipment_responsibilities:
+        type: group
+        label: Certification Of Shipment Responsibilities Storage Conditions I Certify That I Have Read And Understand My Shipping Responsibilities And Storage Conditions Printed On The Back Side Of This Form
+        fields:
+          service_member_signature:
+            type: string
+            example: Focaccia Roll
+            label: Signature Of Member/Employee
+          date_signed:
+            type: string
+            format: date
+            example: 2018-01-23
+            label: Date Signed
+          contractor_address:
+            type: string
+            label: Address Of Contractor (Street Suite No City State Zip Code)
+          contractor_name:
+            type: string
+            example: Mayflower Transit
+            nullable: true
+            label:
       nonavailability_of_signature_reason:
         type: string
         example: service member not present

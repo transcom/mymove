@@ -1,17 +1,25 @@
 import React from 'react';
-import { Field, FormSection, reduxForm } from 'redux-form';
+import { Field, reduxForm } from 'redux-form';
 import { getFields } from './fields';
 
 import './DD1299.css';
 
 const renderGroupOrField = (name, fields) => {
+  /*TODO:
+   handle enums
+   telephone numbers
+   textbox vs textarea (e.g for addresses)
+   dates look wonky
+   styling in accordance with USWDS
+   formatting of labels?
+  */
   const field = fields[name];
   if (field.type !== 'group') return renderField(name, fields);
   return (
-    <section key={name}>
-      <h4 htmlFor={name}>{field.label}</h4>
-      {Object.keys(field.fields).map(f => renderField(f, field.fields))}
-    </section>
+    <fieldset key={name}>
+      <legend htmlFor={name}>{field.label}</legend>
+      {Object.keys(field.fields).map(f => renderGroupOrField(f, field.fields))}
+    </fieldset>
   );
 };
 const renderField = (name, fields) => {
@@ -34,7 +42,7 @@ const DD1299 = props => {
   const { handleSubmit } = props;
   const fields = getFields();
   return (
-    <form onSubmit={handleSubmit}>
+    <form className="dd1299" onSubmit={handleSubmit}>
       {Object.keys(fields).map(f => renderGroupOrField(f, fields))}
 
       <button type="submit">Submit</button>

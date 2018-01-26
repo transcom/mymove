@@ -1,3 +1,17 @@
-section {
-  border: medium dashed green;
+form.dd1299 {
+  padding: 3rem;
+}
+
+form.dd1299 fieldset {
+  margin-top: 1em;
+  margin-bottom: 2em;
+  background-color: #ffffff;
+  padding-left: 3rem;
+  padding-bottom: 2em;
+  border: 1px solid #eeeeee;
+}
+
+form.dd1299 legend {
+  font-size: 2rem;
+  font-weight: 700;
 }
