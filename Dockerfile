@@ -18,6 +18,8 @@ RUN make server_generate
 RUN go build -o /bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
 
 # This results in a single layer image
+# https://github.com/GoogleCloudPlatform/distroless
+# This google maintained image is scratch plus some basic necessities like a tmp dir and root certs.
 FROM gcr.io/distroless/base
 COPY --from=build /bin/mymove-server /bin/mymove-server
 COPY --from=build /go/src/github.com/transcom/mymove/config /server_config
