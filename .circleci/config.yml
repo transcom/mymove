@@ -48,6 +48,11 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
+      - run:
+          name: Run migration task on ECS
+          command:
+            bin/ecs-run-migration-container app-migrations staging
+
 
   deploy:
     docker:
@@ -69,7 +74,7 @@ workflows:
       - migrate:
           filters:
             branches:
-              only: master
+              only: ak-run-migrations
       - deploy:
           requires:
             - build
