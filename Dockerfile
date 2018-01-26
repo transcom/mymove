@@ -21,9 +21,11 @@ RUN go build -o /bin/mymove-server -ldflags "-linkmode external -extldflags -sta
 FROM gcr.io/distroless/base
 COPY --from=build /bin/mymove-server /bin/mymove-server
 COPY --from=build /go/src/github.com/transcom/mymove/config /server_config
+COPY --from=build /go/src/github.com/transcom/mymove/swagger.yaml /app/swagger.yaml
 COPY /build /app/client
 ENTRYPOINT ["/bin/mymove-server"]
 CMD ["-build", "/app/client/", \
+     "-swagger", "/app/swagger.yaml", \
      "-port", ":8080", \
      "-config-dir", "/server_config", \
      "-env", "prod", \
