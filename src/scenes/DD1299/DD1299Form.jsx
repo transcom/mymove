@@ -27,7 +27,7 @@ const renderField = (name, fields) => {
   return (
     <div key={name}>
       <label htmlFor={name}>
-        {field.label || name}
+        {field.title || name}
         <Field name={name} component="input" type={field.format} />
       </label>
     </div>
