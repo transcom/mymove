@@ -42,7 +42,7 @@ check_arn "$task_definition_arn"
 # TODO: Our database.yml is incorrectly identifying the staging database
 #       as 'prod' right now. Once this is fixed, we can have ECS set an
 #       environment variable based on the $environment in this script.
-overrides_json='{"containerOverrides": [{ "environment": [{"name": "GO_ENV", "value": "prod"}] }] }'
+overrides_json='{"containerOverrides": [{ "name": "app-migrations-staging", "environment": [{"name": "GO_ENV", "value": "prod"}] }] }'
 
 # run the task
 echo "Running task …"
