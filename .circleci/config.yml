@@ -73,7 +73,7 @@ workflows:
       - migrate:
           filters:
             branches:
-              only: ak-run-migrations
+              only: master
       - deploy:
           requires:
             - build
