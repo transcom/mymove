@@ -73,9 +73,7 @@ paths:
         200:
           description: list of submitted forms 1299
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/IndexForms1299Payload'
+            $ref: '#/definitions/IndexForms1299Payload'
         400:
           description: invalid request
 
@@ -123,7 +121,7 @@ definitions:
         example: 2018-01-03
       shipment_number:
         type: string
-        example: 4550
+        example: "4550"
       name_of_preparing_office:
         type: string
         example: pumpernickel office
@@ -149,7 +147,7 @@ definitions:
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-555-5555
+        example: 555-55-5555
       service_member_agency:
         type: string
         example: Air Force
@@ -211,10 +209,10 @@ definitions:
         example: 2018-03-15
       station_orders_number:
         type: string
-        example: 98374
+        example: "98374"
       station_orders_paragraph_number:
         type: string
-        example: 5
+        example: "5"
       station_orders_in_transit_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
@@ -375,7 +373,7 @@ definitions:
         example: 2018-01-03
       shipment_number:
         type: string
-        example: 4550
+        example: "4550"
       name_of_preparing_office:
         type: string
         example: pumpernickel office
@@ -401,7 +399,7 @@ definitions:
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-555-5555
+        example: 555-55-5555
       service_member_agency:
         type: string
         example: Air Force
@@ -463,10 +461,10 @@ definitions:
         example: 2018-03-15
       station_orders_number:
         type: string
-        example: 98374
+        example: "98374"
       station_orders_paragraph_number:
         type: string
-        example: 5
+        example: "5"
       station_orders_in_transit_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
