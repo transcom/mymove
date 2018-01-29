@@ -67,7 +67,7 @@ const fieldsYaml = `
         fields:
           household_goods:
             type: group
-            title: HOUSEHOLD GOODS/UNACCOMPANIED BAGGAGE/ITEMS/NO. OF CONTAINERS (Enter quantity estimate)
+            title: Household Goods Unaccompanied Baggage Items No Of Containers Enter Quantity Estimate
             fields:
               hhg_total_pounds:
                 type: number
@@ -84,26 +84,26 @@ const fieldsYaml = `
                 type: integer
                 example: 3
                 nullable: true
-                title: EXPENSIVE AND VALUABLE ITEMS (Number of cartons)
+                title: Expensive And Valuable Items Number Of Cartons
           mobile_home:
             type: group
-            title: MOBILE HOME INFORMATION (Enter dimensions in feet and inches)
+            title: Mobile Home Information Enter Dimensions In Feet And Inches
             fields:
               mobile_home_serial_number:
                 type: string
                 example: 45kljs98kljlkwj5
                 nullable: true
-                title: SERIAL NUMBER
+                title: Serial Number
               mobile_home_length:
                 type: number
                 example: 72
                 nullable: true
-                title: LENGTH
+                title: Length
               mobile_home_width:
                 type: number
                 example: 15.4
                 nullable: true
-                title: WIDTH
+                title: Width
               mobile_home_height:
                 type: number
                 example: 10
@@ -113,7 +113,7 @@ const fieldsYaml = `
                 type: string
                 example: bathroom and shower unit
                 nullable: true
-                title: TYPE EXPANDO
+                title: Type Expando
               mobile_home_services_requested:
                 type: string
                 enum:
