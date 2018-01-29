@@ -1,6 +1,6 @@
 # Personal Property Prototype
 
-[![Build status](https://img.shields.io/circleci/project/github/transcom/ppp/master.svg)](https://circleci.com/gh/transcom/ppp/tree/master)
+[![Build status](https://img.shields.io/circleci/project/github/transcom/mymove/master.svg)](https://circleci.com/gh/transcom/mymove/tree/master)
 
 This repository contains the application source code for the Personal Property Prototype, a possible next generation version of the Defense Personal Property System (DPS). DPS is an online system managed by the U.S. [Department of Defense](https://www.defense.gov/) (DoD) [Transportation Command](http://www.ustranscom.mil/) (USTRANSCOM) and is used by service members and their families to manage household goods moves.
 
@@ -74,7 +74,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
-Dependencies are managed by yarn
+Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### API
 
