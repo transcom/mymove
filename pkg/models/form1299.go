@@ -14,7 +14,7 @@ type Form1299 struct {
 	ID                               uuid.UUID `json:"id" db:"id"`
 	CreatedAt                        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                        time.Time `json:"updated_at" db:"updated_at"`
-	DatePrepared                     time.Date `json:"date_prepared" db:"date_prepared"`
+	DatePrepared                     time.Time `json:"date_prepared" db:"date_prepared"`
 	ShipmentNumber                   string    `json:"shipment_number" db:"shipment_number"`
 	NameOfPreparingOffice            string    `json:"name_of_preparing_office" db:"name_of_preparing_office"`
 	DestOfficeName                   string    `json:"dest_office_name" db:"dest_office_name"`
@@ -41,7 +41,7 @@ type Form1299 struct {
 	StationOrdersType                string    `json:"station_orders_type" db:"station_orders_type"`
 	StationOrdersIssuedBy            string    `json:"station_orders_issued_by" db:"station_orders_issued_by"`
 	StationOrdersNewAssignment       string    `json:"station_orders_new_assignment" db:"station_orders_new_assignment"`
-	StationOrdersDate                time.Date `json:"station_orders_date" db:"station_orders_date"`
+	StationOrdersDate                time.Time `json:"station_orders_date" db:"station_orders_date"`
 	StationOrdersNumber              string    `json:"station_orders_number" db:"station_orders_number"`
 	StationOrdersParagraphNumber     string    `json:"station_orders_paragraph_number" db:"station_orders_paragraph_number"`
 	StationOrdersInTransitTelephone  string    `json:"station_orders_in_transit_telephone" db:"station_orders_in_transit_telephone"`
@@ -53,16 +53,16 @@ type Form1299 struct {
 	DestAddressMobileCourtName       string    `json:"dest_address_mobile_court_name" db:"dest_address_mobile_court_name"`
 	AgentToReceiveHhg                string    `json:"agent_to_receive_hhg" db:"agent_to_receive_hhg"`
 	ExtraAddress                     string    `json:"extra_address" db:"extra_address"`
-	PackScheduledDate                time.Date `json:"pack_scheduled_date" db:"pack_scheduled_date"`
-	PickupScheduledDate              time.Date `json:"pickup_scheduled_date" db:"pickup_scheduled_date"`
-	DeliveryScheduledDate            time.Date `json:"delivery_scheduled_date" db:"delivery_scheduled_date"`
+	PackScheduledDate                time.Time `json:"pack_scheduled_date" db:"pack_scheduled_date"`
+	PickupScheduledDate              time.Time `json:"pickup_scheduled_date" db:"pickup_scheduled_date"`
+	DeliveryScheduledDate            time.Time `json:"delivery_scheduled_date" db:"delivery_scheduled_date"`
 	Remarks                          string    `json:"remarks" db:"remarks"`
 	OtherMoveFrom                    string    `json:"other_move_from" db:"other_move_from"`
 	OtherMoveTo                      string    `json:"other_move_to" db:"other_move_to"`
 	OtherMoveNetPounds               int       `json:"other_move_net_pounds" db:"other_move_net_pounds"`
 	OtherMoveProgearPounds           int       `json:"other_move_progear_pounds" db:"other_move_progear_pounds"`
 	ServiceMemberSignature           string    `json:"service_member_signature" db:"service_member_signature"`
-	DateSigned                       time.Date `json:"date_signed" db:"date_signed"`
+	DateSigned                       time.Time `json:"date_signed" db:"date_signed"`
 	ContractorAddress                string    `json:"contractor_address" db:"contractor_address"`
 	ContractorName                   string    `json:"contractor_name" db:"contractor_name"`
 	NonavailabilityOfSignatureReason string    `json:"nonavailability_of_signature_reason" db:"nonavailability_of_signature_reason"`
