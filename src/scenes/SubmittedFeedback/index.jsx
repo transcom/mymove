@@ -12,15 +12,13 @@ import { loadIssues } from './ducks';
 class SubmittedFeedback extends Component {
   constructor(props) {
     super(props);
-    this.state = { issues: this.props.issues, hasError: false };
   }
   componentDidMount() {
     document.title = 'Transcom PPP: Submitted Feedback';
     this.props.loadIssues();
   }
   render() {
-    const { issues } = this.props;
-    const { hasError } = this.state;
+    const { issues, hasError } = this.props;
     return (
       <div className="usa-grid">
         <h1>Submitted Feedback</h1>
@@ -37,7 +35,7 @@ class SubmittedFeedback extends Component {
 
 SubmittedFeedback.propTypes = {
   loadIssues: PropTypes.func.isRequired,
-  issues: PropTypes.array.isRequired, // add shape
+  issues: PropTypes.array.isRequired,
   hasError: PropTypes.bool.isRequired,
 };
 
