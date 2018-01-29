@@ -301,14 +301,17 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         x-nullable: true
+        title: In Transit Telephone No
       in_transit_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: In Transit Address
       pickup_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: Pickup Address
       pickup_address_mobile_court_name:
         type: string
         example: Winnebagel court
@@ -318,10 +321,12 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
+        title: Pickup telephone
       dest_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: Destination Address
       dest_address_mobile_court_name:
         type: string
         example: Carraway Court
@@ -329,10 +334,12 @@ definitions:
       agent_to_receive_hhg:
         type: string
         x-nullable: true
+        title: Agent Designated To Receive Property
       extra_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: Extra Pickup/Delivery Address (if applicable)
       pack_scheduled_date:
         type: string
         format: date
