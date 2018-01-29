@@ -170,6 +170,7 @@ definitions:
         example: Focaccia
         x-nullable: true
       service_member_middle_initial:
+        type: string
         example: L.
         x-nullable: true
       service_member_last_name:
