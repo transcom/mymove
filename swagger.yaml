@@ -145,70 +145,87 @@ definitions:
         format: date
         example: 2018-01-03
         x-nullable: true
+        title: Date Prepared
       shipment_number:
         type: string
         example: "4550"
         x-nullable: true
+        title: Shipment Number
       name_of_preparing_office:
         type: string
         example: pumpernickel office
         x-nullable: true
+        title: Name of Preparing Office
       dest_office_name:
         type: string
         example: pecan office
+        title: Name of Destination Personal Property Shipping Office
         x-nullable: true
       origin_office_address_name:
         type: string
         example: Office manager John Dough
         x-nullable: true
+        title: Name
       origin_office_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: Address
       service_member_first_name:
         type: string
         example: Focaccia
         x-nullable: true
+        title: First Name
       service_member_middle_initial:
         type: string
         example: L.
         x-nullable: true
+        title: Middle Initial
       service_member_last_name:
         type: string
         example: Roll
         x-nullable: true
+        title: Last Name
       service_member_rank:
         $ref: '#/definitions/RankGrade'
         x-nullable: true
+        title: Rank/Grade
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
+        title: SSN
       service_member_agency:
         type: string
         example: Air Force
         x-nullable: true
+        title: Agency
       hhg_total_pounds:
         type: integer
         example: 10000
         x-nullable: true
+        title: Pounds
       hhg_progear_pounds:
         type: integer
         example: 350
         x-nullable: true
+        title: PBP&E Pounds
       hhg_valuable_items_cartons:
         type: integer
         example: 3
         x-nullable: true
+        title: Expensive And Valuable Items Number Of Cartons
       mobile_home_serial_number:
         type: string
         example: 45kljs98kljlkwj5
         x-nullable: true
+        title: Serial Number
       mobile_home_length_ft:
         type: integer
         example: 72
         x-nullable: true
+        title: Length
       mobile_home_length_inches:
         type: integer
         example: 4
@@ -217,6 +234,7 @@ definitions:
         type: integer
         example: 15
         x-nullable: true
+        title: Width
       mobile_home_width_inches:
         type: integer
         example: 4
@@ -225,6 +243,7 @@ definitions:
         type: integer
         example: 10
         x-nullable: true
+        title: Height
       mobile_home_height_inches:
         type: integer
         example: 3
@@ -233,6 +252,7 @@ definitions:
         type: string
         example: bathroom and shower unit
         x-nullable: true
+        title: Type Expando
       mobile_home_services_requested:
         type: string
         enum:
@@ -242,33 +262,40 @@ definitions:
         - stored at origin
         - stored at destination
         x-nullable: true
+        title: Services Requested
       station_orders_type:
         type: string
         enum:
         - permanent
         - temporary
         x-nullable: true
+        title: Type Orders
       station_orders_issued_by:
         type: string
         example: Sergeant Naan
         x-nullable: true
+        title: Issued By
       station_orders_new_assignment:
         type: string
         example: ACCOUNTING OPS
         x-nullable: true
+        title: New Duty Assignment
       station_orders_date:
         type: string
         format: date
         example: 2018-03-15
         x-nullable: true
+        title: Date of Orders
       station_orders_number:
         type: string
         example: "98374"
         x-nullable: true
+        title: Orders Number
       station_orders_paragraph_number:
         type: string
         example: "5"
         x-nullable: true
+        title: Paragraph Number
       station_orders_in_transit_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
@@ -311,63 +338,78 @@ definitions:
         format: date
         example: 2018-03-08
         x-nullable: true
+        title: Pack
       pickup_scheduled_date:
         type: string
         format: date
         example: 2018-03-09
         x-nullable: true
+        title: Pickup
       delivery_scheduled_date:
         type: string
         format: date
         example: 2018-03-10
         x-nullable: true
+        title: Delivery
       remarks:
         type: string
         example: please be careful with my stuff
         x-nullable: true
+        title: Remarks
       other_move_from:
         type: string
         x-nullable: true
+        title: Other Move From
       other_move_to:
         type: string
         x-nullable: true
+        title: Other Move To
       other_move_net_pounds:
         type: integer
         example: 2000
         x-nullable: true
+        title: Other Move Pounds
       other_move_progear_pounds:
         type: integer
         example: 100
         x-nullable: true
+        title: Other Move PBP&E Pounds
       service_member_signature:
         type: string
         example: Focaccia Roll
         x-nullable: true
+        title: Signature Of Member/Employee
       date_signed:
         type: string
         format: date
         example: 2018-01-23
         x-nullable: true
+        title: Date Signed
       contractor_address:
         type: string
         example: '3450 Kneading Way, San Francisco, California 94104'
         x-nullable: true
+        title: Address Of Contractor
       contractor_name:
         type: string
         example: Mayflower Transit
         x-nullable: true
+        title: Name Of Contractor
       nonavailability_of_signature_reason:
         type: string
         example: service member not present
         x-nullable: true
+        title: Reason For Nonavailability Of Signature
       certified_by_signature:
         type: string
         example: Sally Crumpet
         x-nullable: true
+        title: Signature
       title_of_certified_by_signature:
         type: string
         example: Colonel Crumpet
         x-nullable: true
+        title: Title
   IndexForm1299sPayload:
     type: array
     items:
