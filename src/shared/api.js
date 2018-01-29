@@ -12,7 +12,7 @@ async function ensureClientIsLoaded() {
 // if there is an error, the promise is rejected with that error
 export async function IssuesIndex() {
   await ensureClientIsLoaded();
-  const response = await client.apis.default.indexIssues();
+  const response = await client.apis.issues.indexIssues();
   if (!response.ok) {
     throw new Error(
       `failed to load issues index due to server error:
@@ -24,8 +24,8 @@ export async function IssuesIndex() {
 
 export async function CreateIssue(issueBody) {
   await ensureClientIsLoaded();
-  const response = await client.apis.default.createIssue({
-    issue: { body: issueBody },
+  const response = await client.apis.issues.createIssue({
+    createIssuePayload: { description: issueBody },
   });
   if (!response.ok)
     new Error(
