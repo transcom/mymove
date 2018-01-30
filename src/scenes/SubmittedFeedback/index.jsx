@@ -18,8 +18,7 @@ class SubmittedFeedback extends Component {
     this.props.loadIssues();
   }
   render() {
-    // BREANNE: This is a problem--should be this.props, not this.props.issues.
-    const { issues, hasError } = this.props.issues;
+    const { issues, hasError } = this.props;
     return (
       <div className="usa-grid">
         <h1>Submitted Feedback</h1>
@@ -41,7 +40,10 @@ SubmittedFeedback.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return { issues: state.issues, hasError: state.hasError };
+  return {
+    issues: state.submittedIssues.issues,
+    hasError: state.submittedIssues.hasError,
+  };
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadIssues }, dispatch);

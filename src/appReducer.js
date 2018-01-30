@@ -4,7 +4,7 @@ import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { routerReducer } from 'react-router-redux';
 
 export const appReducer = combineReducers({
-  issues: issuesReducer,
+  submittedIssues: issuesReducer,
   router: routerReducer,
 });
 
