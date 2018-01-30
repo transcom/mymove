@@ -2,11 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // Form1299 is an application for shipment or storage of personal property
@@ -83,61 +83,6 @@ type Form1299s []Form1299
 func (f Form1299s) String() string {
 	jf, _ := json.Marshal(f)
 	return string(jf)
-}
-
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
-func (f *Form1299) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.StringIsPresent{Field: f.ShipmentNumber, Name: "ShipmentNumber"},
-		&validators.StringIsPresent{Field: f.NameOfPreparingOffice, Name: "NameOfPreparingOffice"},
-		&validators.StringIsPresent{Field: f.DestOfficeName, Name: "DestOfficeName"},
-		&validators.StringIsPresent{Field: f.OriginOfficeAddressName, Name: "OriginOfficeAddressName"},
-		&validators.StringIsPresent{Field: f.OriginOfficeAddress, Name: "OriginOfficeAddress"},
-		&validators.StringIsPresent{Field: f.ServiceMemberFirstName, Name: "ServiceMemberFirstName"},
-		&validators.StringIsPresent{Field: f.ServiceMemberMiddleInitial, Name: "ServiceMemberMiddleInitial"},
-		&validators.StringIsPresent{Field: f.ServiceMemberLastName, Name: "ServiceMemberLastName"},
-		&validators.StringIsPresent{Field: f.ServiceMemberRank, Name: "ServiceMemberRank"},
-		&validators.StringIsPresent{Field: f.ServiceMemberSsn, Name: "ServiceMemberSsn"},
-		&validators.StringIsPresent{Field: f.ServiceMemberAgency, Name: "ServiceMemberAgency"},
-		&validators.IntIsPresent{Field: f.HhgTotalPounds, Name: "HhgTotalPounds"},
-		&validators.IntIsPresent{Field: f.HhgProgearPounds, Name: "HhgProgearPounds"},
-		&validators.IntIsPresent{Field: f.HhgValuableItemsCartons, Name: "HhgValuableItemsCartons"},
-		&validators.StringIsPresent{Field: f.MobileHomeSerialNumber, Name: "MobileHomeSerialNumber"},
-		&validators.IntIsPresent{Field: f.MobileHomeLengthFt, Name: "MobileHomeLengthFt"},
-		&validators.IntIsPresent{Field: f.MobileHomeLengthInches, Name: "MobileHomeLengthInches"},
-		&validators.IntIsPresent{Field: f.MobileHomeWidthFt, Name: "MobileHomeWidthFt"},
-		&validators.IntIsPresent{Field: f.MobileHomeWidthInches, Name: "MobileHomeWidthInches"},
-		&validators.IntIsPresent{Field: f.MobileHomeHeightFt, Name: "MobileHomeHeightFt"},
-		&validators.IntIsPresent{Field: f.MobileHomeHeightInches, Name: "MobileHomeHeightInches"},
-		&validators.StringIsPresent{Field: f.MobileHomeTypeExpando, Name: "MobileHomeTypeExpando"},
-		&validators.StringIsPresent{Field: f.MobileHomeServicesRequested, Name: "MobileHomeServicesRequested"},
-		&validators.StringIsPresent{Field: f.StationOrdersType, Name: "StationOrdersType"},
-		&validators.StringIsPresent{Field: f.StationOrdersIssuedBy, Name: "StationOrdersIssuedBy"},
-		&validators.StringIsPresent{Field: f.StationOrdersNewAssignment, Name: "StationOrdersNewAssignment"},
-		&validators.StringIsPresent{Field: f.StationOrdersNumber, Name: "StationOrdersNumber"},
-		&validators.StringIsPresent{Field: f.StationOrdersParagraphNumber, Name: "StationOrdersParagraphNumber"},
-		&validators.StringIsPresent{Field: f.StationOrdersInTransitTelephone, Name: "StationOrdersInTransitTelephone"},
-		&validators.StringIsPresent{Field: f.InTransitAddress, Name: "InTransitAddress"},
-		&validators.StringIsPresent{Field: f.PickupAddress, Name: "PickupAddress"},
-		&validators.StringIsPresent{Field: f.PickupAddressMobileCourtName, Name: "PickupAddressMobileCourtName"},
-		&validators.StringIsPresent{Field: f.PickupTelephone, Name: "PickupTelephone"},
-		&validators.StringIsPresent{Field: f.DestAddress, Name: "DestAddress"},
-		&validators.StringIsPresent{Field: f.DestAddressMobileCourtName, Name: "DestAddressMobileCourtName"},
-		&validators.StringIsPresent{Field: f.AgentToReceiveHhg, Name: "AgentToReceiveHhg"},
-		&validators.StringIsPresent{Field: f.ExtraAddress, Name: "ExtraAddress"},
-		&validators.StringIsPresent{Field: f.Remarks, Name: "Remarks"},
-		&validators.StringIsPresent{Field: f.OtherMoveFrom, Name: "OtherMoveFrom"},
-		&validators.StringIsPresent{Field: f.OtherMoveTo, Name: "OtherMoveTo"},
-		&validators.IntIsPresent{Field: f.OtherMoveNetPounds, Name: "OtherMoveNetPounds"},
-		&validators.IntIsPresent{Field: f.OtherMoveProgearPounds, Name: "OtherMoveProgearPounds"},
-		&validators.StringIsPresent{Field: f.ServiceMemberSignature, Name: "ServiceMemberSignature"},
-		&validators.StringIsPresent{Field: f.ContractorAddress, Name: "ContractorAddress"},
-		&validators.StringIsPresent{Field: f.ContractorName, Name: "ContractorName"},
-		&validators.StringIsPresent{Field: f.NonavailabilityOfSignatureReason, Name: "NonavailabilityOfSignatureReason"},
-		&validators.StringIsPresent{Field: f.CertifiedBySignature, Name: "CertifiedBySignature"},
-		&validators.StringIsPresent{Field: f.TitleOfCertifiedBySignature, Name: "TitleOfCertifiedBySignature"},
-	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
