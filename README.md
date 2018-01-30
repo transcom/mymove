@@ -78,7 +78,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 ### Setup: Client
 
 1. `make server_run`
-1. `make client_run_dev`
+1. `make client_run`
 
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 
