@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -25,6 +27,9 @@ func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 
 // CreateIssueHandler creates a new issue via POST /issue
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
+	fmt.Println("WOEIFNWEOIFNWOEIFNO")
+	fmt.Println(params.CreateIssuePayload.ReporterName)
+	fmt.Println("WOINWIIIIII")
 	newIssue := models.Issue{
 		Description: *params.CreateIssuePayload.Description,
 	}
