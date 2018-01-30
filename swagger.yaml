@@ -294,65 +294,6 @@ definitions:
       $ref: '#/definitions/Form1299Payload'
   Form1299Payload:
     type: object
-    required:
-    - id
-    - created_at
-    - updated_at
-    - form_completed
-    - date_prepared
-    - shipment_number
-    - name_of_preparing_office
-    - dest_office_name
-    - origin_office_address_name
-    - origin_office_address
-    - service_member_first_name
-    - service_member_middle_initial
-    - service_member_last_name
-    - service_member_rank
-    - service_member_ssn
-    - service_member_agency
-    - hhg_total_pounds
-    - hhg_progear_pounds
-    - hhg_valuable_items_cartons
-    - mobile_home_serial_number
-    - mobile_home_length_ft
-    - mobile_home_length_inches
-    - mobile_home_width_ft
-    - mobile_home_width_inches
-    - mobile_home_height_ft
-    - mobile_home_height_inches
-    - mobile_home_type_expando
-    - mobile_home_services_requested
-    - station_orders_type
-    - station_orders_issued_by
-    - station_orders_new_assignment
-    - station_orders_date
-    - station_orders_number
-    - station_orders_paragraph_number
-    - station_orders_in_transit_telephone
-    - in_transit_address
-    - pickup_address
-    - pickup_address_mobile_court_name
-    - pickup_telephone
-    - dest_address
-    - dest_address_mobile_court_name
-    - agent_to_receive_hhg
-    - extra_address
-    - pack_scheduled_date
-    - pickup_scheduled_date
-    - delivery_scheduled_date
-    - remarks
-    - other_move_from
-    - other_move_to
-    - other_move_net_pounds
-    - other_move_progear_pounds
-    - service_member_signature
-    - date_signed
-    - contractor_address
-    - contractor_name
-    - nonavailability_of_signature_reason
-    - certified_by_signature
-    - title_of_certified_by_signature
     properties:
       id:
         type: string
