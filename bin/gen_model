@@ -8,4 +8,4 @@
 
 cd pkg
 
-soda "$@" --path ../migrations -c ../config/database.yml
+soda generate model "$@" --path ../migrations -c ../config/database.yml
