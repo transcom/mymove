@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	"github.com/transcom/mymove/pkg/gen/restapi/operations"
+	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations"
 	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
 	"github.com/transcom/mymove/pkg/handlers"
 )
@@ -73,6 +74,8 @@ func main() {
 
 	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
+	api.CreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
+	api.IndexForms1299Handler = form1299op.IndexForms1299HandlerFunc(handlers.IndexForms1299Params)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
