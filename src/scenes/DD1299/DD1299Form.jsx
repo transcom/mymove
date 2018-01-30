@@ -1,6 +1,5 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
-import { getFields } from './fields';
 
 import './DD1299.css';
 
@@ -34,11 +33,12 @@ const renderField = (name, fields) => {
   );
 };
 const DD1299 = props => {
-  const { handleSubmit } = props;
-  const fields = getFields();
+  const { handleSubmit, schema } = props;
+  const fields = schema ? schema.properties || [] : [];
+  const title = schema ? schema.title : '';
   return (
     <form className="dd1299" onSubmit={handleSubmit}>
-      <h1>Application For Shipment And Or Storage Of Personal Property</h1>
+      <h1>{title}</h1>
       {Object.keys(fields).map(f => renderGroupOrField(f, fields))}
 
       <button type="submit">Submit</button>
@@ -46,6 +46,7 @@ const DD1299 = props => {
   );
 };
 
+//todo: may want to push this to parent, since there is no 1299 specific code here
 export default reduxForm({
   // a unique name for the form
   form: 'DD1299',
