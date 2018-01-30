@@ -138,3 +138,7 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
 * If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
 * If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
+
+### Useful Tools
+
+* Install the [React Developer Tools](https://github.com/facebook/react-devtools#installation) extension to make debugging the front end easier.
