@@ -47,7 +47,8 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 ### Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
-* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Run `bin/prereqs` and install everything it tells you to. *Do not configure postgres to automatically start at boot time!*
+* Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
 ### Setup: Database
