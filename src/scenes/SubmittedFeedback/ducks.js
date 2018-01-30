@@ -32,7 +32,7 @@ export function loadIssues() {
 }
 
 // Reducer
-function issues(state = { issues: null, hasError: false }, action) {
+function issuesReducer(state = { issues: null, hasError: false }, action) {
   switch (action.type) {
     case SHOW_ISSUES_SUCCESS:
       return { issues: action.items, hasError: false };
@@ -43,4 +43,4 @@ function issues(state = { issues: null, hasError: false }, action) {
   }
 }
 
-export default issues;
+export default issuesReducer;

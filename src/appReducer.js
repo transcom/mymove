@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
-import issues from 'scenes/SubmittedFeedback/ducks';
+import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 
 import { routerReducer } from 'react-router-redux';
 
 export const appReducer = combineReducers({
-  issues,
+  issues: issuesReducer,
   router: routerReducer,
 });
 

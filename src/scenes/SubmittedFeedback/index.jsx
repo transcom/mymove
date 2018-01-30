@@ -18,9 +18,8 @@ class SubmittedFeedback extends Component {
     this.props.loadIssues();
   }
   render() {
-    debugger;
-    const { issues } = this.props.issues;
-    const { hasError } = false;
+    // BREANNE: This is a problem--should be this.props, not this.props.issues.
+    const { issues, hasError } = this.props.issues;
     return (
       <div className="usa-grid">
         <h1>Submitted Feedback</h1>
