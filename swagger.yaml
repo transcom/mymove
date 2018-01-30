@@ -225,29 +225,32 @@ definitions:
         type: integer
         example: 72
         x-nullable: true
-        title: Length
+        title: Length (ft)
       mobile_home_length_inches:
         type: integer
         example: 4
         x-nullable: true
+        title: Length (in)
       mobile_home_width_ft:
         type: integer
         example: 15
         x-nullable: true
-        title: Width
+        title: Width (ft)
       mobile_home_width_inches:
         type: integer
         example: 4
         x-nullable: true
+        title: Width (in)
       mobile_home_height_ft:
         type: integer
         example: 10
         x-nullable: true
-        title: Height
+        title: Height (ft)
       mobile_home_height_inches:
         type: integer
         example: 3
         x-nullable: true
+        title: Height (in)
       mobile_home_type_expando:
         type: string
         example: bathroom and shower unit
