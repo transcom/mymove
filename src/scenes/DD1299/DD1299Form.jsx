@@ -1,9 +1,11 @@
 import React from 'react';
 import { Field, reduxForm } from 'redux-form';
-
+import { getUiSchema } from './fields';
 import './DD1299.css';
 
-const renderGroupOrField = (name, fields) => {
+const isEmpty = obj =>
+  Object.keys(obj).length === 0 && obj.constructor === Object;
+const renderGroupOrField = (name, fields, uiSchema) => {
   /*TODO:
    handle enums
    telephone numbers
@@ -11,18 +13,26 @@ const renderGroupOrField = (name, fields) => {
    dates look wonky
    styling in accordance with USWDS
    formatting of labels?
+   validate group names don't colide with field names
+   tests!!!
   */
-  const field = fields[name];
-  if (field.type !== 'group') return renderField(name, fields);
-  return (
-    <fieldset key={name}>
-      <legend htmlFor={name}>{field.label}</legend>
-      {Object.keys(field.fields).map(f => renderGroupOrField(f, field.fields))}
-    </fieldset>
-  );
+  const group = uiSchema.groups[name];
+  if (group) {
+    const keys = group.fields;
+    return (
+      <fieldset key={name}>
+        <legend htmlFor={name}>{group.title}</legend>
+        {keys.map(f => renderGroupOrField(f, fields, uiSchema))}
+      </fieldset>
+    );
+  }
+  return renderField(name, fields);
 };
 const renderField = (name, fields) => {
   const field = fields[name];
+  if (!field) {
+    return;
+  }
   return (
     <div key={name}>
       <label htmlFor={name}>
@@ -32,15 +42,22 @@ const renderField = (name, fields) => {
     </div>
   );
 };
+
+const renderSchema = (schema, uiSchema) => {
+  if (!isEmpty(schema)) {
+    const fields = schema.properties || [];
+    return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema));
+  }
+};
 const DD1299 = props => {
   const { handleSubmit, schema } = props;
-  const fields = schema ? schema.properties || [] : [];
   const title = schema ? schema.title : '';
+  const ui = getUiSchema();
+  debugger;
   return (
     <form className="dd1299" onSubmit={handleSubmit}>
       <h1>{title}</h1>
-      {Object.keys(fields).map(f => renderGroupOrField(f, fields))}
-
+      {renderSchema(schema, ui)}
       <button type="submit">Submit</button>
     </form>
   );

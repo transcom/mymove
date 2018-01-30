@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import Form from 'react-jsonschema-form';
 
 const log = type => console.log.bind(console, type);
