@@ -23,7 +23,6 @@ For the first phase development we wanted to create very basic forms to enter da
 * `+` complete control over look and feel
 * `+` current implementation is very simple
 * `-` we may need more advanced features for future work
-*
 
 ### Uniforms
 
