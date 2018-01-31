@@ -6,16 +6,16 @@ export const SHOW_ISSUES_SUCCESS = 'SHOW_ISSUES_SUCCESS';
 export const SHOW_ISSUES_FAILURE = 'SHOW_ISSUES_FAILURE';
 
 // Actions
-const createShowIssuesRequest = () => ({
+export const createShowIssuesRequest = () => ({
   type: SHOW_ISSUES,
 });
 
-const createShowIssuesSuccess = items => ({
+export const createShowIssuesSuccess = items => ({
   type: SHOW_ISSUES_SUCCESS,
   items,
 });
 
-const createShowIssuesFailure = error => ({
+export const createShowIssuesFailure = error => ({
   type: SHOW_ISSUES_FAILURE,
   error,
 });
