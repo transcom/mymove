@@ -484,3 +484,7 @@ definitions:
       title_of_certified_by_signature:
         type: string
         example: Colonel Crumpet
+    required:
+      - id
+      - created_at
+      - updated_at

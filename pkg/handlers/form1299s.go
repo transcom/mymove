@@ -15,10 +15,10 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 	id := strfmt.UUID(form1299.ID.String())
 	updatedAt := strfmt.DateTime(form1299.UpdatedAt)
 	form1299Payload := messages.Form1299Payload{
-		CreatedAt:    &createdAt,
-		DatePrepared: &form1299.DatePrepared,
-		ID:           &id,
-		UpdatedAt:    &updatedAt,
+		CreatedAt:              &createdAt,
+		ServiceMemberFirstName: form1299.ServiceMemberFirstName,
+		ID:        &id,
+		UpdatedAt: &updatedAt,
 	}
 	return form1299Payload
 }
@@ -26,7 +26,7 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
 	newForm1299 := models.Form1299{
-		DatePrepared: *params.CreateForm1299Payload.DatePrepared,
+		ServiceMemberFirstName: params.CreateForm1299Payload.ServiceMemberFirstName,
 	}
 	var response middleware.Responder
 	if err := dbConnection.Create(&newForm1299); err != nil {

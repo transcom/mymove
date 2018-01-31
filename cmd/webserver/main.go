@@ -74,8 +74,8 @@ func main() {
 
 	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
-	api.CreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
-	api.IndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sParams)
+	api.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
+	api.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
