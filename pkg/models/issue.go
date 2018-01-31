@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/markbates/pop"
-	"github.com/markbates/pop/nulls"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
@@ -13,11 +12,11 @@ import (
 
 // Issue is a problem with the product, submitted by any user.
 type Issue struct {
-	ID           uuid.UUID    `json:"id" db:"id"`
-	CreatedAt    time.Time    `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time    `json:"updated_at" db:"updated_at"`
-	Description  string       `json:"description" db:"description"`
-	ReporterName nulls.String `json:"reporter_name" db:"reporter_name"`
+	ID           uuid.UUID `json:"id" db:"id"`
+	CreatedAt    time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt    time.Time `json:"updated_at" db:"updated_at"`
+	Description  string    `json:"description" db:"description"`
+	ReporterName *string   `json:"reporter_name" db:"reporter_name"`
 }
 
 // String is not required by pop and may be deleted

@@ -16,7 +16,7 @@ func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 		Description:  pointerFromString(issue.Description),
 		ID:           pointerFromSUUID(strfmt.UUID(issue.ID.String())),
 		UpdatedAt:    pointerFromSDateTime(strfmt.DateTime(issue.UpdatedAt)),
-		ReporterName: pointerFromNullString(issue.ReporterName),
+		ReporterName: issue.ReporterName,
 	}
 	return issuePayload
 }
@@ -25,10 +25,10 @@ func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 	newIssue := models.Issue{
 		Description:  *params.CreateIssuePayload.Description,
-		ReporterName: nullFromPointerString(params.CreateIssuePayload.ReporterName),
+		ReporterName: params.CreateIssuePayload.ReporterName,
 	}
 	var response middleware.Responder
-	if err := dbConnection.Create(&newIssue); err != nil {
+	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
