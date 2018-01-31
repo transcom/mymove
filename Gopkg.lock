@@ -20,6 +20,12 @@
   version = "v8"
 
 [[projects]]
+  name = "github.com/aws/aws-sdk-go"
+  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/xml/xmlutil","service/ssm","service/ssm/ssmiface","service/sts"]
+  revision = "1b176c5c6b57adb03bb982c21930e708ebca5a77"
+  version = "v1.12.70"
+
+[[projects]]
   branch = "master"
   name = "github.com/cockroachdb/cockroach-go"
   packages = ["crdb"]
@@ -48,6 +54,12 @@
   packages = ["."]
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  name = "github.com/go-ini/ini"
+  packages = ["."]
+  revision = "32e4c1e6bc4e7d0d8451aa6b75200d19e37a536a"
+  version = "v1.32.0"
 
 [[projects]]
   branch = "master"
@@ -176,6 +188,11 @@
   version = "v1.3.0"
 
 [[projects]]
+  name = "github.com/jmespath/go-jmespath"
+  packages = ["."]
+  revision = "0b12d6b5"
+
+[[projects]]
   branch = "master"
   name = "github.com/jmoiron/sqlx"
   packages = [".","reflectx"]
@@ -231,7 +248,7 @@
 
 [[projects]]
   name = "github.com/markbates/pop"
-  packages = [".","columns","fizz","fizz/translators","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
+  packages = [".","columns","fizz","fizz/translators","nulls","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
   revision = "00570ee9e436f66a8de394beeb5110489c728b87"
   version = "3.51.1"
 
@@ -294,6 +311,12 @@
   name = "github.com/satori/go.uuid"
   packages = ["."]
   revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+
+[[projects]]
+  name = "github.com/segmentio/chamber"
+  packages = [".","cmd","store"]
+  revision = "90b27b1f06791f8a193ef4ca38506f880cdb1ffe"
+  version = "v1.15.0"
 
 [[projects]]
   branch = "master"
@@ -418,6 +441,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "2b1cbb1146bffd189dea6cf879805d5debbc41f413f0e00aeb3554a25895b0ee"
+  inputs-digest = "aa2a02853f0f04824a1d0109b134608d41e3f3aa9ae332d94cb9cc06434b3390"
   solver-name = "gps-cdcl"
   solver-version = 1
