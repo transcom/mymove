@@ -1,8 +1,4 @@
-import React from 'react';
-import ReactDOM from 'react-dom';
 import configureStore from 'redux-mock-store';
-import { shallow } from 'enzyme';
-import SubmittedFeedback from '.';
 import issuesReducer, {
   createShowIssuesRequest,
   createShowIssuesSuccess,
