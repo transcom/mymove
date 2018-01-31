@@ -10,8 +10,8 @@ container:
   dialect: "postgres"
   database: "app"
   host: {{ env "DB_HOST" }}
-  port: 5432
-  user: "master"
+  port: {{ env "DB_PORT" }}
+  user: {{ env "DB_USER" }}
   password: {{ env "DB_PASSWORD" }}
 
 prod:
