@@ -33,9 +33,11 @@ repos:
         language: node
         files: \.(js|jsx)$
 
-  -   repo: git://github.com/dnephin/pre-commit-golang
-      sha: 823c25f40e37d52765b6469de6df94c08e678784
-      hooks:
-      -   id: go-fmt
-      -   id: go-vet
-      -   id: go-lint
+  - repo: git://github.com/dnephin/pre-commit-golang
+    sha: 823c25f40e37d52765b6469de6df94c08e678784
+    hooks:
+    -   id: go-fmt
+    -   id: go-vet
+    -   id: go-lint
+
+exclude: '^config/database.yml$'
