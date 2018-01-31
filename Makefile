@@ -43,6 +43,7 @@ server_deps: .server_deps.stamp
 	go install ./vendor/github.com/markbates/pop/soda
 	go install ./vendor/github.com/golang/lint/golint
 	go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go install ./vendor/github.com/segmentio/chamber
 	touch .server_deps.stamp
 server_generate: .server_generate.stamp
 .server_generate.stamp: swagger.yaml

@@ -2,6 +2,7 @@ required = [
 	"github.com/markbates/pop/soda",
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
+	"github.com/segmentio/chamber",
 	]
 
 # This override is due to this delightful cluster:
