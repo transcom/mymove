@@ -47,17 +47,19 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
-  /form1299:
+  /form1299s:
     post:
       summary: Create a new shipment or storage of personal property application
       description: Create an instance of form 1299
       operationId: createForm1299
+      tags:
+        - form1299s
       parameters:
-      - in: body
-        name: createForm1299Payload
-        required: true
-        schema:
-          $ref: "#/definitions/CreateForm1299Payload"
+        - in: body
+          name: createForm1299Payload
+          required: true
+          schema:
+            $ref: "#/definitions/CreateForm1299Payload"
       responses:
         201:
           description: created instance of form 1299
@@ -68,12 +70,14 @@ paths:
     get:
       summary: List all submitted 1299 forms
       description: List all submitted 1299 forms
-      operationId: indexForms1299
+      operationId: indexForm1299s
+      tags:
+        - form1299s
       responses:
         200:
           description: list of submitted forms 1299
           schema:
-            $ref: '#/definitions/IndexForms1299Payload'
+            $ref: '#/definitions/IndexForm1299sPayload'
         400:
           description: invalid request
 
@@ -111,7 +115,6 @@ definitions:
       - description
       - created_at
       - updated_at
-
   CreateForm1299Payload:
     type: object
     properties:
@@ -288,7 +291,7 @@ definitions:
       title_of_certified_by_signature:
         type: string
         example: Colonel Crumpet
-  IndexForms1299Payload:
+  IndexForm1299sPayload:
     type: array
     items:
       $ref: '#/definitions/Form1299Payload'

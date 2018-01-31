@@ -6,7 +6,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/messages"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations"
+	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -41,20 +41,20 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 	return response
 }
 
-// IndexForms1299Handler returns a list of all forms1299
-func IndexForms1299Handler(params form1299op.IndexForms1299Params) middleware.Responder {
-	var forms1299 models.Form1299
+// IndexForm1299sHandler returns a list of all form1299s
+func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Responder {
+	var form1299s models.Form1299s
 	var response middleware.Responder
-	if err := dbConnection.All(&forms1299); err != nil {
+	if err := dbConnection.All(&form1299s); err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
-		response = form1299op.NewIndexForms1299BadRequest()
+		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {
-		form1299Payloads := make(messages.IndexForms1299Payload, len(forms1299))
-		for i, form1299 := range forms1299 {
+		form1299Payloads := make(messages.IndexForm1299sPayload, len(form1299s))
+		for i, form1299 := range form1299s {
 			form1299Payload := payloadForForm1299Model(form1299)
 			form1299Payloads[i] = &form1299Payload
 		}
-		response = form1299op.NewIndexForms1299OK().WithPayload(form1299Payloads)
+		response = form1299op.NewIndexForm1299sOK().WithPayload(form1299Payloads)
 	}
 	return response
 }

@@ -14,7 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	"github.com/transcom/mymove/pkg/gen/restapi/operations"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations"
+	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
 	"github.com/transcom/mymove/pkg/handlers"
 )
