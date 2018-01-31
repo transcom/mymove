@@ -12,7 +12,7 @@ const IssueCards = ({ issues }) => {
     <div className="issue-cards">
       {issues.map(issue => (
         <div key={issue.id} className="issue-card">
-          {issue.body}
+          {issue.description}
         </div>
       ))}
     </div>

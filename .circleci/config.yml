@@ -13,7 +13,16 @@ jobs:
       - setup_remote_docker
       - run: bin/install-dependencies.sh
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+
+      - restore_cache:
+          keys:
+            - go-vendor-cache-{{ checksum "Gopkg.lock" }}
       - run: make deps
+      - save_cache:
+          key: go-vendor-cache-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor
+
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
@@ -24,10 +33,19 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+
+      - restore_cache:
+          keys:
+            - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
       - run: make client_test
       - run: make server_test
       - run: make server_build_docker
+      - save_cache:
+          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
+
       - run:
           name: Tag and push image
           command: |
@@ -48,6 +66,10 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
+      - run:
+          name: Run migration task on ECS
+          command: |
+            bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
 
   deploy:
     docker:

@@ -21,5 +21,4 @@ ENTRYPOINT ["/bin/soda"]
 CMD ["migrate", "-d", \
      "-c", "/migrate/database.yml", \
      "-p", "/migrate/migrations", \
-     "up", \
-     "-e"]
+     "up"]
