@@ -5,6 +5,7 @@ repos:
       - id: check-json
       - id: check-merge-conflict
       - id: check-yaml
+        exclude: config/database.yml
       - id: detect-private-key
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
@@ -39,5 +40,3 @@ repos:
     -   id: go-fmt
     -   id: go-vet
     -   id: go-lint
-
-exclude: '^config/database.yml$'
