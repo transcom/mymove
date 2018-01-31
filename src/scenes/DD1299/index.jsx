@@ -19,6 +19,7 @@ export default class DD1299 extends React.Component {
         schema: spec.definitions.CreateForm1299Payload,
       });
     });
+    document.title = 'Transcom PPP: DD1299';
   }
   submit = values => {
     // print the form values to the console
