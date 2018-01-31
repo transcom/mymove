@@ -6,41 +6,57 @@ import './index.css';
 
 const isEmpty = obj =>
   Object.keys(obj).length === 0 && obj.constructor === Object;
-const renderGroupOrField = (name, fields, uiSchema) => {
+const renderGroupOrField = (fieldName, fields, uiSchema) => {
   /*TODO:
-   handle enums
-   telephone numbers
+   telephone numbers/ pattern validation
    textbox vs textarea (e.g for addresses)
-   dates look wonky
+   dates look wonky in chrome
    styling in accordance with USWDS
-   formatting of labels?
    validate group names don't colide with field names
    tests!!!
   */
-  const group = uiSchema.groups[name];
+  const group = uiSchema.groups[fieldName];
   if (group) {
     const keys = group.fields;
     return (
-      <fieldset key={name}>
-        <legend htmlFor={name}>{group.title}</legend>
+      <fieldset key={fieldName}>
+        <legend htmlFor={fieldName}>{group.title}</legend>
         {keys.map(f => renderGroupOrField(f, fields, uiSchema))}
       </fieldset>
     );
   }
-  return renderField(name, fields);
+  return renderField(fieldName, fields);
 };
-const renderField = (name, fields) => {
-  const field = fields[name];
+
+const createDropDown = (fieldName, field) => {
+  return (
+    <Field name={fieldName} component="select">
+      <option />
+      {field.enum.map(e => (
+        <option key={e} value={e}>
+          {e}
+        </option>
+      ))}
+    </Field>
+  );
+};
+const createField = (fieldName, field) => {
+  //todo: how to determine if multiselect/checkboxes etc
+  if (field.enum) return createDropDown(fieldName, field);
+
+  return <Field name={fieldName} component="input" type={field.format} />;
+};
+
+const renderField = (fieldName, fields) => {
+  const field = fields[fieldName];
   if (!field) {
     return;
   }
   return (
-    <div key={name}>
-      <label htmlFor={name}>
-        {field.title || name}
-        <Field name={name} component="input" type={field.format} />
-      </label>
-    </div>
+    <label key={fieldName} htmlFor={fieldName}>
+      {field.title || fieldName}
+      {createField(fieldName, field)}
+    </label>
   );
 };
 
