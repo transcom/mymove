@@ -1,7 +1,8 @@
 import React from 'react';
+import PropTypes from 'prop-types';
+
 import { Field, reduxForm } from 'redux-form';
-import { getUiSchema } from './fields';
-import './DD1299.css';
+import './index.css';
 
 const isEmpty = obj =>
   Object.keys(obj).length === 0 && obj.constructor === Object;
@@ -49,22 +50,22 @@ const renderSchema = (schema, uiSchema) => {
     return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema));
   }
 };
-const DD1299 = props => {
-  const { handleSubmit, schema } = props;
+const JsonSchemaForm = props => {
+  const { handleSubmit, schema, uiSchema } = props;
   const title = schema ? schema.title : '';
-  const ui = getUiSchema();
-  debugger;
   return (
-    <form className="dd1299" onSubmit={handleSubmit}>
+    <form className="default" onSubmit={handleSubmit}>
       <h1>{title}</h1>
-      {renderSchema(schema, ui)}
+      {renderSchema(schema, uiSchema)}
       <button type="submit">Submit</button>
     </form>
   );
 };
 
-//todo: may want to push this to parent, since there is no 1299 specific code here
-export default reduxForm({
-  // a unique name for the form
-  form: 'DD1299',
-})(DD1299);
+JsonSchemaForm.propTypes = {
+  schema: PropTypes.object.isRequired,
+  uiSchema: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+};
+
+export const reduxifyForm = name => reduxForm({ form: name })(JsonSchemaForm);

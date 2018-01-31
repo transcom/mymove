@@ -1,8 +1,8 @@
-form.dd1299 {
+form.default {
   padding: 3rem;
 }
 
-form.dd1299 fieldset {
+form.default fieldset {
   margin-top: 1em;
   margin-bottom: 2em;
   background-color: #ffffff;
@@ -11,7 +11,7 @@ form.dd1299 fieldset {
   border: 1px solid #eeeeee;
 }
 
-form.dd1299 legend {
+form.default legend {
   font-size: 2rem;
   font-weight: 700;
 }

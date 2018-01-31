@@ -1,5 +1,6 @@
-import yaml from 'js-yaml'; //todo: yarn add
+import yaml from 'js-yaml';
 
+//this is kind of clunky, it might be better to just convert this to json
 export const getUiSchema = () => yaml.safeLoad(uiYaml);
 
 const uiYaml = `

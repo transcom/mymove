@@ -1,8 +1,9 @@
 import React from 'react';
-import DD1299Form from './DD1299Form';
-import TestForm from './jsonschema';
+import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { GetSpec } from 'shared/api';
+import { getUiSchema } from './uiSchema';
 
+const DD1299Form = reduxifyForm('DD1299');
 export default class DD1299 extends React.Component {
   constructor(props) {
     super(props);
@@ -24,8 +25,13 @@ export default class DD1299 extends React.Component {
     console.log(values);
   };
   render() {
-    if (true)
-      return <DD1299Form onSubmit={this.submit} schema={this.state.schema} />;
-    return <TestForm schema={this.state.schema} />;
+    const uiSchema = getUiSchema();
+    return (
+      <DD1299Form
+        onSubmit={this.submit}
+        schema={this.state.schema}
+        uiSchema={uiSchema}
+      />
+    );
   }
 }
