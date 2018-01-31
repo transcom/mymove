@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -12,11 +14,12 @@ import (
 
 func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 	issuePayload := messages.IssuePayload{
-		CreatedAt:    pointerFromSDateTime(strfmt.DateTime(issue.CreatedAt)),
-		Description:  pointerFromString(issue.Description),
-		ID:           pointerFromSUUID(strfmt.UUID(issue.ID.String())),
-		UpdatedAt:    pointerFromSDateTime(strfmt.DateTime(issue.UpdatedAt)),
+		CreatedAt:    fmtDateTime(issue.CreatedAt),
+		Description:  stringPointer(issue.Description),
+		ID:           fmtUUID(issue.ID),
+		UpdatedAt:    fmtDateTime(issue.UpdatedAt),
 		ReporterName: issue.ReporterName,
+		DueDate:      (*strfmt.Date)(issue.DueDate),
 	}
 	return issuePayload
 }
@@ -26,6 +29,7 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 	newIssue := models.Issue{
 		Description:  *params.CreateIssuePayload.Description,
 		ReporterName: params.CreateIssuePayload.ReporterName,
+		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
 	var response middleware.Responder
 	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {

@@ -6,7 +6,6 @@ import (
 	"testing"
 
 	"github.com/markbates/pop"
-	"github.com/markbates/pop/nulls"
 	"github.com/satori/go.uuid"
 )
 
@@ -17,7 +16,7 @@ func TestOptionalProperty(t *testing.T) {
 
 	hasReporter := Issue{
 		Description:  "this describes an issue with a reporter",
-		ReporterName: nulls.NewString(reporterName),
+		ReporterName: &reporterName,
 	}
 
 	if err := dbConnection.Create(&hasReporter); err != nil {
@@ -28,7 +27,7 @@ func TestOptionalProperty(t *testing.T) {
 		t.Error("didn't get an ID back")
 	}
 
-	if !hasReporter.ReporterName.Valid || hasReporter.ReporterName.String != reporterName {
+	if hasReporter.ReporterName == nil || *hasReporter.ReporterName != reporterName {
 		t.Error("didn't get the reporter name back right.")
 	}
 
@@ -40,7 +39,7 @@ func TestOptionalProperty(t *testing.T) {
 		t.Fatal("Didn't write sans to the db")
 	}
 
-	if sansReporter.ReporterName.Valid {
+	if sansReporter.ReporterName != nil {
 		t.Error("Somehow got a valid name back")
 	}
 }
