@@ -84,9 +84,16 @@ definitions:
       description:
         type: string
         example: This is a test issue
+        minLength: 1
+        maxLength: 1024
       reporter_name:
         type: string
         example: Jane Doe
+        x-nullable: true
+      due_date:
+        type: string
+        format: date
+        example: 2018-03-15
         x-nullable: true
     required:
       - description
@@ -104,9 +111,16 @@ definitions:
       description:
         type: string
         example: This is a test issue
+        minLength: 1
+        maxLength: 1024
       reporter_name:
         type: string
         example: Jane Doe
+        x-nullable: true
+      due_date:
+        type: string
+        format: date
+        example: 2019-03-15
         x-nullable: true
       created_at:
         type: string
