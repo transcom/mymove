@@ -87,6 +87,7 @@ definitions:
       reporter_name:
         type: string
         example: Jane Doe
+        x-nullable: true
     required:
       - description
   IndexIssuesPayload:
@@ -106,6 +107,7 @@ definitions:
       reporter_name:
         type: string
         example: Jane Doe
+        x-nullable: true
       created_at:
         type: string
         format: date-time

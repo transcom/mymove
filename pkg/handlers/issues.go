@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -13,25 +11,21 @@ import (
 )
 
 func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
-	createdAt := strfmt.DateTime(issue.CreatedAt)
-	id := strfmt.UUID(issue.ID.String())
-	updatedAt := strfmt.DateTime(issue.UpdatedAt)
 	issuePayload := messages.IssuePayload{
-		CreatedAt:   &createdAt,
-		Description: &issue.Description,
-		ID:          &id,
-		UpdatedAt:   &updatedAt,
+		CreatedAt:    pointerFromSDateTime(strfmt.DateTime(issue.CreatedAt)),
+		Description:  pointerFromString(issue.Description),
+		ID:           pointerFromSUUID(strfmt.UUID(issue.ID.String())),
+		UpdatedAt:    pointerFromSDateTime(strfmt.DateTime(issue.UpdatedAt)),
+		ReporterName: pointerFromNullString(issue.ReporterName),
 	}
 	return issuePayload
 }
 
 // CreateIssueHandler creates a new issue via POST /issue
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
-	fmt.Println("WOEIFNWEOIFNWOEIFNO")
-	fmt.Println(params.CreateIssuePayload.ReporterName)
-	fmt.Println("WOINWIIIIII")
 	newIssue := models.Issue{
-		Description: *params.CreateIssuePayload.Description,
+		Description:  *params.CreateIssuePayload.Description,
+		ReporterName: nullFromPointerString(params.CreateIssuePayload.ReporterName),
 	}
 	var response middleware.Responder
 	if err := dbConnection.Create(&newIssue); err != nil {
