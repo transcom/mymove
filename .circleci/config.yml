@@ -120,17 +120,17 @@ workflows:
       - pre_test
       - build_app
       - build_migrations
+
       - deploy_migrations:
           requires:
             - pre_test
+            - build_app
             - build_migrations
           filters:
             branches:
               only: master
       - deploy_app:
           requires:
-            - pre_test
-            - build_app
             - deploy_migrations
           filters:
             branches:
