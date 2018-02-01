@@ -42,7 +42,19 @@ jobs:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
 
-      - run: bin/install-dependencies.sh
+      - run:
+          # This is needed to use `psql` to test DB connectivity, until the app
+          # itself starts making database connections.
+          name: Install postgres client
+          command: |
+            sudo apt-get -qq update
+            sudo apt-get -qq -y install postgresql-client-9.4
+      - run:
+          name: Install dep
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make deps
       - run: make client_build
