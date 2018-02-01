@@ -2,12 +2,19 @@ version: 2
 jobs:
   pre_test:
     docker:
-      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
       - restore_cache:
           keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Install prettier
+          command: npm install prettier
+      - run:
+          name: Install golint
+          command: go get -u github.com/golang/lint/golint
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
@@ -19,7 +26,7 @@ jobs:
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
       - image: postgres:latest
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -60,7 +67,7 @@ jobs:
 
   build_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
       - setup_remote_docker
@@ -74,7 +81,7 @@ jobs:
 
   deploy_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
       - run:
@@ -84,7 +91,7 @@ jobs:
 
   deploy_app:
     docker:
-      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
       - deploy:
