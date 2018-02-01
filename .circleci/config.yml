@@ -106,6 +106,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
+      - setup_remote_docker
       - deploy:
           name: Deploy demo site
           command: |
@@ -121,12 +122,14 @@ workflows:
       - build_migrations
       - deploy_migrations:
           requires:
+            - pre_test
             - build_migrations
           filters:
             branches:
               only: master
       - deploy_app:
           requires:
+            - pre_test
             - build_app
             - deploy_migrations
           filters:
