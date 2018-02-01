@@ -31,7 +31,7 @@ describe('Empty Issues on IssueCards', () => {
 
 describe('Issues on IssueCards', () => {
   let wrapper;
-  const issues = [{ id: 13, description: 'Too few dogs.' }];
+  const issues = [{ id: '13', description: 'Too few dogs.' }];
 
   beforeEach(() => {
     wrapper = shallow(<IssueCards issues={issues} />);

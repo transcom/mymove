@@ -1,4 +1,5 @@
 import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
 import issuesReducer, {
   createShowIssuesRequest,
   createShowIssuesSuccess,
@@ -57,3 +58,32 @@ describe('Issues Actions', () => {
     expect(action[2].type).toBe('SHOW_ISSUES_FAILURE');
   });
 });
+
+// TODO: Figure out how to mock the Swagger API call
+// describe('async action creators', () => {
+//   const middlewares = [ thunk ]
+//   const initialState = { issues: null, hasError: false };
+//   const mockStore = configureStore(middlewares)
+
+//   afterEach(() => {
+//     fetchMock.reset()
+//     fetchMock.restore()
+//   })
+
+//   it('creates SHOW_ISSUES_SUCCESS when submitted issues have been loaded', () => {
+//     fetchMock
+//       .getOnce('/submitted', { items: { issues: [{'id': 11, 'description': 'too few dogs'}] }, headers: { 'content-type': 'application/json' } })
+
+//     const expectedActions = [
+//       { type: SHOW_ISSUES },
+//       { type: SHOW_ISSUES_SUCCESS, items: { issues: [{'id': 11, 'description':'too few dogs'}] } }
+//     ]
+
+//     const store = mockStore(initialState)
+
+//     return store.dispatch(loadIssues()).then(() => {
+//       // return of async actions
+//       expect(store.getActions()).toEqual(expectedActions)
+//     })
+//   })
+// })

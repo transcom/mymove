@@ -20,11 +20,13 @@ const IssueCards = ({ issues }) => {
   );
 };
 
-issues: PropTypes.arrayOf(
-  PropTypes.shape({
-    id: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired,
-  }),
-);
+IssueCards.propTypes = {
+  issues: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string.isRequired,
+      description: PropTypes.string.isRequired,
+    }),
+  ),
+};
 
 export default IssueCards;

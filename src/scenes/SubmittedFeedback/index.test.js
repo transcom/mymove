@@ -33,8 +33,8 @@ describe('Has issues', () => {
 
   beforeEach(() => {
     const issues = [
-      { id: 10, description: 'Too few dogs.' },
-      { id: 20, description: 'Too little barking.' },
+      { id: '10', description: 'Too few dogs.' },
+      { id: '20', description: 'Too little barking.' },
     ];
     const hasError = false;
     wrapper = mount(
