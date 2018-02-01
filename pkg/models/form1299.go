@@ -26,7 +26,7 @@ type Form1299 struct {
 	ServiceMemberRank                *string    `json:"service_member_rank" db:"service_member_rank"`
 	ServiceMemberSsn                 *string    `json:"service_member_ssn" db:"service_member_ssn"`
 	ServiceMemberAgency              *string    `json:"service_member_agency" db:"service_member_agency"`
-	HhgTotalPounds                   *int       `json:"hhg_total_pounds" db:"hhg_total_pounds"`
+	HhgTotalPounds                   *int64     `json:"hhg_total_pounds" db:"hhg_total_pounds"`
 	HhgProgearPounds                 *int       `json:"hhg_progear_pounds" db:"hhg_progear_pounds"`
 	HhgValuableItemsCartons          *int       `json:"hhg_valuable_items_cartons" db:"hhg_valuable_items_cartons"`
 	MobileHomeSerialNumber           *string    `json:"mobile_home_serial_number" db:"mobile_home_serial_number"`

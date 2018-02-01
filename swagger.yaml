@@ -168,6 +168,7 @@ definitions:
         x-nullable: true
       hhg_total_pounds:
         type: integer
+        format: int64
         example: 10000
         x-nullable: true
       hhg_progear_pounds:

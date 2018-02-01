@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -11,27 +13,31 @@ import (
 )
 
 func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
-	createdAt := strfmt.DateTime(form1299.CreatedAt)
-	id := strfmt.UUID(form1299.ID.String())
-	updatedAt := strfmt.DateTime(form1299.UpdatedAt)
+
 	form1299Payload := messages.Form1299Payload{
-		CreatedAt:              &createdAt,
+		CreatedAt:              fmtDateTime(form1299.CreatedAt),
+		ID:                     fmtUUID(form1299.ID),
+		UpdatedAt:              fmtDateTime(form1299.UpdatedAt),
+		DatePrepared:           (*strfmt.Date)(form1299.DatePrepared),
 		ServiceMemberFirstName: form1299.ServiceMemberFirstName,
-		ID:        &id,
-		UpdatedAt: &updatedAt,
+		HhgTotalPounds:         form1299.HhgTotalPounds,
 	}
 	return form1299Payload
 }
 
+type myInt int
+
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
 	newForm1299 := models.Form1299{
+		DatePrepared:           (*time.Time)(params.CreateForm1299Payload.DatePrepared),
 		ServiceMemberFirstName: params.CreateForm1299Payload.ServiceMemberFirstName,
+		HhgTotalPounds:         params.CreateForm1299Payload.HhgTotalPounds,
 	}
 	var response middleware.Responder
 	if err := dbConnection.Create(&newForm1299); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
-		// how do I raise an erorr?
+		// how do I raise an error?
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else {
 		form1299Payload := payloadForForm1299Model(newForm1299)
