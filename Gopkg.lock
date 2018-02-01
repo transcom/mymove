@@ -248,7 +248,7 @@
 
 [[projects]]
   name = "github.com/markbates/pop"
-  packages = [".","columns","fizz","fizz/translators","nulls","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
+  packages = [".","columns","fizz","fizz/translators","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
   revision = "00570ee9e436f66a8de394beeb5110489c728b87"
   version = "3.51.1"
 
@@ -293,6 +293,12 @@
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
   revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
+
+[[projects]]
+  name = "github.com/namsral/flag"
+  packages = ["."]
+  revision = "71ceffbeb0ba60fccc853971bb3ed4d7d90bfd04"
+  version = "v1.7.4-pre"
 
 [[projects]]
   name = "github.com/pelletier/go-toml"
@@ -441,6 +447,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "aa2a02853f0f04824a1d0109b134608d41e3f3aa9ae332d94cb9cc06434b3390"
+  inputs-digest = "df2feca59e30712901728ea11cab5af9f75b7115c1217b0a851a4ddef5d16aed"
   solver-name = "gps-cdcl"
   solver-version = 1

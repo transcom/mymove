@@ -50,7 +50,7 @@ server_generate: .server_generate.stamp
 	bin/gen_server.sh
 	touch .server_generate.stamp
 server_build: server_deps server_generate
-	go build -i -o bin/webserver ./cmd/webserver
+	go build -a -o bin/webserver ./cmd/webserver
 server_run_only: db_dev_run
 	./bin/webserver \
 		-debug_logging
