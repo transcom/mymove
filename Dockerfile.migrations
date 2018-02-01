@@ -18,7 +18,7 @@ RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" .
 
 # We don't need any of the Go mechanics, just the binaries. Copy into a single
 # layer image.
-FROM scratch
+FROM gcr.io/distroless/base
 COPY --from=build /bin/soda /bin/soda
 COPY --from=build /bin/chamber /bin/chamber
 COPY migrations /migrate/migrations
