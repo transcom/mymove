@@ -27,15 +27,15 @@ type Form1299 struct {
 	ServiceMemberSsn                 *string    `json:"service_member_ssn" db:"service_member_ssn"`
 	ServiceMemberAgency              *string    `json:"service_member_agency" db:"service_member_agency"`
 	HhgTotalPounds                   *int64     `json:"hhg_total_pounds" db:"hhg_total_pounds"`
-	HhgProgearPounds                 *int       `json:"hhg_progear_pounds" db:"hhg_progear_pounds"`
-	HhgValuableItemsCartons          *int       `json:"hhg_valuable_items_cartons" db:"hhg_valuable_items_cartons"`
+	HhgProgearPounds                 *int64     `json:"hhg_progear_pounds" db:"hhg_progear_pounds"`
+	HhgValuableItemsCartons          *int64     `json:"hhg_valuable_items_cartons" db:"hhg_valuable_items_cartons"`
 	MobileHomeSerialNumber           *string    `json:"mobile_home_serial_number" db:"mobile_home_serial_number"`
-	MobileHomeLengthFt               *int       `json:"mobile_home_length_ft" db:"mobile_home_length_ft"`
-	MobileHomeLengthInches           *int       `json:"mobile_home_length_inches" db:"mobile_home_length_inches"`
-	MobileHomeWidthFt                *int       `json:"mobile_home_width_ft" db:"mobile_home_width_ft"`
-	MobileHomeWidthInches            *int       `json:"mobile_home_width_inches" db:"mobile_home_width_inches"`
-	MobileHomeHeightFt               *int       `json:"mobile_home_height_ft" db:"mobile_home_height_ft"`
-	MobileHomeHeightInches           *int       `json:"mobile_home_height_inches" db:"mobile_home_height_inches"`
+	MobileHomeLengthFt               *int64     `json:"mobile_home_length_ft" db:"mobile_home_length_ft"`
+	MobileHomeLengthInches           *int64     `json:"mobile_home_length_inches" db:"mobile_home_length_inches"`
+	MobileHomeWidthFt                *int64     `json:"mobile_home_width_ft" db:"mobile_home_width_ft"`
+	MobileHomeWidthInches            *int64     `json:"mobile_home_width_inches" db:"mobile_home_width_inches"`
+	MobileHomeHeightFt               *int64     `json:"mobile_home_height_ft" db:"mobile_home_height_ft"`
+	MobileHomeHeightInches           *int64     `json:"mobile_home_height_inches" db:"mobile_home_height_inches"`
 	MobileHomeTypeExpando            *string    `json:"mobile_home_type_expando" db:"mobile_home_type_expando"`
 	MobileHomeServicesRequested      *string    `json:"mobile_home_services_requested" db:"mobile_home_services_requested"`
 	StationOrdersType                *string    `json:"station_orders_type" db:"station_orders_type"`
@@ -59,8 +59,8 @@ type Form1299 struct {
 	Remarks                          *string    `json:"remarks" db:"remarks"`
 	OtherMoveFrom                    *string    `json:"other_move_from" db:"other_move_from"`
 	OtherMoveTo                      *string    `json:"other_move_to" db:"other_move_to"`
-	OtherMoveNetPounds               *int       `json:"other_move_net_pounds" db:"other_move_net_pounds"`
-	OtherMoveProgearPounds           *int       `json:"other_move_progear_pounds" db:"other_move_progear_pounds"`
+	OtherMoveNetPounds               *int64     `json:"other_move_net_pounds" db:"other_move_net_pounds"`
+	OtherMoveProgearPounds           *int64     `json:"other_move_progear_pounds" db:"other_move_progear_pounds"`
 	ServiceMemberSignature           *string    `json:"service_member_signature" db:"service_member_signature"`
 	DateSigned                       *time.Time `json:"date_signed" db:"date_signed"`
 	ContractorAddress                *string    `json:"contractor_address" db:"contractor_address"`

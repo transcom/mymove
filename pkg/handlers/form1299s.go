@@ -15,24 +15,40 @@ import (
 func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
 
 	form1299Payload := messages.Form1299Payload{
-		CreatedAt:              fmtDateTime(form1299.CreatedAt),
-		ID:                     fmtUUID(form1299.ID),
-		UpdatedAt:              fmtDateTime(form1299.UpdatedAt),
-		DatePrepared:           (*strfmt.Date)(form1299.DatePrepared),
-		ServiceMemberFirstName: form1299.ServiceMemberFirstName,
-		HhgTotalPounds:         form1299.HhgTotalPounds,
+		CreatedAt:                  fmtDateTime(form1299.CreatedAt),
+		ID:                         fmtUUID(form1299.ID),
+		UpdatedAt:                  fmtDateTime(form1299.UpdatedAt),
+		DatePrepared:               (*strfmt.Date)(form1299.DatePrepared),
+		ShipmentNumber:             form1299.ShipmentNumber,
+		NameOfPreparingOffice:      form1299.NameOfPreparingOffice,
+		DestOfficeName:             form1299.DestOfficeName,
+		OriginOfficeAddressName:    form1299.OriginOfficeAddressName,
+		OriginOfficeAddress:        form1299.OriginOfficeAddress,
+		ServiceMemberFirstName:     form1299.ServiceMemberFirstName,
+		ServiceMemberMiddleInitial: form1299.ServiceMemberMiddleInitial,
+		ServiceMemberLastName:      form1299.ServiceMemberLastName,
+		ServiceMemberSsn:           form1299.ServiceMemberSsn,
+		ServiceMemberAgency:        form1299.ServiceMemberAgency,
+		HhgTotalPounds:             form1299.HhgTotalPounds,
 	}
 	return form1299Payload
 }
 
-type myInt int
-
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
 	newForm1299 := models.Form1299{
-		DatePrepared:           (*time.Time)(params.CreateForm1299Payload.DatePrepared),
-		ServiceMemberFirstName: params.CreateForm1299Payload.ServiceMemberFirstName,
-		HhgTotalPounds:         params.CreateForm1299Payload.HhgTotalPounds,
+		DatePrepared:               (*time.Time)(params.CreateForm1299Payload.DatePrepared),
+		ShipmentNumber:             params.CreateForm1299Payload.ShipmentNumber,
+		NameOfPreparingOffice:      params.CreateForm1299Payload.NameOfPreparingOffice,
+		DestOfficeName:             params.CreateForm1299Payload.DestOfficeName,
+		OriginOfficeAddressName:    params.CreateForm1299Payload.OriginOfficeAddressName,
+		OriginOfficeAddress:        params.CreateForm1299Payload.OriginOfficeAddress,
+		ServiceMemberFirstName:     params.CreateForm1299Payload.ServiceMemberFirstName,
+		ServiceMemberMiddleInitial: params.CreateForm1299Payload.ServiceMemberMiddleInitial,
+		ServiceMemberLastName:      params.CreateForm1299Payload.ServiceMemberLastName,
+		ServiceMemberSsn:           params.CreateForm1299Payload.ServiceMemberSsn,
+		ServiceMemberAgency:        params.CreateForm1299Payload.ServiceMemberAgency,
+		HhgTotalPounds:             params.CreateForm1299Payload.HhgTotalPounds,
 	}
 	var response middleware.Responder
 	if err := dbConnection.Create(&newForm1299); err != nil {
