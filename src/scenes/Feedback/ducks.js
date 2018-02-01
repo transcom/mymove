@@ -6,15 +6,15 @@ export const CREATE_ISSUE_SUCCESS = 'CREATE_ISSUE_SUCCESS';
 export const CREATE_ISSUE_FAILURE = 'CREATE_ISSUE_FAILURE';
 
 // Actions
-export const createIssueRequest = () = ({
+export const createIssueRequest = () => ({
   type: CREATE_ISSUE,
 });
 
-export const createIssueSuccess = () = ({
+export const createIssueSuccess = () => ({
   type: CREATE_ISSUE_SUCCESS,
 });
 
-export const createIssueFailure = () = ({
+export const createIssueFailure = () => ({
   type: CREATE_ISSUE_FAILURE,
 });
 
@@ -23,10 +23,10 @@ export function createIssue() {
   return function(dispatch, getState) {
     dispatch(createIssueRequest());
     CreateIssue(this.props.value)
-      .then(thing => dispatch(createShowIssuesSuccess(thing)))
+      .then(thing => dispatch(createIssueSuccess(thing)))
       .catch(errorThing => dispatch(createIssueFailure(errorThing)));
-      // Fix "things" - what value is being passed? This is a part I do not understand.
-  }
+    // Fix "things" - what value is being passed? This is a part I do not understand.
+  };
 }
 
 // Reducer
