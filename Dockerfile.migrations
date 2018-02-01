@@ -15,7 +15,7 @@ FROM scratch
 COPY --from=build /go/bin/soda /bin/soda
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate
-ENV environment=production
+ENV GO_ENV=container
 
 ENTRYPOINT ["/bin/soda"]
 CMD ["migrate", "-d", \
