@@ -1,5 +1,6 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
+import PropTypes from 'prop-types';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import 'scenes/SubmittedFeedback/IssueCards.css';
@@ -17,6 +18,11 @@ const IssueCards = ({ issues }) => {
       ))}
     </div>
   );
+};
+
+IssueCards.propTypes = {
+  id: PropTypes.string,
+  description: PropTypes.string,
 };
 
 export default IssueCards;
