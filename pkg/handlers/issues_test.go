@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"testing"
+	"time"
 
 	"github.com/markbates/pop"
 
@@ -25,9 +26,34 @@ func TestSubmitIssueHandler(t *testing.T) {
 	createdIssuePayload := createdResponse.Payload
 
 	if *createdIssuePayload.Description != testDescription {
-		t.Fatal("Didn't get the same description back")
+		t.Error("Didn't get the same description back")
 	}
 
+	if createdIssuePayload.ReporterName != nil {
+		t.Error("We should not have sent anything back for the reporter name")
+	}
+
+}
+
+func TestSubmitDueDate(t *testing.T) {
+	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
+	testDate := fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
+	newIssuePayload := messages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
+	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
+
+	response := CreateIssueHandler(newIssueParams)
+
+	// assert we got back the 201 response
+	createdResponse := response.(*issueop.CreateIssueCreated)
+	createdIssuePayload := createdResponse.Payload
+
+	if createdIssuePayload.DueDate != testDate {
+		t.Error("Didn't get the same date back")
+	}
+
+	if createdIssuePayload.ReporterName != nil {
+		t.Error("We should not have sent anything back for the reporter name")
+	}
 }
 
 func TestIndexIssuesHandler(t *testing.T) {

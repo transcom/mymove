@@ -16,7 +16,7 @@ RUN dep ensure -vendor-only
 RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/markbates/pop/soda
 RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
 
-# We don't need any of the Go mechanics, just the Soda binary. Copy into a single
+# We don't need any of the Go mechanics, just the binaries. Copy into a single
 # layer image.
 FROM gcr.io/distroless/base
 COPY --from=build /bin/soda /bin/soda

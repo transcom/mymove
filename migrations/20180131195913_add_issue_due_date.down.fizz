@@ -1,0 +1,1 @@
+drop_column("issues", "due_date")
