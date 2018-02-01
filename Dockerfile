@@ -22,15 +22,11 @@ RUN go build -o /bin/mymove-server -ldflags "-linkmode external -extldflags -sta
 # This google maintained image is scratch plus some basic necessities like a tmp dir and root certs.
 FROM gcr.io/distroless/base
 COPY --from=build /bin/mymove-server /bin/mymove-server
-COPY --from=build /go/src/github.com/transcom/mymove/config /server_config
-COPY --from=build /go/src/github.com/transcom/mymove/swagger.yaml /app/swagger.yaml
-COPY /build /app/client
+COPY --from=build /go/src/github.com/transcom/mymove/config /config
+COPY --from=build /go/src/github.com/transcom/mymove/swagger.yaml /swagger.yaml
+COPY --from=build /go/bin/chamber /bin/chamber
+COPY /build /build
 ENTRYPOINT ["/bin/mymove-server"]
-CMD ["-build", "/app/client/", \
-     "-swagger", "/app/swagger.yaml", \
-     "-port", ":8080", \
-     "-config-dir", "/server_config", \
-     "-env", "prod", \
-     "-debug_logging"]
+CMD ["-debug_logging"]
 
 EXPOSE 8080
