@@ -5,17 +5,25 @@
 # and a workspace (GOPATH) configured at /go.
 FROM golang AS build
 
+RUN go get github.com/golang/dep/cmd/dep
+
+COPY ./ /go/src/github.com/transcom/mymove/
+WORKDIR /go/src/github.com/transcom/mymove/
+RUN dep ensure -vendor-only
+
 # Install tools required to build the project
 # These linker flags create a standalone binary that will run in scratch.
-RUN go get -ldflags "-linkmode external -extldflags -static" github.com/markbates/pop/soda
+RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/markbates/pop/soda
+RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
 
-# We don't need any of the Go mechanics, just the Soda binary. Copy into a single
+# We don't need any of the Go mechanics, just the binaries. Copy into a single
 # layer image.
-FROM scratch
-COPY --from=build /go/bin/soda /bin/soda
+FROM gcr.io/distroless/base
+COPY --from=build /bin/soda /bin/soda
+COPY --from=build /bin/chamber /bin/chamber
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate
-ENV environment=production
+ENV GO_ENV=container
 
 ENTRYPOINT ["/bin/soda"]
 CMD ["migrate", "-d", \
