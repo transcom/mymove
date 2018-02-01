@@ -27,7 +27,7 @@ COPY --from=build /go/src/github.com/transcom/mymove/swagger.yaml /swagger.yaml
 COPY --from=build /go/bin/chamber /bin/chamber
 COPY /build /build
 ENTRYPOINT ["/bin/mymove-server"]
-CMD ["-env", "prod", \
+CMD ["-env", "container", \
     "-debug_logging"]
 
 EXPOSE 8080
