@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"go.uber.org/zap"
@@ -11,14 +13,13 @@ import (
 )
 
 func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
-	createdAt := strfmt.DateTime(issue.CreatedAt)
-	id := strfmt.UUID(issue.ID.String())
-	updatedAt := strfmt.DateTime(issue.UpdatedAt)
 	issuePayload := messages.IssuePayload{
-		CreatedAt:   &createdAt,
-		Description: &issue.Description,
-		ID:          &id,
-		UpdatedAt:   &updatedAt,
+		CreatedAt:    fmtDateTime(issue.CreatedAt),
+		Description:  stringPointer(issue.Description),
+		ID:           fmtUUID(issue.ID),
+		UpdatedAt:    fmtDateTime(issue.UpdatedAt),
+		ReporterName: issue.ReporterName,
+		DueDate:      (*strfmt.Date)(issue.DueDate),
 	}
 	return issuePayload
 }
@@ -26,10 +27,12 @@ func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 // CreateIssueHandler creates a new issue via POST /issue
 func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 	newIssue := models.Issue{
-		Description: *params.CreateIssuePayload.Description,
+		Description:  *params.CreateIssuePayload.Description,
+		ReporterName: params.CreateIssuePayload.ReporterName,
+		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
 	var response middleware.Responder
-	if err := dbConnection.Create(&newIssue); err != nil {
+	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
