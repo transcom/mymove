@@ -9,13 +9,13 @@ import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 import { createIssue } from './ducks';
 
 class Feedback extends Component {
-  constructor(props) {
-    super(props);
-  }
+  // constructor(props) {
+  //   super(props);
+  // }
 
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
-    this.props.createIssue; // I think this shouldn't go here because it's used to create something, not display something that already exists.
+    // this.props.createIssue; // I think this shouldn't go here because it's used to create something, not display something that already exists.
   }
   handleChange = e => {
     this.setState({ value: e.target.value }); // Hmmm
@@ -34,9 +34,9 @@ class Feedback extends Component {
         <FeedbackForm
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
-          textValue={this.state.value}
+          textValue={value}
         />
-        <FeedbackConfirmation confirmationText={this.props.confirmationText} />
+        <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
     );
   }
