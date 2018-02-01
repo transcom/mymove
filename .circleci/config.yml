@@ -35,36 +35,35 @@ jobs:
     steps:
       - checkout
       - setup_remote_docker
-      - run: bin/install-dependencies.sh
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
-
       - restore_cache:
           keys:
             - go-vendor-cache-{{ checksum "Gopkg.lock" }}
-      - run: make deps
-      - save_cache:
-          key: go-vendor-cache-{{ checksum "Gopkg.lock" }}
-          paths:
-            - vendor
-
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+
+      - run: bin/install-dependencies.sh
+      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: make deps
       - run: make client_build
       - run: make client_test
       - run: make server_test
       - run: make server_build_docker
-      - save_cache:
-          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
-          paths:
-            - node_modules
-
       - run:
           name: Tag and push image
           command: |
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+
+      - save_cache:
+          key: go-vendor-cache-{{ checksum "Gopkg.lock" }}
+          paths:
+            - vendor
+      - save_cache:
+          key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
+          paths:
+            - node_modules
 
   build_migrations:
     docker:
