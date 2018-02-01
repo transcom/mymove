@@ -2,13 +2,13 @@ import React from 'react';
 import { mount } from 'enzyme';
 import { SubmittedFeedback } from '.';
 
-const issues = null;
 const loadIssues = () => {};
 
 describe('No Issues and Errors', () => {
   let wrapper;
 
   beforeEach(() => {
+    const issues = null;
     const hasError = true;
     wrapper = mount(
       <SubmittedFeedback
@@ -32,6 +32,7 @@ describe('Has issues', () => {
   let wrapper;
 
   beforeEach(() => {
+    const issues = ['Too few dogs.', 'Too little barking.'];
     const hasError = false;
     wrapper = mount(
       <SubmittedFeedback
