@@ -9,7 +9,7 @@ import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
 
 import { loadIssues } from './ducks';
 
-class SubmittedFeedback extends Component {
+export class SubmittedFeedback extends Component {
   constructor(props) {
     super(props);
   }
@@ -35,7 +35,7 @@ class SubmittedFeedback extends Component {
 
 SubmittedFeedback.propTypes = {
   loadIssues: PropTypes.func.isRequired,
-  issues: PropTypes.array.isRequired,
+  issues: PropTypes.array,
   hasError: PropTypes.bool.isRequired,
 };
 
