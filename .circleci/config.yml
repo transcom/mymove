@@ -60,6 +60,7 @@ jobs:
   build_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+    steps:
       - checkout
       - setup_remote_docker
       - run: make db_build_docker
