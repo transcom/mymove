@@ -3,36 +3,28 @@ import React, { Component } from 'react';
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
 import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 
-import { CreateIssue } from 'shared/api.js';
+import { createIssue } from './ducks';
 
 class Feedback extends Component {
   constructor(props) {
     super(props);
-    this.state = {
-      value: '',
-      confirmationText: '',
     };
   }
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
+    this.props.createIssue; // I think this shouldn't go here because it's used to create something, not display something that already exists.
   }
   handleChange = e => {
-    this.setState({ value: e.target.value });
+    this.setState({ value: e.target.value }); // Hmmm
   };
 
   handleSubmit = async e => {
     e.preventDefault();
-
-    try {
-      await CreateIssue(this.state.value);
-      this.setState({ confirmationText: 'Response received!' });
-    } catch (e) {
-      //todo: how do we want to monitor errors
-      this.setState({ confirmationText: 'Error submitting feedback' });
-    }
+    createIssue(); // Is this enough?
   };
 
   render() {
+    const { value, confirmationText } = this.props;
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
@@ -41,10 +33,26 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={this.state.value}
         />
-        <FeedbackConfirmation confirmationText={this.state.confirmationText} />
+        <FeedbackConfirmation confirmationText={this.props.confirmationText} />
       </div>
     );
   }
 }
 
-export default Feedback;
+Feedback.propTypes = {
+  createIssue : PropTypes.func.isRequired,
+  value: PropTypes.string.isRequired,
+  confirmationText: PropTypes.string.isRequired,
+}
+
+function mapStateToProps(state) {
+  return {
+    value: state.Feedback.value, // These two are guesses/placeholders
+    confirmationText: state.Feedback.confirmationText, // and feel wonky
+  };
+}
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ createIssue }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SubmittedFeedback);
