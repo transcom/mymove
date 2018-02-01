@@ -1,6 +1,6 @@
 # Personal Property Prototype
 
-[![Build status](https://img.shields.io/circleci/project/github/transcom/ppp/master.svg)](https://circleci.com/gh/transcom/ppp/tree/master)
+[![Build status](https://img.shields.io/circleci/project/github/transcom/mymove/master.svg)](https://circleci.com/gh/transcom/mymove/tree/master)
 
 This repository contains the application source code for the Personal Property Prototype, a possible next generation version of the Defense Personal Property System (DPS). DPS is an online system managed by the U.S. [Department of Defense](https://www.defense.gov/) (DoD) [Transportation Command](http://www.ustranscom.mil/) (USTRANSCOM) and is used by service members and their families to manage household goods moves.
 
@@ -10,14 +10,21 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ### Project location
 
-All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at ~/code/go, then in your .bash_profile you should add the following two lines:
+All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
 
 ```bash
 export GOPATH=~/code/go
-PATH=~/code/go/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove` (This will emit an error "can't load package:" but will have cloned the source correctly) You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+If you are OK with using the default location for go code (`~/go`), then there is nothing to do. Since this is the default location, using it means you do not need to set `$GOPATH` yourself.
+
+*Regardless of where your go code is located*, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
+
+```bash
+export PATH=$(go env GOPATH)/bin:$PATH
+```
+
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
@@ -40,7 +47,8 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 ### Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
-* Run `bin/prereqs` and install everything it tells you to. Then run `make deps`.
+* Run `bin/prereqs` and install everything it tells you to. *Do not configure postgres to automatically start at boot time!*
+* Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
 ### Setup: Database
@@ -70,7 +78,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 ### Setup: Client
 
 1. `make server_run`
-1. `make client_run_dev`
+1. `make client_run`
 
 The above will start the server running and starts the webpack dev server, proxied to our running go server.
 

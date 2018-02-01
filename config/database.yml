@@ -14,11 +14,10 @@ test:
   user: "postgres"
   password: "mysecretpassword"
 
-prod:
+container:
   dialect: "postgres"
   database: "app"
-  host: "app-staging.clnb6tcnzkdi.us-west-2.rds.amazonaws.com"
-  port: "5432"
-  user: "master"
-  password: "FCvxPgghJndw7pGOiF5k75yI" # I AM MADE OF SHAME
-  # If the above line still exists in February 2018, fire MacRae.
+  host: {{ env "DB_HOST" }}
+  port: {{ env "DB_PORT" }}
+  user: {{ env "DB_USER" }}
+  password: {{ env "DB_PASSWORD" }}

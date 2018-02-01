@@ -43,6 +43,7 @@ server_deps: .server_deps.stamp
 	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
 	go build -i -o bin/golint ./vendor/github.com/golang/lint/golint
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
+	go build -i -o bin/chamber ./vendor/github.com/segmentio/chamber
 	touch .server_deps.stamp
 server_generate: .server_generate.stamp
 .server_generate.stamp: swagger.yaml
