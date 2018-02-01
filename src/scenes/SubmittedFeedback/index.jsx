@@ -10,9 +10,6 @@ import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
 import { loadIssues } from './ducks';
 
 export class SubmittedFeedback extends Component {
-  constructor(props) {
-    super(props);
-  }
   componentDidMount() {
     document.title = 'Transcom PPP: Submitted Feedback';
     this.props.loadIssues();
