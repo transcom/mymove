@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"log"
-	"os"
 	"testing"
 
 	"github.com/markbates/pop"
@@ -67,10 +66,4 @@ func setupDBConnection() {
 
 	dbConnection = conn
 
-}
-
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
 }
