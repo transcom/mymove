@@ -13,8 +13,9 @@ jobs:
           command: npm install prettier
       - run:
           name: Install golint
-          command: go get -u github.com/golang/lint/golint
-      - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+          command: |
+            go get -u github.com/golang/lint/golint
+            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
