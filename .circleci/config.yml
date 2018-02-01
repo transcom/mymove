@@ -1,6 +1,21 @@
 version: 2
 jobs:
-  build:
+  pre_test:
+    docker:
+      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+    steps:
+      - restore_cache:
+          keys:
+            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+      - run:
+          name: Run pre-commit tests
+          command: pre-commit run --all-files
+      - save_cache:
+          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
+          paths:
+            - ~/.cache/pre-commit
+
+  build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
@@ -25,17 +40,6 @@ jobs:
 
       - restore_cache:
           keys:
-            - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-      - run:
-          name: Run pre-commit tests
-          command: pre-commit run --all-files
-      - save_cache:
-          key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
-          paths:
-            - ~/.cache/pre-commit
-
-      - restore_cache:
-          keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
       - run: make client_build
       - run: make client_test
@@ -53,10 +57,9 @@ jobs:
             docker tag ppp:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
 
-  migrate:
+  build_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
-    steps:
       - checkout
       - setup_remote_docker
       - run: make db_build_docker
@@ -66,17 +69,22 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
+
+  deploy_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
+    steps:
+      - checkout
       - run:
           name: Run migration task on ECS
           command: |
             bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
 
-  deploy:
+  deploy_app:
     docker:
       - image: trussworks/circleci-docker-primary:49e04ed364985ca83145d9336b0cb82ba599ebe0
     steps:
       - checkout
-      - setup_remote_docker
       - deploy:
           name: Deploy demo site
           command: |
@@ -87,15 +95,19 @@ workflows:
   version: 2
   pipeline:
     jobs:
-      - build
-      - migrate:
+      - pre_test
+      - build_app
+      - build_migrations
+      - deploy_migrations:
+          requires:
+            - build_migrations
           filters:
             branches:
               only: master
-      - deploy:
+      - deploy_app:
           requires:
-            - build
-            - migrate
+            - build_app
+            - deploy_migrations
           filters:
             branches:
               only: master
