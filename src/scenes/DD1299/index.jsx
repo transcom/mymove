@@ -13,9 +13,8 @@ export default class DD1299 extends React.Component {
     };
   }
   componentDidMount() {
-    const that = this;
     GetSpec().then(spec => {
-      that.setState({
+      this.setState({
         schema: spec.definitions.CreateForm1299Payload,
       });
     });

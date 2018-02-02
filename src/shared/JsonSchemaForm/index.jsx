@@ -13,7 +13,6 @@ const renderGroupOrField = (fieldName, fields, uiSchema) => {
    dates look wonky in chrome
    styling in accordance with USWDS
    validate group names don't colide with field names
-   tests!!!
   */
   const group = uiSchema.groups[fieldName];
   if (group) {
