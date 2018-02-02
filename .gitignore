@@ -12,7 +12,12 @@ __snapshots__
 
 # production
 /build
+
+# built dependencies
 /bin/webserver
+/bin/soda
+/bin/golint
+/bin/swagger
 
 # misc
 .DS_Store

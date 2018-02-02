@@ -40,10 +40,10 @@ server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only
-	go install ./vendor/github.com/markbates/pop/soda
-	go install ./vendor/github.com/golang/lint/golint
-	go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-	go install ./vendor/github.com/segmentio/chamber
+	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
+	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
+	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_generate: .server_generate.stamp
 .server_generate.stamp: swagger.yaml
@@ -90,9 +90,9 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	soda migrate up
+	./bin/soda migrate up
 db_dev_migrate_down: db_dev_run
-	soda migrate down
+	./bin/soda migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
@@ -104,7 +104,7 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	soda -e test migrate up
+	./bin/soda -e test migrate up
 
 adr_update:
 	yarn run adr-log

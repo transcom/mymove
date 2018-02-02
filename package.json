@@ -10,6 +10,7 @@
     "react-router-redux": "^5.0.0-alpha.8",
     "react-scripts": "1.0.17",
     "redux": "^3.7.2",
+    "redux-mock-store": "1.5.1",
     "redux-thunk": "^2.2.0",
     "swagger-client": "^3.4.6",
     "swagger-ui-dist": "^3.9.2",

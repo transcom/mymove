@@ -16,6 +16,7 @@ RUN make server_deps
 RUN make server_generate
 # These linker flags create a standalone binary that will run in scratch.
 RUN go build -o /bin/mymove-server -ldflags "-linkmode external -extldflags -static" ./cmd/webserver
+RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
 
 # This results in a single layer image
 # https://github.com/GoogleCloudPlatform/distroless
@@ -24,10 +25,9 @@ FROM gcr.io/distroless/base
 COPY --from=build /bin/mymove-server /bin/mymove-server
 COPY --from=build /go/src/github.com/transcom/mymove/config /config
 COPY --from=build /go/src/github.com/transcom/mymove/swagger.yaml /swagger.yaml
-COPY --from=build /go/bin/chamber /bin/chamber
+COPY --from=build /bin/chamber /bin/chamber
 COPY /build /build
 ENTRYPOINT ["/bin/mymove-server"]
-CMD ["-env", "prod", \
-    "-debug_logging"]
+CMD ["-debug_logging"]
 
 EXPOSE 8080

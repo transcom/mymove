@@ -1,22 +1,21 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
 import IssueCards from 'scenes/SubmittedFeedback/IssueCards';
 
-import { IssuesIndex } from 'shared/api.js';
+import { loadIssues } from './ducks';
 
-class SubmittedFeedback extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { issues: null, hasError: false };
-  }
+export class SubmittedFeedback extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Submitted Feedback';
-    this.loadIssues();
+    this.props.loadIssues();
   }
   render() {
-    const { issues, hasError } = this.state;
+    const { issues, hasError } = this.props;
     return (
       <div className="usa-grid">
         <h1>Submitted Feedback</h1>
@@ -29,16 +28,22 @@ class SubmittedFeedback extends Component {
       </div>
     );
   }
-  loadIssues = async () => {
-    try {
-      const issues = await IssuesIndex();
-      this.setState({ issues });
-    } catch (e) {
-      //componentDidCatch will not get fired because this is async
-      //todo: how to we want to monitor errors
-      console.error(e);
-      this.setState({ hasError: true });
-    }
+}
+
+SubmittedFeedback.propTypes = {
+  loadIssues: PropTypes.func.isRequired,
+  issues: PropTypes.array,
+  hasError: PropTypes.bool.isRequired,
+};
+
+function mapStateToProps(state) {
+  return {
+    issues: state.submittedIssues.issues,
+    hasError: state.submittedIssues.hasError,
   };
 }
-export default SubmittedFeedback;
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ loadIssues }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(SubmittedFeedback);
