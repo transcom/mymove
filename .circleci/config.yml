@@ -97,9 +97,11 @@ jobs:
     steps:
       - checkout
       - run:
-          name: Run migration task on ECS
-          command: |
-            bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
+          name: Snapshot database
+          command: bin/rds-snapshot-app-db staging
+      - run:
+          name: Run database migrations
+          command: bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
 
   deploy_app:
     docker:
