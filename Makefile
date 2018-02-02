@@ -58,11 +58,24 @@ server_run: client_build server_build server_run_only
 server_run_dev: server_build server_run_only
 
 server_build_docker:
-	docker build . -t ppp:dev
+	docker build . -t ppp:web-dev
 server_run_only_docker: db_dev_run
-	docker stop ppp || true
-	docker rm ppp || true
-	docker run --name ppp -p 8080:8080 ppp:dev
+	docker stop web || true
+	docker rm web || true
+	docker run --name web -p 8080:8080 ppp:web-dev
+
+tsp_build: server_deps
+	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
+tsp_run_only: db_dev_run
+	./bin/tsp-award-queue
+tsp_run_dev: tsp_build tsp_run_only
+
+tsp_build_docker:
+	docker build . -f Dockerfile.tsp -t ppp:tsp-dev
+tsp_run_only_docker: db_dev_run
+	docker stop tsp || true
+	docker rm tsp || true
+	docker run --name tsp ppp:tsp-dev
 
 server_test: db_dev_run db_test_reset server_deps server_generate
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \

@@ -13,6 +13,7 @@ __snapshots__
 # production
 /build
 /bin/webserver
+/bin/tsp-award-queue
 
 # misc
 .DS_Store
