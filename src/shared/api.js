@@ -7,6 +7,10 @@ async function ensureClientIsLoaded() {
   }
 }
 
+export async function GetSpec() {
+  await ensureClientIsLoaded();
+  return client.spec;
+}
 // because these are async functions,
 // they return a promise that is resolved with the return value
 // if there is an error, the promise is rejected with that error

@@ -6,6 +6,7 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/Header';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer/Footer';
+import DD1299 from 'scenes/DD1299';
 
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
@@ -14,6 +15,7 @@ const AppWrapper = () => (
       <main className="site__content">
         <Route exact path="/" component={Feedback} />
         <Route path="/submitted" component={SubmittedFeedback} />
+        <Route path="/DD1299" component={DD1299} />
       </main>
       <Footer />
     </div>
