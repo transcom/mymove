@@ -40,10 +40,10 @@ server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only
+	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
+	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
 	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
-	go build -i -o bin/golint ./vendor/github.com/golang/lint/golint
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-	go build -i -o bin/chamber ./vendor/github.com/segmentio/chamber
 	touch .server_deps.stamp
 server_generate: .server_generate.stamp
 .server_generate.stamp: swagger.yaml
