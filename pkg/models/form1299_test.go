@@ -1,24 +1,27 @@
-package models_test
+package models
 
 import (
-	"log"
 	"testing"
+	"time"
 
-	"github.com/markbates/pop"
 	"github.com/satori/go.uuid"
-	"github.com/transcom/mymove/pkg/models"
 )
-
-var dbConnection *pop.Connection
 
 func TestBasicInstantiation(t *testing.T) {
 
-	// Given: an instance of form 1299
-	newForm := models.Form1299{
-		MobileHomeHeightFt:     12,
-		ServiceMemberFirstName: "Jane",
-		ServiceMemberLastName:  "Goodall",
-		HhgProgearPounds:       12,
+	// Given: an instance of form 1299 with some optional values
+	var (
+		mobileHomeHeightft int64 = 12
+	)
+	stationOrdersDate := time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)
+	serviceMemberFirstName := "Jane"
+	serviceMemberLastName := "Goodall"
+
+	newForm := Form1299{
+		MobileHomeHeightFt:     &mobileHomeHeightft,
+		ServiceMemberFirstName: &serviceMemberFirstName,
+		ServiceMemberLastName:  &serviceMemberLastName,
+		StationOrdersDate:      &stationOrdersDate,
 	}
 
 	// When: A Form entry is created in the db
@@ -33,37 +36,24 @@ func TestBasicInstantiation(t *testing.T) {
 	}
 
 	// And: assert that the form contains the expected values
-	if (newForm.MobileHomeHeightFt != 12) &&
-		(newForm.ServiceMemberFirstName != "Jane") &&
-		(newForm.ServiceMemberLastName != "Goodall") &&
-		(newForm.HhgProgearPounds != 12) {
-		t.Error("Value not properly set")
+	if (*newForm.MobileHomeHeightFt != 12) ||
+		(*newForm.ServiceMemberFirstName != "Jane") ||
+		(*newForm.ServiceMemberLastName != "Goodall") ||
+		(*newForm.StationOrdersDate != stationOrdersDate) {
+		t.Fatal("Value not properly set")
 	}
 
-	// When: column value is updated
+	// When: column values are updated
 	oldUpdated := newForm.UpdatedAt
-	newForm.ServiceMemberFirstName = "Bob"
+	serviceMemberFirstName = "Bob"
 	err1 := dbConnection.Update(&newForm)
 	if err1 != nil {
 		t.Fatal("Didn't update entry.")
 	}
 
 	// Then: Values are updated accordingly
-	if (oldUpdated.After(newForm.UpdatedAt)) &&
-		(newForm.ServiceMemberFirstName != "Bob") {
+	if (oldUpdated.After(newForm.UpdatedAt)) ||
+		(*newForm.ServiceMemberFirstName != "Bob") {
 		t.Error("Values weren't updated.")
 	}
-}
-
-func setupDBConnection() {
-
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	conn, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	dbConnection = conn
-
 }
