@@ -46,7 +46,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 
 ### Setup: Initial Setup
 
-The following commands will get mymove running on your machine for the frist time. Please read below for explainations of each of the commands.
+The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
 
 1. `./bin/prereqs`
 1. `make db_dev_migrate`
@@ -72,7 +72,7 @@ You can validate that your dev database is running by running `bin/psql-dev`. Th
 
 1. `make server_run`: installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server. It will listen on 8080 and will rebuild the actual server any time a go file changes. Pair this with `make client_run` to have hot reloading of the entire application.
 
-In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client js on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `mke client_run` and the whole app should work.
+In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client js on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
 You can verify the server is working as follows:
 
@@ -88,7 +88,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 1. `make client_run`
 
-The above will start the webpack dev server, serving the frontend on port 3000. If paired with `make server_run` then the whole app will work, the wepback dev server proxies all api calls through to the server.
+The above will start the webpack dev server, serving the frontend on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all api calls through to the server.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
@@ -110,7 +110,7 @@ There are a few handy targets in the Makefile to help you run tests:
 
 There are a few handy targets in the Makefile to help you interact with the dev database:
 
-* `make db_dev_run`: Initilizes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
+* `make db_dev_run`: Initializes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
 * `make db_dev_migrate_down`: reverts the most recently applied migration by running the down migration
