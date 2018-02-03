@@ -10,15 +10,17 @@ import { createIssue } from './ducks';
 
 class Feedback extends Component {
   // constructor(props) {
-  //   super(props);
+  //   super(props),
+  //   // this.props.
+  //   value = '',
   // }
 
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
-    // this.props.createIssue; // I think this shouldn't go here because it's used to create something, not display something that already exists.
   }
+
   handleChange = e => {
-    this.setState({ value: e.target.value }); // Hmmm
+    value = e.target.value; // Value should be gotten in this way, but it should be assigned to something else in another way. Assigned to a variable that's referenced in mapStateToProps?
   };
 
   handleSubmit = async e => {
@@ -50,7 +52,7 @@ Feedback.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    value: state.Feedback.value, // These two are guesses/placeholders
+    value: value, // These two are guesses/placeholders
     confirmationText: state.Feedback.confirmationText, // and feel wonky
   };
 }

@@ -26,19 +26,23 @@ export function createIssue() {
       .then(thing => dispatch(createIssueSuccess(thing)))
       .catch(errorThing => dispatch(createIssueFailure(errorThing)));
     // Fix "things" - what value is being passed? This is a part I do not understand.
+    // Does anything need to be passed here?
   };
 }
 
 // Reducer
-function feedbackReducer(state = { value: '', confirmationText: '' }, action) {
+export function feedbackReducer(
+  state = { value: '', confirmationText: '' },
+  action,
+) {
   switch (action.type) {
     case CREATE_ISSUE_SUCCESS:
-      return { value: '', confirmationText: 'text of confirmation' };
+      return { value: '', confirmationText: 'Feedback submitted!' }; // need value passed up from child component, not empty string
     case CREATE_ISSUE_FAILURE:
-      return { value: '', confirmationText: 'text of failure' };
+      return { value: '', confirmationText: 'Submission error' }; // should this be the same as above, to preserve the value typed in?
     default:
       return state;
   }
 }
 
-export default feedbackReducer;
+// export default feedbackReducer;
