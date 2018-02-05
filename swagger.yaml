@@ -59,7 +59,7 @@ paths:
           name: createForm1299Payload
           required: true
           schema:
-            $ref: "#/definitions/CreateForm1299Payload"
+            $ref: '#/definitions/CreateForm1299Payload'
       responses:
         201:
           description: created instance of form 1299
@@ -585,11 +585,11 @@ definitions:
         x-nullable: true
       station_orders_number:
         type: string
-        example: "98374"
+        example: '98374'
         x-nullable: true
       station_orders_paragraph_number:
         type: string
-        example: "5"
+        example: '5'
         x-nullable: true
       station_orders_in_transit_telephone:
         type: string
