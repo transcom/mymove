@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
-	"github.com/namsral/flag"
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
