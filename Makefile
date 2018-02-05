@@ -67,11 +67,23 @@ server_run: server_deps server_generate db_dev_run
 server_run_dev: server_run
 
 server_build_docker:
-	docker build . -t ppp:dev
+	docker build . -t ppp:web-dev
 server_run_only_docker: db_dev_run
-	docker stop ppp || true
-	docker rm ppp || true
-	docker run --name ppp -p 8080:8080 ppp:dev
+	docker stop web || true
+	docker rm web || true
+	docker run --name web -p 8080:8080 ppp:web-dev
+
+tsp_build: server_deps
+	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
+tsp_run: tsp_build db_dev_run
+	./bin/tsp-award-queue
+
+tsp_build_docker:
+	docker build . -f Dockerfile.tsp -t ppp:tsp-dev
+tsp_run_only_docker: db_dev_run
+	docker stop tsp || true
+	docker rm tsp || true
+	docker run --name tsp ppp:tsp-dev
 
 server_test: db_dev_run db_test_reset server_deps server_generate
 	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
