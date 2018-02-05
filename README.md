@@ -44,7 +44,16 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 `src`: The react source code for the client \
 `vendor`: Cached dependencies for the server
 
-### Prerequisites
+### Setup: Initial Setup
+
+The following commands will get mymove running on your machine for the first time. Please read below for explanations of each of the commands.
+
+1. `./bin/prereqs`
+1. `make db_dev_migrate`
+1. `make server_run`
+1. `make client_run`
+
+### Setup: Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
 * Run `bin/prereqs` and install everything it tells you to. *Do not configure postgres to automatically start at boot time!*
@@ -55,32 +64,31 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_init`: initializes a Docker container with a Postgres database.
-1. `make db_dev_migrate`: runs all existing database migrations, which do things like creating table structures, etc.
-1. You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
+1. `make db_dev_migrate`: Creates a postgres docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+
+You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
 
 ### Setup: Server
 
-1. `make server_run`: installs dependencies and builds both the client and the server, then runs the server.
+1. `make server_run`: installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server. It will listen on 8080 and will rebuild the actual server any time a go file changes. Pair this with `make client_run` to have hot reloading of the entire application.
 
-For faster development, use `make server_run_dev`. This builds and runs the server but skips updating dependences and re-building the client. Those tasks can be accomplished as needed with `make server_deps` and `make client_build`
+In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client js on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"body\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}"`
 
 from which the response should be like
 
-`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "body": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
+`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "description": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
 
 Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
 ### Setup: Client
 
-1. `make server_run`
 1. `make client_run`
 
-The above will start the server running and starts the webpack dev server, proxied to our running go server.
+The above will start the webpack dev server, serving the frontend on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all api calls through to the server.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
@@ -102,10 +110,10 @@ There are a few handy targets in the Makefile to help you run tests:
 
 There are a few handy targets in the Makefile to help you interact with the dev database:
 
-* `make db_dev_init`: Initializes a new postgres Docker container with a test database and runs it. You must do this before any other database operations.
-* `make db_dev_run`: Starts the previously initialized Docker container if it has been stopped.
+* `make db_dev_run`: Initializes a new database if it does not exist and runs it, or starts the previously initialized Docker container if it has been stopped.
 * `make db_dev_reset`: Destroys your database container. Useful if you want to start from scratch.
 * `make db_dev_migrate`: Applies database migrations against your running database container.
+* `make db_dev_migrate_down`: reverts the most recently applied migration by running the down migration
 
 #### Migrations
 
@@ -122,6 +130,7 @@ If you are modifying an existing model, use `./bin/soda generate migration migra
 Running migrations in local development:
 
 1. Use `make db_dev_migrate` to run migrations against your local dev environment.
+1. Use `make db_dev_migrate_down` to revert the most recently applied migration. This is useful while you are developing a migration but should not be necessary otherwise.
 
 Running migrations on Staging / Production:
 
