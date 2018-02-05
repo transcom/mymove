@@ -75,7 +75,7 @@ server_run_only_docker: db_dev_run
 
 tsp_build: server_deps
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
-tsp_run: db_dev_run
+tsp_run: tsp_build db_dev_run
 	./bin/tsp-award-queue
 
 tsp_build_docker:
