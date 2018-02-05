@@ -1,13 +1,14 @@
 package main
 
 import (
-	"flag"
+	"fmt"
 	"log"
 	"net/http"
 	"path"
 
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
@@ -37,7 +38,7 @@ func main() {
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
-	port := flag.String("port", ":8080", "the `port` to listen on.")
+	port := flag.String("port", "8080", "the `port` to listen on.")
 	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
@@ -94,7 +95,8 @@ func main() {
 	root.Use(requestLogger)
 
 	zap.L().Info("Starting the server listening", zap.String("port", *port))
-	log.Fatal(http.ListenAndServe(*port, root))
+	address := fmt.Sprintf(":%s", *port)
+	log.Fatal(http.ListenAndServe(address, root))
 }
 
 // fileHandler serves up a single file

@@ -86,17 +86,19 @@ function Header() {
                 aria-expanded="false"
                 aria-controls="side-nav-1"
               >
-                <span>Section title</span>
+                <span>Forms</span>
               </button>
               <ul id="side-nav-1" className="usa-nav-submenu">
                 <li>
-                  <a>Page title</a>
+                  <NavLink to="/DD1299" className="usa-nav-link">
+                    <span>DD1299</span>
+                  </NavLink>
                 </li>
                 <li>
-                  <a>Page title</a>
+                  <a>DD1797 (coming soon)</a>
                 </li>
                 <li>
-                  <a>Page title</a>
+                  <a>DD2278 (coming soon)</a>
                 </li>
               </ul>
             </li>

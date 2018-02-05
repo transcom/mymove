@@ -40,10 +40,11 @@ server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only
-	go install ./vendor/github.com/markbates/pop/soda
-	go install ./vendor/github.com/golang/lint/golint
-	go install ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
-	go install ./vendor/github.com/segmentio/chamber
+	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
+	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
+	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
+	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_generate: .server_generate.stamp
 .server_generate.stamp: swagger.yaml
@@ -51,11 +52,19 @@ server_generate: .server_generate.stamp
 	touch .server_generate.stamp
 server_build: server_deps server_generate
 	go build -i -o bin/webserver ./cmd/webserver
-server_run_only: db_dev_run
+# This command is for running the server by itself, it will serve the compiled frontend on its own
+server_run_standalone: client_build server_build db_dev_run
 	./bin/webserver \
 		-debug_logging
-server_run: client_build server_build server_run_only
-server_run_dev: server_build server_run_only
+# This command runs the server behind gin, a hot-reload server
+server_run: server_deps server_generate db_dev_run
+	./bin/gin --build ./cmd/webserver \
+		--bin /bin/webserver \
+		--port 8080 --appPort 8081 \
+		--excludeDir vendor --excludeDir node_modules \
+		-i --buildArgs "-i"
+# This is just an alais for backwards compatibility
+server_run_dev: server_run
 
 server_build_docker:
 	docker build . -t ppp:dev
@@ -65,34 +74,29 @@ server_run_only_docker: db_dev_run
 	docker run --name ppp -p 8080:8080 ppp:dev
 
 server_test: db_dev_run db_test_reset server_deps server_generate
-	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
-		go test ./...
+	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
 
-db_dev_init:
-	docker run --name $(DB_DOCKER_CONTAINER) \
-		-e \
-		POSTGRES_PASSWORD=$(PGPASSWORD) \
-		-d \
-		-p 5432:5432 \
-		postgres:latest
-	bin/wait-for-db
-	createdb -p 5432 -h localhost -U postgres dev_db
 db_dev_run:
-	# We don't want to utilize Docker to start the database if we're
-	# in the CircleCI environment. It has its own configuration to launch
-	# a DB.
-	[ ! -z "$(CIRCLECI)" ] && \
-		echo "Relying on CircleCI's database container." || \
-		docker start $(DB_DOCKER_CONTAINER)
+	docker start $(DB_DOCKER_CONTAINER) || \
+		(docker run --name $(DB_DOCKER_CONTAINER) \
+			-e \
+			POSTGRES_PASSWORD=$(PGPASSWORD) \
+			-d \
+			-p 5432:5432 \
+			postgres:latest && \
+		bin/wait-for-db && \
+		createdb -p 5432 -h localhost -U postgres dev_db)
+# This is just an alias for backwards compatibility
+db_dev_init: db_dev_run
 db_dev_reset:
 	echo "Attempting to reset local dev database..."
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: db_dev_run
-	soda migrate up
+	./bin/soda migrate up
 db_dev_migrate_down: db_dev_run
-	soda migrate down
+	./bin/soda migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
@@ -104,7 +108,7 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	soda -e test migrate up
+	./bin/soda -e test migrate up
 
 adr_update:
 	yarn run adr-log
@@ -116,6 +120,6 @@ clean:
 	rm -rf ./pkg/gen
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
-.PHONY: server_deps_update server_generate server_deps server_build server_run_only server_run server_run_dev server_build_docker server_run_only_docker server_test
+.PHONY: server_deps_update server_generate server_deps server_build server_run_standalone server_run server_run_dev server_build_docker server_run_only_docker server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
 .PHONY: clean
