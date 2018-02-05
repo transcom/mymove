@@ -9,17 +9,23 @@ import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 import { createIssue } from './ducks';
 
 class Feedback extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      value: '',
+      confirmationText: '',
+    };
+  }
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
   }
-
   handleChange = e => {
-    const value = e.target.value;
+    this.setState({ value: e.target.value });
   };
 
   handleSubmit = async e => {
     e.preventDefault();
-    this.props.createIssue(); // Is this enough?
+    this.props.createIssue(this.props.value); // Is this enough?
   };
 
   render() {
@@ -30,7 +36,7 @@ class Feedback extends Component {
         <FeedbackForm
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
-          textValue={value}
+          textValue={this.state.value}
         />
         <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
