@@ -135,7 +135,6 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 	var response middleware.Responder
 	if err := dbConnection.Create(&newForm1299); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
-		// how do I raise an error?
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else {
 		form1299Payload := payloadForForm1299Model(newForm1299)
