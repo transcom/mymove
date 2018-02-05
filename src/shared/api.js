@@ -33,3 +33,15 @@ export async function CreateIssue(issueBody) {
       ${response.url}: ${response.statusText}`,
     );
 }
+
+export async function ShipmentIndex() {
+  await ensureClientIsLoaded();
+  const response = await client.apis.shipments.indexIssues();
+  if (!response.ok) {
+    throw new Error(
+      `failed to load shipments index due to server error:
+      ${response.url}: ${response.statusText}`,
+    );
+  }
+  return response.body;
+}
