@@ -28,8 +28,6 @@ export function createIssue(value) {
     CreateIssue(value)
       .then(item => dispatch(createIssueSuccess(item)))
       .catch(error => dispatch(createIssueFailure(error)));
-    // Fix "things" - what value is being passed? This is a part I do not understand.
-    // Does anything need to be passed here?
   };
 }
 

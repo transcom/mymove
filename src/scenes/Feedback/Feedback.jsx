@@ -25,7 +25,7 @@ class Feedback extends Component {
 
   handleSubmit = async e => {
     e.preventDefault();
-    this.props.createIssue(this.props.value); // Is this enough?
+    this.props.createIssue(this.state.value);
   };
 
   render() {
@@ -46,14 +46,14 @@ class Feedback extends Component {
 
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
-  value: PropTypes.string.isRequired,
+  // value: PropTypes.string.isRequired,
   confirmationText: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    value: state.feedback.value, // These two are guesses/placeholders
-    confirmationText: state.feedback.confirmationText, // and feel wonky
+    // value: state.feedback.value,
+    confirmationText: state.feedback.confirmationText,
   };
 }
 function mapDispatchToProps(dispatch) {
