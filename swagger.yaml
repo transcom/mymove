@@ -178,7 +178,8 @@ definitions:
         example: 'Roll'
         x-nullable: true
       service_member_rank:
-        $ref: '#/definitions/RankGrade'
+        type: string
+        $ref: '#/definitions/ServiceMemberRank'
         x-nullable: true
       service_member_ssn:
         type: string
@@ -429,6 +430,7 @@ definitions:
         example: 'Focaccia'
         x-nullable: true
       service_member_middle_initial:
+        type: string
         example: 'L.'
         x-nullable: true
       service_member_last_name:
@@ -436,7 +438,7 @@ definitions:
         example: 'Roll'
         x-nullable: true
       service_member_rank:
-        $ref: '#/definitions/RankGrade'
+        $ref: '#/definitions/ServiceMemberRank'
         x-nullable: true
       service_member_ssn:
         type: string
@@ -641,7 +643,7 @@ definitions:
       - id
       - created_at
       - updated_at
-  RankGrade:
+  ServiceMemberRank:
     type: string
     enum:
       - E_1
