@@ -192,17 +192,14 @@ definitions:
         x-nullable: true
       hhg_total_pounds:
         type: integer
-        format: int64
         example: 10000
         x-nullable: true
       hhg_progear_pounds:
         type: integer
-        format: int64
         example: 350
         x-nullable: true
       hhg_valuable_items_cartons:
         type: integer
-        format: int64
         example: 3
         x-nullable: true
       mobile_home_serial_number:
@@ -211,32 +208,26 @@ definitions:
         x-nullable: true
       mobile_home_length_ft:
         type: integer
-        format: int64
         example: 72
         x-nullable: true
       mobile_home_length_inches:
         type: integer
-        format: int64
         example: 4
         x-nullable: true
       mobile_home_width_ft:
         type: integer
-        format: int64
         example: 15
         x-nullable: true
       mobile_home_width_inches:
         type: integer
-        format: int64
         example: 4
         x-nullable: true
       mobile_home_height_ft:
         type: integer
-        format: int64
         example: 10
         x-nullable: true
       mobile_home_height_inches:
         type: integer
-        format: int64
         example: 3
         x-nullable: true
       mobile_home_type_expando:
@@ -343,12 +334,10 @@ definitions:
         x-nullable: true
       other_move_net_pounds:
         type: integer
-        format: int64
         example: 2000
         x-nullable: true
       other_move_progear_pounds:
         type: integer
-        format: int64
         example: 100
         x-nullable: true
       service_member_signature:
@@ -451,17 +440,14 @@ definitions:
         x-nullable: true
       hhg_total_pounds:
         type: integer
-        format: int64
         example: 10000
         x-nullable: true
       hhg_progear_pounds:
         type: integer
-        format: int64
         example: 3000
         x-nullable: true
       hhg_valuable_items_cartons:
         type: integer
-        format: int64
         example: 3
         x-nullable: true
       mobile_home_serial_number:
@@ -470,32 +456,26 @@ definitions:
         x-nullable: true
       mobile_home_length_ft:
         type: integer
-        format: int64
         example: 72
         x-nullable: true
       mobile_home_length_inches:
         type: integer
-        format: int64
         example: 4
         x-nullable: true
       mobile_home_width_ft:
         type: integer
-        format: int64
         example: 15
         x-nullable: true
       mobile_home_width_inches:
         type: integer
-        format: int64
         example: 4
         x-nullable: true
       mobile_home_height_ft:
         type: integer
-        format: int64
         example: 10
         x-nullable: true
       mobile_home_height_inches:
         type: integer
-        format: int64
         example: 3
         x-nullable: true
       mobile_home_type_expando:
@@ -602,12 +582,10 @@ definitions:
         x-nullable: true
       other_move_net_pounds:
         type: integer
-        format: int64
         example: 4000
         x-nullable: true
       other_move_progear_pounds:
         type: integer
-        format: int64
         example: 88
         x-nullable: true
       service_member_signature:
