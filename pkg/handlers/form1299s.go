@@ -8,9 +8,9 @@ import (
 	// "github.com/go-openapi/strfmt"
 	// "go.uber.org/zap"
 
-	// "github.com/transcom/mymove/pkg/gen/messages"
+	"github.com/transcom/mymove/pkg/gen/messages"
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
-	// "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
@@ -29,20 +29,19 @@ import (
 func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Responder {
 	fmt.Println("WEOINWEFOWFNWOEFNN")
 	fmt.Println(params.Form1299ID)
-	// newIssue := models.Issue{
-	// 	Description:  *params.CreateIssuePayload.Description,
-	// 	ReporterName: params.CreateIssuePayload.ReporterName,
-	// 	DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
-	// }
-	// var response middleware.Responder
-	// if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
-	// 	zap.L().Error("DB Insertion", zap.Error(err))
-	// 	// how do I raise an erorr?
-	// 	response = issueop.NewCreateIssueBadRequest()
-	// } else {
-	// 	issuePayload := payloadForIssueModel(newIssue)
-	// 	response = issueop.NewCreateIssueCreated().WithPayload(&issuePayload)
+	formID := params.Form1299ID
+	form := models.Form1299{}
+	var response middleware.Responder
+	if err := dbConnection.Find(&form, formID); err != nil {
+		fmt.Println(err)
+		response = form1299op.NewShowForm1299NotFound()
+	} else {
+		formPayload := messages.Form1299Payload{}
+		formPayload.ID = fmtUUID(form.ID)
+		formPayload.NameOfPreparingOffice = form.NameOfPreparingOffice
+		response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
+	}
 
-	// }
-	return nil
+	return response
+
 }
