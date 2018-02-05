@@ -10,21 +10,24 @@ export const createIssueRequest = () => ({
   type: CREATE_ISSUE,
 });
 
-export const createIssueSuccess = () => ({
+export const createIssueSuccess = item => ({
   type: CREATE_ISSUE_SUCCESS,
+  item,
 });
 
-export const createIssueFailure = () => ({
+export const createIssueFailure = error => ({
   type: CREATE_ISSUE_FAILURE,
+  error,
 });
 
 // Action creator
-export function createIssue() {
+export function createIssue(value) {
   return function(dispatch, getState) {
+    debugger;
     dispatch(createIssueRequest());
-    CreateIssue(this.props.value)
-      .then(thing => dispatch(createIssueSuccess(thing)))
-      .catch(errorThing => dispatch(createIssueFailure(errorThing)));
+    CreateIssue(value)
+      .then(item => dispatch(createIssueSuccess(item)))
+      .catch(error => dispatch(createIssueFailure(error)));
     // Fix "things" - what value is being passed? This is a part I do not understand.
     // Does anything need to be passed here?
   };
@@ -37,9 +40,9 @@ export function feedbackReducer(
 ) {
   switch (action.type) {
     case CREATE_ISSUE_SUCCESS:
-      return { value: '', confirmationText: 'Feedback submitted!' }; // need value passed up from child component, not empty string
+      return { value: action.item, confirmationText: 'Feedback submitted!' }; // need value passed up from child component, not empty string
     case CREATE_ISSUE_FAILURE:
-      return { value: '', confirmationText: 'Submission error' }; // should this be the same as above, to preserve the value typed in?
+      return { value: action.error, confirmationText: 'Submission error' }; // should this be the same as above, to preserve the value typed in?
     default:
       return state;
   }

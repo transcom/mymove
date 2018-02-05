@@ -9,23 +9,17 @@ import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 import { createIssue } from './ducks';
 
 class Feedback extends Component {
-  // constructor(props) {
-  //   super(props),
-  //   // this.props.
-  //   value = '',
-  // }
-
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
   }
 
   handleChange = e => {
-    value = e.target.value; // Value should be gotten in this way, but it should be assigned to something else in another way. Assigned to a variable that's referenced in mapStateToProps?
+    const value = e.target.value;
   };
 
   handleSubmit = async e => {
     e.preventDefault();
-    createIssue(); // Is this enough?
+    this.props.createIssue(); // Is this enough?
   };
 
   render() {
@@ -52,8 +46,8 @@ Feedback.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    value: value, // These two are guesses/placeholders
-    confirmationText: state.Feedback.confirmationText, // and feel wonky
+    value: state.feedback.value, // These two are guesses/placeholders
+    confirmationText: state.feedback.confirmationText, // and feel wonky
   };
 }
 function mapDispatchToProps(dispatch) {
