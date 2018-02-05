@@ -149,7 +149,7 @@ definitions:
         title: Date Prepared
       shipment_number:
         type: string
-        example: '4550'
+        example: "4550"
         x-nullable: true
         title: Shipment Number
       name_of_preparing_office:
@@ -293,12 +293,12 @@ definitions:
         title: Date of Orders
       station_orders_number:
         type: string
-        example: '98374'
+        example: "98374"
         x-nullable: true
         title: Orders Number
       station_orders_paragraph_number:
         type: string
-        example: '5'
+        example: "5"
         x-nullable: true
         title: Paragraph Number
       station_orders_in_transit_telephone:
@@ -450,7 +450,7 @@ definitions:
         x-nullable: true
       shipment_number:
         type: string
-        example: '4550'
+        example: "4550"
         x-nullable: true
       name_of_preparing_office:
         type: string
