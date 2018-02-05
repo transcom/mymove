@@ -6,37 +6,31 @@ import PropTypes from 'prop-types';
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
 import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 
-import { createIssue } from './ducks';
+import { createIssue, updatePendingIssueValue } from './ducks';
 
 class Feedback extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: '',
-      confirmationText: '',
-    };
-  }
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
   }
+
   handleChange = e => {
-    this.setState({ value: e.target.value });
+    this.props.updatePendingIssueValue(e.target.value);
   };
 
   handleSubmit = async e => {
     e.preventDefault();
-    this.props.createIssue(this.state.value);
+    this.props.createIssue(this.props.pendingValue);
   };
 
   render() {
-    const { value, confirmationText } = this.props;
+    const { pendingValue, confirmationText } = this.props;
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
         <FeedbackForm
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
-          textValue={this.state.value}
+          textValue={pendingValue}
         />
         <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
@@ -46,18 +40,20 @@ class Feedback extends Component {
 
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
-  // value: PropTypes.string.isRequired,
+  updatePendingIssueValue: PropTypes.func.isRequired,
+  pendingValue: PropTypes.string,
   confirmationText: PropTypes.string.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    // value: state.feedback.value,
+    pendingValue: state.feedback.pendingValue,
     confirmationText: state.feedback.confirmationText,
   };
 }
+
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createIssue }, dispatch);
+  return bindActionCreators({ createIssue, updatePendingIssueValue }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feedback);

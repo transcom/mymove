@@ -4,6 +4,7 @@ import { CreateIssue } from 'shared/api.js';
 export const CREATE_ISSUE = 'CREATE_ISSUE';
 export const CREATE_ISSUE_SUCCESS = 'CREATE_ISSUE_SUCCESS';
 export const CREATE_ISSUE_FAILURE = 'CREATE_ISSUE_FAILURE';
+export const CREATE_PENDING_ISSUE_VALUE = 'CREATE_PENDING_ISSUE_VALUE';
 
 // Actions
 export const createIssueRequest = () => ({
@@ -20,10 +21,14 @@ export const createIssueFailure = error => ({
   error,
 });
 
+export const updateIssueValue = value => ({
+  type: CREATE_PENDING_ISSUE_VALUE,
+  value,
+});
+
 // Action creator
 export function createIssue(value) {
   return function(dispatch, getState) {
-    debugger;
     dispatch(createIssueRequest());
     CreateIssue(value)
       .then(item => dispatch(createIssueSuccess(item)))
@@ -31,16 +36,25 @@ export function createIssue(value) {
   };
 }
 
+export function updatePendingIssueValue(value) {
+  return updateIssueValue(value);
+}
+
 // Reducer
 export function feedbackReducer(
-  state = { value: '', confirmationText: '' },
+  state = { pendingValue: '', confirmationText: '' },
   action,
 ) {
   switch (action.type) {
     case CREATE_ISSUE_SUCCESS:
-      return { value: action.item, confirmationText: 'Feedback submitted!' }; // need value passed up from child component, not empty string
+      return { pendingValue: '', confirmationText: 'Feedback submitted!' };
     case CREATE_ISSUE_FAILURE:
-      return { value: action.error, confirmationText: 'Submission error' }; // should this be the same as above, to preserve the value typed in?
+      return {
+        pendingValue: state.value,
+        confirmationText: 'Submission error',
+      };
+    case CREATE_PENDING_ISSUE_VALUE:
+      return { pendingValue: action.value, confirmationText: '' };
     default:
       return state;
   }
