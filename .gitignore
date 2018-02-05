@@ -12,8 +12,14 @@ __snapshots__
 
 # production
 /build
+
+# built binaries
 /bin/webserver
 /bin/tsp-award-queue
+/bin/soda
+/bin/golint
+/bin/swagger
+/bin/gin
 
 # misc
 .DS_Store
