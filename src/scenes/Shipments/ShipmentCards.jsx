@@ -25,7 +25,7 @@ ShipmentCards.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      traffic_distribution_list: PropTypes.string.isRequired,
+      traffic_distribution_list: PropTypes.string,
     }),
   ),
 };

@@ -1,22 +1,21 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
 import ShipmentCards from 'scenes/Shipments/ShipmentCards';
 
-import { AvailableShipmentsIndex } from 'shared/api.js';
+import { loadAvailableShipments } from './ducks';
 
-class AvailableShipments extends Component {
-  constructor(props) {
-    super(props);
-    this.state = { shipments: null, hasError: false };
-  }
+export class AvailableShipments extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Available Shipments';
-    this.loadAvailableShipments();
+    this.props.loadAvailableShipments();
   }
   render() {
-    const { shipments, hasError } = this.state;
+    const { shipments, hasError } = this.props;
     return (
       <div className="usa-grid">
         <h1>Available Shipments</h1>
@@ -29,16 +28,22 @@ class AvailableShipments extends Component {
       </div>
     );
   }
-  loadAvailableShipments = async () => {
-    try {
-      const shipments = await AvailableShipmentsIndex();
-      this.setState({ shipments });
-    } catch (e) {
-      //componentDidCatch will not get fired because this is async
-      //todo: how to we want to monitor errors
-      console.error(e);
-      this.setState({ hasError: true });
-    }
+}
+
+AvailableShipments.propTypes = {
+  loadAvailableShipments: PropTypes.func.isRequired,
+  shipments: PropTypes.array,
+  hasError: PropTypes.bool.isRequired,
+};
+
+function mapStateToProps(state) {
+  return {
+    shipments: state.availableShipments.shipments,
+    hasError: state.availableShipments.hasError,
   };
 }
-export default AvailableShipments;
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ loadAvailableShipments }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(AvailableShipments);

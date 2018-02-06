@@ -1,10 +1,48 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { shallow } from 'enzyme';
 import ShipmentCards from './ShipmentCards';
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(<ShipmentCards shipments={null} />, div);
+describe('Null Shipments on ShipmentCards', () => {
+  let wrapper;
+  const shipments = null;
+
+  beforeEach(() => {
+    wrapper = shallow(<ShipmentCards shipments={shipments} />);
+  });
+
+  it('renders without crashing', () => {
+    expect(wrapper.find('ShipmentCards').toExist);
+  });
 });
 
-//todo: test that variations of issues (null,empty,data) render as expected
+describe('Empty Shipments on ShipmentCards', () => {
+  let wrapper;
+  const shipments = [];
+
+  beforeEach(() => {
+    wrapper = shallow(<ShipmentCards shipments={shipments} />);
+  });
+
+  it('renders without crashing', () => {
+    expect(wrapper.find('ShipmentCards').toExist);
+  });
+});
+
+describe('Shipments on ShipmentCards', () => {
+  let wrapper;
+  const shipments = [
+    {
+      id: '13',
+      name: 'Sally Shipment',
+      traffic_distribution_list: 'Piggy Packers',
+    },
+  ];
+
+  beforeEach(() => {
+    wrapper = shallow(<ShipmentCards shipments={shipments} />);
+  });
+
+  it('renders without crashing', () => {
+    expect(wrapper.find('ShipmentCards').toExist);
+  });
+});
