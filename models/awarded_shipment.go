@@ -4,53 +4,50 @@ import (
 	"encoding/json"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 	"time"
 )
 
-// BestValueScore (or BVS) is a combination of quality and value score for
-// Transportation Service Providers (TSPs). The higher a TSP's BVS, the higher
-// the chance they will be awarded more shipments.
-type BestValueScore struct {
+// AwardedShipment maps a Transportation Service Provider to a shipment,
+// indicating that the shipment has been awarded to that TSP.
+type AwardedShipment struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
+	ShipmentID                      uuid.UUID `json:"shipment_id" db:"shipment_id"`
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	Score                           int       `json:"score" db:"score"`
+	AdministrativeShipment          bool      `json:"administrative_shipment" db:"administrative_shipment"`
 }
 
 // String is not required by pop and may be deleted
-func (b BestValueScore) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
+func (a AwardedShipment) String() string {
+	ja, _ := json.Marshal(a)
+	return string(ja)
 }
 
-// BestValueScores is not required by pop and may be deleted
-type BestValueScores []BestValueScore
+// AwardedShipments is not required by pop and may be deleted
+type AwardedShipments []AwardedShipment
 
 // String is not required by pop and may be deleted
-func (b BestValueScores) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
+func (a AwardedShipments) String() string {
+	ja, _ := json.Marshal(a)
+	return string(ja)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (b *BestValueScore) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(
-		&validators.IntIsPresent{Field: b.Score, Name: "Score"},
-	), nil
+func (a *AwardedShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+	return validate.NewErrors(), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func (b *BestValueScore) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AwardedShipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func (b *BestValueScore) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *AwardedShipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
