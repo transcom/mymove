@@ -4,20 +4,27 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { loadSchema, loadUiSchema } from './ducks';
+import { loadSchema } from './ducks';
+
+import Alert from 'shared/Alert';
 
 const DD1299Form = reduxifyForm('DD1299');
 export class DD1299 extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: DD1299';
     this.props.loadSchema();
-    this.props.loadUiSchema();
   }
   submit = values => {
     // print the form values to the console
     console.log(values);
   };
   render() {
+    if (this.props.hasError)
+      return (
+        <Alert type="error" heading="Server Error">
+          There was a problem loading the form from the server.
+        </Alert>
+      );
     return (
       <DD1299Form
         onSubmit={this.submit}
@@ -41,7 +48,7 @@ function mapStateToProps(state) {
   };
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema, loadUiSchema }, dispatch);
+  return bindActionCreators({ loadSchema }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DD1299);
