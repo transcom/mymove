@@ -39,7 +39,8 @@ func (b BestValueScores) String() string {
 // This method is not required and may be deleted.
 func (b *BestValueScore) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsPresent{Field: b.Score, Name: "Score"},
+		&validators.IntIsGreaterThan{Field: b.Score, Name: "Score", Compared: 0},
+		&validators.IntIsLessThan{Field: b.Score, Name: "Score", Compared: 100},
 	), nil
 }
 

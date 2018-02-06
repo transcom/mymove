@@ -1,7 +1,81 @@
-package models_test
+package models
 
-import "testing"
+import (
+	"log"
+	"os"
+	"testing"
+
+	"github.com/markbates/pop"
+	"github.com/satori/go.uuid"
+)
+
+var db *pop.Connection
 
 func Test_AwardedShipment(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+	as := &AwardedShipment{}
+
+	if err := db.Create(as); err != nil {
+		t.Fatal("Didn't write it to the db")
+	}
+
+	if as.ID == uuid.Nil {
+		t.Error("didn't get an ID back")
+	}
+
+	if as.CreatedAt.IsZero() {
+		t.Error("wasn't assigned a created_at time")
+	}
+}
+
+func Test_AwardedShipmentValidations(t *testing.T) {
+	as := &AwardedShipment{}
+	verrs, err := db.ValidateAndSave(as)
+	if err != nil {
+		t.Error(err)
+	}
+
+	if verrs.Count() != 2 {
+		t.Errorf("expected %d errors, got %d", 2, verrs.Count())
+	}
+
+	shipmentErrs := verrs.Get("shipment_id")
+	expected := []string{"ShipmentID can not be blank."}
+	if !equalSlice(shipmentErrs, expected) {
+		t.Errorf("expected errors on %s to be %v, got %v", "ShipmentID", expected, shipmentErrs)
+	}
+
+	tspErrs := verrs.Get("transportation_service_provider_id")
+	expected = []string{"TransportationServiceProviderID can not be blank."}
+	if !equalSlice(tspErrs, expected) {
+		t.Errorf("expected errors on %s to be %v, got %v", "TransportationServiceProviderID", expected, tspErrs)
+	}
+}
+
+func equalSlice(a []string, b []string) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
+}
+
+func setupDBConnection() {
+	configLocation := "../../config"
+	pop.AddLookupPaths(configLocation)
+	conn, err := pop.Connect("test")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	db = conn
+}
+
+func TestMain(m *testing.M) {
+	setupDBConnection()
+
+	os.Exit(m.Run())
 }

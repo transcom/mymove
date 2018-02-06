@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
+	v "github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 	"time"
 )
@@ -37,7 +38,10 @@ func (a AwardedShipments) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (a *AwardedShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	return validate.Validate(
+		&v.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},
+		&v.UUIDIsPresent{Field: a.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
+	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
