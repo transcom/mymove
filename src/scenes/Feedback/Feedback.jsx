@@ -33,10 +33,7 @@ class Feedback extends Component {
           textValue={pendingValue}
         />
         <b>OHAI!!!</b>
-        <FeedbackConfirmation
-          confirmationText={confirmationText}
-          pendingValue={pendingValue}
-        />
+        <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
     );
   }

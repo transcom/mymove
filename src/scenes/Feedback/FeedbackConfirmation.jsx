@@ -1,10 +1,9 @@
 import React from 'react';
 
-function FeedbackConfirmation({ confirmationText, pendingValue }) {
+function FeedbackConfirmation({ confirmationText }) {
   return (
     <div>
       <p>{confirmationText}</p>
-      <p>{pendingValue}</p>
     </div>
   );
 }
