@@ -26,7 +26,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: err,
+      hasError: true,
     };
     const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
     expect(newState).toEqual(expectedState);
