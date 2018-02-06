@@ -12,9 +12,9 @@ export const createLoadSchemaRequest = () => ({
   type: LOAD_SCHEMA,
 });
 
-export const createLoadSchemaSuccess = spec => ({
+export const createLoadSchemaSuccess = schema => ({
   type: LOAD_SCHEMA_SUCCESS,
-  spec,
+  schema,
 });
 
 export const createLoadSchemaFailure = error => ({
@@ -22,10 +22,15 @@ export const createLoadSchemaFailure = error => ({
   error,
 });
 
+export const createLoadUiSchema = uiSchema => ({
+  type: LOAD_UI_SCHEMA,
+  uiSchema,
+});
+
 // Action Creator
 export function loadSchema() {
   // Interpreted by the thunk middleware:
-  return function(dispatch, getState) {
+  return function(dispatch) {
     dispatch(createLoadSchemaRequest());
     GetSpec()
       .then(spec => dispatch(createLoadSchemaSuccess(spec)))
@@ -34,15 +39,17 @@ export function loadSchema() {
 }
 
 export function loadUiSchema() {
-  return { type: LOAD_UI_SCHEMA, uiSchema: getUiSchema() };
+  return createLoadUiSchema(getUiSchema());
 }
 // Reducer
+//todo: we may want to reorganize this after we have implemented more reports
+// for instance it may make sense to have the whole schema (and uiSchema) in the store and use selectors to get the pieces we need for reports
 const initialState = { schema: null, uiSchema: {}, hasError: false };
 function dd1299Reducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_SCHEMA_SUCCESS:
       return Object.assign({}, state, {
-        schema: action.spec.definitions.CreateForm1299Payload,
+        schema: action.schema.spec.definitions.CreateForm1299Payload,
         hasError: false,
       });
     case LOAD_SCHEMA_FAILURE:
