@@ -92,9 +92,16 @@ The above will start the webpack dev server, serving the frontend on port 3000. 
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
-### API
+### TSP Award Queue
 
-The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. it is the single source of truth for what the API contract between client and server should be.
+This background job is built as a separate binary which can be built using
+`make tsp_build` and run using `make tsp_run`.
+
+### API / Swagger
+
+The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
+
+You can view the API's documentation (powered by Swagger UI) at [http://localhost:8081/api/v1/docs](http://localhost:8081/api/v1/docs) when a local server is running.
 
 ### Testing
 

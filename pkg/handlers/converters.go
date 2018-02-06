@@ -27,3 +27,8 @@ func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
 }
+
+func fmtInt64(i int) *int64 {
+	fmtInt := int64(i)
+	return &fmtInt
+}

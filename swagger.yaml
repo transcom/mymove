@@ -59,7 +59,7 @@ paths:
           name: createForm1299Payload
           required: true
           schema:
-            $ref: "#/definitions/CreateForm1299Payload"
+            $ref: '#/definitions/CreateForm1299Payload'
       responses:
         201:
           description: created instance of form 1299
@@ -188,7 +188,8 @@ definitions:
         x-nullable: true
         title: Last Name
       service_member_rank:
-        $ref: '#/definitions/RankGrade'
+        type: string
+        $ref: '#/definitions/ServiceMemberRank'
         x-nullable: true
         title: Rank/Grade
       service_member_ssn:
@@ -471,6 +472,7 @@ definitions:
         example: Focaccia
         x-nullable: true
       service_member_middle_initial:
+        type: string
         example: L.
         x-nullable: true
       service_member_last_name:
@@ -478,7 +480,7 @@ definitions:
         example: Roll
         x-nullable: true
       service_member_rank:
-        $ref: '#/definitions/RankGrade'
+        $ref: '#/definitions/ServiceMemberRank'
         x-nullable: true
       service_member_ssn:
         type: string
@@ -563,11 +565,11 @@ definitions:
         x-nullable: true
       station_orders_number:
         type: string
-        example: "98374"
+        example: '98374'
         x-nullable: true
       station_orders_paragraph_number:
         type: string
-        example: "5"
+        example: '5'
         x-nullable: true
       station_orders_in_transit_telephone:
         type: string
@@ -672,7 +674,7 @@ definitions:
       - id
       - created_at
       - updated_at
-  RankGrade:
+  ServiceMemberRank:
     type: string
     enum:
       - E_1

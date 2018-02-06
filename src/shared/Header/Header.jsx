@@ -108,17 +108,21 @@ function Header() {
                 aria-expanded="false"
                 aria-controls="sidenav-2"
               >
-                <span>Simple terms</span>
+                <span>Shipments</span>
               </button>
               <ul id="sidenav-2" className="usa-nav-submenu">
                 <li>
-                  <a>Page title</a>
+                  <NavLink to="/available" className="usa-nav-link">
+                    <span>Available Shipments</span>
+                  </NavLink>
                 </li>
                 <li>
-                  <a>Page title</a>
+                  <NavLink to="/awarded" className="usa-nav-link">
+                    <span>Awarded Shipments</span>
+                  </NavLink>
                 </li>
                 <li>
-                  <a>Page title</a>
+                  <a>All Shipments (coming soon)</a>
                 </li>
               </ul>
             </li>
