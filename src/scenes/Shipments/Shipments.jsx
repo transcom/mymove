@@ -7,18 +7,20 @@ import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 import ShipmentCards from 'scenes/Shipments/ShipmentCards';
 
-import { loadAwardedShipments } from './ducks';
+import { loadShipments } from './ducks';
 
-export class AwardedShipments extends Component {
+export class Shipments extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Awarded Shipments';
-    this.props.loadAwardedShipments();
+    document.title = 'Transcom PPP: Shipments';
+    console.log(this.props);
+    debugger;
+    this.props.loadShipments();
   }
   render() {
     const { shipments, hasError } = this.props;
     return (
       <div className="usa-grid">
-        <h1>Awarded Shipments</h1>
+        <h1>Shipments</h1>
         {hasError && (
           <Alert type="error" heading="Server Error">
             There was a problem loading the shipments from the server.
@@ -30,20 +32,20 @@ export class AwardedShipments extends Component {
   }
 }
 
-AwardedShipments.propTypes = {
-  loadAwardedShipments: PropTypes.func.isRequired,
+Shipments.propTypes = {
+  loadShipments: PropTypes.func.isRequired,
   shipments: PropTypes.array,
   hasError: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
   return {
-    shipments: state.awardedShipments.shipments,
-    hasError: state.awardedShipments.hasError,
+    shipments: state.availableShipments.shipments,
+    hasError: state.availableShipments.hasError,
   };
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadAwardedShipments }, dispatch);
+  return bindActionCreators({ loadShipments }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(AwardedShipments);
+export default connect(mapStateToProps, mapDispatchToProps)(Shipments);

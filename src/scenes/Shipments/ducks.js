@@ -1,4 +1,4 @@
-import { AvailableShipmentsIndex, AwardedShipmentsIndex } from 'shared/api';
+import { ShipmentsIndex } from 'shared/api';
 
 // AVAILABLE SHIPMENTS
 
@@ -10,35 +10,33 @@ export const SHOW_AVAILABLE_SHIPMENTS_FAILURE =
   'SHOW_AVAILABLE_SHIPMENTS_FAILURE';
 
 // Actions
-export const createShowAvailableShipmentsRequest = () => ({
+export const createShowShipmentsRequest = () => ({
   type: SHOW_AVAILABLE_SHIPMENTS,
 });
 
-export const createShowAvailableShipmentsSuccess = shipments => ({
+export const createShowShipmentsSuccess = shipments => ({
   type: SHOW_AVAILABLE_SHIPMENTS_SUCCESS,
   shipments,
 });
 
-export const createShowAvailableShipmentsFailure = error => ({
+export const createShowShipmentsFailure = error => ({
   type: SHOW_AVAILABLE_SHIPMENTS_FAILURE,
   error,
 });
 
 // Action Creator
-export function loadAvailableShipments() {
+export function loadShipments() {
   // Interpreted by the thunk middleware:
   return function(dispatch, getState) {
-    dispatch(createShowAvailableShipmentsRequest());
-    AvailableShipmentsIndex()
-      .then(shipments =>
-        dispatch(createShowAvailableShipmentsSuccess(shipments)),
-      )
-      .catch(error => dispatch(createShowAvailableShipmentsFailure(error)));
+    dispatch(createShowShipmentsRequest());
+    ShipmentsIndex()
+      .then(shipments => dispatch(createShowShipmentsSuccess(shipments)))
+      .catch(error => dispatch(createShowShipmentsFailure(error)));
   };
 }
 
 // Reducer
-export function availableShipmentsReducer(
+export function shipmentsReducer(
   state = { shipments: null, hasError: false },
   action,
 ) {

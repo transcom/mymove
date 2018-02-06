@@ -38,9 +38,9 @@ export async function CreateIssue(issueBody) {
     );
 }
 
-export async function AvailableShipmentsIndex() {
+export async function ShipmentsIndex() {
   await ensureClientIsLoaded();
-  const response = availableResponse;
+  const response = shipmentsResponse;
   // TODO (Rebecca): Fill in response from swagger api
   // const response = await client.apis.shipments.indexIssues();
   if (!response.ok) {
@@ -66,7 +66,7 @@ export async function AwardedShipmentsIndex() {
   return response.body;
 }
 
-const availableResponse = {
+const shipmentsResponse = {
   ok: true,
   status: 200,
   statusText: 'OK',
@@ -78,20 +78,23 @@ const availableResponse = {
     "pickup_date":"2018-12-05T13:35:11.538Z",
     "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-01-31T18:13:15.232Z"},
+    "traffic_distribution_list_id": "3015bd76-d187-4b3d-b19b-a1f781a563c5"
   {
     "created_at":"2018-02-05T13:31:30.396Z",
     "name":"Nino Shipment.",
     "id":"30c5bd76-d917-4b3d-b19b-a1f781a563c5",
     "pickup_date":"2018-12-05T13:35:11.538Z",
     "delivery_date":"2018-12-08T13:35:11.538Z",
-    "updated_at":"2018-02-05T13:31:30.396Z"
+    "updated_at":"2018-02-05T13:31:30.396Z",
+    "traffic_distribution_list_id": "3015bd76-d187-4b3d-g19b-a1f781a563c5"
   },{
     "created_at":"2018-02-05T13:35:11.538Z",
     "name":"REK Shipment.",
     "id":"e8c3a9a9-333f-4e2a-a98d-757dabeba8ce",
     "pickup_date":"2018-12-05T13:35:11.538Z",
     "delivery_date":"2018-12-08T13:35:11.538Z",
-    "updated_at":"2018-02-05T13:35:11.538Z"
+    "updated_at":"2018-02-05T13:35:11.538Z",
+    "traffic_distribution_list_id": "3015bd76-d137-4b3d-b19b-a1f781a563c5"
   }]`,
   body: [
     {
@@ -101,6 +104,7 @@ const availableResponse = {
       pickup_date: '2018-12-05T13:35:11.538Z',
       delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
+      traffic_distribution_list_id: '3015bd76-d187-4b3d-b19b-a1f781a563c5',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
@@ -109,6 +113,7 @@ const availableResponse = {
       pickup_date: '2018-12-05T13:35:11.538Z',
       delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
+      traffic_distribution_list_id: '3015bd76-d187-4b3d-g19b-a1f781a563c5',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
@@ -117,6 +122,7 @@ const availableResponse = {
       pickup_date: '2018-12-05T13:35:11.538Z',
       delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
+      traffic_distribution_list_id: '3015bd76-d137-4b3d-b19b-a1f781a563c5',
     },
   ],
   url: 'http://localhost:3000/api/v1/available',
