@@ -4,7 +4,7 @@ import { AvailableShipments } from './AvailableShipments';
 
 const loadAvailableShipments = () => {};
 
-describe('No Available Shipments and Errors', () => {
+describe('No available shipments or errors', () => {
   let wrapper;
 
   beforeEach(() => {
@@ -28,13 +28,25 @@ describe('No Available Shipments and Errors', () => {
   });
 });
 
-describe('Has shipments', () => {
+describe('Has available shipments', () => {
   let wrapper;
+  const pickup_date = new Date(2018, 11, 17);
+  const delivery_date = new Date(2018, 11, 19);
 
   beforeEach(() => {
     const shipments = [
-      { id: '10', name: 'Sally Shipment' },
-      { id: '20', name: 'Nino Shipment' },
+      {
+        id: '10',
+        name: 'Sally Shipment',
+        pickup_date: pickup_date.toString(),
+        delivery_date: delivery_date.toString(),
+      },
+      {
+        id: '20',
+        name: 'Nino Shipment',
+        pickup_date: pickup_date.toString(),
+        delivery_date: delivery_date.toString(),
+      },
     ];
     const hasError = false;
     wrapper = mount(

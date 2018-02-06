@@ -75,16 +75,22 @@ const availableResponse = {
     "created_at":"2018-01-31T18:13:15.232Z",
     "name":"Bob and Andie.",
     "id":"ab1eace7-ec68-4794-883d-bc6db16f00fe",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-01-31T18:13:15.232Z"},
   {
     "created_at":"2018-02-05T13:31:30.396Z",
     "name":"Nino Shipment.",
     "id":"30c5bd76-d917-4b3d-b19b-a1f781a563c5",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-02-05T13:31:30.396Z"
   },{
     "created_at":"2018-02-05T13:35:11.538Z",
     "name":"REK Shipment.",
     "id":"e8c3a9a9-333f-4e2a-a98d-757dabeba8ce",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-02-05T13:35:11.538Z"
   }]`,
   body: [
@@ -92,22 +98,28 @@ const availableResponse = {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'Bob and Andie.',
       id: 'ab1eace7-ec68-4794-883d-bc6db16f00fe',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'Nino Shipment.',
       id: '30c5bd76-d917-4b3d-b19b-a1f781a563c5',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'REK Shipment.',
       id: 'e8c3a9a9-333f-4e2a-a98d-757dabeba8ce',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
     },
   ],
-  url: 'http://localhost:3000/api/v1/shipments',
+  url: 'http://localhost:3000/api/v1/available',
 };
 
 const awardedResponse = {
@@ -116,48 +128,60 @@ const awardedResponse = {
   statusText: 'OK',
   data: `[
   {
-    "created_at":"2018-01-31T18:13:15.232Z",
+    "created_at":'2018-01-31T18:13:15.232Z',
     "name":"Shirley Shipment",
     "id":"abs1eace7-ec68-4794-883d-bc6db16f00fe",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-01-31T18:13:15.232Z",
-    "traffic_distribution_list": "Johns Movers"
+    "traffic_distribution_list_id": "3015bd76-d187-4b3d-b19b-a1f781a563c5"
   },
   {
     "created_at":"2018-02-05T13:31:30.396Z",
     "name":"PA Dutch Move",
     "id":"30c5bd76-d917-4b3d-b19b-a1f781a563c5",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-02-05T13:31:30.396Z",
-    "traffic_distribution_list": "Moovers and Shakers"
+    "traffic_distribution_list_id": "3015bd76-d917-4b3d-b193-a1f781a563c5"
   },
   {
     "created_at":"2018-02-05T13:35:11.538Z",
     "name":"Ft Funston move",
     "id":"e8c3a9a9-333f-4e2a-a98d-757dabeba8ce",
+    "pickup_date":"2018-12-05T13:35:11.538Z",
+    "delivery_date":"2018-12-08T13:35:11.538Z",
     "updated_at":"2018-02-05T13:35:11.538Z",
-   "traffic_distribution_list": "Shleppers"
+    "traffic_distribution_list_id": "3015bd76-d917-4b3d-b19b-a1f781a563c5",
  }]`,
   body: [
     {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'Shirley Shipment.',
       id: 'abs1eace7-ec68-4794-883d-bc6db16f00fe',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
-      traffic_distribution_list: 'Johns Movers',
+      traffic_distribution_list_id: '30c5bd76-d917-4b3d-b19b-a1f781aa63c5',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'PA Dutch Move',
       id: '30c5bd76-d917-4b3d-b19b-a1f781a563c5',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
-      traffic_distribution_list: 'Moovers and Shakers',
+      traffic_distribution_list_id: '30c5bd76-d917-4bs3d-b19b-a1f781a563c5',
     },
     {
       created_at: '2018-01-31T18:13:15.232Z',
       name: 'Ft Funston move',
       id: 'e8c3a9a9-333f-4e2a-a98d-757dabeba8ce',
+      pickup_date: '2018-12-05T13:35:11.538Z',
+      delivery_date: '2018-12-08T13:35:11.538Z',
       updated_at: '2018-01-31T18:13:15.232Z',
-      traffic_distribution_list: 'Shleppers',
+      traffic_distribution_list_id: '30c5sd76-d917-4b3d-b19b-a1f781a563c5',
     },
   ],
-  url: 'http://localhost:3000/api/v1/shipments',
+  url: 'http://localhost:3000/api/v1/awarded',
 };

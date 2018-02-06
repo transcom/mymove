@@ -13,7 +13,11 @@ const ShipmentCards = ({ shipments }) => {
     <div className="shipment-cards">
       {shipments.map(shipment => (
         <div key={shipment.id} className="shipment-card">
-          {shipment.name}
+          <b>{shipment.name}</b>
+          <br />
+          Pickup Date: {shipment.pickup_date}
+          <br />
+          Delivery Date: {shipment.delivery_date}
         </div>
       ))}
     </div>
@@ -25,7 +29,9 @@ ShipmentCards.propTypes = {
     PropTypes.shape({
       id: PropTypes.string.isRequired,
       name: PropTypes.string.isRequired,
-      traffic_distribution_list: PropTypes.string,
+      traffic_distribution_list_id: PropTypes.string,
+      pickup_date: PropTypes.string.isRequired,
+      delivery_date: PropTypes.string.isRequired,
     }),
   ),
 };

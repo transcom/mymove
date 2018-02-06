@@ -4,7 +4,7 @@ import { AwardedShipments } from './AwardedShipments';
 
 const loadAwardedShipments = () => {};
 
-describe('No Awarded Shipments and Errors', () => {
+describe('No awarded shipments or errors', () => {
   let wrapper;
 
   beforeEach(() => {
@@ -28,20 +28,26 @@ describe('No Awarded Shipments and Errors', () => {
   });
 });
 
-describe('Has shipments', () => {
+describe('Has awarded shipments', () => {
   let wrapper;
+  const pickup_date = new Date(2018, 11, 17);
+  const delivery_date = new Date(2018, 11, 19);
 
   beforeEach(() => {
     const shipments = [
       {
         id: '10',
         name: 'Sally Shipment',
-        traffic_distribution_list: 'Piggy Porters',
+        pickup_date: pickup_date.toString(),
+        delivery_date: delivery_date.toString(),
+        traffic_distribution_list_id: 'ab1eace7-ec68-4794-883d-bc69b16f0fe',
       },
       {
         id: '20',
         name: 'Nino Shipment',
-        traffic_distribution_list: 'Shleppers',
+        pickup_date: pickup_date.toString(),
+        delivery_date: delivery_date.toString(),
+        traffic_distribution_list_id: 'ab1eace7-ec68-4794-883d-bc6db16f20fe',
       },
     ];
     const hasError = false;

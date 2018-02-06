@@ -34,7 +34,9 @@ describe('Shipments on ShipmentCards', () => {
     {
       id: '13',
       name: 'Sally Shipment',
-      traffic_distribution_list: 'Piggy Packers',
+      traffic_distribution_list_id: 'Piggy Packers',
+      pickup_date: new Date(2018, 11, 17).toString(),
+      delivery_date: new Date(2018, 11, 19).toString(),
     },
   ];
 
