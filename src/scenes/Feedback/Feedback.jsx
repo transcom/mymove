@@ -32,7 +32,11 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={pendingValue}
         />
-        <FeedbackConfirmation confirmationText={confirmationText} />
+        <b>OHAI!!!</b>
+        <FeedbackConfirmation
+          confirmationText={confirmationText}
+          pendingValue={pendingValue}
+        />
       </div>
     );
   }
@@ -41,7 +45,7 @@ class Feedback extends Component {
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
   updatePendingIssueValue: PropTypes.func.isRequired,
-  pendingValue: PropTypes.string,
+  pendingValue: PropTypes.string.isRequired,
   confirmationText: PropTypes.string.isRequired,
 };
 
