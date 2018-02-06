@@ -15,6 +15,7 @@ __snapshots__
 
 # built binaries
 /bin/webserver
+/bin/tsp-award-queue
 /bin/soda
 /bin/golint
 /bin/swagger
