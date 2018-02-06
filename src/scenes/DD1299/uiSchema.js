@@ -15,7 +15,7 @@ order:
   - orders_information
   - pickup_information
   - destination_information
-  - extra_address
+  - extra_address_group
   - scheduled_dates
   - remarks
   - other_move_information
@@ -27,6 +27,10 @@ groups:
     fields:
       - origin_office_address_name
       - origin_office_address
+  extra_address_group:
+    title: Extra Pickup/Delivery Address (if applicable)
+    fields:
+      - extra_address
   service_member_information:
     title: Member Or Employee Information
     fields:
@@ -102,8 +106,12 @@ groups:
     fields:
       - service_member_signature
       - date_signed
-      - contractor_address
+      - contractor_address_group
       - contractor_name
+  contractor_address_group:
+    title: Address Of Contractor
+    fields:
+      - contractor_address
   cert_in_lieu_of_signature:
     title: Certificate In Lieu Of Signature On This Form Is Required When Regulations So Authorize. Property Is Baggagehousehold goods, mobile home, and/or professional books, papers and equipment authorized to be shipped at government expense.
     fields:

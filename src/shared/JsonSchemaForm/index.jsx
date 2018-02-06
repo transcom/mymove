@@ -15,6 +15,10 @@ const renderGroupOrField = (fieldName, fields, uiSchema) => {
    validate group names don't colide with field names
   */
   const group = uiSchema.groups[fieldName];
+  const isRef =
+    fields[fieldName] &&
+    fields[fieldName].$$ref &&
+    fields[fieldName].properties;
   if (group) {
     const keys = group.fields;
     return (
@@ -22,6 +26,12 @@ const renderGroupOrField = (fieldName, fields, uiSchema) => {
         <legend htmlFor={fieldName}>{group.title}</legend>
         {keys.map(f => renderGroupOrField(f, fields, uiSchema))}
       </fieldset>
+    );
+  } else if (isRef) {
+    const keys = Object.keys(fields[fieldName].properties);
+    // This will flatten any subreferences, which is fine for now. May revisit.
+    return keys.map(f =>
+      renderGroupOrField(f, fields[fieldName].properties, uiSchema),
     );
   }
   return renderField(fieldName, fields);
