@@ -74,8 +74,10 @@ func setupDBConnection() {
 	db = conn
 }
 
+/*
 func TestMain(m *testing.M) {
 	setupDBConnection()
 
 	os.Exit(m.Run())
 }
+*/
