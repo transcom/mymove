@@ -47,14 +47,20 @@ export function feedbackReducer(
 ) {
   switch (action.type) {
     case CREATE_ISSUE_SUCCESS:
-      return { pendingValue: '', confirmationText: 'Feedback submitted!' };
+      return {
+        pendingValue: '',
+        confirmationText: 'Feedback submitted!',
+      };
     case CREATE_ISSUE_FAILURE:
       return {
-        pendingValue: state.value,
-        confirmationText: 'Submission error',
+        pendingValue: state.pendingValue,
+        confirmationText: 'Submission error.',
       };
     case CREATE_PENDING_ISSUE_VALUE:
-      return { pendingValue: action.value, confirmationText: '' };
+      return {
+        pendingValue: action.value,
+        confirmationText: '',
+      };
     default:
       return state;
   }
