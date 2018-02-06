@@ -1,7 +1,7 @@
-package models_test
+package models
 
 import "testing"
 
-func Test_BestValueScore(t *testing.T) {
+func Test_Shipment(t *testing.T) {
 	t.Fatal("This test needs to be implemented!")
 }

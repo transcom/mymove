@@ -1,4 +1,4 @@
-package models_test
+package models
 
 import "testing"
 
