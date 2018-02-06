@@ -24,7 +24,7 @@ describe('Reducer', () => {
   it('Should handle LOAD_SCHEMA_FAILURE', () => {
     const err = 'OH NO';
     const expectedState = {
-      schema: null,
+      schema: {},
       uiSchema,
       hasError: err,
     };

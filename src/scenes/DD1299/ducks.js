@@ -44,7 +44,7 @@ function dd1299Reducer(state = initialState, action) {
         hasError: false,
       });
     case LOAD_SCHEMA_FAILURE:
-      return Object.assign({}, state, { schema: {}, hasError: action.error });
+      return Object.assign({}, state, { schema: {}, hasError: false });
     default:
       return state;
   }
