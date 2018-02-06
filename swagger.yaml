@@ -80,32 +80,18 @@ paths:
             $ref: '#/definitions/IndexForm1299sPayload'
         400:
           description: invalid request
-  /available:
+  /shipments:
     get:
-      summary: List all available shipments
-      description: List all available shipments
-      operationId: indexAvailableShipments
+      summary: List all shipments
+      description: List all shipments
+      operationId: indexShipments
       tags:
         - shipments
       responses:
         200:
-          description: list of available shipments
+          description: list of all shipments
           schema:
-            $ref: '#/definitions/IndexAvailableShipmentsPayload'
-        400:
-          description: invalid request
-  /awarded:
-    get:
-      summary: List all awarded shipments
-      description: List all awarded shipments
-      operationId: indexAwardedShipments
-      tags:
-        - shipments
-      responses:
-        200:
-          description: list of awarded shipments
-          schema:
-            $ref: '#/definitions/IndexAwardedShipmentsPayload'
+            $ref: '#/definitions/IndexShipmentsPayload'
         400:
           description: invalid request
 
@@ -765,11 +751,11 @@ definitions:
         * aviation_cadet - Aviation Cadet
         * civilian_employee - Civilian Employee
         * midshipman - Midshipman
-  IndexAvailableShipmentsPayload:
+  IndexShipmentsPayload:
     type: array
     items:
-      $ref: '#/definitions/AvailableShipmentsPayload'
-  AvailableShipmentsPayload:
+      $ref: '#/definitions/ShipmentPayload'
+  ShipmentPayload:
     type: object
     properties:
       id:
@@ -783,51 +769,14 @@ definitions:
         maxLength: 1024
       pickup_date:
         type: string
-        format: date-time
+        format: date
       delivery_date:
         type: string
-        format: date-time
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - pickup_date
-      - delivery_date
-      - created_at
-      - updated_at
-  IndexAwardedShipmentsPayload:
-    type: array
-    items:
-      $ref: '#/definitions/AwardedShipmentsPayload'
-  AwardedShipmentsPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Nino moves to San Francisco
-        minLength: 1
-        maxLength: 1024
+        format: date
       traffic_distribution_list_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        minLength: 1
-        maxLength: 1024
-      pickup_date:
-        type: string
-        format: date-time
-      delivery_date:
-        type: string
-        format: date-time
       created_at:
         type: string
         format: date-time
@@ -837,8 +786,8 @@ definitions:
     required:
       - id
       - name
-      - traffic_distribution_list_id
       - pickup_date
       - delivery_date
+      - traffic_distribution_list_id
       - created_at
       - updated_at
