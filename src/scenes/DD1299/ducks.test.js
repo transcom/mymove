@@ -2,15 +2,17 @@ import dd1299Reducer, {
   createLoadSchemaSuccess,
   createLoadSchemaFailure,
 } from './ducks';
+import { getUiSchema } from './uiSchema';
 
+const uiSchema = getUiSchema();
 describe('Reducer', () => {
   it('Should handle LOAD_SCHEMA_SUCCESS', () => {
     const newSchema = {
-      spec: { definitions: { CreateForm1299Payload: 'FOO' } },
+      definitions: { CreateForm1299Payload: 'FOO' },
     };
     const expectedState = {
-      schema: newSchema.spec.definitions.CreateForm1299Payload,
-      uiSchema: {},
+      schema: newSchema.definitions.CreateForm1299Payload,
+      uiSchema,
       hasError: false,
     };
     const newState = dd1299Reducer(
@@ -20,12 +22,13 @@ describe('Reducer', () => {
     expect(newState).toEqual(expectedState);
   });
   it('Should handle LOAD_SCHEMA_FAILURE', () => {
+    const err = 'OH NO';
     const expectedState = {
       schema: null,
-      uiSchema: {},
-      hasError: true,
+      uiSchema,
+      hasError: err,
     };
-    const newState = dd1299Reducer(undefined, createLoadSchemaFailure('OH NO'));
+    const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
     expect(newState).toEqual(expectedState);
   });
 });
