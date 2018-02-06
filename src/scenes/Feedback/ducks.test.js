@@ -37,14 +37,14 @@ describe('Feedback Reducer', () => {
     });
   });
 
-  // it('Should handle CREATE_PENDING_ISSUE_VALUE', () => {
-  //   const initialState = { pendingValue: '', confirmationText: '' };
+  it('Should handle CREATE_PENDING_ISSUE_VALUE', () => {
+    const initialState = { pendingValue: '', confirmationText: '' };
 
-  //   const newState = issuesReducer(initialState, {
-  //     type: 'CREATE_PENDING_ISSUE_VALUE',
-  //     error: 'Boring',
-  //   });
+    const newState = feedbackReducer(initialState, {
+      type: 'CREATE_PENDING_ISSUE_VALUE',
+      value: 'asd',
+    });
 
-  //   expect(newState).toEqual({ issues: null, hasError: true });
-  // });
+    expect(newState).toEqual({ pendingValue: 'asd', confirmationText: '' });
+  });
 });
