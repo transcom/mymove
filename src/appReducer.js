@@ -1,4 +1,5 @@
 import { combineReducers } from 'redux';
+import { feedbackReducer } from 'scenes/Feedback/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import {
   availableShipmentsReducer,
@@ -13,6 +14,7 @@ export const appReducer = combineReducers({
   awardedShipments: awardedShipmentsReducer,
   router: routerReducer,
   form: formReducer,
+  feedback: feedbackReducer,
 });
 
 export default appReducer;
