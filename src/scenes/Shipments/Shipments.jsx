@@ -10,6 +10,10 @@ import ShipmentCards from 'scenes/Shipments/ShipmentCards';
 import { loadShipments } from './ducks';
 
 export class Shipments extends Component {
+  componentDidMount() {
+    const shipmentsStatus = this.props.match.params.shipmentsStatus;
+    this.props.loadShipments(shipmentsStatus);
+  }
   render() {
     const { shipments, hasError } = this.props;
     const shipmentsStatus = this.props.match.params.shipmentsStatus;
@@ -18,9 +22,6 @@ export class Shipments extends Component {
       shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
     document.title = `Transcom PPP: ${shipmentsStatus.charAt(0).toUpperCase() +
       shipmentsStatus.slice(1)} Shipments`;
-
-    // Want to load shipmentCards every time page renders
-    this.props.loadShipments(shipmentsStatus);
 
     // Handle cases of users entering invalid shipment types
     if (

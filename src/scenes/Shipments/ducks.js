@@ -25,7 +25,7 @@ export function loadShipments(shipmentsStatus) {
   // Interpreted by the thunk middleware:
   return function(dispatch, getState) {
     dispatch(createShowShipmentsRequest());
-    ShipmentsIndex(shipmentsStatus)
+    ShipmentsIndex()
       .then(shipments => dispatch(createShowShipmentsSuccess(shipments)))
       .catch(error => dispatch(createShowShipmentsFailure(error)));
   };
