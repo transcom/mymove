@@ -15,3 +15,8 @@ indent_style = tab
 indent_style = tab
 indent_size = 2
 tab_width = 2
+
+[*.fizz]
+indent_style = tab
+indent_size = 2
+tab_width = 2
