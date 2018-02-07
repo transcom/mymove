@@ -18,7 +18,7 @@ export GOPATH=~/code/go
 
 If you are OK with using the default location for go code (`~/go`), then there is nothing to do. Since this is the default location, using it means you do not need to set `$GOPATH` yourself.
 
-*Regardless of where your go code is located*, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
+_Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
 ```bash
 export PATH=$(go env GOPATH)/bin:$PATH
@@ -56,7 +56,7 @@ The following commands will get mymove running on your machine for the first tim
 ### Setup: Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
-* Run `bin/prereqs` and install everything it tells you to. *Do not configure postgres to automatically start at boot time!*
+* Run `bin/prereqs` and install everything it tells you to. _Do not configure postgres to automatically start at boot time!_
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
@@ -76,7 +76,7 @@ In rare cases, you may want to run the server standalone, in which case you can 
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}" -H "Content-Type: application/json"`
 
 from which the response should be like
 
