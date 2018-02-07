@@ -3,6 +3,7 @@ import dd1299Reducer, {
   createLoadSchemaFailure,
   createCreateFailure,
   createCreateSuccess,
+  createCreateReset,
 } from './ducks';
 import { getUiSchema } from './uiSchema';
 
@@ -59,6 +60,18 @@ describe('Reducer', () => {
       hasCreateSuccess: false,
     };
     const newState = dd1299Reducer(undefined, createCreateFailure(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle CREATE_RESET', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasError: false,
+      hasCreateError: false,
+      hasCreateSuccess: false,
+    };
+    const newState = dd1299Reducer(undefined, createCreateReset());
     expect(newState).toEqual(expectedState);
   });
 });
