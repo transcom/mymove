@@ -16,7 +16,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: newSchema.definitions.CreateForm1299Payload,
       uiSchema,
-      hasError: false,
+      hasSchemaError: false,
       hasCreateError: false,
       hasCreateSuccess: false,
     };
@@ -31,7 +31,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: true,
+      hasSchemaError: true,
       hasCreateError: false,
       hasCreateSuccess: false,
     };
@@ -43,7 +43,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: false,
+      hasSchemaError: false,
       hasCreateError: false,
       hasCreateSuccess: true,
     };
@@ -55,7 +55,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: false,
+      hasSchemaError: false,
       hasCreateError: true,
       hasCreateSuccess: false,
     };
@@ -67,7 +67,7 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: false,
+      hasSchemaError: false,
       hasCreateError: false,
       hasCreateSuccess: false,
     };
@@ -79,7 +79,7 @@ describe('Reducer', () => {
 // TODO: Figure out how to mock the Swagger API call
 // describe('async action creators', () => {
 //   const middlewares = [ thunk ]
-//   const initialState = { issues: null, hasError: false };
+//   const initialState = { issues: null, hasSchemaError: false };
 //   const mockStore = configureStore(middlewares)
 
 //   afterEach(() => {

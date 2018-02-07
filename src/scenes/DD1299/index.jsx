@@ -21,7 +21,7 @@ export class DD1299 extends Component {
     window.scrollTo(0, 0);
   }
   render() {
-    if (this.props.hasError)
+    if (this.props.hasSchemaError)
       return (
         <Alert type="error" heading="Server Error">
           There was a problem loading the form from the server.
@@ -58,7 +58,7 @@ DD1299.propTypes = {
   loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
-  hasError: PropTypes.bool.isRequired,
+  hasSchemaError: PropTypes.bool.isRequired,
   hasCreateError: PropTypes.bool.isRequired,
   hasCreateSuccess: PropTypes.bool.isRequired,
 };

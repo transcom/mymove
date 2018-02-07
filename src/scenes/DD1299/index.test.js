@@ -13,12 +13,12 @@ describe('When there is a form creation error', () => {
   let wrapper;
 
   beforeEach(() => {
-    const hasError = true;
+    const hasSchemaError = true;
     const hasCreateError = false;
     const hasCreateSuccess = false;
     wrapper = shallow(
       <DD1299
-        hasError={hasError}
+        hasSchemaError={hasSchemaError}
         hasCreateSuccess={hasCreateSuccess}
         hasCreateError={hasCreateError}
         schema={schema}
@@ -39,12 +39,12 @@ describe('When a form is successfully created', () => {
   let wrapper;
 
   beforeEach(() => {
-    const hasError = false;
+    const hasSchemaError = false;
     const hasCreateError = false;
     const hasCreateSuccess = true;
     wrapper = shallow(
       <DD1299
-        hasError={hasError}
+        hasSchemaError={hasSchemaError}
         hasCreateSuccess={hasCreateSuccess}
         hasCreateError={hasCreateError}
         schema={schema}
@@ -64,7 +64,7 @@ describe('When a form fails to be created', () => {
   let wrapper;
 
   beforeEach(() => {
-    const hasError = false;
+    const hasSchemaError = false;
     const hasCreateError = true;
     const hasCreateSuccess = false;
     //provider and store are necessary here since this renders the redux form
@@ -72,7 +72,7 @@ describe('When a form fails to be created', () => {
     wrapper = mount(
       <Provider store={store}>
         <DD1299
-          hasError={hasError}
+          hasSchemaError={hasSchemaError}
           hasCreateSuccess={hasCreateSuccess}
           hasCreateError={hasCreateError}
           schema={schema}

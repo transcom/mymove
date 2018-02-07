@@ -71,7 +71,7 @@ export function resetSuccess() {
 const initialState = {
   schema: {},
   uiSchema: getUiSchema(),
-  hasError: false,
+  hasSchemaError: false,
   hasCreateError: false,
   hasCreateSuccess: false,
 };
@@ -80,10 +80,10 @@ function dd1299Reducer(state = initialState, action) {
     case LOAD_SCHEMA_SUCCESS:
       return Object.assign({}, state, {
         schema: action.schema.definitions.CreateForm1299Payload,
-        hasError: false,
+        hasSchemaError: false,
       });
     case LOAD_SCHEMA_FAILURE:
-      return Object.assign({}, state, { schema: {}, hasError: true });
+      return Object.assign({}, state, { schema: {}, hasSchemaError: true });
     case CREATE_SUCCESS:
       return Object.assign({}, state, { hasCreateSuccess: true });
     case CREATE_FAILURE:
