@@ -13,101 +13,64 @@ import (
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 )
 
-func compareCreateAndResponsePayloads(createdPayload messages.CreateForm1299Payload, responsePayload messages.Form1299Payload) bool {
-	v := reflect.ValueOf(createdPayload)
-	t := v.Type()
+func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.CreateForm1299Payload, responsePayload messages.Form1299Payload) {
+	requestValue := reflect.ValueOf(requestPayload)
+	requestType := requestValue.Type()
 	responseValue := reflect.ValueOf(responsePayload)
 
-	for i := 0; i < v.NumField(); i++ {
-		f := v.Field(i)
-		fmt.Printf("%d: %s %s = %v\n", i, t.Field(i).Name, f.Type(), f.Interface())
-		responseField := responseValue.FieldByName(t.Field(i).Name)
+	// iterate through all fields in request payload
+	for i := 0; i < requestValue.NumField(); i++ {
+		requestField := requestValue.Field(i)
+		fieldName := requestType.Field(i).Name
+		responseField := responseValue.FieldByName(fieldName)
+		if responseField == (reflect.Value{}) {
+			t.Errorf("Response has no field named %s", fieldName)
+			continue
+		}
 
-		createInterface := f.Interface()
-		responseInterface := responseField.Interface()
+		// First check that they are the same type. If not, error.
+		if requestField.Type() != responseField.Type() {
+			t.Errorf("Response field %s is of mismatched type. Request type: %s Response type: %s", fieldName, requestField.Type(), responseField.Type())
+			continue
+		}
 
-		switch createInterface.(type) {
-		case *string:
-			if createInterface == responseInterface && createInterface == nil {
-				fmt.Println("PASS")
-			} else if createInterface == nil || responseInterface == nil {
-				fmt.Println("FAIL")
-				// } else if *createInterface == *responseInterface {
-				// 	fmt.Println("PASS")
-			} else {
-				fmt.Println("FAIL")
+		// Then, check if they are pointers, we have to check on them being nil
+		if requestField.Kind() == reflect.Ptr {
+			// if xor on the pointer being nil is true, it's a failure.
+			// either both must be nil or, neither
+			if requestField.IsNil() != responseField.IsNil() {
+				t.Errorf("Response and Request field %s are not matching pointers: Request: %v, Response: %v", fieldName, requestField, responseField)
+				continue
+			} else if requestField.IsNil() {
+				// If they are both nil, then they match. Nothing more to check
+				continue
+			}
+			// Here, we know that they are both pointers and are both not nil.
+		}
+
+		// Indirect() turns a pointer into a type and does nothing to a type
+		requestInterface := reflect.Indirect(requestField).Interface()
+		responseInterface := reflect.Indirect(responseField).Interface()
+
+		switch requestInterface.(type) {
+		// Dates need to be compared with .Equal, not ==
+		case strfmt.Date:
+			df := time.Time(requestInterface.(strfmt.Date))
+			dr := time.Time(responseInterface.(strfmt.Date))
+
+			if !df.Equal(dr) {
+				t.Errorf("%s doesn't match: request: %s response: %s", fieldName, requestInterface, responseInterface)
+				continue
+			}
+		// Everything else can use == for now. Other cases may develop
+		default:
+			if requestInterface != responseInterface {
+				t.Errorf("%s doesn't match, request: %s response: %s", fieldName, requestInterface, responseInterface)
+				continue
 			}
 		}
 
-		if f.Type().String() == "*string" {
-			fmt.Printf("Equal? %s, %s \n", reflect.Indirect(f).String(), reflect.Indirect(responseField).String())
-		}
-		if f.Type().String() == "*strfmt.Date" {
-			df := time.Time(reflect.Indirect(f).Interface().(strfmt.Date))
-			dr := time.Time(reflect.Indirect(responseField).Interface().(strfmt.Date))
-
-			fmt.Printf("EqDate? %s, %s, %v\n", df, dr, df.Equal(dr))
-		}
-		if reflect.Indirect(f).Interface() != reflect.Indirect(responseField).Interface() {
-			fmt.Printf("ERROR: Field %s is not equal. Created: %s Received: %s\n\n", t.Field(i).Name, reflect.Indirect(f).Interface(), reflect.Indirect(responseField).Interface())
-			return false
-		}
-		// fmt.Printf("%d: %s %s = %v\n", i, responseField.Name , responseField.Type(), responseField.Interface())
 	}
-
-	return *createdPayload.ShipmentNumber == *responsePayload.ShipmentNumber &&
-		(*createdPayload.DatePrepared == *responsePayload.DatePrepared) &&
-		(*createdPayload.NameOfPreparingOffice == *responsePayload.NameOfPreparingOffice) &&
-		(*createdPayload.DestOfficeName == *responsePayload.DestOfficeName) &&
-		(*createdPayload.OriginOfficeAddressName == *responsePayload.OriginOfficeAddressName) &&
-		(*createdPayload.OriginOfficeAddress == *responsePayload.OriginOfficeAddress) &&
-		(*createdPayload.ServiceMemberFirstName == *responsePayload.ServiceMemberFirstName) &&
-		(*createdPayload.ServiceMemberMiddleInitial == *responsePayload.ServiceMemberMiddleInitial) &&
-		(*createdPayload.ServiceMemberLastName == *responsePayload.ServiceMemberLastName) &&
-		(*createdPayload.ServiceMemberSsn == *responsePayload.ServiceMemberSsn) &&
-		(*createdPayload.ServiceMemberAgency == *responsePayload.ServiceMemberAgency) &&
-		(*createdPayload.HhgTotalPounds == *responsePayload.HhgTotalPounds) &&
-		(*createdPayload.HhgProgearPounds == *responsePayload.HhgProgearPounds) &&
-		(*createdPayload.HhgValuableItemsCartons == *responsePayload.HhgValuableItemsCartons) &&
-		(*createdPayload.MobileHomeSerialNumber == *responsePayload.MobileHomeSerialNumber) &&
-		(*createdPayload.MobileHomeLengthFt == *responsePayload.MobileHomeLengthFt) &&
-		(*createdPayload.MobileHomeLengthInches == *responsePayload.MobileHomeLengthInches) &&
-		(*createdPayload.MobileHomeWidthFt == *responsePayload.MobileHomeWidthFt) &&
-		(*createdPayload.MobileHomeWidthInches == *responsePayload.MobileHomeWidthInches) &&
-		(*createdPayload.MobileHomeHeightFt == *responsePayload.MobileHomeHeightFt) &&
-		(*createdPayload.MobileHomeHeightInches == *responsePayload.MobileHomeHeightInches) &&
-		(*createdPayload.MobileHomeTypeExpando == *responsePayload.MobileHomeTypeExpando) &&
-		(*createdPayload.MobileHomeServicesRequested == *responsePayload.MobileHomeServicesRequested) &&
-		(*createdPayload.StationOrdersType == *responsePayload.StationOrdersType) &&
-		(*createdPayload.StationOrdersIssuedBy == *responsePayload.StationOrdersIssuedBy) &&
-		(*createdPayload.StationOrdersNewAssignment == *responsePayload.StationOrdersNewAssignment) &&
-		(*createdPayload.StationOrdersDate == *responsePayload.StationOrdersDate) &&
-		(*createdPayload.StationOrdersNumber == *responsePayload.StationOrdersNumber) &&
-		(*createdPayload.StationOrdersParagraphNumber == *responsePayload.StationOrdersParagraphNumber) &&
-		(*createdPayload.StationOrdersInTransitTelephone == *responsePayload.StationOrdersInTransitTelephone) &&
-		(*createdPayload.InTransitAddress == *responsePayload.InTransitAddress) &&
-		(*createdPayload.PickupAddress == *responsePayload.PickupAddress) &&
-		(*createdPayload.PickupAddressMobileCourtName == *responsePayload.PickupAddressMobileCourtName) &&
-		(*createdPayload.PickupTelephone == *responsePayload.PickupTelephone) &&
-		(*createdPayload.DestAddress == *responsePayload.DestAddress) &&
-		(*createdPayload.DestAddressMobileCourtName == *responsePayload.DestAddressMobileCourtName) &&
-		(*createdPayload.AgentToReceiveHhg == *responsePayload.AgentToReceiveHhg) &&
-		(*createdPayload.ExtraAddress == *responsePayload.ExtraAddress) &&
-		(*createdPayload.PackScheduledDate == *responsePayload.PackScheduledDate) &&
-		(*createdPayload.PickupScheduledDate == *responsePayload.PickupScheduledDate) &&
-		(*createdPayload.DeliveryScheduledDate == *responsePayload.DeliveryScheduledDate) &&
-		(*createdPayload.Remarks == *responsePayload.Remarks) &&
-		(*createdPayload.OtherMoveFrom == *responsePayload.OtherMoveFrom) &&
-		(*createdPayload.OtherMoveTo == *responsePayload.OtherMoveTo) &&
-		(*createdPayload.OtherMoveNetPounds == *responsePayload.OtherMoveNetPounds) &&
-		(*createdPayload.OtherMoveProgearPounds == *responsePayload.OtherMoveProgearPounds) &&
-		(*createdPayload.ServiceMemberSignature == *responsePayload.ServiceMemberSignature) &&
-		(*createdPayload.DateSigned == *responsePayload.DateSigned) &&
-		(*createdPayload.ContractorAddress == *responsePayload.ContractorAddress) &&
-		(*createdPayload.ContractorName == *responsePayload.ContractorName) &&
-		(*createdPayload.NonavailabilityOfSignatureReason == *responsePayload.NonavailabilityOfSignatureReason) &&
-		(*createdPayload.CertifiedBySignature == *responsePayload.CertifiedBySignature) &&
-		(*createdPayload.TitleOfCertifiedBySignature == *responsePayload.TitleOfCertifiedBySignature)
 }
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
@@ -178,9 +141,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	createdForm1299Payload := createdResponse.Payload
 
 	// And: verify the values returned match expected values
-	if !compareCreateAndResponsePayloads(newForm1299Payload, *createdForm1299Payload) {
-		t.Error("The response does not match what was created")
-	}
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *createdForm1299Payload)
 
 	// Then cofirm the same thing is returned by GET
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: *createdForm1299Payload.ID}
@@ -201,9 +162,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	b, _ := json.MarshalIndent(*showFormPayload, "", "  ")
 	fmt.Println(string(b))
 
-	if !compareCreateAndResponsePayloads(newForm1299Payload, *showFormPayload) {
-		t.Error("The GET response does not match what was created")
-	}
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *showFormPayload)
 
 }
 
@@ -267,23 +226,7 @@ func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 	createdResponse := response.(*form1299op.CreateForm1299Created)
 	createdForm1299Payload := createdResponse.Payload
 
-	// And: expected fields have the right values
-	if (createdForm1299Payload.CreatedAt == nil) ||
-		(createdForm1299Payload.ID == nil) ||
-		(*createdForm1299Payload.Remarks != *newForm1299Payload.Remarks) ||
-		(*createdForm1299Payload.OtherMoveFrom != *newForm1299Payload.OtherMoveFrom) ||
-		(*createdForm1299Payload.OtherMoveTo != *newForm1299Payload.OtherMoveTo) ||
-		(*createdForm1299Payload.OtherMoveNetPounds != *newForm1299Payload.OtherMoveNetPounds) ||
-		(*createdForm1299Payload.OtherMoveProgearPounds != *newForm1299Payload.OtherMoveProgearPounds) ||
-		(*createdForm1299Payload.ServiceMemberSignature != *newForm1299Payload.ServiceMemberSignature) ||
-		(*createdForm1299Payload.DateSigned != *newForm1299Payload.DateSigned) ||
-		(*createdForm1299Payload.ContractorAddress != *newForm1299Payload.ContractorAddress) ||
-		(*createdForm1299Payload.ContractorName != *newForm1299Payload.ContractorName) ||
-		(*createdForm1299Payload.NonavailabilityOfSignatureReason != *newForm1299Payload.NonavailabilityOfSignatureReason) ||
-		(*createdForm1299Payload.CertifiedBySignature != *newForm1299Payload.CertifiedBySignature) ||
-		(*createdForm1299Payload.TitleOfCertifiedBySignature != *newForm1299Payload.TitleOfCertifiedBySignature) {
-		t.Error("Not all response values match expected values.")
-	}
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *createdForm1299Payload)
 
 	// And: unset fields should have nil values
 	if (createdForm1299Payload.HhgTotalPounds != nil) ||
