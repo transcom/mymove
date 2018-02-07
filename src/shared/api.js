@@ -49,7 +49,7 @@ export async function CreateForm1299(formData) {
     );
 }
 
-export async function ShipmentsIndex() {
+export async function ShipmentsIndex(shipmentsStatus) {
   await ensureClientIsLoaded();
   let response;
   // TODO (Rebecca): Fill in response from swagger api
