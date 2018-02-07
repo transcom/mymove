@@ -102,6 +102,8 @@ paths:
           description: invalid request
         404:
           description: unknown form1299Id
+        500:
+          description: server error
 
 definitions:
   CreateIssuePayload:

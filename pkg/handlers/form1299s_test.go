@@ -166,15 +166,26 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
 }
 
-func TestShowUnknownHandler(t *testing.T) {
+func TestShowUnknown(t *testing.T) {
 
-	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
-	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
+	unknownID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: unknownID}
 
 	response := ShowForm1299Handler(showFormParams)
 
 	// assert we got back the 404 response
 	_ = response.(*form1299op.ShowForm1299NotFound)
+}
+
+func TestShowBadID(t *testing.T) {
+
+	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297xxx")
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
+
+	response := ShowForm1299Handler(showFormParams)
+
+	// assert we got back the 400 response
+	_ = response.(*form1299op.ShowForm1299BadRequest)
 }
 
 func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
