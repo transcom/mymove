@@ -23,6 +23,12 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - run: &announce_failure
+          name: Announce failure
+          command: |
+            [[ $CIRCLE_BRANCH = master ]] || exit 0
+            bin/circleci-announce-broken-branch
+          when: on_fail
 
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
@@ -78,6 +84,8 @@ jobs:
           paths:
             - node_modules
 
+      - run: *announce_failure
+
   build_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
@@ -91,6 +99,7 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             docker tag ppp-migrations:dev ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1}
+      - run: *announce_failure
 
   deploy_migrations:
     docker:
@@ -103,6 +112,7 @@ jobs:
       - run:
           name: Run database migrations
           command: bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
+      - run: *announce_failure
 
   deploy_app:
     docker:
@@ -115,6 +125,7 @@ jobs:
           command: |
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             ecs-deploy -c app-staging -n app -t 600 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+      - run: *announce_failure
 
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
