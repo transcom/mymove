@@ -112,17 +112,19 @@ function Header() {
               </button>
               <ul id="sidenav-2" className="usa-nav-submenu">
                 <li>
-                  <NavLink to="/available" className="usa-nav-link">
+                  <NavLink to="/shipments/available" className="usa-nav-link">
                     <span>Available Shipments</span>
                   </NavLink>
                 </li>
                 <li>
-                  <NavLink to="/awarded" className="usa-nav-link">
+                  <NavLink to="/shipments/awarded" className="usa-nav-link">
                     <span>Awarded Shipments</span>
                   </NavLink>
                 </li>
                 <li>
-                  <a>All Shipments (coming soon)</a>
+                  <NavLink to="/shipments/all" className="usa-nav-link">
+                    <span>All Shipments</span>
+                  </NavLink>
                 </li>
               </ul>
             </li>
