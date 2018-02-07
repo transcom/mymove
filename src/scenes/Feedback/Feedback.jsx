@@ -32,7 +32,6 @@ class Feedback extends Component {
           handleSubmit={this.handleSubmit}
           textValue={pendingValue}
         />
-        <b>OHAI!!!</b>
         <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
     );
