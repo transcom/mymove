@@ -87,7 +87,10 @@ function dd1299Reducer(state = initialState, action) {
     case CREATE_SUCCESS:
       return Object.assign({}, state, { hasCreateSuccess: true });
     case CREATE_FAILURE:
-      return Object.assign({}, state, { hasCreateError: true });
+      return Object.assign({}, state, {
+        hasCreateSuccess: false,
+        hasCreateError: true,
+      });
     case CREATE_RESET:
       return Object.assign({}, state, {
         hasCreateError: false,

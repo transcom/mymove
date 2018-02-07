@@ -1,6 +1,8 @@
 import dd1299Reducer, {
   createLoadSchemaSuccess,
   createLoadSchemaFailure,
+  createCreateFailure,
+  createCreateSuccess,
 } from './ducks';
 import { getUiSchema } from './uiSchema';
 
@@ -14,6 +16,8 @@ describe('Reducer', () => {
       schema: newSchema.definitions.CreateForm1299Payload,
       uiSchema,
       hasError: false,
+      hasCreateError: false,
+      hasCreateSuccess: false,
     };
     const newState = dd1299Reducer(
       undefined,
@@ -27,8 +31,34 @@ describe('Reducer', () => {
       schema: {},
       uiSchema,
       hasError: true,
+      hasCreateError: false,
+      hasCreateSuccess: false,
     };
     const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle CREATE_SUCCESS', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasError: false,
+      hasCreateError: false,
+      hasCreateSuccess: true,
+    };
+    const newState = dd1299Reducer(undefined, createCreateSuccess(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle CREATE_FAILURE', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasError: false,
+      hasCreateError: true,
+      hasCreateSuccess: false,
+    };
+    const newState = dd1299Reducer(undefined, createCreateFailure(err));
     expect(newState).toEqual(expectedState);
   });
 });
