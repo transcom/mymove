@@ -1,6 +1,7 @@
 version: 2
 jobs:
   pre_test:
+    working_directory: ~/go/src/github.com/transcom/mymove
     docker:
       - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
