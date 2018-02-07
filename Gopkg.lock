@@ -56,8 +56,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "1b176c5c6b57adb03bb982c21930e708ebca5a77"
-  version = "v1.12.70"
+  revision = "586c9ba6027a527800564282bb843d7e6e7985c9"
+  version = "v1.12.72"
 
 [[projects]]
   branch = "master"
@@ -114,7 +114,7 @@
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
-  revision = "0db1e4cf47d6eb0fc6b25135868c3483cc6b066e"
+  revision = "f59a71f0ece6f9dfb438be7f45148f006cbad88e"
 
 [[projects]]
   branch = "master"
@@ -162,19 +162,19 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "be1313bd8283bc82b48033942f0f3730eaef2d90"
+  revision = "09fac855d8504674b22594470227bd94e5005025"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "fa03337d7da5735229ee8f5e9d5d0b996014b7f8"
+  revision = "f3499b5df53897321d6f5e9c22cf19309d41d3bc"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/strfmt"
   packages = ["."]
-  revision = "4dd3d302e100bae008baedc42d446ce83bdd10ad"
+  revision = "6d1a47fad79c81e8cd732889cb80e91123951860"
 
 [[projects]]
   branch = "master"
@@ -186,7 +186,7 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "9b5947525af6a4843d2b9576e5943b9931ad535d"
+  revision = "4d761f0670d764beea9b5495020310edb2bd48f7"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -222,8 +222,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "e75b84227ebcc6713f8bfd1a4d154a1c005ded1c"
-  version = "v1.10.1"
+  revision = "64c3dd439b5efc5cd9fb69a8fb209a03cd7c5b86"
+  version = "v1.10.3"
 
 [[projects]]
   branch = "master"
@@ -281,7 +281,7 @@
     ".",
     "reflectx"
   ]
-  revision = "de8647470aafe4854c976707c431dbe1eb2822c6"
+  revision = "05cef0741ade10ca668982355b3f3f0bcf0ff0a8"
 
 [[projects]]
   name = "github.com/joho/godotenv"
@@ -308,7 +308,7 @@
     ".",
     "oid"
   ]
-  revision = "27ea5d92de30060e7121ddd543fe14e9a327e0cc"
+  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -340,7 +340,7 @@
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "a12c3aec81a6a938bf584a4bac567afed9256586"
+  revision = "1290f21759a90e7c4bd277347c8631ed8d4b9ee0"
 
 [[projects]]
   name = "github.com/markbates/pop"
@@ -354,8 +354,8 @@
     "soda/cmd/generate",
     "soda/cmd/schema"
   ]
-  revision = "00570ee9e436f66a8de394beeb5110489c728b87"
-  version = "3.51.1"
+  revision = "259b148c6f2f6037196f5ea5010121d4da46385e"
+  version = "3.52.0"
 
 [[projects]]
   branch = "master"
@@ -399,7 +399,7 @@
     "parser",
     "vm"
   ]
-  revision = "2b087a66e312c02195bcf188647f44321cbbf2aa"
+  revision = "8cb2d4b2709218fc39d86cef1e7704f2325e5869"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -435,7 +435,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "b4575eea38cca1123ec2dc90c26529b5c5acfcff"
+  revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
 
 [[projects]]
   name = "github.com/namsral/flag"
@@ -571,7 +571,7 @@
     "context",
     "idna"
   ]
-  revision = "5ccada7d0a7ba9aeb5d3aca8d3501b4c2a509fec"
+  revision = "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1"
 
 [[projects]]
   branch = "master"
@@ -583,7 +583,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "af50095a40f9041b3b38960738837185c26e9419"
+  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
 
 [[projects]]
   branch = "master"
@@ -619,7 +619,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "99037e3760ed7d9c772c980caee42b17779b80ce"
+  revision = "66487607e2081c7c2af2281c62c14ee000d5024b"
 
 [[projects]]
   branch = "v2"
