@@ -12,13 +12,13 @@ var db *pop.Connection
 
 func Test_AwardedShipment(t *testing.T) {
 	awardedShipment := AwardedShipment{
-		ShipmentID:                      uuid.Must(uuid.NewV4()),
-		TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
+		ShipmentID:                      uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+		TransportationServiceProviderID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440001"),
 		AdministrativeShipment:          false,
 	}
 
-	db.ValidateAndSave(&awardedShipment)
 	fmt.Printf(">1> %s\n", awardedShipment)
+	db.ValidateAndSave(&awardedShipment)
 	/*
 		fmt.Printf(">2> %s\n", awardedShipmentSaved)
 		if err != nil {
