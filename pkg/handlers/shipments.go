@@ -19,7 +19,7 @@ func payloadForShipmentModel(shipment models.Shipment) messages.ShipmentPayload 
 		DeliveryDate: fmtDate(shipment.DeliveryDate),
 		Name:         &shipment.Name,
 		TrafficDistributionListID:       fmtUUID(shipment.TrafficDistributionListID),
-		TransportationServiceProviderID: *fmtUUID(shipment.TransportationServiceProviderID),
+		TransportationServiceProviderID: fmtNullUUID(shipment.TransportationServiceProviderID),
 		AdministrativeShipment:          &shipment.AdministrativeShipment,
 		CreatedAt:                       fmtDateTime(shipment.CreatedAt),
 		UpdatedAt:                       fmtDateTime(shipment.UpdatedAt),
@@ -31,8 +31,15 @@ func payloadForShipmentModel(shipment models.Shipment) messages.ShipmentPayload 
 func IndexShipmentsHandler(params shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipmentPayloads := make(messages.IndexShipmentsPayload, 3)
+	shipmentPayloads := make(messages.IndexShipmentsPayload, 8)
 	for i := range shipmentPayloads {
+		var tspID uuid.NullUUID
+
+		if i%2 == 0 {
+			tspID = uuid.NullUUID{UUID: uuid.Must(uuid.NewV4()), Valid: true}
+		} else {
+			tspID = uuid.NullUUID{Valid: false}
+		}
 		shipment := models.Shipment{
 			ID:                              uuid.Must(uuid.NewV4()),
 			CreatedAt:                       time.Now(),
@@ -41,7 +48,7 @@ func IndexShipmentsHandler(params shipmentop.IndexShipmentsParams) middleware.Re
 			PickupDate:                      time.Now(),
 			DeliveryDate:                    time.Now(),
 			TrafficDistributionListID:       uuid.Must(uuid.NewV4()),
-			TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
+			TransportationServiceProviderID: tspID,
 			AdministrativeShipment:          false,
 		}
 		shipmentPayload := payloadForShipmentModel(shipment)
