@@ -1,50 +1,60 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
 
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
 import FeedbackForm from 'scenes/Feedback/FeedbackForm';
 
-import { CreateIssue } from 'shared/api.js';
+import { createIssue, updatePendingIssueValue } from './ducks';
 
 class Feedback extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      value: '',
-      confirmationText: '',
-    };
-  }
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
   }
+
   handleChange = e => {
-    this.setState({ value: e.target.value });
+    this.props.updatePendingIssueValue(e.target.value);
   };
 
   handleSubmit = async e => {
     e.preventDefault();
-
-    try {
-      await CreateIssue(this.state.value);
-      this.setState({ confirmationText: 'Response received!' });
-    } catch (e) {
-      //todo: how do we want to monitor errors
-      this.setState({ confirmationText: 'Error submitting feedback' });
-    }
+    this.props.createIssue(this.props.pendingValue);
   };
 
   render() {
+    const { pendingValue, confirmationText } = this.props;
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
         <FeedbackForm
           handleChange={this.handleChange}
           handleSubmit={this.handleSubmit}
-          textValue={this.state.value}
+          textValue={pendingValue}
         />
-        <FeedbackConfirmation confirmationText={this.state.confirmationText} />
+        <b>OHAI!!!</b>
+        <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
     );
   }
 }
 
-export default Feedback;
+Feedback.propTypes = {
+  createIssue: PropTypes.func.isRequired,
+  updatePendingIssueValue: PropTypes.func.isRequired,
+  pendingValue: PropTypes.string.isRequired,
+  confirmationText: PropTypes.string.isRequired,
+};
+
+function mapStateToProps(state) {
+  return {
+    pendingValue: state.feedback.pendingValue,
+    confirmationText: state.feedback.confirmationText,
+  };
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ createIssue, updatePendingIssueValue }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
