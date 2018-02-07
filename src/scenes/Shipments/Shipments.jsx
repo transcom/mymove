@@ -10,18 +10,32 @@ import ShipmentCards from 'scenes/Shipments/ShipmentCards';
 import { loadShipments } from './ducks';
 
 export class Shipments extends Component {
-  componentDidMount() {
-    const shipmentsStatus = this.props.match.params.shipmentsStatus;
-    // Title with capitalized shipment status
-    document.title = `Transcom PPP: ${shipmentsStatus.charAt(0).toUpperCase() +
-      shipmentsStatus.slice(1)} Shipments`;
-    this.props.loadShipments(shipmentsStatus);
-  }
   render() {
     const { shipments, hasError } = this.props;
     const shipmentsStatus = this.props.match.params.shipmentsStatus;
+    // Title with capitalized shipment status
     const capShipmentsStatus =
       shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
+    document.title = `Transcom PPP: ${shipmentsStatus.charAt(0).toUpperCase() +
+      shipmentsStatus.slice(1)} Shipments`;
+
+    // Want to load shipmentCards every time page renders
+    this.props.loadShipments(shipmentsStatus);
+
+    // Handle cases of users entering invalid shipment types
+    if (
+      shipmentsStatus !== 'awarded' &&
+      shipmentsStatus !== 'available' &&
+      shipmentsStatus !== 'all'
+    ) {
+      return (
+        <Alert type="error" heading="Invalid Shipment Type Error">
+          You've attempted to access an inaccessible route. Invalid Shipment
+          Status: {shipmentsStatus}.
+        </Alert>
+      );
+    }
+    // Return Alert or shipmentCards
     return (
       <div className="usa-grid">
         <h1>{capShipmentsStatus} Shipments</h1>
