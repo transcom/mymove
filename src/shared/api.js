@@ -3,7 +3,7 @@ let client = null;
 
 async function ensureClientIsLoaded() {
   if (!client) {
-    client = await Swagger('api/v1/swagger.yaml');
+    client = await Swagger('/api/v1/swagger.yaml');
   }
 }
 
