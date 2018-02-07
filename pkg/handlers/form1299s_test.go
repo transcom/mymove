@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"encoding/json"
 	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
@@ -10,6 +12,103 @@ import (
 
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 )
+
+func compareCreateAndResponsePayloads(createdPayload messages.CreateForm1299Payload, responsePayload messages.Form1299Payload) bool {
+	v := reflect.ValueOf(createdPayload)
+	t := v.Type()
+	responseValue := reflect.ValueOf(responsePayload)
+
+	for i := 0; i < v.NumField(); i++ {
+		f := v.Field(i)
+		fmt.Printf("%d: %s %s = %v\n", i, t.Field(i).Name, f.Type(), f.Interface())
+		responseField := responseValue.FieldByName(t.Field(i).Name)
+
+		createInterface := f.Interface()
+		responseInterface := responseField.Interface()
+
+		switch createInterface.(type) {
+		case *string:
+			if createInterface == responseInterface && createInterface == nil {
+				fmt.Println("PASS")
+			} else if createInterface == nil || responseInterface == nil {
+				fmt.Println("FAIL")
+				// } else if *createInterface == *responseInterface {
+				// 	fmt.Println("PASS")
+			} else {
+				fmt.Println("FAIL")
+			}
+		}
+
+		if f.Type().String() == "*string" {
+			fmt.Printf("Equal? %s, %s \n", reflect.Indirect(f).String(), reflect.Indirect(responseField).String())
+		}
+		if f.Type().String() == "*strfmt.Date" {
+			df := time.Time(reflect.Indirect(f).Interface().(strfmt.Date))
+			dr := time.Time(reflect.Indirect(responseField).Interface().(strfmt.Date))
+
+			fmt.Printf("EqDate? %s, %s, %v\n", df, dr, df.Equal(dr))
+		}
+		if reflect.Indirect(f).Interface() != reflect.Indirect(responseField).Interface() {
+			fmt.Printf("ERROR: Field %s is not equal. Created: %s Received: %s\n\n", t.Field(i).Name, reflect.Indirect(f).Interface(), reflect.Indirect(responseField).Interface())
+			return false
+		}
+		// fmt.Printf("%d: %s %s = %v\n", i, responseField.Name , responseField.Type(), responseField.Interface())
+	}
+
+	return *createdPayload.ShipmentNumber == *responsePayload.ShipmentNumber &&
+		(*createdPayload.DatePrepared == *responsePayload.DatePrepared) &&
+		(*createdPayload.NameOfPreparingOffice == *responsePayload.NameOfPreparingOffice) &&
+		(*createdPayload.DestOfficeName == *responsePayload.DestOfficeName) &&
+		(*createdPayload.OriginOfficeAddressName == *responsePayload.OriginOfficeAddressName) &&
+		(*createdPayload.OriginOfficeAddress == *responsePayload.OriginOfficeAddress) &&
+		(*createdPayload.ServiceMemberFirstName == *responsePayload.ServiceMemberFirstName) &&
+		(*createdPayload.ServiceMemberMiddleInitial == *responsePayload.ServiceMemberMiddleInitial) &&
+		(*createdPayload.ServiceMemberLastName == *responsePayload.ServiceMemberLastName) &&
+		(*createdPayload.ServiceMemberSsn == *responsePayload.ServiceMemberSsn) &&
+		(*createdPayload.ServiceMemberAgency == *responsePayload.ServiceMemberAgency) &&
+		(*createdPayload.HhgTotalPounds == *responsePayload.HhgTotalPounds) &&
+		(*createdPayload.HhgProgearPounds == *responsePayload.HhgProgearPounds) &&
+		(*createdPayload.HhgValuableItemsCartons == *responsePayload.HhgValuableItemsCartons) &&
+		(*createdPayload.MobileHomeSerialNumber == *responsePayload.MobileHomeSerialNumber) &&
+		(*createdPayload.MobileHomeLengthFt == *responsePayload.MobileHomeLengthFt) &&
+		(*createdPayload.MobileHomeLengthInches == *responsePayload.MobileHomeLengthInches) &&
+		(*createdPayload.MobileHomeWidthFt == *responsePayload.MobileHomeWidthFt) &&
+		(*createdPayload.MobileHomeWidthInches == *responsePayload.MobileHomeWidthInches) &&
+		(*createdPayload.MobileHomeHeightFt == *responsePayload.MobileHomeHeightFt) &&
+		(*createdPayload.MobileHomeHeightInches == *responsePayload.MobileHomeHeightInches) &&
+		(*createdPayload.MobileHomeTypeExpando == *responsePayload.MobileHomeTypeExpando) &&
+		(*createdPayload.MobileHomeServicesRequested == *responsePayload.MobileHomeServicesRequested) &&
+		(*createdPayload.StationOrdersType == *responsePayload.StationOrdersType) &&
+		(*createdPayload.StationOrdersIssuedBy == *responsePayload.StationOrdersIssuedBy) &&
+		(*createdPayload.StationOrdersNewAssignment == *responsePayload.StationOrdersNewAssignment) &&
+		(*createdPayload.StationOrdersDate == *responsePayload.StationOrdersDate) &&
+		(*createdPayload.StationOrdersNumber == *responsePayload.StationOrdersNumber) &&
+		(*createdPayload.StationOrdersParagraphNumber == *responsePayload.StationOrdersParagraphNumber) &&
+		(*createdPayload.StationOrdersInTransitTelephone == *responsePayload.StationOrdersInTransitTelephone) &&
+		(*createdPayload.InTransitAddress == *responsePayload.InTransitAddress) &&
+		(*createdPayload.PickupAddress == *responsePayload.PickupAddress) &&
+		(*createdPayload.PickupAddressMobileCourtName == *responsePayload.PickupAddressMobileCourtName) &&
+		(*createdPayload.PickupTelephone == *responsePayload.PickupTelephone) &&
+		(*createdPayload.DestAddress == *responsePayload.DestAddress) &&
+		(*createdPayload.DestAddressMobileCourtName == *responsePayload.DestAddressMobileCourtName) &&
+		(*createdPayload.AgentToReceiveHhg == *responsePayload.AgentToReceiveHhg) &&
+		(*createdPayload.ExtraAddress == *responsePayload.ExtraAddress) &&
+		(*createdPayload.PackScheduledDate == *responsePayload.PackScheduledDate) &&
+		(*createdPayload.PickupScheduledDate == *responsePayload.PickupScheduledDate) &&
+		(*createdPayload.DeliveryScheduledDate == *responsePayload.DeliveryScheduledDate) &&
+		(*createdPayload.Remarks == *responsePayload.Remarks) &&
+		(*createdPayload.OtherMoveFrom == *responsePayload.OtherMoveFrom) &&
+		(*createdPayload.OtherMoveTo == *responsePayload.OtherMoveTo) &&
+		(*createdPayload.OtherMoveNetPounds == *responsePayload.OtherMoveNetPounds) &&
+		(*createdPayload.OtherMoveProgearPounds == *responsePayload.OtherMoveProgearPounds) &&
+		(*createdPayload.ServiceMemberSignature == *responsePayload.ServiceMemberSignature) &&
+		(*createdPayload.DateSigned == *responsePayload.DateSigned) &&
+		(*createdPayload.ContractorAddress == *responsePayload.ContractorAddress) &&
+		(*createdPayload.ContractorName == *responsePayload.ContractorName) &&
+		(*createdPayload.NonavailabilityOfSignatureReason == *responsePayload.NonavailabilityOfSignatureReason) &&
+		(*createdPayload.CertifiedBySignature == *responsePayload.CertifiedBySignature) &&
+		(*createdPayload.TitleOfCertifiedBySignature == *responsePayload.TitleOfCertifiedBySignature)
+}
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
@@ -79,68 +178,32 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	createdForm1299Payload := createdResponse.Payload
 
 	// And: verify the values returned match expected values
-	if *createdForm1299Payload.ShipmentNumber != *newForm1299Payload.ShipmentNumber ||
-		(*createdForm1299Payload.DatePrepared != *newForm1299Payload.DatePrepared) ||
-		(*createdForm1299Payload.NameOfPreparingOffice != *newForm1299Payload.NameOfPreparingOffice) ||
-		(*createdForm1299Payload.DestOfficeName != *newForm1299Payload.DestOfficeName) ||
-		(*createdForm1299Payload.OriginOfficeAddressName != *newForm1299Payload.OriginOfficeAddressName) ||
-		(*createdForm1299Payload.OriginOfficeAddress != *newForm1299Payload.OriginOfficeAddress) ||
-		(*createdForm1299Payload.ServiceMemberFirstName != *newForm1299Payload.ServiceMemberFirstName) ||
-		(*createdForm1299Payload.ServiceMemberMiddleInitial != *newForm1299Payload.ServiceMemberMiddleInitial) ||
-		(*createdForm1299Payload.ServiceMemberLastName != *newForm1299Payload.ServiceMemberLastName) ||
-		(*createdForm1299Payload.ServiceMemberSsn != *newForm1299Payload.ServiceMemberSsn) ||
-		(*createdForm1299Payload.ServiceMemberAgency != *newForm1299Payload.ServiceMemberAgency) ||
-		(*createdForm1299Payload.HhgTotalPounds != *newForm1299Payload.HhgTotalPounds) ||
-		(*createdForm1299Payload.HhgProgearPounds != *newForm1299Payload.HhgProgearPounds) ||
-		(*createdForm1299Payload.HhgValuableItemsCartons != *newForm1299Payload.HhgValuableItemsCartons) ||
-		(*createdForm1299Payload.MobileHomeSerialNumber != *newForm1299Payload.MobileHomeSerialNumber) ||
-		(*createdForm1299Payload.MobileHomeLengthFt != *newForm1299Payload.MobileHomeLengthFt) ||
-		(*createdForm1299Payload.MobileHomeLengthInches != *newForm1299Payload.MobileHomeLengthInches) ||
-		(*createdForm1299Payload.MobileHomeWidthFt != *newForm1299Payload.MobileHomeWidthFt) ||
-		(*createdForm1299Payload.MobileHomeWidthInches != *newForm1299Payload.MobileHomeWidthInches) ||
-		(*createdForm1299Payload.MobileHomeHeightFt != *newForm1299Payload.MobileHomeHeightFt) ||
-		(*createdForm1299Payload.MobileHomeHeightInches != *newForm1299Payload.MobileHomeHeightInches) ||
-		(*createdForm1299Payload.MobileHomeTypeExpando != *newForm1299Payload.MobileHomeTypeExpando) ||
-		(*createdForm1299Payload.MobileHomeServicesRequested != *newForm1299Payload.MobileHomeServicesRequested) ||
-		(*createdForm1299Payload.StationOrdersType != *newForm1299Payload.StationOrdersType) ||
-		(*createdForm1299Payload.StationOrdersIssuedBy != *newForm1299Payload.StationOrdersIssuedBy) ||
-		(*createdForm1299Payload.StationOrdersNewAssignment != *newForm1299Payload.StationOrdersNewAssignment) ||
-		(*createdForm1299Payload.StationOrdersDate != *newForm1299Payload.StationOrdersDate) ||
-		(*createdForm1299Payload.StationOrdersNumber != *newForm1299Payload.StationOrdersNumber) ||
-		(*createdForm1299Payload.StationOrdersParagraphNumber != *newForm1299Payload.StationOrdersParagraphNumber) ||
-		(*createdForm1299Payload.StationOrdersInTransitTelephone != *newForm1299Payload.StationOrdersInTransitTelephone) ||
-		(*createdForm1299Payload.InTransitAddress != *newForm1299Payload.InTransitAddress) ||
-		(*createdForm1299Payload.PickupAddress != *newForm1299Payload.PickupAddress) ||
-		(*createdForm1299Payload.PickupAddressMobileCourtName != *newForm1299Payload.PickupAddressMobileCourtName) ||
-		(*createdForm1299Payload.PickupTelephone != *newForm1299Payload.PickupTelephone) ||
-		(*createdForm1299Payload.DestAddress != *newForm1299Payload.DestAddress) ||
-		(*createdForm1299Payload.DestAddressMobileCourtName != *newForm1299Payload.DestAddressMobileCourtName) ||
-		(*createdForm1299Payload.AgentToReceiveHhg != *newForm1299Payload.AgentToReceiveHhg) ||
-		(*createdForm1299Payload.ExtraAddress != *newForm1299Payload.ExtraAddress) ||
-		(*createdForm1299Payload.PackScheduledDate != *newForm1299Payload.PackScheduledDate) ||
-		(*createdForm1299Payload.PickupScheduledDate != *newForm1299Payload.PickupScheduledDate) ||
-		(*createdForm1299Payload.DeliveryScheduledDate != *newForm1299Payload.DeliveryScheduledDate) ||
-		(*createdForm1299Payload.Remarks != *newForm1299Payload.Remarks) ||
-		(*createdForm1299Payload.OtherMoveFrom != *newForm1299Payload.OtherMoveFrom) ||
-		(*createdForm1299Payload.OtherMoveTo != *newForm1299Payload.OtherMoveTo) ||
-		(*createdForm1299Payload.OtherMoveNetPounds != *newForm1299Payload.OtherMoveNetPounds) ||
-		(*createdForm1299Payload.OtherMoveProgearPounds != *newForm1299Payload.OtherMoveProgearPounds) ||
-		(*createdForm1299Payload.ServiceMemberSignature != *newForm1299Payload.ServiceMemberSignature) ||
-		(*createdForm1299Payload.DateSigned != *newForm1299Payload.DateSigned) ||
-		(*createdForm1299Payload.ContractorAddress != *newForm1299Payload.ContractorAddress) ||
-		(*createdForm1299Payload.ContractorName != *newForm1299Payload.ContractorName) ||
-		(*createdForm1299Payload.NonavailabilityOfSignatureReason != *newForm1299Payload.NonavailabilityOfSignatureReason) ||
-		(*createdForm1299Payload.CertifiedBySignature != *newForm1299Payload.CertifiedBySignature) ||
-		(*createdForm1299Payload.TitleOfCertifiedBySignature != *newForm1299Payload.TitleOfCertifiedBySignature) {
-		t.Error("Not all response values match expected values.")
+	if !compareCreateAndResponsePayloads(newForm1299Payload, *createdForm1299Payload) {
+		t.Error("The response does not match what was created")
 	}
 
 	// Then cofirm the same thing is returned by GET
-	showFormParams := form1299op.ShowForm1299Params{Form1299ID: createdForm1299Payload.ID}
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: *createdForm1299Payload.ID}
 
 	showResponse := ShowForm1299Handler(showFormParams)
 	showOKResponse := showResponse.(*form1299op.ShowForm1299OK)
 	showFormPayload := showOKResponse.Payload
+
+	fmt.Println(newForm1299Payload)
+	fmt.Println(*showFormPayload)
+
+	b1, _ := json.MarshalIndent(newForm1299Payload, "", "  ")
+	fmt.Println(string(b1))
+
+	b2, _ := json.MarshalIndent(*createdForm1299Payload, "", "  ")
+	fmt.Println(string(b2))
+
+	b, _ := json.MarshalIndent(*showFormPayload, "", "  ")
+	fmt.Println(string(b))
+
+	if !compareCreateAndResponsePayloads(newForm1299Payload, *showFormPayload) {
+		t.Error("The GET response does not match what was created")
+	}
 
 }
 
@@ -152,7 +215,7 @@ func TestShowUnknownHandler(t *testing.T) {
 	response := ShowForm1299Handler(showFormParams)
 
 	// assert we got back the 404 response
-	_ := response.(*form1299op.ShowForm1299NotFound)
+	_ = response.(*form1299op.ShowForm1299NotFound)
 }
 
 func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {

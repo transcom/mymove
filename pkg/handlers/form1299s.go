@@ -86,10 +86,9 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 	if err := dbConnection.Find(&form, formID); err != nil {
 		fmt.Println(err)
 		response = form1299op.NewShowForm1299NotFound()
+		// TODO: read the err
 	} else {
-		formPayload := messages.Form1299Payload{}
-		formPayload.ID = fmtUUID(form.ID)
-		formPayload.NameOfPreparingOffice = form.NameOfPreparingOffice
+		formPayload := payloadForForm1299Model(form)
 		response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
 	}
 
