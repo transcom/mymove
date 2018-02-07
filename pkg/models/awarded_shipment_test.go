@@ -1,8 +1,7 @@
 package models
 
 import (
-	"log"
-	"os"
+	"fmt"
 	"testing"
 
 	"github.com/markbates/pop"
@@ -12,19 +11,27 @@ import (
 var db *pop.Connection
 
 func Test_AwardedShipment(t *testing.T) {
-	as := &AwardedShipment{}
-
-	if err := db.Create(as); err != nil {
-		t.Fatal("Didn't write it to the db")
+	awardedShipment := AwardedShipment{
+		ShipmentID:                      uuid.Must(uuid.NewV4()),
+		TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
+		AdministrativeShipment:          false,
 	}
 
-	if as.ID == uuid.Nil {
-		t.Error("didn't get an ID back")
-	}
+	db.ValidateAndSave(&awardedShipment)
+	fmt.Printf(">1> %s\n", awardedShipment)
+	/*
+		fmt.Printf(">2> %s\n", awardedShipmentSaved)
+		if err != nil {
+			t.Fatal("Didn't write it to the db")
+		}
+		if awardedShipment.ID == uuid.Nil {
+			t.Error("didn't get an ID back")
+		}
 
-	if as.CreatedAt.IsZero() {
-		t.Error("wasn't assigned a created_at time")
-	}
+		if awardedShipment.CreatedAt.IsZero() {
+			t.Error("wasn't assigned a created_at time")
+		}
+	*/
 }
 
 func Test_AwardedShipmentValidations(t *testing.T) {
@@ -62,22 +69,3 @@ func equalSlice(a []string, b []string) bool {
 	}
 	return true
 }
-
-func setupDBConnection() {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	conn, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	db = conn
-}
-
-/*
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
-}
-*/
