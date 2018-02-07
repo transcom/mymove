@@ -45,7 +45,7 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.Cre
 				// If they are both nil, then they match. Nothing more to check
 				continue
 			}
-			// Here, we know that they are both pointers and are both not nil.
+			// If we arrive here, we know that they are both pointers and are both not nil.
 		}
 
 		// Indirect() turns a pointer into a type and does nothing to a type
