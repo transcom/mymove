@@ -9,6 +9,7 @@ export const LOAD_SCHEMA_FAILURE = 'LOAD_SCHEMA_FAILURE';
 export const REQUEST_CREATE = 'REQUEST_CREATE';
 export const CREATE_SUCCESS = 'CREATE_SUCCESS';
 export const CREATE_FAILURE = 'CREATE_FAILURE';
+export const CREATE_RESET = 'CREATE_RESET';
 
 // Actions
 export const createLoadSchemaRequest = () => ({
@@ -38,6 +39,9 @@ export const createCreateFailure = error => ({
   error,
 });
 
+export const createCreateReset = () => ({
+  type: CREATE_RESET,
+});
 // Action Creator
 export function loadSchema() {
   // Interpreted by the thunk middleware:
@@ -56,6 +60,10 @@ export function createForm(formData) {
       .then(result => dispatch(createCreateSuccess(result)))
       .catch(error => dispatch(createCreateFailure(error)));
   };
+}
+
+export function resetSuccess() {
+  return createCreateReset();
 }
 // Reducer
 //todo: we may want to reorganize this after we have implemented more reports
@@ -80,6 +88,11 @@ function dd1299Reducer(state = initialState, action) {
       return Object.assign({}, state, { hasCreateSuccess: true });
     case CREATE_FAILURE:
       return Object.assign({}, state, { hasCreateError: true });
+    case CREATE_RESET:
+      return Object.assign({}, state, {
+        hasCreateError: false,
+        hasCreateSuccess: false,
+      });
     default:
       return state;
   }

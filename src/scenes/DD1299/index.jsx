@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { loadSchema, createForm } from './ducks';
+import { loadSchema, createForm, resetSuccess } from './ducks';
 
 import Alert from 'shared/Alert';
 
@@ -17,6 +17,9 @@ export class DD1299 extends Component {
   submit = values => {
     this.props.createForm(values);
   };
+  componentDidUpdate() {
+    window.scrollTo(0, 0);
+  }
   render() {
     if (this.props.hasError)
       return (
@@ -30,6 +33,9 @@ export class DD1299 extends Component {
           <Alert type="success" heading="Form Submitted">
             Your DD1299 has been sucessfully submitted.
           </Alert>
+          <button type="button" onClick={this.props.resetSuccess}>
+            Do another one
+          </button>
         </Fragment>
       );
     return (
@@ -60,7 +66,7 @@ function mapStateToProps(state) {
   return state.DD1299;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema, createForm }, dispatch);
+  return bindActionCreators({ loadSchema, createForm, resetSuccess }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DD1299);
