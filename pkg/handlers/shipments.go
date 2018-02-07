@@ -18,9 +18,11 @@ func payloadForShipmentModel(shipment models.Shipment) messages.ShipmentPayload 
 		PickupDate:   fmtDate(shipment.PickupDate),
 		DeliveryDate: fmtDate(shipment.DeliveryDate),
 		Name:         &shipment.Name,
-		TrafficDistributionListID: fmtUUID(shipment.TrafficDistributionListID),
-		CreatedAt:                 fmtDateTime(shipment.CreatedAt),
-		UpdatedAt:                 fmtDateTime(shipment.UpdatedAt),
+		TrafficDistributionListID:       fmtUUID(shipment.TrafficDistributionListID),
+		TransportationServiceProviderID: *fmtUUID(shipment.TransportationServiceProviderID),
+		AdministrativeShipment:          &shipment.AdministrativeShipment,
+		CreatedAt:                       fmtDateTime(shipment.CreatedAt),
+		UpdatedAt:                       fmtDateTime(shipment.UpdatedAt),
 	}
 	return shipmentPayload
 }
@@ -32,13 +34,15 @@ func IndexShipmentsHandler(params shipmentop.IndexShipmentsParams) middleware.Re
 	shipmentPayloads := make(messages.IndexShipmentsPayload, 3)
 	for i := range shipmentPayloads {
 		shipment := models.Shipment{
-			ID:                        uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
-			CreatedAt:                 time.Now(),
-			UpdatedAt:                 time.Now(),
-			Name:                      fmt.Sprintf("Shipment number %d", i+1),
-			PickupDate:                time.Now(),
-			DeliveryDate:              time.Now(),
-			TrafficDistributionListID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			ID:                              uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			CreatedAt:                       time.Now(),
+			UpdatedAt:                       time.Now(),
+			Name:                            fmt.Sprintf("Shipment number %d", i+1),
+			PickupDate:                      time.Now(),
+			DeliveryDate:                    time.Now(),
+			TrafficDistributionListID:       uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			TransportationServiceProviderID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			AdministrativeShipment:          false,
 		}
 		shipmentPayload := payloadForShipmentModel(shipment)
 		shipmentPayloads[i] = &shipmentPayload
