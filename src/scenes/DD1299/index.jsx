@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { loadSchema } from './ducks';
+import { loadSchema, createForm } from './ducks';
 
 import Alert from 'shared/Alert';
 
@@ -15,8 +15,7 @@ export class DD1299 extends Component {
     this.props.loadSchema();
   }
   submit = values => {
-    // print the form values to the console
-    console.log(values);
+    this.props.createForm(values);
   };
   render() {
     if (this.props.hasError)
@@ -25,12 +24,27 @@ export class DD1299 extends Component {
           There was a problem loading the form from the server.
         </Alert>
       );
+    if (this.props.hasCreateSuccess)
+      return (
+        <Fragment>
+          <Alert type="success" heading="Form Submitted">
+            Your DD1299 has been sucessfully submitted.
+          </Alert>
+        </Fragment>
+      );
     return (
-      <DD1299Form
-        onSubmit={this.submit}
-        schema={this.props.schema}
-        uiSchema={this.props.uiSchema}
-      />
+      <Fragment>
+        <DD1299Form
+          onSubmit={this.submit}
+          schema={this.props.schema}
+          uiSchema={this.props.uiSchema}
+        />
+        {this.props.hasCreateError && (
+          <Alert type="error" heading="Server Error">
+            There was a problem saving the form on the server.
+          </Alert>
+        )}
+      </Fragment>
     );
   }
 }
@@ -38,17 +52,15 @@ DD1299.propTypes = {
   loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object,
   hasError: PropTypes.bool.isRequired,
+  hasCreateError: PropTypes.bool.isRequired,
+  hasCreateSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
-  return {
-    schema: state.DD1299.schema,
-    hasError: state.DD1299.hasError,
-    uiSchema: state.DD1299.uiSchema,
-  };
+  return state.DD1299;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema }, dispatch);
+  return bindActionCreators({ loadSchema, createForm }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DD1299);
