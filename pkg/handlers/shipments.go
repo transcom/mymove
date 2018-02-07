@@ -34,14 +34,14 @@ func IndexShipmentsHandler(params shipmentop.IndexShipmentsParams) middleware.Re
 	shipmentPayloads := make(messages.IndexShipmentsPayload, 3)
 	for i := range shipmentPayloads {
 		shipment := models.Shipment{
-			ID:                              uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			ID:                              uuid.Must(uuid.NewV4()),
 			CreatedAt:                       time.Now(),
 			UpdatedAt:                       time.Now(),
 			Name:                            fmt.Sprintf("Shipment number %d", i+1),
 			PickupDate:                      time.Now(),
 			DeliveryDate:                    time.Now(),
-			TrafficDistributionListID:       uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
-			TransportationServiceProviderID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
+			TrafficDistributionListID:       uuid.Must(uuid.NewV4()),
+			TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
 			AdministrativeShipment:          false,
 		}
 		shipmentPayload := payloadForShipmentModel(shipment)
