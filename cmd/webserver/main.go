@@ -38,6 +38,7 @@ func main() {
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
+	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
 	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -96,8 +97,8 @@ func main() {
 	// And request logging
 	root.Use(requestLogger)
 
-	zap.L().Info("Starting the server listening", zap.String("port", *port))
-	address := fmt.Sprintf(":%s", *port)
+	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
+	zap.L().Info("Starting the server listening", zap.String("address", address))
 	log.Fatal(http.ListenAndServe(address, root))
 }
 
