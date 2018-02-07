@@ -45,6 +45,7 @@ describe('Has available shipments', () => {
         pickup_date: pickup_date.toString(),
         delivery_date: delivery_date.toString(),
         traffic_distribution_list_id: '123',
+        transportation_service_provider_id: null,
       },
       {
         id: '20',
@@ -52,6 +53,7 @@ describe('Has available shipments', () => {
         pickup_date: pickup_date.toString(),
         delivery_date: delivery_date.toString(),
         traffic_distribution_list_id: '123',
+        transportation_service_provider_id: null,
       },
     ];
     const hasError = false;

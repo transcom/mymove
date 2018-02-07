@@ -17,11 +17,11 @@ export class Shipments extends Component {
   render() {
     const { shipments, hasError } = this.props;
     const shipmentsStatus = this.props.match.params.shipmentsStatus;
+
     // Title with capitalized shipment status
     const capShipmentsStatus =
       shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
-    document.title = `Transcom PPP: ${shipmentsStatus.charAt(0).toUpperCase() +
-      shipmentsStatus.slice(1)} Shipments`;
+    document.title = `Transcom PPP: ${capShipmentsStatus} Shipments`;
 
     // Handle cases of users entering invalid shipment types
     if (
@@ -36,7 +36,18 @@ export class Shipments extends Component {
         </Alert>
       );
     }
-    // Return Alert or shipmentCards
+
+    // TODO The || in the following line should not be necessary.
+    const filteredShipments = (shipments || []).filter(shipment => {
+      return (
+        shipmentsStatus === 'all' ||
+        (shipment.transportation_service_provider_id &&
+          shipmentsStatus === 'awarded') ||
+        (!shipment.transportation_service_provider_id &&
+          shipmentsStatus === 'available')
+      );
+    });
+
     return (
       <div className="usa-grid">
         <h1>{capShipmentsStatus} Shipments</h1>
@@ -45,7 +56,7 @@ export class Shipments extends Component {
             There was a problem loading the shipments from the server.
           </Alert>
         )}
-        {!hasError && <ShipmentCards shipments={shipments} />}
+        {!hasError && <ShipmentCards shipments={filteredShipments} />}
       </div>
     );
   }

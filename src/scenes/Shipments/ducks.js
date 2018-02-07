@@ -21,7 +21,7 @@ export const createShowShipmentsFailure = error => ({
 });
 
 // Action Creator
-export function loadShipments(shipmentsStatus) {
+export function loadShipments() {
   // Interpreted by the thunk middleware:
   return function(dispatch, getState) {
     dispatch(createShowShipmentsRequest());
