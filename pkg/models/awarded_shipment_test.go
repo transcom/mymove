@@ -1,42 +1,40 @@
 package models
 
 import (
-	"fmt"
 	"testing"
 
-	"github.com/markbates/pop"
 	"github.com/satori/go.uuid"
 )
 
-var db *pop.Connection
-
 func Test_AwardedShipment(t *testing.T) {
 	awardedShipment := AwardedShipment{
-		ShipmentID:                      uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440000"),
-		TransportationServiceProviderID: uuid.FromStringOrNil("123e4567-e89b-12d3-a456-426655440001"),
+		ShipmentID:                      uuid.Must(uuid.NewV4()),
+		TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
 		AdministrativeShipment:          false,
 	}
 
-	fmt.Printf(">1> %s\n", awardedShipment)
-	db.ValidateAndSave(&awardedShipment)
-	/*
-		fmt.Printf(">2> %s\n", awardedShipmentSaved)
-		if err != nil {
-			t.Fatal("Didn't write it to the db")
-		}
-		if awardedShipment.ID == uuid.Nil {
-			t.Error("didn't get an ID back")
-		}
+	verrs, err := dbConnection.ValidateAndSave(&awardedShipment)
 
-		if awardedShipment.CreatedAt.IsZero() {
-			t.Error("wasn't assigned a created_at time")
-		}
-	*/
+	if err != nil {
+		t.Fatal("Didn't write it to the db")
+	}
+
+	if verrs.Count() != 0 {
+		t.Errorf("expected %d errors, got %d", 0, verrs.Count())
+	}
+
+	if awardedShipment.ID == uuid.Nil {
+		t.Error("didn't get an ID back")
+	}
+
+	if awardedShipment.CreatedAt.IsZero() {
+		t.Error("wasn't assigned a created_at time")
+	}
 }
 
 func Test_AwardedShipmentValidations(t *testing.T) {
 	as := &AwardedShipment{}
-	verrs, err := db.ValidateAndSave(as)
+	verrs, err := dbConnection.ValidateAndSave(as)
 	if err != nil {
 		t.Error(err)
 	}
