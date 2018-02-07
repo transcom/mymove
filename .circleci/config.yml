@@ -17,6 +17,10 @@ jobs:
             go get -u github.com/golang/lint/golint
             echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run:
+          name: Install go-swagger
+          command: |
+            go get -u github.com/go-swagger/go-swagger/cmd/swagger
+      - run:
           name: Run pre-commit tests
           command: pre-commit run --all-files
       - save_cache:
