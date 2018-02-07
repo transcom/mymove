@@ -37,7 +37,8 @@ jobs:
       - setup_remote_docker
       - restore_cache:
           keys:
-            - go-vendor-cache-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep
       - restore_cache:
           keys:
             - yarn-node-modules-cache-{{ checksum "yarn.lock" }}
@@ -69,9 +70,9 @@ jobs:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
 
       - save_cache:
-          key: go-vendor-cache-{{ checksum "Gopkg.lock" }}
+          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
           paths:
-            - vendor
+            - ~/go/pkg/dep
       - save_cache:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
@@ -121,6 +122,11 @@ jobs:
       - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
     steps:
       - checkout
+      - restore_cache:
+          keys:
+            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep
+
       - run:
           name: Install dep
           command: |
@@ -137,6 +143,10 @@ jobs:
       - run:
           name: Push changes
           command: bin/circleci-push-dependency-updates
+      - save_cache:
+          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep
 
 workflows:
   version: 2
