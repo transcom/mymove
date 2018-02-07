@@ -16,7 +16,7 @@ const AppWrapper = () => (
       <main className="site__content">
         <Route exact path="/" component={Feedback} />
         <Route path="/submitted" component={SubmittedFeedback} />
-        <Route path="/shipments/:shipment_status" component={Shipments} />
+        <Route path="/shipments/:shipmentsStatus" component={Shipments} />
         <Route path="/DD1299" component={DD1299} />
       </main>
       <Footer />

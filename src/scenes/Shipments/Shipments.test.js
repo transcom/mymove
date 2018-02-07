@@ -1,8 +1,8 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { AvailableShipments } from './AvailableShipments';
+import { Shipments } from './Shipments';
 
-const loadAvailableShipments = () => {};
+const loadShipments = () => {};
 
 describe('No available shipments or errors', () => {
   let wrapper;
@@ -10,11 +10,13 @@ describe('No available shipments or errors', () => {
   beforeEach(() => {
     const shipments = null;
     const hasError = true;
+    const shipmentStatus = 'available';
     wrapper = mount(
-      <AvailableShipments
+      <Shipments
         hasError={hasError}
         shipments={shipments}
-        loadAvailableShipments={loadAvailableShipments}
+        loadShipments={loadShipments}
+        params={shipmentStatus}
       />,
     );
   });
@@ -50,10 +52,10 @@ describe('Has available shipments', () => {
     ];
     const hasError = false;
     wrapper = mount(
-      <AvailableShipments
+      <Shipments
         hasError={hasError}
         shipments={shipments}
-        loadAvailableShipments={loadAvailableShipments}
+        loadShipments={loadShipments}
       />,
     );
   });

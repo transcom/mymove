@@ -11,16 +11,20 @@ import { loadShipments } from './ducks';
 
 export class Shipments extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Shipments';
-    console.log(this.props);
-    debugger;
-    this.props.loadShipments();
+    const shipmentsStatus = this.props.match.params.shipmentsStatus;
+    // Title with capitalized shipment status
+    document.title = `Transcom PPP: ${shipmentsStatus.charAt(0).toUpperCase() +
+      shipmentsStatus.slice(1)} Shipments`;
+    this.props.loadShipments(shipmentsStatus);
   }
   render() {
     const { shipments, hasError } = this.props;
+    const shipmentsStatus = this.props.match.params.shipmentsStatus;
+    const capShipmentsStatus =
+      shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
     return (
       <div className="usa-grid">
-        <h1>Shipments</h1>
+        <h1>{capShipmentsStatus} Shipments</h1>
         {hasError && (
           <Alert type="error" heading="Server Error">
             There was a problem loading the shipments from the server.
@@ -40,8 +44,8 @@ Shipments.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    shipments: state.availableShipments.shipments,
-    hasError: state.availableShipments.hasError,
+    shipments: state.shipments.shipments,
+    hasError: state.shipments.hasError,
   };
 }
 function mapDispatchToProps(dispatch) {
