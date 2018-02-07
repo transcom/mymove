@@ -105,9 +105,9 @@ db_dev_reset:
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
-db_dev_migrate: db_dev_run
+db_dev_migrate: server_deps db_dev_run
 	./bin/soda migrate up
-db_dev_migrate_down: db_dev_run
+db_dev_migrate_down: server_deps db_dev_run
 	./bin/soda migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
