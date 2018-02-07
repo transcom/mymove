@@ -1,6 +1,7 @@
 import { combineReducers } from 'redux';
 import { feedbackReducer } from 'scenes/Feedback/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
+import dd1299Reducer from 'scenes/DD1299/ducks';
 import {
   availableShipmentsReducer,
   awardedShipmentsReducer,
@@ -15,6 +16,7 @@ export const appReducer = combineReducers({
   router: routerReducer,
   form: formReducer,
   feedback: feedbackReducer,
+  DD1299: dd1299Reducer,
 });
 
 export default appReducer;
