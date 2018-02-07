@@ -34,8 +34,8 @@ client_run: client_deps
 client_test: client_deps
 	yarn test
 
-server_deps_update:
-	dep ensure -update
+server_deps_update: server_generate
+	dep ensure -v -update
 server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
@@ -46,7 +46,7 @@ server_deps: .server_deps.stamp
 	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-server_generate: .server_generate.stamp
+server_generate: server_deps .server_generate.stamp
 .server_generate.stamp: swagger.yaml
 	bin/gen_server.sh
 	touch .server_generate.stamp

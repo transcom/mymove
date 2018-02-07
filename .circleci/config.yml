@@ -118,9 +118,33 @@ jobs:
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             ecs-deploy -c app-staging -n app -t 600 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
 
+  update_dependencies:
+    working_directory: ~/go/src/github.com/transcom/mymove
+    docker:
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+    steps:
+      - checkout
+      - run:
+          name: Install dep
+          command: |
+            go get -u github.com/golang/dep/cmd/dep
+            echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run: pre-commit autoupdate
+      - run: make server_deps_update
+      - run: make client_deps_update
+      - run:
+          name: Display changes
+          command: |
+            git --no-pager status
+            git --no-pager diff --ignore-all-space --color
+      - run:
+          name: Push changes
+          command: bin/circleci-push-dependency-updates
+
 workflows:
   version: 2
-  pipeline:
+
+  app:
     jobs:
       - pre_test
       - build_app
@@ -140,6 +164,17 @@ workflows:
           filters:
             branches:
               only: master
+
+  dependency_updater:
+    triggers:
+      - schedule:
+          # Monday at 4am/7am PST/EST
+          cron: "0 12 * * 1"
+          filters:
+            branches:
+              only: master
+    jobs:
+      - update_dependencies
 
 experimental:
   notify:
