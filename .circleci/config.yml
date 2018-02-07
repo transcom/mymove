@@ -127,8 +127,8 @@ jobs:
             go get -u github.com/golang/dep/cmd/dep
             echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: pre-commit autoupdate
-      - run: dep ensure -v -update
-      - run: yarn upgrade
+      - run: make server_deps_update
+      - run: make client_deps_update
       - run:
           name: Display changes
           command: |
