@@ -60,7 +60,7 @@ const renderField = (fieldName, fields) => {
 };
 
 const renderSchema = (schema, uiSchema) => {
-  if (!isEmpty(schema)) {
+  if (schema && !isEmpty(schema)) {
     const fields = schema.properties || [];
     return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema));
   }

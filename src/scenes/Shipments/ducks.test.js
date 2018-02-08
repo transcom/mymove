@@ -1,45 +1,44 @@
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import {
-  availableShipmentsReducer,
-  createShowAvailableShipmentsRequest,
-  createShowAvailableShipmentsSuccess,
-  createShowAvailableShipmentsFailure,
-  awardedShipmentsReducer,
-  createShowAwardedShipmentsRequest,
-  createShowAwardedShipmentsSuccess,
-  createShowAwardedShipmentsFailure,
+  shipmentsReducer,
+  createShowShipmentsRequest,
+  createShowShipmentsSuccess,
+  createShowShipmentsFailure,
 } from './ducks';
 
-// AVAILABLE SHIPMENTS TEST
+// SHIPMENTS TEST
 
-describe('Available Shipments Reducer', () => {
-  it('Should handle SHOW_AVAILABLE_SHIPMENTS', () => {
+describe('Shipments Reducer', () => {
+  it('Should handle SHOW_SHIPMENTS', () => {
     const initialState = { shipments: null, hasError: false };
 
-    const newState = availableShipmentsReducer(initialState, {
-      type: 'SHOW_AVAILABLE_SHIPMENTS',
+    const newState = shipmentsReducer(initialState, {
+      type: 'SHOW_SHIPMENTS',
     });
 
     expect(newState).toEqual({ shipments: null, hasError: false });
   });
 
-  it('Should handle SHOW_AVAILABLE_SHIPMENTS_SUCCESS', () => {
+  it('Should handle SHOW_SHIPMENTS_SUCCESS', () => {
     const initialState = { shipments: null, hasError: false };
 
-    const newState = availableShipmentsReducer(initialState, {
-      type: 'SHOW_AVAILABLE_SHIPMENTS_SUCCESS',
-      shipments: 'Sally Shipment',
+    const newState = shipmentsReducer(initialState, {
+      type: 'SHOW_SHIPMENTS_SUCCESS',
+      shipments: ['Sally Shipment'],
     });
 
-    expect(newState).toEqual({ shipments: 'Sally Shipment', hasError: false });
+    expect(newState).toEqual({
+      shipments: ['Sally Shipment'],
+      hasError: false,
+    });
   });
 
-  it('Should handle SHOW_AVAILABLE_SHIPMENTS_FAILURE', () => {
+  it('Should handle SHOW_SHIPMENTS_FAILURE', () => {
     const initialState = { shipments: null, hasError: false };
 
-    const newState = availableShipmentsReducer(initialState, {
-      type: 'SHOW_AVAILABLE_SHIPMENTS_FAILURE',
+    const newState = shipmentsReducer(initialState, {
+      type: 'SHOW_SHIPMENTS_FAILURE',
       error: 'Boring',
     });
 
@@ -47,7 +46,7 @@ describe('Available Shipments Reducer', () => {
   });
 });
 
-describe('Available Shipments Actions', () => {
+describe('Shipments actions without optional props', () => {
   const initialState = { shipments: null, hasError: false };
   const mockStore = configureStore();
   let store;
@@ -58,31 +57,81 @@ describe('Available Shipments Actions', () => {
 
   it('Should check action on dispatching ', () => {
     let action;
-    store.dispatch(createShowAvailableShipmentsRequest());
+    store.dispatch(createShowShipmentsRequest());
     store.dispatch(
-      createShowAvailableShipmentsSuccess([
+      createShowShipmentsSuccess([
         {
           id: '11',
           name: 'Sally Shipment',
           pickup_date: new Date(2018, 11, 17).toString(),
           delivery_date: new Date(2018, 11, 19).toString(),
+          traffic_distribution_list_id: '12',
         },
       ]),
     );
-    store.dispatch(createShowAvailableShipmentsFailure('Tests r not fun.'));
+    store.dispatch(createShowShipmentsFailure('Tests r not fun.'));
     action = store.getActions();
     // Add expect about what the contents will be.
-    expect(action[0].type).toBe('SHOW_AVAILABLE_SHIPMENTS');
-    expect(action[1].type).toBe('SHOW_AVAILABLE_SHIPMENTS_SUCCESS');
+    expect(action[0].type).toBe('SHOW_SHIPMENTS');
+    expect(action[1].type).toBe('SHOW_SHIPMENTS_SUCCESS');
     expect(action[1].shipments).toEqual([
       {
         id: '11',
         name: 'Sally Shipment',
         pickup_date: new Date(2018, 11, 17).toString(),
         delivery_date: new Date(2018, 11, 19).toString(),
+        traffic_distribution_list_id: '12',
       },
     ]);
-    expect(action[2].type).toBe('SHOW_AVAILABLE_SHIPMENTS_FAILURE');
+    expect(action[2].type).toBe('SHOW_SHIPMENTS_FAILURE');
+    expect(action[2].error).toEqual('Tests r not fun.');
+  });
+});
+
+describe('Shipments actions with optional props', () => {
+  const initialState = { shipments: null, hasError: false };
+  const mockStore = configureStore();
+  let store;
+
+  beforeEach(() => {
+    store = mockStore(initialState);
+  });
+
+  it('Should check action on dispatching ', () => {
+    let action;
+    store.dispatch(createShowShipmentsRequest());
+    store.dispatch(
+      createShowShipmentsSuccess([
+        {
+          id: '11',
+          name: 'Sally Shipment',
+          pickup_date: new Date(2018, 11, 17).toString(),
+          delivery_date: new Date(2018, 11, 19).toString(),
+          traffic_distribution_list_id: '12',
+          shipment_id: '13',
+          transportation_service_provider_id: '20',
+          administartive_shipment: false,
+        },
+      ]),
+    );
+    store.dispatch(createShowShipmentsFailure('Tests r not fun.'));
+    action = store.getActions();
+    // Add expect about what the contents will be.
+    expect(action[0].type).toBe('SHOW_SHIPMENTS');
+    expect(action[1].type).toBe('SHOW_SHIPMENTS_SUCCESS');
+    expect(action[1].shipments).toEqual([
+      {
+        id: '11',
+        name: 'Sally Shipment',
+        pickup_date: new Date(2018, 11, 17).toString(),
+        delivery_date: new Date(2018, 11, 19).toString(),
+        traffic_distribution_list_id: '12',
+        shipment_id: '13',
+        transportation_service_provider_id: '20',
+        administartive_shipment: false,
+      },
+    ]);
+    expect(action[2].type).toBe('SHOW_SHIPMENTS_FAILURE');
     expect(action[2].error).toEqual('Tests r not fun.');
   });
 });
@@ -98,124 +147,18 @@ describe('Available Shipments Actions', () => {
 //     fetchMock.restore()
 //   })
 
-//   it('creates SHOW_AVAILABLE_SHIPMENTS_SUCCESS when submitted shipments have been loaded', () => {
+//   it('creates SHOW_SHIPMENTS_SUCCESS when submitted shipments have been loaded', () => {
 //     fetchMock
 //       .getOnce('/submitted', { shipments: { shipments: [{'id': 11, 'name': 'Sally Shipment', pickup_date: new Date(2018, 11, 17), delivery_date: new Date(2018, 11, 19)}] }, headers: { 'content-type': 'application/json' } })
 
 //     const expectedActions = [
-//       { type: SHOW_AVAILABLE_SHIPMENTS },
-//       { type: SHOW_AVAILABLE_SHIPMENTS_SUCCESS, shipments: { shipments: [{'id': 11, 'name':'Sally Shipment', pickup_date: new Date(2018, 11, 17), delivery_date: new Date(2018, 11, 19) }] } }
+//       { type: SHOW_SHIPMENTS },
+//       { type: SHOW_SHIPMENTS_SUCCESS, shipments: { shipments: [{'id': 11, 'name':'Sally Shipment', pickup_date: new Date(2018, 11, 17), delivery_date: new Date(2018, 11, 19) }] } }
 //     ]
 
 //     const store = mockStore(initialState)
 
-//     return store.dispatch(loadAvailableShipments()).then(() => {
-//       // return of async actions
-//       expect(store.getActions()).toEqual(expectedActions)
-//     })
-//   })
-// })
-
-// AWARDED SHIPMENTS TESTS
-describe('Awarded Shipments Reducer', () => {
-  it('Should handle SHOW_AWARDED_SHIPMENTS', () => {
-    const initialState = { shipments: null, hasError: false };
-
-    const newState = awardedShipmentsReducer(initialState, {
-      type: 'SHOW_AWARDED_SHIPMENTS',
-    });
-
-    expect(newState).toEqual({ shipments: null, hasError: false });
-  });
-
-  it('Should handle SHOW_AWARDED_SHIPMENTS_SUCCESS', () => {
-    const initialState = { shipments: null, hasError: false };
-
-    const newState = awardedShipmentsReducer(initialState, {
-      type: 'SHOW_AWARDED_SHIPMENTS_SUCCESS',
-      shipments: 'Sally Shipment',
-    });
-
-    expect(newState).toEqual({ shipments: 'Sally Shipment', hasError: false });
-  });
-
-  it('Should handle SHOW_AWARDED_SHIPMENTS_FAILURE', () => {
-    const initialState = { shipments: null, hasError: false };
-
-    const newState = awardedShipmentsReducer(initialState, {
-      type: 'SHOW_AWARDED_SHIPMENTS_FAILURE',
-      error: 'Boring',
-    });
-
-    expect(newState).toEqual({ shipments: null, hasError: true });
-  });
-});
-
-describe('Awarded Shipments Actions', () => {
-  const initialState = { shipments: null, hasError: false };
-  const mockStore = configureStore();
-  let store;
-
-  beforeEach(() => {
-    store = mockStore(initialState);
-  });
-
-  it('Should check action on dispatching ', () => {
-    let action;
-    store.dispatch(createShowAwardedShipmentsRequest());
-    store.dispatch(
-      createShowAwardedShipmentsSuccess([
-        {
-          id: '11',
-          name: 'Sally Shipment',
-          pickup_date: new Date(2018, 11, 17),
-          delivery_date: new Date(2018, 11, 19),
-          traffic_distribution_list_id: '12',
-        },
-      ]),
-    );
-    store.dispatch(createShowAwardedShipmentsFailure('Tests r not fun.'));
-    action = store.getActions();
-    // Add expect about what the contents will be.
-    expect(action[0].type).toBe('SHOW_AWARDED_SHIPMENTS');
-    expect(action[1].type).toBe('SHOW_AWARDED_SHIPMENTS_SUCCESS');
-    expect(action[1].shipments).toEqual([
-      {
-        id: '11',
-        name: 'Sally Shipment',
-        pickup_date: new Date(2018, 11, 17),
-        delivery_date: new Date(2018, 11, 19),
-        traffic_distribution_list_id: '12',
-      },
-    ]);
-    expect(action[2].type).toBe('SHOW_AWARDED_SHIPMENTS_FAILURE');
-    expect(action[2].error).toEqual('Tests r not fun.');
-  });
-});
-
-// TODO: Figure out how to mock the Swagger API call
-// describe('async action creators', () => {
-//   const middlewares = [ thunk ]
-//   const initialState = { shipments: null, hasError: false };
-//   const mockStore = configureStore(middlewares)
-
-//   afterEach(() => {
-//     fetchMock.reset()
-//     fetchMock.restore()
-//   })
-
-//   it('creates SHOW_AWARDED_SHIPMENTS_SUCCESS when submitted shipments have been loaded', () => {
-//     fetchMock
-//       .getOnce('/submitted', { shipments: { shipments: [{'id': 11, 'name': 'Sally Shipment', pickup_date: new Date(2018, 11, 17), delivery_date: new Date(2018, 11, 19),}] }, headers: { 'content-type': 'application/json' } })
-
-//     const expectedActions = [
-//       { type: SHOW_AWARDED_SHIPMENTS },
-//       { type: SHOW_AWARDED_SHIPMENTS_SUCCESS, shipments: { shipments: [{'id': 11, 'name':'Sally Shipment'}] } }
-//     ]
-
-//     const store = mockStore(initialState)
-
-//     return store.dispatch(loadAvailableShipments()).then(() => {
+//     return store.dispatch(loadShipments()).then(() => {
 //       // return of async actions
 //       expect(store.getActions()).toEqual(expectedActions)
 //     })

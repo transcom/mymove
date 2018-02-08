@@ -8,6 +8,17 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 ## Development
 
+### Git
+
+Use your work email when making commits to our repositories. The simplest path to correctness is setting global config:
+
+    git config --global user.email "trussel@truss.works"
+    git config --global user.name "Trusty Trussel"
+
+If you drop the `--global` flag these settings will only apply to the current repo. If you ever re-clone that repo or clone another repo, you will need to remember to set the local config again. You won't. Use the global config. :-)
+
+For web-based Git operations, GitHub will use your primary email unless you choose "Keep my email address private". If you don't want to set your work address as primary, please [turn on the privacy setting](https://github.com/settings/emails).
+
 ### Project location
 
 All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
@@ -18,7 +29,7 @@ export GOPATH=~/code/go
 
 If you are OK with using the default location for go code (`~/go`), then there is nothing to do. Since this is the default location, using it means you do not need to set `$GOPATH` yourself.
 
-*Regardless of where your go code is located*, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
+_Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
 ```bash
 export PATH=$(go env GOPATH)/bin:$PATH
@@ -56,7 +67,7 @@ The following commands will get mymove running on your machine for the first tim
 ### Setup: Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
-* Run `bin/prereqs` and install everything it tells you to. *Do not configure postgres to automatically start at boot time!*
+* Run `bin/prereqs` and install everything it tells you to. _Do not configure postgres to automatically start at boot time!_
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
@@ -76,7 +87,7 @@ In rare cases, you may want to run the server standalone, in which case you can 
 
 You can verify the server is working as follows:
 
-`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}"`
+`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}" -H "Content-Type: application/json"`
 
 from which the response should be like
 
