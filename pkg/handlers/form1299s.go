@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -87,10 +86,6 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 		if err := dbConnection.Find(&form, formID); err != nil {
 			if err.Error() == "sql: no rows in result set" {
 				response = form1299op.NewShowForm1299NotFound()
-			} else if strings.HasPrefix(err.Error(), "pq: invalid input syntax for uuid") {
-				// This should never happen since we validate uuids before we get here.
-				zap.L().Error("Got an unexpected UUID format error from the db:", zap.Error(err))
-				response = form1299op.NewShowForm1299BadRequest()
 			} else {
 				// This is an unknown error from the db, nothing to do but log and 500
 				zap.L().Error("DB Insertion error", zap.Error(err))
