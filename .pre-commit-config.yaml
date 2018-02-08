@@ -34,6 +34,13 @@ repos:
         language: node
         files: \.(js|jsx)$
 
+  - repo: local
+    hooks:
+      - id: swagger
+        name: swagger
+        entry: bin/swagger validate swagger.yaml
+        language: script
+
   - repo: git://github.com/dnephin/pre-commit-golang
     sha: v0.2
     hooks:

@@ -37,6 +37,17 @@ export async function CreateIssue(issueBody) {
       ${response.url}: ${response.statusText}`,
     );
 }
+export async function CreateForm1299(formData) {
+  await ensureClientIsLoaded();
+  const response = await client.apis.form1299s.createForm1299({
+    createForm1299Payload: formData,
+  });
+  if (!response.ok)
+    new Error(
+      `failed to create issue due to server error:
+      ${response.url}: ${response.statusText}`,
+    );
+}
 
 export async function ShipmentsIndex() {
   await ensureClientIsLoaded();
