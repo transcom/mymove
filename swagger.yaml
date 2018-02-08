@@ -188,9 +188,7 @@ definitions:
         x-nullable: true
         title: Last Name
       service_member_rank:
-        type: string
         $ref: '#/definitions/ServiceMemberRank'
-        x-nullable: true
         title: Rank/Grade
       service_member_ssn:
         type: string
@@ -676,6 +674,7 @@ definitions:
       - updated_at
   ServiceMemberRank:
     type: string
+    x-nullable: true
     enum:
       - E_1
       - E_2

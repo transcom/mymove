@@ -11,6 +11,8 @@ import (
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
+	var rankE6 = messages.ServiceMemberRankE6
+
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := messages.CreateForm1299Payload{
 		ShipmentNumber:                   stringPointer("23098eifjsldkjf"),
@@ -22,6 +24,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 		ServiceMemberFirstName:           stringPointer("random string bla"),
 		ServiceMemberMiddleInitial:       stringPointer("random string bla"),
 		ServiceMemberLastName:            stringPointer("random string bla"),
+		ServiceMemberRank:                &rankE6,
 		ServiceMemberSsn:                 stringPointer("random string bla"),
 		ServiceMemberAgency:              stringPointer("random string bla"),
 		HhgTotalPounds:                   fmtInt64(10500),
@@ -86,6 +89,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 		(*createdForm1299Payload.ServiceMemberFirstName != *newForm1299Payload.ServiceMemberFirstName) ||
 		(*createdForm1299Payload.ServiceMemberMiddleInitial != *newForm1299Payload.ServiceMemberMiddleInitial) ||
 		(*createdForm1299Payload.ServiceMemberLastName != *newForm1299Payload.ServiceMemberLastName) ||
+		(*createdForm1299Payload.ServiceMemberRank != *newForm1299Payload.ServiceMemberRank) ||
 		(*createdForm1299Payload.ServiceMemberSsn != *newForm1299Payload.ServiceMemberSsn) ||
 		(*createdForm1299Payload.ServiceMemberAgency != *newForm1299Payload.ServiceMemberAgency) ||
 		(*createdForm1299Payload.HhgTotalPounds != *newForm1299Payload.HhgTotalPounds) ||
