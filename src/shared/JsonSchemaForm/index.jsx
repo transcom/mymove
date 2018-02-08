@@ -39,10 +39,23 @@ const createDropDown = (fieldName, field) => {
     </Field>
   );
 };
+const parseNumberField = value => (!value ? null : Number(value));
+const createNumberField = (fieldName, field) => (
+  <Field
+    component="input"
+    name={fieldName}
+    parse={parseNumberField}
+    type="Number"
+  />
+);
 const createField = (fieldName, field) => {
   //todo: how to determine if multiselect/checkboxes etc
-  if (field.enum) return createDropDown(fieldName, field);
-
+  if (field.enum) {
+    return createDropDown(fieldName, field);
+  }
+  if (field.type === 'integer') {
+    return createNumberField(fieldName, field);
+  }
   return <Field name={fieldName} component="input" type={field.format} />;
 };
 
