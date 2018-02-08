@@ -18,7 +18,7 @@ export class DD1299 extends Component {
     this.props.submitForm(values);
   };
   componentDidUpdate() {
-    window.scrollTo(0, 0);
+    if (this.props.hasSubmitSuccess) window.scrollTo(0, 0);
   }
   render() {
     if (this.props.hasSchemaError)
@@ -54,6 +54,7 @@ export class DD1299 extends Component {
     );
   }
 }
+
 DD1299.propTypes = {
   loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
