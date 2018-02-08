@@ -8,7 +8,7 @@ import 'scenes/Shipments/ShipmentCards.css';
 const ShipmentCards = ({ shipments }) => {
   if (!shipments) return <LoadingPlaceholder />;
   if (shipments.length === 0)
-    return <h2> There is no feedback at the moment! </h2>;
+    return <h2> There are no shipments at the moment! </h2>;
   return (
     <div className="shipment-cards">
       {shipments.map(shipment => (
