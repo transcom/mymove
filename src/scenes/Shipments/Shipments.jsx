@@ -36,7 +36,6 @@ export class Shipments extends Component {
       );
     }
 
-    // TODO The || in the following line should not be necessary.
     const filteredShipments = shipments.filter(shipment => {
       return (
         shipmentsStatus === 'all' ||

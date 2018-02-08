@@ -6,7 +6,7 @@ const loadShipments = () => {};
 
 describe('No available shipments or errors', () => {
   let wrapper;
-  const shipments = null;
+  const shipments = [];
   const hasError = true;
   // Match is a param on props that allows access to url parameter
   const match = { params: { shipmentsStatus: 'available' } };
@@ -78,7 +78,7 @@ describe('Has available shipments', () => {
 
 describe('No awarded shipments or errors', () => {
   let wrapper;
-  const shipments = null;
+  const shipments = [];
   const hasError = true;
   // Match is a param on props that allows access to url parameter
   const match = { params: { shipmentsStatus: 'awarded' } };
