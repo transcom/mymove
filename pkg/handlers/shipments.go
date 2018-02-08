@@ -1,59 +1,70 @@
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/markbates/pop"
+	"github.com/markbates/pop/nulls"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/messages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(shipment models.Shipment) messages.ShipmentPayload {
-	shipmentPayload := messages.ShipmentPayload{
-		ID:           fmtUUID(shipment.ID),
-		PickupDate:   fmtDate(shipment.PickupDate),
-		DeliveryDate: fmtDate(shipment.DeliveryDate),
-		Name:         &shipment.Name,
-		TrafficDistributionListID:       fmtUUID(shipment.TrafficDistributionListID),
-		TransportationServiceProviderID: fmtNullUUID(shipment.TransportationServiceProviderID),
-		AdministrativeShipment:          &shipment.AdministrativeShipment,
-		CreatedAt:                       fmtDateTime(shipment.CreatedAt),
-		UpdatedAt:                       fmtDateTime(shipment.UpdatedAt),
+type PossiblyAwardedShipment struct {
+	ID                              uuid.UUID  `db:"id"`
+	CreatedAt                       time.Time  `db:"created_at"`
+	UpdatedAt                       time.Time  `db:"updated_at"`
+	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID nulls.UUID `db:"transportation_service_provider_id"`
+	AdministrativeShipment          nulls.Bool `db:"administrative_shipment"`
+}
+
+func payloadForShipmentModel(s PossiblyAwardedShipment) *messages.ShipmentPayload {
+	shipmentPayload := &messages.ShipmentPayload{
+		ID:           fmtUUID(s.ID),
+		PickupDate:   fmtDate(time.Now()),
+		DeliveryDate: fmtDate(time.Now()),
+		Name:         stringPointer("Shipment name"),
+		TrafficDistributionListID:       fmtUUID(s.TrafficDistributionListID),
+		TransportationServiceProviderID: fmtNullUUID(s.TransportationServiceProviderID),
+		AdministrativeShipment:          fmtNullBool(s.AdministrativeShipment),
+		CreatedAt:                       fmtDateTime(s.CreatedAt),
+		UpdatedAt:                       fmtDateTime(s.UpdatedAt),
 	}
 	return shipmentPayload
 }
 
 // IndexShipmentsHandler returns a list of all shipments
-func IndexShipmentsHandler(params shipmentop.IndexShipmentsParams) middleware.Responder {
+func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipmentPayloads := make(messages.IndexShipmentsPayload, 8)
-	for i := range shipmentPayloads {
-		var tspID uuid.NullUUID
+	shipments := []PossiblyAwardedShipment{}
 
-		if i%2 == 0 {
-			tspID = uuid.NullUUID{UUID: uuid.Must(uuid.NewV4()), Valid: true}
-		} else {
-			tspID = uuid.NullUUID{Valid: false}
+	// TODO Can Q() be .All(&shipments)
+	query := dbConnection.Q().LeftJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
+
+	sql, args := query.ToSQL(&pop.Model{Value: models.Shipment{}},
+		"shipments.id",
+		"shipments.created_at",
+		"shipments.updated_at",
+		"shipments.traffic_distribution_list_id",
+		"awarded_shipments.transportation_service_provider_id",
+		"awarded_shipments.administrative_shipment",
+	)
+
+	if err := dbConnection.RawQuery(sql, args...).All(&shipments); err != nil {
+		zap.L().Error("DB Query", zap.Error(err))
+		response = shipmentop.NewIndexShipmentsBadRequest()
+	} else {
+		isp := make(messages.IndexShipmentsPayload, len(shipments))
+		for i, s := range shipments {
+			isp[i] = payloadForShipmentModel(s)
 		}
-		shipment := models.Shipment{
-			ID:                              uuid.Must(uuid.NewV4()),
-			CreatedAt:                       time.Now(),
-			UpdatedAt:                       time.Now(),
-			Name:                            fmt.Sprintf("Shipment number %d", i+1),
-			PickupDate:                      time.Now(),
-			DeliveryDate:                    time.Now(),
-			TrafficDistributionListID:       uuid.Must(uuid.NewV4()),
-			TransportationServiceProviderID: tspID,
-			AdministrativeShipment:          false,
-		}
-		shipmentPayload := payloadForShipmentModel(shipment)
-		shipmentPayloads[i] = &shipmentPayload
+		response = shipmentop.NewIndexShipmentsOK().WithPayload(isp)
 	}
-	response = shipmentop.NewIndexShipmentsOK().WithPayload(shipmentPayloads)
 	return response
 }
