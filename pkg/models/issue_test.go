@@ -1,15 +1,10 @@
 package models
 
 import (
-	"log"
-	"os"
 	"testing"
 
-	"github.com/markbates/pop"
 	"github.com/satori/go.uuid"
 )
-
-var dbConnection *pop.Connection
 
 func TestOptionalProperty(t *testing.T) {
 	reporterName := "Janice Doe"
@@ -42,23 +37,4 @@ func TestOptionalProperty(t *testing.T) {
 	if sansReporter.ReporterName != nil {
 		t.Error("Somehow got a valid name back")
 	}
-}
-
-func setupDBConnection() {
-
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	conn, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	dbConnection = conn
-
-}
-
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
 }
