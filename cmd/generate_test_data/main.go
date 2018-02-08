@@ -105,20 +105,20 @@ func main() {
 
 	// Grab three UUIDs for individual TDLs
 	// testTDLRateAreas := [3]string{"california", "north carolina", "washington"}
-	tdlList := []models.TransportationServiceProvider{}
-	tdlUUIDs := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
-	fmt.Println(tdlUUIDs)
-	// if tdlList != nil {
-	// 	log.Panic(tdlList)
-	// } else {
-	// 	for i := 0; i <len(tdlList); i++ {
-	// 		fmt.Print(tdlList[i])
-	// 		// ("%s %s %s\n", tdlUUIDs[i].SourceRateArea, tdlUUIDs[i]:DestinationRegion, tdlUUIDs[i].ID)
-	// 	}
+	tdlList := []models.TrafficDistributionList{}
+	err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
+	if err1 != nil {
+		fmt.Println("TDL ID import failed.")
+	}
 
 	// Add three shipment table records using UUIDs from TDLs
-	// shipment1 := models.Shipment{
-	// 	TrafficDistributionList: }
+	shipment1 := models.Shipment{}
+	// TrafficDistributionList: tdlList[0].ID}
+
+	_, err = dbConnection.ValidateAndSave(&shipment1)
+	if err != nil {
+		log.Panic(err)
+	}
 
 	// tsp2 := models.TransportationServiceProvider{
 	// 	StandardCarrierAlphaCode: "EFGH",
