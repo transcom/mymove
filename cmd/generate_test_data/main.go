@@ -22,86 +22,138 @@ func main() {
 	}
 
 	// Add three TDL table records
-	tdl1 := models.TrafficDistributionList{
-		SourceRateArea:    "california",
-		DestinationRegion: "90210",
-		CodeOfService:     "2"}
+	// tdl1 := models.TrafficDistributionList{
+	// 	SourceRateArea:    "california",
+	// 	DestinationRegion: "90210",
+	// 	CodeOfService:     "2"}
 
-	tdl2 := models.TrafficDistributionList{
-		SourceRateArea:    "north carolina",
-		DestinationRegion: "27007",
-		CodeOfService:     "4"}
+	// tdl2 := models.TrafficDistributionList{
+	// 	SourceRateArea:    "north carolina",
+	// 	DestinationRegion: "27007",
+	// 	CodeOfService:     "4"}
 
-	tdl3 := models.TrafficDistributionList{
-		SourceRateArea:    "washington",
-		DestinationRegion: "98310",
-		CodeOfService:     "1"}
+	// tdl3 := models.TrafficDistributionList{
+	// 	SourceRateArea:    "washington",
+	// 	DestinationRegion: "98310",
+	// 	CodeOfService:     "1"}
 
-	_, err = dbConnection.ValidateAndSave(&tdl1)
-	if err != nil {
-		log.Panic(err)
-	}
+	// _, err = dbConnection.ValidateAndSave(&tdl1)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
-	_, err = dbConnection.ValidateAndSave(&tdl2)
-	if err != nil {
-		log.Panic(err)
-	}
+	// _, err = dbConnection.ValidateAndSave(&tdl2)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
-	_, err = dbConnection.ValidateAndSave(&tdl3)
-	if err != nil {
-		log.Panic(err)
-	}
+	// _, err = dbConnection.ValidateAndSave(&tdl3)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// // Query for newly made records and print IDs in terminal
+	// tdls := []models.TrafficDistributionList{}
+	// err = dbConnection.All(&tdls)
+	// if err != nil {
+	// 	fmt.Print("Error!\n")
+	// 	fmt.Printf("%v\n", err)
+	// } else {
+	// 	for _, v := range tdls {
+	// 		fmt.Print(v.ID)
+	// 	}
+	// }
+
+	// // Add three TSP table records
+	// tsp1 := models.TransportationServiceProvider{
+	// 	StandardCarrierAlphaCode: "ABCD",
+	// 	Name: "Very Good TSP"}
+
+	// tsp2 := models.TransportationServiceProvider{
+	// 	StandardCarrierAlphaCode: "EFGH",
+	// 	Name: "Pretty Alright TSP"}
+
+	// tsp3 := models.TransportationServiceProvider{
+	// 	StandardCarrierAlphaCode: "IJKL",
+	// 	Name: "Serviceable and Adequate TSP"}
+
+	// _, err = dbConnection.ValidateAndSave(&tsp1)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// _, err = dbConnection.ValidateAndSave(&tsp2)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// _, err = dbConnection.ValidateAndSave(&tsp3)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// // Query for newly made records and print IDs in terminal
+	// tsps := []models.TransportationServiceProvider{}
+	// err = dbConnection.All(&tsps)
+	// if err != nil {
+	// 	fmt.Print("Error!\n")
+	// 	fmt.Printf("%v\n", err)
+	// } else {
+	// 	for _, v := range tsps {
+	// 		fmt.Print(v.ID)
+	// 	}
+	// }
+
+	// Grab three UUIDs for individual TDLs
+	// testTDLRateAreas := [3]string{"california", "north carolina", "washington"}
+	tdlList := []models.TransportationServiceProvider{}
+	tdlUUIDs := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
+	fmt.Println(tdlUUIDs)
+	// if tdlList != nil {
+	// 	log.Panic(tdlList)
+	// } else {
+	// 	for i := 0; i <len(tdlList); i++ {
+	// 		fmt.Print(tdlList[i])
+	// 		// ("%s %s %s\n", tdlUUIDs[i].SourceRateArea, tdlUUIDs[i]:DestinationRegion, tdlUUIDs[i].ID)
+	// 	}
+
+	// Add three shipment table records using UUIDs from TDLs
+	// shipment1 := models.Shipment{
+	// 	TrafficDistributionList: }
+
+	// tsp2 := models.TransportationServiceProvider{
+	// 	StandardCarrierAlphaCode: "EFGH",
+	// 	Name: "Pretty Alright TSP"}
+
+	// tsp3 := models.TransportationServiceProvider{
+	// 	StandardCarrierAlphaCode: "IJKL",
+	// 	Name: "Serviceable and Adequate TSP"}
+
+	// _, err = dbConnection.ValidateAndSave(&shipment1)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// _, err = dbConnection.ValidateAndSave(&tsp2)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
+
+	// _, err = dbConnection.ValidateAndSave(&tsp3)
+	// if err != nil {
+	// 	log.Panic(err)
+	// }
 
 	// Query for newly made records and print IDs in terminal
-	tdls := []models.TrafficDistributionList{}
-	err = dbConnection.All(&tdls)
-	if err != nil {
-		fmt.Print("Error!\n")
-		fmt.Printf("%v\n", err)
-	} else {
-		for _, v := range tdls {
-			fmt.Print(v.ID)
-		}
-	}
-
-	// Add three TSP table records
-	tsp1 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "ABCD",
-		Name: "Very Good TSP"}
-
-	tsp2 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "EFGH",
-		Name: "Pretty Alright TSP"}
-
-	tsp3 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "IJKL",
-		Name: "Serviceable and Adequate TSP"}
-
-	_, err = dbConnection.ValidateAndSave(&tsp1)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tsp2)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tsp3)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	// Query for newly made records and print IDs in terminal
-	tsps := []models.TransportationServiceProvider{}
-	err = dbConnection.All(&tsps)
-	if err != nil {
-		fmt.Print("Error!\n")
-		fmt.Printf("%v\n", err)
-	} else {
-		for _, v := range tsps {
-			fmt.Print(v.ID)
-		}
-	}
+	// tsps := []models.TransportationServiceProvider{}
+	// err = dbConnection.All(&tsps)
+	// if err != nil {
+	// 	fmt.Print("Error!\n")
+	// 	fmt.Printf("%v\n", err)
+	// } else {
+	// 	for _, v := range tsps {
+	// 		fmt.Print(v.ID)
+	// 	}
+	// }
 
 }
