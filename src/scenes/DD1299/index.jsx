@@ -27,7 +27,7 @@ export class DD1299 extends Component {
           There was a problem loading the form from the server.
         </Alert>
       );
-    if (this.props.hasCreateSuccess)
+    if (this.props.hasSubmitSuccess)
       return (
         <Fragment>
           <Alert type="success" heading="Form Submitted">
@@ -45,7 +45,7 @@ export class DD1299 extends Component {
           schema={this.props.schema}
           uiSchema={this.props.uiSchema}
         />
-        {this.props.hasCreateError && (
+        {this.props.hasSubmitError && (
           <Alert type="error" heading="Server Error">
             There was a problem saving the form on the server.
           </Alert>
@@ -59,8 +59,8 @@ DD1299.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   hasSchemaError: PropTypes.bool.isRequired,
-  hasCreateError: PropTypes.bool.isRequired,
-  hasCreateSuccess: PropTypes.bool.isRequired,
+  hasSubmitError: PropTypes.bool.isRequired,
+  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {

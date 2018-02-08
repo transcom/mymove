@@ -1,9 +1,9 @@
 import dd1299Reducer, {
   createLoadSchemaSuccess,
   createLoadSchemaFailure,
-  createCreateFailure,
-  createCreateSuccess,
-  createCreateReset,
+  createSubmitFailure,
+  createSubmitSuccess,
+  createSubmitReset,
 } from './ducks';
 import { getUiSchema } from './uiSchema';
 
@@ -17,8 +17,8 @@ describe('Reducer', () => {
       schema: newSchema.definitions.CreateForm1299Payload,
       uiSchema,
       hasSchemaError: false,
-      hasCreateError: false,
-      hasCreateSuccess: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
     };
     const newState = dd1299Reducer(
       undefined,
@@ -32,46 +32,46 @@ describe('Reducer', () => {
       schema: {},
       uiSchema,
       hasSchemaError: true,
-      hasCreateError: false,
-      hasCreateSuccess: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
     };
     const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
     expect(newState).toEqual(expectedState);
   });
-  it('Should handle CREATE_SUCCESS', () => {
+  it('Should handle SUBMIT_SUCCESS', () => {
     const err = 'OH NO';
     const expectedState = {
       schema: {},
       uiSchema,
       hasSchemaError: false,
-      hasCreateError: false,
-      hasCreateSuccess: true,
+      hasSubmitError: false,
+      hasSubmitSuccess: true,
     };
-    const newState = dd1299Reducer(undefined, createCreateSuccess(err));
+    const newState = dd1299Reducer(undefined, createSubmitSuccess(err));
     expect(newState).toEqual(expectedState);
   });
-  it('Should handle CREATE_FAILURE', () => {
+  it('Should handle SUBMIT_FAILURE', () => {
     const err = 'OH NO';
     const expectedState = {
       schema: {},
       uiSchema,
       hasSchemaError: false,
-      hasCreateError: true,
-      hasCreateSuccess: false,
+      hasSubmitError: true,
+      hasSubmitSuccess: false,
     };
-    const newState = dd1299Reducer(undefined, createCreateFailure(err));
+    const newState = dd1299Reducer(undefined, createSubmitFailure(err));
     expect(newState).toEqual(expectedState);
   });
-  it('Should handle CREATE_RESET', () => {
+  it('Should handle SUBMIT_RESET', () => {
     const err = 'OH NO';
     const expectedState = {
       schema: {},
       uiSchema,
       hasSchemaError: false,
-      hasCreateError: false,
-      hasCreateSuccess: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
     };
-    const newState = dd1299Reducer(undefined, createCreateReset());
+    const newState = dd1299Reducer(undefined, createSubmitReset());
     expect(newState).toEqual(expectedState);
   });
 });

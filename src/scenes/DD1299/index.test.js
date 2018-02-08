@@ -14,13 +14,13 @@ describe('When there is a form creation error', () => {
 
   beforeEach(() => {
     const hasSchemaError = true;
-    const hasCreateError = false;
-    const hasCreateSuccess = false;
+    const hasSubmitError = false;
+    const hasSubmitSuccess = false;
     wrapper = shallow(
       <DD1299
         hasSchemaError={hasSchemaError}
-        hasCreateSuccess={hasCreateSuccess}
-        hasCreateError={hasCreateError}
+        hasSubmitSuccess={hasSubmitSuccess}
+        hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
         loadSchema={loadSchema}
@@ -40,13 +40,13 @@ describe('When a form is successfully created', () => {
 
   beforeEach(() => {
     const hasSchemaError = false;
-    const hasCreateError = false;
-    const hasCreateSuccess = true;
+    const hasSubmitError = false;
+    const hasSubmitSuccess = true;
     wrapper = shallow(
       <DD1299
         hasSchemaError={hasSchemaError}
-        hasCreateSuccess={hasCreateSuccess}
-        hasCreateError={hasCreateError}
+        hasSubmitSuccess={hasSubmitSuccess}
+        hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
         loadSchema={loadSchema}
@@ -65,16 +65,16 @@ describe('When a form fails to be created', () => {
 
   beforeEach(() => {
     const hasSchemaError = false;
-    const hasCreateError = true;
-    const hasCreateSuccess = false;
+    const hasSubmitError = true;
+    const hasSubmitSuccess = false;
     //provider and store are necessary here since this renders the redux form
     const store = mockStore({});
     wrapper = mount(
       <Provider store={store}>
         <DD1299
           hasSchemaError={hasSchemaError}
-          hasCreateSuccess={hasCreateSuccess}
-          hasCreateError={hasCreateError}
+          hasSubmitSuccess={hasSubmitSuccess}
+          hasSubmitError={hasSubmitError}
           schema={schema}
           uiSchema={uiSchema}
           loadSchema={loadSchema}

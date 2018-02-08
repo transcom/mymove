@@ -6,10 +6,10 @@ export const LOAD_SCHEMA = 'LOAD_SCHEMA';
 export const LOAD_SCHEMA_SUCCESS = 'LOAD_SCHEMA_SUCCESS';
 export const LOAD_SCHEMA_FAILURE = 'LOAD_SCHEMA_FAILURE';
 
-export const REQUEST_CREATE = 'REQUEST_CREATE';
-export const CREATE_SUCCESS = 'CREATE_SUCCESS';
-export const CREATE_FAILURE = 'CREATE_FAILURE';
-export const CREATE_RESET = 'CREATE_RESET';
+export const REQUEST_SUBMIT = 'REQUEST_SUBMIT';
+export const SUBMIT_SUCCESS = 'SUBMIT_SUCCESS';
+export const SUBMIT_FAILURE = 'SUBMIT_FAILURE';
+export const SUBMIT_RESET = 'SUBMIT_RESET';
 
 // Actions
 export const createLoadSchemaRequest = () => ({
@@ -26,21 +26,21 @@ export const createLoadSchemaFailure = error => ({
   error,
 });
 
-export const createRequestCreate = () => ({
-  type: REQUEST_CREATE,
+export const createRequestSubmit = () => ({
+  type: REQUEST_SUBMIT,
 });
-export const createCreateSuccess = responseData => ({
-  type: CREATE_SUCCESS,
+export const createSubmitSuccess = responseData => ({
+  type: SUBMIT_SUCCESS,
   responseData,
 });
 
-export const createCreateFailure = error => ({
-  type: CREATE_FAILURE,
+export const createSubmitFailure = error => ({
+  type: SUBMIT_FAILURE,
   error,
 });
 
-export const createCreateReset = () => ({
-  type: CREATE_RESET,
+export const createSubmitReset = () => ({
+  type: SUBMIT_RESET,
 });
 // Action Creator
 export function loadSchema() {
@@ -55,15 +55,15 @@ export function loadSchema() {
 
 export function createForm(formData) {
   return function(dispatch) {
-    dispatch(createRequestCreate());
+    dispatch(createRequestSubmit());
     CreateForm1299(formData)
-      .then(result => dispatch(createCreateSuccess(result)))
-      .catch(error => dispatch(createCreateFailure(error)));
+      .then(result => dispatch(createSubmitSuccess(result)))
+      .catch(error => dispatch(createSubmitFailure(error)));
   };
 }
 
 export function resetSuccess() {
-  return createCreateReset();
+  return createSubmitReset();
 }
 // Reducer
 //todo: we may want to reorganize this after we have implemented more reports
@@ -72,8 +72,8 @@ const initialState = {
   schema: {},
   uiSchema: getUiSchema(),
   hasSchemaError: false,
-  hasCreateError: false,
-  hasCreateSuccess: false,
+  hasSubmitError: false,
+  hasSubmitSuccess: false,
 };
 function dd1299Reducer(state = initialState, action) {
   switch (action.type) {
@@ -84,17 +84,17 @@ function dd1299Reducer(state = initialState, action) {
       });
     case LOAD_SCHEMA_FAILURE:
       return Object.assign({}, state, { schema: {}, hasSchemaError: true });
-    case CREATE_SUCCESS:
-      return Object.assign({}, state, { hasCreateSuccess: true });
-    case CREATE_FAILURE:
+    case SUBMIT_SUCCESS:
+      return Object.assign({}, state, { hasSubmitSuccess: true });
+    case SUBMIT_FAILURE:
       return Object.assign({}, state, {
-        hasCreateSuccess: false,
-        hasCreateError: true,
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
       });
-    case CREATE_RESET:
+    case SUBMIT_RESET:
       return Object.assign({}, state, {
-        hasCreateError: false,
-        hasCreateSuccess: false,
+        hasSubmitError: false,
+        hasSubmitSuccess: false,
       });
     default:
       return state;
