@@ -45,7 +45,7 @@ func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Respond
 	shipments := []possiblyAwardedShipment{}
 
 	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
+	query := dbConnection.Q().LeftOuterJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
 
 	sql, args := query.ToSQL(&pop.Model{Value: models.Shipment{}},
 		"shipments.id",
