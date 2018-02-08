@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { loadSchema, createForm, resetSuccess } from './ducks';
+import { loadSchema, submitForm, resetSuccess } from './ducks';
 
 import Alert from 'shared/Alert';
 
@@ -15,7 +15,7 @@ export class DD1299 extends Component {
     this.props.loadSchema();
   }
   submit = values => {
-    this.props.createForm(values);
+    this.props.submitForm(values);
   };
   componentDidUpdate() {
     window.scrollTo(0, 0);
@@ -66,8 +66,9 @@ DD1299.propTypes = {
 function mapStateToProps(state) {
   return state.DD1299;
 }
+
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema, createForm, resetSuccess }, dispatch);
+  return bindActionCreators({ loadSchema, submitForm, resetSuccess }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DD1299);

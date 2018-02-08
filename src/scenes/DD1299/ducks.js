@@ -12,6 +12,7 @@ export const SUBMIT_FAILURE = 'SUBMIT_FAILURE';
 export const SUBMIT_RESET = 'SUBMIT_RESET';
 
 // Actions
+// loading schema
 export const createLoadSchemaRequest = () => ({
   type: LOAD_SCHEMA,
 });
@@ -29,6 +30,8 @@ export const createLoadSchemaFailure = error => ({
 export const createRequestSubmit = () => ({
   type: REQUEST_SUBMIT,
 });
+
+//submitting form
 export const createSubmitSuccess = responseData => ({
   type: SUBMIT_SUCCESS,
   responseData,
@@ -42,6 +45,7 @@ export const createSubmitFailure = error => ({
 export const createSubmitReset = () => ({
   type: SUBMIT_RESET,
 });
+
 // Action Creator
 export function loadSchema() {
   // Interpreted by the thunk middleware:
@@ -53,7 +57,7 @@ export function loadSchema() {
   };
 }
 
-export function createForm(formData) {
+export function submitForm(formData) {
   return function(dispatch) {
     dispatch(createRequestSubmit());
     CreateForm1299(formData)
@@ -83,9 +87,15 @@ function dd1299Reducer(state = initialState, action) {
         hasSchemaError: false,
       });
     case LOAD_SCHEMA_FAILURE:
-      return Object.assign({}, state, { schema: {}, hasSchemaError: true });
+      return Object.assign({}, state, {
+        schema: {},
+        hasSchemaError: true,
+      });
     case SUBMIT_SUCCESS:
-      return Object.assign({}, state, { hasSubmitSuccess: true });
+      return Object.assign({}, state, {
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+      });
     case SUBMIT_FAILURE:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
