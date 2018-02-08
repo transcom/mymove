@@ -21,6 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Add three TDL table records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
 		DestinationRegion: "90210",
@@ -51,6 +52,7 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Query for newly made records and print IDs in terminal
 	tdls := []models.TrafficDistributionList{}
 	err = dbConnection.All(&tdls)
 	if err != nil {
@@ -61,6 +63,4 @@ func main() {
 			fmt.Print(v.ID)
 		}
 	}
-
-	// fmt.Println("Hello, TSP Award Queue!")
 }
