@@ -34,8 +34,8 @@ client_run: client_deps
 client_test: client_deps
 	yarn test
 
-server_deps_update:
-	dep ensure -update
+server_deps_update: server_generate
+	dep ensure -v -update
 server_deps: .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
@@ -46,7 +46,7 @@ server_deps: .server_deps.stamp
 	go build -i -o bin/soda ./vendor/github.com/markbates/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
-server_generate: .server_generate.stamp
+server_generate: server_deps .server_generate.stamp
 .server_generate.stamp: swagger.yaml
 	bin/gen_server.sh
 	touch .server_generate.stamp
@@ -54,10 +54,10 @@ server_build: server_deps server_generate
 	go build -i -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
-	./bin/webserver \
-		-debug_logging
+	DEBUG_LOGGING=true ./bin/webserver
 # This command runs the server behind gin, a hot-reload server
 server_run: server_deps server_generate db_dev_run
+	INTERFACE=localhost DEBUG_LOGGING=true \
 	./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
@@ -105,9 +105,9 @@ db_dev_reset:
 	docker kill $(DB_DOCKER_CONTAINER) &&	\
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
-db_dev_migrate: db_dev_run
+db_dev_migrate: server_deps db_dev_run
 	./bin/soda migrate up
-db_dev_migrate_down: db_dev_run
+db_dev_migrate_down: server_deps db_dev_run
 	./bin/soda migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .

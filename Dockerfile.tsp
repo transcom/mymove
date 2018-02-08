@@ -1,6 +1,6 @@
 # Start from a Debian image with the latest version of Go installed
 # and a workspace (GOPATH) configured at /go.
-FROM golang AS build
+FROM golang:1.9.3 AS build
 
 # Install tools required to build the project
 # We will need to run `docker build --no-cache .` to update those dependencies

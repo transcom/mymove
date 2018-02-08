@@ -80,6 +80,30 @@ paths:
             $ref: '#/definitions/IndexForm1299sPayload'
         400:
           description: invalid request
+  /form1299s/{form1299Id}:
+    get:
+      summary: Gets a 1299 form by Id
+      operationId: showForm1299
+      tags:
+        - form1299s
+      parameters:
+        - in: path
+          name: form1299Id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the form to get
+      responses:
+        200:
+          description: a 1299 form
+          schema:
+            $ref: '#/definitions/Form1299Payload'
+        400:
+          description: invalid request
+        404:
+          description: unknown form1299Id
+        500:
+          description: server error
 
 definitions:
   CreateIssuePayload:

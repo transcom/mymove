@@ -11,7 +11,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    sha: v0.5.0
+    sha: v0.7.0
     hooks:
       - id: markdownlint
 
@@ -35,7 +35,7 @@ repos:
         files: \.(js|jsx)$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: 823c25f40e37d52765b6469de6df94c08e678784
+    sha: v0.2
     hooks:
     -   id: go-fmt
     -   id: go-vet

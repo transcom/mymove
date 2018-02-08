@@ -1,13 +1,77 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
+	"reflect"
 	"testing"
 	"time"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/transcom/mymove/pkg/gen/messages"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 )
+
+func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.CreateForm1299Payload, responsePayload messages.Form1299Payload) {
+	requestValue := reflect.ValueOf(requestPayload)
+	requestType := requestValue.Type()
+	responseValue := reflect.ValueOf(responsePayload)
+
+	// iterate through all fields in request payload
+	for i := 0; i < requestValue.NumField(); i++ {
+		requestField := requestValue.Field(i)
+		fieldName := requestType.Field(i).Name
+		responseField := responseValue.FieldByName(fieldName)
+		if responseField == (reflect.Value{}) {
+			t.Errorf("Response has no field named %s", fieldName)
+			continue
+		}
+
+		// First check that they are the same type. If not, error.
+		if requestField.Type() != responseField.Type() {
+			t.Errorf("Response field %s is of mismatched type. Request type: %s Response type: %s", fieldName, requestField.Type(), responseField.Type())
+			continue
+		}
+
+		// Then, check if they are pointers, we have to check on them being nil
+		if requestField.Kind() == reflect.Ptr {
+			// if xor on the pointer being nil is true, it's a failure.
+			// either both must be nil or, neither
+			if requestField.IsNil() != responseField.IsNil() {
+				t.Errorf("Response and Request field %s are not matching pointers: Request: %v, Response: %v", fieldName, requestField, responseField)
+				continue
+			} else if requestField.IsNil() {
+				// If they are both nil, then they match. Nothing more to check
+				continue
+			}
+			// If we arrive here, we know that they are both pointers and are both not nil.
+		}
+
+		// Indirect() turns a pointer into a type and does nothing to a type
+		requestInterface := reflect.Indirect(requestField).Interface()
+		responseInterface := reflect.Indirect(responseField).Interface()
+
+		switch requestInterface.(type) {
+		// Dates need to be compared with .Equal, not ==
+		case strfmt.Date:
+			df := time.Time(requestInterface.(strfmt.Date))
+			dr := time.Time(responseInterface.(strfmt.Date))
+
+			if !df.Equal(dr) {
+				t.Errorf("%s doesn't match: request: %s response: %s", fieldName, requestInterface, responseInterface)
+				continue
+			}
+		// Everything else can use == for now. Other cases may develop
+		default:
+			if requestInterface != responseInterface {
+				t.Errorf("%s doesn't match, request: %s response: %s", fieldName, requestInterface, responseInterface)
+				continue
+			}
+		}
+
+	}
+}
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
@@ -80,63 +144,51 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	createdForm1299Payload := createdResponse.Payload
 
 	// And: verify the values returned match expected values
-	if *createdForm1299Payload.ShipmentNumber != *newForm1299Payload.ShipmentNumber ||
-		(*createdForm1299Payload.DatePrepared != *newForm1299Payload.DatePrepared) ||
-		(*createdForm1299Payload.NameOfPreparingOffice != *newForm1299Payload.NameOfPreparingOffice) ||
-		(*createdForm1299Payload.DestOfficeName != *newForm1299Payload.DestOfficeName) ||
-		(*createdForm1299Payload.OriginOfficeAddressName != *newForm1299Payload.OriginOfficeAddressName) ||
-		(*createdForm1299Payload.OriginOfficeAddress != *newForm1299Payload.OriginOfficeAddress) ||
-		(*createdForm1299Payload.ServiceMemberFirstName != *newForm1299Payload.ServiceMemberFirstName) ||
-		(*createdForm1299Payload.ServiceMemberMiddleInitial != *newForm1299Payload.ServiceMemberMiddleInitial) ||
-		(*createdForm1299Payload.ServiceMemberLastName != *newForm1299Payload.ServiceMemberLastName) ||
-		(*createdForm1299Payload.ServiceMemberRank != *newForm1299Payload.ServiceMemberRank) ||
-		(*createdForm1299Payload.ServiceMemberSsn != *newForm1299Payload.ServiceMemberSsn) ||
-		(*createdForm1299Payload.ServiceMemberAgency != *newForm1299Payload.ServiceMemberAgency) ||
-		(*createdForm1299Payload.HhgTotalPounds != *newForm1299Payload.HhgTotalPounds) ||
-		(*createdForm1299Payload.HhgProgearPounds != *newForm1299Payload.HhgProgearPounds) ||
-		(*createdForm1299Payload.HhgValuableItemsCartons != *newForm1299Payload.HhgValuableItemsCartons) ||
-		(*createdForm1299Payload.MobileHomeSerialNumber != *newForm1299Payload.MobileHomeSerialNumber) ||
-		(*createdForm1299Payload.MobileHomeLengthFt != *newForm1299Payload.MobileHomeLengthFt) ||
-		(*createdForm1299Payload.MobileHomeLengthInches != *newForm1299Payload.MobileHomeLengthInches) ||
-		(*createdForm1299Payload.MobileHomeWidthFt != *newForm1299Payload.MobileHomeWidthFt) ||
-		(*createdForm1299Payload.MobileHomeWidthInches != *newForm1299Payload.MobileHomeWidthInches) ||
-		(*createdForm1299Payload.MobileHomeHeightFt != *newForm1299Payload.MobileHomeHeightFt) ||
-		(*createdForm1299Payload.MobileHomeHeightInches != *newForm1299Payload.MobileHomeHeightInches) ||
-		(*createdForm1299Payload.MobileHomeTypeExpando != *newForm1299Payload.MobileHomeTypeExpando) ||
-		(*createdForm1299Payload.MobileHomeServicesRequested != *newForm1299Payload.MobileHomeServicesRequested) ||
-		(*createdForm1299Payload.StationOrdersType != *newForm1299Payload.StationOrdersType) ||
-		(*createdForm1299Payload.StationOrdersIssuedBy != *newForm1299Payload.StationOrdersIssuedBy) ||
-		(*createdForm1299Payload.StationOrdersNewAssignment != *newForm1299Payload.StationOrdersNewAssignment) ||
-		(*createdForm1299Payload.StationOrdersDate != *newForm1299Payload.StationOrdersDate) ||
-		(*createdForm1299Payload.StationOrdersNumber != *newForm1299Payload.StationOrdersNumber) ||
-		(*createdForm1299Payload.StationOrdersParagraphNumber != *newForm1299Payload.StationOrdersParagraphNumber) ||
-		(*createdForm1299Payload.StationOrdersInTransitTelephone != *newForm1299Payload.StationOrdersInTransitTelephone) ||
-		(*createdForm1299Payload.InTransitAddress != *newForm1299Payload.InTransitAddress) ||
-		(*createdForm1299Payload.PickupAddress != *newForm1299Payload.PickupAddress) ||
-		(*createdForm1299Payload.PickupAddressMobileCourtName != *newForm1299Payload.PickupAddressMobileCourtName) ||
-		(*createdForm1299Payload.PickupTelephone != *newForm1299Payload.PickupTelephone) ||
-		(*createdForm1299Payload.DestAddress != *newForm1299Payload.DestAddress) ||
-		(*createdForm1299Payload.DestAddressMobileCourtName != *newForm1299Payload.DestAddressMobileCourtName) ||
-		(*createdForm1299Payload.AgentToReceiveHhg != *newForm1299Payload.AgentToReceiveHhg) ||
-		(*createdForm1299Payload.ExtraAddress != *newForm1299Payload.ExtraAddress) ||
-		(*createdForm1299Payload.PackScheduledDate != *newForm1299Payload.PackScheduledDate) ||
-		(*createdForm1299Payload.PickupScheduledDate != *newForm1299Payload.PickupScheduledDate) ||
-		(*createdForm1299Payload.DeliveryScheduledDate != *newForm1299Payload.DeliveryScheduledDate) ||
-		(*createdForm1299Payload.Remarks != *newForm1299Payload.Remarks) ||
-		(*createdForm1299Payload.OtherMoveFrom != *newForm1299Payload.OtherMoveFrom) ||
-		(*createdForm1299Payload.OtherMoveTo != *newForm1299Payload.OtherMoveTo) ||
-		(*createdForm1299Payload.OtherMoveNetPounds != *newForm1299Payload.OtherMoveNetPounds) ||
-		(*createdForm1299Payload.OtherMoveProgearPounds != *newForm1299Payload.OtherMoveProgearPounds) ||
-		(*createdForm1299Payload.ServiceMemberSignature != *newForm1299Payload.ServiceMemberSignature) ||
-		(*createdForm1299Payload.DateSigned != *newForm1299Payload.DateSigned) ||
-		(*createdForm1299Payload.ContractorAddress != *newForm1299Payload.ContractorAddress) ||
-		(*createdForm1299Payload.ContractorName != *newForm1299Payload.ContractorName) ||
-		(*createdForm1299Payload.NonavailabilityOfSignatureReason != *newForm1299Payload.NonavailabilityOfSignatureReason) ||
-		(*createdForm1299Payload.CertifiedBySignature != *newForm1299Payload.CertifiedBySignature) ||
-		(*createdForm1299Payload.TitleOfCertifiedBySignature != *newForm1299Payload.TitleOfCertifiedBySignature) {
-		t.Error("Not all response values match expected values.")
-	}
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *createdForm1299Payload)
 
+	// Then confirm the same thing is returned by GET
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: *createdForm1299Payload.ID}
+
+	showResponse := ShowForm1299Handler(showFormParams)
+	showOKResponse := showResponse.(*form1299op.ShowForm1299OK)
+	showFormPayload := showOKResponse.Payload
+
+	fmt.Println(newForm1299Payload)
+	fmt.Println(*showFormPayload)
+
+	b1, _ := json.MarshalIndent(newForm1299Payload, "", "  ")
+	fmt.Println(string(b1))
+
+	b2, _ := json.MarshalIndent(*createdForm1299Payload, "", "  ")
+	fmt.Println(string(b2))
+
+	b, _ := json.MarshalIndent(*showFormPayload, "", "  ")
+	fmt.Println(string(b))
+
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *showFormPayload)
+
+}
+
+func TestShowUnknown(t *testing.T) {
+
+	unknownID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: unknownID}
+
+	response := ShowForm1299Handler(showFormParams)
+
+	// assert we got back the 404 response
+	_ = response.(*form1299op.ShowForm1299NotFound)
+}
+
+func TestShowBadID(t *testing.T) {
+
+	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297xxx")
+	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
+
+	response := ShowForm1299Handler(showFormParams)
+
+	// assert we got back the 400 response
+	_ = response.(*form1299op.ShowForm1299BadRequest)
 }
 
 func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
@@ -188,23 +240,7 @@ func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 	createdResponse := response.(*form1299op.CreateForm1299Created)
 	createdForm1299Payload := createdResponse.Payload
 
-	// And: expected fields have the right values
-	if (createdForm1299Payload.CreatedAt == nil) ||
-		(createdForm1299Payload.ID == nil) ||
-		(*createdForm1299Payload.Remarks != *newForm1299Payload.Remarks) ||
-		(*createdForm1299Payload.OtherMoveFrom != *newForm1299Payload.OtherMoveFrom) ||
-		(*createdForm1299Payload.OtherMoveTo != *newForm1299Payload.OtherMoveTo) ||
-		(*createdForm1299Payload.OtherMoveNetPounds != *newForm1299Payload.OtherMoveNetPounds) ||
-		(*createdForm1299Payload.OtherMoveProgearPounds != *newForm1299Payload.OtherMoveProgearPounds) ||
-		(*createdForm1299Payload.ServiceMemberSignature != *newForm1299Payload.ServiceMemberSignature) ||
-		(*createdForm1299Payload.DateSigned != *newForm1299Payload.DateSigned) ||
-		(*createdForm1299Payload.ContractorAddress != *newForm1299Payload.ContractorAddress) ||
-		(*createdForm1299Payload.ContractorName != *newForm1299Payload.ContractorName) ||
-		(*createdForm1299Payload.NonavailabilityOfSignatureReason != *newForm1299Payload.NonavailabilityOfSignatureReason) ||
-		(*createdForm1299Payload.CertifiedBySignature != *newForm1299Payload.CertifiedBySignature) ||
-		(*createdForm1299Payload.TitleOfCertifiedBySignature != *newForm1299Payload.TitleOfCertifiedBySignature) {
-		t.Error("Not all response values match expected values.")
-	}
+	compareRequestAndResponsePayloads(t, newForm1299Payload, *createdForm1299Payload)
 
 	// And: unset fields should have nil values
 	if (createdForm1299Payload.HhgTotalPounds != nil) ||
