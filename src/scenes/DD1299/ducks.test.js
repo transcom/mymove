@@ -1,6 +1,9 @@
 import dd1299Reducer, {
   createLoadSchemaSuccess,
   createLoadSchemaFailure,
+  createSubmitFailure,
+  createSubmitSuccess,
+  createSubmitReset,
 } from './ducks';
 import { getUiSchema } from './uiSchema';
 
@@ -13,7 +16,9 @@ describe('Reducer', () => {
     const expectedState = {
       schema: newSchema.definitions.CreateForm1299Payload,
       uiSchema,
-      hasError: false,
+      hasSchemaError: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
     };
     const newState = dd1299Reducer(
       undefined,
@@ -26,9 +31,47 @@ describe('Reducer', () => {
     const expectedState = {
       schema: {},
       uiSchema,
-      hasError: true,
+      hasSchemaError: true,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
     };
     const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle SUBMIT_SUCCESS', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasSchemaError: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: true,
+    };
+    const newState = dd1299Reducer(undefined, createSubmitSuccess(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle SUBMIT_FAILURE', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasSchemaError: false,
+      hasSubmitError: true,
+      hasSubmitSuccess: false,
+    };
+    const newState = dd1299Reducer(undefined, createSubmitFailure(err));
+    expect(newState).toEqual(expectedState);
+  });
+  it('Should handle SUBMIT_RESET', () => {
+    const err = 'OH NO';
+    const expectedState = {
+      schema: {},
+      uiSchema,
+      hasSchemaError: false,
+      hasSubmitError: false,
+      hasSubmitSuccess: false,
+    };
+    const newState = dd1299Reducer(undefined, createSubmitReset());
     expect(newState).toEqual(expectedState);
   });
 });
@@ -36,7 +79,7 @@ describe('Reducer', () => {
 // TODO: Figure out how to mock the Swagger API call
 // describe('async action creators', () => {
 //   const middlewares = [ thunk ]
-//   const initialState = { issues: null, hasError: false };
+//   const initialState = { issues: null, hasSchemaError: false };
 //   const mockStore = configureStore(middlewares)
 
 //   afterEach(() => {
