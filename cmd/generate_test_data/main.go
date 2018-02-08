@@ -1,40 +1,66 @@
 package main
 
 import (
-	"bitbucket.org/pop-book/models" // Need to sort out the import for these
+	"fmt"
 	"github.com/markbates/pop"
+	"github.com/transcom/mymove/pkg/models"
 	"log"
+	// "github.com/satori/go.uuid"
+	"github.com/namsral/flag"
 )
 
-// To do: figure out how to validate this example. Then validate one. Create one more, for good measure. Then: do the next model.
 func main() {
-	tx, err := pop.Connect("traffic_distribution_lists")
+	config := flag.String("config-dir", "config", "The location of server config files")
+	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	flag.Parse()
+
+	//DB connection
+	pop.AddLookupPaths(*config)
+	dbConnection, err := pop.Connect(*env)
 	if err != nil {
 		log.Panic(err)
 	}
-	tdl1 := models.TrafficDistributionList{ID: "114", SourceRateArea: "Area 1", DestinationArea: "Southwest US", CodeOfService: "135"}
-	_, err = tx.ValidateAndSave(&tdl1)
+
+	tdl1 := models.TrafficDistributionList{
+		SourceRateArea:    "california",
+		DestinationRegion: "90210",
+		CodeOfService:     "2"}
+
+	tdl2 := models.TrafficDistributionList{
+		SourceRateArea:    "north carolina",
+		DestinationRegion: "27007",
+		CodeOfService:     "4"}
+
+	tdl3 := models.TrafficDistributionList{
+		SourceRateArea:    "washington",
+		DestinationRegion: "98310",
+		CodeOfService:     "1"}
+
+	_, err = dbConnection.ValidateAndSave(&tdl1)
 	if err != nil {
 		log.Panic(err)
 	}
-	// luke := models.User{Title: "Mr.", FirstName: "Luke", LastName: "Cage", Bio: "Hero for hire."}
-	// _, err = tx.ValidateAndSave(&luke)
-	// if err != nil {
-	//     log.Panic(err)
-	// }
-	// danny := models.User{Title: "Mr.", FirstName: "Danny", LastName: "Rand", Bio: "Martial artist."}
-	// _, err = tx.ValidateAndSave(&danny)
-	// if err != nil {
-	//     log.Panic(err)
-	// }
-	// matt := models.User{Title: "Mr.", FirstName: "Matthew", LastName: "Murdock", Bio: "Lawyer, sees with no eyes."}
-	// _, err = tx.ValidateAndSave(&matt)
-	// if err != nil {
-	//     log.Panic(err)
-	// }
-	// frank := models.User{Title: "Mr.", FirstName: "Frank", LastName: "Castle", Bio: "USMC, badass."}
-	// _, err = tx.ValidateAndSave(&frank)
-	// if err != nil {
-	//     log.Panic(err)
-	// }
+
+	_, err = dbConnection.ValidateAndSave(&tdl2)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_, err = dbConnection.ValidateAndSave(&tdl3)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	tdls := []models.TrafficDistributionList{}
+	err = dbConnection.All(&tdls)
+	if err != nil {
+		fmt.Print("Error!\n")
+		fmt.Printf("%v\n", err)
+	} else {
+		for _, v := range tdls {
+			fmt.Print(v.ID)
+		}
+	}
+
+	// fmt.Println("Hello, TSP Award Queue!")
 }
