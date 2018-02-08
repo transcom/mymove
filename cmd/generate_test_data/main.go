@@ -3,10 +3,9 @@ package main
 import (
 	"fmt"
 	"github.com/markbates/pop"
+	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
-	// "github.com/satori/go.uuid"
-	"github.com/namsral/flag"
 )
 
 func main() {
