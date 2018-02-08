@@ -8,6 +8,10 @@ jobs:
       - checkout
       - restore_cache:
           keys:
+            - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+            - v1-go-pkg-dep
+      - restore_cache:
+          keys:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Install prettier
@@ -26,6 +30,10 @@ jobs:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
           paths:
             - ~/.cache/pre-commit
+      - save_cache:
+          key: v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
+          paths:
+            - ~/go/pkg/dep
       - run: &announce_failure
           name: Announce failure
           command: |
