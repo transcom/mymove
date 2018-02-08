@@ -33,7 +33,7 @@ export function loadShipments() {
 
 // Reducer
 export function shipmentsReducer(
-  state = { shipments: null, hasError: false },
+  state = { shipments: [], hasError: false },
   action,
 ) {
   switch (action.type) {

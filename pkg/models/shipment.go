@@ -2,10 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -16,12 +17,6 @@ type Shipment struct {
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-}
-
-// String is not required by pop and may be deleted
-func (s Shipment) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
 }
 
 // Shipments is not required by pop and may be deleted

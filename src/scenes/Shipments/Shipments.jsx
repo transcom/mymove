@@ -11,8 +11,7 @@ import { loadShipments } from './ducks';
 
 export class Shipments extends Component {
   componentDidMount() {
-    const shipmentsStatus = this.props.match.params.shipmentsStatus;
-    this.props.loadShipments(shipmentsStatus);
+    this.props.loadShipments();
   }
   render() {
     const { shipments, hasError } = this.props;
@@ -38,7 +37,7 @@ export class Shipments extends Component {
     }
 
     // TODO The || in the following line should not be necessary.
-    const filteredShipments = (shipments || []).filter(shipment => {
+    const filteredShipments = shipments.filter(shipment => {
       return (
         shipmentsStatus === 'all' ||
         (shipment.transportation_service_provider_id &&
