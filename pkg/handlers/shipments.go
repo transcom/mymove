@@ -14,7 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type PossiblyAwardedShipment struct {
+type possiblyAwardedShipment struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
@@ -23,7 +23,7 @@ type PossiblyAwardedShipment struct {
 	AdministrativeShipment          nulls.Bool `db:"administrative_shipment"`
 }
 
-func payloadForShipmentModel(s PossiblyAwardedShipment) *messages.ShipmentPayload {
+func payloadForShipmentModel(s possiblyAwardedShipment) *messages.ShipmentPayload {
 	shipmentPayload := &messages.ShipmentPayload{
 		ID:           fmtUUID(s.ID),
 		PickupDate:   fmtDate(time.Now()),
@@ -42,7 +42,7 @@ func payloadForShipmentModel(s PossiblyAwardedShipment) *messages.ShipmentPayloa
 func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments := []PossiblyAwardedShipment{}
+	shipments := []possiblyAwardedShipment{}
 
 	// TODO Can Q() be .All(&shipments)
 	query := dbConnection.Q().LeftJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
