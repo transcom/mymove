@@ -20,6 +20,7 @@ __snapshots__
 /bin/golint
 /bin/swagger
 /bin/gin
+/bin/generate_test_data
 
 # misc
 .DS_Store
