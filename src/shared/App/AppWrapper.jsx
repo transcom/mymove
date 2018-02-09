@@ -1,7 +1,7 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
-import Feedback from 'scenes/Feedback/Feedback';
+import Feedback from 'scenes/Feedback';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/Header';
 import { history } from 'shared/store';
