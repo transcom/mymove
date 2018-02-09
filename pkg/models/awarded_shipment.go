@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -70,8 +69,7 @@ func AwardShipment(tx *pop.Connection,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          administrativeShipment,
 	}
-	awd, err := tx.ValidateAndSave(&awardedShipment)
-	fmt.Printf("Awarding shipment: %s", awd)
+	_, err := tx.ValidateAndSave(&awardedShipment)
 
 	return err
 }
