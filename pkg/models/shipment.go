@@ -29,6 +29,14 @@ type PossiblyAwardedShipment struct {
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
+// ShipmentWithAwardedTSP
+type ShipmentWithAwardedTSP struct {
+	ID                              uuid.UUID  `json:"id" db:"id"`
+	TrafficDistributionListID       uuid.UUID  `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID *uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
+	AdministrativeShipment          bool       `json:"administrative_shipment" db:"administrative_shipment"`
+}
+
 // FetchPossiblyAwardedShipments runs the SQL query to fetch possibly awarded shipments from db
 func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
@@ -46,6 +54,12 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 	)
 	err := dbConnection.RawQuery(sql, args...).All(&shipments)
 	return shipments, err
+}
+
+// String is not required by pop and may be deleted
+func (s Shipment) String() string {
+	js, _ := json.Marshal(s)
+	return string(js)
 }
 
 // Shipments is not required by pop and may be deleted
@@ -75,10 +89,19 @@ func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.NewErrors(), nil
 }
 
-// AllShipmentsWithTDLs queries for and returns shipments joined with their TDLs.
-func AllShipmentsWithTDLs(tx *pop.Connection) ([]models.TrafficDistributionList, error) {
-	shipments := []models.Shipment{}
-	err := tx.LeftJoin("shipments", "shipments.traffic_distribution_list_id=traffic_distribution_lists.id")
+func FetchAwardedShipments(tx *pop.Connection) ([]ShipmentWithAwardedTSP, error) {
+	shipments := []ShipmentWithAwardedTSP{}
 
-	return shipmentsWithTDLs, err
+	sql := `SELECT
+			shipments.id,
+			shipments.traffic_distribution_list_id,
+			awarded_shipments.transportation_service_provider_id
+		FROM shipments
+		LEFT JOIN awarded_shipments ON
+			awarded_shipments.shipment_id=shipments.id
+		WHERE awarded_shipments.id IS NULL`
+
+	err := tx.RawQuery(sql).All(&shipments)
+
+	return shipments, err
 }

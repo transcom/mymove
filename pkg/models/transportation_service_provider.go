@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+
 	"encoding/json"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -17,6 +19,14 @@ type TransportationServiceProvider struct {
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
 	Name                     string    `json:"name" db:"name"`
+}
+
+// TSPWithBVSAndAwardCount represents a list of TSPs along with their BVS
+// and awarded shipment counts.
+type TSPWithBVSAndAwardCount struct {
+	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
+	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
+	AwardCount                      int       `json:"award_count" db:"award_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -53,4 +63,36 @@ func (t *TransportationServiceProvider) ValidateCreate(tx *pop.Connection) (*val
 // This method is not required and may be deleted.
 func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchTransportationServiceProvidersInTDL returns TSPs in a given TDL in the
+// order that they should be awarded new shipments.
+func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdl *TrafficDistributionList) ([]TSPWithBVSAndAwardCount, error) {
+	if tdl == nil {
+		return nil, errors.New("Trafffic Distribution List cannot be nil.")
+	}
+
+	// We need to get TSPs, along with their Best Value Scores and total
+	// awarded shipments, hence the two joins.
+	// TODO: we also need to add a WHERE clause to contrain on Traffic
+	// Distribution Lists, but that is not being modeled in the schema yet.
+	sql := `SELECT
+			min(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			min(best_value_scores.score) as best_value_score,
+			count(awarded_shipments.id) as award_count
+		FROM
+			transportation_service_providers
+		JOIN best_value_scores ON
+			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
+		LEFT JOIN awarded_shipments ON
+			transportation_service_providers.id = awarded_shipments.transportation_service_provider_id
+		GROUP BY transportation_service_providers.id
+		ORDER BY award_count ASC, bvs DESC
+		`
+
+	tsps := []TSPWithBVSAndAwardCount{}
+
+	err := tx.RawQuery(sql).All(&tsps)
+
+	return tsps, err
 }
