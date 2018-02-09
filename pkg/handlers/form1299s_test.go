@@ -76,6 +76,8 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.Cre
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
+	var rankE6 = messages.ServiceMemberRankE6
+
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := messages.CreateForm1299Payload{
 		ShipmentNumber:                         stringPointer("23098eifjsldkjf"),
@@ -89,6 +91,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 		ServiceMemberLastName:                  stringPointer("random string bla"),
 		ServiceMemberSsn:                       stringPointer("random string bla"),
 		ServiceMemberAgency:                    stringPointer("random string bla"),
+		ServiceMemberRank:                      &rankE6,
 		HhgTotalPounds:                         fmtInt64(10500),
 		HhgProgearPounds:                       fmtInt64(100),
 		HhgValuableItemsCartons:                fmtInt64(100),
@@ -148,7 +151,7 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	// And: verify the values returned match expected values
 	compareRequestAndResponsePayloads(t, newForm1299Payload, *createdForm1299Payload)
 
-	// Then cofirm the same thing is returned by GET
+	// Then confirm the same thing is returned by GET
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: *createdForm1299Payload.ID}
 
 	showResponse := ShowForm1299Handler(showFormParams)

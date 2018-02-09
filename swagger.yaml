@@ -80,6 +80,20 @@ paths:
             $ref: '#/definitions/IndexForm1299sPayload'
         400:
           description: invalid request
+  /shipments:
+    get:
+      summary: List all shipments
+      description: List all shipments
+      operationId: indexShipments
+      tags:
+        - shipments
+      responses:
+        200:
+          description: list of all shipments
+          schema:
+            $ref: '#/definitions/IndexShipmentsPayload'
+        400:
+          description: invalid request
   /form1299s/{form1299Id}:
     get:
       summary: Gets a 1299 form by Id
@@ -212,9 +226,7 @@ definitions:
         x-nullable: true
         title: Last Name
       service_member_rank:
-        type: string
         $ref: '#/definitions/ServiceMemberRank'
-        x-nullable: true
         title: Rank/Grade
       service_member_ssn:
         type: string
@@ -305,8 +317,8 @@ definitions:
       station_orders_type:
         type: string
         enum:
-        - permanent
-        - temporary
+        - PERMANENT
+        - TEMPORARY
         x-nullable: true
         title: Type Orders
       station_orders_issued_by:
@@ -592,8 +604,8 @@ definitions:
       station_orders_type:
         type: string
         enum:
-        - permanent
-        - temporary
+        - PERMANENT
+        - TEMPORARY
         x-nullable: true
       station_orders_issued_by:
         type: string
@@ -721,6 +733,7 @@ definitions:
       - updated_at
   ServiceMemberRank:
     type: string
+    x-nullable: true
     enum:
       - E_1
       - E_2
@@ -746,11 +759,11 @@ definitions:
       - O_8
       - O_9
       - O_10
-      - academy_cadet
-      - academy_graduate
-      - aviation_cadet
-      - civilian_employee
-      - midshipman
+      - ACADEMY_CADET
+      - ACADEMY_GRADUATE
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - MIDSHIPMAN
     description: >
       Rank/Pay Grade:
         * E_1 - E-1
@@ -777,8 +790,51 @@ definitions:
         * O_8 - O-8
         * O_9 - O-9
         * O_10 - O-10
-        * academy_cadet - Service Academy Cadet
-        * academy_graduate - Service Academy Graduate
-        * aviation_cadet - Aviation Cadet
-        * civilian_employee - Civilian Employee
-        * midshipman - Midshipman
+        * ACADEMY_CADET - Service Academy Cadet
+        * ACADEMY_GRADUATE - Service Academy Graduate
+        * AVIATION_CADET - Aviation Cadet
+        * CIVILIAN_EMPLOYEE - Civilian Employee
+        * MIDSHIPMAN - Midshipman
+  IndexShipmentsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/ShipmentPayload'
+  ShipmentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      pickup_date:
+        type: string
+        format: date
+      delivery_date:
+        type: string
+        format: date
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+      transportation_service_provider_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      administrative_shipment:
+        type: boolean
+        example: false
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - pickup_date
+      - delivery_date
+      - traffic_distribution_list_id
+      - created_at
+      - updated_at

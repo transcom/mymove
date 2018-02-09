@@ -40,6 +40,16 @@ const createDropDown = (fieldName, field) => {
   );
 };
 
+const parseNumberField = value => (!value ? null : Number(value));
+const createNumberField = (fieldName, field) => (
+  <Field
+    component="input"
+    name={fieldName}
+    parse={parseNumberField}
+    type="Number"
+  />
+);
+
 const createCheckbox = (fieldName, field) => {
   return (
     <Field id={fieldName} name={fieldName} component="input" type="checkbox" />
@@ -66,8 +76,10 @@ const createField = (fieldName, swaggerField) => {
   let fieldComponent;
   if (swaggerField.enum) {
     fieldComponent = createDropDown(fieldName, swaggerField);
-    // more cases go here. Datetime, Date, UUID
+  } else if (swaggerField.type === 'integer') {
+    fieldComponent = createNumberField(fieldName, swaggerField);
   } else {
+    // more cases go here. Datetime, Date, UUID
     fieldComponent = createInputField(fieldName, swaggerField);
   }
 

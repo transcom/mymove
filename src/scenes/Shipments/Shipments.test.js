@@ -6,7 +6,7 @@ const loadShipments = () => {};
 
 describe('No available shipments or errors', () => {
   let wrapper;
-  const shipments = null;
+  const shipments = [];
   const hasError = true;
   // Match is a param on props that allows access to url parameter
   const match = { params: { shipmentsStatus: 'available' } };
@@ -45,6 +45,7 @@ describe('Has available shipments', () => {
         pickup_date: pickup_date.toString(),
         delivery_date: delivery_date.toString(),
         traffic_distribution_list_id: '123',
+        transportation_service_provider_id: null,
       },
       {
         id: '20',
@@ -52,6 +53,7 @@ describe('Has available shipments', () => {
         pickup_date: pickup_date.toString(),
         delivery_date: delivery_date.toString(),
         traffic_distribution_list_id: '123',
+        transportation_service_provider_id: null,
       },
     ];
     const hasError = false;
@@ -76,7 +78,7 @@ describe('Has available shipments', () => {
 
 describe('No awarded shipments or errors', () => {
   let wrapper;
-  const shipments = null;
+  const shipments = [];
   const hasError = true;
   // Match is a param on props that allows access to url parameter
   const match = { params: { shipmentsStatus: 'awarded' } };
