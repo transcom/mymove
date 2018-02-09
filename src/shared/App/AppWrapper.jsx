@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import Feedback from 'scenes/Feedback';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
-import Header from 'shared/Header/Header';
+import Header from 'shared/Header';
 import { history } from 'shared/store';
 import Shipments from 'scenes/Shipments';
 import Footer from 'shared/Footer';
