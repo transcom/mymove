@@ -81,6 +81,7 @@ func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.NewErrors(), nil
 }
 
+// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
 func FetchAwardedShipments(tx *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
