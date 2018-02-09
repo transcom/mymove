@@ -6,6 +6,7 @@ import (
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
+	"time"
 )
 
 func main() {
@@ -20,7 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Add three TDL table records
+	// Add three TDL records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
 		DestinationRegion: "90210",
@@ -52,16 +53,16 @@ func main() {
 	}
 
 	// Query for newly made records and print IDs in terminal
-	tdls := []models.TrafficDistributionList{}
-	err = dbConnection.All(&tdls)
-	if err != nil {
-		fmt.Print("Error!\n")
-		fmt.Printf("%v\n", err)
-	} else {
-		for _, v := range tdls {
-			fmt.Print(v.ID)
-		}
-	}
+	// tdls := []models.TrafficDistributionList{}
+	// err = dbConnection.All(&tdls)
+	// if err != nil {
+	// 	fmt.Print("Error!\n")
+	// 	fmt.Printf("%v\n", err)
+	// } else {
+	// 	for _, v := range tdls {
+	// 		fmt.Print(v.ID)
+	// 	}
+	// }
 
 	// Add three TSP table records
 	tsp1 := models.TransportationServiceProvider{
@@ -92,15 +93,58 @@ func main() {
 	}
 
 	// Query for newly made records and print IDs in terminal
-	tsps := []models.TransportationServiceProvider{}
-	err = dbConnection.All(&tsps)
+	// tsps := []models.TransportationServiceProvider{}
+	// err = dbConnection.All(&tsps)
+	// if err != nil {
+	// 	fmt.Print("Error!\n")
+	// 	fmt.Printf("%v\n", err)
+	// } else {
+	// 	for _, v := range tsps {
+	// 		fmt.Print(v.ID)
+	// 	}
+	// }
+
+	// Grab three UUIDs for individual TDLs
+	tdlList := []models.TrafficDistributionList{}
+	err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
+	if err1 != nil {
+		fmt.Println("TDL ID import failed.")
+	}
+
+	// Add three shipment table records using UUIDs from TDLs
+	time := time.Now()
+
+	shipment1 := models.Shipment{
+		TrafficDistributionListID: tdlList[0].ID,
+		PickupDate:                time,
+		DeliveryDate:              time,
+	}
+
+	shipment2 := models.Shipment{
+		TrafficDistributionListID: tdlList[1].ID,
+		PickupDate:                time,
+		DeliveryDate:              time,
+	}
+
+	shipment3 := models.Shipment{
+		TrafficDistributionListID: tdlList[2].ID,
+		PickupDate:                time,
+		DeliveryDate:              time,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&shipment3)
 	if err != nil {
-		fmt.Print("Error!\n")
-		fmt.Printf("%v\n", err)
-	} else {
-		for _, v := range tsps {
-			fmt.Print(v.ID)
-		}
+		log.Panic(err)
+	}
+
+	_, err = dbConnection.ValidateAndSave(&shipment1)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	_, err = dbConnection.ValidateAndSave(&shipment2)
+	if err != nil {
+		log.Panic(err)
 	}
 
 }
