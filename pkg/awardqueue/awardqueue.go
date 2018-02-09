@@ -20,10 +20,10 @@ func awardShipment(shipment models.ShipmentWithAwardedTSP) error {
 
 	// Query shipment's TDL
 	tdl := models.TrafficDistributionList{}
-	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListId)
+	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Query TSPs in that TDL sorted by awarded_shipments[asc] and bvs[desc]
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, tdl)
+	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, &tdl)
 
 	for _, tsp := range tsps {
 		fmt.Printf("Considering TSP: %v\n", tsp)
