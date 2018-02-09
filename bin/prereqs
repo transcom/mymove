@@ -24,6 +24,11 @@ has docker "Get Docker CE for Mac from https://download.docker.com/mac/stable/Do
 has psql "brew install postgresql"
 has python3.6 "(assuming you're using pyenv) pyenv install 3.6.2"
 
+# macOS only
+if [[ $(uname -s) = Darwin ]]; then
+    has watchman "brew install watchman"
+fi
+
 has node "test"
 
 if [[ $prereqs_found == "true" ]]; then
