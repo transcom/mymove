@@ -4,9 +4,6 @@ import (
 	"log"
 	"testing"
 
-	// "github.com/markbates/pop"
-	// "github.com/satori/go.uuid"
-
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -54,7 +51,6 @@ func TestIndexShipmentsHandler(t *testing.T) {
 	params := shipmentop.NewIndexShipmentsParams()
 	indexResponse := IndexShipmentsHandler(params)
 
-	//// Then: Expect a 200 status code
 	okResponse, ok := indexResponse.(*shipmentop.IndexShipmentsOK)
 	if !ok {
 		t.Errorf("Request failed: %#v", indexResponse)
@@ -86,13 +82,4 @@ func TestIndexShipmentsHandler(t *testing.T) {
 	if availableCount != 1 {
 		t.Errorf("expected %d available shipments, got %d", 1, availableCount)
 	}
-
-	//// And: Returned query to include our posted issue
-	//issueExists := false
-	//for _, issue := range issues {
-	//	if *issue.Description == testDescription {
-	//		issueExists = true
-	//		break
-	//	}
-	//}
 }
