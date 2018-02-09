@@ -29,6 +29,7 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 		ServiceMemberLastName:            form1299.ServiceMemberLastName,
 		ServiceMemberSsn:                 form1299.ServiceMemberSsn,
 		ServiceMemberAgency:              form1299.ServiceMemberAgency,
+		ServiceMemberRank:                form1299.ServiceMemberRank,
 		HhgTotalPounds:                   form1299.HhgTotalPounds,
 		HhgProgearPounds:                 form1299.HhgProgearPounds,
 		HhgValuableItemsCartons:          form1299.HhgValuableItemsCartons,
@@ -75,6 +76,33 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 	return form1299Payload
 }
 
+// ShowForm1299Handler fetches a single form1299 by id
+func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Responder {
+	formID := params.Form1299ID
+
+	var response middleware.Responder
+	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
+	if strfmt.IsUUID(string(formID)) {
+		form := models.Form1299{}
+		if err := dbConnection.Find(&form, formID); err != nil {
+			if err.Error() == "sql: no rows in result set" {
+				response = form1299op.NewShowForm1299NotFound()
+			} else {
+				// This is an unknown error from the db, nothing to do but log and 500
+				zap.L().Error("DB Insertion error", zap.Error(err))
+				response = form1299op.NewShowForm1299InternalServerError()
+			}
+		} else {
+			formPayload := payloadForForm1299Model(form)
+			response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
+		}
+	} else {
+		return form1299op.NewShowForm1299BadRequest()
+	}
+
+	return response
+}
+
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
 	newForm1299 := models.Form1299{
@@ -87,6 +115,7 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		ServiceMemberFirstName:           params.CreateForm1299Payload.ServiceMemberFirstName,
 		ServiceMemberMiddleInitial:       params.CreateForm1299Payload.ServiceMemberMiddleInitial,
 		ServiceMemberLastName:            params.CreateForm1299Payload.ServiceMemberLastName,
+		ServiceMemberRank:                params.CreateForm1299Payload.ServiceMemberRank,
 		ServiceMemberSsn:                 params.CreateForm1299Payload.ServiceMemberSsn,
 		ServiceMemberAgency:              params.CreateForm1299Payload.ServiceMemberAgency,
 		HhgTotalPounds:                   params.CreateForm1299Payload.HhgTotalPounds,
@@ -139,7 +168,6 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 	} else {
 		form1299Payload := payloadForForm1299Model(newForm1299)
 		response = form1299op.NewCreateForm1299Created().WithPayload(&form1299Payload)
-
 	}
 	return response
 }
