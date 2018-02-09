@@ -56,6 +56,14 @@ groups:
       - mobile_home_height
       - mobile_home_type_expando
       - mobile_home_services_requested
+  mobile_home_services_requested:
+    title: Mobile Home Services Requested
+    fields:
+      - mobile_home_contents_packed_requested
+      - mobile_home_blocked_requested
+      - mobile_home_unblocked_requested
+      - mobile_home_stored_at_origin_requested
+      - mobile_home_stored_at_destination_requested
   orders_information:
     title: This Shipment Storage Is Required Incident To The Following Change Of Station Orders
     fields:

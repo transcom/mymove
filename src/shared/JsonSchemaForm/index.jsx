@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { Field, reduxForm } from 'redux-form';
@@ -39,11 +39,45 @@ const createDropDown = (fieldName, field) => {
     </Field>
   );
 };
-const createField = (fieldName, field) => {
+const createCheckbox = (fieldName, field) => {
+  return (
+    <Field
+      key={fieldName + 'checkbox'}
+      name={fieldName}
+      component="input"
+      type="checkbox"
+    />
+  );
+};
+// This function switches on the type of the field and creates the correct
+// Label and Field combination.
+const createField = (fieldName, swaggerField) => {
   //todo: how to determine if multiselect/checkboxes etc
-  if (field.enum) return createDropDown(fieldName, field);
+  // Early return here, this is an edgecase for label placement.
+  if (swaggerField.type === 'boolean') {
+    return (
+      <Fragment key={fieldName}>
+        {createCheckbox(fieldName, swaggerField)}
+        <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
+      </Fragment>
+    );
+  }
 
-  return <Field name={fieldName} component="input" type={field.format} />;
+  let fieldComponent;
+  if (swaggerField.enum) {
+    fieldComponent = createDropDown(fieldName, swaggerField);
+  } else {
+    fieldComponent = (
+      <Field name={fieldName} component="input" type={swaggerField.format} />
+    );
+  }
+
+  return (
+    <label key={fieldName}>
+      {swaggerField.title || fieldName}
+      {fieldComponent}
+    </label>
+  );
 };
 
 const renderField = (fieldName, fields) => {
@@ -51,12 +85,7 @@ const renderField = (fieldName, fields) => {
   if (!field) {
     return;
   }
-  return (
-    <label key={fieldName} htmlFor={fieldName}>
-      {field.title || fieldName}
-      {createField(fieldName, field)}
-    </label>
-  );
+  return createField(fieldName, field);
 };
 
 const renderSchema = (schema, uiSchema) => {
