@@ -13,9 +13,19 @@ func stringPointer(s string) *string { return &s }
 
 // These functions facilitate converting from the go types the db uses
 // into the strfmt types that go-swagger uses for payloads.
-func fmtUUID(uuid uuid.UUID) *strfmt.UUID {
-	fmtUUID := strfmt.UUID(uuid.String())
+func fmtUUID(u uuid.UUID) *strfmt.UUID {
+	fmtUUID := strfmt.UUID(u.String())
 	return &fmtUUID
+}
+
+func fmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
+	var su *strfmt.UUID
+	if u == nil {
+		su = nil
+	} else {
+		su = fmtUUID(*u)
+	}
+	return su
 }
 
 func fmtDateTime(dateTime time.Time) *strfmt.DateTime {

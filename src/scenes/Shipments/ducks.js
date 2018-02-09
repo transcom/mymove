@@ -21,11 +21,11 @@ export const createShowShipmentsFailure = error => ({
 });
 
 // Action Creator
-export function loadShipments(shipmentsStatus) {
+export function loadShipments() {
   // Interpreted by the thunk middleware:
   return function(dispatch, getState) {
     dispatch(createShowShipmentsRequest());
-    ShipmentsIndex(shipmentsStatus)
+    ShipmentsIndex()
       .then(shipments => dispatch(createShowShipmentsSuccess(shipments)))
       .catch(error => dispatch(createShowShipmentsFailure(error)));
   };
@@ -33,7 +33,7 @@ export function loadShipments(shipmentsStatus) {
 
 // Reducer
 export function shipmentsReducer(
-  state = { shipments: null, hasError: false },
+  state = { shipments: [], hasError: false },
   action,
 ) {
   switch (action.type) {

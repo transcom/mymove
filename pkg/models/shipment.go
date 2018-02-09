@@ -2,10 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -18,10 +19,33 @@ type Shipment struct {
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 }
 
-// String is not required by pop and may be deleted
-func (s Shipment) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
+// PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
+type PossiblyAwardedShipment struct {
+	ID                              uuid.UUID  `db:"id"`
+	CreatedAt                       time.Time  `db:"created_at"`
+	UpdatedAt                       time.Time  `db:"updated_at"`
+	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
+	AdministrativeShipment          *bool      `db:"administrative_shipment"`
+}
+
+// FetchPossiblyAwardedShipments runs the SQL query to fetch possibly awarded shipments from db
+func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+	shipments := []PossiblyAwardedShipment{}
+
+	// TODO Can Q() be .All(&shipments)
+	query := dbConnection.Q().LeftOuterJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
+
+	sql, args := query.ToSQL(&pop.Model{Value: Shipment{}},
+		"shipments.id",
+		"shipments.created_at",
+		"shipments.updated_at",
+		"shipments.traffic_distribution_list_id",
+		"awarded_shipments.transportation_service_provider_id",
+		"awarded_shipments.administrative_shipment",
+	)
+	err := dbConnection.RawQuery(sql, args...).All(&shipments)
+	return shipments, err
 }
 
 // Shipments is not required by pop and may be deleted
