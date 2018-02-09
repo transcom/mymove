@@ -21,7 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Add three TDL table records
+	// Add three TDL records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
 		DestinationRegion: "90210",
