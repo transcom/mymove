@@ -11,63 +11,40 @@ import (
 var dbConnection *pop.Connection
 
 // This function was made just to get my Golang legs on and play with data
-func makeSomeStuffUp() {
-	tdl1 := models.TrafficDistributionList{
-		SourceRateArea:    "here",
-		DestinationRegion: "there",
-		CodeOfService:     "place",
-	}
-	dbConnection.ValidateAndSave(&tdl1)
-}
-
-// This function was made just to get my Golang legs on and play with data
-func findAllShipments() error {
+func findAllUnawardedShipments() ([]models.Shipment, error) {
 	shipments := []models.Shipment{}
 	err := dbConnection.All(&shipments)
+
 	if err != nil {
 		fmt.Printf("Oh snap! %s", err)
-		return err
+		return nil, err
 	}
 	fmt.Printf("Shipments:\n%v\n", shipments)
 
-	return nil
+	return shipments, nil
 }
 
-// This function was made just to get my Golang legs on and play with data
-func findAllTrafficDistributionLists() error {
-	tdls := []models.TrafficDistributionList{}
-	err := dbConnection.All(&tdls)
-	if err != nil {
-		fmt.Printf("Oh snap! %s", err)
-		return err
-	}
-
-	for i, tdl := range tdls {
-		fmt.Printf("TDL %d:\n%v\n", i, tdl)
-	}
-
-	return nil
+func awardShipment(shipment models.Shipment) {
+	fmt.Printf("Trying to award shipment:\n%v\n", shipment)
 }
 
 /*Run will execute the Award Queue algorithm described below.
-
-- Query for TDLs, so we know what markets exist
-- Query for shipments that do not have a matching awarded_shipment
-- Group shipments by the TDL they belong to
-- For each TDL:
-  - Sort Shipments by BVS
-  - Query TSPs in this TDL, joined on & sorted by BVS
-  - In order of descending BVS, create AwardedShipments matching
-    shipments to TSPs.
+- Given all unawarded shipments...
+- Query shipment's TDL
+- Query TSPs in the TDL, sorted by awarded_shipments[asc] and bvs[desc]
+- Create awarded_shipment for the shipment<->tsp
 */
 func Run(db *pop.Connection) {
 	dbConnection = db
 
-	makeSomeStuffUp()
-
 	fmt.Println("Hello, TSP Award Queue!")
 
-	findAllShipments()
-	findAllTrafficDistributionLists()
-
+	shipments, err := findAllUnawardedShipments()
+	if err == nil {
+		for _, shipment := range shipments {
+			awardShipment(shipment)
+		}
+	} else {
+		fmt.Printf("Failed to query for shipments!")
+	}
 }
