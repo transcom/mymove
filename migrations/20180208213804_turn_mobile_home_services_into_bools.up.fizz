@@ -1,0 +1,6 @@
+add_column("form1299s", "mobile_home_contents_packed_requested", "bool", { "null": true})
+add_column("form1299s", "mobile_home_blocked_requested", "bool", { "null": true})
+add_column("form1299s", "mobile_home_unblocked_requested", "bool", { "null": true})
+add_column("form1299s", "mobile_home_stored_at_origin_requested", "bool", { "null": true})
+add_column("form1299s", "mobile_home_stored_at_destination_requested", "bool", { "null": true})
+drop_column("form1299s", "mobile_home_services_requested")

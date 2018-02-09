@@ -282,16 +282,26 @@ definitions:
         example: bathroom and shower unit
         x-nullable: true
         title: Type Expando
-      mobile_home_services_requested:
-        type: string
-        enum:
-        - contents packed
-        - mobile home blocked
-        - mobile home unblocked
-        - stored at origin
-        - stored at destination
+      mobile_home_contents_packed_requested:
+        type: boolean
         x-nullable: true
-        title: Services Requested
+        title: Mobile Home Contents Packed Requested
+      mobile_home_blocked_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Blocked Requested
+      mobile_home_unblocked_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Unblocked Requested
+      mobile_home_stored_at_origin_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Stored At Origin Requested
+      mobile_home_stored_at_destination_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Stored At Destination Requested
       station_orders_type:
         type: string
         enum:
@@ -559,15 +569,26 @@ definitions:
         type: string
         example: bathroom and shower unit
         x-nullable: true
-      mobile_home_services_requested:
-        type: string
-        enum:
-        - contents packed
-        - mobile home blocked
-        - mobile home unblocked
-        - stored at origin
-        - stored at destination
+      mobile_home_contents_packed_requested:
+        type: boolean
         x-nullable: true
+        title: Mobile Home Contents Packed Requested
+      mobile_home_blocked_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Blocked Requested
+      mobile_home_unblocked_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Unblocked Requested
+      mobile_home_stored_at_origin_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Stored At Origin Requested
+      mobile_home_stored_at_destination_requested:
+        type: boolean
+        x-nullable: true
+        title: Mobile Home Stored At Destination Requested
       station_orders_type:
         type: string
         enum:
