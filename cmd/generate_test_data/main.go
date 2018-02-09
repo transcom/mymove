@@ -21,7 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Add three TDL records
+	// Make three TDL records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
 		DestinationRegion: "90210",
@@ -52,19 +52,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Query for newly made records and print IDs in terminal
-	// tdls := []models.TrafficDistributionList{}
-	// err = dbConnection.All(&tdls)
-	// if err != nil {
-	// 	fmt.Print("Error!\n")
-	// 	fmt.Printf("%v\n", err)
-	// } else {
-	// 	for _, v := range tdls {
-	// 		fmt.Print(v.ID)
-	// 	}
-	// }
-
-	// Add three TSP table records
+	// Make three TSP table records
 	tsp1 := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "ABCD",
 		Name: "Very Good TSP"}
@@ -92,22 +80,11 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Query for newly made records and print IDs in terminal
-	// tsps := []models.TransportationServiceProvider{}
-	// err = dbConnection.All(&tsps)
-	// if err != nil {
-	// 	fmt.Print("Error!\n")
-	// 	fmt.Printf("%v\n", err)
-	// } else {
-	// 	for _, v := range tsps {
-	// 		fmt.Print(v.ID)
-	// 	}
-	// }
-
+	// Make three shipment records
 	// Grab three UUIDs for individual TDLs
 	tdlList := []models.TrafficDistributionList{}
-	err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
-	if err1 != nil {
+	err = dbConnection.All(&tdlList)
+	if err != nil {
 		fmt.Println("TDL ID import failed.")
 	}
 
@@ -143,6 +120,64 @@ func main() {
 	}
 
 	_, err = dbConnection.ValidateAndSave(&shipment2)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Make an awarded shipment record
+	// Get a shipment ID
+	shipmentList := []models.Shipment{}
+	err = dbConnection.All(&shipmentList)
+	if err != nil {
+		fmt.Println("Shipment ID import failed.")
+	}
+
+	// Get a TSP ID
+	tspList := []models.TransportationServiceProvider{}
+	err = dbConnection.All(&tspList)
+	if err != nil {
+		fmt.Println("TSP ID import failed.")
+	}
+
+	// Add one awarded shipment record using existing shipment and TSP IDs
+	awardedShipment1 := models.AwardedShipment{
+		ShipmentID:                      shipmentList[0].ID,
+		TransportationServiceProviderID: tspList[0].ID,
+		AdministrativeShipment:          false,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&awardedShipment1)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	// Add three best value scores
+	bestValueScore1 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[0].ID,
+		Score: 11,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore1)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bestValueScore2 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[1].ID,
+		Score: 2,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore2)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bestValueScore3 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[2].ID,
+		Score: 8,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore3)
 	if err != nil {
 		log.Panic(err)
 	}
