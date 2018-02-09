@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
@@ -17,6 +18,14 @@ type TransportationServiceProvider struct {
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
 	Name                     string    `json:"name" db:"name"`
+}
+
+// TSPWithBVSAndAwardCount represents a list of TSPs along with their BVS
+// and awarded shipment counts.
+type TSPWithBVSAndAwardCount struct {
+	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
+	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
+	AwardCount                      int       `json:"award_count" db:"award_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -53,4 +62,36 @@ func (t *TransportationServiceProvider) ValidateCreate(tx *pop.Connection) (*val
 // This method is not required and may be deleted.
 func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchTransportationServiceProvidersInTDL returns TSPs in a given TDL in the
+// order that they should be awarded new shipments.
+func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
+	// We need to get TSPs, along with their Best Value Scores and total
+	// awarded shipments, hence the two joins. Some notes on the query:
+	// - We min() the id and scores, because we need an aggregate function given
+	//   that it's a GROUP BY
+	// - the UUID is CAST() to text to work inside the MIN(), it doesn't accept UUIDs
+	// - We might be able to replace this with Pop's join syntax for easier reading:
+	//   https://github.com/markbates/pop#join-query
+	// TODO: we also need to add a WHERE clause to contrain on Traffic
+	// Distribution Lists, but that is not being modeled in the schema yet.
+	sql := `SELECT
+			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			MIN(best_value_scores.score) as best_value_score,
+			COUNT(awarded_shipments.id) as award_count
+		FROM
+			transportation_service_providers
+		JOIN best_value_scores ON
+			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
+		LEFT JOIN awarded_shipments ON
+			transportation_service_providers.id = awarded_shipments.transportation_service_provider_id
+		GROUP BY transportation_service_providers.id
+		ORDER BY award_count ASC, best_value_score DESC
+		`
+
+	tsps := []TSPWithBVSAndAwardCount{}
+	err := tx.RawQuery(sql).All(&tsps)
+
+	return tsps, err
 }

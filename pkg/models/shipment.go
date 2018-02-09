@@ -48,6 +48,12 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 	return shipments, err
 }
 
+// String is not required by pop and may be deleted
+func (s Shipment) String() string {
+	js, _ := json.Marshal(s)
+	return string(js)
+}
+
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
 
@@ -73,4 +79,22 @@ func (s *Shipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) 
 // This method is not required and may be deleted.
 func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+func FetchAwardedShipments(tx *pop.Connection) ([]PossiblyAwardedShipment, error) {
+	shipments := []PossiblyAwardedShipment{}
+
+	sql := `SELECT
+			shipments.id,
+			shipments.traffic_distribution_list_id,
+			awarded_shipments.transportation_service_provider_id
+		FROM shipments
+		LEFT JOIN awarded_shipments ON
+			awarded_shipments.shipment_id=shipments.id
+		WHERE awarded_shipments.id IS NULL`
+
+	err := tx.RawQuery(sql).All(&shipments)
+
+	return shipments, err
 }
