@@ -23,7 +23,7 @@ func selectTSPToAwardShipment(shipment models.ShipmentWithAwardedTSP) error {
 	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Find TSPs in that TDL sorted by awarded_shipments[asc] and bvs[desc]
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, &tdl)
+	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, tdl.ID)
 
 	for _, consideredTSP := range tsps {
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
@@ -34,6 +34,7 @@ func selectTSPToAwardShipment(shipment models.ShipmentWithAwardedTSP) error {
 			// We found a valid TSP to award to!
 			err := models.AwardShipment(dbConnection, shipment.ID, tsp.ID, false)
 			if err == nil {
+				fmt.Print("\tShipment awarded to TSP!\n")
 				break
 			} else {
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)
@@ -54,7 +55,7 @@ func Run(db *pop.Connection) {
 
 	shipments, err := findAllUnawardedShipments()
 	if err == nil {
-		count := 0
+		count := -1
 		for i, shipment := range shipments {
 			err = selectTSPToAwardShipment(shipment)
 			if err != nil {

@@ -1,9 +1,8 @@
 package models
 
 import (
-	"errors"
-
 	"encoding/json"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
@@ -67,11 +66,7 @@ func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*val
 
 // FetchTransportationServiceProvidersInTDL returns TSPs in a given TDL in the
 // order that they should be awarded new shipments.
-func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdl *TrafficDistributionList) ([]TSPWithBVSAndAwardCount, error) {
-	if tdl == nil {
-		return nil, errors.New("trafffic distribution list cannot be nil")
-	}
-
+func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
 	// We need to get TSPs, along with their Best Value Scores and total
 	// awarded shipments, hence the two joins. Some notes on the query:
 	// - We min() the id and scores, because we need an aggregate function given
