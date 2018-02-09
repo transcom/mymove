@@ -2,11 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	v "github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // AwardedShipment maps a Transportation Service Provider to a shipment,
@@ -54,4 +56,22 @@ func (a *AwardedShipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, 
 // This method is not required and may be deleted.
 func (a *AwardedShipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// AwardShipment connects a shipment to a transportation service provider. This
+// function assumes that the match has been validated by the caller.
+func AwardShipment(tx *pop.Connection,
+	shipmentID uuid.UUID,
+	tspID uuid.UUID,
+	administrativeShipment bool) error {
+
+	awardedShipment := AwardedShipment{
+		ShipmentID:                      shipmentID,
+		TransportationServiceProviderID: tspID,
+		AdministrativeShipment:          administrativeShipment,
+	}
+	awd, err := tx.ValidateAndSave(&awardedShipment)
+	fmt.Printf("Awarding shipment: %s", awd)
+
+	return err
 }

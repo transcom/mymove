@@ -69,17 +69,22 @@ func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*val
 // order that they should be awarded new shipments.
 func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdl *TrafficDistributionList) ([]TSPWithBVSAndAwardCount, error) {
 	if tdl == nil {
-		return nil, errors.New("Trafffic Distribution List cannot be nil.")
+		return nil, errors.New("trafffic distribution list cannot be nil")
 	}
 
 	// We need to get TSPs, along with their Best Value Scores and total
-	// awarded shipments, hence the two joins.
+	// awarded shipments, hence the two joins. Some notes on the query:
+	// - We min() the id and scores, because we need an aggregate function given
+	//   that it's a GROUP BY
+	// - the UUID is CAST() to text to work inside the MIN(), it doesn't accept UUIDs
+	// - We might be able to replace this with Pop's join syntax for easier reading:
+	//   https://github.com/markbates/pop#join-query
 	// TODO: we also need to add a WHERE clause to contrain on Traffic
 	// Distribution Lists, but that is not being modeled in the schema yet.
 	sql := `SELECT
-			min(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
-			min(best_value_scores.score) as best_value_score,
-			count(awarded_shipments.id) as award_count
+			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			MIN(best_value_scores.score) as best_value_score,
+			COUNT(awarded_shipments.id) as award_count
 		FROM
 			transportation_service_providers
 		JOIN best_value_scores ON
@@ -87,11 +92,10 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdl *TrafficDi
 		LEFT JOIN awarded_shipments ON
 			transportation_service_providers.id = awarded_shipments.transportation_service_provider_id
 		GROUP BY transportation_service_providers.id
-		ORDER BY award_count ASC, bvs DESC
+		ORDER BY award_count ASC, best_value_score DESC
 		`
 
 	tsps := []TSPWithBVSAndAwardCount{}
-
 	err := tx.RawQuery(sql).All(&tsps)
 
 	return tsps, err

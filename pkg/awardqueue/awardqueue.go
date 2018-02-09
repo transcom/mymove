@@ -15,28 +15,38 @@ func findAllUnawardedShipments() ([]models.ShipmentWithAwardedTSP, error) {
 	return shipments, err
 }
 
-func awardShipment(shipment models.ShipmentWithAwardedTSP) error {
+func selectTSPToAwardShipment(shipment models.ShipmentWithAwardedTSP) error {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
-	// Query shipment's TDL
+	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
 	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
 
-	// Query TSPs in that TDL sorted by awarded_shipments[asc] and bvs[desc]
+	// Find TSPs in that TDL sorted by awarded_shipments[asc] and bvs[desc]
 	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, &tdl)
 
-	for _, tsp := range tsps {
-		fmt.Printf("Considering TSP: %v\n", tsp)
+	for _, consideredTSP := range tsps {
+		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
+
+		tsp := models.TransportationServiceProvider{}
+		err := dbConnection.Find(&tsp, consideredTSP.TransportationServiceProviderID)
+		if err == nil {
+			// We found a valid TSP to award to!
+			err := models.AwardShipment(dbConnection, shipment.ID, tsp.ID, false)
+			if err == nil {
+				break
+			} else {
+				fmt.Printf("\tFailed to award to TSP: %v\n", err)
+			}
+		} else {
+			fmt.Printf("\tFailed to award to TSP: %v\n", err)
+		}
 	}
 
 	return err
 }
 
-/*Run will execute the Award Queue algorithm described below.
-- Given all unawarded shipments...
-- Query TSPs in the TDL, sorted by awarded_shipments[asc] and bvs[desc]
-- Create awarded_shipment for the shipment<->tsp
-*/
+// Run will execute the Award Queue algorithm.
 func Run(db *pop.Connection) {
 	dbConnection = db
 
@@ -44,9 +54,15 @@ func Run(db *pop.Connection) {
 
 	shipments, err := findAllUnawardedShipments()
 	if err == nil {
-		for _, shipment := range shipments {
-			awardShipment(shipment)
+		count := 0
+		for i, shipment := range shipments {
+			err = selectTSPToAwardShipment(shipment)
+			if err != nil {
+				fmt.Printf("Failed to award shipment: %s\n", err)
+			}
+			count = i
 		}
+		fmt.Printf("Awarded %d shipments.", count+1)
 	} else {
 		fmt.Printf("Failed to query for shipments: %s", err)
 	}
