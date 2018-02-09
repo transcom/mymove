@@ -6,7 +6,7 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/Header';
 import { history } from 'shared/store';
 import Shipments from 'scenes/Shipments';
-import Footer from 'shared/Footer/Footer';
+import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
 
 const AppWrapper = () => (
