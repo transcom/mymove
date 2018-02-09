@@ -64,10 +64,10 @@ const createInputField = (fieldName, field) => {
 // Label and Field combination.
 const createField = (fieldName, swaggerField) => {
   // Early return here, this is an edge case for label placement.
+  // USWDS CSS only renders a checkbox if it is followed by its label
   if (swaggerField.type === 'boolean') {
     return (
       <Fragment key={fieldName}>
-        // USWDS CSS only renders a checkbox if it is followed by its label
         {createCheckbox(fieldName, swaggerField)}
         <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
       </Fragment>
