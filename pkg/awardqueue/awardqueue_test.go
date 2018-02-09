@@ -8,8 +8,8 @@ import (
 	"github.com/markbates/pop"
 )
 
-func TestFindAllShipments(t *testing.T) {
-	err := findAllShipments()
+func TestFindAllUnawardedShipments(t *testing.T) {
+	_, err := findAllUnawardedShipments()
 
 	if err != nil {
 		t.Fatal("Unable to find shipments: ", err)

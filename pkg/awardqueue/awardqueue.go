@@ -63,7 +63,7 @@ func Run(db *pop.Connection) {
 			}
 			count = i
 		}
-		fmt.Printf("Awarded %d shipments.", count+1)
+		fmt.Printf("Awarded %d shipments.\n", count+1)
 	} else {
 		fmt.Printf("Failed to query for shipments: %s", err)
 	}
