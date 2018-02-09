@@ -1,6 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
-import { Shipments } from './Shipments';
+import { Shipments } from '.';
 
 const loadShipments = () => {};
 

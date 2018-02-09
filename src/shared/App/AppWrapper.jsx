@@ -5,7 +5,7 @@ import Feedback from 'scenes/Feedback';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/Header';
 import { history } from 'shared/store';
-import Shipments from 'scenes/Shipments/Shipments';
+import Shipments from 'scenes/Shipments';
 import Footer from 'shared/Footer/Footer';
 import DD1299 from 'scenes/DD1299';
 
