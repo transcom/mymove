@@ -21,7 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Add three TDL records
+	// Make three TDL records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
 		DestinationRegion: "90210",
@@ -52,7 +52,7 @@ func main() {
 		log.Panic(err)
 	}
 
-	// Add three TSP table records
+	// Make three TSP table records
 	tsp1 := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "ABCD",
 		Name: "Very Good TSP"}
@@ -80,10 +80,11 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Make three shipment records
 	// Grab three UUIDs for individual TDLs
 	tdlList := []models.TrafficDistributionList{}
-	err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
-	if err1 != nil {
+	err = dbConnection.All(&tdlList)
+	if err != nil {
 		fmt.Println("TDL ID import failed.")
 	}
 
@@ -123,25 +124,22 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Make an awarded shipment record
 	// Get a shipment ID
 	shipmentList := []models.Shipment{}
-	err = dbConnection.RawQuery("SELECT * FROM shipments").All(&shipmentList)
+	err = dbConnection.All(&shipmentList)
 	if err != nil {
 		fmt.Println("Shipment ID import failed.")
-	} else {
-		fmt.Print(shipmentList[0].ID)
 	}
 
 	// Get a TSP ID
 	tspList := []models.TransportationServiceProvider{}
-	err = dbConnection.RawQuery("SELECT * FROM transportation_service_providers").All(&tspList)
+	err = dbConnection.All(&tspList)
 	if err != nil {
 		fmt.Println("TSP ID import failed.")
-	} else {
-		fmt.Print(tspList[0].ID)
 	}
 
-	// Add one awarded shipment record using existing
+	// Add one awarded shipment record using existing shipment and TSP IDs
 	awardedShipment1 := models.AwardedShipment{
 		ShipmentID:                      shipmentList[0].ID,
 		TransportationServiceProviderID: tspList[0].ID,
@@ -151,7 +149,37 @@ func main() {
 	_, err = dbConnection.ValidateAndSave(&awardedShipment1)
 	if err != nil {
 		log.Panic(err)
-	} else {
-		fmt.Print(awardedShipment1)
 	}
+
+	// Add three best value scores
+	bestValueScore1 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[0].ID,
+		Score: 11,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore1)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bestValueScore2 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[1].ID,
+		Score: 2,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore2)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	bestValueScore3 := models.BestValueScore{
+		TransportationServiceProviderID: tspList[2].ID,
+		Score: 8,
+	}
+
+	_, err = dbConnection.ValidateAndSave(&bestValueScore3)
+	if err != nil {
+		log.Panic(err)
+	}
+
 }
