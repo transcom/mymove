@@ -10,10 +10,12 @@ import (
 
 // Shipment represents a single shipment within a Service Member's move.
 type Shipment struct {
-	ID                      uuid.UUID `json:"id" db:"id"`
-	CreatedAt               time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time `json:"updated_at" db:"updated_at"`
-	TrafficDistributionList uuid.UUID `json:"traffic_distribution_list" db:"traffic_distribution_list"`
+	ID                        uuid.UUID `json:"id" db:"id"`
+	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
+	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
+	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
+	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 }
 
 // String is not required by pop and may be deleted
