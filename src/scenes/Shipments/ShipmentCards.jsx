@@ -7,28 +7,46 @@ import 'scenes/Shipments/ShipmentCards.css';
 
 const ShipmentCards = ({ shipments }) => {
   if (!shipments) return <LoadingPlaceholder />;
-  if (shipments.length === 0)
+  if (shipments.length === 0) {
     return <h2> There are no shipments at the moment! </h2>;
-  return (
-    <div className="shipment-cards">
-      {shipments.map(shipment => (
-        <div key={shipment.id} className="shipment-card">
-          <b>{shipment.name}</b>
-          <br />
-          Pickup Date: {shipment.pickup_date}
-          <br />
-          Delivery Date: {shipment.delivery_date}
-        </div>
-      ))}
-    </div>
-  );
+  }
+
+  const cards = shipments.map(shipment => {
+    let awardedStatus, tspID;
+    if (shipment.transportation_service_provider_id) {
+      awardedStatus = 'awarded';
+      tspID = shipment.transportation_service_provider_id.substr(0, 6) + '...';
+    } else {
+      awardedStatus = 'available';
+      tspID = '-';
+    }
+    const tdlID = shipment.traffic_distribution_list_id.substr(0, 6);
+
+    return (
+      <div key={shipment.id} className="shipment-card">
+        <b>Shipment: {shipment.id.substr(0, 6)}...</b>
+        TDL: {tdlID}...
+        <br />
+        <br />
+        Status: <b>{awardedStatus}</b>
+        <br />
+        TSP: {tspID}
+        <br />
+        <br />
+        Pickup Date: {shipment.pickup_date}
+        <br />
+        Delivery Date: {shipment.delivery_date}
+      </div>
+    );
+  });
+
+  return <div className="shipment-cards">{cards}</div>;
 };
 
 ShipmentCards.propTypes = {
   shipments: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
-      name: PropTypes.string.isRequired,
       traffic_distribution_list_id: PropTypes.string.isRequired,
       pickup_date: PropTypes.string.isRequired,
       delivery_date: PropTypes.string.isRequired,
