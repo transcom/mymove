@@ -21,9 +21,10 @@ const ShipmentCards = ({ shipments }) => {
       tspID = '-';
     }
     const tdlID = shipment.traffic_distribution_list_id.substr(0, 6);
+    const className = `shipment-card ${awardedStatus}`;
 
     return (
-      <div key={shipment.id} className="shipment-card">
+      <div key={shipment.id} className={className}>
         <b>Shipment: {shipment.id.substr(0, 6)}...</b>
         TDL: {tdlID}...
         <br />
