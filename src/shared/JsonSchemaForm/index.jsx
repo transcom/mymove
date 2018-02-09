@@ -67,6 +67,7 @@ const createField = (fieldName, swaggerField) => {
   if (swaggerField.type === 'boolean') {
     return (
       <Fragment key={fieldName}>
+        // USWDS CSS only renders a checkbox if it is followed by its label
         {createCheckbox(fieldName, swaggerField)}
         <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
       </Fragment>
