@@ -226,9 +226,7 @@ definitions:
         x-nullable: true
         title: Last Name
       service_member_rank:
-        type: string
         $ref: '#/definitions/ServiceMemberRank'
-        x-nullable: true
         title: Rank/Grade
       service_member_ssn:
         type: string
@@ -299,18 +297,18 @@ definitions:
       mobile_home_services_requested:
         type: string
         enum:
-        - contents packed
-        - mobile home blocked
-        - mobile home unblocked
-        - stored at origin
-        - stored at destination
+        - CONTENTS_PACKED
+        - MOBILE_HOME_BLOCKED
+        - MOBILE_HOME_UNBLOCKED
+        - STORED_AT_ORIGIN
+        - STORED_AT_DESTINATION
         x-nullable: true
         title: Services Requested
       station_orders_type:
         type: string
         enum:
-        - permanent
-        - temporary
+        - PERMANENT
+        - TEMPORARY
         x-nullable: true
         title: Type Orders
       station_orders_issued_by:
@@ -576,17 +574,17 @@ definitions:
       mobile_home_services_requested:
         type: string
         enum:
-        - contents packed
-        - mobile home blocked
-        - mobile home unblocked
-        - stored at origin
-        - stored at destination
+        - CONTENTS_PACKED
+        - MOBILE_HOME_BLOCKED
+        - MOBILE_HOME_UNBLOCKED
+        - STORED_AT_ORIGIN
+        - STORED_AT_DESTINATION
         x-nullable: true
       station_orders_type:
         type: string
         enum:
-        - permanent
-        - temporary
+        - PERMANENT
+        - TEMPORARY
         x-nullable: true
       station_orders_issued_by:
         type: string
@@ -714,6 +712,7 @@ definitions:
       - updated_at
   ServiceMemberRank:
     type: string
+    x-nullable: true
     enum:
       - E_1
       - E_2
@@ -739,11 +738,11 @@ definitions:
       - O_8
       - O_9
       - O_10
-      - academy_cadet
-      - academy_graduate
-      - aviation_cadet
-      - civilian_employee
-      - midshipman
+      - ACADEMY_CADET
+      - ACADEMY_GRADUATE
+      - AVIATION_CADET
+      - CIVILIAN_EMPLOYEE
+      - MIDSHIPMAN
     description: >
       Rank/Pay Grade:
         * E_1 - E-1
@@ -770,11 +769,11 @@ definitions:
         * O_8 - O-8
         * O_9 - O-9
         * O_10 - O-10
-        * academy_cadet - Service Academy Cadet
-        * academy_graduate - Service Academy Graduate
-        * aviation_cadet - Aviation Cadet
-        * civilian_employee - Civilian Employee
-        * midshipman - Midshipman
+        * ACADEMY_CADET - Service Academy Cadet
+        * ACADEMY_GRADUATE - Service Academy Graduate
+        * AVIATION_CADET - Aviation Cadet
+        * CIVILIAN_EMPLOYEE - Civilian Employee
+        * MIDSHIPMAN - Midshipman
   IndexShipmentsPayload:
     type: array
     items:
