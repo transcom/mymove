@@ -9,7 +9,9 @@ import (
 	"time"
 )
 
-func main() {
+var config, env, dbConnection String
+
+func init() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	flag.Parse()
@@ -21,6 +23,10 @@ func main() {
 		log.Panic(err)
 	}
 
+	fmt.Println("Hey, it's init")
+}
+
+func makeTDLData() {
 	// Add three TDL records
 	tdl1 := models.TrafficDistributionList{
 		SourceRateArea:    "california",
@@ -37,33 +43,23 @@ func main() {
 		DestinationRegion: "98310",
 		CodeOfService:     "1"}
 
-	_, err = dbConnection.ValidateAndSave(&tdl1)
-	if err != nil {
+	_, err1 := dbConnection.ValidateAndSave(&tdl1)
+	if err1 != nil {
 		log.Panic(err)
 	}
 
-	_, err = dbConnection.ValidateAndSave(&tdl2)
-	if err != nil {
+	_, err2 := dbConnection.ValidateAndSave(&tdl2)
+	if err2 != nil {
 		log.Panic(err)
 	}
 
-	_, err = dbConnection.ValidateAndSave(&tdl3)
-	if err != nil {
+	_, err3 := dbConnection.ValidateAndSave(&tdl3)
+	if err3 != nil {
 		log.Panic(err)
 	}
+}
 
-	// Query for newly made records and print IDs in terminal
-	// tdls := []models.TrafficDistributionList{}
-	// err = dbConnection.All(&tdls)
-	// if err != nil {
-	// 	fmt.Print("Error!\n")
-	// 	fmt.Printf("%v\n", err)
-	// } else {
-	// 	for _, v := range tdls {
-	// 		fmt.Print(v.ID)
-	// 	}
-	// }
-
+func makeTSPData() {
 	// Add three TSP table records
 	tsp1 := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "ABCD",
@@ -91,19 +87,9 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
 
-	// Query for newly made records and print IDs in terminal
-	// tsps := []models.TransportationServiceProvider{}
-	// err = dbConnection.All(&tsps)
-	// if err != nil {
-	// 	fmt.Print("Error!\n")
-	// 	fmt.Printf("%v\n", err)
-	// } else {
-	// 	for _, v := range tsps {
-	// 		fmt.Print(v.ID)
-	// 	}
-	// }
-
+func makeShipmentData() {
 	// Grab three UUIDs for individual TDLs
 	tdlList := []models.TrafficDistributionList{}
 	err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tdlList)
@@ -146,5 +132,45 @@ func main() {
 	if err != nil {
 		log.Panic(err)
 	}
+}
 
+func makeAwardedShipmentData() {
+	// Get a shipment ID
+	shipmentList := []models.Shipment{}
+	err1 := dbConnection.RawQuery("SELECT * FROM shipments").One(&shipmentList)
+	if err1 != nil {
+		fmt.Println("Shipment ID import failed.")
+	} else {
+		fmt.Print(shipmentList[0].ID)
+	}
+
+	// Get a TSP ID
+	// tspList := []models.TransportationServiceProvider{}
+	// err1 := dbConnection.RawQuery("SELECT * FROM traffic_distribution_lists").All(&tspList)
+	// if err1 != nil {
+	// 	fmt.Println("TSP ID import failed.")
+	// }
+
+	// Add one awarded shipment record using existing
+}
+
+// Query for newly made records and print IDs in terminal
+// tsps := []models.TransportationServiceProvider{}
+// err = dbConnection.All(&tsps)
+// if err != nil {
+// 	fmt.Print("Error!\n")
+// 	fmt.Printf("%v\n", err)
+// } else {
+// 	for _, v := range tsps {
+// 		fmt.Print(v.ID)
+// 	}
+// }
+
+func main() {
+	init()
+	makeTDLData()
+	makeTSPData()
+	makeShipmentData()
+	fmt.Println("Pay attention to this now")
+	makeAwardedShipmentData()
 }
