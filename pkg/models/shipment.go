@@ -29,14 +29,6 @@ type PossiblyAwardedShipment struct {
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
-// ShipmentWithAwardedTSP
-type ShipmentWithAwardedTSP struct {
-	ID                              uuid.UUID  `json:"id" db:"id"`
-	TrafficDistributionListID       uuid.UUID  `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID *uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	AdministrativeShipment          bool       `json:"administrative_shipment" db:"administrative_shipment"`
-}
-
 // FetchPossiblyAwardedShipments runs the SQL query to fetch possibly awarded shipments from db
 func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
@@ -89,8 +81,8 @@ func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) 
 	return validate.NewErrors(), nil
 }
 
-func FetchAwardedShipments(tx *pop.Connection) ([]ShipmentWithAwardedTSP, error) {
-	shipments := []ShipmentWithAwardedTSP{}
+func FetchAwardedShipments(tx *pop.Connection) ([]PossiblyAwardedShipment, error) {
+	shipments := []PossiblyAwardedShipment{}
 
 	sql := `SELECT
 			shipments.id,

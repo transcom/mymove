@@ -10,12 +10,12 @@ import (
 
 var dbConnection *pop.Connection
 
-func findAllUnawardedShipments() ([]models.ShipmentWithAwardedTSP, error) {
+func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
 	shipments, err := models.FetchAwardedShipments(dbConnection)
 	return shipments, err
 }
 
-func selectTSPToAwardShipment(shipment models.ShipmentWithAwardedTSP) error {
+func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
