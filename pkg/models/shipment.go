@@ -74,3 +74,11 @@ func (s *Shipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) 
 func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// AllShipmentsWithTDLs queries for and returns shipments joined with their TDLs.
+func AllShipmentsWithTDLs(tx *pop.Connection) ([]models.TrafficDistributionList, error) {
+	shipments := []models.Shipment{}
+	err := tx.LeftJoin("shipments", "shipments.traffic_distribution_list_id=traffic_distribution_lists.id")
+
+	return shipmentsWithTDLs, err
+}

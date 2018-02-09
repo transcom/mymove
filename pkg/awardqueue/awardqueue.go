@@ -12,20 +12,30 @@ var dbConnection *pop.Connection
 
 // This function was made just to get my Golang legs on and play with data
 func findAllUnawardedShipments() ([]models.Shipment, error) {
+	unawardedShipments := []models.Shipment{}
 	shipments := []models.Shipment{}
 	err := dbConnection.All(&shipments)
 
 	if err != nil {
-		fmt.Printf("Oh snap! %s", err)
-		return nil, err
+		return _, err
 	}
-	fmt.Printf("Shipments:\n%v\n", shipments)
 
-	return shipments, nil
+	for _, shipment := range shipments {
+		awardedShipments := []models.AwardedShipment{}
+		queryStr := fmt.Sprintf("shipment_id = '%s'", shipment.ID)
+		asQuery := dbConnection.Where(queryStr)
+		asQuery.All(&awardedShipments)
+
+	}
+
+	return shipments, err
 }
 
 func awardShipment(shipment models.Shipment) {
-	fmt.Printf("Trying to award shipment:\n%v\n", shipment)
+	fmt.Printf("Trying to award shipment: %v\n", shipment.ID)
+
+	// Query shipment's TDL
+	query := dbConnection.Where("")
 }
 
 /*Run will execute the Award Queue algorithm described below.
