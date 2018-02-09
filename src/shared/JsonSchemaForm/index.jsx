@@ -39,21 +39,21 @@ const createDropDown = (fieldName, field) => {
     </Field>
   );
 };
+
 const createCheckbox = (fieldName, field) => {
   return (
-    <Field
-      key={fieldName + 'checkbox'}
-      name={fieldName}
-      component="input"
-      type="checkbox"
-    />
+    <Field id={fieldName} name={fieldName} component="input" type="checkbox" />
   );
 };
+
+const createInputField = (fieldName, field) => {
+  return <Field name={fieldName} component="input" type={field.format} />;
+};
+
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
 const createField = (fieldName, swaggerField) => {
-  //todo: how to determine if multiselect/checkboxes etc
-  // Early return here, this is an edgecase for label placement.
+  // Early return here, this is an edge case for label placement.
   if (swaggerField.type === 'boolean') {
     return (
       <Fragment key={fieldName}>
@@ -66,10 +66,9 @@ const createField = (fieldName, swaggerField) => {
   let fieldComponent;
   if (swaggerField.enum) {
     fieldComponent = createDropDown(fieldName, swaggerField);
+    // more cases go here. Datetime, Date, UUID
   } else {
-    fieldComponent = (
-      <Field name={fieldName} component="input" type={swaggerField.format} />
-    );
+    fieldComponent = createInputField(fieldName, swaggerField);
   }
 
   return (

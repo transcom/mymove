@@ -285,23 +285,23 @@ definitions:
       mobile_home_contents_packed_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Contents Packed Requested
+        title: Mobile Home Contents Packed
       mobile_home_blocked_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Blocked Requested
+        title: Mobile Home Blocked
       mobile_home_unblocked_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Unblocked Requested
+        title: Mobile Home Unblocked
       mobile_home_stored_at_origin_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Stored At Origin Requested
+        title: Mobile Home Stored At Origin
       mobile_home_stored_at_destination_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Stored At Destination Requested
+        title: Mobile Home Stored At Destination
       station_orders_type:
         type: string
         enum:
@@ -572,23 +572,23 @@ definitions:
       mobile_home_contents_packed_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Contents Packed Requested
+        title: Mobile Home Contents Packed
       mobile_home_blocked_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Blocked Requested
+        title: Mobile Home Blocked
       mobile_home_unblocked_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Unblocked Requested
+        title: Mobile Home Unblocked
       mobile_home_stored_at_origin_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Stored At Origin Requested
+        title: Mobile Home Stored At Origin
       mobile_home_stored_at_destination_requested:
         type: boolean
         x-nullable: true
-        title: Mobile Home Stored At Destination Requested
+        title: Mobile Home Stored At Destination
       station_orders_type:
         type: string
         enum:
