@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/markbates/pop/nulls"
 	"github.com/satori/go.uuid"
 )
 
@@ -19,18 +18,14 @@ func fmtUUID(u uuid.UUID) *strfmt.UUID {
 	return &fmtUUID
 }
 
-func fmtNullUUID(u nulls.UUID) *strfmt.UUID {
-	if u.Valid {
-		return fmtUUID(u.UUID)
+func fmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
+	var su *strfmt.UUID
+	if u == nil {
+		su = nil
+	} else {
+		su = fmtUUID(*u)
 	}
-	return nil
-}
-
-func fmtNullBool(b nulls.Bool) *bool {
-	if b.Valid {
-		return &b.Bool
-	}
-	return nil
+	return su
 }
 
 func fmtDateTime(dateTime time.Time) *strfmt.DateTime {

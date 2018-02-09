@@ -80,9 +80,9 @@ func main() {
 
 	api.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
 	api.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
+	api.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
 
 	api.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
-	api.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))

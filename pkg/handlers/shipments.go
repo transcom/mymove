@@ -4,9 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/markbates/pop"
-	"github.com/markbates/pop/nulls"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/messages"
@@ -14,24 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-type possiblyAwardedShipment struct {
-	ID                              uuid.UUID  `db:"id"`
-	CreatedAt                       time.Time  `db:"created_at"`
-	UpdatedAt                       time.Time  `db:"updated_at"`
-	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID nulls.UUID `db:"transportation_service_provider_id"`
-	AdministrativeShipment          nulls.Bool `db:"administrative_shipment"`
-}
-
-func payloadForShipmentModel(s possiblyAwardedShipment) *messages.ShipmentPayload {
+func payloadForShipmentModel(s models.PossiblyAwardedShipment) *messages.ShipmentPayload {
 	shipmentPayload := &messages.ShipmentPayload{
-		ID:           fmtUUID(s.ID),
-		PickupDate:   fmtDate(time.Now()),
-		DeliveryDate: fmtDate(time.Now()),
-		Name:         stringPointer("Shipment name"),
+		ID:                              fmtUUID(s.ID),
+		PickupDate:                      fmtDate(time.Now()),
+		DeliveryDate:                    fmtDate(time.Now()),
 		TrafficDistributionListID:       fmtUUID(s.TrafficDistributionListID),
-		TransportationServiceProviderID: fmtNullUUID(s.TransportationServiceProviderID),
-		AdministrativeShipment:          fmtNullBool(s.AdministrativeShipment),
+		TransportationServiceProviderID: fmtUUIDPtr(s.TransportationServiceProviderID),
+		AdministrativeShipment:          (s.AdministrativeShipment),
 		CreatedAt:                       fmtDateTime(s.CreatedAt),
 		UpdatedAt:                       fmtDateTime(s.UpdatedAt),
 	}
@@ -42,21 +29,9 @@ func payloadForShipmentModel(s possiblyAwardedShipment) *messages.ShipmentPayloa
 func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments := []possiblyAwardedShipment{}
+	shipments, err := models.FetchPossiblyAwardedShipments(dbConnection)
 
-	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftOuterJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
-
-	sql, args := query.ToSQL(&pop.Model{Value: models.Shipment{}},
-		"shipments.id",
-		"shipments.created_at",
-		"shipments.updated_at",
-		"shipments.traffic_distribution_list_id",
-		"awarded_shipments.transportation_service_provider_id",
-		"awarded_shipments.administrative_shipment",
-	)
-
-	if err := dbConnection.RawQuery(sql, args...).All(&shipments); err != nil {
+	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = shipmentop.NewIndexShipmentsBadRequest()
 	} else {
