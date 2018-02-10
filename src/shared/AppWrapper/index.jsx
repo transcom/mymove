@@ -8,6 +8,7 @@ import { history } from 'shared/store';
 import Shipments from 'scenes/Shipments';
 import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
+import Landing from 'scenes/Landing';
 
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
@@ -18,6 +19,7 @@ const AppWrapper = () => (
         <Route path="/submitted" component={SubmittedFeedback} />
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
         <Route path="/DD1299" component={DD1299} />
+        <Route path="/landing" component={Landing} />
       </main>
       <Footer />
     </div>
