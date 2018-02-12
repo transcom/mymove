@@ -1,4 +1,4 @@
-import { CreateIssue } from 'shared/api.js';
+import { CreateIssue } from './api.js';
 
 // Types
 export const CREATE_ISSUE = 'CREATE_ISSUE';

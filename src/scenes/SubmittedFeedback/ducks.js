@@ -1,4 +1,4 @@
-import { IssuesIndex } from 'shared/api';
+import { IssuesIndex } from './api';
 
 // Types
 export const SHOW_ISSUES = 'SHOW_ISSUES';
