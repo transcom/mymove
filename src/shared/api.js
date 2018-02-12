@@ -7,6 +7,12 @@ async function ensureClientIsLoaded() {
   }
 }
 
+function checkResponse(response, errorMessage) {
+  if (!response.ok) {
+    throw new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);
+  }
+}
+
 export async function GetSpec() {
   await ensureClientIsLoaded();
   return client.spec;
@@ -17,12 +23,7 @@ export async function GetSpec() {
 export async function IssuesIndex() {
   await ensureClientIsLoaded();
   const response = await client.apis.issues.indexIssues();
-  if (!response.ok) {
-    throw new Error(
-      `failed to load issues index due to server error:
-      ${response.url}: ${response.statusText}`,
-    );
-  }
+  checkResponse(response, 'failed to load issues index due to server error');
   return response.body;
 }
 
@@ -31,32 +32,20 @@ export async function CreateIssue(issueBody) {
   const response = await client.apis.issues.createIssue({
     createIssuePayload: { description: issueBody },
   });
-  if (!response.ok)
-    throw new Error(
-      `failed to create issue due to server error:
-      ${response.url}: ${response.statusText}`,
-    );
+  checkResponse(response, 'failed to create issue due to server error');
 }
 export async function CreateForm1299(formData) {
   await ensureClientIsLoaded();
   const response = await client.apis.form1299s.createForm1299({
     createForm1299Payload: formData,
   });
-  if (!response.ok)
-    new Error(
-      `failed to create issue due to server error:
-      ${response.url}: ${response.statusText}`,
-    );
+  checkResponse(response, 'failed to create form 1299 due to server error');
+  //todo: return uuid?
 }
 
 export async function ShipmentsIndex() {
   await ensureClientIsLoaded();
   const response = await client.apis.shipments.indexShipments();
-  if (!response.ok) {
-    throw new Error(
-      `failed to load shipments index due to server error:
-      ${response.url}: ${response.statusText}`,
-    );
-  }
+  checkResponse(response, 'failed to load shipments index due to server error');
   return response.body;
 }
