@@ -1,4 +1,4 @@
-import { GetSpec, CreateForm1299 } from 'shared/api';
+import { GetSpec, CreateForm1299 } from './api';
 import { getUiSchema } from './uiSchema';
 
 // Types

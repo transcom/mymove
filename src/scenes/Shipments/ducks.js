@@ -1,4 +1,4 @@
-import { ShipmentsIndex } from 'shared/api';
+import { ShipmentsIndex } from './api';
 
 // Types
 export const SHOW_SHIPMENTS = 'SHOW_SHIPMENTS';
