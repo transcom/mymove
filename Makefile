@@ -47,7 +47,7 @@ server_deps: .server_deps.stamp
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_generate: server_deps .server_generate.stamp
-.server_generate.stamp: swagger.yaml
+.server_generate.stamp: $(find swagger -t file -name *.yaml)
 	bin/gen_server.sh
 	touch .server_generate.stamp
 server_build: server_deps server_generate
