@@ -56,8 +56,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "586c9ba6027a527800564282bb843d7e6e7985c9"
-  version = "v1.12.72"
+  revision = "82eadef012f77590875babb177c60878727821c0"
+  version = "v1.12.74"
 
 [[projects]]
   branch = "master"
@@ -168,7 +168,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "f3499b5df53897321d6f5e9c22cf19309d41d3bc"
+  revision = "e5cac0107f33264c59bcfe43d12a0e19eba644f0"
 
 [[projects]]
   branch = "master"
@@ -186,7 +186,7 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "4d761f0670d764beea9b5495020310edb2bd48f7"
+  revision = "19a59381e29bac1412963d73aac16803265a71a3"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -340,12 +340,13 @@
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "1290f21759a90e7c4bd277347c8631ed8d4b9ee0"
+  revision = "fec282d55240317f603bca7e2e4d81865cc84f4e"
 
 [[projects]]
   name = "github.com/markbates/pop"
   packages = [
     ".",
+    "associations",
     "columns",
     "fizz",
     "fizz/translators",
@@ -354,17 +355,17 @@
     "soda/cmd/generate",
     "soda/cmd/schema"
   ]
-  revision = "259b148c6f2f6037196f5ea5010121d4da46385e"
-  version = "3.52.0"
+  revision = "2a4f22c5d7806305df801668254060d7a47a2863"
+  version = "3.60.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/markbates/validate"
   packages = [
     ".",
     "validators"
   ]
   revision = "cd8cc34c703420d6b084fbbfd5085e8e71c5b830"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -399,7 +400,7 @@
     "parser",
     "vm"
   ]
-  revision = "8cb2d4b2709218fc39d86cef1e7704f2325e5869"
+  revision = "44bfbd5ea908ffdb0c8ac1733d6bf208cce39100"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -571,7 +572,7 @@
     "context",
     "idna"
   ]
-  revision = "2fb46b16b8dda405028c50f7c7f0f9dd1fa6bfb1"
+  revision = "f5dfe339be1d06f81b22525fe34671ee7d2c8904"
 
 [[projects]]
   branch = "master"
@@ -605,7 +606,7 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "e19ae1496984b1c655b8044a65c0300a3c878dd3"
+  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
 
 [[projects]]
   branch = "master"
@@ -619,7 +620,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "66487607e2081c7c2af2281c62c14ee000d5024b"
+  revision = "95b47aa5df4eda9bfbc0133f77c0e320f0275eba"
 
 [[projects]]
   branch = "v2"
