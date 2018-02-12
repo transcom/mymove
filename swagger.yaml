@@ -468,6 +468,12 @@ definitions:
         example: Colonel Crumpet
         x-nullable: true
         title: Title
+    required:
+      - mobile_home_contents_packed_requested
+      - mobile_home_blocked_requested
+      - mobile_home_unblocked_requested
+      - mobile_home_stored_at_origin_requested
+      - mobile_home_stored_at_destination_requested
   IndexForm1299sPayload:
     type: array
     items:
@@ -583,23 +589,18 @@ definitions:
         x-nullable: true
       mobile_home_contents_packed_requested:
         type: boolean
-        x-nullable: true
         title: Mobile Home Contents Packed
       mobile_home_blocked_requested:
         type: boolean
-        x-nullable: true
         title: Mobile Home Blocked
       mobile_home_unblocked_requested:
         type: boolean
-        x-nullable: true
         title: Mobile Home Unblocked
       mobile_home_stored_at_origin_requested:
         type: boolean
-        x-nullable: true
         title: Mobile Home Stored At Origin
       mobile_home_stored_at_destination_requested:
         type: boolean
-        x-nullable: true
         title: Mobile Home Stored At Destination
       station_orders_type:
         type: string
@@ -731,6 +732,11 @@ definitions:
       - id
       - created_at
       - updated_at
+      - mobile_home_contents_packed_requested
+      - mobile_home_blocked_requested
+      - mobile_home_unblocked_requested
+      - mobile_home_stored_at_origin_requested
+      - mobile_home_stored_at_destination_requested
   ServiceMemberRank:
     type: string
     x-nullable: true

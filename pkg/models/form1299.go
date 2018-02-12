@@ -39,11 +39,11 @@ type Form1299 struct {
 	MobileHomeHeightFt                     *int64                      `json:"mobile_home_height_ft" db:"mobile_home_height_ft"`
 	MobileHomeHeightInches                 *int64                      `json:"mobile_home_height_inches" db:"mobile_home_height_inches"`
 	MobileHomeTypeExpando                  *string                     `json:"mobile_home_type_expando" db:"mobile_home_type_expando"`
-	MobileHomeContentsPackedRequested      *bool                       `json:"mobile_home_contents_packed_requested" db:"mobile_home_contents_packed_requested"`
-	MobileHomeBlockedRequested             *bool                       `json:"mobile_home_blocked_requested" db:"mobile_home_blocked_requested"`
-	MobileHomeUnblockedRequested           *bool                       `json:"mobile_home_unblocked_requested" db:"mobile_home_unblocked_requested"`
-	MobileHomeStoredAtOriginRequested      *bool                       `json:"mobile_home_stored_at_origin_requested" db:"mobile_home_stored_at_origin_requested"`
-	MobileHomeStoredAtDestinationRequested *bool                       `json:"mobile_home_stored_at_destination_requested" db:"mobile_home_stored_at_destination_requested"`
+	MobileHomeContentsPackedRequested      bool                        `json:"mobile_home_contents_packed_requested" db:"mobile_home_contents_packed_requested"`
+	MobileHomeBlockedRequested             bool                        `json:"mobile_home_blocked_requested" db:"mobile_home_blocked_requested"`
+	MobileHomeUnblockedRequested           bool                        `json:"mobile_home_unblocked_requested" db:"mobile_home_unblocked_requested"`
+	MobileHomeStoredAtOriginRequested      bool                        `json:"mobile_home_stored_at_origin_requested" db:"mobile_home_stored_at_origin_requested"`
+	MobileHomeStoredAtDestinationRequested bool                        `json:"mobile_home_stored_at_destination_requested" db:"mobile_home_stored_at_destination_requested"`
 	StationOrdersType                      *string                     `json:"station_orders_type" db:"station_orders_type"`
 	StationOrdersIssuedBy                  *string                     `json:"station_orders_issued_by" db:"station_orders_issued_by"`
 	StationOrdersNewAssignment             *string                     `json:"station_orders_new_assignment" db:"station_orders_new_assignment"`
