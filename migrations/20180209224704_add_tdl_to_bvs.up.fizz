@@ -1,0 +1,3 @@
+exec('echo # If this fails, you need to reset your database. For dev, that is: `make db_dev_reset`.')
+add_column("best_value_scores", "traffic_distribution_list_id", "uuid", {})
+add_foreign_key("best_value_scores", "traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
