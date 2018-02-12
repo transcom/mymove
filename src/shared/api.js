@@ -1,7 +1,7 @@
 import Swagger from 'swagger-client';
 let client = null;
 
-export async function ensureClientIsLoaded() {
+export async function getClient() {
   if (!client) {
     client = await Swagger('/api/v1/swagger.yaml');
   }

@@ -1,12 +1,12 @@
-import { ensureClientIsLoaded, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/api';
 
 export async function GetSpec() {
-  const client = await ensureClientIsLoaded();
+  const client = await getClient();
   return client.spec;
 }
 
 export async function CreateForm1299(formData) {
-  const client = await ensureClientIsLoaded();
+  const client = await getClient();
   const response = await client.apis.form1299s.createForm1299({
     createForm1299Payload: formData,
   });

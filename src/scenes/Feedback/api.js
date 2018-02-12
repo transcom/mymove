@@ -1,7 +1,7 @@
-import { ensureClientIsLoaded, checkResponse } from 'shared/api';
+import { getClient, checkResponse } from 'shared/api';
 
 export async function CreateIssue(issueBody) {
-  const client = await ensureClientIsLoaded();
+  const client = await getClient();
   const response = await client.apis.issues.createIssue({
     createIssuePayload: { description: issueBody },
   });
