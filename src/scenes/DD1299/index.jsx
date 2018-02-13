@@ -17,6 +17,15 @@ export class DD1299 extends Component {
   submit = values => {
     this.props.submitForm(values);
   };
+  initialValues() {
+    return {
+      mobile_home_contents_packed_requested: false,
+      mobile_home_blocked_requested: false,
+      mobile_home_unblocked_requested: false,
+      mobile_home_stored_at_origin_requested: false,
+      mobile_home_stored_at_destination_requested: false,
+    };
+  }
   componentDidUpdate() {
     if (this.props.hasSubmitSuccess) window.scrollTo(0, 0);
   }
@@ -41,6 +50,7 @@ export class DD1299 extends Component {
     return (
       <Fragment>
         <DD1299Form
+          initialValues={this.initialValues()}
           onSubmit={this.submit}
           schema={this.props.schema}
           uiSchema={this.props.uiSchema}
