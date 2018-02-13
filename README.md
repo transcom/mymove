@@ -110,7 +110,7 @@ This background job is built as a separate binary which can be built using
 
 ### API / Swagger
 
-The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
+The api is defined in a single file: swagger/swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
 
 You can view the API's documentation (powered by Swagger UI) at [http://localhost:8081/api/v1/docs](http://localhost:8081/api/v1/docs) when a local server is running.
 
