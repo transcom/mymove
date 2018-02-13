@@ -107,13 +107,16 @@ const renderSchema = (schema, uiSchema) => {
   }
 };
 const JsonSchemaForm = props => {
+  const { pristine, submitting, invalid } = props;
   const { handleSubmit, schema, uiSchema } = props;
   const title = schema ? schema.title : '';
   return (
     <form className="default" onSubmit={handleSubmit}>
       <h1>{title}</h1>
       {renderSchema(schema, uiSchema)}
-      <button type="submit">Submit</button>
+      <button type="submit" disabled={pristine || submitting || invalid}>
+        Submit
+      </button>
     </form>
   );
 };
