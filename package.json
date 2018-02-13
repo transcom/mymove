@@ -31,6 +31,9 @@
   "proxy": {
     "/api": {
       "target": "http://localhost:8080"
+    },
+    "/swagger-ui": {
+      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",
