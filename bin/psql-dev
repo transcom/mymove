@@ -6,7 +6,6 @@ db_password="mysecretpassword"
 
 command="${*:-}"
 
-# We need word-splitting to pass the $command to psql properly.
 if [ -n "${command[*]}" ]; then
   exec psql postgres://postgres:${db_password}@localhost/dev_db -c "${command}"
 else
