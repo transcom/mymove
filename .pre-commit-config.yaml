@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v1.1.0
+    sha: v1.2.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
