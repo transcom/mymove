@@ -7,7 +7,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func TestBasicInstantiation(t *testing.T) {
+func TestBasicForm1299Instantiation(t *testing.T) {
 
 	// Given: an instance of form 1299 with some optional values
 	var (

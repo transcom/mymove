@@ -820,7 +820,6 @@ definitions:
       street_address_1:
         type: string
         example: 123 Main Ave
-        x-nullable: true
         title: Address Line 1
       street_address_2:
         type: string
@@ -830,12 +829,10 @@ definitions:
       city:
         type: string
         example: Anytown
-        x-nullable: true
         title: City
       state:
         title: State
         type: string
-        x-nullable: true
         enum:
           - AL
           - AK
@@ -893,4 +890,8 @@ definitions:
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
-        x-nullable: true
+    required:
+      - street_address_1
+      - city
+      - state
+      - zip

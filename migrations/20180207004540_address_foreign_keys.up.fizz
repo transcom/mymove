@@ -1,0 +1,13 @@
+drop_column("form1299s", "origin_office_address")
+drop_column("form1299s", "in_transit_address")
+drop_column("form1299s", "pickup_address")
+drop_column("form1299s", "dest_address")
+drop_column("form1299s", "extra_address")
+drop_column("form1299s", "contractor_address")
+
+raw("ALTER TABLE form1299s ADD COLUMN origin_office_address_id UUID REFERENCES addresses(id);")
+raw("ALTER TABLE form1299s ADD COLUMN in_transit_address_id UUID REFERENCES addresses(id);")
+raw("ALTER TABLE form1299s ADD COLUMN pickup_address_id UUID REFERENCES addresses(id);")
+raw("ALTER TABLE form1299s ADD COLUMN dest_address_id UUID REFERENCES addresses(id);")
+raw("ALTER TABLE form1299s ADD COLUMN extra_address_id UUID REFERENCES addresses(id);")
+raw("ALTER TABLE form1299s ADD COLUMN contractor_address_id UUID REFERENCES addresses(id);")

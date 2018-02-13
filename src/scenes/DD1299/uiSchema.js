@@ -21,6 +21,14 @@ order:
   - other_move_information
   - certification_of_shipment_responsibilities
   - cert_in_lieu_of_signature
+definitions:
+  Address:
+    order:
+      - street_address_1
+      - street_address_2
+      - city
+      - state
+      - zip
 groups:
   origin_office:
     title: To (Responsible Origin Personal Property Shipping Office)

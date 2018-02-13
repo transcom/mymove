@@ -30,7 +30,7 @@ const simpleSchema = {
       enum: ['Male', 'Female', 'Non-binary', 'Other'],
     },
     address: {
-      $$ref: '/ref',
+      $$ref: '#/definitions/Address',
       properties: {
         address1: {
           type: 'string',
@@ -46,6 +46,11 @@ const simpleSchema = {
 };
 const uiSchema = {
   order: ['firstName', 'lastName', 'demographics', 'address'],
+  definitions: {
+    Address: {
+      order: ['address1', 'city'],
+    },
+  },
   groups: {
     demographics: {
       title: 'demographics',
