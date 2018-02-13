@@ -42,18 +42,18 @@ func TestIndexShipmentsHandler(t *testing.T) {
 	}
 	mustSave(t, &aws)
 
-	awarded := models.AwardedShipment{
+	award := models.ShipmentAward{
 		ShipmentID:                      aws.ID,
 		TransportationServiceProviderID: tsp.ID,
 	}
-	mustSave(t, &awarded)
+	mustSave(t, &award)
 
 	params := shipmentop.NewIndexShipmentsParams()
 	indexResponse := IndexShipmentsHandler(params)
 
 	okResponse, ok := indexResponse.(*shipmentop.IndexShipmentsOK)
 	if !ok {
-		t.Errorf("Request failed: %#v", indexResponse)
+		t.Fatalf("Request failed: %#v", indexResponse)
 	}
 	shipments := okResponse.Payload
 

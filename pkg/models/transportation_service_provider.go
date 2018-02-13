@@ -79,13 +79,13 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 	sql := `SELECT
 			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
 			MIN(best_value_scores.score) as best_value_score,
-			COUNT(awarded_shipments.id) as award_count
+			COUNT(shipment_awards.id) as award_count
 		FROM
 			transportation_service_providers
 		JOIN best_value_scores ON
 			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
-		LEFT JOIN awarded_shipments ON
-			transportation_service_providers.id = awarded_shipments.transportation_service_provider_id
+		LEFT JOIN shipment_awards ON
+			transportation_service_providers.id = shipment_awards.transportation_service_provider_id
 		GROUP BY transportation_service_providers.id
 		ORDER BY award_count ASC, best_value_score DESC
 		`

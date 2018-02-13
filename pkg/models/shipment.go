@@ -34,15 +34,15 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 	shipments := []PossiblyAwardedShipment{}
 
 	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftOuterJoin("awarded_shipments", "awarded_shipments.shipment_id=shipments.id")
+	query := dbConnection.Q().LeftOuterJoin("shipment_awards", "shipment_awards.shipment_id=shipments.id")
 
 	sql, args := query.ToSQL(&pop.Model{Value: Shipment{}},
 		"shipments.id",
 		"shipments.created_at",
 		"shipments.updated_at",
 		"shipments.traffic_distribution_list_id",
-		"awarded_shipments.transportation_service_provider_id",
-		"awarded_shipments.administrative_shipment",
+		"shipment_awards.transportation_service_provider_id",
+		"shipment_awards.administrative_shipment",
 	)
 	err := dbConnection.RawQuery(sql, args...).All(&shipments)
 	return shipments, err
@@ -88,11 +88,11 @@ func FetchAwardedShipments(tx *pop.Connection) ([]PossiblyAwardedShipment, error
 	sql := `SELECT
 			shipments.id,
 			shipments.traffic_distribution_list_id,
-			awarded_shipments.transportation_service_provider_id
+			shipment_awards.transportation_service_provider_id
 		FROM shipments
-		LEFT JOIN awarded_shipments ON
-			awarded_shipments.shipment_id=shipments.id
-		WHERE awarded_shipments.id IS NULL`
+		LEFT JOIN shipment_awards ON
+			shipment_awards.shipment_id=shipments.id
+		WHERE shipment_awards.id IS NULL`
 
 	err := tx.RawQuery(sql).All(&shipments)
 
