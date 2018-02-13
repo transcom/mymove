@@ -1,9 +1,2 @@
-exec('echo ### Heads up:')
-exec('echo # If this fails, you need to reset your database.')
-exec('echo # For dev, that is: `make db_dev_reset`.')
-exec('echo # Then, re-run migrations: `make db_dev_migrate`.')
-exec('echo #')
-exec('sleep 3')
-
 add_column("best_value_scores", "traffic_distribution_list_id", "uuid", {})
 add_foreign_key("best_value_scores", "traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
