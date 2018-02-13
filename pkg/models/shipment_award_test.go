@@ -6,14 +6,14 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-func Test_AwardedShipment(t *testing.T) {
-	awardedShipment := AwardedShipment{
+func Test_ShipmentAward(t *testing.T) {
+	shipmentAward := ShipmentAward{
 		ShipmentID:                      uuid.Must(uuid.NewV4()),
 		TransportationServiceProviderID: uuid.Must(uuid.NewV4()),
 		AdministrativeShipment:          false,
 	}
 
-	dbConnection.Create(&awardedShipment)
+	dbConnection.Create(&shipmentAward)
 
 	// TODO: Complete tests here. As written, this will fail because we're
 	// making up UUIDs for foreign keys and that will violate the foreign
@@ -24,18 +24,18 @@ func Test_AwardedShipment(t *testing.T) {
 			t.Fatal("Didn't write it to the db: ", err)
 		}
 
-		if awardedShipment.ID == uuid.Nil {
+		if shipmentAward.ID == uuid.Nil {
 			t.Error("didn't get an ID back")
 		}
 
-		if awardedShipment.CreatedAt.IsZero() {
+		if shipmentAward.CreatedAt.IsZero() {
 			t.Error("wasn't assigned a created_at time")
 		}
 	*/
 }
 
-func Test_AwardedShipmentValidations(t *testing.T) {
-	as := &AwardedShipment{}
+func Test_ShipmentAwardValidations(t *testing.T) {
+	as := &ShipmentAward{}
 	verrs, err := dbConnection.ValidateAndSave(as)
 	if err != nil {
 		t.Error(err)

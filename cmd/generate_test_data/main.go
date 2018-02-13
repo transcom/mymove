@@ -140,13 +140,13 @@ func main() {
 	}
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
-	awardedShipment1 := models.AwardedShipment{
+	award1 := models.ShipmentAward{
 		ShipmentID:                      shipmentList[0].ID,
 		TransportationServiceProviderID: tspList[0].ID,
 		AdministrativeShipment:          false,
 	}
 
-	_, err = dbConnection.ValidateAndSave(&awardedShipment1)
+	_, err = dbConnection.ValidateAndSave(&award1)
 	if err != nil {
 		log.Panic(err)
 	}
