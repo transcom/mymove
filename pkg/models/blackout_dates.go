@@ -12,13 +12,14 @@ import (
 
 // AwardedShipment maps a Transportation Service Provider to a shipment,
 // indicating that the shipment has been awarded to that TSP.
-type AwardedShipment struct {
+type BlackoutDate struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	ShipmentID                      uuid.UUID `json:"shipment_id" db:"shipment_id"`
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	AdministrativeShipment          bool      `json:"administrative_shipment" db:"administrative_shipment"`
+	BlackoutDate                    uuid.UUID `json:"blackout_date" db:"blackout_date"`
+	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	CodeOfService
 }
 
 // String is not required by pop and may be deleted
