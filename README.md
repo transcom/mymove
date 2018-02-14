@@ -110,7 +110,7 @@ This background job is built as a separate binary which can be built using
 
 ### API / Swagger
 
-The api is defined in a single file: ./swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
+The api is defined in a single file: swagger/swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
 
 You can view the API's documentation (powered by Swagger UI) at [http://localhost:8081/api/v1/docs](http://localhost:8081/api/v1/docs) when a local server is running.
 
@@ -120,7 +120,16 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run frontend testing suites.
 * `make server_test`: Run backend testing suites.
-* `make test`: Run both client- and server-side testing suites.
+* `make e2e_test`: Run e2e testing suite.
+* `make test`: Run e2e, client- and server-side testing suites.
+
+### Logging
+
+We are using [zap](https://github.com/uber-go/zap) as a logger in this project. We currently rely on its built-in `NewDevelopment()` and `NewProduction()` default configs, which are enabled in any of the executable packages that live in `cmd`.
+
+This means that logging *is not* set up from within models or other packages unless the files in `cmd` are also being loaded. *If you attempt to call `zap.L()` or `zap.S()` without a configured logger, nothing will appear on the screen.*
+
+If you need to see some output during the development process (say, for debugging purposes), it is best to use the standard lib `fmt` package to print to the screen. You will also need to pass `-v` to `go test` so that it prints all output, even from passing tests. The simplest way to do this is to run `go test` yourself by passing it which files to run, e.g. `go test pkg/models/* -v`.
 
 ### Database
 
