@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
 	"time"
 
 	"github.com/go-openapi/strfmt"
@@ -83,6 +84,60 @@ type Form1299 struct {
 	NonavailabilityOfSignatureReason       *string                     `json:"nonavailability_of_signature_reason" db:"nonavailability_of_signature_reason"`
 	CertifiedBySignature                   *string                     `json:"certified_by_signature" db:"certified_by_signature"`
 	TitleOfCertifiedBySignature            *string                     `json:"title_of_certified_by_signature" db:"title_of_certified_by_signature"`
+}
+
+// CreateForm1299WithAddresses takes a form1299 with Address structs and coordinates saving it all in a transaction
+func CreateForm1299WithAddresses(dbConnection *pop.Connection, form1299 *Form1299) (*validate.Errors, []error) {
+	transactionVErrors := validate.NewErrors()
+	transactionErrors := []error{}
+
+	// If the passed in function returns an error, the transaction is rolled back
+	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+
+		saveAndPopulateErrors := func(dbStruct interface{}) bool {
+			success := false
+			if verrs, err := dbConnection.ValidateAndCreate(dbStruct); verrs.HasAny() || err != nil {
+				transactionVErrors.Append(verrs)
+				if err != nil {
+					transactionErrors = append(transactionErrors, err)
+				}
+			} else {
+				success = true
+			}
+			return success
+		}
+
+		if form1299.OriginOfficeAddress != nil && saveAndPopulateErrors(form1299.OriginOfficeAddress) {
+			form1299.OriginOfficeAddressID = &form1299.OriginOfficeAddress.ID
+		}
+		if form1299.InTransitAddress != nil && saveAndPopulateErrors(form1299.InTransitAddress) {
+			form1299.InTransitAddressID = &form1299.InTransitAddress.ID
+		}
+		if form1299.PickupAddress != nil && saveAndPopulateErrors(form1299.PickupAddress) {
+			form1299.PickupAddressID = &form1299.PickupAddress.ID
+		}
+		if form1299.DestAddress != nil && saveAndPopulateErrors(form1299.DestAddress) {
+			form1299.DestAddressID = &form1299.DestAddress.ID
+		}
+		if form1299.ExtraAddress != nil && saveAndPopulateErrors(form1299.ExtraAddress) {
+			form1299.ExtraAddressID = &form1299.ExtraAddress.ID
+		}
+		if form1299.ContractorAddress != nil && saveAndPopulateErrors(form1299.ContractorAddress) {
+			form1299.ContractorAddressID = &form1299.ContractorAddress.ID
+		}
+
+		saveAndPopulateErrors(form1299)
+
+		var transactionError error
+		if transactionVErrors.HasAny() || len(transactionErrors) > 0 {
+			transactionError = errors.New("Rollback The transaction")
+		}
+		return transactionError
+
+	})
+
+	return transactionVErrors, transactionErrors
+
 }
 
 // FetchAllForm1299s fetches all Form1299s and accompanying addresses

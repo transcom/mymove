@@ -161,3 +161,55 @@ func TestPopulateAddressesMethod(t *testing.T) {
 		t.Fatal("Form should have an address populated")
 	}
 }
+
+func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
+	// Given: A form1299 model with an address struct
+	address := Address{
+		StreetAddress1: "123 My Way",
+		City:           "Seattle",
+		State:          "NY",
+		Zip:            "12345",
+	}
+	form := Form1299{
+		OriginOfficeAddress: &address,
+	}
+
+	// When: CreateForm1299WithAddressesSavesAddresses is called on the form
+	verrs, errs := CreateForm1299WithAddresses(dbConnection, &form)
+
+	// Then: The address and form should be saved to DB, ID populated
+	blankUUID := uuid.UUID{}
+	if address.ID != blankUUID && *form.OriginOfficeAddressID != address.ID {
+		t.Fatal("Address ID should match saved ID")
+	}
+
+	// And: There should be no errors
+	if verrs.HasAny() || len(errs) > 0 {
+		t.Fatal("There was an error while saving form")
+	}
+}
+
+func TestCreateForm1299WithAddressesReturnsErrors(t *testing.T) {
+	// Given: A form1299 model with a blank StreetAddress1 field
+	address := Address{
+		City:  "Seattle",
+		State: "NY",
+		Zip:   "12345",
+	}
+	form := Form1299{
+		OriginOfficeAddress: &address,
+	}
+
+	// When: CreateForm1299WithAddressesSavesAddresses is called on the form
+	verrs, _ := CreateForm1299WithAddresses(dbConnection, &form)
+
+	// Then: The address and form should not be saved to DB, ID left blank
+	if form.OriginOfficeAddressID != nil {
+		t.Fatal("ID field should not be populated")
+	}
+
+	// And: There should be validation errors
+	if !verrs.HasAny() {
+		t.Fatal("There should be a validation error")
+	}
+}

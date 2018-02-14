@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+
 	"encoding/json"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -58,7 +60,22 @@ func (a Addresses) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	verrs := validate.NewErrors()
+
+	stringFields := map[string]string{
+		"StreetAddress1": a.StreetAddress1,
+		"City":           a.City,
+		"State":          a.State,
+		"Zip":            a.Zip,
+	}
+
+	for key, field := range stringFields {
+		if field == "" {
+			verrs.Add(key, fmt.Sprintf("%s must not be blank!", key))
+		}
+	}
+
+	return verrs, nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
