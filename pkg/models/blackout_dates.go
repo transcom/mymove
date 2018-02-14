@@ -16,7 +16,8 @@ type BlackoutDate struct {
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
 	TransportationServiceProviderId uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	BlackoutDate                    time.Time `json:"blackout_date" db:"blackout_date"`
+	StartBlackoutDate               time.Time `json:"start_blackout_date" db:"start_blackout_date"`
+	EndBlackoutDate                 time.Time `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListId       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	CodeOfService                   string    `json:"code_of_service" db:"code_of_service"`
 }
@@ -40,7 +41,8 @@ func (b BlackoutDates) String() string {
 // This method is not required and may be deleted.
 func (b *BlackoutDate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.TimeIsPresent{Field: b.BlackoutDate, Name: "BlackoutDate"},
+		&validators.TimeIsPresent{Field: b.StartBlackoutDate, Name: "StartBlackoutDate"},
+		&validators.TimeIsPresent{Field: b.EndBlackoutDate, Name: "EndBlackoutDate"},
 		&validators.StringIsPresent{Field: b.CodeOfService, Name: "CodeOfService"},
 	), nil
 }

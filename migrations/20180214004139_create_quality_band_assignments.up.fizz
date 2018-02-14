@@ -1,8 +1,8 @@
 create_table("quality_band_assignments", func(t) {
-	t.Column("id", "uuid", {"primary": true})
+  t.Column("id", "uuid", {"primary": true})
   t.Column("transportation_service_provider_id", "uuid", {})
-	t.Column("traffic_distribution_list_id", "uuid", {})
-	t.Column("band_number", "integer", {})
+  t.Column("traffic_distribution_list_id", "uuid", {})
+  t.Column("band_number", "integer", {})
   t.Column("performance_period_id", "uuid", {})
   t.Column("shipments_per_band", "integer", {})
   t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
