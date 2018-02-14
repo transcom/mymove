@@ -2,18 +2,13 @@ package models
 
 import (
 	"encoding/json"
-	"time"
-
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
+	"time"
 )
 
-// PerformancePeriod defines periods of time across the year - per James,
-// there are five periods across the year of unequal lengths. We have gotten
-// some conflicting information about this and should double-check before calling
-// it done.
 type PerformancePeriod struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`
@@ -23,36 +18,37 @@ type PerformancePeriod struct {
 }
 
 // String is not required by pop and may be deleted
-func (a PerformancePeriod) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
+func (p PerformancePeriod) String() string {
+	jp, _ := json.Marshal(p)
+	return string(jp)
 }
 
 // PerformancePeriods is not required by pop and may be deleted
 type PerformancePeriods []PerformancePeriod
 
 // String is not required by pop and may be deleted
-func (a PerformancePeriods) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
+func (p PerformancePeriods) String() string {
+	jp, _ := json.Marshal(p)
+	return string(jp)
 }
 
-// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method. Todo: more fields to validate?
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (a *PerformancePeriod) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PerformancePeriod) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&v.UUIDIsPresent{Field: a.ID, Name: "ID"},
+		&validators.TimeIsPresent{Field: p.StartDate, Name: "StartDate"},
+		&validators.TimeIsPresent{Field: p.EndDate, Name: "EndDate"},
 	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func (a *PerformancePeriod) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PerformancePeriod) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func (a *PerformancePeriod) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+func (p *PerformancePeriod) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
