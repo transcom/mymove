@@ -4,7 +4,7 @@ function FeedbackForm({ handleChange, handleSubmit, textValue }) {
   return (
     <form onSubmit={handleSubmit}>
       <textarea
-        className="feedback-form"
+        data-test="feedback-form"
         onChange={handleChange}
         placeholder="Type feedback here."
         value={textValue}
