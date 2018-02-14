@@ -19,10 +19,19 @@
 * [CSS](#css)
   * [BEM](#bem)
   * [USWDS](#uswds)
+* [Tooling](#tooling)
+  * [Sublime Plugins](#sublime-plugins)
+  * [Webstorm](#webstorm)
+  * [VS Code](#vs-code)
+  * [vi](#vi)
+  * [Browser Extensions](#browser-extensions)
+* [Learning](#learning)
+  * [Javascript Concepts](#javascript-concepts)
+  * [Resources](#resources)
+
+_Regenerate with `bin/docs-toc.sh`_
 
 <!-- tocstop -->
-
-_Regenerate with`bin/docs-toc.sh`_
 
 ## Testing
 
@@ -116,3 +125,88 @@ Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript
 
 * Check the [USWDS Design Standards](https://standards.usa.gov/components/) for a component that matches your needs. Maximize the code view to see what classes to use to replicate the component styles.
 * USWDS has a [Slack chat](https://chat.18f.gov/) you can go to for help. Get invited to it by filling out this form.
+
+## Tooling
+
+If you are using Sublime, Webpack, or VS Code, you may want to install plugins to support the following:
+
+* Prettier
+* Eslint
+* React
+
+Below are some suggestions for plugins. However, to get the plugins to work, you may need to install prettier and eslint globally. You will have to make sure they are kept up to date with the project.
+
+### Sublime Plugins
+
+* PackageControl
+* EditorConfig
+* JsPrettier (you will need to configure it to auto-format on save)
+* Babel (for jsx syntax--though looking for better option)
+* Git
+
+### Webstorm
+
+Has plugins for most out the box, but setting up Prettier is tricky. See [the documentation](https://prettier.io/docs/en/webstorm.html).
+
+### VS Code
+
+* Prettier
+* Path Intellisence
+
+### vi
+
+* [vim-prettier](github.com:prettier/vim-prettier)
+* [vim-javascript](pangloss/vim-javascript.git )
+* [editorconfig](editorconfig/editorconfig-vim.git)
+
+### Browser Extensions
+
+Install the following extensions to assist with debugging React and Redux applications:
+
+* [React Developer Tools](https://github.com/facebook/react-devtools#installation)
+* [Redux DevTools Extension](http://extension.remotedev.io/#redux-devtools-extension)
+
+## Learning
+
+### Javascript Concepts
+
+Important JS patterns and features to understand.
+
+* Destructuring Assignment
+  * [A Dead Simple Intro to Destructuring Javascript Objects](http://wesbos.com/destructuring-objects/)
+* Fat Arrow Functions
+  * [ES5 Functions vs ES6 Fat Arrow Functions](https://medium.com/@thejasonfile/es5-functions-vs-es6-fat-arrow-functions-864033baa1a)
+* Higher Order Components
+  * [Higher Order Components: A React Application Design Pattern](https://www.sitepoint.com/react-higher-order-components/)
+* Promises
+  * [An incremental tutorial on promises](https://www.sohamkamani.com/blog/2016/08/28/incremenal-tutorial-to-promises/)
+* Spread Operator/Rest Params
+  * [Javascript & The Spread Operator](https://codeburst.io/javascript-the-spread-operator-a867a71668ca)
+  * [How Three Dots Changed Javascript](https://dmitripavlutin.com/how-three-dots-changed-javascript/)
+* Template Literals
+  * [Template Literals](https://css-tricks.com/template-literals/)
+
+### Resources
+
+Various resources on React, Redux, etc, for a variety of learning styles.
+
+* *Read*: [React Tutorial](https://reactjs.org/tutorial/tutorial.html) - Official tutorial from React. I (Alexi) personally found this cumbersome. If you stick with it you’ll learn the basics.
+* *Watch*: [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux) - Free 30 video series by the author of Redux.
+* *Watch*: [ReactJS / Redux Tutorial](https://www.youtube.com/playlist?list=PL55RiY5tL51rrC3sh8qLiYHqUV3twEYU_) - ~60 minutes of YouTube videos that will get you up and running with React and Redux. The content is useful, the guy’s voice can be a bit of a challenge.
+* *Watch*: [This video](https://www.youtube.com/watch?list=PLb0IAmt7-GS188xDYE-u1ShQmFFGbrk0v&v=nYkdrAPrdcw) from the introduction of Flux can be useful for some high-level background about the pattern (the MVC bashing is overdone, but otherwise this video is useful.)
+* *Do*: Roll your own React app! Make a little project of your own. This works well if you’re more hands-on. Here are some rough steps, but you’ll need to do a bit of filling-in-the-blanks:
+  * Use [create-react-app](https://github.com/facebookincubator/create-react-app) to bootstrap a new React project.
+  * Figure out how to run the app live (hint: yarn start)
+  * Find and skim through some of the important files it made: `index.hmtl`, `index.js`, `App.js`. What do these look like they’re doing?
+  * Change the page title to something of your choosing.
+  * Create a new React [component](https://reactjs.org/docs/react-component.html) that has a `<button>` or something in it.
+  * [import](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Statements/import) that component into `App.js`, and make sure you can see it!
+  * Write a new test for your component. (Hint: `yarn test`). create-react-app gives you Jest for free, look at its manual.
+  * Make the thing in your component clickable, even if it just does `alert(‘hey there!’)`
+  * Add [React Router](https://github.com/ReactTraining/react-router) to your project.
+  * Make a new component like the first one, and add routes so that they display depending on the URL. E.g:
+    * `http://localhost:3000/component1` shows the first one on the page;
+    * `http://localhost:3000/component2` shows the second one.
+  * Add [Redux](https://redux.js.org/) to your project.
+    * This is a rather big step. You’ll need to have some sort of state, so make a login button and “logged in” will be the state you are going to keep track of.
+    * When the user is logged in, there should be a “log out” button shown.
