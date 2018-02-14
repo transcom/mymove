@@ -2,9 +2,27 @@
 
 ## Table of Contents
 
+<!-- toc -->
+
 * [Testing](#testing)
+  * [Test Runners and Libraries](#test-runners-and-libraries)
+  * [Writing Tests](#writing-tests)
 * [Style](#style)
+  * [Auto-formatting](#auto-formatting)
+  * [Linting](#linting)
+  * [References](#references)
+  * [File layout](#file-layout)
+  * [Presentation vs. Container components](#presentation-vs-container-components)
+  * [Function Declarations](#function-declarations)
+  * [Ordering imports](#ordering-imports)
+  * [Using Redux](#using-redux)
 * [CSS](#css)
+  * [BEM](#bem)
+  * [USWDS](#uswds)
+
+<!-- tocstop -->
+
+_Regenerate with`bin/docs-toc.sh`_
 
 ## Testing
 
