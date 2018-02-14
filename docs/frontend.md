@@ -10,8 +10,7 @@
 * [Style](#style)
   * [Auto-formatting](#auto-formatting)
   * [Linting](#linting)
-  * [References](#references)
-  * [File layout](#file-layout)
+  * [File Layout & Naming](#file-layout--naming)
   * [Presentation vs. Container components](#presentation-vs-container-components)
   * [Function Declarations](#function-declarations)
   * [Ordering imports](#ordering-imports)
@@ -71,22 +70,18 @@ Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript
 
 * CRA runs ESLint on the dev server. No additional configuration is available unless the app is ejected.
 
-### References
+### File Layout & Naming
 
-* File naming
-  * All component files should be named in PascalCase, component names should match the file names (Exception: Higher Order Components are named in camelCase)
-  * Other files should be in camelCase
-  * Component files should use the .jsx file extension
-  * If there are multiple components for a feature, they should be in a folder with the primary component in a file named `index.jsx`.
-
-### File layout
-
-* All frontend client code is kept within a subdirectory called ‘client’.
+* All frontend client code is kept within a subdirectory called ‘src’. This is an artifact of using `create-react-app`.
 * Inside that directory:
-  * `client/`
-  * `client/src`
-  * `client/src/page` Group components by page name
-  * `client/src/shared` Group shared components, like headers
+  * `/src`
+  * `/src/scenes` Group components by scene name
+  * `/src/shared` Group shared components, like headers
+* File naming
+  * All component files should be named in `PascalCase`, component names should match the file names (Exception: Higher Order Components are named in camelCase)
+  * Other files should be in `camelCase`
+  * Component files should use the `.jsx` file extension
+  * If there are multiple components for a feature, they should be in a folder with the primary component in a file named `index.jsx`.
 
 ### Presentation vs. Container components
 
