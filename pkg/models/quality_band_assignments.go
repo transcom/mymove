@@ -16,10 +16,10 @@ type QualityBandAssignment struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	TransportationServiceProviderId uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	TrafficDistributionListId       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
+	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	BandNumber                      int       `json:"band_number" db:"band_number"`
-	PerformancePeriodId             uuid.UUID `json:"performance_period_id" db:"performance_period_id"`
+	PerformancePeriodID             uuid.UUID `json:"performance_period_id" db:"performance_period_id"`
 	ShipmentsPerBand                int       `json:"shipments_per_band" db:"shipments_per_band"`
 }
 
