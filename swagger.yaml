@@ -227,7 +227,6 @@ definitions:
         title: Last Name
       service_member_rank:
         $ref: '#/definitions/ServiceMemberRank'
-        title: Rank/Grade
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
@@ -315,11 +314,14 @@ definitions:
         x-nullable: true
         title: Mobile Home Stored At Destination
       station_orders_type:
+        x-nullable: true
         type: string
         enum:
         - PERMANENT
         - TEMPORARY
-        x-nullable: true
+        description: >
+          * PERMANENT - permanent
+          * TEMPORARY - temporary
         title: Type Orders
       station_orders_issued_by:
         type: string
@@ -533,7 +535,6 @@ definitions:
         x-nullable: true
       service_member_rank:
         $ref: '#/definitions/ServiceMemberRank'
-        x-nullable: true
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
@@ -603,11 +604,14 @@ definitions:
         type: boolean
         title: Mobile Home Stored At Destination
       station_orders_type:
+        x-nullable: true
         type: string
         enum:
         - PERMANENT
         - TEMPORARY
-        x-nullable: true
+        description: >
+          * PERMANENT - permanent
+          * TEMPORARY - temporary
       station_orders_issued_by:
         type: string
         example: Sergeant Naan
@@ -740,6 +744,7 @@ definitions:
   ServiceMemberRank:
     type: string
     x-nullable: true
+    title: Rank
     enum:
       - E_1
       - E_2
@@ -771,36 +776,35 @@ definitions:
       - CIVILIAN_EMPLOYEE
       - MIDSHIPMAN
     description: >
-      Rank/Pay Grade:
-        * E_1 - E-1
-        * E_2 - E-2
-        * E_3 - E-3
-        * E_4 - E-4
-        * E_5 - E-5
-        * E_6 - E-6
-        * E_7 - E-7
-        * E_8 - E-8
-        * E_9 - E-9
-        * W_1 - W-1
-        * W_2 - W-2
-        * W_3 - W-3
-        * W_4 - W-4
-        * W_5 - W-5
-        * O_1 - O-1
-        * O_2 - O-2
-        * O_3 - O-3
-        * O_4 - O-4
-        * O_5 - O-5
-        * O_6 - O-6
-        * O_7 - O-7
-        * O_8 - O-8
-        * O_9 - O-9
-        * O_10 - O-10
-        * ACADEMY_CADET - Service Academy Cadet
-        * ACADEMY_GRADUATE - Service Academy Graduate
-        * AVIATION_CADET - Aviation Cadet
-        * CIVILIAN_EMPLOYEE - Civilian Employee
-        * MIDSHIPMAN - Midshipman
+      * E_1 - E-1
+      * E_2 - E-2
+      * E_3 - E-3
+      * E_4 - E-4
+      * E_5 - E-5
+      * E_6 - E-6
+      * E_7 - E-7
+      * E_8 - E-8
+      * E_9 - E-9
+      * W_1 - W-1
+      * W_2 - W-2
+      * W_3 - W-3
+      * W_4 - W-4
+      * W_5 - W-5
+      * O_1 - O-1
+      * O_2 - O-2
+      * O_3 - O-3
+      * O_4 - O-4
+      * O_5 - O-5
+      * O_6 - O-6
+      * O_7 - O-7
+      * O_8 - O-8
+      * O_9 - O-9
+      * O_10 - O-10
+      * ACADEMY_CADET - Service Academy Cadet
+      * ACADEMY_GRADUATE - Service Academy Graduate
+      * AVIATION_CADET - Aviation Cadet
+      * CIVILIAN_EMPLOYEE - Civilian Employee
+      * MIDSHIPMAN - Midshipman
   IndexShipmentsPayload:
     type: array
     items:

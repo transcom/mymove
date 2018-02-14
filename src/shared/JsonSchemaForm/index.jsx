@@ -27,13 +27,25 @@ const renderGroupOrField = (fieldName, fields, uiSchema) => {
   return renderField(fieldName, fields);
 };
 
+const createEnumDict = field => {
+  // parse swagger enum description for key/value pairs
+  var descList = field.description.split(' * ');
+  var enumDict = {};
+  descList.forEach(function(i) {
+    var items = i.replace('* ', '').split(' - ');
+    enumDict[items[0]] = items[1];
+  });
+  return enumDict;
+};
+
 const createDropDown = (fieldName, field) => {
+  var enumDict = createEnumDict(field);
   return (
     <Field name={fieldName} component="select">
       <option />
-      {field.enum.map(e => (
+      {field.enum.map((e, index) => (
         <option key={e} value={e}>
-          {e}
+          {enumDict[e]}
         </option>
       ))}
     </Field>
