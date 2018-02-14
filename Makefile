@@ -69,9 +69,11 @@ server_run_only_docker: db_dev_run
 	docker rm web || true
 	docker run --name web -p 8080:8080 ppp:web-dev
 
-tsp_build: server_deps
+tools_build: server_deps
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
-tsp_run: tsp_build db_dev_run
+	go build -i -o bin/generate-test-data ./cmd/generate_test_data
+
+tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue
 
 tsp_build_docker:
@@ -80,11 +82,6 @@ tsp_run_only_docker: db_dev_run
 	docker stop tsp || true
 	docker rm tsp || true
 	docker run --name tsp ppp:tsp-dev
-
-data_gen_build: server_deps
-	go build -i -o bin/generate-test-data ./cmd/generate_test_data
-
-tools_build: tsp_build data_gen_build
 
 build: server_build tools_build
 
