@@ -1,9 +1,0 @@
-#!/bin/bash
-# This script runs the e2e tests for MyMove.mil.
-
-set -eu -o pipefail
-
-run_e2e_tests="node e2e.js"
-
-echo "Running e2e tests."
-bash -c "$run_e2e_tests"

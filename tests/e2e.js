@@ -21,16 +21,18 @@ driver = new webdriver.Builder()
   )
   .build();
 
-driver.get('https://app.staging.dp3.us/');
-
-driver.sleep(2000).then(function() {
-  driver.getTitle().then(function(title) {
-    if (title === 'Transcom PPP: Submit Feedback') {
-      console.log('Test passed');
-    } else {
-      console.log('Test failed');
-    }
+function load_app_test(driver) {
+  driver.get('https://app.staging.dp3.us/');
+  driver.sleep(2000).then(function() {
+    driver.getTitle().then(function(title) {
+      if (title === 'Transcom PPP: Submit Feedback') {
+        console.log('Test passed');
+      } else {
+        console.log('Test failed');
+      }
+    });
   });
-});
+  driver.quit();
+}
 
-driver.quit();
+load_app_test(driver);
