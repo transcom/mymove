@@ -41,7 +41,7 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	swagger := flag.String("swagger", "swagger.yaml", "The location of the swagger API definition")
+	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
 
