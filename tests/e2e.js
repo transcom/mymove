@@ -1,5 +1,6 @@
 var webdriver = require('selenium-webdriver'),
   By = webdriver.By,
+  until = webdriver.until,
   username = 'movemil',
   accessKey = process.env.SAUCE_ACCESS_KEY,
   driver;
@@ -23,16 +24,22 @@ driver = new webdriver.Builder()
 
 function load_app_test(driver) {
   driver.get('https://app.staging.dp3.us/');
-  driver.sleep(2000).then(function() {
-    driver.getTitle().then(function(title) {
-      if (title === 'Transcom PPP: Submit Feedback') {
-        console.log('Test passed');
-      } else {
-        console.log('Test failed');
-      }
-    });
-  });
-  driver.quit();
+  driver.wait(until.titleIs('Transcom PPP: Submit Feedback'));
+}
+
+function submit_issue_test(driver) {
+  test_issue = 'Too few dogs. Time: ' + Date.now();
+  driver.get('https://app.staging.dp3.us/');
+  driver.wait(until.elementLocated(By.css('[data-test="feedback-form"]')));
+  feedback_form = driver.findElement(By.css('[data-test="feedback-form"]'));
+  feedback_form.clear();
+  feedback_form.sendKeys(test_issue);
+  driver.findElement(By.css("input[type='submit']")).click();
+  driver.get('https://app.staging.dp3.us/submitted');
+  issue_cards = driver.findElement(By.className('issue-cards'));
+  driver.wait(until.elementTextContains(issue_cards, test_issue), 1000);
 }
 
 load_app_test(driver);
+submit_issue_test(driver);
+driver.quit();
