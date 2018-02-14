@@ -60,11 +60,9 @@ type Form1299 struct {
 	InTransitAddress                       *Address                    `db:"-"`
 	PickupAddressID                        *uuid.UUID                  `json:"pickup_address_id" db:"pickup_address_id"`
 	PickupAddress                          *Address                    `db:"-"`
-	PickupAddressMobileCourtName           *string                     `json:"pickup_address_mobile_court_name" db:"pickup_address_mobile_court_name"`
 	PickupTelephone                        *string                     `json:"pickup_telephone" db:"pickup_telephone"`
 	DestAddressID                          *uuid.UUID                  `json:"dest_address_id" db:"dest_address_id"`
 	DestAddress                            *Address                    `db:"-"`
-	DestAddressMobileCourtName             *string                     `json:"dest_address_mobile_court_name" db:"dest_address_mobile_court_name"`
 	AgentToReceiveHhg                      *string                     `json:"agent_to_receive_hhg" db:"agent_to_receive_hhg"`
 	ExtraAddressID                         *uuid.UUID                  `json:"extra_address_id" db:"extra_address_id"`
 	ExtraAddress                           *Address                    `db:"-"`
