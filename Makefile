@@ -14,7 +14,7 @@ prereqs: .prereqs.stamp
 	touch .prereqs.stamp
 
 deps: prereqs pre-commit client_deps server_deps
-test: client_test server_test
+test: client_test server_test e2e_test
 
 client_deps_update:
 	yarn upgrade
@@ -83,6 +83,9 @@ tsp_run_only_docker: db_dev_run
 
 server_test: db_dev_run db_test_reset server_deps server_generate
 	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
+
+e2e_test: client_deps
+	yarn e2e-test
 
 db_dev_run:
 	docker start $(DB_DOCKER_CONTAINER) || \
