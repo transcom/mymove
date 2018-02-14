@@ -16,11 +16,11 @@ __snapshots__
 # built binaries
 /bin/webserver
 /bin/tsp-award-queue
+/bin/generate-test-data
 /bin/soda
 /bin/golint
 /bin/swagger
 /bin/gin
-/bin/generate_test_data
 
 # misc
 .DS_Store

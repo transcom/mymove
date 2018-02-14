@@ -120,7 +120,8 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run frontend testing suites.
 * `make server_test`: Run backend testing suites.
-* `make test`: Run both client- and server-side testing suites.
+* `make e2e_test`: Run e2e testing suite.
+* `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging
 
