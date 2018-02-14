@@ -38,7 +38,7 @@ repos:
     hooks:
       - id: swagger
         name: swagger
-        entry: bin/swagger validate swagger.yaml
+        entry: bin/swagger validate swagger/swagger.yaml
         language: script
 
   - repo: git://github.com/dnephin/pre-commit-golang
