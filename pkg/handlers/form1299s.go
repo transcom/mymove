@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"errors"
-	"strings"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -202,17 +200,12 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		TitleOfCertifiedBySignature:            params.CreateForm1299Payload.TitleOfCertifiedBySignature,
 	}
 	var response middleware.Responder
-	verrs, errs := models.CreateForm1299WithAddresses(dbConnection, &newForm1299)
+	verrs, err := models.CreateForm1299WithAddresses(dbConnection, &newForm1299)
 	if verrs.HasAny() {
 		zap.L().Error("DB Validation", zap.Error(verrs))
 		response = form1299op.NewCreateForm1299BadRequest()
-	} else if len(errs) > 0 {
-		var errStrings []string
-		for _, err := range errs {
-			errStrings = append(errStrings, err.Error())
-		}
-		conjoinedError := errors.New(strings.Join(errStrings, ", "))
-		zap.L().Error("DB Insertion", zap.Error(conjoinedError))
+	} else if err != nil {
+		zap.L().Error("DB Insertion", zap.Error(err))
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else {
 		form1299Payload := payloadForForm1299Model(newForm1299)

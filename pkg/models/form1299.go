@@ -85,56 +85,54 @@ type Form1299 struct {
 }
 
 // CreateForm1299WithAddresses takes a form1299 with Address structs and coordinates saving it all in a transaction
-func CreateForm1299WithAddresses(dbConnection *pop.Connection, form1299 *Form1299) (*validate.Errors, []error) {
-	transactionVErrors := validate.NewErrors()
-	transactionErrors := []error{}
+func CreateForm1299WithAddresses(dbConnection *pop.Connection, form1299 *Form1299) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
 	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
 
-		saveAndPopulateErrors := func(dbStruct interface{}) bool {
-			success := false
-			if verrs, err := dbConnection.ValidateAndCreate(dbStruct); verrs.HasAny() || err != nil {
-				transactionVErrors.Append(verrs)
-				if err != nil {
-					transactionErrors = append(transactionErrors, err)
-				}
-			} else {
-				success = true
-			}
-			return success
-		}
-
-		if form1299.OriginOfficeAddress != nil && saveAndPopulateErrors(form1299.OriginOfficeAddress) {
-			form1299.OriginOfficeAddressID = &form1299.OriginOfficeAddress.ID
-		}
-		if form1299.InTransitAddress != nil && saveAndPopulateErrors(form1299.InTransitAddress) {
-			form1299.InTransitAddressID = &form1299.InTransitAddress.ID
-		}
-		if form1299.PickupAddress != nil && saveAndPopulateErrors(form1299.PickupAddress) {
-			form1299.PickupAddressID = &form1299.PickupAddress.ID
-		}
-		if form1299.DestAddress != nil && saveAndPopulateErrors(form1299.DestAddress) {
-			form1299.DestAddressID = &form1299.DestAddress.ID
-		}
-		if form1299.ExtraAddress != nil && saveAndPopulateErrors(form1299.ExtraAddress) {
-			form1299.ExtraAddressID = &form1299.ExtraAddress.ID
-		}
-		if form1299.ContractorAddress != nil && saveAndPopulateErrors(form1299.ContractorAddress) {
-			form1299.ContractorAddressID = &form1299.ContractorAddress.ID
-		}
-
-		saveAndPopulateErrors(form1299)
-
 		var transactionError error
-		if transactionVErrors.HasAny() || len(transactionErrors) > 0 {
-			transactionError = errors.New("Rollback The transaction")
+		addressModels := []*Address{
+			form1299.OriginOfficeAddress,
+			form1299.InTransitAddress,
+			form1299.PickupAddress,
+			form1299.DestAddress,
+			form1299.ExtraAddress,
+			form1299.ContractorAddress,
 		}
+
+		for _, model := range addressModels {
+			if model == nil {
+				continue
+			} else if verrs, err := dbConnection.ValidateAndCreate(model); verrs.HasAny() || err != nil {
+				transactionError = errors.New("Rollback The transaction")
+				responseVErrors = verrs
+				responseError = err
+				break
+			}
+		}
+
+		if transactionError == nil {
+			form1299.OriginOfficeAddressID = GetAddressID(form1299.OriginOfficeAddress)
+			form1299.InTransitAddressID = GetAddressID(form1299.InTransitAddress)
+			form1299.PickupAddressID = GetAddressID(form1299.PickupAddress)
+			form1299.DestAddressID = GetAddressID(form1299.DestAddress)
+			form1299.ExtraAddressID = GetAddressID(form1299.ExtraAddress)
+			form1299.ContractorAddressID = GetAddressID(form1299.ContractorAddress)
+
+			if verrs, err := dbConnection.ValidateAndCreate(form1299); verrs.HasAny() || err != nil {
+				transactionError = errors.New("Rollback The transaction")
+				responseVErrors = verrs
+				responseError = err
+			}
+		}
+
 		return transactionError
 
 	})
 
-	return transactionVErrors, transactionErrors
+	return responseVErrors, responseError
 
 }
 

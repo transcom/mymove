@@ -29,6 +29,15 @@ func (a Address) String() string {
 	return string(ja)
 }
 
+// GetAddressID facilitates grabbing the ID from an address that may be nil
+func GetAddressID(address *Address) *uuid.UUID {
+	var response *uuid.UUID
+	if address != nil {
+		response = &address.ID
+	}
+	return response
+}
+
 // FetchAddressByID returns an address model by ID
 func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 	if id == nil {

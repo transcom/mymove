@@ -175,7 +175,7 @@ func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
 	}
 
 	// When: CreateForm1299WithAddressesSavesAddresses is called on the form
-	verrs, errs := CreateForm1299WithAddresses(dbConnection, &form)
+	verrs, err := CreateForm1299WithAddresses(dbConnection, &form)
 
 	// Then: The address and form should be saved to DB, ID populated
 	blankUUID := uuid.UUID{}
@@ -184,7 +184,7 @@ func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
 	}
 
 	// And: There should be no errors
-	if verrs.HasAny() || len(errs) > 0 {
+	if verrs.HasAny() || err != nil {
 		t.Fatal("There was an error while saving form")
 	}
 }
