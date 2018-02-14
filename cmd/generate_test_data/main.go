@@ -140,13 +140,13 @@ func main() {
 	}
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
-	awardedShipment1 := models.AwardedShipment{
+	award1 := models.ShipmentAward{
 		ShipmentID:                      shipmentList[0].ID,
 		TransportationServiceProviderID: tspList[0].ID,
 		AdministrativeShipment:          false,
 	}
 
-	_, err = dbConnection.ValidateAndSave(&awardedShipment1)
+	_, err = dbConnection.ValidateAndSave(&award1)
 	if err != nil {
 		log.Panic(err)
 	}
@@ -155,6 +155,7 @@ func main() {
 	bestValueScore1 := models.BestValueScore{
 		TransportationServiceProviderID: tspList[0].ID,
 		Score: 11,
+		TrafficDistributionListID: tdlList[0].ID,
 	}
 
 	_, err = dbConnection.ValidateAndSave(&bestValueScore1)
@@ -165,6 +166,7 @@ func main() {
 	bestValueScore2 := models.BestValueScore{
 		TransportationServiceProviderID: tspList[1].ID,
 		Score: 2,
+		TrafficDistributionListID: tdlList[1].ID,
 	}
 
 	_, err = dbConnection.ValidateAndSave(&bestValueScore2)
@@ -175,6 +177,7 @@ func main() {
 	bestValueScore3 := models.BestValueScore{
 		TransportationServiceProviderID: tspList[2].ID,
 		Score: 8,
+		TrafficDistributionListID: tdlList[1].ID,
 	}
 
 	_, err = dbConnection.ValidateAndSave(&bestValueScore3)

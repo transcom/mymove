@@ -18,14 +18,10 @@ test: client_test server_test
 
 client_deps_update:
 	yarn upgrade
-# This will execute when any file in the public/swagger-ui folder changes
-swagger-ui_deps: .swagger-ui_deps.stamp
-.swagger-ui_deps.stamp: $(shell find public/swagger-ui -type f)
-	bin/copy_swagger_ui.sh
-	touch .swagger-ui_deps.stamp
-client_deps: .client_deps.stamp swagger-ui_deps
+client_deps: .client_deps.stamp
 .client_deps.stamp: yarn.lock
 	yarn install
+	bin/copy_swagger_ui.sh
 	touch .client_deps.stamp
 client_build: client_deps
 	yarn build

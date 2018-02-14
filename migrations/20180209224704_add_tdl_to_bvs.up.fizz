@@ -1,0 +1,2 @@
+add_column("best_value_scores", "traffic_distribution_list_id", "uuid", {})
+add_foreign_key("best_value_scores", "traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})

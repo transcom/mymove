@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 
 import { Field, reduxForm } from 'redux-form';
@@ -39,6 +39,7 @@ const createDropDown = (fieldName, field) => {
     </Field>
   );
 };
+
 const parseNumberField = value => (!value ? null : Number(value));
 const createNumberField = (fieldName, field) => (
   <Field
@@ -48,15 +49,47 @@ const createNumberField = (fieldName, field) => (
     type="Number"
   />
 );
-const createField = (fieldName, field) => {
-  //todo: how to determine if multiselect/checkboxes etc
-  if (field.enum) {
-    return createDropDown(fieldName, field);
-  }
-  if (field.type === 'integer') {
-    return createNumberField(fieldName, field);
-  }
+
+const createCheckbox = (fieldName, field) => {
+  return (
+    <Field id={fieldName} name={fieldName} component="input" type="checkbox" />
+  );
+};
+
+const createInputField = (fieldName, field) => {
   return <Field name={fieldName} component="input" type={field.format} />;
+};
+
+// This function switches on the type of the field and creates the correct
+// Label and Field combination.
+const createField = (fieldName, swaggerField) => {
+  // Early return here, this is an edge case for label placement.
+  // USWDS CSS only renders a checkbox if it is followed by its label
+  if (swaggerField.type === 'boolean') {
+    return (
+      <Fragment key={fieldName}>
+        {createCheckbox(fieldName, swaggerField)}
+        <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
+      </Fragment>
+    );
+  }
+
+  let fieldComponent;
+  if (swaggerField.enum) {
+    fieldComponent = createDropDown(fieldName, swaggerField);
+  } else if (swaggerField.type === 'integer') {
+    fieldComponent = createNumberField(fieldName, swaggerField);
+  } else {
+    // more cases go here. Datetime, Date, UUID
+    fieldComponent = createInputField(fieldName, swaggerField);
+  }
+
+  return (
+    <label key={fieldName}>
+      {swaggerField.title || fieldName}
+      {fieldComponent}
+    </label>
+  );
 };
 
 const renderField = (fieldName, fields) => {
@@ -64,12 +97,7 @@ const renderField = (fieldName, fields) => {
   if (!field) {
     return;
   }
-  return (
-    <label key={fieldName} htmlFor={fieldName}>
-      {field.title || fieldName}
-      {createField(fieldName, field)}
-    </label>
-  );
+  return createField(fieldName, field);
 };
 
 const renderSchema = (schema, uiSchema) => {
@@ -79,13 +107,16 @@ const renderSchema = (schema, uiSchema) => {
   }
 };
 const JsonSchemaForm = props => {
+  const { pristine, submitting, invalid } = props;
   const { handleSubmit, schema, uiSchema } = props;
   const title = schema ? schema.title : '';
   return (
     <form className="default" onSubmit={handleSubmit}>
       <h1>{title}</h1>
       {renderSchema(schema, uiSchema)}
-      <button type="submit">Submit</button>
+      <button type="submit" disabled={pristine || submitting || invalid}>
+        Submit
+      </button>
     </form>
   );
 };

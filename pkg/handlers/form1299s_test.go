@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/gen/messages"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
@@ -79,60 +80,64 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := messages.CreateForm1299Payload{
-		ShipmentNumber:                   stringPointer("23098eifjsldkjf"),
-		DatePrepared:                     fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		NameOfPreparingOffice:            stringPointer("random string bla"),
-		DestOfficeName:                   stringPointer("random string bla"),
-		OriginOfficeAddressName:          stringPointer("random string bla"),
-		OriginOfficeAddress:              stringPointer("random string bla"),
-		ServiceMemberFirstName:           stringPointer("random string bla"),
-		ServiceMemberMiddleInitial:       stringPointer("random string bla"),
-		ServiceMemberLastName:            stringPointer("random string bla"),
-		ServiceMemberRank:                &rankE6,
-		ServiceMemberSsn:                 stringPointer("random string bla"),
-		ServiceMemberAgency:              stringPointer("random string bla"),
-		HhgTotalPounds:                   fmtInt64(10500),
-		HhgProgearPounds:                 fmtInt64(100),
-		HhgValuableItemsCartons:          fmtInt64(100),
-		MobileHomeSerialNumber:           stringPointer("random string bla"),
-		MobileHomeLengthFt:               fmtInt64(100),
-		MobileHomeLengthInches:           fmtInt64(100),
-		MobileHomeWidthFt:                fmtInt64(100),
-		MobileHomeWidthInches:            fmtInt64(100),
-		MobileHomeHeightFt:               fmtInt64(100),
-		MobileHomeHeightInches:           fmtInt64(100),
-		MobileHomeTypeExpando:            stringPointer("random string bla"),
-		MobileHomeServicesRequested:      stringPointer("random string bla"), // enum validation not happening at server layer
-		StationOrdersType:                stringPointer("random string bla"), // enum validation not happening at server layer
-		StationOrdersIssuedBy:            stringPointer("random string bla"),
-		StationOrdersNewAssignment:       stringPointer("random string bla"),
-		StationOrdersDate:                fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		StationOrdersNumber:              stringPointer("random string bla"),
-		StationOrdersParagraphNumber:     stringPointer("random string bla"),
-		StationOrdersInTransitTelephone:  stringPointer("random string bla"),
-		InTransitAddress:                 stringPointer("random string bla"),
-		PickupAddress:                    stringPointer("random string bla"),
-		PickupAddressMobileCourtName:     stringPointer("random string bla"),
-		PickupTelephone:                  stringPointer("random string bla"),
-		DestAddress:                      stringPointer("random string bla"),
-		DestAddressMobileCourtName:       stringPointer("random string bla"),
-		AgentToReceiveHhg:                stringPointer("random string bla"),
-		ExtraAddress:                     stringPointer("random string bla"),
-		PackScheduledDate:                fmtDate(time.Date(2019, 2, 6, 0, 0, 0, 0, time.UTC)),
-		PickupScheduledDate:              fmtDate(time.Date(2019, 2, 7, 0, 0, 0, 0, time.UTC)),
-		DeliveryScheduledDate:            fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		Remarks:                          stringPointer("random string bla"),
-		OtherMoveFrom:                    stringPointer("random string bla"),
-		OtherMoveTo:                      stringPointer("random string bla"),
-		OtherMoveNetPounds:               fmtInt64(100),
-		OtherMoveProgearPounds:           fmtInt64(100),
-		ServiceMemberSignature:           stringPointer("random string bla"),
-		DateSigned:                       fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		ContractorAddress:                stringPointer("random string bla"),
-		ContractorName:                   stringPointer("random string bla"),
-		NonavailabilityOfSignatureReason: stringPointer("random string bla"),
-		CertifiedBySignature:             stringPointer("random string bla"),
-		TitleOfCertifiedBySignature:      stringPointer("random string bla"),
+		ShipmentNumber:                         stringPointer("23098eifjsldkjf"),
+		DatePrepared:                           fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
+		NameOfPreparingOffice:                  stringPointer("random string bla"),
+		DestOfficeName:                         stringPointer("random string bla"),
+		OriginOfficeAddressName:                stringPointer("random string bla"),
+		OriginOfficeAddress:                    stringPointer("random string bla"),
+		ServiceMemberFirstName:                 stringPointer("random string bla"),
+		ServiceMemberMiddleInitial:             stringPointer("random string bla"),
+		ServiceMemberLastName:                  stringPointer("random string bla"),
+		ServiceMemberSsn:                       stringPointer("random string bla"),
+		ServiceMemberAgency:                    stringPointer("random string bla"),
+		ServiceMemberRank:                      &rankE6,
+		HhgTotalPounds:                         fmtInt64(10500),
+		HhgProgearPounds:                       fmtInt64(100),
+		HhgValuableItemsCartons:                fmtInt64(100),
+		MobileHomeSerialNumber:                 stringPointer("random string bla"),
+		MobileHomeLengthFt:                     fmtInt64(100),
+		MobileHomeLengthInches:                 fmtInt64(100),
+		MobileHomeWidthFt:                      fmtInt64(100),
+		MobileHomeWidthInches:                  fmtInt64(100),
+		MobileHomeHeightFt:                     fmtInt64(100),
+		MobileHomeHeightInches:                 fmtInt64(100),
+		MobileHomeTypeExpando:                  stringPointer("random string bla"),
+		MobileHomeContentsPackedRequested:      swag.Bool(true),
+		MobileHomeBlockedRequested:             swag.Bool(false),
+		MobileHomeUnblockedRequested:           swag.Bool(true),
+		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
+		MobileHomeStoredAtDestinationRequested: swag.Bool(true),
+		StationOrdersType:                      stringPointer("random string bla"), // enum validation not happening at server layer
+		StationOrdersIssuedBy:                  stringPointer("random string bla"),
+		StationOrdersNewAssignment:             stringPointer("random string bla"),
+		StationOrdersDate:                      fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
+		StationOrdersNumber:                    stringPointer("random string bla"),
+		StationOrdersParagraphNumber:           stringPointer("random string bla"),
+		StationOrdersInTransitTelephone:        stringPointer("random string bla"),
+		InTransitAddress:                       stringPointer("random string bla"),
+		PickupAddress:                          stringPointer("random string bla"),
+		PickupAddressMobileCourtName:           stringPointer("random string bla"),
+		PickupTelephone:                        stringPointer("random string bla"),
+		DestAddress:                            stringPointer("random string bla"),
+		DestAddressMobileCourtName:             stringPointer("random string bla"),
+		AgentToReceiveHhg:                      stringPointer("random string bla"),
+		ExtraAddress:                           stringPointer("random string bla"),
+		PackScheduledDate:                      fmtDate(time.Date(2019, 2, 6, 0, 0, 0, 0, time.UTC)),
+		PickupScheduledDate:                    fmtDate(time.Date(2019, 2, 7, 0, 0, 0, 0, time.UTC)),
+		DeliveryScheduledDate:                  fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
+		Remarks:                                stringPointer("random string bla"),
+		OtherMoveFrom:                          stringPointer("random string bla"),
+		OtherMoveTo:                            stringPointer("random string bla"),
+		OtherMoveNetPounds:                     fmtInt64(100),
+		OtherMoveProgearPounds:                 fmtInt64(100),
+		ServiceMemberSignature:                 stringPointer("random string bla"),
+		DateSigned:                             fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
+		ContractorAddress:                      stringPointer("random string bla"),
+		ContractorName:                         stringPointer("random string bla"),
+		NonavailabilityOfSignatureReason:       stringPointer("random string bla"),
+		CertifiedBySignature:                   stringPointer("random string bla"),
+		TitleOfCertifiedBySignature:            stringPointer("random string bla"),
 	}
 
 	// When: New Form1299 is posted
@@ -195,7 +200,13 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 
 	// Given: an instance of Form1299 with no values
 	// When: New Form1299 is posted
-	newForm1299Payload := messages.CreateForm1299Payload{}
+	newForm1299Payload := messages.CreateForm1299Payload{
+		MobileHomeContentsPackedRequested:      swag.Bool(false),
+		MobileHomeBlockedRequested:             swag.Bool(false),
+		MobileHomeUnblockedRequested:           swag.Bool(false),
+		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
+		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
+	}
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
 	response := CreateForm1299Handler(newForm1299Params)
 
@@ -218,18 +229,23 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 	// Given: an instance of Form1299 with some values
 	newForm1299Payload := messages.CreateForm1299Payload{
-		Remarks:                          stringPointer("random string bla"),
-		OtherMoveFrom:                    stringPointer("random string bla"),
-		OtherMoveTo:                      stringPointer("random string bla"),
-		OtherMoveNetPounds:               fmtInt64(100),
-		OtherMoveProgearPounds:           fmtInt64(100),
-		ServiceMemberSignature:           stringPointer("random string bla"),
-		DateSigned:                       fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		ContractorAddress:                stringPointer("random string bla"),
-		ContractorName:                   stringPointer("random string bla"),
-		NonavailabilityOfSignatureReason: stringPointer("random string bla"),
-		CertifiedBySignature:             stringPointer("random string bla"),
-		TitleOfCertifiedBySignature:      stringPointer("random string bla"),
+		Remarks:                                stringPointer("random string bla"),
+		OtherMoveFrom:                          stringPointer("random string bla"),
+		OtherMoveTo:                            stringPointer("random string bla"),
+		OtherMoveNetPounds:                     fmtInt64(100),
+		OtherMoveProgearPounds:                 fmtInt64(100),
+		ServiceMemberSignature:                 stringPointer("random string bla"),
+		DateSigned:                             fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
+		MobileHomeContentsPackedRequested:      swag.Bool(false),
+		MobileHomeBlockedRequested:             swag.Bool(false),
+		MobileHomeUnblockedRequested:           swag.Bool(false),
+		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
+		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
+		ContractorAddress:                      stringPointer("random string bla"),
+		ContractorName:                         stringPointer("random string bla"),
+		NonavailabilityOfSignatureReason:       stringPointer("random string bla"),
+		CertifiedBySignature:                   stringPointer("random string bla"),
+		TitleOfCertifiedBySignature:            stringPointer("random string bla"),
 	}
 
 	// When: a new Form1299 is posted
@@ -252,8 +268,15 @@ func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 
 func TestIndexForm1299sHandler(t *testing.T) {
 	// Given: A Form1299
-	shipmentNumber := "This is a test Form1299 for your indexForm1299Handler."
-	newForm1299Payload := messages.CreateForm1299Payload{ShipmentNumber: &shipmentNumber}
+	destOfficeName := "This is a test Form1299 for your indexForm1299Handler."
+	newForm1299Payload := messages.CreateForm1299Payload{
+		DestOfficeName:                         &destOfficeName,
+		MobileHomeContentsPackedRequested:      swag.Bool(false),
+		MobileHomeBlockedRequested:             swag.Bool(false),
+		MobileHomeUnblockedRequested:           swag.Bool(false),
+		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
+		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
+	}
 
 	// When: New Form1299 is posted
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
@@ -273,14 +296,14 @@ func TestIndexForm1299sHandler(t *testing.T) {
 	// And: Returned query to include our posted Form1299
 	form1299Exists := false
 	for _, form1299 := range form1299s {
-		if form1299.ShipmentNumber != nil {
-			if *form1299.ShipmentNumber == shipmentNumber {
+		if form1299.DestOfficeName != nil {
+			if *form1299.DestOfficeName == destOfficeName {
 				form1299Exists = true
 			}
 		}
 	}
 
 	if form1299Exists == false {
-		t.Errorf("Expected an form1299 to contain '%v'. None do.", shipmentNumber)
+		t.Errorf("Expected an form1299 to contain '%v'. None do.", destOfficeName)
 	}
 }
