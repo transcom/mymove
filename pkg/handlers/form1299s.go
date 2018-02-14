@@ -26,7 +26,7 @@ func payloadForAddressModel(a *models.Address) *messages.Address {
 	return nil
 }
 
-func createAddressModel(rawAddress *messages.Address) *models.Address {
+func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
@@ -134,12 +134,12 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
-	originOfficeAddress := createAddressModel(params.CreateForm1299Payload.OriginOfficeAddress)
-	inTransitAddress := createAddressModel(params.CreateForm1299Payload.InTransitAddress)
-	pickupAddress := createAddressModel(params.CreateForm1299Payload.PickupAddress)
-	destAddress := createAddressModel(params.CreateForm1299Payload.DestAddress)
-	extraAddress := createAddressModel(params.CreateForm1299Payload.ExtraAddress)
-	contractorAddress := createAddressModel(params.CreateForm1299Payload.ContractorAddress)
+	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
+	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
+	pickupAddress := addressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
+	destAddress := addressModelFromPayload(params.CreateForm1299Payload.DestAddress)
+	extraAddress := addressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
+	contractorAddress := addressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
 
 	newForm1299 := models.Form1299{
 		DatePrepared:                           (*time.Time)(params.CreateForm1299Payload.DatePrepared),

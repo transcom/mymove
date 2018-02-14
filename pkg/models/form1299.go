@@ -106,10 +106,13 @@ func CreateForm1299WithAddresses(dbConnection *pop.Connection, form1299 *Form129
 			if model == nil {
 				continue
 			} else if verrs, err := dbConnection.ValidateAndCreate(model); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
 				transactionError = errors.New("Rollback The transaction")
-				responseVErrors = verrs
-				responseError = err
-				break
+				// Halt what we're doing if we get a database error
+				if err != nil {
+					responseError = err
+					break
+				}
 			}
 		}
 
