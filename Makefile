@@ -81,6 +81,13 @@ tsp_run_only_docker: db_dev_run
 	docker rm tsp || true
 	docker run --name tsp ppp:tsp-dev
 
+data_gen_build: server_deps
+	go build -i -o bin/generate-test-data ./cmd/generate_test_data
+
+tools_build: tsp_build data_gen_build
+
+build: server_build tools_build
+
 server_test: db_dev_run db_test_reset server_deps server_generate
 	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
 
