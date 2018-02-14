@@ -9,6 +9,9 @@ import (
 	"time"
 )
 
+// QualityBandAssignment connects a Transportation Service Provider to a Traffic
+// Distribution List, assigns a quality band number and a performance period ID,
+// and indicates how many shipments are made for each quality band.
 type QualityBandAssignment struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`

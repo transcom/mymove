@@ -9,6 +9,10 @@ import (
 	"time"
 )
 
+// PerformancePeriod defines periods of time across the year - per James,
+// there are five periods across the year of unequal lengths. We have gotten
+// some conflicting information about this and should double-check before calling
+// it done.
 type PerformancePeriod struct {
 	ID        uuid.UUID `json:"id" db:"id"`
 	CreatedAt time.Time `json:"created_at" db:"created_at"`

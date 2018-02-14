@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+// BlackoutDate indicates the unavailable times for a TSP and includes
+// its TDL as well.
 type BlackoutDate struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
