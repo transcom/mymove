@@ -9,16 +9,15 @@ import (
 	"time"
 )
 
-// BlackoutDate indicates the unavailable times for a TSP and includes
-// its TDL as well.
+// BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
 type BlackoutDate struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	TransportationServiceProviderId uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
+	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	StartBlackoutDate               time.Time `json:"start_blackout_date" db:"start_blackout_date"`
 	EndBlackoutDate                 time.Time `json:"end_blackout_date" db:"end_blackout_date"`
-	TrafficDistributionListId       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	CodeOfService                   string    `json:"code_of_service" db:"code_of_service"`
 }
 
