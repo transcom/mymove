@@ -10,7 +10,6 @@ import (
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
-	"github.com/satori/go.uuid"
 	"github.com/transcom/mymove/pkg/gen/messages"
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 	"github.com/transcom/mymove/pkg/models"
@@ -41,13 +40,6 @@ func createAddressModel(rawAddress *messages.Address) *models.Address {
 		Zip:            *rawAddress.Zip,
 	}
 	return &address
-}
-
-func getAddressID(address *models.Address) *uuid.UUID {
-	if address != nil {
-		return &address.ID
-	}
-	return nil
 }
 
 func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
@@ -157,7 +149,6 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		NameOfPreparingOffice:                  params.CreateForm1299Payload.NameOfPreparingOffice,
 		DestOfficeName:                         params.CreateForm1299Payload.DestOfficeName,
 		OriginOfficeAddressName:                params.CreateForm1299Payload.OriginOfficeAddressName,
-		OriginOfficeAddressID:                  getAddressID(originOfficeAddress),
 		OriginOfficeAddress:                    originOfficeAddress,
 		ServiceMemberFirstName:                 params.CreateForm1299Payload.ServiceMemberFirstName,
 		ServiceMemberMiddleInitial:             params.CreateForm1299Payload.ServiceMemberMiddleInitial,
@@ -188,15 +179,11 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		StationOrdersNumber:                    params.CreateForm1299Payload.StationOrdersNumber,
 		StationOrdersParagraphNumber:           params.CreateForm1299Payload.StationOrdersParagraphNumber,
 		StationOrdersInTransitTelephone:        params.CreateForm1299Payload.StationOrdersInTransitTelephone,
-		InTransitAddressID:                     getAddressID(inTransitAddress),
 		InTransitAddress:                       inTransitAddress,
-		PickupAddressID:                        getAddressID(pickupAddress),
 		PickupAddress:                          pickupAddress,
 		PickupTelephone:                        params.CreateForm1299Payload.PickupTelephone,
-		DestAddressID:                          getAddressID(destAddress),
 		DestAddress:                            destAddress,
 		AgentToReceiveHhg:                      params.CreateForm1299Payload.AgentToReceiveHhg,
-		ExtraAddressID:                         getAddressID(extraAddress),
 		ExtraAddress:                           extraAddress,
 		PackScheduledDate:                      (*time.Time)(params.CreateForm1299Payload.PackScheduledDate),
 		PickupScheduledDate:                    (*time.Time)(params.CreateForm1299Payload.PickupScheduledDate),
@@ -208,7 +195,6 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		OtherMoveProgearPounds:                 params.CreateForm1299Payload.OtherMoveProgearPounds,
 		ServiceMemberSignature:                 params.CreateForm1299Payload.ServiceMemberSignature,
 		DateSigned:                             (*time.Time)(params.CreateForm1299Payload.DateSigned),
-		ContractorAddressID:                    getAddressID(contractorAddress),
 		ContractorAddress:                      contractorAddress,
 		ContractorName:                         params.CreateForm1299Payload.ContractorName,
 		NonavailabilityOfSignatureReason:       params.CreateForm1299Payload.NonavailabilityOfSignatureReason,
