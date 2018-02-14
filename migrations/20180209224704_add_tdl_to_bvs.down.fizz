@@ -1,0 +1,2 @@
+drop_foreign_key("best_value_scores", "traffic_distribution_list_id", {"if_exists": true})
+drop_column("best_value_scores", "traffic_distribution_list_id")

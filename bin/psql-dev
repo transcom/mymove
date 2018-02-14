@@ -4,11 +4,10 @@ set -eu -o pipefail
 
 db_password="mysecretpassword"
 
-command=""
-if [[ -n "${*:-}" ]]; then
-  command='-c '"$*"
-fi
+command="${*:-}"
 
-# We need word-splitting to pass the $command to psql properly.
-# shellcheck disable=SC2086
-exec psql postgres://postgres:${db_password}@localhost/dev_db $command
+if [ -n "${command[*]}" ]; then
+  exec psql postgres://postgres:${db_password}@localhost/dev_db -c "${command}"
+else
+  exec psql postgres://postgres:${db_password}@localhost/dev_db
+fi

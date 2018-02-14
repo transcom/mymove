@@ -10,9 +10,9 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-// AwardedShipment maps a Transportation Service Provider to a shipment,
+// ShipmentAward maps a Transportation Service Provider to a shipment,
 // indicating that the shipment has been awarded to that TSP.
-type AwardedShipment struct {
+type ShipmentAward struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
@@ -22,23 +22,23 @@ type AwardedShipment struct {
 }
 
 // String is not required by pop and may be deleted
-func (a AwardedShipment) String() string {
+func (a ShipmentAward) String() string {
 	ja, _ := json.Marshal(a)
 	return string(ja)
 }
 
-// AwardedShipments is not required by pop and may be deleted
-type AwardedShipments []AwardedShipment
+// ShipmentAwards is not required by pop and may be deleted
+type ShipmentAwards []ShipmentAward
 
 // String is not required by pop and may be deleted
-func (a AwardedShipments) String() string {
+func (a ShipmentAwards) String() string {
 	ja, _ := json.Marshal(a)
 	return string(ja)
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
-func (a *AwardedShipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *ShipmentAward) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&v.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},
 		&v.UUIDIsPresent{Field: a.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
@@ -47,29 +47,29 @@ func (a *AwardedShipment) Validate(tx *pop.Connection) (*validate.Errors, error)
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
-func (a *AwardedShipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *ShipmentAward) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
 // ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
 // This method is not required and may be deleted.
-func (a *AwardedShipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
+func (a *ShipmentAward) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// AwardShipment connects a shipment to a transportation service provider. This
+// CreateShipmentAward connects a shipment to a transportation service provider. This
 // function assumes that the match has been validated by the caller.
-func AwardShipment(tx *pop.Connection,
+func CreateShipmentAward(tx *pop.Connection,
 	shipmentID uuid.UUID,
 	tspID uuid.UUID,
 	administrativeShipment bool) error {
 
-	awardedShipment := AwardedShipment{
+	shipmentAward := ShipmentAward{
 		ShipmentID:                      shipmentID,
 		TransportationServiceProviderID: tspID,
 		AdministrativeShipment:          administrativeShipment,
 	}
-	_, err := tx.ValidateAndSave(&awardedShipment)
+	_, err := tx.ValidateAndSave(&shipmentAward)
 
 	return err
 }
