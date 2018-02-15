@@ -7,7 +7,7 @@ Explain a little about the changes at a high level.
 
 If this PR makes visible UI changes, an image of the finished UI can help reviewers and casual
 observers understand the context of the changes. A before image is optional and
-can be included at the submitter's descretion.
+can be included at the submitter's discretion.
 
 Consider using an animated image to show an entire workflow instead of using multiple images.
 
