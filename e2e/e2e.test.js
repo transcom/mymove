@@ -29,6 +29,7 @@ describe('index page loads', () => {
   beforeEach(() => driver.navigate().to('https://app.staging.dp3.us/'));
 
   it('loads Submit Feedback page', () => {
+    // When: Page is loaded, should display expected title
     driver.wait(until.titleIs('Transcom PPP: Submit Feedback'), 2000);
   });
 
