@@ -37,7 +37,6 @@ func (a ShipmentAwards) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (a *ShipmentAward) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&v.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},

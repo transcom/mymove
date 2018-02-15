@@ -37,10 +37,10 @@ func (b BestValueScores) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
+// TODO verify that range validated below is correct for best value scores
 func (b *BestValueScore) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: b.Score, Name: "Score", Compared: 0},
+		&validators.IntIsGreaterThan{Field: b.Score, Name: "Score", Compared: -1},
 		&validators.IntIsLessThan{Field: b.Score, Name: "Score", Compared: 100},
 	), nil
 }
