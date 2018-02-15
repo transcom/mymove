@@ -5,7 +5,6 @@ import (
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
-	// "time"
 )
 
 // MakeTSPData creates three TSP records

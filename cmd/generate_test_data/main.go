@@ -10,6 +10,8 @@ import (
 	// "reflect"
 )
 
+// Hey, refactoring self: you can pull the UUIDs from the objects rather than
+// querying the db for them again.
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
@@ -25,38 +27,8 @@ func main() {
 	// fmt.Println(reflect.TypeOf(dbConnection))
 
 	// testdatagen.MakeTDLData(dbConnection)
-	testdatagen.MakeTSPData(dbConnection)
-
-	// Hey, refactoring self: you can pull the UUIDs from the objects rather than
-	// querying the db for them again.
-
-	// 	// Make three TSP table records
-	// 	tsp1 := models.TransportationServiceProvider{
-	// 		StandardCarrierAlphaCode: "ABCD",
-	// 		Name: "Very Good TSP"}
-
-	// 	tsp2 := models.TransportationServiceProvider{
-	// 		StandardCarrierAlphaCode: "EFGH",
-	// 		Name: "Pretty Alright TSP"}
-
-	// 	tsp3 := models.TransportationServiceProvider{
-	// 		StandardCarrierAlphaCode: "IJKL",
-	// 		Name: "Serviceable and Adequate TSP"}
-
-	// 	_, err = dbConnection.ValidateAndSave(&tsp1)
-	// 	if err != nil {
-	// 		log.Panic(err)
-	// 	}
-
-	// 	_, err = dbConnection.ValidateAndSave(&tsp2)
-	// 	if err != nil {
-	// 		log.Panic(err)
-	// 	}
-
-	// 	_, err = dbConnection.ValidateAndSave(&tsp3)
-	// 	if err != nil {
-	// 		log.Panic(err)
-	// 	}
+	// testdatagen.MakeTSPData(dbConnection)
+	testdatagen.MakeShipmentData(dbConnection)
 
 	// 	// Make three shipment records
 	// 	// Grab three UUIDs for individual TDLs
