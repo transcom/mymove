@@ -126,6 +126,7 @@ definitions:
       description:
         type: string
         example: This is a test issue
+        format: textarea
         minLength: 1
         maxLength: 1024
       reporter_name:
