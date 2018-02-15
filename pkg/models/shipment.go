@@ -6,7 +6,7 @@ import (
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
-	v "github.com/markbates/validate/validators"
+	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 )
 
@@ -67,7 +67,7 @@ func (s Shipments) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&v.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
+		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
 	), nil
 }
 
