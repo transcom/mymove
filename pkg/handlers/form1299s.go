@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/messages"
@@ -12,8 +13,34 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
+func payloadForAddressModel(a *models.Address) *messages.Address {
+	if a != nil {
+		return &messages.Address{
+			StreetAddress1: swag.String(a.StreetAddress1),
+			StreetAddress2: a.StreetAddress2,
+			City:           swag.String(a.City),
+			State:          swag.String(a.State),
+			Zip:            swag.String(a.Zip),
+		}
+	}
+	return nil
+}
 
+func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
+	if rawAddress == nil {
+		return nil
+	}
+	address := models.Address{
+		StreetAddress1: *rawAddress.StreetAddress1,
+		StreetAddress2: rawAddress.StreetAddress2,
+		City:           *rawAddress.City,
+		State:          *rawAddress.State,
+		Zip:            *rawAddress.Zip,
+	}
+	return &address
+}
+
+func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
 	form1299Payload := messages.Form1299Payload{
 		CreatedAt:                              fmtDateTime(form1299.CreatedAt),
 		ID:                                     fmtUUID(form1299.ID),
@@ -23,7 +50,7 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 		NameOfPreparingOffice:                  form1299.NameOfPreparingOffice,
 		DestOfficeName:                         form1299.DestOfficeName,
 		OriginOfficeAddressName:                form1299.OriginOfficeAddressName,
-		OriginOfficeAddress:                    form1299.OriginOfficeAddress,
+		OriginOfficeAddress:                    payloadForAddressModel(form1299.OriginOfficeAddress),
 		ServiceMemberFirstName:                 form1299.ServiceMemberFirstName,
 		ServiceMemberMiddleInitial:             form1299.ServiceMemberMiddleInitial,
 		ServiceMemberLastName:                  form1299.ServiceMemberLastName,
@@ -53,14 +80,12 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 		StationOrdersNumber:                    form1299.StationOrdersNumber,
 		StationOrdersParagraphNumber:           form1299.StationOrdersParagraphNumber,
 		StationOrdersInTransitTelephone:        form1299.StationOrdersInTransitTelephone,
-		InTransitAddress:                       form1299.InTransitAddress,
-		PickupAddress:                          form1299.PickupAddress,
-		PickupAddressMobileCourtName:           form1299.PickupAddressMobileCourtName,
+		InTransitAddress:                       payloadForAddressModel(form1299.InTransitAddress),
+		PickupAddress:                          payloadForAddressModel(form1299.PickupAddress),
 		PickupTelephone:                        form1299.PickupTelephone,
-		DestAddress:                            form1299.DestAddress,
-		DestAddressMobileCourtName:             form1299.DestAddressMobileCourtName,
+		DestAddress:                            payloadForAddressModel(form1299.DestAddress),
 		AgentToReceiveHhg:                      form1299.AgentToReceiveHhg,
-		ExtraAddress:                           form1299.ExtraAddress,
+		ExtraAddress:                           payloadForAddressModel(form1299.ExtraAddress),
 		PackScheduledDate:                      (*strfmt.Date)(form1299.PackScheduledDate),
 		PickupScheduledDate:                    (*strfmt.Date)(form1299.PickupScheduledDate),
 		DeliveryScheduledDate:                  (*strfmt.Date)(form1299.DeliveryScheduledDate),
@@ -71,7 +96,7 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 		OtherMoveProgearPounds:                 form1299.OtherMoveProgearPounds,
 		ServiceMemberSignature:                 form1299.ServiceMemberSignature,
 		DateSigned:                             (*strfmt.Date)(form1299.DateSigned),
-		ContractorAddress:                      form1299.ContractorAddress,
+		ContractorAddress:                      payloadForAddressModel(form1299.ContractorAddress),
 		ContractorName:                         form1299.ContractorName,
 		NonavailabilityOfSignatureReason:       form1299.NonavailabilityOfSignatureReason,
 		CertifiedBySignature:                   form1299.CertifiedBySignature,
@@ -87,8 +112,8 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 	var response middleware.Responder
 	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
 	if strfmt.IsUUID(string(formID)) {
-		form := models.Form1299{}
-		if err := dbConnection.Find(&form, formID); err != nil {
+		form, err := models.FetchForm1299ByID(dbConnection, formID)
+		if err != nil {
 			if err.Error() == "sql: no rows in result set" {
 				response = form1299op.NewShowForm1299NotFound()
 			} else {
@@ -109,13 +134,20 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 
 // CreateForm1299Handler creates a new form1299 via POST /form1299
 func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
+	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
+	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
+	pickupAddress := addressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
+	destAddress := addressModelFromPayload(params.CreateForm1299Payload.DestAddress)
+	extraAddress := addressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
+	contractorAddress := addressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
+
 	newForm1299 := models.Form1299{
 		DatePrepared:                           (*time.Time)(params.CreateForm1299Payload.DatePrepared),
 		ShipmentNumber:                         params.CreateForm1299Payload.ShipmentNumber,
 		NameOfPreparingOffice:                  params.CreateForm1299Payload.NameOfPreparingOffice,
 		DestOfficeName:                         params.CreateForm1299Payload.DestOfficeName,
 		OriginOfficeAddressName:                params.CreateForm1299Payload.OriginOfficeAddressName,
-		OriginOfficeAddress:                    params.CreateForm1299Payload.OriginOfficeAddress,
+		OriginOfficeAddress:                    originOfficeAddress,
 		ServiceMemberFirstName:                 params.CreateForm1299Payload.ServiceMemberFirstName,
 		ServiceMemberMiddleInitial:             params.CreateForm1299Payload.ServiceMemberMiddleInitial,
 		ServiceMemberLastName:                  params.CreateForm1299Payload.ServiceMemberLastName,
@@ -145,14 +177,12 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		StationOrdersNumber:                    params.CreateForm1299Payload.StationOrdersNumber,
 		StationOrdersParagraphNumber:           params.CreateForm1299Payload.StationOrdersParagraphNumber,
 		StationOrdersInTransitTelephone:        params.CreateForm1299Payload.StationOrdersInTransitTelephone,
-		InTransitAddress:                       params.CreateForm1299Payload.InTransitAddress,
-		PickupAddress:                          params.CreateForm1299Payload.PickupAddress,
-		PickupAddressMobileCourtName:           params.CreateForm1299Payload.PickupAddressMobileCourtName,
+		InTransitAddress:                       inTransitAddress,
+		PickupAddress:                          pickupAddress,
 		PickupTelephone:                        params.CreateForm1299Payload.PickupTelephone,
-		DestAddress:                            params.CreateForm1299Payload.DestAddress,
-		DestAddressMobileCourtName:             params.CreateForm1299Payload.DestAddressMobileCourtName,
+		DestAddress:                            destAddress,
 		AgentToReceiveHhg:                      params.CreateForm1299Payload.AgentToReceiveHhg,
-		ExtraAddress:                           params.CreateForm1299Payload.ExtraAddress,
+		ExtraAddress:                           extraAddress,
 		PackScheduledDate:                      (*time.Time)(params.CreateForm1299Payload.PackScheduledDate),
 		PickupScheduledDate:                    (*time.Time)(params.CreateForm1299Payload.PickupScheduledDate),
 		DeliveryScheduledDate:                  (*time.Time)(params.CreateForm1299Payload.DeliveryScheduledDate),
@@ -163,14 +193,18 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		OtherMoveProgearPounds:                 params.CreateForm1299Payload.OtherMoveProgearPounds,
 		ServiceMemberSignature:                 params.CreateForm1299Payload.ServiceMemberSignature,
 		DateSigned:                             (*time.Time)(params.CreateForm1299Payload.DateSigned),
-		ContractorAddress:                      params.CreateForm1299Payload.ContractorAddress,
+		ContractorAddress:                      contractorAddress,
 		ContractorName:                         params.CreateForm1299Payload.ContractorName,
 		NonavailabilityOfSignatureReason:       params.CreateForm1299Payload.NonavailabilityOfSignatureReason,
 		CertifiedBySignature:                   params.CreateForm1299Payload.CertifiedBySignature,
 		TitleOfCertifiedBySignature:            params.CreateForm1299Payload.TitleOfCertifiedBySignature,
 	}
 	var response middleware.Responder
-	if err := dbConnection.Create(&newForm1299); err != nil {
+	verrs, err := models.CreateForm1299WithAddresses(dbConnection, &newForm1299)
+	if verrs.HasAny() {
+		zap.L().Error("DB Validation", zap.Error(verrs))
+		response = form1299op.NewCreateForm1299BadRequest()
+	} else if err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else {
@@ -184,7 +218,8 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Responder {
 	var form1299s models.Form1299s
 	var response middleware.Responder
-	if err := dbConnection.All(&form1299s); err != nil {
+	form1299s, err := models.FetchAllForm1299s(dbConnection)
+	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {

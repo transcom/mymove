@@ -29,10 +29,28 @@ const simpleSchema = {
       title: 'sex',
       enum: ['Male', 'Female', 'Non-binary', 'Other'],
     },
+    address: {
+      $$ref: '#/definitions/Address',
+      properties: {
+        address1: {
+          type: 'string',
+          title: 'Address 1',
+        },
+        city: {
+          type: 'string',
+          title: 'City',
+        },
+      },
+    },
   },
 };
 const uiSchema = {
-  order: ['firstName', 'lastName', 'demographics'],
+  order: ['firstName', 'lastName', 'demographics', 'address'],
+  definitions: {
+    Address: {
+      order: ['address1', 'city'],
+    },
+  },
   groups: {
     demographics: {
       title: 'demographics',
@@ -60,8 +78,8 @@ it('renders without crashing', () => {
   expect(wrapper.exists(<form className="default" />)).toBe(true);
 });
 
-it('renders 4 Field components', () => {
-  expect(wrapper.find('Field').length).toBe(4);
+it('renders 6 Field components', () => {
+  expect(wrapper.find('Field').length).toBe(6);
 });
 
 it('renders select when there is an enum', () => {
@@ -70,4 +88,8 @@ it('renders select when there is an enum', () => {
 
 it('renders date when format is date', () => {
   expect(wrapper.find('input[type="date"]').length).toBe(1);
+});
+
+it('renders a referenced field group', () => {
+  expect(wrapper.text()).toContain('Address 1');
 });

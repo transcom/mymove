@@ -10,11 +10,12 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/gen/messages"
+	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
 )
 
-func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.CreateForm1299Payload, responsePayload messages.Form1299Payload) {
+func compareRequestAndResponsePayloads(t *testing.T, requestPayload interface{}, responsePayload interface{}) {
 	requestValue := reflect.ValueOf(requestPayload)
 	requestType := requestValue.Type()
 	responseValue := reflect.ValueOf(responsePayload)
@@ -64,80 +65,98 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload messages.Cre
 				continue
 			}
 		// Everything else can use == for now. Other cases may develop
+		case messages.Address:
+			compareRequestAndResponsePayloads(t, requestInterface, responseInterface)
 		default:
 			if requestInterface != responseInterface {
 				t.Errorf("%s doesn't match, request: %s response: %s", fieldName, requestInterface, responseInterface)
 				continue
 			}
 		}
-
 	}
 }
 
+func fakeAddress() *messages.Address {
+	return &messages.Address{
+		StreetAddress1: swag.String("An address"),
+		StreetAddress2: swag.String("Apt. 2"),
+		City:           swag.String("Happytown"),
+		State:          swag.String("AL"),
+		Zip:            swag.String("01234"),
+	}
+}
+
+// Sets up a basic logger so logs are printed to stdout during tests
+func setUpLogger() {
+	logger, _ := zap.NewDevelopment()
+	defer logger.Sync()
+
+	zap.ReplaceGlobals(logger)
+
+	zap.L().Info("replaced zap's global loggers")
+}
+
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
-
 	var rankE6 = messages.ServiceMemberRankE6
-
+	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := messages.CreateForm1299Payload{
-		ShipmentNumber:                         stringPointer("23098eifjsldkjf"),
+		ShipmentNumber:                         swag.String("23098eifjsldkjf"),
 		DatePrepared:                           fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		NameOfPreparingOffice:                  stringPointer("random string bla"),
-		DestOfficeName:                         stringPointer("random string bla"),
-		OriginOfficeAddressName:                stringPointer("random string bla"),
-		OriginOfficeAddress:                    stringPointer("random string bla"),
-		ServiceMemberFirstName:                 stringPointer("random string bla"),
-		ServiceMemberMiddleInitial:             stringPointer("random string bla"),
-		ServiceMemberLastName:                  stringPointer("random string bla"),
-		ServiceMemberSsn:                       stringPointer("random string bla"),
-		ServiceMemberAgency:                    stringPointer("random string bla"),
+		NameOfPreparingOffice:                  swag.String("random string bla"),
+		DestOfficeName:                         swag.String("random string bla"),
+		OriginOfficeAddressName:                swag.String("random string bla"),
+		OriginOfficeAddress:                    fakeAddress(),
+		ServiceMemberFirstName:                 swag.String("random string bla"),
+		ServiceMemberMiddleInitial:             swag.String("random string bla"),
+		ServiceMemberLastName:                  swag.String("random string bla"),
+		ServiceMemberSsn:                       swag.String("random string bla"),
+		ServiceMemberAgency:                    swag.String("random string bla"),
 		ServiceMemberRank:                      &rankE6,
 		HhgTotalPounds:                         fmtInt64(10500),
 		HhgProgearPounds:                       fmtInt64(100),
 		HhgValuableItemsCartons:                fmtInt64(100),
-		MobileHomeSerialNumber:                 stringPointer("random string bla"),
+		MobileHomeSerialNumber:                 swag.String("random string bla"),
 		MobileHomeLengthFt:                     fmtInt64(100),
 		MobileHomeLengthInches:                 fmtInt64(100),
 		MobileHomeWidthFt:                      fmtInt64(100),
 		MobileHomeWidthInches:                  fmtInt64(100),
 		MobileHomeHeightFt:                     fmtInt64(100),
 		MobileHomeHeightInches:                 fmtInt64(100),
-		MobileHomeTypeExpando:                  stringPointer("random string bla"),
+		MobileHomeTypeExpando:                  swag.String("random string bla"),
 		MobileHomeContentsPackedRequested:      swag.Bool(true),
 		MobileHomeBlockedRequested:             swag.Bool(false),
 		MobileHomeUnblockedRequested:           swag.Bool(true),
 		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
 		MobileHomeStoredAtDestinationRequested: swag.Bool(true),
-		StationOrdersType:                      stringPointer("random string bla"), // enum validation not happening at server layer
-		StationOrdersIssuedBy:                  stringPointer("random string bla"),
-		StationOrdersNewAssignment:             stringPointer("random string bla"),
+		StationOrdersType:                      swag.String("random string bla"), // enum validation not happening at server layer
+		StationOrdersIssuedBy:                  swag.String("random string bla"),
+		StationOrdersNewAssignment:             swag.String("random string bla"),
 		StationOrdersDate:                      fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		StationOrdersNumber:                    stringPointer("random string bla"),
-		StationOrdersParagraphNumber:           stringPointer("random string bla"),
-		StationOrdersInTransitTelephone:        stringPointer("random string bla"),
-		InTransitAddress:                       stringPointer("random string bla"),
-		PickupAddress:                          stringPointer("random string bla"),
-		PickupAddressMobileCourtName:           stringPointer("random string bla"),
-		PickupTelephone:                        stringPointer("random string bla"),
-		DestAddress:                            stringPointer("random string bla"),
-		DestAddressMobileCourtName:             stringPointer("random string bla"),
-		AgentToReceiveHhg:                      stringPointer("random string bla"),
-		ExtraAddress:                           stringPointer("random string bla"),
+		StationOrdersNumber:                    swag.String("random string bla"),
+		StationOrdersParagraphNumber:           swag.String("random string bla"),
+		StationOrdersInTransitTelephone:        swag.String("random string bla"),
+		InTransitAddress:                       fakeAddress(),
+		PickupAddress:                          fakeAddress(),
+		PickupTelephone:                        swag.String("random string bla"),
+		DestAddress:                            fakeAddress(),
+		AgentToReceiveHhg:                      swag.String("random string bla"),
+		ExtraAddress:                           fakeAddress(),
 		PackScheduledDate:                      fmtDate(time.Date(2019, 2, 6, 0, 0, 0, 0, time.UTC)),
 		PickupScheduledDate:                    fmtDate(time.Date(2019, 2, 7, 0, 0, 0, 0, time.UTC)),
 		DeliveryScheduledDate:                  fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		Remarks:                                stringPointer("random string bla"),
-		OtherMoveFrom:                          stringPointer("random string bla"),
-		OtherMoveTo:                            stringPointer("random string bla"),
+		Remarks:                                swag.String("random string bla"),
+		OtherMoveFrom:                          swag.String("random string bla"),
+		OtherMoveTo:                            swag.String("random string bla"),
 		OtherMoveNetPounds:                     fmtInt64(100),
 		OtherMoveProgearPounds:                 fmtInt64(100),
-		ServiceMemberSignature:                 stringPointer("random string bla"),
+		ServiceMemberSignature:                 swag.String("random string bla"),
 		DateSigned:                             fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
-		ContractorAddress:                      stringPointer("random string bla"),
-		ContractorName:                         stringPointer("random string bla"),
-		NonavailabilityOfSignatureReason:       stringPointer("random string bla"),
-		CertifiedBySignature:                   stringPointer("random string bla"),
-		TitleOfCertifiedBySignature:            stringPointer("random string bla"),
+		ContractorAddress:                      fakeAddress(),
+		ContractorName:                         swag.String("random string bla"),
+		NonavailabilityOfSignatureReason:       swag.String("random string bla"),
+		CertifiedBySignature:                   swag.String("random string bla"),
+		TitleOfCertifiedBySignature:            swag.String("random string bla"),
 	}
 
 	// When: New Form1299 is posted
@@ -157,9 +176,6 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	showResponse := ShowForm1299Handler(showFormParams)
 	showOKResponse := showResponse.(*form1299op.ShowForm1299OK)
 	showFormPayload := showOKResponse.Payload
-
-	fmt.Println(newForm1299Payload)
-	fmt.Println(*showFormPayload)
 
 	b1, _ := json.MarshalIndent(newForm1299Payload, "", "  ")
 	fmt.Println(string(b1))
@@ -229,23 +245,23 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 	// Given: an instance of Form1299 with some values
 	newForm1299Payload := messages.CreateForm1299Payload{
-		Remarks:                                stringPointer("random string bla"),
-		OtherMoveFrom:                          stringPointer("random string bla"),
-		OtherMoveTo:                            stringPointer("random string bla"),
+		Remarks:                                swag.String("random string bla"),
+		OtherMoveFrom:                          swag.String("random string bla"),
+		OtherMoveTo:                            swag.String("random string bla"),
 		OtherMoveNetPounds:                     fmtInt64(100),
 		OtherMoveProgearPounds:                 fmtInt64(100),
-		ServiceMemberSignature:                 stringPointer("random string bla"),
+		ServiceMemberSignature:                 swag.String("random string bla"),
 		DateSigned:                             fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
 		MobileHomeContentsPackedRequested:      swag.Bool(false),
 		MobileHomeBlockedRequested:             swag.Bool(false),
 		MobileHomeUnblockedRequested:           swag.Bool(false),
 		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
 		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
-		ContractorAddress:                      stringPointer("random string bla"),
-		ContractorName:                         stringPointer("random string bla"),
-		NonavailabilityOfSignatureReason:       stringPointer("random string bla"),
-		CertifiedBySignature:                   stringPointer("random string bla"),
-		TitleOfCertifiedBySignature:            stringPointer("random string bla"),
+		ContractorAddress:                      fakeAddress(),
+		ContractorName:                         swag.String("random string bla"),
+		NonavailabilityOfSignatureReason:       swag.String("random string bla"),
+		CertifiedBySignature:                   swag.String("random string bla"),
+		TitleOfCertifiedBySignature:            swag.String("random string bla"),
 	}
 
 	// When: a new Form1299 is posted
@@ -276,6 +292,7 @@ func TestIndexForm1299sHandler(t *testing.T) {
 		MobileHomeUnblockedRequested:           swag.Bool(false),
 		MobileHomeStoredAtOriginRequested:      swag.Bool(false),
 		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
+		ContractorAddress:                      fakeAddress(),
 	}
 
 	// When: New Form1299 is posted
