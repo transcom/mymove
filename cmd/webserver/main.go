@@ -99,7 +99,7 @@ func main() {
 	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
-
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler())
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)

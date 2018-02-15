@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"bytes"
 	"encoding/base64"
 	"fmt"
 	"math/rand"
@@ -10,13 +11,14 @@ import (
 
 	"go.uber.org/zap"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 )
 
-// TODO: replace with secret store
 const loginGovClientID = "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemil"
 const gothProviderType = "openid-connect"
+const sessionExpiryInMinutes = 15
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
@@ -48,15 +50,35 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 		url, err := getAuthorizationURL()
 		if err != nil {
 			zap.L().Error("Construct Login.gov authorization URL", zap.Error(err))
-<<<<<<< HEAD
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
-=======
-			url = "http://localhost:3000/landing?err=1"
->>>>>>> Show error on landing page
 		}
 
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
+	}
+}
+
+// AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
+func AuthorizationCallbackHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		authError := r.URL.Query().Get("error")
+
+		// The user has either cancelled or declined to authorize the client
+		if authError == "access_denied" {
+			http.Redirect(w, r, "http://localhost:3000/landing", http.StatusTemporaryRedirect)
+		}
+
+		if authError == "invalid_request" {
+			// TODO
+		}
+
+		// TODO: validate the state & nonce are the same
+		err := fetchToken(r)
+		if err == nil {
+
+		}
+
+		http.Redirect(w, r, "http://localhost:3000/landing", http.StatusTemporaryRedirect)
 	}
 }
 
@@ -88,6 +110,63 @@ func getAuthorizationURL() (string, error) {
 
 	authURL.RawQuery = params.Encode()
 	return authURL.String(), err
+}
+
+func fetchToken(r *http.Request) error {
+	// TODO: Is it possible to get the token URL from Goth instead?
+	tokenURL := "http://localhost:8000/api/openid_connect/token"
+	clientAssertion, err := createClientAssertionJWT(tokenURL)
+	if err != nil {
+		// TODO
+	}
+	params := url.Values{
+		"client_assertion":      {clientAssertion},
+		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
+		"code":                  {r.URL.Query().Get("code")},
+		"grant_type":            {"authorization_code"},
+	}
+
+	resp, err := http.PostForm(tokenURL, params)
+	if err != nil {
+		return err
+	}
+
+	defer resp.Body.Close()
+	/*
+		responseBody, err := ioutil.ReadAll(resp.Body)
+	*/
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	s := buf.String()
+
+	fmt.Println(s)
+	return err
+}
+
+func createClientAssertionJWT(tokenURL string) (string, error) {
+	claims := &jwt.StandardClaims{
+		Issuer:    loginGovClientID,
+		Subject:   loginGovClientID,
+		Audience:  tokenURL,
+		Id:        generateNonce(),
+		ExpiresAt: time.Now().Add(time.Minute * sessionExpiryInMinutes).Unix(),
+	}
+
+	key, isSet := os.LookupEnv(jwtPrivateKeyEnvVariable)
+	if !isSet {
+		// TODO
+	}
+
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(key))
+	if err != nil {
+		// TODO
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	jwt, err := token.SignedString(rsaKey)
+	if err != nil {
+		zap.L().Error("Signing JWT", zap.Error(err))
+	}
+	return jwt, err
 }
 
 func generateNonce() string {
