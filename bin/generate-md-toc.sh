@@ -11,7 +11,7 @@ set -eu -o pipefail
 
 function generate_toc() {
   filename="$1"
-  regen=$'\n\n_Regenerate with `bin/docs-toc.sh`_'
+  regen=$'\n\n_Regenerate with `bin/generate-md-toc.sh`_'
 
   # shellcheck disable=SC2016
   yarn run markdown-toc -i "${filename}" --bullets='*' --append="${regen}"
