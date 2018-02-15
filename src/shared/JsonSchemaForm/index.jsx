@@ -39,7 +39,7 @@ const createDropDown = (fieldName, field, nameAttr) => {
   return (
     <Field name={nameAttr} component="select">
       <option />
-      {field.enum.map((e, index) => (
+      {field.enum.map(e => (
         <option key={e} value={e}>
           {field['x-display-value'][e]}
         </option>
