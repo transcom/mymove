@@ -41,6 +41,15 @@ repos:
         entry: bin/swagger validate swagger/swagger.yaml
         language: script
 
+  # Ensure markdown files have updated table of contents
+  - repo: local
+    hooks:
+      - id: markdown-toc
+        name: markdown-toc
+        entry: bin/generate-md-toc.sh
+        language: script
+        files: \.md$
+
   - repo: git://github.com/dnephin/pre-commit-golang
     sha: v0.2
     hooks:
