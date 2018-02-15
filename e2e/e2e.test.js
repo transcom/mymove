@@ -22,6 +22,7 @@ driver = new webdriver.Builder()
   )
   .build();
 
+// jest.set_timeout() doesn't work in this circumstance, so using jasmine timeout.
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 60 * 5;
 
 describe('index page loads', () => {
@@ -29,10 +30,6 @@ describe('index page loads', () => {
 
   it('loads Submit Feedback page', () => {
     driver.wait(until.titleIs('Transcom PPP: Submit Feedback'), 2000);
-
-    return driver.getTitle().then(title => {
-      expect(title).toBe('Transcom PPP: Submit Feedback');
-    });
   });
 
   it('allows issue submission', () => {
@@ -49,10 +46,6 @@ describe('index page loads', () => {
     issue_cards = driver.findElement(By.className('issue-cards'));
     // Expect: Submitted issue exists on page
     driver.wait(until.elementTextContains(issue_cards, test_issue), 1000);
-
-    return issue_cards.getText().then(issues => {
-      expect(issues).toEqual(expect.stringContaining(test_issue));
-    });
   });
 });
 
