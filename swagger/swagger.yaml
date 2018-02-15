@@ -318,17 +318,7 @@ definitions:
         enum:
         - PERMANENT
         - TEMPORARY
-        x-bob:
-          type: object
-          additionalProperties:
-            type: string
-          example:
-            PERMANENT: Permanent
-            TEMPORARY: Temporary
-        x-bla: { 'x': 'a', 'y': 'z' }
-        x-display-value:
-          PERMANENT: permanent
-          TEMPORARY: temporary
+        x-display-value: { 'x': 'a', 'y': 'z' }
         x-nullable: true
         title: Type Orders
       station_orders_issued_by:
@@ -616,17 +606,7 @@ definitions:
         enum:
         - PERMANENT
         - TEMPORARY
-        x-bob:
-          type: object
-          additionalProperties:
-            type: string
-          example:
-            PERMANENT: Permanent
-            TEMPORARY: Temporary
-        x-bla: { 'x': 'a', 'y': 'z' }
-        x-display-value:
-          PERMANENT: permanent
-          TEMPORARY: temporary
+        x-display-value: { 'x': 'a', 'y': 'z' }
         x-nullable: true
       station_orders_issued_by:
         type: string
@@ -760,17 +740,7 @@ definitions:
   ServiceMemberRank:
     type: string
     x-nullable: true
-    x-bla: { 'x': 'a', 'y': 'z' }
-    x-bob:
-      type: object
-      additionalProperties:
-        type: string
-      example:
-        PERMANENT: Permanent
-        TEMPORARY: Temporary
-    x-display-value:
-      PERMANENT: permanent
-      TEMPORARY: temporary
+    x-display-value: { 'x': 'a', 'y': 'z' }
     title: Rank
     enum:
       - E_1
