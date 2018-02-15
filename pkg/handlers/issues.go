@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/messages"
@@ -15,7 +16,7 @@ import (
 func payloadForIssueModel(issue models.Issue) messages.IssuePayload {
 	issuePayload := messages.IssuePayload{
 		CreatedAt:    fmtDateTime(issue.CreatedAt),
-		Description:  stringPointer(issue.Description),
+		Description:  swag.String(issue.Description),
 		ID:           fmtUUID(issue.ID),
 		UpdatedAt:    fmtDateTime(issue.UpdatedAt),
 		ReporterName: issue.ReporterName,

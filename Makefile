@@ -43,7 +43,7 @@ server_deps: .server_deps.stamp
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
 	touch .server_deps.stamp
 server_generate: server_deps .server_generate.stamp
-.server_generate.stamp: $(find swagger -t file -name *.yaml)
+.server_generate.stamp: $(shell find swagger -type f -name *.yaml)
 	bin/gen_server.sh
 	touch .server_generate.stamp
 server_build: server_deps server_generate
@@ -69,9 +69,11 @@ server_run_only_docker: db_dev_run
 	docker rm web || true
 	docker run --name web -p 8080:8080 ppp:web-dev
 
-tsp_build: server_deps
+tools_build: server_deps
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
-tsp_run: tsp_build db_dev_run
+	go build -i -o bin/generate-test-data ./cmd/generate_test_data
+
+tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue
 
 tsp_build_docker:
@@ -80,6 +82,8 @@ tsp_run_only_docker: db_dev_run
 	docker stop tsp || true
 	docker rm tsp || true
 	docker run --name tsp ppp:tsp-dev
+
+build: server_build tools_build client_build
 
 server_test: db_dev_run db_test_reset server_deps server_generate
 	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen

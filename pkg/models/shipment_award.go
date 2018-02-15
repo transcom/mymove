@@ -6,7 +6,7 @@ import (
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
-	v "github.com/markbates/validate/validators"
+	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 )
 
@@ -40,8 +40,8 @@ func (a ShipmentAwards) String() string {
 // This method is not required and may be deleted.
 func (a *ShipmentAward) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&v.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},
-		&v.UUIDIsPresent{Field: a.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
+		&validators.UUIDIsPresent{Field: a.ShipmentID, Name: "ShipmentID"},
+		&validators.UUIDIsPresent{Field: a.TransportationServiceProviderID, Name: "TransportationServiceProviderID"},
 	), nil
 }
 
