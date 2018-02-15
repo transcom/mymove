@@ -6,7 +6,7 @@ import './index.css';
 
 const isEmpty = obj =>
   Object.keys(obj).length === 0 && obj.constructor === Object;
-const renderGroupOrField = (fieldName, fields, uiSchema) => {
+const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:
    telephone numbers/ pattern validation
    textbox vs textarea (e.g for addresses)
@@ -14,22 +14,30 @@ const renderGroupOrField = (fieldName, fields, uiSchema) => {
    styling in accordance with USWDS
    validate group names don't colide with field names
   */
-  const group = uiSchema.groups[fieldName];
+  const group = uiSchema.groups && uiSchema.groups[fieldName];
+  const isRef =
+    fields[fieldName] &&
+    fields[fieldName].$$ref &&
+    fields[fieldName].properties;
   if (group) {
     const keys = group.fields;
     return (
       <fieldset key={fieldName}>
         <legend htmlFor={fieldName}>{group.title}</legend>
-        {keys.map(f => renderGroupOrField(f, fields, uiSchema))}
+        {keys.map(f => renderGroupOrField(f, fields, uiSchema, nameSpace))}
       </fieldset>
     );
+  } else if (isRef) {
+    const refName = fields[fieldName].$$ref.split('/').pop();
+    const refSchema = uiSchema.definitions[refName];
+    return renderSchema(fields[fieldName], refSchema, fieldName);
   }
-  return renderField(fieldName, fields);
+  return renderField(fieldName, fields, nameSpace);
 };
 
-const createDropDown = (fieldName, field) => {
+const createDropDown = (fieldName, field, nameAttr) => {
   return (
-    <Field name={fieldName} component="select">
+    <Field name={nameAttr} component="select">
       <option />
       {field.enum.map((e, index) => (
         <option key={e} value={e}>
@@ -41,34 +49,35 @@ const createDropDown = (fieldName, field) => {
 };
 
 const parseNumberField = value => (!value ? null : Number(value));
-const createNumberField = (fieldName, field) => (
+const createNumberField = (fieldName, field, nameAttr) => (
   <Field
     component="input"
-    name={fieldName}
+    name={nameAttr}
     parse={parseNumberField}
     type="Number"
   />
 );
 
-const createCheckbox = (fieldName, field) => {
+const createCheckbox = (fieldName, field, nameAttr) => {
   return (
-    <Field id={fieldName} name={fieldName} component="input" type="checkbox" />
+    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
   );
 };
 
-const createInputField = (fieldName, field) => {
-  return <Field name={fieldName} component="input" type={field.format} />;
+const createInputField = (fieldName, field, nameAttr) => {
+  return <Field name={nameAttr} component="input" type={field.format} />;
 };
 
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
-const createField = (fieldName, swaggerField) => {
+const createField = (fieldName, swaggerField, nameSpace) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
+  const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
   if (swaggerField.type === 'boolean') {
     return (
       <Fragment key={fieldName}>
-        {createCheckbox(fieldName, swaggerField)}
+        {createCheckbox(fieldName, swaggerField, nameAttr)}
         <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
       </Fragment>
     );
@@ -76,12 +85,12 @@ const createField = (fieldName, swaggerField) => {
 
   let fieldComponent;
   if (swaggerField.enum) {
-    fieldComponent = createDropDown(fieldName, swaggerField);
+    fieldComponent = createDropDown(fieldName, swaggerField, nameAttr);
   } else if (swaggerField.type === 'integer') {
-    fieldComponent = createNumberField(fieldName, swaggerField);
+    fieldComponent = createNumberField(fieldName, swaggerField, nameAttr);
   } else {
     // more cases go here. Datetime, Date, UUID
-    fieldComponent = createInputField(fieldName, swaggerField);
+    fieldComponent = createInputField(fieldName, swaggerField, nameAttr);
   }
 
   return (
@@ -92,18 +101,20 @@ const createField = (fieldName, swaggerField) => {
   );
 };
 
-const renderField = (fieldName, fields) => {
+const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
     return;
   }
-  return createField(fieldName, field);
+  return createField(fieldName, field, nameSpace);
 };
 
-const renderSchema = (schema, uiSchema) => {
+const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
     const fields = schema.properties || [];
-    return uiSchema.order.map(i => renderGroupOrField(i, fields, uiSchema));
+    return uiSchema.order.map(i =>
+      renderGroupOrField(i, fields, uiSchema, nameSpace),
+    );
   }
 };
 const JsonSchemaForm = props => {

@@ -206,10 +206,7 @@ definitions:
         x-nullable: true
         title: Name
       origin_office_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: Address
+        $ref: '#/definitions/Address'
       service_member_first_name:
         type: string
         example: Focaccia
@@ -356,19 +353,9 @@ definitions:
         x-nullable: true
         title: In Transit Telephone No
       in_transit_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: In Transit Address
+        $ref: '#/definitions/Address'
       pickup_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: Pickup Address
-      pickup_address_mobile_court_name:
-        type: string
-        example: Winnebagel court
-        x-nullable: true
+        $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
@@ -376,23 +363,13 @@ definitions:
         x-nullable: true
         title: Pickup telephone
       dest_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: Destination Address
-      dest_address_mobile_court_name:
-        type: string
-        example: Carraway Court
-        x-nullable: true
+        $ref: '#/definitions/Address'
       agent_to_receive_hhg:
         type: string
         x-nullable: true
         title: Agent Designated To Receive Property
       extra_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: Extra Pickup/Delivery Address (if applicable)
+        $ref: '#/definitions/Address'
       pack_scheduled_date:
         type: string
         format: date
@@ -446,10 +423,7 @@ definitions:
         x-nullable: true
         title: Date Signed
       contractor_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-        title: Address Of Contractor
+        $ref: '#/definitions/Address'
       contractor_name:
         type: string
         example: Mayflower Transit
@@ -518,9 +492,7 @@ definitions:
         example: Office manager John Dough
         x-nullable: true
       origin_office_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
+        $ref: '#/definitions/Address'
       service_member_first_name:
         type: string
         example: Focaccia
@@ -639,37 +611,21 @@ definitions:
         example: 212-666-6666
         x-nullable: true
       in_transit_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
+        $ref: '#/definitions/Address'
       pickup_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-      pickup_address_mobile_court_name:
-        type: string
-        example: Winnebagel court
-        x-nullable: true
+        $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
       dest_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
-      dest_address_mobile_court_name:
-        type: string
-        example: Carraway Court
-        x-nullable: true
+        $ref: '#/definitions/Address'
       agent_to_receive_hhg:
         type: string
         x-nullable: true
       extra_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
+        $ref: '#/definitions/Address'
       pack_scheduled_date:
         type: string
         format: date
@@ -713,9 +669,7 @@ definitions:
         example: 2018-01-23
         x-nullable: true
       contractor_address:
-        type: string
-        example: '3450 Kneading Way, San Francisco, California 94104'
-        x-nullable: true
+        $ref: '#/definitions/Address'
       contractor_name:
         type: string
         example: Mayflower Transit
@@ -848,3 +802,84 @@ definitions:
       - traffic_distribution_list_id
       - created_at
       - updated_at
+  Address:
+    type: object
+    properties:
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Address Line 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Address Line 2
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        enum:
+          - AL
+          - AK
+          - AZ
+          - AR
+          - CA
+          - CO
+          - CT
+          - DE
+          - DC
+          - FL
+          - GA
+          - HI
+          - ID
+          - IL
+          - IN
+          - IA
+          - KS
+          - KY
+          - LA
+          - ME
+          - MD
+          - MA
+          - MI
+          - MN
+          - MS
+          - MO
+          - MT
+          - NE
+          - NV
+          - NH
+          - NJ
+          - NM
+          - NY
+          - NC
+          - ND
+          - OH
+          - OK
+          - OR
+          - PA
+          - RI
+          - SC
+          - SD
+          - TN
+          - TX
+          - UT
+          - VT
+          - VA
+          - WA
+          - WV
+          - WI
+          - WY
+      zip:
+        type: string
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+    required:
+      - street_address_1
+      - city
+      - state
+      - zip
