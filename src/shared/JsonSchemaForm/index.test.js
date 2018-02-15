@@ -28,6 +28,12 @@ const simpleSchema = {
       type: 'string',
       title: 'sex',
       enum: ['Male', 'Female', 'Non-binary', 'Other'],
+      'x-display-value': {
+        Male: 'male',
+        Female: 'female',
+        'Non-binary': 'non-binary',
+        Other: 'other',
+      },
     },
     address: {
       $$ref: '#/definitions/Address',
