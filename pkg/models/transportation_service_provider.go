@@ -52,18 +52,6 @@ func (t *TransportationServiceProvider) Validate(tx *pop.Connection) (*validate.
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *TransportationServiceProvider) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
 // FetchTransportationServiceProvidersInTDL returns TSPs in a given TDL in the
 // order that they should be awarded new shipments.
 func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {

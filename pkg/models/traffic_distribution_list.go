@@ -45,15 +45,3 @@ func (t *TrafficDistributionList) Validate(tx *pop.Connection) (*validate.Errors
 		&validators.StringIsPresent{Field: t.CodeOfService, Name: "CodeOfService"},
 	), nil
 }
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *TrafficDistributionList) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *TrafficDistributionList) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}

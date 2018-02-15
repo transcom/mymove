@@ -45,18 +45,6 @@ func (a *ShipmentAward) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (a *ShipmentAward) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (a *ShipmentAward) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
 // CreateShipmentAward connects a shipment to a transportation service provider. This
 // function assumes that the match has been validated by the caller.
 func CreateShipmentAward(tx *pop.Connection,

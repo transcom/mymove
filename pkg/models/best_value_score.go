@@ -44,15 +44,3 @@ func (b *BestValueScore) Validate(tx *pop.Connection) (*validate.Errors, error) 
 		&validators.IntIsLessThan{Field: b.Score, Name: "Score", Compared: 100},
 	), nil
 }
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (b *BestValueScore) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (b *BestValueScore) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
