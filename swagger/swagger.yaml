@@ -224,7 +224,6 @@ definitions:
         title: Last Name
       service_member_rank:
         $ref: '#/definitions/ServiceMemberRank'
-        title: Rank/Grade
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
@@ -316,6 +315,9 @@ definitions:
         enum:
         - PERMANENT
         - TEMPORARY
+        x-display-value:
+          PERMANENT: permanent
+          TEMPORARY: temporary
         x-nullable: true
         title: Type Orders
       station_orders_issued_by:
@@ -505,7 +507,6 @@ definitions:
         x-nullable: true
       service_member_rank:
         $ref: '#/definitions/ServiceMemberRank'
-        x-nullable: true
       service_member_ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
@@ -579,6 +580,9 @@ definitions:
         enum:
         - PERMANENT
         - TEMPORARY
+        x-display-value:
+          PERMANENT: permanent
+          TEMPORARY: temporary
         x-nullable: true
       station_orders_issued_by:
         type: string
@@ -694,6 +698,7 @@ definitions:
   ServiceMemberRank:
     type: string
     x-nullable: true
+    title: Rank
     enum:
       - E_1
       - E_2
@@ -724,37 +729,36 @@ definitions:
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
       - MIDSHIPMAN
-    description: >
-      Rank/Pay Grade:
-        * E_1 - E-1
-        * E_2 - E-2
-        * E_3 - E-3
-        * E_4 - E-4
-        * E_5 - E-5
-        * E_6 - E-6
-        * E_7 - E-7
-        * E_8 - E-8
-        * E_9 - E-9
-        * W_1 - W-1
-        * W_2 - W-2
-        * W_3 - W-3
-        * W_4 - W-4
-        * W_5 - W-5
-        * O_1 - O-1
-        * O_2 - O-2
-        * O_3 - O-3
-        * O_4 - O-4
-        * O_5 - O-5
-        * O_6 - O-6
-        * O_7 - O-7
-        * O_8 - O-8
-        * O_9 - O-9
-        * O_10 - O-10
-        * ACADEMY_CADET - Service Academy Cadet
-        * ACADEMY_GRADUATE - Service Academy Graduate
-        * AVIATION_CADET - Aviation Cadet
-        * CIVILIAN_EMPLOYEE - Civilian Employee
-        * MIDSHIPMAN - Midshipman
+    x-display-value:
+      E_1: E-1
+      E_2: E-2
+      E_3: E-3
+      E_4: E-4
+      E_5: E-5
+      E_6: E-6
+      E_7: E-7
+      E_8: E-8
+      E_9: E-9
+      W_1: W-1
+      W_2: W-2
+      W_3: W-3
+      W_4: W-4
+      W_5: W-5
+      O_1: O-1
+      O_2: O-2
+      O_3: O-3
+      O_4: O-4
+      O_5: O-5
+      O_6: O-6
+      O_7: O-7
+      O_8: O-8
+      O_9: O-9
+      O_10: O-10
+      ACADEMY_CADET: Service Academy Cadet
+      ACADEMY_GRADUATE: Service Academy Graduate
+      AVIATION_CADET: Aviation Cadet
+      CIVILIAN_EMPLOYEE: Civilian Employee
+      MIDSHIPMAN: Midshipman
   IndexShipmentsPayload:
     type: array
     items:
@@ -817,6 +821,58 @@ definitions:
       state:
         title: State
         type: string
+        x-display-value:
+          AL: AL
+          AK: AK
+          AZ: AZ
+          AR: AR
+          CA: CA
+          CO: CO
+          CT: CT
+          DE: DE
+          DC: DC
+          FL: FL
+          GA: GA
+          HI: HI
+          ID: ID
+          IL: IL
+          IN: IN
+          IA: IA
+          KS: KS
+          KY: KY
+          LA: LA
+          ME: ME
+          MD: MD
+          MA: MA
+          MI: MI
+          MN: MN
+          MS: MS
+          MO: MO
+          MT: MT
+          NE: NE
+          NV: NV
+          NH: NH
+          NJ: NJ
+          NM: NM
+          NY: NY
+          NC: NC
+          ND: ND
+          OH: OH
+          OK: OK
+          OR: OR
+          PA: PA
+          RI: RI
+          SC: SC
+          SD: SD
+          TN: TN
+          TX: TX
+          UT: UT
+          VT: VT
+          VA: VA
+          WA: WA
+          WV: WV
+          WI: WI
+          WY: WY
         enum:
           - AL
           - AK
