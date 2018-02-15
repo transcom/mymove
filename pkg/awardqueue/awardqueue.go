@@ -55,15 +55,16 @@ func Run(db *pop.Connection) {
 
 	shipments, err := findAllUnawardedShipments()
 	if err == nil {
-		count := -1
-		for i, shipment := range shipments {
+		count := 0
+		for _, shipment := range shipments {
 			err = selectTSPToAwardShipment(shipment)
 			if err != nil {
 				fmt.Printf("Failed to award shipment: %s\n", err)
+			} else {
+				count += 1
 			}
-			count = i
 		}
-		fmt.Printf("Awarded %d shipments.\n", count+1)
+		fmt.Printf("Awarded %d shipments.\n", count)
 	} else {
 		fmt.Printf("Failed to query for shipments: %s", err)
 	}

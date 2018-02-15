@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -61,10 +62,9 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 	// - the UUID is CAST() to text to work inside the MIN(), it doesn't accept UUIDs
 	// - We might be able to replace this with Pop's join syntax for easier reading:
 	//   https://github.com/markbates/pop#join-query
-	// TODO: we also need to add a WHERE clause to contrain on Traffic
-	// Distribution Lists, but that is not being modeled in the schema yet.
-	sql := `SELECT
+	sql := fmt.Sprintf(`SELECT
 			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			MIN(CAST(best_value_scores.traffic_distribution_list_id AS text)) as traffic_distribution_list_id,
 			MIN(best_value_scores.score) as best_value_score,
 			COUNT(shipment_awards.id) as award_count
 		FROM
@@ -73,9 +73,11 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
 		LEFT JOIN shipment_awards ON
 			transportation_service_providers.id = shipment_awards.transportation_service_provider_id
-		GROUP BY transportation_service_providers.id
+		WHERE
+			best_value_scores.traffic_distribution_list_id = '%s'
+		GROUP BY best_value_scores.id
 		ORDER BY award_count ASC, best_value_score DESC
-		`
+		`, tdlID)
 
 	tsps := []TSPWithBVSAndAwardCount{}
 	err := tx.RawQuery(sql).All(&tsps)
