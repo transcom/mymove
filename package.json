@@ -26,7 +26,7 @@
     "eject": "NODE_PATH=./src react-scripts eject",
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
-    "e2e-test": "node ./tests/e2e.js",
+    "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
   },
@@ -38,6 +38,7 @@
   "version": "0.1.0",
   "devDependencies": {
     "adr-log": "^2.1.1",
+    "markdown-toc": "^1.2.0",
     "prettier": "^1.9.2"
   }
 }
