@@ -26,7 +26,7 @@
     "eject": "NODE_PATH=./src react-scripts eject",
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
-    "e2e-test": "node ./tests/e2e.js",
+    "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
   },
