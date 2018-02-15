@@ -33,7 +33,7 @@ const createDropDown = (fieldName, field) => {
       <option />
       {field.enum.map((e, index) => (
         <option key={e} value={e}>
-          {field['x-display-value']}
+          {field['x-display-value'][e]}
         </option>
       ))}
     </Field>
