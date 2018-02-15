@@ -13,6 +13,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	"github.com/transcom/mymove/pkg/gen/restapi/operations"
 	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
@@ -92,6 +93,8 @@ func main() {
 	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*swagger))
 	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
+
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
@@ -99,6 +102,9 @@ func main() {
 
 	// And request logging
 	root.Use(requestLogger)
+
+	// Register Login.gov authentication provider
+	auth.RegisterProvider()
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))
