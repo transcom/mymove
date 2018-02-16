@@ -54,7 +54,4 @@ func MakeBestValueScoreRecords(dbConnection *pop.Connection) {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	fmt.Println("Yo, BVSes have been maaaaaade")
-
 }

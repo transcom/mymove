@@ -1,13 +1,10 @@
 package main
 
 import (
-	// "fmt"
 	"github.com/markbates/pop"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"log"
-	// "time"
-	// "reflect"
 )
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than

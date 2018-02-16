@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
@@ -35,6 +34,4 @@ func MakeTSPData(dbConnection *pop.Connection) {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	fmt.Println("make_tsp_records ran")
 }

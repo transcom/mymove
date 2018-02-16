@@ -25,16 +25,14 @@ func MakeAwardedShipmentData(dbConnection *pop.Connection) {
 	}
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
-	award1 := models.ShipmentAward{
+	awardedShipment := models.ShipmentAward{
 		ShipmentID:                      shipmentList[0].ID,
 		TransportationServiceProviderID: tspList[0].ID,
 		AdministrativeShipment:          false,
 	}
 
-	_, err = dbConnection.ValidateAndSave(&award1)
+	_, err = dbConnection.ValidateAndSave(&awardedShipment)
 	if err != nil {
 		log.Panic(err)
 	}
-
-	fmt.Println("make_awarded_shipment_records ran")
 }
