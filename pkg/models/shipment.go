@@ -6,6 +6,7 @@ import (
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
+	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 )
 
@@ -64,21 +65,10 @@ func (s Shipments) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// This method is not required and may be deleted.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (s *Shipment) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (s *Shipment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	return validate.Validate(
+		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
+	), nil
 }
 
 // FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
