@@ -45,7 +45,8 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 		url, err := getAuthorizationURL(w, r)
 		if err != nil {
 			zap.L().Error("Construct Login.gov authorization URL", zap.Error(err))
-			url = "http://localhost:3000/landing"
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
 		}
 
 		http.Redirect(w, r, url, http.StatusTemporaryRedirect)
