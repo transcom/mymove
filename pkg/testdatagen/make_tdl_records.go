@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
 	"log"
