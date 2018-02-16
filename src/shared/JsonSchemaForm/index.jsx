@@ -64,6 +64,39 @@ const createCheckbox = (fieldName, field, nameAttr) => {
   );
 };
 
+const normalizePhone = (value, previousValue) => {
+  if (!value) {
+    return value;
+  }
+  const onlyNums = value.replace(/[^\d]/g, '');
+  let normalizedPhone = '';
+  for (let i = 0; i < 10; i++) {
+    if (i >= onlyNums.length) {
+      break;
+    }
+    if (i === 3 || i === 6) {
+      normalizedPhone += '-';
+    }
+    normalizedPhone += onlyNums[i];
+  }
+  return normalizedPhone;
+};
+const createTelephoneField = (fieldName, field, nameAttr) => {
+  return (
+    <Field
+      name="phone"
+      component="input"
+      type="text"
+      placeholder="Phone Number"
+      normalize={normalizePhone}
+    />
+  );
+};
+
+const createTextAreaField = (fieldName, field, nameAttr) => {
+  return <Field id={fieldName} name={nameAttr} component="textarea" />;
+};
+
 const createInputField = (fieldName, field, nameAttr) => {
   return <Field name={nameAttr} component="input" type={field.format} />;
 };
@@ -88,9 +121,19 @@ const createField = (fieldName, swaggerField, nameSpace) => {
     fieldComponent = createDropDown(fieldName, swaggerField, nameAttr);
   } else if (swaggerField.type === 'integer') {
     fieldComponent = createNumberField(fieldName, swaggerField, nameAttr);
+  } else if (swaggerField.type === 'string') {
+    if (swaggerField.format === 'textarea') {
+      fieldComponent = createTextAreaField(fieldName, swaggerField, nameAttr);
+    } else if (swaggerField.format === 'telephone') {
+      fieldComponent = createTelephoneField(fieldName, swaggerField, nameAttr);
+    } else {
+      // more cases go here. Datetime, Date, UUID
+      fieldComponent = createInputField(fieldName, swaggerField, nameAttr);
+    }
   } else {
-    // more cases go here. Datetime, Date, UUID
-    fieldComponent = createInputField(fieldName, swaggerField, nameAttr);
+    console.error(
+      'ERROR: This is an unimplemented type in our JSONSchemaForm implmentation',
+    );
   }
 
   return (

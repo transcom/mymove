@@ -1,12 +1,32 @@
-import { CreateIssue } from './api.js';
+import { GetSpec, CreateIssue } from './api.js';
+import { getUiSchema } from './uiSchema';
 
 // Types
+export const LOAD_SCHEMA = 'LOAD_SCHEMA';
+export const LOAD_SCHEMA_SUCCESS = 'LOAD_SCHEMA_SUCCESS';
+export const LOAD_SCHEMA_FAILURE = 'LOAD_SCHEMA_FAILURE';
+
 export const CREATE_ISSUE = 'CREATE_ISSUE';
 export const CREATE_ISSUE_SUCCESS = 'CREATE_ISSUE_SUCCESS';
 export const CREATE_ISSUE_FAILURE = 'CREATE_ISSUE_FAILURE';
-export const CREATE_PENDING_ISSUE_VALUE = 'CREATE_PENDING_ISSUE_VALUE';
 
 // Actions
+// loading schema
+export const createLoadSchemaRequest = () => ({
+  type: LOAD_SCHEMA,
+});
+
+export const createLoadSchemaSuccess = schema => ({
+  type: LOAD_SCHEMA_SUCCESS,
+  schema,
+});
+
+export const createLoadSchemaFailure = error => ({
+  type: LOAD_SCHEMA_FAILURE,
+  error,
+});
+
+// creating issue
 export const createIssueRequest = () => ({
   type: CREATE_ISSUE,
 });
@@ -21,12 +41,17 @@ export const createIssueFailure = error => ({
   error,
 });
 
-export const updateIssueValue = value => ({
-  type: CREATE_PENDING_ISSUE_VALUE,
-  value,
-});
-
 // Action creator
+export function loadSchema() {
+  // Interpreted by the thunk middleware:
+  return function(dispatch) {
+    dispatch(createLoadSchemaRequest());
+    GetSpec()
+      .then(spec => dispatch(createLoadSchemaSuccess(spec)))
+      .catch(error => dispatch(createLoadSchemaFailure(error)));
+  };
+}
+
 export function createIssue(value) {
   return function(dispatch, getState) {
     dispatch(createIssueRequest());
@@ -36,31 +61,39 @@ export function createIssue(value) {
   };
 }
 
-export function updatePendingIssueValue(value) {
-  return updateIssueValue(value);
-}
-
 // Reducer
-export function feedbackReducer(
-  state = { pendingValue: '', confirmationText: '' },
-  action,
-) {
+const initialState = {
+  schema: {},
+  uiSchema: getUiSchema(),
+  hasSchemaError: false,
+  hasSubmitError: false,
+  hasSubmitSuccess: false,
+  confirmationText: '',
+};
+export function feedbackReducer(state = initialState, action) {
   switch (action.type) {
+    case LOAD_SCHEMA_SUCCESS:
+      return Object.assign({}, state, {
+        schema: action.schema.definitions.CreateIssuePayload,
+        hasSchemaError: false,
+      });
+    case LOAD_SCHEMA_FAILURE:
+      return Object.assign({}, state, {
+        schema: {},
+        hasSchemaError: true,
+      });
     case CREATE_ISSUE_SUCCESS:
-      return {
-        pendingValue: '',
+      return Object.assign({}, state, {
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
         confirmationText: 'Feedback submitted!',
-      };
+      });
     case CREATE_ISSUE_FAILURE:
-      return {
-        pendingValue: state.pendingValue,
-        confirmationText: 'Submission error.',
-      };
-    case CREATE_PENDING_ISSUE_VALUE:
-      return {
-        pendingValue: action.value,
-        confirmationText: '',
-      };
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        confirmationText: 'Errir!!',
+      });
     default:
       return state;
   }

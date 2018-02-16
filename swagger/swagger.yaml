@@ -129,15 +129,25 @@ definitions:
         format: textarea
         minLength: 1
         maxLength: 1024
+        title: Description
       reporter_name:
         type: string
         example: Jane Doe
         x-nullable: true
+        title: Reporter Name
       due_date:
         type: string
         format: date
         example: 2018-03-15
         x-nullable: true
+        title: Due Date
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-666-6666
+        x-nullable: true
+        title: Telephone No.
     required:
       - description
   IndexIssuesPayload:
