@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// MakeShipmentData creates three TSP records
+// MakeShipmentData creates three shipment records
 func MakeShipmentData(dbConnection *pop.Connection) {
 	// Grab three UUIDs for individual TDLs
 	// TODO: should this query be made in main, between creation functions,
