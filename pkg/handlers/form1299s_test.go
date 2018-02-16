@@ -77,11 +77,12 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload interface{},
 }
 
 func fakeAddress() *messages.Address {
+	alabama := messages.StateAL
 	return &messages.Address{
 		StreetAddress1: swag.String("An address"),
 		StreetAddress2: swag.String("Apt. 2"),
 		City:           swag.String("Happytown"),
-		State:          swag.String("AL"),
+		State:          &alabama,
 		Zip:            swag.String("01234"),
 	}
 }
@@ -97,7 +98,7 @@ func setUpLogger() {
 }
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
-	var rankE6 = messages.ServiceMemberRankE6
+	rankE6 := messages.ServiceMemberRankE6
 	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := messages.CreateForm1299Payload{
