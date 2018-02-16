@@ -70,10 +70,14 @@ type Form1299 struct {
 	PickupScheduledDate                    *time.Time                  `json:"pickup_scheduled_date" db:"pickup_scheduled_date"`
 	DeliveryScheduledDate                  *time.Time                  `json:"delivery_scheduled_date" db:"delivery_scheduled_date"`
 	Remarks                                *string                     `json:"remarks" db:"remarks"`
-	OtherMoveFrom                          *string                     `json:"other_move_from" db:"other_move_from"`
-	OtherMoveTo                            *string                     `json:"other_move_to" db:"other_move_to"`
-	OtherMoveNetPounds                     *int64                      `json:"other_move_net_pounds" db:"other_move_net_pounds"`
-	OtherMoveProgearPounds                 *int64                      `json:"other_move_progear_pounds" db:"other_move_progear_pounds"`
+	OtherMove1From                         *string                     `json:"other_move_1_from" db:"other_move_1_from"`
+	OtherMove1To                           *string                     `json:"other_move_1_to" db:"other_move_1_to"`
+	OtherMove1NetPounds                    *int64                      `json:"other_move_1_net_pounds" db:"other_move_1_net_pounds"`
+	OtherMove1ProgearPounds                *int64                      `json:"other_move_1_progear_pounds" db:"other_move_1_progear_pounds"`
+	OtherMove2From                         *string                     `json:"other_move_2_from" db:"other_move_2_from"`
+	OtherMove2To                           *string                     `json:"other_move_2_to" db:"other_move_2_to"`
+	OtherMove2NetPounds                    *int64                      `json:"other_move_2_net_pounds" db:"other_move_2_net_pounds"`
+	OtherMove2ProgearPounds                *int64                      `json:"other_move_2_progear_pounds" db:"other_move_2_progear_pounds"`
 	ServiceMemberSignature                 *string                     `json:"service_member_signature" db:"service_member_signature"`
 	DateSigned                             *time.Time                  `json:"date_signed" db:"date_signed"`
 	ContractorAddressID                    *uuid.UUID                  `json:"contractor_address_id" db:"contractor_address_id"`
