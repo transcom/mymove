@@ -4,6 +4,8 @@ import PropTypes from 'prop-types';
 import { Field, reduxForm } from 'redux-form';
 import './index.css';
 
+const IS_REQUIRED_KEY = 'x-jsf-is-required';
+
 const isEmpty = obj =>
   Object.keys(obj).length === 0 && obj.constructor === Object;
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
@@ -84,7 +86,7 @@ const normalizePhone = (value, previousValue) => {
 const createTelephoneField = (fieldName, field, nameAttr) => {
   return (
     <Field
-      name="phone"
+      name={nameAttr}
       component="input"
       type="text"
       placeholder="Phone Number"
@@ -93,13 +95,29 @@ const createTelephoneField = (fieldName, field, nameAttr) => {
   );
 };
 
+const requiredValidator = value => (value ? undefined : 'Required');
+
 const createTextAreaField = (fieldName, field, nameAttr) => {
-  return <Field id={fieldName} name={nameAttr} component="textarea" />;
+  let validators = [];
+  if (field[IS_REQUIRED_KEY]) {
+    validators.push(requiredValidator);
+  }
+  return (
+    <Field
+      id={fieldName}
+      name={nameAttr}
+      component="textarea"
+      validate={validators}
+    />
+  );
 };
 
 const createInputField = (fieldName, field, nameAttr) => {
   return <Field name={nameAttr} component="input" type={field.format} />;
 };
+
+// Ok, so maybe our switches should be building up a single Field component params? right now this is a bit silly.
+// keep at it and it will make sense.
 
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
@@ -154,6 +172,14 @@ const renderField = (fieldName, fields, nameSpace) => {
 
 const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
+    // Mark all the required fields as required.
+    if (schema.required) {
+      schema.required.forEach(requiredFieldName => {
+        console.log(requiredFieldName);
+        schema.properties[requiredFieldName][IS_REQUIRED_KEY] = true;
+      });
+    }
+
     const fields = schema.properties || [];
     return uiSchema.order.map(i =>
       renderGroupOrField(i, fields, uiSchema, nameSpace),
