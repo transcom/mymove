@@ -1,9 +1,10 @@
 package auth
 
 import (
-	"bytes"
 	"encoding/base64"
+	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"math/rand"
 	"net/http"
 	"net/url"
@@ -49,7 +50,6 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		url, err := getAuthorizationURL()
 		if err != nil {
-			zap.L().Error("Construct Login.gov authorization URL", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
@@ -69,37 +69,59 @@ func AuthorizationCallbackHandler() http.HandlerFunc {
 		}
 
 		if authError == "invalid_request" {
-			// TODO
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
 		}
 
-		// TODO: validate the state & nonce are the same
-		err := fetchToken(r)
-		if err == nil {
+		// TODO: validate the state is the same (pull from session)
 
+		session, err := fetchToken(r)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
 		}
 
-		http.Redirect(w, r, "http://localhost:3000/landing", http.StatusTemporaryRedirect)
+		provider, err := goth.GetProvider(gothProviderType)
+		if err != nil {
+			zap.L().Error("Get Goth provider", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+
+		user, err := provider.FetchUser(session)
+		if err != nil {
+			zap.L().Error("Login.gov user info request", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+
+		landingURL := fmt.Sprintf("http://localhost:3000/landing?email=%s", user.RawData["email"])
+		http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 	}
 }
 
 func getAuthorizationURL() (string, error) {
 	provider, err := goth.GetProvider(gothProviderType)
 	if err != nil {
+		zap.L().Error("Get Goth provider", zap.Error(err))
 		return "", err
 	}
 	state := generateNonce()
 	sess, err := provider.BeginAuth(state)
 	if err != nil {
+		zap.L().Error("Goth begin auth", zap.Error(err))
 		return "", err
 	}
 
 	baseURL, err := sess.GetAuthURL()
 	if err != nil {
+		zap.L().Error("Goth get auth URL", zap.Error(err))
 		return "", err
 	}
 
 	authURL, err := url.Parse(baseURL)
 	if err != nil {
+		zap.L().Error("Parse auth URL", zap.Error(err))
 		return "", err
 	}
 
@@ -112,13 +134,14 @@ func getAuthorizationURL() (string, error) {
 	return authURL.String(), err
 }
 
-func fetchToken(r *http.Request) error {
-	// TODO: Is it possible to get the token URL from Goth instead?
+func fetchToken(r *http.Request) (goth.Session, error) {
+	// TODO: How can we get the token URL from Goth instead?
 	tokenURL := "http://localhost:8000/api/openid_connect/token"
 	clientAssertion, err := createClientAssertionJWT(tokenURL)
 	if err != nil {
-		// TODO
+		return nil, err
 	}
+
 	params := url.Values{
 		"client_assertion":      {clientAssertion},
 		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
@@ -126,21 +149,36 @@ func fetchToken(r *http.Request) error {
 		"grant_type":            {"authorization_code"},
 	}
 
-	resp, err := http.PostForm(tokenURL, params)
+	response, err := http.PostForm(tokenURL, params)
 	if err != nil {
-		return err
+		// TODO
 	}
 
-	defer resp.Body.Close()
-	/*
-		responseBody, err := ioutil.ReadAll(resp.Body)
-	*/
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(resp.Body)
-	s := buf.String()
+	defer response.Body.Close()
+	responseBody, err := ioutil.ReadAll(response.Body)
+	if err != nil {
+		// TODO
+	}
 
-	fmt.Println(s)
-	return err
+	type tokenResponse struct {
+		AccessToken string `json:"access_token"`
+		ExpiresIn   int    `json:"expires_in"`
+		IDToken     string `json:"id_token"`
+	}
+
+	var parsedResponse tokenResponse
+	json.Unmarshal(responseBody, &parsedResponse)
+
+	// TODO: decode and validate ID Token
+
+	// TODO: get goth session from storage instead of constructing a new one
+	session := openidConnect.Session{
+		AccessToken: parsedResponse.AccessToken,
+		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
+		IDToken:     parsedResponse.IDToken,
+	}
+
+	return &session, err
 }
 
 func createClientAssertionJWT(tokenURL string) (string, error) {

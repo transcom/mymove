@@ -15,12 +15,8 @@ export class Landing extends Component {
 
     return (
       <div className="usa-grid">
-        <h1>Welcome!</h1>
-        {query.err && (
-          <Alert type="error" heading="Server Error">
-            Sorry, something went wrong
-          </Alert>
-        )}
+        {query.email && <h1>Welcome {query.email}!</h1>}
+        {!query.email && <h1>Welcome!</h1>}
         <LoginButton />
       </div>
     );
