@@ -21,6 +21,7 @@ func main() {
 		log.Panic(err)
 	}
 
+	// Can this be less repetitive without being overly clever?
 	testdatagen.MakeTDLData(dbConnection)
 	testdatagen.MakeTSPData(dbConnection)
 	testdatagen.MakeShipmentData(dbConnection)

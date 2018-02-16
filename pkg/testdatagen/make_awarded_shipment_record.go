@@ -9,7 +9,6 @@ import (
 
 // MakeAwardedShipmentData creates one awarded shipment record
 func MakeAwardedShipmentData(dbConnection *pop.Connection) {
-	// Make an awarded shipment record
 	// Get a shipment ID
 	shipmentList := []models.Shipment{}
 	err := dbConnection.All(&shipmentList)

@@ -39,6 +39,4 @@ func MakeTDLData(dbConnection *pop.Connection) {
 	if err != nil {
 		log.Panic(err)
 	}
-
-	fmt.Println("make_tdl_records ran")
 }
