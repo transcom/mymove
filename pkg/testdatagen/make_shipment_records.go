@@ -2,56 +2,48 @@ package testdatagen
 
 import (
 	"fmt"
-	"github.com/markbates/pop"
-	"github.com/transcom/mymove/pkg/models"
 	"log"
 	"time"
+
+	"github.com/markbates/pop"
+	"github.com/transcom/mymove/pkg/models"
 )
 
+// MakeShipment creates a single shipment record.
+func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
+	tdl models.TrafficDistributionList) error {
+
+	shipment := models.Shipment{
+		TrafficDistributionListID: tdl.ID,
+		PickupDate:                pickup,
+		DeliveryDate:              delivery,
+	}
+
+	_, err := db.ValidateAndSave(&shipment)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return err
+}
+
 // MakeShipmentData creates three shipment records
-func MakeShipmentData(dbConnection *pop.Connection) {
+func MakeShipmentData(db *pop.Connection) {
 	// Grab three UUIDs for individual TDLs
 	// TODO: should this query be made in main, between creation functions,
 	// and then sourced from one central place?
 	tdlList := []models.TrafficDistributionList{}
-	err := dbConnection.All(&tdlList)
+	err := db.All(&tdlList)
 	if err != nil {
 		fmt.Println("TDL ID import failed.")
 	}
 
 	// Add three shipment table records using UUIDs from TDLs
-	time := time.Now()
+	now := time.Now()
+	thirtyMin, _ := time.ParseDuration("30m")
+	oneWeek, _ := time.ParseDuration("7d")
 
-	shipment1 := models.Shipment{
-		TrafficDistributionListID: tdlList[0].ID,
-		PickupDate:                time,
-		DeliveryDate:              time,
-	}
-
-	shipment2 := models.Shipment{
-		TrafficDistributionListID: tdlList[1].ID,
-		PickupDate:                time,
-		DeliveryDate:              time,
-	}
-
-	shipment3 := models.Shipment{
-		TrafficDistributionListID: tdlList[2].ID,
-		PickupDate:                time,
-		DeliveryDate:              time,
-	}
-
-	_, err = dbConnection.ValidateAndSave(&shipment3)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&shipment1)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&shipment2)
-	if err != nil {
-		log.Panic(err)
-	}
+	MakeShipment(db, now, now.Add(thirtyMin), tdlList[0])
+	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1])
+	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2])
 }

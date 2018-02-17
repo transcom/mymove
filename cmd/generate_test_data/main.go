@@ -1,10 +1,11 @@
 package main
 
 import (
+	"log"
+
 	"github.com/markbates/pop"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"log"
 )
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
@@ -16,16 +17,15 @@ func main() {
 
 	//DB connection
 	pop.AddLookupPaths(*config)
-	dbConnection, err := pop.Connect(*env)
+	db, err := pop.Connect(*env)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	// Can this be less repetitive without being overly clever?
-	testdatagen.MakeTDLData(dbConnection)
-	testdatagen.MakeTSPData(dbConnection)
-	testdatagen.MakeShipmentData(dbConnection)
-	testdatagen.MakeAwardedShipmentData(dbConnection)
-	testdatagen.MakeBestValueScoreRecords(dbConnection)
-
+	testdatagen.MakeTDLData(db)
+	testdatagen.MakeTSPData(db)
+	testdatagen.MakeShipmentData(db)
+	testdatagen.MakeShipmentAwardData(db)
+	testdatagen.MakeBestValueScoreData(db)
 }
