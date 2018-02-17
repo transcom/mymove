@@ -240,8 +240,8 @@ definitions:
         title: Name
       origin_office_address:
         $ref: '#/definitions/Address'
-      service_member_info:
-        $ref: '#/definitions/ServiceMemberInfo'
+      service_member:
+        $ref: '#/definitions/ServiceMember'
       hhg_total_pounds:
         type: integer
         example: 10000
@@ -500,8 +500,8 @@ definitions:
         x-nullable: true
       origin_office_address:
         $ref: '#/definitions/Address'
-      service_member_info:
-        $ref: '#/definitions/ServiceMemberInfo'
+      service_member:
+        $ref: '#/definitions/ServiceMember'
       hhg_total_pounds:
         type: integer
         example: 10000
@@ -696,8 +696,8 @@ definitions:
         example: "4550"
         x-nullable: true
         title: Shipment Number
-      service_member_info:
-        $ref: '#/definitions/ServiceMemberInfo'
+      service_member:
+        $ref: '#/definitions/ServiceMember'
       station_orders_type:
         type: string
         enum:
@@ -832,8 +832,8 @@ definitions:
         type: string
         example: "4550"
         x-nullable: true
-      service_member_info:
-        $ref: '#/definitions/ServiceMemberInfo'
+      service_member:
+        $ref: '#/definitions/ServiceMember'
       station_orders_type:
         type: string
         enum:
@@ -930,38 +930,38 @@ definitions:
         x-nullable: true
         example: 90
         title: Temporary Storage Number Days
-  ServiceMemberInfo:
+  ServiceMember:
     type: object
     properties:
-      service_member_first_name:
+      first_name:
         type: string
         example: Focaccia
         title: First Name
-      service_member_middle_initial:
+      middle_initial:
         type: string
         example: L.
         title: Middle Initial
-      service_member_last_name:
+      last_name:
         type: string
         example: Roll
         title: Last Name
-      service_member_rank:
+      rank:
         $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
+      ssn:
         type: string
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         title: SSN
-      service_member_agency:
+      agency:
         type: string
         example: Air Force
         x-nullable: true
         title: Agency
     required:
-      - service_member_first_name
-      - service_member_middle_initial
-      - service_member_last_name
-      - service_member_rank
+      - first_name
+      - middle_initial
+      - last_name
+      - rank
   ServiceMemberRank:
     type: string
     x-nullable: true
