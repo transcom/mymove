@@ -240,34 +240,8 @@ definitions:
         title: Name
       origin_office_address:
         $ref: '#/definitions/Address'
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-        title: First Name
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Initial
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-        title: Last Name
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-55-5555
-        x-nullable: true
-        title: SSN
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
-        title: Agency
+      service_member_info:
+        $ref: '#/definitions/ServiceMemberInfo'
       hhg_total_pounds:
         type: integer
         example: 10000
@@ -526,29 +500,8 @@ definitions:
         x-nullable: true
       origin_office_address:
         $ref: '#/definitions/Address'
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-55-5555
-        x-nullable: true
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
+      service_member_info:
+        $ref: '#/definitions/ServiceMemberInfo'
       hhg_total_pounds:
         type: integer
         example: 10000
@@ -743,34 +696,8 @@ definitions:
         example: "4550"
         x-nullable: true
         title: Shipment Number
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-        title: First Name
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Initial
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-        title: Last Name
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-55-5555
-        x-nullable: true
-        title: SSN
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
-        title: Agency
+      service_member_info:
+        $ref: '#/definitions/ServiceMemberInfo'
       station_orders_type:
         type: string
         enum:
@@ -905,29 +832,8 @@ definitions:
         type: string
         example: "4550"
         x-nullable: true
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-55-5555
-        x-nullable: true
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
+      service_member_info:
+        $ref: '#/definitions/ServiceMemberInfo'
       station_orders_type:
         type: string
         enum:
@@ -1024,6 +930,38 @@ definitions:
         x-nullable: true
         example: 90
         title: Temporary Storage Number Days
+  ServiceMemberInfo:
+    type: object
+    properties:
+      service_member_first_name:
+        type: string
+        example: Focaccia
+        title: First Name
+      service_member_middle_initial:
+        type: string
+        example: L.
+        title: Middle Initial
+      service_member_last_name:
+        type: string
+        example: Roll
+        title: Last Name
+      service_member_rank:
+        $ref: '#/definitions/ServiceMemberRank'
+      service_member_ssn:
+        type: string
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: 555-55-5555
+        title: SSN
+      service_member_agency:
+        type: string
+        example: Air Force
+        x-nullable: true
+        title: Agency
+    required:
+      - service_member_first_name
+      - service_member_middle_initial
+      - service_member_last_name
+      - service_member_rank
   ServiceMemberRank:
     type: string
     x-nullable: true
