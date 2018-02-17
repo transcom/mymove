@@ -120,7 +120,7 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run frontend testing suites.
 * `make server_test`: Run backend testing suites.
-* `make e2e_test`: Run e2e testing suite.
+* `make e2e_test`: Run e2e testing suite. To run locally, add an environment variable called SAUCE_ACCESS_KEY, which you can find in team DP3 Engineering Vault of 1Password under Sauce Labs or by logging in to Sauce itself.
 * `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging
