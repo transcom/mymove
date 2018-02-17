@@ -1,0 +1,3 @@
+drop_foreign_key("form1299s", "service_member", {"if_exists": true})
+
+add_column("form1299s", "service_member", "string", {"null": true})
