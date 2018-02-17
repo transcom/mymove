@@ -24,9 +24,11 @@ type TransportationServiceProvider struct {
 // TSPWithBVSAndAwardCount represents a list of TSPs along with their BVS
 // and awarded shipment counts.
 type TSPWithBVSAndAwardCount struct {
-	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	AwardCount                      int       `json:"award_count" db:"award_count"`
+	ID                        uuid.UUID `json:"id" db:"id"`
+	Name                      string    `json:"name" db:"name"`
+	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
+	AwardCount                int       `json:"award_count" db:"award_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -63,7 +65,8 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 	// - We might be able to replace this with Pop's join syntax for easier reading:
 	//   https://github.com/markbates/pop#join-query
 	sql := fmt.Sprintf(`SELECT
-			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			MIN(CAST(transportation_service_providers.id AS text)) as id,
+			MIN(transportation_service_providers.name AS text) as name,
 			MIN(CAST(best_value_scores.traffic_distribution_list_id AS text)) as traffic_distribution_list_id,
 			MIN(best_value_scores.score) as best_value_score,
 			COUNT(shipment_awards.id) as award_count

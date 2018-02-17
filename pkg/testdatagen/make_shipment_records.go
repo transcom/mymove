@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"fmt"
 	"log"
+	"math/rand"
 	"time"
 
 	"github.com/markbates/pop"
