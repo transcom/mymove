@@ -11,7 +11,7 @@ import (
 
 // MakeBestValueScore makes a single best_value_score record
 func MakeBestValueScore(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, score int) error {
+	tdl models.TrafficDistributionList, score int) (models.BestValueScore, error) {
 
 	bestValueScore := models.BestValueScore{
 		TransportationServiceProviderID: tsp.ID,
@@ -24,7 +24,7 @@ func MakeBestValueScore(db *pop.Connection, tsp models.TransportationServiceProv
 		log.Panic(err)
 	}
 
-	return err
+	return bestValueScore, err
 }
 
 // MakeBestValueScoreData creates three best value score records

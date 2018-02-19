@@ -11,7 +11,7 @@ import (
 
 // MakeShipment creates a single shipment record.
 func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
-	tdl models.TrafficDistributionList) error {
+	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
@@ -24,7 +24,7 @@ func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 		log.Panic(err)
 	}
 
-	return err
+	return shipment, err
 }
 
 // MakeShipmentData creates three shipment records

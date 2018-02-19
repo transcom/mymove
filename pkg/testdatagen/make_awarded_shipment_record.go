@@ -11,7 +11,7 @@ import (
 
 // MakeShipmentAward a single AwardedShipment record
 func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
-	tsp models.TransportationServiceProvider, admin bool) error {
+	tsp models.TransportationServiceProvider, admin bool) (models.ShipmentAward, error) {
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
 	shipmentAward := models.ShipmentAward{
@@ -25,7 +25,7 @@ func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
 		log.Panic(err)
 	}
 
-	return err
+	return shipmentAward, err
 }
 
 // MakeShipmentAwardData creates one awarded shipment record

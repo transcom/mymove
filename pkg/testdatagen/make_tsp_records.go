@@ -7,7 +7,7 @@ import (
 )
 
 // MakeTSP makes a single transportation service provider record.
-func MakeTSP(db *pop.Connection, name string, SCAC string) error {
+func MakeTSP(db *pop.Connection, name string, SCAC string) (models.TransportationServiceProvider, error) {
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: SCAC,
 		Name: name}
@@ -17,7 +17,7 @@ func MakeTSP(db *pop.Connection, name string, SCAC string) error {
 		log.Panic(err)
 	}
 
-	return err
+	return tsp, err
 }
 
 // MakeTSPData creates three TSP records

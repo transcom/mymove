@@ -7,7 +7,8 @@ import (
 )
 
 // MakeTDL makes a single traffic_distribution_list record
-func MakeTDL(db *pop.Connection, source string, dest string, cos string) error {
+func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models.TrafficDistributionList, error) {
+
 	tdl := models.TrafficDistributionList{
 		SourceRateArea:    source,
 		DestinationRegion: dest,
@@ -19,7 +20,7 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) error {
 		log.Panic(err)
 	}
 
-	return err
+	return tdl, err
 }
 
 // MakeTDLData creates three TDL records
