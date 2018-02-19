@@ -1,0 +1,9 @@
+rename_column("form1299s", "other_move_1_from", "other_move_from")
+rename_column("form1299s", "other_move_1_to", "other_move_to")
+rename_column("form1299s", "other_move_1_net_pounds", "other_move_net_pounds")
+rename_column("form1299s", "other_move_1_progear_pounds", "other_move_progear_pounds")
+
+delete_column("form1299s", "other_move_2_from")
+delete_column("form1299s", "other_move_2_to")
+delete_column("form1299s", "other_move_2_net_pounds")
+delete_column("form1299s", "other_move_2_progear_pounds")
