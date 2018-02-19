@@ -5,7 +5,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"os"
 	"time"
 
 	"go.uber.org/zap"
@@ -15,34 +14,36 @@ import (
 )
 
 // TODO: replace with secret store
-const jwtPrivateKeyEnvVariable = "AUTH_CLIENT_SECRET_KEY"
+// const jwtPrivateKeyEnvVariable = "AUTH_CLIENT_SECRET_KEY"
 const loginGovClientID = "urn:gov:dod:openidconnect:sp:mymovemil"
 const gothProviderType = "openid-connect"
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func RegisterProvider() {
-	jwtSecret, isSet := os.LookupEnv(jwtPrivateKeyEnvVariable)
-	if !isSet {
-		zap.L().Info("Auth secret key environment variable not set")
+func RegisterProvider(jwtSecret *string) {
+	// jwtSecret, isSet := os.LookupEnv(jwtPrivateKeyEnvVariable)
+	if *jwtSecret == "" {
+		zap.L().Warn("Auth secret key environment variable not set")
 	}
 
 	provider, err := openidConnect.New(
 		loginGovClientID,
-		jwtSecret,
+		*jwtSecret,
 		"http://localhost:3000/auth/login-gov/callback", "http://localhost:8000/.well-known/openid-configuration")
 
 	if err != nil {
 		zap.L().Error("Register Login.gov provider with Goth", zap.Error(err))
 	}
 
-	goth.UseProviders(provider)
+	if provider != nil {
+		goth.UseProviders(provider)
+	}
 }
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func AuthorizationRedirectHandler() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		url, err := getAuthorizationURL(w, r)
+		url, err := getAuthorizationURL()
 		if err != nil {
 			zap.L().Error("Construct Login.gov authorization URL", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -53,7 +54,7 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 	}
 }
 
-func getAuthorizationURL(w http.ResponseWriter, r *http.Request) (string, error) {
+func getAuthorizationURL() (string, error) {
 	provider, err := goth.GetProvider(gothProviderType)
 	if err != nil {
 		return "", err
