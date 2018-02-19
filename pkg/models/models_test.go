@@ -79,5 +79,7 @@ func equalSlice(a []string, b []string) bool {
 func TestMain(m *testing.M) {
 	setupDBConnection()
 
+	dbConnection.TruncateAll()
+
 	os.Exit(m.Run())
 }
