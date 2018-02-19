@@ -1,55 +1,52 @@
 package handlers
 
 import (
-	"log"
+	"github.com/go-openapi/runtime/middleware"
 	"testing"
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
 	"github.com/transcom/mymove/pkg/models"
+	. "github.com/transcom/mymove/pkg/testing"
 )
 
-func mustSave(t *testing.T, s interface{}) {
-	verrs, err := dbConnection.ValidateAndSave(s)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() > 0 {
-		t.Fatalf("errors encountered saving %v: %v", s, verrs)
-	}
-}
-
 func TestIndexShipmentsHandler(t *testing.T) {
+	tx, rollback := StartTransaction(t, DB)
+	defer rollback()
+
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "scac",
 		Name: "Transportation Service Provider 1",
 	}
-	mustSave(t, &tsp)
+	MustSave(t, tx, &tsp)
 
 	tdl := models.TrafficDistributionList{
 		CodeOfService:     "cos",
 		DestinationRegion: "dr",
 		SourceRateArea:    "sra",
 	}
-	mustSave(t, &tdl)
+	MustSave(t, tx, &tdl)
 
 	avs := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 	}
-	mustSave(t, &avs)
+	MustSave(t, tx, &avs)
 
 	aws := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 	}
-	mustSave(t, &aws)
+	MustSave(t, tx, &aws)
 
 	award := models.ShipmentAward{
 		ShipmentID:                      aws.ID,
 		TransportationServiceProviderID: tsp.ID,
 	}
-	mustSave(t, &award)
+	MustSave(t, tx, &award)
 
-	params := shipmentop.NewIndexShipmentsParams()
-	indexResponse := IndexShipmentsHandler(params)
+	var indexResponse middleware.Responder
+	stubDB(tx, func() {
+		params := shipmentop.NewIndexShipmentsParams()
+		indexResponse = IndexShipmentsHandler(params)
+	})
 
 	okResponse, ok := indexResponse.(*shipmentop.IndexShipmentsOK)
 	if !ok {
