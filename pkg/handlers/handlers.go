@@ -4,8 +4,7 @@ import (
 	"github.com/markbates/pop"
 )
 
-// this file defines globals used by all handlers.
-
+// DB is the global *pop.Connection used by handlers.
 var DB *pop.Connection
 
 // Init the API package with its database connection
