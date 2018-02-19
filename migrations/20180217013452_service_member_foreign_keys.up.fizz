@@ -1,0 +1,3 @@
+drop_column("form1299s", "service_member")
+
+raw("ALTER TABLE form1299s ADD COLUMN service_member_id UUID REFERENCES service_member(id);")

@@ -1,0 +1,9 @@
+create_table("service_members", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("first_name", "string", {})
+	t.Column("middle_initial", "string", {})
+	t.Column("last_name", "string", {})
+	t.Column("rank", "string", {})
+	t.Column("ssn", "string", {})
+	t.Column("agency", "string", {"null": true})
+})

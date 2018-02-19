@@ -19,7 +19,7 @@ func payloadForAddressModel(a *models.Address) *messages.Address {
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
 			City:           swag.String(a.City),
-			State:          swag.String(a.State),
+			State:          &a.State,
 			Zip:            swag.String(a.Zip),
 		}
 	}

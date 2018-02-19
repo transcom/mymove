@@ -9,19 +9,23 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"time"
+
+	"github.com/transcom/mymove/pkg/gen/messages"
 )
 
 // Address is an address
 type Address struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string    `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string   `json:"street_address_2" db:"street_address_2"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	Zip            string    `json:"zip" db:"zip"`
+	ID             uuid.UUID      `json:"id" db:"id"`
+	CreatedAt      time.Time      `json:"created_at" db:"created_at"`
+	UpdatedAt      time.Time      `json:"updated_at" db:"updated_at"`
+	StreetAddress1 string         `json:"street_address_1" db:"street_address_1"`
+	StreetAddress2 *string        `json:"street_address_2" db:"street_address_2"`
+	City           string         `json:"city" db:"city"`
+	State          messages.State `json:"state" db:"state"`
+	Zip            string         `json:"zip" db:"zip"`
 }
+
+//
 
 // String is not required by pop and may be deleted
 func (a Address) String() string {
@@ -74,7 +78,7 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	stringFields := map[string]string{
 		"StreetAddress1": a.StreetAddress1,
 		"City":           a.City,
-		"State":          a.State,
+		"State":          string(a.State),
 		"Zip":            a.Zip,
 	}
 
@@ -83,7 +87,6 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 			verrs.Add(key, fmt.Sprintf("%s must not be blank!", key))
 		}
 	}
-
 	return verrs, nil
 }
 
