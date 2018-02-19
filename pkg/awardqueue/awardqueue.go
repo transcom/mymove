@@ -15,7 +15,9 @@ func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
 	return shipments, err
 }
 
-func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
+// AttemptShipmentAward will attempt to take the given Shipment and award it to
+// a TSP.
+func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
@@ -26,8 +28,10 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, tdl.ID)
 
 	if len(tsps) == 0 {
-		return fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
+		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
+
+	var shipmentAward *models.ShipmentAward
 
 	for _, consideredTSP := range tsps {
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP.Name)
@@ -36,7 +40,7 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 		err := dbConnection.Find(&tsp, consideredTSP.ID)
 		if err == nil {
 			// We found a valid TSP to award to!
-			err := models.CreateShipmentAward(dbConnection, shipment.ID, tsp.ID, false)
+			shipmentAward, err = models.CreateShipmentAward(dbConnection, shipment.ID, tsp.ID, false)
 			if err == nil {
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
@@ -48,7 +52,7 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 		}
 	}
 
-	return err
+	return shipmentAward, err
 }
 
 // Run will execute the Award Queue algorithm.
@@ -61,11 +65,11 @@ func Run(db *pop.Connection) {
 	if err == nil {
 		count := 0
 		for _, shipment := range shipments {
-			err = selectTSPToAwardShipment(shipment)
+			_, err = AttemptShipmentAward(shipment)
 			if err != nil {
 				fmt.Printf("\tFailed to award shipment: %s\n", err)
 			} else {
-				count += 1
+				count++
 			}
 		}
 		fmt.Printf("Awarded %d shipments.\n", count)

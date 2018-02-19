@@ -49,7 +49,7 @@ func (a *ShipmentAward) Validate(tx *pop.Connection) (*validate.Errors, error) {
 func CreateShipmentAward(tx *pop.Connection,
 	shipmentID uuid.UUID,
 	tspID uuid.UUID,
-	administrativeShipment bool) error {
+	administrativeShipment bool) (*ShipmentAward, error) {
 
 	shipmentAward := ShipmentAward{
 		ShipmentID:                      shipmentID,
@@ -58,5 +58,5 @@ func CreateShipmentAward(tx *pop.Connection,
 	}
 	_, err := tx.ValidateAndSave(&shipmentAward)
 
-	return err
+	return &shipmentAward, err
 }
