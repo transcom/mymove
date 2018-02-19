@@ -3,8 +3,6 @@ required = [
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
 	"github.com/segmentio/chamber",
-	"github.com/codegangsta/gin",
-	"github.com/markbates/goth",
 	]
 
 # This override is due to this delightful cluster:
