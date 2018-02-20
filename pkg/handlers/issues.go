@@ -9,12 +9,12 @@ import (
 	"go.uber.org/zap"
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
-	"github.com/transcom/mymove/pkg/gen/internalmodel"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForIssueModel(issue models.Issue) internalmodel.IssuePayload {
-	issuePayload := internalmodel.IssuePayload{
+func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
+	issuePayload := internalmessages.IssuePayload{
 		CreatedAt:    fmtDateTime(issue.CreatedAt),
 		Description:  swag.String(issue.Description),
 		ID:           fmtUUID(issue.ID),
@@ -53,7 +53,7 @@ func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
-		issuePayloads := make(internalmodel.IndexIssuesPayload, len(issues))
+		issuePayloads := make(internalmessages.IndexIssuesPayload, len(issues))
 		for i, issue := range issues {
 			issuePayload := payloadForIssueModel(issue)
 			issuePayloads[i] = &issuePayload

@@ -9,13 +9,13 @@ import (
 	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
-	"github.com/transcom/mymove/pkg/gen/internalmodel"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForAddressModel(a *models.Address) *internalmodel.Address {
+func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 	if a != nil {
-		return &internalmodel.Address{
+		return &internalmessages.Address{
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
 			City:           swag.String(a.City),
@@ -26,7 +26,7 @@ func payloadForAddressModel(a *models.Address) *internalmodel.Address {
 	return nil
 }
 
-func addressModelFromPayload(rawAddress *internalmodel.Address) *models.Address {
+func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
@@ -40,8 +40,8 @@ func addressModelFromPayload(rawAddress *internalmodel.Address) *models.Address 
 	return &address
 }
 
-func payloadForForm1299Model(form1299 models.Form1299) internalmodel.Form1299Payload {
-	form1299Payload := internalmodel.Form1299Payload{
+func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299Payload {
+	form1299Payload := internalmessages.Form1299Payload{
 		CreatedAt:                              fmtDateTime(form1299.CreatedAt),
 		ID:                                     fmtUUID(form1299.ID),
 		UpdatedAt:                              fmtDateTime(form1299.UpdatedAt),
@@ -231,7 +231,7 @@ func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Re
 		zap.L().Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {
-		form1299Payloads := make(internalmodel.IndexForm1299sPayload, len(form1299s))
+		form1299Payloads := make(internalmessages.IndexForm1299sPayload, len(form1299s))
 		for i, form1299 := range form1299s {
 			form1299Payload := payloadForForm1299Model(form1299)
 			form1299Payloads[i] = &form1299Payload
