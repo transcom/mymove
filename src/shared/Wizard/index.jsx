@@ -1,5 +1,6 @@
 import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
+import classnames from 'classnames';
 
 class Wizard extends Component {
   constructor(props) {
@@ -20,21 +21,28 @@ class Wizard extends Component {
 
   render() {
     const { children } = this.props;
-    const lastPageIndex = React.Children.count(this.props.children) - 1;
     const { currentPageIndex } = this.state;
-    //  const CurrentPage = children[currentPageIndex];
+    const lastPageIndex = React.Children.count(children) - 1;
+    const isFirstPage = currentPageIndex === 0;
+    const isLastPage = currentPageIndex === lastPageIndex;
+    const getCurrentPage = () => {
+      return React.Children.map(children, (child, i) => {
+        if (i !== currentPageIndex) return;
+        return child;
+      });
+    };
     return (
       <Fragment>
-        {React.Children.map(children, (child, i) => {
-          if (i !== currentPageIndex) return;
-          return child;
-        })}
-        {currentPageIndex > 0 && (
-          <button onClick={this.previousPage}>Prev</button>
+        {getCurrentPage()}
+        {!isFirstPage && (
+          <button
+            className={classnames({ 'usa-button-secondary': !isLastPage })}
+            onClick={this.previousPage}
+          >
+            Prev
+          </button>
         )}
-        {currentPageIndex < lastPageIndex && (
-          <button onClick={this.nextPage}>Next</button>
-        )}
+        {!isLastPage && <button onClick={this.nextPage}>Next</button>}
       </Fragment>
     );
   }
