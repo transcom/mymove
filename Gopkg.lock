@@ -81,6 +81,12 @@
   revision = "cafe2ce98974a3dcca6b92ce393a91a0b58b8133"
 
 [[projects]]
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
@@ -457,6 +463,12 @@
   version = "v0.8.0"
 
 [[projects]]
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
@@ -516,6 +528,16 @@
   name = "github.com/spf13/viper"
   packages = ["."]
   revision = "aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5"
+
+[[projects]]
+  name = "github.com/stretchr/testify"
+  packages = [
+    "assert",
+    "require",
+    "suite"
+  ]
+  revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
+  version = "v1.2.1"
 
 [[projects]]
   name = "github.com/toqueteos/webbrowser"
@@ -646,6 +668,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "019084089f92c4bfcc27127e5f4b9f9337f34807de3d0b7a290620ff5585404e"
+  inputs-digest = "4ccafec347978f4f06e2a51d7314ff9b23788a5324b70f369f1a06420a459858"
   solver-name = "gps-cdcl"
   solver-version = 1

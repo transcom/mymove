@@ -96,7 +96,9 @@ func setUpLogger() {
 	zap.L().Info("replaced zap's global loggers")
 }
 
-func TestSubmitForm1299HandlerAllValues(t *testing.T) {
+func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
+	t := suite.T()
+
 	var rankE6 = messages.ServiceMemberRankE6
 	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
@@ -187,11 +189,9 @@ func TestSubmitForm1299HandlerAllValues(t *testing.T) {
 	fmt.Println(string(b))
 
 	compareRequestAndResponsePayloads(t, newForm1299Payload, *showFormPayload)
-
 }
 
-func TestShowUnknown(t *testing.T) {
-
+func (suite *HandlerSuite) TestShowUnknown() {
 	unknownID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: unknownID}
 
@@ -201,8 +201,7 @@ func TestShowUnknown(t *testing.T) {
 	_ = response.(*form1299op.ShowForm1299NotFound)
 }
 
-func TestShowBadID(t *testing.T) {
-
+func (suite *HandlerSuite) TestShowBadID() {
 	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297xxx")
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
 
@@ -212,7 +211,8 @@ func TestShowBadID(t *testing.T) {
 	_ = response.(*form1299op.ShowForm1299BadRequest)
 }
 
-func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
+func (suite *HandlerSuite) TestSubmitForm1299HandlerNoRequiredValues() {
+	t := suite.T()
 
 	// Given: an instance of Form1299 with no values
 	// When: New Form1299 is posted
@@ -242,7 +242,9 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 	}
 }
 
-func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
+func (suite *HandlerSuite) TestSubmitForm1299HandlerSomeValues() {
+	t := suite.T()
+
 	// Given: an instance of Form1299 with some values
 	newForm1299Payload := messages.CreateForm1299Payload{
 		Remarks:                                swag.String("random string bla"),
@@ -282,7 +284,9 @@ func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 
 }
 
-func TestIndexForm1299sHandler(t *testing.T) {
+func (suite *HandlerSuite) TestIndexForm1299sHandler() {
+	t := suite.T()
+
 	// Given: A Form1299
 	destOfficeName := "This is a test Form1299 for your indexForm1299Handler."
 	newForm1299Payload := messages.CreateForm1299Payload{
