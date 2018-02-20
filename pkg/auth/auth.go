@@ -14,18 +14,17 @@ import (
 )
 
 // TODO: replace with secret store
-// const jwtPrivateKeyEnvVariable = "AUTH_CLIENT_SECRET_KEY"
 const loginGovClientID = "urn:gov:dod:openidconnect:sp:mymovemil"
 const gothProviderType = "openid-connect"
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
 func RegisterProvider(jwtSecret *string) {
-	// jwtSecret, isSet := os.LookupEnv(jwtPrivateKeyEnvVariable)
 	if *jwtSecret == "" {
 		zap.L().Warn("Auth secret key environment variable not set")
 	}
 
+	// TODO: set the urls below as variables based on environment rather than hardcoding.
 	provider, err := openidConnect.New(
 		loginGovClientID,
 		*jwtSecret,
