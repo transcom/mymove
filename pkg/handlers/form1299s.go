@@ -8,14 +8,14 @@ import (
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/messages"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
+	"github.com/transcom/mymove/pkg/gen/internalmodel"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForAddressModel(a *models.Address) *messages.Address {
+func payloadForAddressModel(a *models.Address) *internalmodel.Address {
 	if a != nil {
-		return &messages.Address{
+		return &internalmodel.Address{
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
 			City:           swag.String(a.City),
@@ -26,7 +26,7 @@ func payloadForAddressModel(a *models.Address) *messages.Address {
 	return nil
 }
 
-func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
+func addressModelFromPayload(rawAddress *internalmodel.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
@@ -40,8 +40,8 @@ func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
 	return &address
 }
 
-func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
-	form1299Payload := messages.Form1299Payload{
+func payloadForForm1299Model(form1299 models.Form1299) internalmodel.Form1299Payload {
+	form1299Payload := internalmodel.Form1299Payload{
 		CreatedAt:                              fmtDateTime(form1299.CreatedAt),
 		ID:                                     fmtUUID(form1299.ID),
 		UpdatedAt:                              fmtDateTime(form1299.UpdatedAt),
@@ -231,7 +231,7 @@ func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Re
 		zap.L().Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {
-		form1299Payloads := make(messages.IndexForm1299sPayload, len(form1299s))
+		form1299Payloads := make(internalmodel.IndexForm1299sPayload, len(form1299s))
 		for i, form1299 := range form1299s {
 			form1299Payload := payloadForForm1299Model(form1299)
 			form1299Payloads[i] = &form1299Payload

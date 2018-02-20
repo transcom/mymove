@@ -1,0 +1,36 @@
+IndexIssuesPayload:
+  type: array
+  items:
+    $ref: '#/IssuePayload'
+IssuePayload:
+  type: object
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    description:
+      type: string
+      example: This is a test issue
+      minLength: 1
+      maxLength: 1024
+    reporter_name:
+      type: string
+      example: Jane Doe
+      x-nullable: true
+    due_date:
+      type: string
+      format: date
+      example: 2019-03-15
+      x-nullable: true
+    created_at:
+      type: string
+      format: date-time
+    updated_at:
+      type: string
+      format: date-time
+  required:
+    - id
+    - description
+    - created_at
+    - updated_at

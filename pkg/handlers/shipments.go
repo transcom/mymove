@@ -6,13 +6,13 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/messages"
-	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
+	"github.com/transcom/mymove/pkg/gen/internalmodel"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(s models.PossiblyAwardedShipment) *messages.ShipmentPayload {
-	shipmentPayload := &messages.ShipmentPayload{
+func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmodel.ShipmentPayload {
+	shipmentPayload := &internalmodel.ShipmentPayload{
 		ID:                              fmtUUID(s.ID),
 		PickupDate:                      fmtDate(time.Now()),
 		DeliveryDate:                    fmtDate(time.Now()),
@@ -35,7 +35,7 @@ func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Respond
 		zap.L().Error("DB Query", zap.Error(err))
 		response = shipmentop.NewIndexShipmentsBadRequest()
 	} else {
-		isp := make(messages.IndexShipmentsPayload, len(shipments))
+		isp := make(internalmodel.IndexShipmentsPayload, len(shipments))
 		for i, s := range shipments {
 			isp[i] = payloadForShipmentModel(s)
 		}
