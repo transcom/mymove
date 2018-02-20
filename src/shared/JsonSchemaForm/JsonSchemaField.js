@@ -6,104 +6,7 @@ import './index.css';
 
 const IS_REQUIRED_KEY = 'x-jsf-is-required';
 
-const configureDropDown = (swaggerField, props) => {
-  props.component = 'select';
-
-  return props;
-};
-
-const dropDownChildren = (swaggerField, props) => {
-  return (
-    <Fragment>
-      <option />
-      {swaggerField.enum.map(e => (
-        <option key={e} value={e}>
-          {swaggerField['x-display-value'][e]}
-        </option>
-      ))}
-    </Fragment>
-  );
-};
-
-const numberValidator = value => {
-  if (value) {
-    if (isNaN(parseFloat(value))) {
-      return 'Must be a number.';
-    }
-  }
-};
-
-const integerValidator = value => {
-  if (value) {
-    if (!Number.isInteger(value)) {
-      return 'Must be an integer';
-    }
-  }
-};
-
-const parseNumberField = value => {
-  if (!value || numberValidator(value)) {
-    return value;
-  } else {
-    return parseFloat(value);
-  }
-};
-
-const configureNumberField = (swaggerField, props) => {
-  props.type = 'number';
-  props.step = 'any';
-  props.parse = parseNumberField;
-
-  if (swaggerField.maximum != null) {
-    props.validate.push(maximumValidator(swaggerField.maximum));
-  }
-  if (swaggerField.minimum != null) {
-    props.validate.push(minimumValidator(swaggerField.minimum));
-  }
-  if (swaggerField.type === 'integer') {
-    props.validate.push(integerValidator);
-  }
-
-  return props;
-};
-
-const createCheckbox = (fieldName, field, nameAttr) => {
-  return (
-    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
-  );
-};
-
-const phoneNumberValidator = value => {
-  if (value && value.replace(/[^\d]/g, '').length !== 10) {
-    return 'Number must have 10 digits.';
-  }
-};
-
-const normalizePhone = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedPhone = '';
-  for (let i = 0; i < 10; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 6) {
-      normalizedPhone += '-';
-    }
-    normalizedPhone += onlyNums[i];
-  }
-  return normalizedPhone;
-};
-
-const configureTelephoneField = (swaggerField, props) => {
-  props.normalize = normalizePhone;
-  props.validate.push(phoneNumberValidator);
-  props.type = 'text';
-
-  return props;
-};
+// ---- Validators -----
 
 const requiredValidator = value => (value ? undefined : 'Required');
 // Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
@@ -132,6 +35,117 @@ const minimumValidator = memoize(minimum => value => {
   }
 });
 
+const numberValidator = value => {
+  if (value) {
+    if (isNaN(parseFloat(value))) {
+      return 'Must be a number.';
+    }
+  }
+};
+
+const integerValidator = value => {
+  if (value) {
+    if (!Number.isInteger(value)) {
+      return 'Must be an integer';
+    }
+  }
+};
+
+const parseNumberField = value => {
+  if (!value || numberValidator(value)) {
+    return value;
+  } else {
+    return parseFloat(value);
+  }
+};
+
+const phoneNumberValidator = value => {
+  if (value && value.replace(/[^\d]/g, '').length !== 10) {
+    return 'Number must have 10 digits.';
+  }
+};
+
+// ----- Field configuration -----
+const createCheckbox = (fieldName, field, nameAttr) => {
+  return (
+    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
+  );
+};
+
+const configureDropDown = (swaggerField, props) => {
+  props.component = 'select';
+
+  return props;
+};
+
+const dropDownChildren = (swaggerField, props) => {
+  return (
+    <Fragment>
+      <option />
+      {swaggerField.enum.map(e => (
+        <option key={e} value={e}>
+          {swaggerField['x-display-value'][e]}
+        </option>
+      ))}
+    </Fragment>
+  );
+};
+
+const configureNumberField = (swaggerField, props) => {
+  props.type = 'number';
+  props.step = 'any';
+  props.parse = parseNumberField;
+
+  if (swaggerField.maximum != null) {
+    props.validate.push(maximumValidator(swaggerField.maximum));
+  }
+  if (swaggerField.minimum != null) {
+    props.validate.push(minimumValidator(swaggerField.minimum));
+  }
+  if (swaggerField.type === 'integer') {
+    props.validate.push(integerValidator);
+  }
+
+  return props;
+};
+
+const normalizePhone = (value, previousValue) => {
+  if (!value) {
+    return value;
+  }
+  const onlyNums = value.replace(/[^\d]/g, '');
+  let normalizedPhone = '';
+  for (let i = 0; i < 10; i++) {
+    if (i >= onlyNums.length) {
+      break;
+    }
+    if (i === 3 || i === 6) {
+      normalizedPhone += '-';
+    }
+    normalizedPhone += onlyNums[i];
+  }
+  return normalizedPhone;
+};
+
+const configureTelephoneField = (swaggerField, props) => {
+  props.normalize = normalizePhone;
+  props.validate.push(phoneNumberValidator);
+  props.type = 'text';
+
+  return props;
+};
+
+const configureTextField = (swaggerField, props) => {
+  if (swaggerField.maxLength) {
+    props.validate.push(maxLengthValidator(swaggerField.maxLength));
+  }
+  if (swaggerField.minLength) {
+    props.validate.push(minLengthValidator(swaggerField.minLength));
+  }
+
+  return props;
+};
+
 const renderInputField = ({
   input,
   type,
@@ -159,18 +173,6 @@ const renderInputField = ({
     </div>
   );
 };
-
-const configureTextField = (swaggerField, props) => {
-  if (swaggerField.maxLength) {
-    props.validate.push(maxLengthValidator(swaggerField.maxLength));
-  }
-  if (swaggerField.minLength) {
-    props.validate.push(minLengthValidator(swaggerField.minLength));
-  }
-
-  return props;
-};
-
 // also should put a star by its name.
 
 // This function switches on the type of the field and creates the correct
