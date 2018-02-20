@@ -42,7 +42,7 @@ func TestAwardSingleShipment(t *testing.T) {
 	pas := models.PossiblyAwardedShipment{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
-		TransportationServiceProviderID: &tsp.ID,
+		TransportationServiceProviderID: nil,
 		AdministrativeShipment:          newBoolPtr(false),
 	}
 
