@@ -63,6 +63,7 @@ const createNumberField = (fieldName, field, nameAttr) => {
       name={nameAttr}
       parse={parseNumberField}
       type="number"
+      step="any"
       validate={validators}
     />
   );
@@ -141,6 +142,7 @@ const minimumValidator = memoize(minimum => value => {
 const renderInputField = ({
   input,
   type,
+  step,
   componentOverride,
   meta: { touched, error, warning },
 }) => {
@@ -152,6 +154,7 @@ const renderInputField = ({
   const FieldComponent = React.createElement(componentName, {
     ...input,
     type: type,
+    step: step,
   });
 
   return (
