@@ -109,7 +109,7 @@ func main() {
 	root.Use(requestLogger)
 
 	// Register Login.gov authentication provider
-	auth.RegisterProvider(*jwtSecret, *hostname, *protocol, *port, *clientPort)
+	auth.RegisterProvider(*jwtSecret, *hostname, *protocol, *clientPort)
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))

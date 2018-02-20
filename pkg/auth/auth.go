@@ -15,12 +15,12 @@ import (
 )
 
 // TODO: replace with secret store
-const loginGovClientID = "urn:gov:dod:openidconnect:sp:mymovemil"
+const loginGovClientID = "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemil"
 const gothProviderType = "openid-connect"
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func RegisterProvider(jwtSecret, hostname, protocol, port, clientPort string) {
+func RegisterProvider(jwtSecret, hostname, protocol, clientPort string) {
 	if jwtSecret == "" {
 		zap.L().Warn("Auth secret key environment variable not set")
 	}
@@ -30,7 +30,7 @@ func RegisterProvider(jwtSecret, hostname, protocol, port, clientPort string) {
 		loginGovClientID,
 		jwtSecret,
 		fmt.Sprintf("%s://%s:%s/auth/login-gov/callback", protocol, hostname, clientPort),
-		fmt.Sprintf("%s://%s:%s/.well-known/openid-configuration", protocol, hostname, port),
+		"https://idp.int.identitysandbox.gov/.well-known/openid-configuration",
 	)
 
 	if err != nil {
