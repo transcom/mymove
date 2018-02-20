@@ -61,6 +61,15 @@ repos:
   - repo: git://github.com/dnephin/pre-commit-golang
     sha: v0.2
     hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: go-lint
+    -   id: go-fmt
+    -   id: go-vet
+    -   id: go-lint
+
+  - repo: local
+    hooks:
+      - id: mdspell
+        name: mdspell
+        entry: node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us --report
+        language: node
+        files: \.md$
+        exclude: node_modules/
