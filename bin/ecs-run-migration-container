@@ -15,12 +15,23 @@ set -u
 readonly image=$1
 readonly environment=$2
 
+readonly log_prefix=app-migrations
+readonly container=app-migrations-${environment}
 readonly family=app-migrations-${environment}
 readonly cluster=app-${environment}
 
 check_arn() {
-    arn=$1
+    local arn=$1
     [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+}
+
+show_logs() {
+    local arn=$1
+    local task_id
+    task_id=$(echo "$arn" | grep -Eo ':task/([[:alnum:]-]+)$' | cut -d / -f 2)
+    echo "CloudWatch logs:"
+    aws logs get-log-events --log-group-name "ecs-tasks-$family" --log-stream-name "$log_prefix/$container/$task_id" --query 'events[].message' || true
+    echo
 }
 
 # get the latest container definition
@@ -38,7 +49,7 @@ task_definition_arn=$(aws ecs register-task-definition --family "$family" --cont
 check_arn "$task_definition_arn"
 
 # run the task
-echo "Running task …"
+echo "Running task definition $task_definition_arn …"
 task_arn=$(aws ecs run-task --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 check_arn "$task_arn"
 time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
@@ -47,11 +58,15 @@ echo
 # check for success
 exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
 if [[ $exit_code = "0" ]]; then
-    echo "Task finished."
+    show_logs "$task_arn"
+    echo "Task $task_arn finished."
     exit 0
 fi
 
 # announce task run failure
+echo "Task $task_arn failed!"
+echo
 aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
-echo "Task failed!"
+echo
+show_logs "$task_arn"
 exit 1
