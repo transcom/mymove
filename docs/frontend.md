@@ -28,7 +28,7 @@
   * [Javascript Concepts](#javascript-concepts)
   * [Resources](#resources)
 
-_Regenerate with `bin/docs-toc.sh`_
+_Regenerate with `bin/generate-md-toc.sh`_
 
 <!-- tocstop -->
 
