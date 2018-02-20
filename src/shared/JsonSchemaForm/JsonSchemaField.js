@@ -6,16 +6,22 @@ import './index.css';
 
 const IS_REQUIRED_KEY = 'x-jsf-is-required';
 
-const createDropDown = (fieldName, field, nameAttr) => {
+const configureDropDown = (swaggerField, props) => {
+  props.component = 'select';
+
+  return props;
+};
+
+const dropDownChildren = (swaggerField, props) => {
   return (
-    <Field name={nameAttr} component="select">
+    <Fragment>
       <option />
-      {field.enum.map(e => (
+      {swaggerField.enum.map(e => (
         <option key={e} value={e}>
-          {field['x-display-value'][e]}
+          {swaggerField['x-display-value'][e]}
         </option>
       ))}
-    </Field>
+    </Fragment>
   );
 };
 
@@ -43,30 +49,22 @@ const parseNumberField = value => {
   }
 };
 
-const createNumberField = (fieldName, field, nameAttr) => {
-  let validators = [numberValidator];
-  if (field[IS_REQUIRED_KEY]) {
-    validators.push(requiredValidator);
+const configureNumberField = (swaggerField, props) => {
+  props.type = 'number';
+  props.step = 'any';
+  props.parse = parseNumberField;
+
+  if (swaggerField.maximum != null) {
+    props.validate.push(maximumValidator(swaggerField.maximum));
   }
-  if (field.maximum != null) {
-    validators.push(maximumValidator(field.maximum));
+  if (swaggerField.minimum != null) {
+    props.validate.push(minimumValidator(swaggerField.minimum));
   }
-  if (field.minimum != null) {
-    validators.push(minimumValidator(field.minimum));
+  if (swaggerField.type === 'integer') {
+    props.validate.push(integerValidator);
   }
-  if (field.type === 'integer') {
-    validators.push(integerValidator);
-  }
-  return (
-    <Field
-      component={renderInputField}
-      name={nameAttr}
-      parse={parseNumberField}
-      type="number"
-      step="any"
-      validate={validators}
-    />
-  );
+
+  return props;
 };
 
 const createCheckbox = (fieldName, field, nameAttr) => {
@@ -99,17 +97,12 @@ const normalizePhone = (value, previousValue) => {
   return normalizedPhone;
 };
 
-const createTelephoneField = (fieldName, field, nameAttr) => {
-  return (
-    <Field
-      name={nameAttr}
-      component="input"
-      type="text"
-      placeholder="Phone Number"
-      normalize={normalizePhone}
-      validate={phoneNumberValidator}
-    />
-  );
+const configureTelephoneField = (swaggerField, props) => {
+  props.normalize = normalizePhone;
+  props.validate.push(phoneNumberValidator);
+  props.type = 'text';
+
+  return props;
 };
 
 const requiredValidator = value => (value ? undefined : 'Required');
@@ -167,37 +160,17 @@ const renderInputField = ({
   );
 };
 
-const createTextAreaField = (fieldName, field, nameAttr) => {
-  let validators = [];
-  if (field[IS_REQUIRED_KEY]) {
-    validators.push(requiredValidator);
+const configureTextField = (swaggerField, props) => {
+  if (swaggerField.maxLength) {
+    props.validate.push(maxLengthValidator(swaggerField.maxLength));
   }
-  if (field.maxLength) {
-    validators.push(maxLengthValidator(field.maxLength));
+  if (swaggerField.minLength) {
+    props.validate.push(minLengthValidator(swaggerField.minLength));
   }
-  if (field.minLength) {
-    validators.push(minLengthValidator(field.minLength));
-  }
-  return (
-    <Field
-      id={fieldName}
-      name={nameAttr}
-      component={renderInputField}
-      componentOverride={'textarea'}
-      validate={validators}
-    />
-  );
+
+  return props;
 };
 
-const createInputField = (fieldName, field, nameAttr) => {
-  return <Field name={nameAttr} component="input" type={field.format} />;
-};
-
-// Ok, so maybe our switches should be building up a single Field component params? right now this is a bit silly.
-// keep at it and it will make sense.
-
-// required is making the submit button not pop, that's a good first start
-// need to indicate *if you go through the field* that it's required after.
 // also should put a star by its name.
 
 // This function switches on the type of the field and creates the correct
@@ -215,19 +188,44 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     );
   }
 
+  // Any field can be required
+  let validators = [];
+  if (swaggerField[IS_REQUIRED_KEY]) {
+    validators.push(requiredValidator);
+  }
+
+  // configure the basic Field props
+  let fieldProps = {};
+  fieldProps.name = nameAttr;
+  fieldProps.component = renderInputField;
+  fieldProps.validate = validators;
+
+  let children = null;
+
   let fieldComponent;
   if (swaggerField.enum) {
-    fieldComponent = createDropDown(fieldName, swaggerField, nameAttr);
+    fieldProps = configureDropDown(swaggerField, fieldProps);
+    children = dropDownChildren(swaggerField);
+
+    fieldComponent = React.createElement(Field, fieldProps, children);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
-    fieldComponent = createNumberField(fieldName, swaggerField, nameAttr);
+    fieldProps = configureNumberField(swaggerField, fieldProps);
+
+    fieldComponent = React.createElement(Field, fieldProps);
   } else if (swaggerField.type === 'string') {
-    if (swaggerField.format === 'textarea') {
-      fieldComponent = createTextAreaField(fieldName, swaggerField, nameAttr);
-    } else if (swaggerField.format === 'telephone') {
-      fieldComponent = createTelephoneField(fieldName, swaggerField, nameAttr);
+    if (swaggerField.format === 'telephone') {
+      fieldProps = configureTelephoneField(swaggerField, fieldProps);
+
+      fieldComponent = React.createElement(Field, fieldProps);
+      // more cases go here. Datetime, Date, SSN, (UUID)
     } else {
-      // more cases go here. Datetime, Date, UUID
-      fieldComponent = createInputField(fieldName, swaggerField, nameAttr);
+      // The last case is the simple text field / textarea which are the same but the componentOverride
+      if (swaggerField.format === 'textarea') {
+        fieldProps.componentOverride = 'textarea';
+      }
+      fieldProps = configureTextField(swaggerField, fieldProps);
+
+      fieldComponent = React.createElement(Field, fieldProps);
     }
   } else {
     console.error(

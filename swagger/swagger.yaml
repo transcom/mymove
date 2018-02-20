@@ -161,8 +161,18 @@ definitions:
         example: 212-666-6666
         x-nullable: true
         title: Telephone No.
+      station_orders_type:
+        type: string
+        enum:
+        - PERMANENT
+        - TEMPORARY
+        x-display-value:
+          PERMANENT: permanent
+          TEMPORARY: temporary
+        title: Type Orders
     required:
       - description
+      - station_orders_type
   IndexIssuesPayload:
     type: array
     items:

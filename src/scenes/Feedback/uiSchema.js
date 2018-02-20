@@ -16,4 +16,5 @@ groups:
       - telephone
       - annoyance_level
       - some_uuid
+      - station_orders_type
 `;
