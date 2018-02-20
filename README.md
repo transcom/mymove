@@ -45,7 +45,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 
 `bin`: A location for tools helpful for developing this project \
 `build`: The build output directory for the client. This is what the development server serves \
-`cmd`: The location of main packages for any go binaries we build (right now, just webserver) \
+`cmd`: The location of main packages for any go binaries we build \
 `config`: Config files can be dropped here \
 `docs`: A location for docs for the project. This is where ADRs are \
 `migrations`: Database migrations live here \
@@ -106,7 +106,16 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 ### TSP Award Queue
 
 This background job is built as a separate binary which can be built using
-`make tsp_build` and run using `make tsp_run`.
+`make tools_build` and run using `make tsp_run`.
+
+### Test Data Generator
+
+When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
+
+* `make tools_build` will build the fake data generator binary
+* `bin/generate_test_data` will run binary and create a preconfigured set of test data.
+
+There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
 ### API / Swagger
 

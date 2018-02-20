@@ -6,36 +6,27 @@ import (
 	"log"
 )
 
+// MakeTDL makes a single traffic_distribution_list record
+func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models.TrafficDistributionList, error) {
+
+	tdl := models.TrafficDistributionList{
+		SourceRateArea:    source,
+		DestinationRegion: dest,
+		CodeOfService:     cos,
+	}
+
+	_, err := db.ValidateAndSave(&tdl)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return tdl, err
+}
+
 // MakeTDLData creates three TDL records
-func MakeTDLData(dbConnection *pop.Connection) {
+func MakeTDLData(db *pop.Connection) {
 	// It would be nice to make this less repetitive
-	tdl1 := models.TrafficDistributionList{
-		SourceRateArea:    "california",
-		DestinationRegion: "90210",
-		CodeOfService:     "2"}
-
-	tdl2 := models.TrafficDistributionList{
-		SourceRateArea:    "north carolina",
-		DestinationRegion: "27007",
-		CodeOfService:     "4"}
-
-	tdl3 := models.TrafficDistributionList{
-		SourceRateArea:    "washington",
-		DestinationRegion: "98310",
-		CodeOfService:     "1"}
-
-	_, err := dbConnection.ValidateAndSave(&tdl1)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tdl2)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tdl3)
-	if err != nil {
-		log.Panic(err)
-	}
+	MakeTDL(db, "california", "90210", "2")
+	MakeTDL(db, "north carolina", "27007", "4")
+	MakeTDL(db, "washington", "98310", "1")
 }
