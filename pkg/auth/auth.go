@@ -25,7 +25,6 @@ func RegisterProvider(jwtSecret, hostname, protocol, port, clientPort string) {
 		zap.L().Warn("Auth secret key environment variable not set")
 	}
 
-	// TODO: set the urls below as variables based on environment rather than hardcoding.
 	provider, err := openidConnect.New(
 		loginGovClientID,
 		jwtSecret,
