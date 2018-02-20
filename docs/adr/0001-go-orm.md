@@ -1,7 +1,7 @@
 # Use [Pop](https://github.com/markbates/pop) as the ORM for 3M
 
 3M will have include evolving data structures that we anticipate will change significantly throughout development.
-We'd like to have a way to handle such changes with as little pain as possible. One of the things orms do well is to help with all the boilerplate when the data model changes..
+We'd like to have a way to handle such changes with as little pain as possible. One of the things ORMs do well is to help with all the boilerplate when the data model changes..
 
 Prior to the start of the contract, other Go ORMs had been explored. Pop is considered one of the more mature ORMs currently available.
 

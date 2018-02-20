@@ -1,4 +1,4 @@
-# Backend Programming Guide
+# Back-end Programming Guide
 
 ## Table of Contents
 
@@ -85,7 +85,7 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 #### General
 
 * Use table-driven tests where appropriate.
-* Make judicious use of helper funcs so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper funcs to keep stack traces clean.
+* Make judicious use of helper functions so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper funcs to keep stack traces clean.
 
 #### Models
 

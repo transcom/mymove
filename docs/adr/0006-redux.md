@@ -6,7 +6,7 @@ Redux is by far the most popular tool used to address the above issue. It also a
 ## Considered Alternatives
 
 * Redux
-* Mobx
+* MobX
 
 ## Decision Outcome
 
@@ -23,7 +23,7 @@ Redux is by far the most popular tool used to address the above issue. It also a
 * `+` Helpful dev tools.
 * `-` Haven't explored using other tools thoroughly, so don't really know if this is the 'best' for this specific app.
 
-### Mobx
+### MobX
 
 * `+` There are rustlings in the community that this is another good tool.
 * `-` Truss hasn't used before.

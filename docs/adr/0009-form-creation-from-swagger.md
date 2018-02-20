@@ -2,7 +2,7 @@
 
 **User Story:** #154407746
 
-For the first phase development we wanted to create very basic forms to enter data for a model that matches the printed forms 1299, 1797, and 2278. The first of these had many fields and so we decided that it would be nice if we could generate the view based on the swagger model definition and potentially another source of data for ui specific information (such as grouping). (Manually generating this form would be error-prone and tedious.) There are a number of libraries out there that support doing this with JsonSchema (of which Swagger is a subset), but it might be better for us to roll our own so that we can support `redux-forms` and `uswds`.
+For the first phase development we wanted to create very basic forms to enter data for a model that matches the printed forms 1299, 1797, and 2278. The first of these had many fields and so we decided that it would be nice if we could generate the view based on the swagger model definition and potentially another source of data for UI specific information (such as grouping). (Manually generating this form would be error-prone and tedious.) There are a number of libraries out there that support doing this with JSON Schema (of which Swagger is a subset), but it might be better for us to roll our own so that we can support `redux-forms` and `uswds`.
 
 ## Considered Alternatives
 
@@ -33,6 +33,6 @@ For the first phase development we wanted to create very basic forms to enter da
 
 ### react-jsonschema-form
 
-* `+` nice addition of separate schema for ui specific concerns
+* `+` nice addition of separate schema for UI specific concerns
 * `+` under active development
-* `-` use of bootstrap did not play well with uswds in exploration
+* `-` use of bootstrap did not play well with USWDS in exploration
