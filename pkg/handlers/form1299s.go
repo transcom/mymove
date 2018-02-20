@@ -116,7 +116,7 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 	var response middleware.Responder
 	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
 	if strfmt.IsUUID(string(formID)) {
-		form, err := models.FetchForm1299ByID(dbConnection, formID)
+		form, err := models.FetchForm1299ByID(DB, formID)
 		if err != nil {
 			if err.Error() == "sql: no rows in result set" {
 				response = form1299op.NewShowForm1299NotFound()
@@ -208,7 +208,7 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		TitleOfCertifiedBySignature:            params.CreateForm1299Payload.TitleOfCertifiedBySignature,
 	}
 	var response middleware.Responder
-	verrs, err := models.CreateForm1299WithAddresses(dbConnection, &newForm1299)
+	verrs, err := models.CreateForm1299WithAddresses(DB, &newForm1299)
 	if verrs.HasAny() {
 		zap.L().Error("DB Validation", zap.Error(verrs))
 		response = form1299op.NewCreateForm1299BadRequest()
@@ -226,7 +226,7 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Responder {
 	var form1299s models.Form1299s
 	var response middleware.Responder
-	form1299s, err := models.FetchAllForm1299s(dbConnection)
+	form1299s, err := models.FetchAllForm1299s(DB)
 	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()

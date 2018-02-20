@@ -29,7 +29,7 @@ func payloadForShipmentModel(s models.PossiblyAwardedShipment) *messages.Shipmen
 func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments, err := models.FetchPossiblyAwardedShipments(dbConnection)
+	shipments, err := models.FetchPossiblyAwardedShipments(DB)
 
 	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))

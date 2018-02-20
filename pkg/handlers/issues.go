@@ -33,7 +33,7 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
 	var response middleware.Responder
-	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
+	if _, err := DB.ValidateAndCreate(&newIssue); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
@@ -49,7 +49,7 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
 	var issues models.Issues
 	var response middleware.Responder
-	if err := dbConnection.All(&issues); err != nil {
+	if err := DB.All(&issues); err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
