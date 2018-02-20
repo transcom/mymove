@@ -42,12 +42,10 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	hostname := flag.String("hostname", "localhost", "Hostname according to environment.")
-	protocol := flag.String("protocol", "http", "Protocol according to environment")
 	port := flag.String("port", "8080", "the `port` to listen on.")
 	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	jwtSecret := flag.String("auth_client_secret_key", "", "Auth secret JWT key.")
-	clientPort := flag.String("client_port", "3000", "the client `port` to listen on.")
 
 	flag.Parse()
 
@@ -109,7 +107,12 @@ func main() {
 	root.Use(requestLogger)
 
 	// Register Login.gov authentication provider
-	auth.RegisterProvider(*jwtSecret, *hostname, *protocol, *port, *clientPort)
+	protocol := "https://"
+	if *env == "development" {
+		protocol = "http://"
+	}
+	fullHostname := fmt.Sprintf("%s%s", protocol, *hostname)
+	auth.RegisterProvider(*jwtSecret, fullHostname, *port)
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))
