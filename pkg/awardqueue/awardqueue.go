@@ -8,10 +8,10 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var dbConnection *pop.Connection
+var db *pop.Connection
 
 func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(dbConnection)
+	shipments, err := models.FetchAwardedShipments(db)
 	return shipments, err
 }
 
@@ -22,10 +22,10 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
-	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
+	err := db.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Find TSPs in that TDL sorted by shipment_awards[asc] and bvs[desc]
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, tdl.ID)
+	tsps, err := models.FetchTransportationServiceProvidersInTDL(db, tdl.ID)
 
 	if len(tsps) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
@@ -37,10 +37,10 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP.Name)
 
 		tsp := models.TransportationServiceProvider{}
-		err := dbConnection.Find(&tsp, consideredTSP.ID)
+		err := db.Find(&tsp, consideredTSP.ID)
 		if err == nil {
 			// We found a valid TSP to award to!
-			shipmentAward, err = models.CreateShipmentAward(dbConnection, shipment.ID, tsp.ID, false)
+			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
@@ -56,8 +56,8 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 }
 
 // Run will execute the Award Queue algorithm.
-func Run(db *pop.Connection) {
-	dbConnection = db
+func Run(dbConnection *pop.Connection) {
+	db = dbConnection
 
 	fmt.Println("TSP Award Queue running.")
 

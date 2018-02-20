@@ -66,7 +66,7 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 	//   https://github.com/markbates/pop#join-query
 	sql := fmt.Sprintf(`SELECT
 			MIN(CAST(transportation_service_providers.id AS text)) as id,
-			MIN(transportation_service_providers.name AS text) as name,
+			MIN(transportation_service_providers.name) as name,
 			MIN(CAST(best_value_scores.traffic_distribution_list_id AS text)) as traffic_distribution_list_id,
 			MIN(best_value_scores.score) as best_value_score,
 			COUNT(shipment_awards.id) as award_count

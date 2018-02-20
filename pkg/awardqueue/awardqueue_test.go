@@ -1,7 +1,7 @@
 package awardqueue
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"testing"
 	"time"
@@ -11,8 +11,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-var db *pop.Connection
 
 // newBoolPtr creates a pointer to a boolean value. Apparently it's not
 // straightforward to do this in Go otherwise.
@@ -31,7 +29,7 @@ func TestFindAllUnawardedShipments(t *testing.T) {
 
 // Test that we can create a shipment that should be awarded, and that
 // it actually gets awarded.
-func TestAwardShipment(t *testing.T) {
+func TestAwardSingleShipment(t *testing.T) {
 	// Make a shipment
 	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
 	shipment, _ := testdatagen.MakeShipment(db, time.Now(), time.Now(), tdl)
@@ -53,10 +51,37 @@ func TestAwardShipment(t *testing.T) {
 
 	// See if shipment was awarded
 	if err != nil {
-		t.Fatalf("Shipment award expected no errors, received: %v", err)
+		t.Errorf("Shipment award expected no errors, received: %v", err)
 	}
 	if award == nil {
-		t.Fatal("ShipmentAward was not found.")
+		t.Error("ShipmentAward was not found.")
+	}
+}
+
+// Test that we can create a shipment that should NOT be awarded because it is not in a TDL
+// with any TSPs, and that it doens't get awarded.
+func TestFailAwardingSingleShipment(t *testing.T) {
+	// Make a shipment in a new TDL, which inherently has no TSPs
+	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
+	shipment, _ := testdatagen.MakeShipment(db, time.Now(), time.Now(), tdl)
+
+	// Create a PossiblyAwardedShipment to feed the award queue
+	pas := models.PossiblyAwardedShipment{
+		ID: shipment.ID,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: nil,
+		AdministrativeShipment:          newBoolPtr(false),
+	}
+
+	// Run the Award Queue
+	award, err := AttemptShipmentAward(pas)
+
+	// See if shipment was awarded
+	if err == nil {
+		t.Errorf("Shipment award expected an error, received none.")
+	}
+	if award != nil {
+		t.Error("ShipmentAward was created, expected 'nil'.")
 	}
 }
 
@@ -65,7 +90,7 @@ func setupDBConnection() {
 	pop.AddLookupPaths(configLocation)
 	conn, err := pop.Connect("test")
 	if err != nil {
-		log.Panic(err)
+		fmt.Println(err)
 	}
 
 	db = conn
