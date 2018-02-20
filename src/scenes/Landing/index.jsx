@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { parse } from 'qs';
 
-import Alert from 'shared/Alert';
 import LoginButton from 'scenes/Landing/LoginButton';
 
 export class Landing extends Component {
