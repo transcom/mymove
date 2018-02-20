@@ -92,3 +92,9 @@ _
 ish
  - docs/adr/0007-swagger-client.md
 Codegen
+ - README.md
+_Regenerate
+_
+ - docs/frontend.md
+_Regenerate
+_
