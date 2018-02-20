@@ -9,6 +9,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 ## Table of Contents
 
 <!-- Table of Contents auto-generated with `bin/generate-md-toc.sh` -->
+
 <!-- toc -->
 
 * [Development](#development)
