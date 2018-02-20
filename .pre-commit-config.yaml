@@ -52,8 +52,8 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: v0.2
+    sha: 12ebecb5071d6c407f722dfbcc3eb6654b38f3df
     hooks:
-    -   id: go-fmt
-    -   id: go-vet
-    -   id: go-lint
+    - id: go-fmt
+    - id: go-vet
+    - id: go-lint
