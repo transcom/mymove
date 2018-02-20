@@ -51,9 +51,17 @@ repos:
         language: script
         files: \.md$
 
-  - repo: git://github.com/dnephin/pre-commit-golang
-    sha: v0.2
+  # With Goang 1.10, `go vet` thinks variables defined in other files of the
+  # same module are undefined. We need to use `go tool vet` instead. See this
+  # issue for more details:
+  #   https://github.com/golang/go/issues/23916
+  # I have forked the repo and applied a patch for this, as well as submitted
+  # an upstream pull request:
+  #   https://github.com/dnephin/pre-commit-golang/pull/6
+  # When this is accepted, we can revert to the original repo.
+  - repo: git@github.com:akostibas/pre-commit-golang.git
+    sha: v0.3
     hooks:
-    -   id: go-fmt
-    -   id: go-vet
-    -   id: go-lint
+      - id: go-fmt
+      - id: go-vet
+      - id: go-lint
