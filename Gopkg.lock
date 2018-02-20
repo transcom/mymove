@@ -247,34 +247,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
-  version = "v1.1"
-
-[[projects]]
   name = "github.com/gorilla/handlers"
   packages = ["."]
   revision = "90663712d74cb411cbef281bc1e08c19d1a76145"
   version = "v1.3.0"
-
-[[projects]]
-  name = "github.com/gorilla/mux"
-  packages = ["."]
-  revision = "53c1911da2b537f792e7cafcb446b05ffe33b996"
-  version = "v1.6.1"
-
-[[projects]]
-  name = "github.com/gorilla/securecookie"
-  packages = ["."]
-  revision = "667fe4e3466a040b780561fe9b51a83a3753eefc"
-  version = "v1.1"
-
-[[projects]]
-  name = "github.com/gorilla/sessions"
-  packages = ["."]
-  revision = "ca9ada44574153444b00d3fd9c8559e4cc95f896"
-  version = "v1.1"
 
 [[projects]]
   branch = "master"
@@ -376,7 +352,6 @@
   name = "github.com/markbates/goth"
   packages = [
     ".",
-    "gothic",
     "providers/openidConnect"
   ]
   revision = "7bce57bf3e9a3d61d19787b7abc41daefb8dbc44"
@@ -716,6 +691,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "f4fb0eb793ebd956c0808175e538204fac6e4dfea53e9a7add84300bc9654cab"
+  inputs-digest = "6b441afcfe698ec89b9c7498bd95ba0edc0ec2ab48eaa59762b95aaeb6c83abd"
   solver-name = "gps-cdcl"
   solver-version = 1
