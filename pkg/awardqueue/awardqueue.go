@@ -23,9 +23,10 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Find TSPs in that TDL sorted by shipment_awards[asc] and bvs[desc]
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(dbConnection, tdl.ID)
+	// tspssba stands for TSPs sorted by award
+	tspsba, err := models.FetchTSPsInTDLSortByAward(dbConnection, tdl.ID)
 
-	for _, consideredTSP := range tsps {
+	for _, consideredTSP := range tspsba {
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
 
 		tsp := models.TransportationServiceProvider{}
@@ -47,7 +48,18 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 	return err
 }
 
-// Run will execute the Award Queue algorithm.
+func assignQualityBands() {
+	// Run will execute the quality band assignment algorithm.
+	// Find TSPs in that TDL sorted bvs[desc]
+	fmt.Printf("Assigning TSPs quality bands")
+	// Query the shipment's TDL
+	tdl := models.TrafficDistributionList{}
+	// tspsbb stands for TSPs sorted by BVS
+	tspsbb, err := models.FetchTSPsInTDLSortByBVS(dbConnection, tdl.ID)
+	// Determine how many TSPs should be in each band
+	tsppb := models.GetTSPsPerBand(len(tspsbb))
+}
+
 func Run(db *pop.Connection) {
 	dbConnection = db
 

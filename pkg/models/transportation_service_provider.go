@@ -64,9 +64,9 @@ func (t *TransportationServiceProvider) ValidateUpdate(tx *pop.Connection) (*val
 	return validate.NewErrors(), nil
 }
 
-// FetchTransportationServiceProvidersInTDL returns TSPs in a given TDL in the
+// FetchTSPsInTDLSortByAward returns TSPs in a given TDL in the
 // order that they should be awarded new shipments.
-func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
+func FetchTSPsInTDLSortByAward(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
 	// We need to get TSPs, along with their Best Value Scores and total
 	// awarded shipments, hence the two joins. Some notes on the query:
 	// - We min() the id and scores, because we need an aggregate function given
@@ -91,6 +91,35 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 		`
 
 	tsps := []TSPWithBVSAndAwardCount{}
+	err := tx.RawQuery(sql).All(&tsps)
+
+	return tsps, err
+}
+
+func FetchTSPsInTDLSortByBVS(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSCount, error) {
+	// We need to get TSPs, along with their Best Value Scores. Some notes on the query:
+	// - We min() the id and scores, because we need an aggregate function given
+	//   that it's a GROUP BY
+	// - the UUID is CAST() to text to work inside the MIN(), it doesn't accept UUIDs
+	// - We might be able to replace this with Pop's join syntax for easier reading:
+	//   https://github.com/markbates/pop#join-query
+	// TODO: we also need to add a WHERE clause to contrain on Traffic
+	// Distribution Lists, but that is not being modeled in the schema yet.
+	// TODO: we also need to add a WHERE clause to contrain on Performance
+	// Periods, but that is not being modeled in the schema yet.
+
+	sql := `SELECT
+			MIN(CAST(transportation_service_providers.id AS text)) as transportation_service_provider_id,
+			MIN(best_value_scores.score) as best_value_score
+		FROM
+			transportation_service_providers
+		JOIN best_value_scores ON
+			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
+		GROUP BY transportation_service_providers.id
+		ORDER BY best_value_score DESC
+			`
+
+	tsps := []TSPWithBVSCount{}
 	err := tx.RawQuery(sql).All(&tsps)
 
 	return tsps, err

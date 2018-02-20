@@ -58,3 +58,13 @@ func (q *QualityBandAssignment) ValidateCreate(tx *pop.Connection) (*validate.Er
 func (q *QualityBandAssignment) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// GetTSPsPerBand detemines how many TSPs should be assigned to each Quality Band
+// If the number of TSPs in the TDL does not divide evenly into 4 bands, the remainder
+// is divided from the top band down. Function takes length of TSPs array (tsp count) as arg.
+func GetTSPsPerBand(tspc int) int {
+	if tspc%4 != 0 {
+		return int(math.Ceil(float64(tspc) / float64(4)))
+	}
+	return tspc / 4
+}
