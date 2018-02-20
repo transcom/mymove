@@ -1,4 +1,3 @@
-<!-- markdownlint-disable -->
 ## Description
 
 Explain a little about the changes at a high level.
