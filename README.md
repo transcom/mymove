@@ -6,6 +6,33 @@ This repository contains the application source code for the Personal Property P
 
 This prototype was built by a [Defense Digital Service](https://www.dds.mil/) team in support of USTRANSCOM's mission.
 
+## Table of Contents
+
+<!-- toc -->
+
+* [Development](#development)
+  * [Git](#git)
+  * [Project location](#project-location)
+  * [Project Layout](#project-layout)
+  * [Setup: Initial Setup](#setup-initial-setup)
+  * [Setup: Prerequisites](#setup-prerequisites)
+  * [Setup: Database](#setup-database)
+  * [Setup: Server](#setup-server)
+  * [Setup: Client](#setup-client)
+  * [TSP Award Queue](#tsp-award-queue)
+  * [Test Data Generator](#test-data-generator)
+  * [API / Swagger](#api--swagger)
+  * [Testing](#testing)
+  * [Logging](#logging)
+  * [Database](#database)
+    * [Dev Commands](#dev-commands)
+    * [Migrations](#migrations)
+  * [Troubleshooting](#troubleshooting)
+
+_Regenerate with `bin/generate-md-toc.sh`_
+
+<!-- tocstop -->
+
 ## Development
 
 ### Git
