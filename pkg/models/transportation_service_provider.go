@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -64,7 +63,7 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 	// - the UUID is CAST() to text to work inside the MIN(), it doesn't accept UUIDs
 	// - We might be able to replace this with Pop's join syntax for easier reading:
 	//   https://github.com/markbates/pop#join-query
-	sql := fmt.Sprintf(`SELECT
+	sql := `SELECT
 			MIN(CAST(transportation_service_providers.id AS text)) as id,
 			MIN(transportation_service_providers.name) as name,
 			MIN(CAST(best_value_scores.traffic_distribution_list_id AS text)) as traffic_distribution_list_id,
@@ -77,13 +76,13 @@ func FetchTransportationServiceProvidersInTDL(tx *pop.Connection, tdlID uuid.UUI
 		LEFT JOIN shipment_awards ON
 			transportation_service_providers.id = shipment_awards.transportation_service_provider_id
 		WHERE
-			best_value_scores.traffic_distribution_list_id = '%s'
+			best_value_scores.traffic_distribution_list_id = ?
 		GROUP BY best_value_scores.id
 		ORDER BY award_count ASC, best_value_score DESC
-		`, tdlID)
+		`
 
 	tsps := []TSPWithBVSAndAwardCount{}
-	err := tx.RawQuery(sql).All(&tsps)
+	err := tx.RawQuery(sql, tdlID).All(&tsps)
 
 	return tsps, err
 }
