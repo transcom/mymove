@@ -85,6 +85,39 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 	}
 }
 
+func TestAwardQueueEndToEnd(t *testing.T) {
+	shipmentsToMake := 10
+
+	// Make a TDL to contain our tests
+	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
+
+	// Make a few shipments in this TDL
+	for i := 0; i < shipmentsToMake; i++ {
+		testdatagen.MakeShipment(db, time.Now(), time.Now(), tdl)
+	}
+
+	// Make a TSP in the same TDL to handle these shipments
+	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
+
+	// ... and give this TSP a BVS
+	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+
+	// Run the Award Queue
+	Run(db)
+
+	// Count the number of shipments awarded to our TSP
+	query := db.Where(fmt.Sprintf("transportation_service_provider_id = '%s'", tsp.ID))
+	awards := []models.ShipmentAward{}
+	count, err := query.Count(&awards)
+
+	if err != nil {
+		t.Errorf("Error counting shipment awards: %v", err)
+	}
+	if count != shipmentsToMake {
+		t.Errorf("Not all ShipmentAwards found. Expected %d found %d", shipmentsToMake, count)
+	}
+}
+
 func setupDBConnection() {
 	configLocation := "../../../config"
 	pop.AddLookupPaths(configLocation)
