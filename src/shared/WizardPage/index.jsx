@@ -1,7 +1,9 @@
 import React, { Fragment, Component } from 'react';
 import PropTypes from 'prop-types';
-import reduxifyForm from '/shared/JsonSchemaForm';
 import classnames from 'classnames';
+
+import { reduxifyForm } from '../JsonSchemaForm';
+import { getNextPagePath, getPreviousPagePath } from './utils';
 
 class WizardPage extends Component {
   constructor(props) {
@@ -15,15 +17,15 @@ class WizardPage extends Component {
   nextPage() {
     const { pageList, pageKey, router } = this.props;
 
-    //     const path = getNextPagePath(pageList, pageKey);
+    const path = getNextPagePath(pageList, pageKey);
     //     this.onSubmit().then(() => router.push(path));
   }
 
   previousPage() {
-    const { pageList, pageKey } = this.props;
-    // const path = getPreviousPagePath(pageList, location.pathname); //see vets routing
+    const { pageList, pageKey, router } = this.props;
+    const path = getPreviousPagePath(pageList, pageKey); //see vets routing
 
-    // this.props.router.push(path);
+    router.push(path);
   }
 
   render() {
@@ -50,6 +52,6 @@ WizardPage.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  pages: PropTypes.array.isRequired,
+  pages: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
 };
