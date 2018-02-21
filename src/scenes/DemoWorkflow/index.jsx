@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { withRouter } from 'react-router-dom';
 
 import WizardPage from 'shared/WizardPage';
 import { loadSchema, submitForm, resetSuccess } from 'scenes/DD1299/ducks';
@@ -58,6 +59,7 @@ export class DemoWorkflow extends Component {
           uiSchema={uiSchema}
           pageList={this.props.pageList}
           pageKey={this.props.path}
+          history={this.props.history}
         />
         {this.props.hasSubmitError && (
           <Alert type="error" heading="Server Error">
@@ -87,4 +89,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadSchema, submitForm, resetSuccess }, dispatch);
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(DemoWorkflow);
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(DemoWorkflow),
+);

@@ -15,22 +15,22 @@ class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.state = {
-      currentPageIndex: 0,
-    };
   }
-  nextPage() {
-    const { pageList, pageKey, router, onSubmit } = this.props;
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  }
 
+  nextPage() {
+    const { pageList, pageKey, history, onSubmit } = this.props;
     const path = getNextPagePath(pageList, pageKey);
-    router.push(path);
+    history.push(path);
   }
 
   previousPage() {
-    const { pageList, pageKey, router } = this.props;
+    const { pageList, pageKey, history } = this.props;
     const path = getPreviousPagePath(pageList, pageKey); //see vets routing
 
-    router.push(path);
+    history.push(path);
   }
 
   render() {
