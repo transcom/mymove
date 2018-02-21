@@ -119,15 +119,17 @@ const renderSchema = (schema, uiSchema, nameSpace = '') => {
 };
 const JsonSchemaForm = props => {
   const { pristine, submitting, invalid } = props;
-  const { handleSubmit, schema, uiSchema } = props;
+  const { handleSubmit, schema, uiSchema, showSubmit } = props;
   const title = schema ? schema.title : '';
   return (
     <form className="default" onSubmit={handleSubmit}>
       <h1>{title}</h1>
       {renderSchema(schema, uiSchema)}
-      <button type="submit" disabled={pristine || submitting || invalid}>
-        Submit
-      </button>
+      {showSubmit && (
+        <button type="submit" disabled={pristine || submitting || invalid}>
+          Submit
+        </button>
+      )}
     </form>
   );
 };
@@ -136,6 +138,11 @@ JsonSchemaForm.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
+  showSubmit: PropTypes.bool,
+};
+
+JsonSchemaForm.defaultProps = {
+  showSubmit: true,
 };
 
 export const reduxifyForm = name => reduxForm({ form: name })(JsonSchemaForm);
