@@ -24,7 +24,7 @@ RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" .
 FROM gcr.io/distroless/base
 COPY --from=build /bin/mymove-server /bin/mymove-server
 COPY --from=build /go/src/github.com/transcom/mymove/config /config
-COPY --from=build /go/src/github.com/transcom/mymove/swagger/swagger.yaml /swagger/swagger.yaml
+COPY --from=build /go/src/github.com/transcom/mymove/swagger/* /swagger/
 COPY --from=build /bin/chamber /bin/chamber
 COPY /build /build
 ENTRYPOINT ["/bin/mymove-server"]

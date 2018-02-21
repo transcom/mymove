@@ -17,22 +17,20 @@ import (
 	"github.com/markbates/goth/providers/openidConnect"
 )
 
-const loginGovClientID = "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemil"
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func RegisterProvider(jwtSecret, hostname, protocol, clientPort string) {
-	if jwtSecret == "" {
-		zap.L().Warn("Auth secret key environment variable not set")
+func RegisterProvider(loginGovSecretKey, hostname, port, loginGovClientID string) {
+	if loginGovSecretKey == "" {
+		zap.L().Warn("Login.gov secret key must be set.")
 	}
 
-	// TODO: set the urls below as variables based on environment rather than hardcoding.
 	provider, err := openidConnect.New(
 		loginGovClientID,
-		jwtSecret,
-		fmt.Sprintf("%s://%s:%s/auth/login-gov/callback", protocol, hostname, clientPort),
+		loginGovSecretKey,
+		fmt.Sprintf("%s:%s/auth/login-gov/callback", hostname, port),
 		"https://idp.int.identitysandbox.gov/.well-known/openid-configuration",
 	)
 
@@ -59,30 +57,26 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
-func AuthorizationCallbackHandler(jwtSecret string) http.HandlerFunc {
+func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname, port string) http.HandlerFunc {
+	if loginGovSecretKey == "" {
+		zap.L().Panic("Login.gov secret key must be set.")
+	}
+
+	if loginGovClientID == "" {
+		zap.L().Panic("Login.gov client ID must be set.")
+	}
+
 	return func(w http.ResponseWriter, r *http.Request) {
-		if jwtSecret == "" {
-			zap.L().Error("Auth secret key environment variable not set")
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-			return
-		}
 
 		authError := r.URL.Query().Get("error")
 
 		// The user has either cancelled or declined to authorize the client
 		if authError == "access_denied" {
-			http.Redirect(w, r, "http://localhost:3000/landing", http.StatusTemporaryRedirect)
-		}
-
-		if authError == "invalid_request" {
-			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			http.Redirect(w, r, fmt.Sprintf("%s:%s/landing", hostname, port), http.StatusTemporaryRedirect)
 			return
 		}
 
-		// TODO: validate the state is the same (pull from session)
-
-		session, err := fetchToken(r, jwtSecret)
-		if err != nil {
+		if authError == "invalid_request" {
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
@@ -94,6 +88,13 @@ func AuthorizationCallbackHandler(jwtSecret string) http.HandlerFunc {
 			return
 		}
 
+		// TODO: validate the state is the same (pull from session)
+		session, err := fetchToken(r, loginGovSecretKey, loginGovClientID)
+		if err != nil {
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
+
 		user, err := provider.FetchUser(session)
 		if err != nil {
 			zap.L().Error("Login.gov user info request", zap.Error(err))
@@ -101,7 +102,7 @@ func AuthorizationCallbackHandler(jwtSecret string) http.HandlerFunc {
 			return
 		}
 
-		landingURL := fmt.Sprintf("http://localhost:3000/landing?email=%s", user.RawData["email"])
+		landingURL := fmt.Sprintf("%s:%s/landing?email=%s", hostname, port, user.RawData["email"])
 		http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 	}
 }
@@ -140,11 +141,11 @@ func getAuthorizationURL() (string, error) {
 	return authURL.String(), err
 }
 
-func fetchToken(r *http.Request, jwtSecret string) (goth.Session, error) {
+func fetchToken(r *http.Request, loginGovSecretKey string, loginGovClientID string) (goth.Session, error) {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
 	tokenURL := "https://idp.int.identitysandbox.gov/api/openid_connect/token"
-	clientAssertion, err := createClientAssertionJWT(tokenURL, jwtSecret)
+	clientAssertion, err := createClientAssertionJWT(tokenURL, loginGovSecretKey, loginGovClientID)
 	if err != nil {
 		return nil, err
 	}
@@ -190,7 +191,7 @@ func fetchToken(r *http.Request, jwtSecret string) (goth.Session, error) {
 	return &session, err
 }
 
-func createClientAssertionJWT(tokenURL, jwtSecret string) (string, error) {
+func createClientAssertionJWT(tokenURL, loginGovSecretKey, loginGovClientID string) (string, error) {
 	claims := &jwt.StandardClaims{
 		Issuer:    loginGovClientID,
 		Subject:   loginGovClientID,
@@ -199,7 +200,7 @@ func createClientAssertionJWT(tokenURL, jwtSecret string) (string, error) {
 		ExpiresAt: time.Now().Add(time.Minute * sessionExpiryInMinutes).Unix(),
 	}
 
-	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(jwtSecret))
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(loginGovSecretKey))
 	if err != nil {
 		zap.L().Error("JWT parse private key from PEM", zap.Error(err))
 		return "", err

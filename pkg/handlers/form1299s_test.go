@@ -9,10 +9,10 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/transcom/mymove/pkg/gen/messages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"go.uber.org/zap"
 
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 )
 
 func compareRequestAndResponsePayloads(t *testing.T, requestPayload interface{}, responsePayload interface{}) {
@@ -65,7 +65,7 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload interface{},
 				continue
 			}
 		// Everything else can use == for now. Other cases may develop
-		case messages.Address:
+		case internalmessages.Address:
 			compareRequestAndResponsePayloads(t, requestInterface, responseInterface)
 		default:
 			if requestInterface != responseInterface {
@@ -76,8 +76,8 @@ func compareRequestAndResponsePayloads(t *testing.T, requestPayload interface{},
 	}
 }
 
-func fakeAddress() *messages.Address {
-	return &messages.Address{
+func fakeAddress() *internalmessages.Address {
+	return &internalmessages.Address{
 		StreetAddress1: swag.String("An address"),
 		StreetAddress2: swag.String("Apt. 2"),
 		City:           swag.String("Happytown"),
@@ -97,10 +97,10 @@ func setUpLogger() {
 }
 
 func TestSubmitForm1299HandlerAllValues(t *testing.T) {
-	var rankE6 = messages.ServiceMemberRankE6
+	var rankE6 = internalmessages.ServiceMemberRankE6
 	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
-	newForm1299Payload := messages.CreateForm1299Payload{
+	newForm1299Payload := internalmessages.CreateForm1299Payload{
 		ShipmentNumber:                         swag.String("23098eifjsldkjf"),
 		DatePrepared:                           fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)),
 		NameOfPreparingOffice:                  swag.String("random string bla"),
@@ -216,7 +216,7 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 
 	// Given: an instance of Form1299 with no values
 	// When: New Form1299 is posted
-	newForm1299Payload := messages.CreateForm1299Payload{
+	newForm1299Payload := internalmessages.CreateForm1299Payload{
 		MobileHomeContentsPackedRequested:      swag.Bool(false),
 		MobileHomeBlockedRequested:             swag.Bool(false),
 		MobileHomeUnblockedRequested:           swag.Bool(false),
@@ -244,7 +244,7 @@ func TestSubmitForm1299HandlerNoRequiredValues(t *testing.T) {
 
 func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 	// Given: an instance of Form1299 with some values
-	newForm1299Payload := messages.CreateForm1299Payload{
+	newForm1299Payload := internalmessages.CreateForm1299Payload{
 		Remarks:                                swag.String("random string bla"),
 		OtherMove1From:                         swag.String("random string bla"),
 		OtherMove1To:                           swag.String("random string bla"),
@@ -285,7 +285,7 @@ func TestSubmitForm1299HandlerSomeValues(t *testing.T) {
 func TestIndexForm1299sHandler(t *testing.T) {
 	// Given: A Form1299
 	destOfficeName := "This is a test Form1299 for your indexForm1299Handler."
-	newForm1299Payload := messages.CreateForm1299Payload{
+	newForm1299Payload := internalmessages.CreateForm1299Payload{
 		DestOfficeName:                         &destOfficeName,
 		MobileHomeContentsPackedRequested:      swag.Bool(false),
 		MobileHomeBlockedRequested:             swag.Bool(false),
