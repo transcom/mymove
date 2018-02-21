@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import WizardPage from 'shared/WizardPage';
-import { loadSchema, submitForm, resetSuccess } from './ducks';
+import { loadSchema, submitForm, resetSuccess } from 'scenes/DD1299/ducks';
 
 import Alert from 'shared/Alert';
 
@@ -47,7 +47,7 @@ export class DemoWorkflow extends Component {
         </Fragment>
       );
     const uiSchema = Object.assign({}, this.props.uiSchema, {
-      order: ['service_member_information'],
+      order: this.props.subsetOfUiSchema,
     });
     return (
       <Fragment>
@@ -56,8 +56,8 @@ export class DemoWorkflow extends Component {
           onSubmit={this.submit}
           schema={this.props.schema}
           uiSchema={uiSchema}
-          pageList={['/DemoWorkflow', '/WizardDemo']}
-          pageKey="/DemoWorkflow"
+          pageList={this.props.pageList}
+          pageKey={this.props.path}
         />
         {this.props.hasSubmitError && (
           <Alert type="error" heading="Server Error">
@@ -76,6 +76,7 @@ DemoWorkflow.propTypes = {
   hasSchemaError: PropTypes.bool.isRequired,
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
+  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
 };
 
 function mapStateToProps(state) {
