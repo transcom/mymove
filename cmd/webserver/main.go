@@ -45,8 +45,8 @@ func main() {
 	port := flag.String("port", "8080", "the `port` to listen on.")
 	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
-	jwtSecret := flag.String("auth_client_secret_key", "", "Auth secret JWT key.")
-	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovClientID := flag.String("login_gov_client_id", "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemildev", "Client ID registered with login gov.")
 
 	flag.Parse()
 
@@ -115,7 +115,7 @@ func main() {
 		registeredPort = "3000"
 	}
 	fullHostname := fmt.Sprintf("%s%s", protocol, *hostname)
-	auth.RegisterProvider(*jwtSecret, fullHostname, registeredPort, *loginGovClientID)
+	auth.RegisterProvider(*loginGovSecretKey, fullHostname, registeredPort, *loginGovClientID)
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))

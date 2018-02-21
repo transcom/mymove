@@ -19,15 +19,14 @@ const gothProviderType = "openid-connect"
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func RegisterProvider(jwtSecret, hostname, port, loginGovClientID string) {
-	if jwtSecret == "" {
+func RegisterProvider(loginGovSecretKey, hostname, port, loginGovClientID string) {
+	if loginGovSecretKey == "" {
 		zap.L().Warn("Auth secret key environment variable not set")
 	}
 
-	// TODO: set the urls below as variables based on environment rather than hardcoding.
 	provider, err := openidConnect.New(
 		loginGovClientID,
-		jwtSecret,
+		loginGovSecretKey,
 		fmt.Sprintf("%s:%s/auth/login-gov/callback", hostname, port),
 		"https://idp.int.identitysandbox.gov/.well-known/openid-configuration",
 	)
