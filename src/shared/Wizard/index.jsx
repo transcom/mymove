@@ -34,15 +34,22 @@ class Wizard extends Component {
     return (
       <Fragment>
         {getCurrentPage()}
-        {!isFirstPage && (
-          <button
-            className={classnames({ 'usa-button-secondary': !isLastPage })}
-            onClick={this.previousPage}
-          >
-            Prev
-          </button>
-        )}
-        {!isLastPage && <button onClick={this.nextPage}>Next</button>}
+        <div className="usa-grid">
+          <div className="usa-width-one-third">
+            {!isFirstPage && (
+              <button
+                className={classnames({ 'usa-button-secondary': !isLastPage })}
+                onClick={this.previousPage}
+              >
+                Prev
+              </button>
+            )}
+          </div>
+          <div className="usa-width-one-third" />
+          <div className="usa-width-one-third">
+            {!isLastPage && <button onClick={this.nextPage}>Next</button>}
+          </div>
+        </div>
       </Fragment>
     );
   }
