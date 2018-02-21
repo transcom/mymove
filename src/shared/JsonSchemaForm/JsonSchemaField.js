@@ -1,67 +1,18 @@
 import React, { Fragment } from 'react';
-import { memoize } from 'lodash';
 
+import validator from './validator';
 import { Field } from 'redux-form';
 import './index.css';
 
 const IS_REQUIRED_KEY = 'x-jsf-is-required';
 
-// ---- Validators -----
-
-const requiredValidator = value => (value ? undefined : 'Required');
-// Why Memoize? Please see https://github.com/erikras/redux-form/issues/3288
-// Since we attach validators inside the render method, without memoization the
-// function is re-created on every render which is not handled by react form.
-// By memoizing it, it works.
-const maxLengthValidator = memoize(maxLength => value => {
-  if (value && value.length > maxLength) {
-    return `Cannot exceed ${maxLength} characters.`;
-  }
-});
-const minLengthValidator = memoize(minLength => value => {
-  if (value && value.length < minLength) {
-    return `Must be at least ${minLength} characters long.`;
-  }
-});
-
-const maximumValidator = memoize(maximum => value => {
-  if (value && value > maximum) {
-    return `Must be ${maximum} or less`;
-  }
-});
-const minimumValidator = memoize(minimum => value => {
-  if (value && value < minimum) {
-    return `Must be ${minimum} or more`;
-  }
-});
-
-const numberValidator = value => {
-  if (value) {
-    if (isNaN(parseFloat(value))) {
-      return 'Must be a number.';
-    }
-  }
-};
-
-const integerValidator = value => {
-  if (value) {
-    if (!Number.isInteger(value)) {
-      return 'Must be an integer';
-    }
-  }
-};
+// ---- Validator -----
 
 const parseNumberField = value => {
-  if (!value || numberValidator(value)) {
+  if (!value || validator.isNumber(value)) {
     return value;
   } else {
     return parseFloat(value);
-  }
-};
-
-const phoneNumberValidator = value => {
-  if (value && value.replace(/[^\d]/g, '').length !== 10) {
-    return 'Number must have 10 digits.';
   }
 };
 
@@ -73,7 +24,7 @@ const createCheckbox = (fieldName, field, nameAttr) => {
 };
 
 const configureDropDown = (swaggerField, props) => {
-  props.component = 'select';
+  props.componentOverride = 'select';
 
   return props;
 };
@@ -97,13 +48,13 @@ const configureNumberField = (swaggerField, props) => {
   props.parse = parseNumberField;
 
   if (swaggerField.maximum != null) {
-    props.validate.push(maximumValidator(swaggerField.maximum));
+    props.validate.push(validator.maximum(swaggerField.maximum));
   }
   if (swaggerField.minimum != null) {
-    props.validate.push(minimumValidator(swaggerField.minimum));
+    props.validate.push(validator.minimum(swaggerField.minimum));
   }
   if (swaggerField.type === 'integer') {
-    props.validate.push(integerValidator);
+    props.validate.push(validator.isInteger);
   }
 
   return props;
@@ -129,7 +80,7 @@ const normalizePhone = (value, previousValue) => {
 
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = normalizePhone;
-  props.validate.push(phoneNumberValidator);
+  props.validate.push(validator.isPhoneNumber);
   props.type = 'text';
 
   return props;
@@ -137,10 +88,10 @@ const configureTelephoneField = (swaggerField, props) => {
 
 const configureTextField = (swaggerField, props) => {
   if (swaggerField.maxLength) {
-    props.validate.push(maxLengthValidator(swaggerField.maxLength));
+    props.validate.push(validator.maxLength(swaggerField.maxLength));
   }
   if (swaggerField.minLength) {
-    props.validate.push(minLengthValidator(swaggerField.minLength));
+    props.validate.push(validator.minLength(swaggerField.minLength));
   }
 
   return props;
@@ -152,17 +103,22 @@ const renderInputField = ({
   step,
   componentOverride,
   meta: { touched, error, warning },
+  children,
 }) => {
   let componentName = 'input';
   if (componentOverride) {
     componentName = componentOverride;
   }
 
-  const FieldComponent = React.createElement(componentName, {
-    ...input,
-    type: type,
-    step: step,
-  });
+  const FieldComponent = React.createElement(
+    componentName,
+    {
+      ...input,
+      type: type,
+      step: step,
+    },
+    children,
+  );
 
   return (
     <div>
@@ -204,21 +160,14 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
 
   let children = null;
 
-  let fieldComponent;
   if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
-
-    fieldComponent = React.createElement(Field, fieldProps, children);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     fieldProps = configureNumberField(swaggerField, fieldProps);
-
-    fieldComponent = React.createElement(Field, fieldProps);
   } else if (swaggerField.type === 'string') {
     if (swaggerField.format === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
-
-      fieldComponent = React.createElement(Field, fieldProps);
       // more cases go here. Datetime, Date, SSN, (UUID)
     } else {
       // The last case is the simple text field / textarea which are the same but the componentOverride
@@ -226,8 +175,6 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
         fieldProps.componentOverride = 'textarea';
       }
       fieldProps = configureTextField(swaggerField, fieldProps);
-
-      fieldComponent = React.createElement(Field, fieldProps);
     }
   } else {
     console.error(
@@ -238,7 +185,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   return (
     <label key={fieldName}>
       {swaggerField.title || fieldName}
-      {fieldComponent}
+      <Field {...fieldProps}>{children}</Field>
     </label>
   );
 };
