@@ -146,17 +146,11 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     );
   }
 
-  // Any field can be required
-  let validators = [];
-  if (swaggerField[IS_REQUIRED_KEY]) {
-    validators.push(requiredValidator);
-  }
-
   // configure the basic Field props
   let fieldProps = {};
   fieldProps.name = nameAttr;
   fieldProps.component = renderInputField;
-  fieldProps.validate = validators;
+  fieldProps.validate = [];
 
   let children = null;
 
