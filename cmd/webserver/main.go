@@ -13,11 +13,12 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/gen/restapi"
-	"github.com/transcom/mymove/pkg/gen/restapi/operations"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
-	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/internalapi"
+	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
+	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -38,11 +39,16 @@ func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
+	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
+	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
+	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovClientID := flag.String("login_gov_client_id", "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemildev", "Client ID registered with login gov.")
+
 	flag.Parse()
 
 	// Set up logger for the system
@@ -68,12 +74,12 @@ func main() {
 	// initialize api pkg with dbConnection created above
 	handlers.Init(dbConnection)
 
-	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	api := operations.NewMymoveAPI(swaggerSpec)
+	api := internalops.NewMymoveAPI(swaggerSpec)
 
 	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
@@ -89,9 +95,13 @@ func main() {
 
 	// Base routes
 	root := goji.NewMux()
-	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*swagger))
-	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
+	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*apiSwagger))
+	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
+	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
+
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
@@ -99,6 +109,16 @@ func main() {
 
 	// And request logging
 	root.Use(requestLogger)
+
+	// Register Login.gov authentication provider
+	protocol := "https://"
+	registeredPort := "" // TODO: reregister callback url with port 8080 instead of 3000
+	if *env == "development" {
+		protocol = "http://"
+		registeredPort = "3000"
+	}
+	fullHostname := fmt.Sprintf("%s%s", protocol, *hostname)
+	auth.RegisterProvider(*loginGovSecretKey, fullHostname, registeredPort, *loginGovClientID)
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))

@@ -3,15 +3,17 @@ package handlers
 import (
 	"time"
 
-	"github.com/transcom/mymove/pkg/gen/messages"
-	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
+	"github.com/markbates/pop"
+
+	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 func (suite *HandlerSuite) TestSubmitIssueHandler() {
 	t := suite.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
-	newIssuePayload := messages.CreateIssuePayload{Description: &testDescription}
+	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
@@ -36,7 +38,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	testDate := fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
-	newIssuePayload := messages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
+	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
 	response := CreateIssueHandler(newIssueParams)
@@ -59,7 +61,7 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
-	newIssuePayload := messages.CreateIssuePayload{Description: &testDescription}
+	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
 
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}

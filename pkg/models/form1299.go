@@ -12,76 +12,80 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/messages"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // Form1299 is an application for shipment or storage of personal property
 type Form1299 struct {
-	ID                                     uuid.UUID                   `json:"id" db:"id"`
-	CreatedAt                              time.Time                   `json:"created_at" db:"created_at"`
-	UpdatedAt                              time.Time                   `json:"updated_at" db:"updated_at"`
-	DatePrepared                           *time.Time                  `json:"date_prepared" db:"date_prepared"`
-	ShipmentNumber                         *string                     `json:"shipment_number" db:"shipment_number"`
-	NameOfPreparingOffice                  *string                     `json:"name_of_preparing_office" db:"name_of_preparing_office"`
-	DestOfficeName                         *string                     `json:"dest_office_name" db:"dest_office_name"`
-	OriginOfficeAddressName                *string                     `json:"origin_office_address_name" db:"origin_office_address_name"`
-	OriginOfficeAddressID                  *uuid.UUID                  `json:"origin_office_address_id" db:"origin_office_address_id"`
-	OriginOfficeAddress                    *Address                    `db:"-"`
-	ServiceMemberFirstName                 *string                     `json:"service_member_first_name" db:"service_member_first_name"`
-	ServiceMemberMiddleInitial             *string                     `json:"service_member_middle_initial" db:"service_member_middle_initial"`
-	ServiceMemberLastName                  *string                     `json:"service_member_last_name" db:"service_member_last_name"`
-	ServiceMemberRank                      *messages.ServiceMemberRank `json:"service_member_rank" db:"service_member_rank"`
-	ServiceMemberSsn                       *string                     `json:"service_member_ssn" db:"service_member_ssn"`
-	ServiceMemberAgency                    *string                     `json:"service_member_agency" db:"service_member_agency"`
-	HhgTotalPounds                         *int64                      `json:"hhg_total_pounds" db:"hhg_total_pounds"`
-	HhgProgearPounds                       *int64                      `json:"hhg_progear_pounds" db:"hhg_progear_pounds"`
-	HhgValuableItemsCartons                *int64                      `json:"hhg_valuable_items_cartons" db:"hhg_valuable_items_cartons"`
-	MobileHomeSerialNumber                 *string                     `json:"mobile_home_serial_number" db:"mobile_home_serial_number"`
-	MobileHomeLengthFt                     *int64                      `json:"mobile_home_length_ft" db:"mobile_home_length_ft"`
-	MobileHomeLengthInches                 *int64                      `json:"mobile_home_length_inches" db:"mobile_home_length_inches"`
-	MobileHomeWidthFt                      *int64                      `json:"mobile_home_width_ft" db:"mobile_home_width_ft"`
-	MobileHomeWidthInches                  *int64                      `json:"mobile_home_width_inches" db:"mobile_home_width_inches"`
-	MobileHomeHeightFt                     *int64                      `json:"mobile_home_height_ft" db:"mobile_home_height_ft"`
-	MobileHomeHeightInches                 *int64                      `json:"mobile_home_height_inches" db:"mobile_home_height_inches"`
-	MobileHomeTypeExpando                  *string                     `json:"mobile_home_type_expando" db:"mobile_home_type_expando"`
-	MobileHomeContentsPackedRequested      bool                        `json:"mobile_home_contents_packed_requested" db:"mobile_home_contents_packed_requested"`
-	MobileHomeBlockedRequested             bool                        `json:"mobile_home_blocked_requested" db:"mobile_home_blocked_requested"`
-	MobileHomeUnblockedRequested           bool                        `json:"mobile_home_unblocked_requested" db:"mobile_home_unblocked_requested"`
-	MobileHomeStoredAtOriginRequested      bool                        `json:"mobile_home_stored_at_origin_requested" db:"mobile_home_stored_at_origin_requested"`
-	MobileHomeStoredAtDestinationRequested bool                        `json:"mobile_home_stored_at_destination_requested" db:"mobile_home_stored_at_destination_requested"`
-	StationOrdersType                      *string                     `json:"station_orders_type" db:"station_orders_type"`
-	StationOrdersIssuedBy                  *string                     `json:"station_orders_issued_by" db:"station_orders_issued_by"`
-	StationOrdersNewAssignment             *string                     `json:"station_orders_new_assignment" db:"station_orders_new_assignment"`
-	StationOrdersDate                      *time.Time                  `json:"station_orders_date" db:"station_orders_date"`
-	StationOrdersNumber                    *string                     `json:"station_orders_number" db:"station_orders_number"`
-	StationOrdersParagraphNumber           *string                     `json:"station_orders_paragraph_number" db:"station_orders_paragraph_number"`
-	StationOrdersInTransitTelephone        *string                     `json:"station_orders_in_transit_telephone" db:"station_orders_in_transit_telephone"`
-	InTransitAddressID                     *uuid.UUID                  `json:"in_transit_address_id" db:"in_transit_address_id"`
-	InTransitAddress                       *Address                    `db:"-"`
-	PickupAddressID                        *uuid.UUID                  `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                          *Address                    `db:"-"`
-	PickupTelephone                        *string                     `json:"pickup_telephone" db:"pickup_telephone"`
-	DestAddressID                          *uuid.UUID                  `json:"dest_address_id" db:"dest_address_id"`
-	DestAddress                            *Address                    `db:"-"`
-	AgentToReceiveHhg                      *string                     `json:"agent_to_receive_hhg" db:"agent_to_receive_hhg"`
-	ExtraAddressID                         *uuid.UUID                  `json:"extra_address_id" db:"extra_address_id"`
-	ExtraAddress                           *Address                    `db:"-"`
-	PackScheduledDate                      *time.Time                  `json:"pack_scheduled_date" db:"pack_scheduled_date"`
-	PickupScheduledDate                    *time.Time                  `json:"pickup_scheduled_date" db:"pickup_scheduled_date"`
-	DeliveryScheduledDate                  *time.Time                  `json:"delivery_scheduled_date" db:"delivery_scheduled_date"`
-	Remarks                                *string                     `json:"remarks" db:"remarks"`
-	OtherMoveFrom                          *string                     `json:"other_move_from" db:"other_move_from"`
-	OtherMoveTo                            *string                     `json:"other_move_to" db:"other_move_to"`
-	OtherMoveNetPounds                     *int64                      `json:"other_move_net_pounds" db:"other_move_net_pounds"`
-	OtherMoveProgearPounds                 *int64                      `json:"other_move_progear_pounds" db:"other_move_progear_pounds"`
-	ServiceMemberSignature                 *string                     `json:"service_member_signature" db:"service_member_signature"`
-	DateSigned                             *time.Time                  `json:"date_signed" db:"date_signed"`
-	ContractorAddressID                    *uuid.UUID                  `json:"contractor_address_id" db:"contractor_address_id"`
-	ContractorAddress                      *Address                    `db:"-"`
-	ContractorName                         *string                     `json:"contractor_name" db:"contractor_name"`
-	NonavailabilityOfSignatureReason       *string                     `json:"nonavailability_of_signature_reason" db:"nonavailability_of_signature_reason"`
-	CertifiedBySignature                   *string                     `json:"certified_by_signature" db:"certified_by_signature"`
-	TitleOfCertifiedBySignature            *string                     `json:"title_of_certified_by_signature" db:"title_of_certified_by_signature"`
+	ID                                     uuid.UUID                           `json:"id" db:"id"`
+	CreatedAt                              time.Time                           `json:"created_at" db:"created_at"`
+	UpdatedAt                              time.Time                           `json:"updated_at" db:"updated_at"`
+	DatePrepared                           *time.Time                          `json:"date_prepared" db:"date_prepared"`
+	ShipmentNumber                         *string                             `json:"shipment_number" db:"shipment_number"`
+	NameOfPreparingOffice                  *string                             `json:"name_of_preparing_office" db:"name_of_preparing_office"`
+	DestOfficeName                         *string                             `json:"dest_office_name" db:"dest_office_name"`
+	OriginOfficeAddressName                *string                             `json:"origin_office_address_name" db:"origin_office_address_name"`
+	OriginOfficeAddressID                  *uuid.UUID                          `json:"origin_office_address_id" db:"origin_office_address_id"`
+	OriginOfficeAddress                    *Address                            `db:"-"`
+	ServiceMemberFirstName                 *string                             `json:"service_member_first_name" db:"service_member_first_name"`
+	ServiceMemberMiddleInitial             *string                             `json:"service_member_middle_initial" db:"service_member_middle_initial"`
+	ServiceMemberLastName                  *string                             `json:"service_member_last_name" db:"service_member_last_name"`
+	ServiceMemberRank                      *internalmessages.ServiceMemberRank `json:"service_member_rank" db:"service_member_rank"`
+	ServiceMemberSsn                       *string                             `json:"service_member_ssn" db:"service_member_ssn"`
+	ServiceMemberAgency                    *string                             `json:"service_member_agency" db:"service_member_agency"`
+	HhgTotalPounds                         *int64                              `json:"hhg_total_pounds" db:"hhg_total_pounds"`
+	HhgProgearPounds                       *int64                              `json:"hhg_progear_pounds" db:"hhg_progear_pounds"`
+	HhgValuableItemsCartons                *int64                              `json:"hhg_valuable_items_cartons" db:"hhg_valuable_items_cartons"`
+	MobileHomeSerialNumber                 *string                             `json:"mobile_home_serial_number" db:"mobile_home_serial_number"`
+	MobileHomeLengthFt                     *int64                              `json:"mobile_home_length_ft" db:"mobile_home_length_ft"`
+	MobileHomeLengthInches                 *int64                              `json:"mobile_home_length_inches" db:"mobile_home_length_inches"`
+	MobileHomeWidthFt                      *int64                              `json:"mobile_home_width_ft" db:"mobile_home_width_ft"`
+	MobileHomeWidthInches                  *int64                              `json:"mobile_home_width_inches" db:"mobile_home_width_inches"`
+	MobileHomeHeightFt                     *int64                              `json:"mobile_home_height_ft" db:"mobile_home_height_ft"`
+	MobileHomeHeightInches                 *int64                              `json:"mobile_home_height_inches" db:"mobile_home_height_inches"`
+	MobileHomeTypeExpando                  *string                             `json:"mobile_home_type_expando" db:"mobile_home_type_expando"`
+	MobileHomeContentsPackedRequested      bool                                `json:"mobile_home_contents_packed_requested" db:"mobile_home_contents_packed_requested"`
+	MobileHomeBlockedRequested             bool                                `json:"mobile_home_blocked_requested" db:"mobile_home_blocked_requested"`
+	MobileHomeUnblockedRequested           bool                                `json:"mobile_home_unblocked_requested" db:"mobile_home_unblocked_requested"`
+	MobileHomeStoredAtOriginRequested      bool                                `json:"mobile_home_stored_at_origin_requested" db:"mobile_home_stored_at_origin_requested"`
+	MobileHomeStoredAtDestinationRequested bool                                `json:"mobile_home_stored_at_destination_requested" db:"mobile_home_stored_at_destination_requested"`
+	StationOrdersType                      *string                             `json:"station_orders_type" db:"station_orders_type"`
+	StationOrdersIssuedBy                  *string                             `json:"station_orders_issued_by" db:"station_orders_issued_by"`
+	StationOrdersNewAssignment             *string                             `json:"station_orders_new_assignment" db:"station_orders_new_assignment"`
+	StationOrdersDate                      *time.Time                          `json:"station_orders_date" db:"station_orders_date"`
+	StationOrdersNumber                    *string                             `json:"station_orders_number" db:"station_orders_number"`
+	StationOrdersParagraphNumber           *string                             `json:"station_orders_paragraph_number" db:"station_orders_paragraph_number"`
+	StationOrdersInTransitTelephone        *string                             `json:"station_orders_in_transit_telephone" db:"station_orders_in_transit_telephone"`
+	InTransitAddressID                     *uuid.UUID                          `json:"in_transit_address_id" db:"in_transit_address_id"`
+	InTransitAddress                       *Address                            `db:"-"`
+	PickupAddressID                        *uuid.UUID                          `json:"pickup_address_id" db:"pickup_address_id"`
+	PickupAddress                          *Address                            `db:"-"`
+	PickupTelephone                        *string                             `json:"pickup_telephone" db:"pickup_telephone"`
+	DestAddressID                          *uuid.UUID                          `json:"dest_address_id" db:"dest_address_id"`
+	DestAddress                            *Address                            `db:"-"`
+	AgentToReceiveHhg                      *string                             `json:"agent_to_receive_hhg" db:"agent_to_receive_hhg"`
+	ExtraAddressID                         *uuid.UUID                          `json:"extra_address_id" db:"extra_address_id"`
+	ExtraAddress                           *Address                            `db:"-"`
+	PackScheduledDate                      *time.Time                          `json:"pack_scheduled_date" db:"pack_scheduled_date"`
+	PickupScheduledDate                    *time.Time                          `json:"pickup_scheduled_date" db:"pickup_scheduled_date"`
+	DeliveryScheduledDate                  *time.Time                          `json:"delivery_scheduled_date" db:"delivery_scheduled_date"`
+	Remarks                                *string                             `json:"remarks" db:"remarks"`
+	OtherMove1From                         *string                             `json:"other_move_1_from" db:"other_move_1_from"`
+	OtherMove1To                           *string                             `json:"other_move_1_to" db:"other_move_1_to"`
+	OtherMove1NetPounds                    *int64                              `json:"other_move_1_net_pounds" db:"other_move_1_net_pounds"`
+	OtherMove1ProgearPounds                *int64                              `json:"other_move_1_progear_pounds" db:"other_move_1_progear_pounds"`
+	OtherMove2From                         *string                             `json:"other_move_2_from" db:"other_move_2_from"`
+	OtherMove2To                           *string                             `json:"other_move_2_to" db:"other_move_2_to"`
+	OtherMove2NetPounds                    *int64                              `json:"other_move_2_net_pounds" db:"other_move_2_net_pounds"`
+	OtherMove2ProgearPounds                *int64                              `json:"other_move_2_progear_pounds" db:"other_move_2_progear_pounds"`
+	ServiceMemberSignature                 *string                             `json:"service_member_signature" db:"service_member_signature"`
+	DateSigned                             *time.Time                          `json:"date_signed" db:"date_signed"`
+	ContractorAddressID                    *uuid.UUID                          `json:"contractor_address_id" db:"contractor_address_id"`
+	ContractorAddress                      *Address                            `db:"-"`
+	ContractorName                         *string                             `json:"contractor_name" db:"contractor_name"`
+	NonavailabilityOfSignatureReason       *string                             `json:"nonavailability_of_signature_reason" db:"nonavailability_of_signature_reason"`
+	CertifiedBySignature                   *string                             `json:"certified_by_signature" db:"certified_by_signature"`
+	TitleOfCertifiedBySignature            *string                             `json:"title_of_certified_by_signature" db:"title_of_certified_by_signature"`
 }
 
 // CreateForm1299WithAddresses takes a form1299 with Address structs and coordinates saving it all in a transaction

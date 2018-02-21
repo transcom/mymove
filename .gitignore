@@ -41,4 +41,5 @@ migrations/schema.sql
 *.stamp
 
 public/swagger-ui/*
-!public/swagger-ui/index.html
+!public/swagger-ui/api.html
+!public/swagger-ui/internal.html

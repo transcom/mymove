@@ -8,14 +8,14 @@ import (
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/gen/messages"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForAddressModel(a *models.Address) *messages.Address {
+func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 	if a != nil {
-		return &messages.Address{
+		return &internalmessages.Address{
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
 			City:           swag.String(a.City),
@@ -26,7 +26,7 @@ func payloadForAddressModel(a *models.Address) *messages.Address {
 	return nil
 }
 
-func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
+func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
 	}
@@ -40,8 +40,8 @@ func addressModelFromPayload(rawAddress *messages.Address) *models.Address {
 	return &address
 }
 
-func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload {
-	form1299Payload := messages.Form1299Payload{
+func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299Payload {
+	form1299Payload := internalmessages.Form1299Payload{
 		CreatedAt:                              fmtDateTime(form1299.CreatedAt),
 		ID:                                     fmtUUID(form1299.ID),
 		UpdatedAt:                              fmtDateTime(form1299.UpdatedAt),
@@ -90,10 +90,14 @@ func payloadForForm1299Model(form1299 models.Form1299) messages.Form1299Payload 
 		PickupScheduledDate:                    (*strfmt.Date)(form1299.PickupScheduledDate),
 		DeliveryScheduledDate:                  (*strfmt.Date)(form1299.DeliveryScheduledDate),
 		Remarks:                                form1299.Remarks,
-		OtherMoveFrom:                          form1299.OtherMoveFrom,
-		OtherMoveTo:                            form1299.OtherMoveTo,
-		OtherMoveNetPounds:                     form1299.OtherMoveNetPounds,
-		OtherMoveProgearPounds:                 form1299.OtherMoveProgearPounds,
+		OtherMove1From:                         form1299.OtherMove1From,
+		OtherMove1To:                           form1299.OtherMove1To,
+		OtherMove1NetPounds:                    form1299.OtherMove1NetPounds,
+		OtherMove1ProgearPounds:                form1299.OtherMove1ProgearPounds,
+		OtherMove2From:                         form1299.OtherMove2From,
+		OtherMove2To:                           form1299.OtherMove2To,
+		OtherMove2NetPounds:                    form1299.OtherMove2NetPounds,
+		OtherMove2ProgearPounds:                form1299.OtherMove2ProgearPounds,
 		ServiceMemberSignature:                 form1299.ServiceMemberSignature,
 		DateSigned:                             (*strfmt.Date)(form1299.DateSigned),
 		ContractorAddress:                      payloadForAddressModel(form1299.ContractorAddress),
@@ -187,10 +191,14 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		PickupScheduledDate:                    (*time.Time)(params.CreateForm1299Payload.PickupScheduledDate),
 		DeliveryScheduledDate:                  (*time.Time)(params.CreateForm1299Payload.DeliveryScheduledDate),
 		Remarks:                                params.CreateForm1299Payload.Remarks,
-		OtherMoveFrom:                          params.CreateForm1299Payload.OtherMoveFrom,
-		OtherMoveTo:                            params.CreateForm1299Payload.OtherMoveTo,
-		OtherMoveNetPounds:                     params.CreateForm1299Payload.OtherMoveNetPounds,
-		OtherMoveProgearPounds:                 params.CreateForm1299Payload.OtherMoveProgearPounds,
+		OtherMove1From:                         params.CreateForm1299Payload.OtherMove1From,
+		OtherMove1To:                           params.CreateForm1299Payload.OtherMove1To,
+		OtherMove1NetPounds:                    params.CreateForm1299Payload.OtherMove1NetPounds,
+		OtherMove1ProgearPounds:                params.CreateForm1299Payload.OtherMove1ProgearPounds,
+		OtherMove2From:                         params.CreateForm1299Payload.OtherMove2From,
+		OtherMove2To:                           params.CreateForm1299Payload.OtherMove2To,
+		OtherMove2NetPounds:                    params.CreateForm1299Payload.OtherMove2NetPounds,
+		OtherMove2ProgearPounds:                params.CreateForm1299Payload.OtherMove2ProgearPounds,
 		ServiceMemberSignature:                 params.CreateForm1299Payload.ServiceMemberSignature,
 		DateSigned:                             (*time.Time)(params.CreateForm1299Payload.DateSigned),
 		ContractorAddress:                      contractorAddress,
@@ -223,7 +231,7 @@ func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Re
 		zap.L().Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {
-		form1299Payloads := make(messages.IndexForm1299sPayload, len(form1299s))
+		form1299Payloads := make(internalmessages.IndexForm1299sPayload, len(form1299s))
 		for i, form1299 := range form1299s {
 			form1299Payload := payloadForForm1299Model(form1299)
 			form1299Payloads[i] = &form1299Payload

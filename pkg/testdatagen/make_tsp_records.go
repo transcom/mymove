@@ -6,32 +6,23 @@ import (
 	"log"
 )
 
+// MakeTSP makes a single transportation service provider record.
+func MakeTSP(db *pop.Connection, name string, SCAC string) (models.TransportationServiceProvider, error) {
+	tsp := models.TransportationServiceProvider{
+		StandardCarrierAlphaCode: SCAC,
+		Name: name}
+
+	_, err := db.ValidateAndSave(&tsp)
+	if err != nil {
+		log.Panic(err)
+	}
+
+	return tsp, err
+}
+
 // MakeTSPData creates three TSP records
-func MakeTSPData(dbConnection *pop.Connection) {
-	tsp1 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "ABCD",
-		Name: "Very Good TSP"}
-
-	tsp2 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "EFGH",
-		Name: "Pretty Alright TSP"}
-
-	tsp3 := models.TransportationServiceProvider{
-		StandardCarrierAlphaCode: "IJKL",
-		Name: "Serviceable and Adequate TSP"}
-
-	_, err := dbConnection.ValidateAndSave(&tsp1)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tsp2)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	_, err = dbConnection.ValidateAndSave(&tsp3)
-	if err != nil {
-		log.Panic(err)
-	}
+func MakeTSPData(db *pop.Connection) {
+	MakeTSP(db, "Very Good TSP", "ABCD")
+	MakeTSP(db, "Pretty Alright TSP", "EFGH")
+	MakeTSP(db, "Serviceable and Adequate TSP", "IJKL")
 }

@@ -4,7 +4,7 @@ import (
 	"log"
 	"testing"
 
-	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
 

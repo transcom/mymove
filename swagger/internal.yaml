@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  description: The API for my.move.mil
+  description: The internal/website API for my.move.mil
   version: 0.0.1
   title: my.move.mil
   contact:
@@ -8,7 +8,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-basePath: /api/v1
+basePath: /internal
 consumes:
   - application/json
 produces:
@@ -393,24 +393,42 @@ definitions:
         example: please be careful with my stuff
         x-nullable: true
         title: Remarks
-      other_move_from:
+      other_move_1_from:
         type: string
         x-nullable: true
-        title: Other Move From
-      other_move_to:
+        title: From
+      other_move_1_to:
         type: string
         x-nullable: true
-        title: Other Move To
-      other_move_net_pounds:
+        title: To
+      other_move_1_net_pounds:
         type: integer
         example: 2000
         x-nullable: true
-        title: Other Move Pounds
-      other_move_progear_pounds:
+        title: Total Pounds
+      other_move_1_progear_pounds:
         type: integer
         example: 100
         x-nullable: true
-        title: Other Move PBP&E Pounds
+        title: PBP&E Pounds
+      other_move_2_from:
+        type: string
+        x-nullable: true
+        title: From
+      other_move_2_to:
+        type: string
+        x-nullable: true
+        title: To
+      other_move_2_net_pounds:
+        type: integer
+        example: 2000
+        x-nullable: true
+        title: Total Pounds
+      other_move_2_progear_pounds:
+        type: integer
+        example: 100
+        x-nullable: true
+        title: PBP&E Pounds
       service_member_signature:
         type: string
         example: Focaccia Roll
@@ -645,19 +663,33 @@ definitions:
         type: string
         example: please be careful with my stuff
         x-nullable: true
-      other_move_from:
+      other_move_1_from:
         type: string
         x-nullable: true
-      other_move_to:
+      other_move_1_to:
         type: string
         x-nullable: true
-      other_move_net_pounds:
+      other_move_1_net_pounds:
         type: integer
-        example: 4000
+        example: 2000
         x-nullable: true
-      other_move_progear_pounds:
+      other_move_1_progear_pounds:
         type: integer
-        example: 88
+        example: 100
+        x-nullable: true
+      other_move_2_from:
+        type: string
+        x-nullable: true
+      other_move_2_to:
+        type: string
+        x-nullable: true
+      other_move_2_net_pounds:
+        type: integer
+        example: 2000
+        x-nullable: true
+      other_move_2_progear_pounds:
+        type: integer
+        example: 100
         x-nullable: true
       service_member_signature:
         type: string

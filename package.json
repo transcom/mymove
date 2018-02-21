@@ -33,6 +33,9 @@
   "proxy": {
     "/api": {
       "target": "http://localhost:8080"
+    },
+    "/internal": {
+      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",
