@@ -14,7 +14,7 @@ import (
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
-	internalOps "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -74,7 +74,7 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	api := internalOps.NewMymoveAPI(swaggerSpec)
+	api := internalops.NewMymoveAPI(swaggerSpec)
 
 	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
