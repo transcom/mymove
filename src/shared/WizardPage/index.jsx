@@ -51,19 +51,29 @@ class WizardPage extends Component {
           initialValues={initialValues}
           showSubmit={false}
         />
-        {!isFirstPage && (
-          <button
-            className={classnames({
-              'usa-button-secondary': !isLastPage(pageList, pageKey),
-            })}
-            onClick={this.previousPage}
-          >
-            Prev
-          </button>
-        )}
-        {!isLastPage(pageList, pageKey) && (
-          <button onClick={this.nextPage}>Next</button>
-        )}
+        <div className="usa-grid">
+          <div className="usa-width-one-third">
+            {!isFirstPage(pageList, pageKey) && (
+              <button
+                className={classnames({
+                  'usa-button-secondary': !isLastPage(pageList, pageKey),
+                })}
+                onClick={this.previousPage}
+              >
+                Prev
+              </button>
+            )}
+          </div>
+          <div className="usa-width-one-third" />
+          <div className="usa-width-one-third">
+            {!isLastPage(pageList, pageKey) && (
+              <button onClick={this.nextPage}>Next</button>
+            )}
+            {isLastPage(pageList, pageKey) && (
+              <button onClick={onSubmit}>Complete</button>
+            )}
+          </div>
+        </div>
       </Fragment>
     );
   }
