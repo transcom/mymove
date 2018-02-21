@@ -9,19 +9,19 @@ import review from './review-locations.png';
 const WizardDemo = props => (
   <Wizard>
     <div>
-      <img src={intro} />
+      <img src={intro} alt="intro" />
     </div>
     <div>
-      <img src={moveType} />
+      <img src={moveType} alt="move type" />
     </div>
     <div>
-      <img src={dateSelection} />
+      <img src={dateSelection} alt="select a date" />
     </div>
     <div>
-      <img src={mover} />
+      <img src={mover} alt="select a mover" />
     </div>
     <div>
-      <img src={review} />
+      <img src={review} alt="review" />
     </div>
   </Wizard>
 );
