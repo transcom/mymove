@@ -10,6 +10,7 @@ import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
+import DemoWorkflow from 'scenes/DemoWorkflow';
 
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
@@ -22,6 +23,7 @@ const AppWrapper = () => (
         <Route path="/DD1299" component={DD1299} />
         <Route path="/landing" component={Landing} />
         <Route path="/wizardDemo" component={WizardDemo} />
+        <Route path="/demoWorkflow" component={DemoWorkflow} />
       </main>
       <Footer />
     </div>

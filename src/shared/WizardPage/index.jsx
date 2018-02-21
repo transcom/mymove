@@ -3,7 +3,12 @@ import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
 import { reduxifyForm } from '../JsonSchemaForm';
-import { getNextPagePath, getPreviousPagePath } from './utils';
+import {
+  getNextPagePath,
+  getPreviousPagePath,
+  isFirstPage,
+  isLastPage,
+} from './utils';
 
 class WizardPage extends Component {
   constructor(props) {
@@ -15,10 +20,10 @@ class WizardPage extends Component {
     };
   }
   nextPage() {
-    const { pageList, pageKey, router } = this.props;
+    const { pageList, pageKey, router, onSubmit } = this.props;
 
     const path = getNextPagePath(pageList, pageKey);
-    //     this.onSubmit().then(() => router.push(path));
+    router.push(path);
   }
 
   previousPage() {
@@ -29,21 +34,37 @@ class WizardPage extends Component {
   }
 
   render() {
-    const { handleSubmit, schema, uiSchema, pageKey } = this.props;
+    const {
+      onSubmit,
+      schema,
+      uiSchema,
+      initialValues,
+      pageKey,
+      pageList,
+    } = this.props;
     const CurrentForm = reduxifyForm(pageKey);
     return (
-      <form className="default" onSubmit={handleSubmit}>
-        <CurrentForm schema={schema} uiSchema={uiSchema} showSubmit={false} />
+      <Fragment>
+        <CurrentForm
+          schema={schema}
+          uiSchema={uiSchema}
+          initialValues={initialValues}
+          showSubmit={false}
+        />
         {!isFirstPage && (
           <button
-            className={classnames({ 'usa-button-secondary': !isLastPage })}
+            className={classnames({
+              'usa-button-secondary': !isLastPage(pageList, pageKey),
+            })}
             onClick={this.previousPage}
           >
             Prev
           </button>
         )}
-        {!isLastPage && <button onClick={this.nextPage}>Next</button>}
-      </form>
+        {!isLastPage(pageList, pageKey) && (
+          <button onClick={this.nextPage}>Next</button>
+        )}
+      </Fragment>
     );
   }
 }
@@ -51,7 +72,9 @@ class WizardPage extends Component {
 WizardPage.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
-  handleSubmit: PropTypes.func.isRequired,
-  pages: PropTypes.arrayOf(PropTypes.string).isRequired,
+  onSubmit: PropTypes.func.isRequired,
+  pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
 };
+
+export default WizardPage;
