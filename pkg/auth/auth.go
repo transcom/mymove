@@ -14,7 +14,6 @@ import (
 	"github.com/markbates/goth/providers/openidConnect"
 )
 
-// TODO: replace with secret store
 const gothProviderType = "openid-connect"
 
 // RegisterProvider registers Login.gov with Goth, which uses
