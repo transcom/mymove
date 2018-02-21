@@ -13,11 +13,11 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/gen/restapi"
-	"github.com/transcom/mymove/pkg/gen/restapi/operations"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
-	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
+	"github.com/transcom/mymove/pkg/gen/internalapi"
+	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
+	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -41,7 +41,8 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
+	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
+	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	flag.Parse()
 
@@ -68,12 +69,12 @@ func main() {
 	// initialize api pkg with dbConnection created above
 	handlers.Init(dbConnection)
 
-	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	api := operations.NewMymoveAPI(swaggerSpec)
+	api := internalops.NewMymoveAPI(swaggerSpec)
 
 	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
@@ -89,8 +90,10 @@ func main() {
 
 	// Base routes
 	root := goji.NewMux()
-	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*swagger))
-	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
+	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*apiSwagger))
+	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
+	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
