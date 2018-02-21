@@ -13,6 +13,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
@@ -38,12 +39,16 @@ func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
+	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovClientID := flag.String("login_gov_client_id", "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemildev", "Client ID registered with login gov.")
+
 	flag.Parse()
 
 	// Set up logger for the system
@@ -95,6 +100,8 @@ func main() {
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
+
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
@@ -102,6 +109,16 @@ func main() {
 
 	// And request logging
 	root.Use(requestLogger)
+
+	// Register Login.gov authentication provider
+	protocol := "https://"
+	registeredPort := "" // TODO: reregister callback url with port 8080 instead of 3000
+	if *env == "development" {
+		protocol = "http://"
+		registeredPort = "3000"
+	}
+	fullHostname := fmt.Sprintf("%s%s", protocol, *hostname)
+	auth.RegisterProvider(*loginGovSecretKey, fullHostname, registeredPort, *loginGovClientID)
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))
