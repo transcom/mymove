@@ -1,6 +1,6 @@
 swagger: '2.0'
 info:
-  description: The API for my.move.mil
+  description: The internal/website API for my.move.mil
   version: 0.0.1
   title: my.move.mil
   contact:
@@ -8,7 +8,7 @@ info:
   license:
     name: MIT
     url: https://opensource.org/licenses/MIT
-basePath: /api/v1
+basePath: /internal
 consumes:
   - application/json
 produces:
