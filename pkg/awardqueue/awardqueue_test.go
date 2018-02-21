@@ -118,6 +118,22 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 	}
 }
 
+// Ensure that if we create a TSP in a TDL, the function that finds it can
+// indeed find it.
+func Test_FetchTSPsInTDLForSQL(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
+	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
+	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+
+	tsps, err := models.FetchTransportationServiceProvidersInTDL(db, tdl.ID)
+
+	if err != nil {
+		t.Errorf("Failed to find TSP: %v", err)
+	} else if len(tsps) != 1 {
+		t.Errorf("Failed to find TSP. Expected to find 1, found %d", len(tsps))
+	}
+}
+
 func setupDBConnection() {
 	configLocation := "../../../config"
 	pop.AddLookupPaths(configLocation)
