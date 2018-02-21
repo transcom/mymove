@@ -69,7 +69,11 @@ repos:
     hooks:
       - id: mdspell
         name: mdspell
-        entry: node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us --report
-        language: node
+        entry: bin/pre-commit-spellcheck
+        language: script
         files: \.md$
-        exclude: node_modules/
+        exclude: >
+          (?x)^(
+            node_modules/|
+            vendor/
+          )$
