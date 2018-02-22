@@ -1,12 +1,8 @@
 package handlers
 
 import (
-	"log"
-	"os"
 	"testing"
 	"time"
-
-	"github.com/markbates/pop"
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -19,7 +15,8 @@ func TestSubmitIssueHandler(t *testing.T) {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	response := CreateIssueHandler(newIssueParams)
+	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
 	createdResponse := response.(*issueop.CreateIssueCreated)
@@ -41,7 +38,8 @@ func TestSubmitDueDate(t *testing.T) {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	response := CreateIssueHandler(newIssueParams)
+	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
 	createdResponse := response.(*issueop.CreateIssueCreated)
@@ -64,13 +62,15 @@ func TestIndexIssuesHandler(t *testing.T) {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	createResponse := CreateIssueHandler(newIssueParams)
+	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	createResponse := handler.Handle(newIssueParams)
 	// Assert we got back the 201 response
 	_ = createResponse.(*issueop.CreateIssueCreated)
 
 	// And: All issues are queried
 	indexIssuesParams := issueop.NewIndexIssuesParams()
-	indexResponse := IndexIssuesHandler(indexIssuesParams)
+	indexHandler := NewIndexIssuesHandler(testDbConnection, testLogger)
+	indexResponse := indexHandler.Handle(indexIssuesParams)
 
 	// Then: Expect a 200 status code
 	okResponse := indexResponse.(*issueop.IndexIssuesOK)
@@ -88,23 +88,4 @@ func TestIndexIssuesHandler(t *testing.T) {
 	if issueExists == false {
 		t.Errorf("Expected an issue to contain '%v'. None do.", testDescription)
 	}
-}
-
-func setupDBConnection() {
-
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	dbConnection, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Init(dbConnection)
-
-}
-
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
 }

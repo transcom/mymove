@@ -17,7 +17,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 )
@@ -83,8 +82,8 @@ func main() {
 
 	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
 
-	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
-	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
+	internalAPI.IssuesCreateIssueHandler = handlers.NewCreateIssueHandler(dbConnection, logger)
+	internalAPI.IssuesIndexIssuesHandler = handlers.NewIndexIssuesHandler(dbConnection, logger)
 
 	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
 	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
@@ -101,7 +100,7 @@ func main() {
 		*callbackPort = "3000"
 	}
 	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
-	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
+	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Base routes
 	root := goji.NewMux()
@@ -110,8 +109,8 @@ func main() {
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
-	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
-	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
+	root.Handle(pat.Get("/auth/login-gov"), auth.NewAuthorizationRedirectHandler(logger))
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname, logger))
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
