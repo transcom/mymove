@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Fragment, Component } from 'react';
 import { parse } from 'qs';
 
 import LoginButton from 'scenes/Landing/LoginButton';
@@ -15,8 +15,12 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {query.email && <h1>Welcome {query.email}!</h1>}
-        {!query.email && <h1>Welcome!</h1>}
-        <LoginButton />
+        {!query.email && (
+          <Fragment>
+            <h1>Welcome!</h1>
+            <LoginButton />
+          </Fragment>
+        )}
       </div>
     );
   }
