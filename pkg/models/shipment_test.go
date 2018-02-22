@@ -3,5 +3,11 @@ package models
 import "testing"
 
 func Test_Shipment(t *testing.T) {
-	// TODO: This test needs to be implemented!"
+	shipment := &Shipment{}
+
+	expErrors := map[string][]string{
+		"traffic_distribution_list_id": []string{"traffic_distribution_list_id can not be blank."},
+	}
+
+	verifyValidationErrors(shipment, expErrors, t)
 }

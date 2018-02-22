@@ -103,12 +103,25 @@ groups:
       - pack_scheduled_date
       - pickup_scheduled_date
       - delivery_scheduled_date
-  other_move_information:
-    title: I Certify That No Other Shipments And Or Nontemporary Storage Have Been Made Under These Orders Except As Indicated Below If None Indicate None
+  other_move_1:
+    title: Other Move 1
     fields:
-      - other_move_to
-      - other_move_net_pounds
-      - other_move_progear_pounds
+      - other_move_1_from
+      - other_move_1_to
+      - other_move_1_net_pounds
+      - other_move_1_progear_pounds
+  other_move_2:
+    title: Other Move 2
+    fields:
+      - other_move_2_from
+      - other_move_2_to
+      - other_move_2_net_pounds
+      - other_move_2_progear_pounds
+  other_move_information:
+    title: If Any Other Shipments Have Been Made Under These Orders, Please List Them Below
+    fields:
+      - other_move_1
+      - other_move_2
   certification_of_shipment_responsibilities:
     title: Certification Of Shipment Responsibilities Storage Conditions I Certify That I Have Read And Understand My Shipping Responsibilities And Storage Conditions Printed On The Back Side Of This Form
     fields:

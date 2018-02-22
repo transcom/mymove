@@ -81,6 +81,7 @@ jobs:
       - run: make client_build
       - run: make client_test
       - run: make server_test
+      - run: make e2e_test
       - run: make tools_build
       - run: make server_build_docker
       - run:

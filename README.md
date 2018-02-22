@@ -6,6 +6,35 @@ This repository contains the application source code for the Personal Property P
 
 This prototype was built by a [Defense Digital Service](https://www.dds.mil/) team in support of USTRANSCOM's mission.
 
+## Table of Contents
+
+<!-- Table of Contents auto-generated with `bin/generate-md-toc.sh` -->
+
+<!-- toc -->
+
+* [Development](#development)
+  * [Git](#git)
+  * [Project location](#project-location)
+  * [Project Layout](#project-layout)
+  * [Setup: Initial Setup](#setup-initial-setup)
+  * [Setup: Prerequisites](#setup-prerequisites)
+  * [Setup: Database](#setup-database)
+  * [Setup: Server](#setup-server)
+  * [Setup: Client](#setup-client)
+  * [TSP Award Queue](#tsp-award-queue)
+  * [Test Data Generator](#test-data-generator)
+  * [API / Swagger](#api--swagger)
+  * [Testing](#testing)
+  * [Logging](#logging)
+  * [Database](#database)
+    * [Dev Commands](#dev-commands)
+    * [Migrations](#migrations)
+  * [Troubleshooting](#troubleshooting)
+
+_Regenerate with `bin/generate-md-toc.sh`_
+
+<!-- tocstop -->
+
 ## Development
 
 ### Git
@@ -45,7 +74,7 @@ All of our code is intermingled in the top level directory of mymove. Here is an
 
 `bin`: A location for tools helpful for developing this project \
 `build`: The build output directory for the client. This is what the development server serves \
-`cmd`: The location of main packages for any go binaries we build (right now, just webserver) \
+`cmd`: The location of main packages for any go binaries we build \
 `config`: Config files can be dropped here \
 `docs`: A location for docs for the project. This is where ADRs are \
 `migrations`: Database migrations live here \
@@ -106,11 +135,20 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 ### TSP Award Queue
 
 This background job is built as a separate binary which can be built using
-`make tsp_build` and run using `make tsp_run`.
+`make tools_build` and run using `make tsp_run`.
+
+### Test Data Generator
+
+When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
+
+* `make tools_build` will build the fake data generator binary
+* `bin/generate_test_data` will run binary and create a preconfigured set of test data.
+
+There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
 ### API / Swagger
 
-The api is defined in a single file: swagger/swagger.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the contract between the client and server.
+The public API is defined in a single file: swagger/api.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the public API. In addition, internal services, i.e. endpoints only intended for use by the React client are defined in swagger/internal.yaml and served at /internal/swagger.yaml. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
 You can view the API's documentation (powered by Swagger UI) at [http://localhost:8081/api/v1/docs](http://localhost:8081/api/v1/docs) when a local server is running.
 
@@ -120,7 +158,7 @@ There are a few handy targets in the Makefile to help you run tests:
 
 * `make client_test`: Run frontend testing suites.
 * `make server_test`: Run backend testing suites.
-* `make e2e_test`: Run e2e testing suite.
+* `make e2e_test`: Run e2e testing suite. To run locally, add an environment variable called SAUCE_ACCESS_KEY, which you can find in team DP3 Engineering Vault of 1Password under Sauce Labs or by logging in to Sauce itself. In 1Password, the access key is labeled SAUCE_ACCESS_KEY.
 * `make test`: Run e2e, client- and server-side testing suites.
 
 ### Logging
