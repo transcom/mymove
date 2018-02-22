@@ -1,5 +1,5 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
+import { Route, Redirect } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import Feedback from 'scenes/Feedback';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
@@ -12,6 +12,13 @@ import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
 
+const redirect = pathname => () => (
+  <Redirect
+    to={{
+      pathname: pathname,
+    }}
+  />
+);
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
     <div className="App site">
@@ -22,7 +29,9 @@ const AppWrapper = () => (
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
         <Route path="/DD1299" component={DD1299} />
         <Route path="/landing" component={Landing} />
+        <Route exact path="/mymove" render={redirect('/mymove/intro')} />
         {WizardDemo()}
+        <Route exact path="/demo" render={redirect('/demo/sm')} />
         {DemoWorkflowRoutes()}
       </main>
       <Footer />
