@@ -1,4 +1,4 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classnames from 'classnames';
 
@@ -32,25 +32,23 @@ class Wizard extends Component {
       });
     };
     return (
-      <Fragment>
-        {getCurrentPage()}
-        <div className="usa-grid">
-          <div className="usa-width-one-third">
-            {!isFirstPage && (
-              <button
-                className={classnames({ 'usa-button-secondary': !isLastPage })}
-                onClick={this.previousPage}
-              >
-                Prev
-              </button>
-            )}
-          </div>
-          <div className="usa-width-one-third" />
-          <div className="usa-width-one-third">
-            {!isLastPage && <button onClick={this.nextPage}>Next</button>}
-          </div>
+      <div className="usa-grid">
+        <div className="usa-width-one-whole">{getCurrentPage()}</div>
+        <div className="usa-width-one-third">
+          {!isFirstPage && (
+            <button
+              className={classnames({ 'usa-button-secondary': !isLastPage })}
+              onClick={this.previousPage}
+            >
+              Prev
+            </button>
+          )}
         </div>
-      </Fragment>
+        <div className="usa-width-one-third" />
+        <div className="usa-width-one-third">
+          {!isLastPage && <button onClick={this.nextPage}>Next</button>}
+        </div>
+      </div>
     );
   }
 }

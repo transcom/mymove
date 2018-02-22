@@ -15,9 +15,9 @@ describe('Given a wizard with 3 pages', () => {
     );
   });
   it('it starts on the first page', () => {
-    const divs = wrapper.find('div');
-    expect(divs.length).toBe(1);
-    expect(divs.first().text()).toBe('This is page 1');
+    const childContainer = wrapper.find('div.usa-width-one-whole');
+    expect(childContainer.length).toBe(1);
+    expect(childContainer.first().text()).toBe('This is page 1');
   });
   describe('When on the first page', () => {
     it('it only renders a next button', () => {
@@ -32,7 +32,7 @@ describe('Given a wizard with 3 pages', () => {
       firstButton.simulate('click');
     });
     it('it shows the second page', () => {
-      const divs = wrapper.find('div');
+      const divs = wrapper.find('div.usa-width-one-whole');
       expect(divs.length).toBe(1);
       expect(divs.first().text()).toBe('This is page 2');
     });
@@ -52,7 +52,7 @@ describe('Given a wizard with 3 pages', () => {
           .simulate('click');
       });
       it('it shows the second page', () => {
-        const divs = wrapper.find('div');
+        const divs = wrapper.find('div.usa-width-one-whole');
         expect(divs.length).toBe(1);
         expect(divs.first().text()).toBe('This is page 3');
       });
@@ -71,7 +71,7 @@ describe('Given a wizard with 3 pages', () => {
           .simulate('click');
       });
       it('it shows the first page', () => {
-        const divs = wrapper.find('div');
+        const divs = wrapper.find('div.usa-width-one-whole');
         expect(divs.length).toBe(1);
         expect(divs.first().text()).toBe('This is page 1');
       });

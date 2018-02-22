@@ -52,12 +52,7 @@ class WizardPage extends Component {
         </div>
         <div className="usa-width-one-third">
           {!isLastPage(pageList, pageKey) && (
-            <button
-              onClick={this.nextPage}
-              disabled={isLastPage(pageList, pageKey)}
-            >
-              Next
-            </button>
+            <button onClick={this.nextPage}>Next</button>
           )}
           {isLastPage(pageList, pageKey) && (
             <button onClick={handleSubmit}>Complete</button>
