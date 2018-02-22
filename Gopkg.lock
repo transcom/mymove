@@ -344,7 +344,10 @@
 
 [[projects]]
   name = "github.com/markbates/goth"
-  packages = ["."]
+  packages = [
+    ".",
+    "providers/openidConnect"
+  ]
   revision = "7bce57bf3e9a3d61d19787b7abc41daefb8dbc44"
   version = "v1.45.2"
 
@@ -682,6 +685,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "86a2c74be1c2cb59e04fb57d86e1d76aef39aac9935a6374188b92dd1ae5ce1e"
+  inputs-digest = "d12b7adbee1155f5b316079baa20847cff7cf0b322746504369b57eb45364017"
   solver-name = "gps-cdcl"
   solver-version = 1
