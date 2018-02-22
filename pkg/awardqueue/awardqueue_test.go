@@ -16,6 +16,10 @@ func TestFindAllUnawardedShipments(t *testing.T) {
 	}
 }
 
+func TestGetTSPsPerBand(t *testing.T) {
+	// TODO: add test for TSPPerBand fnc
+}
+
 func setupDBConnection() {
 	configLocation := "../../../config"
 	pop.AddLookupPaths(configLocation)
