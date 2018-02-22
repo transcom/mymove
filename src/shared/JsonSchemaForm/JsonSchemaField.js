@@ -4,8 +4,6 @@ import validator from './validator';
 import { Field } from 'redux-form';
 import './index.css';
 
-const IS_REQUIRED_KEY = 'x-jsf-is-required';
-
 // ---- Validator -----
 
 const parseNumberField = value => {
@@ -86,6 +84,12 @@ const configureTelephoneField = (swaggerField, props) => {
   return props;
 };
 
+const configureDateField = (swaggerField, props) => {
+  props.type = 'date';
+
+  return props;
+};
+
 const configureTextField = (swaggerField, props) => {
   if (swaggerField.maxLength) {
     props.validate.push(validator.maxLength(swaggerField.maxLength));
@@ -162,6 +166,8 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   } else if (swaggerField.type === 'string') {
     if (swaggerField.format === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'date') {
+      fieldProps = configureDateField(swaggerField, fieldProps);
       // more cases go here. Datetime, Date, SSN, (UUID)
     } else {
       // The last case is the simple text field / textarea which are the same but the componentOverride
@@ -186,5 +192,4 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
 
 export default {
   createSchemaField: createSchemaField,
-  IS_REQUIRED_KEY: IS_REQUIRED_KEY,
 };

@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -32,6 +34,8 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 		ReporterName: params.CreateIssuePayload.ReporterName,
 		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
+	j, _ := json.Marshal(*params.CreateIssuePayload)
+	fmt.Printf("%v\n", string(j))
 	var response middleware.Responder
 	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
 		zap.L().Error("DB Insertion", zap.Error(err))

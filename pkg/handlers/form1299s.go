@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -140,6 +142,9 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 	destAddress := addressModelFromPayload(params.CreateForm1299Payload.DestAddress)
 	extraAddress := addressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
 	contractorAddress := addressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
+
+	j, _ := json.Marshal(*params.CreateForm1299Payload)
+	fmt.Printf("%v\n", string(j))
 
 	newForm1299 := models.Form1299{
 		DatePrepared:                           (*time.Time)(params.CreateForm1299Payload.DatePrepared),

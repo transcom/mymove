@@ -5,6 +5,9 @@ import { Provider } from 'react-redux';
 import { reduxifyForm } from '.';
 import configureStore from 'redux-mock-store';
 import { shallow, mount, render } from 'enzyme';
+
+import { reducer as formReducer } from 'redux-form';
+
 const simpleSchema = {
   title: 'A registration form',
   description: 'A simple form example.',
@@ -86,6 +89,8 @@ it('renders without crashing', () => {
 
 it('renders 6 Field components', () => {
   expect(wrapper.find('Field').length).toBe(6);
+  console.log('WEFOINWOFNEOINWOFENFOINWEFO');
+  console.log(store.getState());
 });
 
 it('renders select when there is an enum', () => {
