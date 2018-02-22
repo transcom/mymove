@@ -2,6 +2,7 @@ required = [
 	"github.com/markbates/pop/soda",
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
+	"github.com/codegangsta/gin",
 	"github.com/segmentio/chamber",
 	"github.com/stretchr/testify/suite"
 	]
