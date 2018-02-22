@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { getFormValues } from 'redux-form';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
@@ -18,7 +17,7 @@ export class DemoWorkflow extends Component {
     this.props.loadSchema();
   }
   submit = () => {
-    this.props.submitForm(this.props.values);
+    this.props.submitForm();
   };
   initialValues() {
     return {
@@ -91,9 +90,7 @@ DemoWorkflow.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return Object.assign({}, state.DD1299, {
-    values: getFormValues('DD1299')(state),
-  });
+  return state.DD1299;
 }
 
 function mapDispatchToProps(dispatch) {
