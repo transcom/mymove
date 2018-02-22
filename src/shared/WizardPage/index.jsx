@@ -1,8 +1,6 @@
-import React, { Fragment, Component } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 
-import { reduxifyForm } from '../JsonSchemaForm';
 import {
   getNextPagePath,
   getPreviousPagePath,
@@ -21,7 +19,7 @@ class WizardPage extends Component {
   }
 
   nextPage() {
-    const { pageList, pageKey, history, onSubmit } = this.props;
+    const { pageList, pageKey, history } = this.props;
     const path = getNextPagePath(pageList, pageKey);
     history.push(path);
   }
@@ -34,26 +32,10 @@ class WizardPage extends Component {
   }
 
   render() {
-    const {
-      onSubmit,
-      schema,
-      uiSchema,
-      initialValues,
-      pageKey,
-      pageList,
-      formName,
-    } = this.props;
-    const CurrentForm = reduxifyForm(formName);
+    const { onSubmit, pageKey, pageList, children } = this.props;
     return (
       <div className="usa-grid">
-        <CurrentForm
-          className="usa-width-one-whole"
-          schema={schema}
-          uiSchema={uiSchema}
-          initialValues={initialValues}
-          showSubmit={false}
-          destroyOnUnmount={false}
-        />
+        <div className="usa-width-one-whole">{children}</div>
         <div className="usa-width-one-third">
           <button
             className="usa-button-secondary"
@@ -87,9 +69,6 @@ class WizardPage extends Component {
 }
 
 WizardPage.propTypes = {
-  schema: PropTypes.object.isRequired,
-  uiSchema: PropTypes.object.isRequired,
-  formName: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

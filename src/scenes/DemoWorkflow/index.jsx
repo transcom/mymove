@@ -4,6 +4,8 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 
+import { reduxifyForm } from 'shared/JsonSchemaForm';
+
 import WizardPage from 'shared/WizardPage';
 import { loadSchema, submitForm, resetSuccess } from 'scenes/DD1299/ducks';
 
@@ -47,21 +49,27 @@ export class DemoWorkflow extends Component {
           </button>
         </Fragment>
       );
-    const uiSchema = Object.assign({}, this.props.uiSchema, {
-      order: this.props.subsetOfUiSchema,
-    });
+
+    const CurrentForm = reduxifyForm('DD1299');
+
     return (
       <Fragment>
         <WizardPage
-          initialValues={this.initialValues()}
           onSubmit={this.submit}
-          schema={this.props.schema}
-          uiSchema={uiSchema}
-          formName="DD1299"
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
-        />
+        >
+          <CurrentForm
+            className="usa-width-one-whole"
+            schema={this.props.schema}
+            uiSchema={this.props.uiSchema}
+            initialValues={this.initialValues()}
+            showSubmit={false}
+            destroyOnUnmount={false}
+            subsetOfUiSchema={this.props.subsetOfUiSchema}
+          />
+        </WizardPage>
         {this.props.hasSubmitError && (
           <Alert type="error" heading="Server Error">
             There was a problem saving the form on the server.
@@ -79,7 +87,6 @@ DemoWorkflow.propTypes = {
   hasSchemaError: PropTypes.bool.isRequired,
   hasSubmitError: PropTypes.bool.isRequired,
   hasSubmitSuccess: PropTypes.bool.isRequired,
-  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
 };
 
 function mapStateToProps(state) {
