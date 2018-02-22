@@ -3,10 +3,10 @@ package models
 import "testing"
 
 func Test_BestValueScoreValidations(t *testing.T) {
-	bvs := &BestValueScore{Score: 100}
+	bvs := &BestValueScore{Score: 101}
 
 	var expErrors = map[string][]string{
-		"score": []string{"100 is not less than 100."},
+		"score": []string{"101 is not less than 101."},
 	}
 
 	verifyValidationErrors(bvs, expErrors, t)
