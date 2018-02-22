@@ -98,7 +98,7 @@ func assignQualityBands() {
 	return assignTSPsToBands(tspsbb)
 }
 
-// // Run will execute the award queue algorithm.
+// Run will execute the award queue algorithm.
 func Run(db *pop.Connection) {
 	dbConnection = db
 
