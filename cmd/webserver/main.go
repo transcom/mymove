@@ -47,7 +47,7 @@ func main() {
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
-	loginGovClientID := flag.String("login_gov_client_id", "urn:gov:gsa:openidconnect.profiles:sp:sso:dod:mymovemildev", "Client ID registered with login gov.")
+	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 
 	flag.Parse()
 
