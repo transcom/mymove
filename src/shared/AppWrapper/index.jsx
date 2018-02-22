@@ -10,25 +10,8 @@ import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
-import DemoWorkflow from 'scenes/DemoWorkflow';
+import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
 
-//from https://github.com/ReactTraining/react-router/issues/4105
-const renderMergedProps = (component, ...rest) => {
-  const finalProps = Object.assign({}, ...rest);
-  return React.createElement(component, finalProps);
-};
-
-const PropsRoute = ({ component, ...rest }) => {
-  return (
-    <Route
-      {...rest}
-      render={routeProps => {
-        return renderMergedProps(component, routeProps, rest);
-      }}
-    />
-  );
-};
-const wizardPages = ['/demoWorkflow1', '/demoWorkflow2'];
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
     <div className="App site">
@@ -40,18 +23,7 @@ const AppWrapper = () => (
         <Route path="/DD1299" component={DD1299} />
         <Route path="/landing" component={Landing} />
         <Route path="/wizardDemo" component={WizardDemo} />
-        <PropsRoute
-          path="/demoWorkflow1"
-          component={DemoWorkflow}
-          subsetOfUiSchema={['service_member_information']}
-          pageList={wizardPages}
-        />
-        <PropsRoute
-          path="/demoWorkflow2"
-          component={DemoWorkflow}
-          subsetOfUiSchema={['orders_information']}
-          pageList={wizardPages}
-        />
+        {DemoWorkflowRoutes()}
       </main>
       <Footer />
     </div>
