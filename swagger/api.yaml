@@ -1,0 +1,28 @@
+swagger: '2.0'
+info:
+  description: The public API for my.move.mil
+  version: 0.0.1
+  title: my.move.mil
+  contact:
+    email: ppp@truss.works
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+basePath: /api/v1
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /tsp:
+    get:
+      summary: List all TSPs
+      description: Gets a list of all TSPs registered.
+      operationId: indexTSPs
+      tags:
+        - issues
+      responses:
+        204:
+          description: list of TSPs
+        400:
+          description: invalid request

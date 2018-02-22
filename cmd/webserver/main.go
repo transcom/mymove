@@ -13,11 +13,12 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/gen/restapi"
-	"github.com/transcom/mymove/pkg/gen/restapi/operations"
-	form1299op "github.com/transcom/mymove/pkg/gen/restapi/operations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/restapi/operations/issues"
-	shipmentop "github.com/transcom/mymove/pkg/gen/restapi/operations/shipments"
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/internalapi"
+	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
+	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -38,11 +39,18 @@ func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presenetly.")
+	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
+	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	swagger := flag.String("swagger", "swagger/swagger.yaml", "The location of the swagger API definition")
+	callbackPort := flag.String("callback_port", "80", "The port for callback urls.")
+	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
+	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+
 	flag.Parse()
 
 	// Set up logger for the system
@@ -68,30 +76,42 @@ func main() {
 	// initialize api pkg with dbConnection created above
 	handlers.Init(dbConnection)
 
-	swaggerSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
+	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	api := operations.NewMymoveAPI(swaggerSpec)
+	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
 
-	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
-	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
+	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
+	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
 
-	api.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
-	api.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
-	api.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
+	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
+	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
+	internalAPI.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
 
-	api.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
+	internalAPI.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
+	// Register Login.gov authentication provider
+	if *env == "development" {
+		*protocol = "http://"
+		*callbackPort = "3000"
+	}
+	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
+	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
+
 	// Base routes
 	root := goji.NewMux()
-	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*swagger))
-	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "index.html")))
-	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*apiSwagger))
+	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
+	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
+	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)

@@ -35,7 +35,7 @@ show_logs() {
 }
 
 # get the latest container definition
-container_definition=$(aws ecs list-task-definitions --family-prefix "$family" --sort DESC --query 'taskDefinitionArns[0]' --output text)
+container_definition=$(aws ecs list-task-definitions --family-prefix "$family" --sort DESC --query 'taskDefinitionArns[0]' --output json | jq -r .)
 if [[ $container_definition = None ]]; then
     echo "Error: No existing $family task definitions found."
     echo "There should be at least one task definition already created by Terraform."
