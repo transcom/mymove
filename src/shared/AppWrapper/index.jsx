@@ -22,7 +22,7 @@ const AppWrapper = () => (
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
         <Route path="/DD1299" component={DD1299} />
         <Route path="/landing" component={Landing} />
-        <Route path="/wizardDemo" component={WizardDemo} />
+        {WizardDemo()}
         {DemoWorkflowRoutes()}
       </main>
       <Footer />

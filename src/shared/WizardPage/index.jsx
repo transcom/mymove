@@ -21,13 +21,14 @@ class WizardPage extends Component {
   nextPage() {
     const { pageList, pageKey, history } = this.props;
     const path = getNextPagePath(pageList, pageKey);
+    // history comes from react router: doing this moves to the route at path
     history.push(path);
   }
 
   previousPage() {
     const { pageList, pageKey, history } = this.props;
-    const path = getPreviousPagePath(pageList, pageKey); //see vets routing
-
+    const path = getPreviousPagePath(pageList, pageKey);
+    // history comes from react router: doing this moves to the route at path
     history.push(path);
   }
 

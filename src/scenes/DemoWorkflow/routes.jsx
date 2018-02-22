@@ -19,8 +19,8 @@ const PropsRoute = ({ component, ...rest }) => {
 };
 export default () => {
   const pages = {
-    '/demoWorkflow1': { subsetOfUiSchema: ['service_member_information'] },
-    '/demoWorkflow2': { subsetOfUiSchema: ['orders_information'] },
+    '/demo/sm': { subsetOfUiSchema: ['service_member_information'] },
+    '/demo/orders': { subsetOfUiSchema: ['orders_information'] },
   };
   const pageList = Object.keys(pages);
 
