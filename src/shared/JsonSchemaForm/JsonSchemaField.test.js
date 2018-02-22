@@ -149,4 +149,52 @@ describe('SchemaField tests', () => {
       testField(numberField, numberTests);
     });
   });
+
+  describe('text field', () => {
+    describe('with limits', () => {
+      const textFieldWithLimits = {
+        type: 'string',
+        minLength: 2,
+        maxLength: 20,
+        example: 'I am the very model of a modern Major General',
+        'x-nullable': true,
+        title: 'Introduction',
+      };
+
+      const stringTests = [
+        ['Hello', 'Hello', null],
+        ['1', '1', 'Must be at least 2 characters long.'],
+        ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
+        [
+          'This is the song that never ends, it just goes on and on my friends',
+          'This is the song that never ends, it just goes on and on my friends',
+          'Cannot exceed 20 characters.',
+        ],
+      ];
+
+      testField(textFieldWithLimits, stringTests);
+    });
+
+    describe('without limits', () => {
+      const textFieldWithLimits = {
+        type: 'string',
+        example: 'I am the very model of a modern Major General',
+        'x-nullable': true,
+        title: 'Introduction',
+      };
+
+      const stringTests = [
+        ['Hello', 'Hello', null],
+        ['1', '1', null],
+        ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
+        [
+          'This is the song that never ends, it just goes on and on my friends',
+          'This is the song that never ends, it just goes on and on my friends',
+          null,
+        ],
+      ];
+
+      testField(textFieldWithLimits, stringTests);
+    });
+  });
 });
