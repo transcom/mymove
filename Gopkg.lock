@@ -93,6 +93,12 @@
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
 
 [[projects]]
+  name = "github.com/docker/go-units"
+  packages = ["."]
+  revision = "0dadbb0345b35ec7ef35e228dabb8de89a65bf52"
+  version = "v0.3.2"
+
+[[projects]]
   name = "github.com/fatih/color"
   packages = ["."]
   revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
@@ -154,6 +160,7 @@
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
+    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -700,6 +707,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "7964bc5dc7fc1ea94764415754a3b42bf5cb4449555cc747d0c9e80228a57d27"
+  inputs-digest = "8401f58900a7bd3b34e662734598aa3f4eff5300e9695d468d8b41520017e2be"
   solver-name = "gps-cdcl"
   solver-version = 1
