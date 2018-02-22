@@ -41,8 +41,10 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
+	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
 	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
+	callbackPort := flag.String("callback_port", "80", "The port for callback urls.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -94,14 +96,12 @@ func main() {
 	clientHandler := http.FileServer(http.Dir(*build))
 
 	// Register Login.gov authentication provider
-	protocol := "https://"
-	registeredPort := "" // TODO: reregister callback url with port 8080 instead of 3000
 	if *env == "development" {
-		protocol = "http://"
-		registeredPort = "3000"
+		*protocol = "http://"
+		*callbackPort = "3000"
 	}
-	fullHostname := fmt.Sprintf("%s%s", protocol, *hostname)
-	auth.RegisterProvider(*loginGovSecretKey, fullHostname, registeredPort, *loginGovClientID)
+	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
+	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Base routes
 	root := goji.NewMux()
@@ -111,7 +111,7 @@ func main() {
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
-	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname, registeredPort))
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)

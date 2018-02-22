@@ -22,7 +22,7 @@ const sessionExpiryInMinutes = 15
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func RegisterProvider(loginGovSecretKey, hostname, port, loginGovClientID string) {
+func RegisterProvider(loginGovSecretKey, hostname, loginGovClientID string) {
 	if loginGovSecretKey == "" {
 		zap.L().Warn("Login.gov secret key must be set.")
 	}
@@ -30,7 +30,7 @@ func RegisterProvider(loginGovSecretKey, hostname, port, loginGovClientID string
 	provider, err := openidConnect.New(
 		loginGovClientID,
 		loginGovSecretKey,
-		fmt.Sprintf("%s:%s/auth/login-gov/callback", hostname, port),
+		fmt.Sprintf("%s/auth/login-gov/callback", hostname),
 		"https://idp.int.identitysandbox.gov/.well-known/openid-configuration",
 	)
 
@@ -57,13 +57,13 @@ func AuthorizationRedirectHandler() http.HandlerFunc {
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
-func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname, port string) http.HandlerFunc {
+func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname string) http.HandlerFunc {
 	if loginGovSecretKey == "" {
-		zap.L().Panic("Login.gov secret key must be set.")
+		zap.L().Error("Login.gov secret key must be set.")
 	}
 
 	if loginGovClientID == "" {
-		zap.L().Panic("Login.gov client ID must be set.")
+		zap.L().Error("Login.gov client ID must be set.")
 	}
 
 	return func(w http.ResponseWriter, r *http.Request) {
@@ -72,7 +72,7 @@ func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname,
 
 		// The user has either cancelled or declined to authorize the client
 		if authError == "access_denied" {
-			http.Redirect(w, r, fmt.Sprintf("%s:%s/landing", hostname, port), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, fmt.Sprintf("%s/landing", hostname), http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -101,8 +101,7 @@ func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname,
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-
-		landingURL := fmt.Sprintf("%s:%s/landing?email=%s", hostname, port, user.RawData["email"])
+		landingURL := fmt.Sprintf("%s/landing?email=%s", hostname, user.RawData["email"])
 		http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 	}
 }
