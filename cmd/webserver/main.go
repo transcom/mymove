@@ -81,16 +81,16 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	api := internalops.NewMymoveAPI(swaggerSpec)
+	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
 
-	api.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
-	api.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
+	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
+	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
 
-	api.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
-	api.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
-	api.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
+	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
+	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
+	internalAPI.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
 
-	api.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
+	internalAPI.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
@@ -109,7 +109,7 @@ func main() {
 	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	root.Handle(pat.New("/api/*"), api.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
 	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
 	root.Handle(pat.Get("/static/*"), clientHandler)
