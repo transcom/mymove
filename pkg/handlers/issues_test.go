@@ -3,8 +3,6 @@ package handlers
 import (
 	"time"
 
-	"github.com/markbates/pop"
-
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
