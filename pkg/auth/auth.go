@@ -26,7 +26,6 @@ func RegisterProvider(loginGovSecretKey, hostname, loginGovClientID string) {
 	if loginGovSecretKey == "" {
 		zap.L().Warn("Login.gov secret key must be set.")
 	}
-
 	provider, err := openidConnect.New(
 		loginGovClientID,
 		loginGovSecretKey,

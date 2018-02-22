@@ -36,6 +36,9 @@
     },
     "/internal": {
       "target": "http://localhost:8080"
+    },
+    "/auth": {
+      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",
