@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
+import { getFormValues } from 'redux-form';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
@@ -16,8 +17,8 @@ export class DemoWorkflow extends Component {
     document.title = 'Transcom My Move';
     this.props.loadSchema();
   }
-  submit = values => {
-    this.props.submitForm(values);
+  submit = () => {
+    this.props.submitForm(this.props.values);
   };
   initialValues() {
     return {
@@ -55,7 +56,7 @@ export class DemoWorkflow extends Component {
     return (
       <Fragment>
         <WizardPage
-          onSubmit={this.submit}
+          handleSubmit={this.submit}
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
@@ -90,7 +91,9 @@ DemoWorkflow.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.DD1299;
+  return Object.assign({}, state.DD1299, {
+    values: getFormValues('DD1299')(state),
+  });
 }
 
 function mapDispatchToProps(dispatch) {

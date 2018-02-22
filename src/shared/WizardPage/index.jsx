@@ -15,7 +15,7 @@ class WizardPage extends Component {
     this.previousPage = this.previousPage.bind(this);
   }
   componentDidMount() {
-    window.scrollTo(0, 0);
+    //  window.scrollTo(0, 0);
   }
 
   nextPage() {
@@ -32,7 +32,7 @@ class WizardPage extends Component {
   }
 
   render() {
-    const { onSubmit, pageKey, pageList, children } = this.props;
+    const { handleSubmit, pageKey, pageList, children } = this.props;
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">{children}</div>
@@ -60,7 +60,7 @@ class WizardPage extends Component {
             </button>
           )}
           {isLastPage(pageList, pageKey) && (
-            <button onClick={onSubmit}>Complete</button>
+            <button onClick={handleSubmit}>Complete</button>
           )}
         </div>
       </div>
@@ -69,7 +69,7 @@ class WizardPage extends Component {
 }
 
 WizardPage.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
 };
