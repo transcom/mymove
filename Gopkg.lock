@@ -2,6 +2,12 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/0xAX/notificator"
+  packages = ["."]
+  revision = "88d57ee9043ba88d6a62e437fa15dda1ca0d2b59"
+
+[[projects]]
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
   revision = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4"
@@ -60,6 +66,21 @@
   revision = "0d8b4682f140f0fe486ef7e3d2f70665f3066906"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/codegangsta/envy"
+  packages = ["lib"]
+  revision = "4b78388c8ce4fa412440ca4eaa654e2fdd752e49"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/codegangsta/gin"
+  packages = [
+    ".",
+    "lib"
+  ]
+  revision = "cafe2ce98974a3dcca6b92ce393a91a0b58b8133"
+
+[[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
@@ -70,12 +91,6 @@
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
-
-[[projects]]
-  name = "github.com/docker/go-units"
-  packages = ["."]
-  revision = "0dadbb0345b35ec7ef35e228dabb8de89a65bf52"
-  version = "v0.3.2"
 
 [[projects]]
   name = "github.com/fatih/color"
@@ -139,7 +154,6 @@
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
-    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -415,6 +429,12 @@
   version = "v0.0.3"
 
 [[projects]]
+  name = "github.com/mattn/go-shellwords"
+  packages = ["."]
+  revision = "02e3cf038dcea8290e44424da473dd12be796a8a"
+  version = "v1.0.3"
+
+[[projects]]
   name = "github.com/mattn/go-sqlite3"
   packages = ["."]
   revision = "6c771bb9887719704b210e87e934f08be014bdb1"
@@ -666,6 +686,12 @@
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
 [[projects]]
+  name = "gopkg.in/urfave/cli.v1"
+  packages = ["."]
+  revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
+  version = "v1.20.0"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -674,6 +700,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c43d3db0bad849d74678ecb0c5aee8d80628c3817860acfb2cf4b924a5acbfaf"
+  inputs-digest = "7964bc5dc7fc1ea94764415754a3b42bf5cb4449555cc747d0c9e80228a57d27"
   solver-name = "gps-cdcl"
   solver-version = 1
