@@ -41,40 +41,47 @@ class WizardPage extends Component {
       initialValues,
       pageKey,
       pageList,
+      formName,
     } = this.props;
-    const CurrentForm = reduxifyForm(pageKey);
+    const CurrentForm = reduxifyForm(formName);
     return (
-      <Fragment>
+      <div className="usa-grid">
         <CurrentForm
+          className="usa-width-one-whole"
           schema={schema}
           uiSchema={uiSchema}
           initialValues={initialValues}
           showSubmit={false}
+          destroyOnUnmount={false}
         />
-        <div className="usa-grid">
-          <div className="usa-width-one-third">
-            {!isFirstPage(pageList, pageKey) && (
-              <button
-                className={classnames({
-                  'usa-button-secondary': !isLastPage(pageList, pageKey),
-                })}
-                onClick={this.previousPage}
-              >
-                Prev
-              </button>
-            )}
-          </div>
-          <div className="usa-width-one-third" />
-          <div className="usa-width-one-third">
-            {!isLastPage(pageList, pageKey) && (
-              <button onClick={this.nextPage}>Next</button>
-            )}
-            {isLastPage(pageList, pageKey) && (
-              <button onClick={onSubmit}>Complete</button>
-            )}
-          </div>
+        <div className="usa-width-one-third">
+          <button
+            className="usa-button-secondary"
+            onClick={this.previousPage}
+            disabled={isFirstPage(pageList, pageKey)}
+          >
+            Prev
+          </button>
         </div>
-      </Fragment>
+        <div className="usa-width-one-third">
+          <button className="usa-button-secondary" disabled={true}>
+            Save for later
+          </button>
+        </div>
+        <div className="usa-width-one-third">
+          {!isLastPage(pageList, pageKey) && (
+            <button
+              onClick={this.nextPage}
+              disabled={isLastPage(pageList, pageKey)}
+            >
+              Next
+            </button>
+          )}
+          {isLastPage(pageList, pageKey) && (
+            <button onClick={onSubmit}>Complete</button>
+          )}
+        </div>
+      </div>
     );
   }
 }
@@ -82,6 +89,7 @@ class WizardPage extends Component {
 WizardPage.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
+  formName: PropTypes.string.isRequired,
   onSubmit: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

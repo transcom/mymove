@@ -57,6 +57,7 @@ export class DemoWorkflow extends Component {
           onSubmit={this.submit}
           schema={this.props.schema}
           uiSchema={uiSchema}
+          formName="DD1299"
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
