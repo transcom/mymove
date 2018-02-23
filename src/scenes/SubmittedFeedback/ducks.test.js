@@ -4,7 +4,12 @@ import issuesReducer, {
   createShowIssuesRequest,
   createShowIssuesSuccess,
   createShowIssuesFailure,
+  SHOW_ISSUES,
+  SHOW_ISSUES_SUCCESS,
+  loadIssues,
 } from './ducks';
+
+jest.mock('./api');
 
 describe('Issues Reducer', () => {
   it('Should handle SHOW_ISSUES', () => {
@@ -67,30 +72,25 @@ describe('Issues Actions', () => {
 });
 
 // TODO: Figure out how to mock the Swagger API call
-// describe('async action creators', () => {
-//   const middlewares = [ thunk ]
-//   const initialState = { issues: null, hasError: false };
-//   const mockStore = configureStore(middlewares)
+describe('given there are issues, when loadIssues is called', () => {
+  const middlewares = [thunk];
+  const initialState = { issues: null, hasError: false };
+  const mockStore = configureStore(middlewares);
 
-//   afterEach(() => {
-//     fetchMock.reset()
-//     fetchMock.restore()
-//   })
+  it('it creates SHOW_ISSUES_SUCCESS when submitted issues have been loaded and SHOW_ISSUES_SUCCESS payload is those issues', () => {
+    const expectedActions = [
+      { type: SHOW_ISSUES },
+      {
+        type: SHOW_ISSUES_SUCCESS,
+        items: { issues: [{ id: 11, description: 'too few dogs' }] },
+      },
+    ];
 
-//   it('creates SHOW_ISSUES_SUCCESS when submitted issues have been loaded', () => {
-//     fetchMock
-//       .getOnce('/submitted', { items: { issues: [{'id': 11, 'description': 'too few dogs'}] }, headers: { 'content-type': 'application/json' } })
+    const store = mockStore(initialState);
 
-//     const expectedActions = [
-//       { type: SHOW_ISSUES },
-//       { type: SHOW_ISSUES_SUCCESS, items: { issues: [{'id': 11, 'description':'too few dogs'}] } }
-//     ]
-
-//     const store = mockStore(initialState)
-
-//     return store.dispatch(loadIssues()).then(() => {
-//       // return of async actions
-//       expect(store.getActions()).toEqual(expectedActions)
-//     })
-//   })
-// })
+    // return store.dispatch(loadIssues()).then(() => {
+    //   // return of async actions
+    //   expect(store.getActions()).toEqual(expectedActions);
+    // });
+  });
+});
