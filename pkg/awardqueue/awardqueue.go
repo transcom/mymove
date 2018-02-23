@@ -2,6 +2,7 @@ package awardqueue
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/markbates/pop"
 
@@ -28,7 +29,7 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 
 	// Find TSPs in that TDL sorted by shipment_awards[asc] and bvs[desc]
 	// tspssba stands for TSPs sorted by award
-	tspsba, err := models.FetchTSPsInTDLSortByAward(dbConnection, tdl.ID)
+	tspsba, err := models.FetchTSPInTDLSortByAward(dbConnection, tdl.ID)
 
 	for _, consideredTSP := range tspsba {
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
@@ -71,7 +72,7 @@ func getTSPsPerBand(tspc int) []int {
 	return tspPerBandList
 }
 
-func assignTSPsToBands(tsps []string) qualityBands {
+func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
 	tspIndex := 0
 	qbs := make(qualityBands, 4, 4)
 	// Determine how many TSPs should be in each band

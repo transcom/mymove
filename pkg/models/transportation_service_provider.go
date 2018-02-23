@@ -28,6 +28,12 @@ type TSPWithBVSAndAwardCount struct {
 	AwardCount                      int       `json:"award_count" db:"award_count"`
 }
 
+// TSPWithBVSCount represents a list of TSPs along with their BVS counts.
+type TSPWithBVSCount struct {
+	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
+	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
+}
+
 // String is not required by pop and may be deleted
 func (t TransportationServiceProvider) String() string {
 	jt, _ := json.Marshal(t)
@@ -110,7 +116,7 @@ func FetchTSPsInTDLSortByBVS(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSC
 		ORDER BY best_value_score DESC
 		`
 
-	tsps := []TSPWithBVSAndAwardCount{}
+	tsps := []TSPWithBVSCount{}
 	err := tx.RawQuery(sql, tdlID).All(&tsps)
 
 	return tsps, err
