@@ -7,10 +7,8 @@ Our tests currently execute against a single database and do not clean up after 
 Our priorities are, in order:
 
 * Reliable tests (tests that only sometimes pass don't provide value).
-* Developer experience (we don't want to add a lot of boilerplate to each test
-  that obscures its true intent.)
-* Minimizing test run duration (we don't want to optimize for speed this early in the
-  project.)
+* Developer experience (we don't want to add a lot of boilerplate to each test that obscures its true intent.)
+* Minimizing test run duration (we don't want to optimize for speed this early in the project.)
 
 ## Considered Alternatives
 
@@ -22,24 +20,13 @@ Our priorities are, in order:
 
 * Chosen Alternative: **Truncate tables between tests**
 
-* The main driver behind this decision was simplicity. We anticipate using
-  transactions within our application (although we aren't already), and
-  wrapping tests in transactions would complicate matters as transactions can't
-  be simply nested. It is possible to emulate nested transactions using
-  [`SAVEPOINT`](https://www.postgresql.org/docs/8.1/static/sql-savepoint.html),
-  but this is not supported by Pop or sqlx and pursuing this route would
-  require us to write and maintain additional non-trivial code in the project.
+* The main driver behind this decision was simplicity. We anticipate using transactions within our application (although we aren't already), and wrapping tests in transactions would complicate matters as transactions can't be simply nested. It is possible to emulate nested transactions using [`SAVEPOINT`](https://www.postgresql.org/docs/8.1/static/sql-savepoint.html), but this is not supported by Pop or sqlx and pursuing this route would require us to write and maintain additional non-trivial code in the project.
 
 * `go test` executes tests from a single package serially unless there are tests that are explicitly marked as able to run in parallel using [`t.Parallel()`](https://golang.org/pkg/testing/#T.Parallel). We do, however, have multiple packages with tests that use the database (currently `models` and `handlers`), so we will additionally need to pass `-test.parallel 1` to `go test` so that packages as well as individual tests are executed serially. Otherwise, multiple tests using the database will encounter collisions.
 
-  Executing each package's tests serially will increase the time required for a project-wide test run, but at this time this is
-  a reasonable tradeoff as the suite duration time is currently acceptable. If
-  speed of tests execution become a concern in the future, there are a few
-  approaches we could pursue without too much effort, including having a test
-  database per package with tests hitting the database.
+  Executing each package's tests serially will increase the time required for a project-wide test run, but at this time this is a reasonable tradeoff as the suite duration time is currently acceptable. If speed of tests execution become a concern in the future, there are a few approaches we could pursue without too much effort, including having a test database per package with tests hitting the database.
 
-* This strategy requires the ability to run code before or after each test,
-  which will be addressed in a future ADR.
+* This strategy requires the ability to run code before or after each test, which will be addressed in a future ADR.
 
 * [Pop uses `TRUNCATE`](https://github.com/markbates/pop/blob/9f77e19c929eda4c13f525296fe751a90de86619/postgresql.go#L232-L248) to implement [`TruncateAll()`](https://godoc.org/github.com/markbates/pop#Connection.TruncateAll).
 
