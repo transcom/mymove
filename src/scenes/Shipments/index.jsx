@@ -46,6 +46,25 @@ export class Shipments extends Component {
       );
     });
 
+    const groupedShipments = filteredShipments.reduce((groups, shipment) => {
+      groups[shipment.traffic_distribution_list_id] =
+        groups[shipment.traffic_distribution_list_id] || [];
+      groups[shipment.traffic_distribution_list_id].push(shipment);
+
+      return groups;
+    }, {});
+
+    const cards = [];
+    for (let tdl in groupedShipments) {
+      const tdlID = tdl.substr(0, 6);
+      cards.push(
+        <div className="tdl-box" key={tdlID}>
+          <h3>TDL #{tdlID}</h3>
+          <ShipmentCards shipments={groupedShipments[tdl]} />
+        </div>,
+      );
+    }
+
     return (
       <div className="usa-grid">
         <h1>{capShipmentsStatus} Shipments</h1>
@@ -54,7 +73,7 @@ export class Shipments extends Component {
             There was a problem loading the shipments from the server.
           </Alert>
         )}
-        {!hasError && <ShipmentCards shipments={filteredShipments} />}
+        {!hasError && cards}
       </div>
     );
   }
