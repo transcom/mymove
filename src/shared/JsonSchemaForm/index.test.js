@@ -89,8 +89,6 @@ it('renders without crashing', () => {
 
 it('renders 6 Field components', () => {
   expect(wrapper.find('Field').length).toBe(6);
-  console.log('WEFOINWOFNEOINWOFENFOINWEFO');
-  console.log(store.getState());
 });
 
 it('renders select when there is an enum', () => {
