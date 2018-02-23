@@ -32,8 +32,10 @@ type TSPWithBVSAndAwardCount struct {
 
 // TSPWithBVSCount represents a list of TSPs along with their BVS counts.
 type TSPWithBVSCount struct {
-	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
+	ID                        uuid.UUID `json:"id" db:"id"`
+	Name                      string    `json:"name" db:"name"`
+	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
 }
 
 // String is not required by pop and may be deleted
