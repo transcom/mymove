@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestIndexForm1299sHandler() {
 		}
 	}
 
-	if form1299Exists == false {
+	if !form1299Exists {
 		t.Errorf("Expected an form1299 to contain '%v'. None do.", destOfficeName)
 	}
 }

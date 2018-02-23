@@ -15,7 +15,7 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	handler := NewCreateIssueHandler(suite.db, suite.logger)
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	handler := NewCreateIssueHandler(suite.db, suite.logger)
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -66,14 +66,14 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(testDbConnection, testLogger)
+	handler := NewCreateIssueHandler(suite.db, suite.logger)
 	createResponse := handler.Handle(newIssueParams)
 	// Assert we got back the 201 response
 	_ = createResponse.(*issueop.CreateIssueCreated)
 
 	// And: All issues are queried
 	indexIssuesParams := issueop.NewIndexIssuesParams()
-	indexHandler := NewIndexIssuesHandler(testDbConnection, testLogger)
+	indexHandler := NewIndexIssuesHandler(suite.db, suite.logger)
 	indexResponse := indexHandler.Handle(indexIssuesParams)
 
 	// Then: Expect a 200 status code
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 		}
 	}
 
-	if issueExists == false {
+	if !issueExists {
 		t.Errorf("Expected an issue to contain '%v'. None do.", testDescription)
 	}
 }
