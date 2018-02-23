@@ -12,7 +12,7 @@ import (
 var dbConnection *pop.Connection
 var numQualBands = 4
 
-type qualityBand []string
+type qualityBand []models.TSPWithBVSCount
 type qualityBands []qualityBand
 
 func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
@@ -88,7 +88,7 @@ func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
 	return qbs
 }
 
-func assignQualityBands() {
+func assignQualityBands() (qualityBands, error) {
 	// Find TSPs in that TDL sorted bvs[desc]
 	fmt.Printf("Assigning TSPs quality bands")
 	// Query the shipment's TDL
@@ -96,7 +96,7 @@ func assignQualityBands() {
 	// tspsbb stands for TSPs sorted by BVS
 	tspsbb, err := models.FetchTSPsInTDLSortByBVS(dbConnection, tdl.ID)
 	// Assign TSPs to bands and return slice of TSP slices divided by band
-	return assignTSPsToBands(tspsbb)
+	return assignTSPsToBands(tspsbb), err
 }
 
 // Run will execute the award queue algorithm.
