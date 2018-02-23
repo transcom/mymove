@@ -17,9 +17,8 @@ type BestValueScore struct {
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	// QualityBandAssignmentId			uuid.UUID `json:"quality_band_assignment_id" db:"quality_band_assignment_id"`
-	Score                     int       `json:"score" db:"score"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	Score                           int       `json:"score" db:"score"`
+	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 }
 
 // String is not required by pop and may be deleted
