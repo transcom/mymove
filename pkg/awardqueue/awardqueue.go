@@ -34,11 +34,10 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	var shipmentAward *models.ShipmentAward
 
 	for _, consideredTSP := range tsps {
-		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP.Name)
+		fmt.Printf("\tConsidering TSP: %s\n", consideredTSP.Name)
 
 		tsp := models.TransportationServiceProvider{}
-		err := db.Find(&tsp, consideredTSP.ID)
-		if err == nil {
+		if err := db.Find(&tsp, consideredTSP.ID); err == nil {
 			// We found a valid TSP to award to!
 			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
@@ -56,9 +55,7 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 }
 
 // Run will execute the Award Queue algorithm.
-func Run(dbConnection *pop.Connection) {
-	db = dbConnection
-
+func Run(db *pop.Connection) {
 	fmt.Println("TSP Award Queue running.")
 
 	shipments, err := findAllUnawardedShipments()

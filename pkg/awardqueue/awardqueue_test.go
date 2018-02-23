@@ -6,18 +6,12 @@ import (
 	"testing"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/markbates/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-// newBoolPtr creates a pointer to a boolean value. Apparently it's not
-// straightforward to do this in Go otherwise.
-// https://stackoverflow.com/questions/28817992/how-to-set-bool-pointer-to-true-in-struct-literal
-func newBoolPtr(value bool) *bool {
-	return &value
-}
 
 func TestFindAllUnawardedShipments(t *testing.T) {
 	_, err := findAllUnawardedShipments()
@@ -43,7 +37,7 @@ func TestAwardSingleShipment(t *testing.T) {
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: nil,
-		AdministrativeShipment:          newBoolPtr(false),
+		AdministrativeShipment:          swag.Bool(false),
 	}
 
 	// Run the Award Queue
@@ -70,7 +64,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: nil,
-		AdministrativeShipment:          newBoolPtr(false),
+		AdministrativeShipment:          swag.Bool(false),
 	}
 
 	// Run the Award Queue
