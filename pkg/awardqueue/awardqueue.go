@@ -2,6 +2,7 @@ package awardqueue
 
 import (
 	"fmt"
+	"math"
 
 	"github.com/markbates/pop"
 
@@ -9,6 +10,11 @@ import (
 )
 
 var db *pop.Connection
+
+const numQualBands = 4
+
+type qualityBand []models.TSPWithBVSCount
+type qualityBands []qualityBand
 
 func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
 	shipments, err := models.FetchAwardedShipments(db)
@@ -25,15 +31,16 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	err := db.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Find TSPs in that TDL sorted by shipment_awards[asc] and bvs[desc]
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(db, tdl.ID)
+	// tspssba stands for TSPs sorted by award
+	tspsba, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
-	if len(tsps) == 0 {
+	if len(tspsba) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
 
 	var shipmentAward *models.ShipmentAward
 
-	for _, consideredTSP := range tsps {
+	for _, consideredTSP := range tspsba {
 		fmt.Printf("\tConsidering TSP: %s\n", consideredTSP.Name)
 
 		tsp := models.TransportationServiceProvider{}
@@ -54,7 +61,51 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	return shipmentAward, err
 }
 
-// Run will execute the Award Queue algorithm.
+// getTSPsPerBand detemines how many TSPs should be assigned to each Quality Band
+// If the number of TSPs in the TDL does not divide evenly into 4 bands, the remainder
+// is divided from the top band down. Function takes length of TSPs array (tsp count) as arg.
+func getTSPsPerBand(tspc int) []int {
+	tspPerBandList := make([]int, numQualBands)
+	// tspp is TSP per band
+	tsppb := int(math.Floor(float64(tspc) / float64(numQualBands)))
+	// assign tsppb to each band in tspPerBandList to refer to when assigning TSPs
+	for i := range tspPerBandList {
+		tspPerBandList[i] = tsppb
+	}
+
+	for i := 0; i < tspc%numQualBands; i++ {
+		tspPerBandList[i]++
+	}
+	return tspPerBandList
+}
+
+func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
+	tspIndex := 0
+	qbs := make(qualityBands, numQualBands)
+	// Determine how many TSPs should be in each band
+	tsppbl := getTSPsPerBand(len(tsps))
+
+	for i, tsppb := range tsppbl {
+		for j := tspIndex; j < tspIndex+tsppb; j++ {
+			qbs[i] = append(qbs[i], tsps[j])
+		}
+		tspIndex += tsppb
+	}
+	return qbs
+}
+
+func assignQualityBands() (qualityBands, error) {
+	// Find TSPs in that TDL sorted bvs[desc]
+	fmt.Printf("Assigning TSPs quality bands")
+	// Query the shipment's TDL
+	tdl := models.TrafficDistributionList{}
+	// tspsbb stands for TSPs sorted by BVS
+	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
+	// Assign TSPs to bands and return slice of TSP slices divided by band
+	return assignTSPsToBands(tspsbb), err
+}
+
+// Run will execute the award queue algorithm.
 func Run(db *pop.Connection) {
 	fmt.Println("TSP Award Queue running.")
 

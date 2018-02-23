@@ -87,7 +87,7 @@ describe('shipments pages', () => {
 describe('DD1299 page', () => {
   beforeEach(() => driver.navigate().to(buildStagingURL('DD1299')));
 
-  it('loads Submit Feedback page', () => {
+  it('loads DD1299 page', () => {
     // When: Page is loaded, should display expected title
     driver.wait(until.titleIs('Transcom PPP: 1299'), 2000);
   });
