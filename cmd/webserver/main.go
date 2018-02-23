@@ -95,14 +95,12 @@ func main() {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
-	// URL for non-dev environments
-	fullHostname := fmt.Sprintf("%s%s", *protocol, *hostname)
+	// Register Login.gov authentication provider
 	if *env == "development" {
 		*protocol = "http://"
 		*callbackPort = "3000"
-		fullHostname = fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
 	}
-	// Register Login.gov authentication provider
+	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
 	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Base routes
