@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -13,12 +14,31 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 )
 
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
+
+// JwtCookieName is the key we're storing cookies under in our cookie store
+const JwtCookieName = "JWT_COOKIE"
+
+// TODO: Use a stronger auth key for this
+var cookieStore = sessions.NewCookieStore([]byte("supersecretstring"))
+
+// UserClaims does a thing
+type UserClaims struct {
+	Email   string `json:"email"`
+	IDToken string `json:"id_token"`
+	jwt.StandardClaims
+}
+
+// SetCookieStoreMaxAge sets max age of our secure cookies
+func SetCookieStoreMaxAge() {
+	cookieStore.MaxAge(60 * sessionExpiryInMinutes)
+}
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
@@ -47,12 +67,83 @@ type AuthorizationRedirectHandler struct {
 	logger *zap.Logger
 }
 
+// UserAuthMiddleware attempts to decrypt the provided token or redirects to landing page
+func UserAuthMiddleware(clientAuthSecretKey string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			invalidAuth := false
+			s, err := cookieStore.Get(r, JwtCookieName)
+			if err != nil || s.IsNew {
+				zap.L().Error("Getting session from store", zap.Error(err))
+				invalidAuth = true
+			}
+
+			flashes := s.Flashes()
+			if len(flashes) == 0 {
+				invalidAuth = true
+			} else {
+				// Exract user info from the JWT
+				ss := flashes[0].(string)
+				token, err := jwt.ParseWithClaims(ss, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+					rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey))
+					return &rsaKey.PublicKey, err
+				})
+				claims, ok := token.Claims.(*UserClaims)
+				if ok && token.Valid {
+					fmt.Printf("%v %v", claims.Email, claims.StandardClaims.ExpiresAt)
+				} else {
+					invalidAuth = true
+					fmt.Println(err)
+				}
+
+				// And put the user info on the request context
+				// TODO: Look into not using context.Value:
+				// https://medium.com/@cep21/how-to-correctly-use-context-context-in-go-1-7-8f2c0fafdf39
+				ctx := context.WithValue(r.Context(), "email", claims.Email)
+				ctx = context.WithValue(ctx, "id_token", claims.IDToken)
+				r = r.WithContext(ctx)
+			}
+
+			if invalidAuth == true {
+				// TODO: Redirect user to login/403 page
+			}
+
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
 // NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
 func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectHandler {
 	handler := AuthorizationRedirectHandler{
 		logger: logger,
 	}
 	return &handler
+}
+
+func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
+	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		parsedUrl, err := url.Parse(logoutURL)
+		if err != nil {
+			zap.L().Error("Parse logout URL", zap.Error(err))
+		}
+
+		redirect_url := fmt.Sprintf("%s/internal/docs", hostname)
+		ctx := r.Context()
+		idToken := ctx.Value("id_token").(string)
+
+		params := parsedUrl.Query()
+		params.Add("id_token_hint", idToken)
+		params.Add("post_logout_redirect_uri", redirect_url)
+		params.Set("state", generateNonce())
+
+		parsedUrl.RawQuery = params.Encode()
+
+		http.Redirect(w, r, parsedUrl.String(), http.StatusTemporaryRedirect)
+	}
 }
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
@@ -122,6 +213,36 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
+	claims := UserClaims{
+		user.Email,
+		session.IDToken,
+		jwt.StandardClaims{
+			ExpiresAt: session.ExpiresAt.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey))
+	if err != nil {
+		zap.L().Error("Parsing RSA key", zap.Error(err))
+	}
+	ss, err := token.SignedString(rsaKey)
+	if err != nil {
+		zap.L().Error("Signing JWT", zap.Error(err))
+	}
+
+	s, err := cookieStore.Get(r, JwtCookieName)
+	if err != nil {
+		zap.L().Error("Getting session from store", zap.Error(err))
+	}
+
+	s.AddFlash(ss)
+
+	if err := s.Save(r, w); err != nil {
+		zap.L().Error("Saving cookie to store", zap.Error(err))
+	}
+
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 }
@@ -160,7 +281,7 @@ func getAuthorizationURL(logger *zap.Logger) (string, error) {
 	return authURL.String(), err
 }
 
-func fetchToken(logger *zap.Logger, code string, loginGovSecretKey string, loginGovClientID string) (goth.Session, error) {
+func fetchToken(logger *zap.Logger, code string, loginGovSecretKey string, loginGovClientID string) (*openidConnect.Session, error) {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
 	tokenURL := "https://idp.int.identitysandbox.gov/api/openid_connect/token"

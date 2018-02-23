@@ -45,8 +45,9 @@ func main() {
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
-	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 
 	flag.Parse()
 
@@ -89,6 +90,9 @@ func main() {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
+	// Sets max age on cookie store
+	auth.SetCookieStoreMaxAge()
+
 	// Register Login.gov authentication provider
 	if *env == "development" {
 		*protocol = "http://"
@@ -104,8 +108,9 @@ func main() {
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
-	root.Handle(pat.Get("/auth/login-gov"), auth.NewAuthorizationRedirectHandler(logger))
-	root.Handle(pat.Get("/auth/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler(logger))
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	root.Handle(pat.Get("/auth/logout"), auth.AuthorizationLogoutHandler(fullHostname))
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
@@ -113,6 +118,7 @@ func main() {
 
 	// And request logging
 	root.Use(requestLogger)
+	root.Use(auth.UserAuthMiddleware(*clientAuthSecretKey))
 
 	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
 	zap.L().Info("Starting the server listening", zap.String("address", address))
