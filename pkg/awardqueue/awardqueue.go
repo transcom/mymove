@@ -9,14 +9,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var dbConnection *pop.Connection
-var numQualBands = 4
+var db *pop.Connection
+
+const numQualBands = 4
 
 type qualityBand []models.TSPWithBVSCount
 type qualityBands []qualityBand
 
 func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(dbConnection)
+	shipments, err := models.FetchAwardedShipments(db)
 	return shipments, err
 }
 
@@ -25,20 +26,20 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
-	err := dbConnection.Find(&tdl, shipment.TrafficDistributionListID)
+	err := db.Find(&tdl, shipment.TrafficDistributionListID)
 
 	// Find TSPs in that TDL sorted by shipment_awards[asc] and bvs[desc]
 	// tspssba stands for TSPs sorted by award
-	tspsba, err := models.FetchTSPInTDLSortByAward(dbConnection, tdl.ID)
+	tspsba, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
 	for _, consideredTSP := range tspsba {
 		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
 
 		tsp := models.TransportationServiceProvider{}
-		err := dbConnection.Find(&tsp, consideredTSP.TransportationServiceProviderID)
+		err := db.Find(&tsp, consideredTSP.TransportationServiceProviderID)
 		if err == nil {
 			// We found a valid TSP to award to!
-			err := models.CreateShipmentAward(dbConnection, shipment.ID, tsp.ID, false)
+			err := models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
@@ -58,28 +59,26 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 // is divided from the top band down. Function takes length of TSPs array (tsp count) as arg.
 func getTSPsPerBand(tspc int) []int {
 	tspPerBandList := make([]int, numQualBands)
-	// determine floor of tsps per band
 	// tspp is TSP per band
 	tsppb := int(math.Floor(float64(tspc) / float64(numQualBands)))
-	// assign tsppb to each band in tspPerBandList
+	// assign tsppb to each band in tspPerBandList to refer to when assigning TSPs
 	for i := range tspPerBandList {
 		tspPerBandList[i] = tsppb
 	}
-	// add one for bands that will have extra tsps
+
 	for i := 0; i < tspc%numQualBands; i++ {
-		tspPerBandList[i] = tsppb + 1
+		tspPerBandList[i]++
 	}
 	return tspPerBandList
 }
 
 func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
 	tspIndex := 0
-	qbs := make(qualityBands, 4, 4)
+	qbs := make(qualityBands, numQualBands)
 	// Determine how many TSPs should be in each band
 	tsppbl := getTSPsPerBand(len(tsps))
-	// take the number of tsps that should be assigned each band
+
 	for i, tsppb := range tsppbl {
-		// add that number of tsps to the relevant quality band
 		for j := tspIndex; j < tspIndex+tsppb; j++ {
 			qbs[i] = append(qbs[i], tsps[j])
 		}
@@ -94,14 +93,13 @@ func assignQualityBands() (qualityBands, error) {
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
 	// tspsbb stands for TSPs sorted by BVS
-	tspsbb, err := models.FetchTSPsInTDLSortByBVS(dbConnection, tdl.ID)
+	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
 	// Assign TSPs to bands and return slice of TSP slices divided by band
 	return assignTSPsToBands(tspsbb), err
 }
 
 // Run will execute the award queue algorithm.
 func Run(db *pop.Connection) {
-	dbConnection = db
 
 	fmt.Println("TSP Award Queue running.")
 

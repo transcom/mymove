@@ -57,9 +57,9 @@ func (t *TransportationServiceProvider) Validate(tx *pop.Connection) (*validate.
 	), nil
 }
 
-// FetchTSPInTDLSortByAward returns TSPs in a given TDL in the
+// FetchTSPsInTDLSortByAward returns TSPs in a given TDL in the
 // order that they should be awarded new shipments.
-func FetchTSPInTDLSortByAward(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
+func FetchTSPsInTDLSortByAward(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSAndAwardCount, error) {
 	// We need to get TSPs, along with their Best Value Scores and total
 	// awarded shipments, hence the two joins. Some notes on the query:
 	// - We min() the id and scores, because we need an aggregate function given
@@ -105,7 +105,7 @@ func FetchTSPsInTDLSortByBVS(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSC
 			MIN(CAST(transportation_service_providers.id AS text)) as id,
 			MIN(transportation_service_providers.name) as name,
 			MIN(CAST(best_value_scores.traffic_distribution_list_id AS text)) as traffic_distribution_list_id,
-			MIN(best_value_scores.score) as best_value_score,
+			MIN(best_value_scores.score) as best_value_score
 		FROM
 			transportation_service_providers
 		JOIN best_value_scores ON
