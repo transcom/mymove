@@ -1,6 +1,7 @@
 {
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "classnames": "^2.2.5",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
     "js-yaml": "^3.10.0",
@@ -26,6 +27,8 @@
     "eject": "NODE_PATH=./src react-scripts eject",
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
+    "test:debug":
+      "NODE_PATH=./src react-scripts --inspect-brk test --runInBand --env=jsdom",
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"

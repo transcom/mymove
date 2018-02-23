@@ -1,9 +1,11 @@
 package testdatagen
 
 import (
-	"github.com/markbates/pop"
-	"github.com/transcom/mymove/pkg/models"
 	"log"
+
+	"github.com/markbates/pop"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeTDL makes a single traffic_distribution_list record

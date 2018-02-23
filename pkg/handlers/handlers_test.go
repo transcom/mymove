@@ -6,11 +6,24 @@ import (
 	"testing"
 
 	"github.com/markbates/pop"
+	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 )
 
 var testDbConnection *pop.Connection
 var testLogger *zap.Logger
+
+type HandlerSuite struct {
+	suite.Suite
+}
+
+func (suite *HandlerSuite) SetupTest() {
+	testDbConnection.TruncateAll()
+}
+
+func TestHandlerSuite(t *testing.T) {
+	suite.Run(t, new(HandlerSuite))
+}
 
 func setupDependencies() {
 
@@ -20,14 +33,15 @@ func setupDependencies() {
 	if err != nil {
 		log.Panic(err)
 	}
-
 	testDbConnection = dbConnection
-	testLogger, err = zap.NewDevelopment()
+	Init(dbConnection)
+
+	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)
 	}
 
-	Init(dbConnection)
+	testLogger = logger
 }
 
 func TestMain(m *testing.M) {
