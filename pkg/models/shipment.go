@@ -49,6 +49,26 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 	return shipments, err
 }
 
+// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+// TODO: This is virtually identical to the function above, except it returns shipments that
+//       are specifically awarded. Consolidate.
+func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+	shipments := []PossiblyAwardedShipment{}
+
+	sql := `SELECT
+				shipments.id,
+				shipments.traffic_distribution_list_id,
+				shipment_awards.transportation_service_provider_id
+			FROM shipments
+			LEFT JOIN shipment_awards ON
+				shipment_awards.shipment_id=shipments.id
+			WHERE shipment_awards.id IS NULL`
+
+	err := dbConnection.RawQuery(sql).All(&shipments)
+
+	return shipments, err
+}
+
 // String is not required by pop and may be deleted
 func (s Shipment) String() string {
 	js, _ := json.Marshal(s)
@@ -69,22 +89,4 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
 	), nil
-}
-
-// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
-func FetchAwardedShipments(tx *pop.Connection) ([]PossiblyAwardedShipment, error) {
-	shipments := []PossiblyAwardedShipment{}
-
-	sql := `SELECT
-			shipments.id,
-			shipments.traffic_distribution_list_id,
-			shipment_awards.transportation_service_provider_id
-		FROM shipments
-		LEFT JOIN shipment_awards ON
-			shipment_awards.shipment_id=shipments.id
-		WHERE shipment_awards.id IS NULL`
-
-	err := tx.RawQuery(sql).All(&shipments)
-
-	return shipments, err
 }

@@ -88,7 +88,8 @@ build: server_build tools_build client_build
 server_test: db_dev_run db_test_reset server_deps server_generate
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
-	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) -test.parallel 1
+	# Disable test caching with `-count 1` - caching was masking local test failures
+	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 e2e_test: client_deps
 	yarn e2e-test
