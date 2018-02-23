@@ -21,7 +21,9 @@ func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
 	return shipments, err
 }
 
-func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
+// AttemptShipmentAward will attempt to take the given Shipment and award it to
+// a TSP.
+func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
@@ -32,14 +34,19 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 	// tspssba stands for TSPs sorted by award
 	tspsba, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
+	if len(tspsba) == 0 {
+		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
+	}
+
+	var shipmentAward *models.ShipmentAward
+
 	for _, consideredTSP := range tspsba {
-		fmt.Printf("\tConsidering TSP: %v\n", consideredTSP)
+		fmt.Printf("\tConsidering TSP: %s\n", consideredTSP.Name)
 
 		tsp := models.TransportationServiceProvider{}
-		err := db.Find(&tsp, consideredTSP.TransportationServiceProviderID)
-		if err == nil {
+		if err := db.Find(&tsp, consideredTSP.ID); err == nil {
 			// We found a valid TSP to award to!
-			err := models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
+			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
@@ -51,7 +58,7 @@ func selectTSPToAwardShipment(shipment models.PossiblyAwardedShipment) error {
 		}
 	}
 
-	return err
+	return shipmentAward, err
 }
 
 // getTSPsPerBand detemines how many TSPs should be assigned to each Quality Band
@@ -100,20 +107,20 @@ func assignQualityBands() (qualityBands, error) {
 
 // Run will execute the award queue algorithm.
 func Run(db *pop.Connection) {
-
 	fmt.Println("TSP Award Queue running.")
 
 	shipments, err := findAllUnawardedShipments()
 	if err == nil {
-		count := -1
-		for i, shipment := range shipments {
-			err = selectTSPToAwardShipment(shipment)
+		count := 0
+		for _, shipment := range shipments {
+			_, err = AttemptShipmentAward(shipment)
 			if err != nil {
-				fmt.Printf("Failed to award shipment: %s\n", err)
+				fmt.Printf("\tFailed to award shipment: %s\n", err)
+			} else {
+				count++
 			}
-			count = i
 		}
-		fmt.Printf("Awarded %d shipments.\n", count+1)
+		fmt.Printf("Awarded %d shipments.\n", count)
 	} else {
 		fmt.Printf("Failed to query for shipments: %s", err)
 	}

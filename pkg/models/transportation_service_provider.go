@@ -23,9 +23,11 @@ type TransportationServiceProvider struct {
 // TSPWithBVSAndAwardCount represents a list of TSPs along with their BVS
 // and awarded shipment counts.
 type TSPWithBVSAndAwardCount struct {
-	TransportationServiceProviderID uuid.UUID `json:"id" db:"transportation_service_provider_id"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	AwardCount                      int       `json:"award_count" db:"award_count"`
+	ID                        uuid.UUID `json:"id" db:"id"`
+	Name                      string    `json:"name" db:"name"`
+	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
+	AwardCount                int       `json:"award_count" db:"award_count"`
 }
 
 // TSPWithBVSCount represents a list of TSPs along with their BVS counts.

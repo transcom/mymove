@@ -38,10 +38,11 @@ func (b BestValueScores) String() string {
 }
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
-// TODO verify that range validated below is correct for best value scores
 func (b *BestValueScore) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		// Best Value Scores can range from 0 - 100, as defined in DTR403. See page 7
+		// of https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-403.pdf
 		&validators.IntIsGreaterThan{Field: b.Score, Name: "Score", Compared: -1},
-		&validators.IntIsLessThan{Field: b.Score, Name: "Score", Compared: 100},
+		&validators.IntIsLessThan{Field: b.Score, Name: "Score", Compared: 101},
 	), nil
 }

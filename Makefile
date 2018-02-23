@@ -86,7 +86,9 @@ tsp_run_only_docker: db_dev_run
 build: server_build tools_build client_build
 
 server_test: db_dev_run db_test_reset server_deps server_generate
-	go test $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
+	# Disable test caching with `-count 1` - caching was masking local test failures
+	# Disable parallelism with `-p 1` - this is necessary until we have test isolation
+	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/) # Don't try and run tests in /cmd or /pkg/gen
 
 e2e_test: client_deps
 	yarn e2e-test

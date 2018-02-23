@@ -19,6 +19,10 @@ func mustSave(t *testing.T, s interface{}) {
 }
 
 func TestIndexShipmentsHandler(t *testing.T) {
+	// TODO: This test assumes an empty database. This can be removed once we have
+	// a more centralized way of handling test setup & teardown.
+	dbConnection.TruncateAll()
+
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "scac",
 		Name: "Transportation Service Provider 1",
