@@ -55,6 +55,8 @@ const configureNumberField = (swaggerField, props) => {
     props.validate.push(validator.isInteger);
   }
 
+  props.validate.push(validator.isNumber);
+
   return props;
 };
 

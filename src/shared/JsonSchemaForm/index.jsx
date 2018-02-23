@@ -42,7 +42,17 @@ const renderField = (fieldName, fields, nameSpace) => {
   return SchemaField.createSchemaField(fieldName, field, nameSpace);
 };
 
-const recursivelyValidateRequiredFields = (values, spec) => {
+// Because we have nested objects it's possible to have
+// An object that is not-required that itself has required properties. This makes sense, in that
+// If the entire object is omitted (say, an address) then the form is valid, but if a
+// single property of the object is included, then all its required properties must be
+// as well.
+// Therefore, the rules for wether or not a field is required are:
+// 1. If it is listed in the top level definition, it's required.
+// 2. If it is required and it is an object, its required fields are required
+// 3. If it is an object and some value in it has been set, then all it's required fields must be set too
+// This is a recusive definition.
+export const recursivelyValidateRequiredFields = (values, spec) => {
   let requiredErrors = {};
   // first, check that all required fields are present
   if (spec.required) {
@@ -66,7 +76,7 @@ const recursivelyValidateRequiredFields = (values, spec) => {
     });
   }
 
-  // now go through every existing value, if its an object, we gotta recurse to see if its required properties are there.
+  // now go through every existing value, if its an object, we must recurse to see if its required properties are there.
   Object.keys(values).forEach(function(key) {
     let schemaForKey = spec.properties[key];
     if (schemaForKey) {

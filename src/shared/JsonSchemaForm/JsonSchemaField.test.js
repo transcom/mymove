@@ -6,6 +6,7 @@ import { reducer as formReducer, reduxForm } from 'redux-form';
 import { createStore, combineReducers } from 'redux';
 
 import JsonSchemaField from './JsonSchemaField';
+import { recursivelyValidateRequiredFields } from './index';
 
 import { shallow, mount, render } from 'enzyme';
 
@@ -45,11 +46,13 @@ describe('SchemaField tests', () => {
       it(`${testValue} results in ${
         !expectedError ? 'no error' : `error: ${expectedError}`
       }`, () => {
-        const input = subject.find('input').first();
+        let input = subject.find('input');
+        if (input.length == 0) {
+          input = subject.find('textarea');
+        }
         input.simulate('change', { target: { value: testValue } });
 
         let storeData = store.getState().form.holster;
-        console.log(storeData);
         let values = storeData.values;
         let errors = storeData.syncErrors;
 
@@ -141,7 +144,7 @@ describe('SchemaField tests', () => {
         ['-1', -1, null],
         ['100', 100, null],
         ['', null, null],
-        ['a2', 'a2', 'Must be a number'],
+        ['a2', 'a2', 'Must be a number.'],
         ['22.2', 22.2, null],
         ['1.3', 1.3, null],
       ];
@@ -150,51 +153,200 @@ describe('SchemaField tests', () => {
     });
   });
 
-  describe('text field', () => {
+  ['string', 'textarea'].forEach(fieldType => {
+    describe(fieldType + ' text field', () => {
+      describe('with limits', () => {
+        const textFieldWithLimits = {
+          type: 'string',
+          minLength: 2,
+          maxLength: 20,
+          example: 'I am the very model of a modern Major General',
+          'x-nullable': true,
+          title: 'Introduction',
+        };
+
+        if (fieldType === 'textarea') {
+          textFieldWithLimits['format'] = 'textarea';
+        }
+
+        const stringTests = [
+          ['Hello', 'Hello', null],
+          ['1', '1', 'Must be at least 2 characters long.'],
+          ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
+          [
+            'This is the song that never ends, it just goes on and on my friends',
+            'This is the song that never ends, it just goes on and on my friends',
+            'Cannot exceed 20 characters.',
+          ],
+        ];
+
+        testField(textFieldWithLimits, stringTests);
+      });
+
+      describe('without limits', () => {
+        const textField = {
+          type: 'string',
+          example: 'I am the very model of a modern Major General',
+          'x-nullable': true,
+          title: 'Introduction',
+        };
+
+        if (fieldType === 'textarea') {
+          textField['format'] = 'textarea';
+        }
+
+        const stringTests = [
+          ['Hello', 'Hello', null],
+          ['1', '1', null],
+          ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
+          [
+            'This is the song that never ends, it just goes on and on my friends',
+            'This is the song that never ends, it just goes on and on my friends',
+            null,
+          ],
+        ];
+
+        testField(textField, stringTests);
+      });
+    });
+  });
+
+  describe('telephone field', () => {
     describe('with limits', () => {
       const textFieldWithLimits = {
         type: 'string',
-        minLength: 2,
-        maxLength: 20,
-        example: 'I am the very model of a modern Major General',
+        format: 'telephone',
+        example: '615-222-3323',
         'x-nullable': true,
-        title: 'Introduction',
+        title: 'Telephone No.',
       };
 
       const stringTests = [
-        ['Hello', 'Hello', null],
-        ['1', '1', 'Must be at least 2 characters long.'],
-        ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
-        [
-          'This is the song that never ends, it just goes on and on my friends',
-          'This is the song that never ends, it just goes on and on my friends',
-          'Cannot exceed 20 characters.',
-        ],
+        ['615-222-3323', '615-222-3323', null],
+        ['6152223323', '615-222-3323', null],
+        ['615-222-332sdfsdfsd3', '615-222-3323', null],
+        ['615-222-332', '615-222-332', 'Number must have 10 digits.'],
+        ['615-222-33233', '615-222-3323', null],
       ];
 
       testField(textFieldWithLimits, stringTests);
     });
+  });
+});
 
-    describe('without limits', () => {
-      const textFieldWithLimits = {
+describe('fields required tests', () => {
+  const testSchema = {
+    title: 'A registration form',
+    description: 'A simple form example.',
+    type: 'object',
+    required: ['firstName', 'lastName'],
+    properties: {
+      firstName: {
         type: 'string',
-        example: 'I am the very model of a modern Major General',
-        'x-nullable': true,
-        title: 'Introduction',
-      };
+        title: 'First name',
+      },
+      lastName: {
+        type: 'string',
+        title: 'Last name',
+      },
+      birthday: {
+        type: 'string',
+        format: 'date',
+        title: 'Birthday',
+      },
+      sex: {
+        type: 'string',
+        title: 'sex',
+        enum: ['Male', 'Female', 'Non-binary', 'Other'],
+        'x-display-value': {
+          Male: 'male',
+          Female: 'female',
+          'Non-binary': 'non-binary',
+          Other: 'other',
+        },
+      },
+      address: {
+        $$ref: '#/definitions/Address',
+        type: 'object',
+        required: ['address1', 'city'],
+        properties: {
+          address1: {
+            type: 'string',
+            title: 'Address 1',
+          },
+          city: {
+            type: 'string',
+            title: 'City',
+          },
+        },
+      },
+    },
+  };
 
-      const stringTests = [
-        ['Hello', 'Hello', null],
-        ['1', '1', null],
-        ['🌝🤩🍕❤️', '🌝🤩🍕❤️', null],
-        [
-          'This is the song that never ends, it just goes on and on my friends',
-          'This is the song that never ends, it just goes on and on my friends',
-          null,
-        ],
-      ];
+  const testData1 = {
+    firstName: 'james',
+    address: {
+      address1: '1333 Minna',
+    },
+  };
 
-      testField(textFieldWithLimits, stringTests);
+  const expectedError1 = {
+    lastName: 'Required.',
+    address: { city: 'Required.' },
+  };
+
+  const testData2 = {
+    firstName: 'james',
+  };
+
+  const expectedError2 = {
+    lastName: 'Required.',
+  };
+
+  const testData3 = {
+    firstName: 'james',
+    address: {
+      address1: '1333 Minna',
+      city: 'SF',
+    },
+  };
+
+  const expectedError3 = {
+    lastName: 'Required.',
+  };
+
+  const testData4 = {
+    firstName: 'james',
+    lastName: 'franco',
+    address: {
+      address1: '1444 Minna',
+      city: 'SF',
+    },
+  };
+
+  const expectedError4 = {};
+
+  const testData5 = {
+    firstName: 'james',
+    lastName: 'franco',
+  };
+
+  const expectedError5 = {};
+
+  const tests = [
+    [testData1, expectedError1, 'partial address errors'],
+    [testData2, expectedError2, 'omitted address is fine'],
+    [testData3, expectedError3, 'complete address is fine'],
+    [testData4, expectedError4, 'complete field is fine'],
+    [testData5, expectedError5, 'missing address is complete'],
+  ];
+
+  tests.forEach(testCase => {
+    const [testData, expectedError, name] = testCase;
+    it(name, () => {
+      const errors = recursivelyValidateRequiredFields(testData, testSchema);
+
+      expect(errors).toEqual(expectedError);
     });
   });
 });
