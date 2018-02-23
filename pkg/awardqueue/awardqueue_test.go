@@ -146,18 +146,18 @@ func Test_getTSPsPerBandWithRemainder(t *testing.T) {
 	// Check bands should expect differing num of TSPs when not divisible by 4
 	// Remaining TSPs should be divided among bands in descending order
 	tspPerBandList := getTSPsPerBand(10)
-	//
-	if tspPerBandList[0] != 3 || tspPerBandList[2] != 2 {
-		t.Errorf("Failed to correctly divide TSP counts. Expected to find 3, found %d", tspPerBandList[0])
+	expectedBandList := []int{3, 3, 2, 2}
+	if !equalSlice(tspPerBandList, []int{3, 3, 2, 2}) {
+		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
 	}
 }
 
 func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 	// Check bands should expect correct num of TSPs when num of TSPs is divisible by 4
 	tspPerBandList := getTSPsPerBand(8)
-	//
-	if tspPerBandList[0] != 2 || tspPerBandList[3] != 2 {
-		t.Errorf("Failed to correctly divide TSP counts. Expected to find 3, found %d", tspPerBandList[0])
+	expectedBandList := []int{2, 2, 2, 2}
+	if !equalSlice(tspPerBandList, []int{2, 2, 2, 2}) {
+		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
 	}
 }
 
@@ -181,6 +181,18 @@ func Test_assignTSPsToBands(t *testing.T) {
 	if len(qbs[0]) != 2 || len(qbs[2]) != 1 {
 		t.Errorf("Failed to correctly add TSPs to quality bands.")
 	}
+}
+
+func equalSlice(a []int, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func setupDBConnection() {
