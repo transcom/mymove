@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/markbates/pop"
 	"go.uber.org/zap"
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -25,14 +26,26 @@ func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmessages
 	return shipmentPayload
 }
 
+type IndexShipmentsHandler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+func NewIndexShipmentsHandler(db *pop.Connection, logger *zap.Logger) IndexShipmentsHandler {
+	return IndexShipmentsHandler{
+		db:     db,
+		logger: logger,
+	}
+}
+
 // IndexShipmentsHandler returns a list of all shipments
-func IndexShipmentsHandler(p shipmentop.IndexShipmentsParams) middleware.Responder {
+func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments, err := models.FetchPossiblyAwardedShipments(dbConnection)
+	shipments, err := models.FetchPossiblyAwardedShipments(h.db)
 
 	if err != nil {
-		zap.L().Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		response = shipmentop.NewIndexShipmentsBadRequest()
 	} else {
 		isp := make(internalmessages.IndexShipmentsPayload, len(shipments))
