@@ -212,13 +212,6 @@ workflows:
             branches:
               only: master
 
-  rebecca:
-    jobs:
-      - integration_tests:
-          filters:
-            branches:
-              only: rek_move-e2e-run
-
   dependency_updater:
     triggers:
       - schedule:
