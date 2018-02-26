@@ -81,7 +81,6 @@ jobs:
       - run: make client_build
       - run: make client_test
       - run: make server_test
-      - run: make e2e_test
       - run: make tools_build
       - run: make server_build_docker
       - run:
@@ -99,6 +98,7 @@ jobs:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
+      - run: make e2e_test
 
       - run: *announce_failure
 
