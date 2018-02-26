@@ -63,29 +63,29 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 
 // getTSPsPerBand detemines how many TSPs should be assigned to each Quality Band
 // If the number of TSPs in the TDL does not divide evenly into 4 bands, the remainder
-// is divided from the top band down. Function takes length of TSPs array (tsp count) as arg.
+// is divided from the top band down. Function takes length of TSPs array as arg.
 func getTSPsPerBand(tspc int) []int {
-	tspPerBandList := make([]int, numQualBands)
-	// tspp is TSP per band
+	// tsppb is TSP per band
+	tsppbList := make([]int, numQualBands)
 	tsppb := int(math.Floor(float64(tspc) / float64(numQualBands)))
-	// assign tsppb to each band in tspPerBandList to refer to when assigning TSPs
-	for i := range tspPerBandList {
-		tspPerBandList[i] = tsppb
+	for i := range tsppbList {
+		tsppbList[i] = tsppb
 	}
 
 	for i := 0; i < tspc%numQualBands; i++ {
-		tspPerBandList[i]++
+		tsppbList[i]++
 	}
-	return tspPerBandList
+	return tsppbList
 }
 
+// assignTSPsToBands takes slice of tsps and returns
+// slice of slices in which they're sorted into 4 bands
 func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
 	tspIndex := 0
 	qbs := make(qualityBands, numQualBands)
-	// Determine how many TSPs should be in each band
-	tsppbl := getTSPsPerBand(len(tsps))
+	tsppbList := getTSPsPerBand(len(tsps))
 
-	for i, tsppb := range tsppbl {
+	for i, tsppb := range tsppbList {
 		for j := tspIndex; j < tspIndex+tsppb; j++ {
 			qbs[i] = append(qbs[i], tsps[j])
 		}
@@ -94,14 +94,12 @@ func assignTSPsToBands(tsps []models.TSPWithBVSCount) qualityBands {
 	return qbs
 }
 
+// Assign TSPs to bands and return struct slice of band slices
 func assignQualityBands() (qualityBands, error) {
-	// Find TSPs in that TDL sorted bvs[desc]
 	fmt.Printf("Assigning TSPs quality bands")
-	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
 	// tspsbb stands for TSPs sorted by BVS
 	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
-	// Assign TSPs to bands and return slice of TSP slices divided by band
 	return assignTSPsToBands(tspsbb), err
 }
 
