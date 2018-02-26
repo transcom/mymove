@@ -216,7 +216,8 @@ workflows:
     jobs:
       - integration_tests:
           filters:
-            branches: rek_move-e2e-run
+            branches:
+              only: rek_move-e2e-run
 
   dependency_updater:
     triggers:
