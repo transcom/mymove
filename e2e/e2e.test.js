@@ -48,7 +48,7 @@ describe('issue pages', async () => {
 
   it('allows issue submission and retrieval', async () => {
     // Given: A test issue and a feedback form on index page
-    test_issue = 'Too much Alexi. Time: ' + Date.now();
+    test_issue = 'Too few dogs. Time: ' + Date.now();
     await driver.wait(
       until.elementLocated(By.css('[data-test="feedback-form"]')),
     );
