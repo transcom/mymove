@@ -1,3 +1,4 @@
+
 ## Description
 
 Explain a little about the changes at a high level.
@@ -8,12 +9,14 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 ## Verification Steps
 
-- [ ] The model tests pass.
+* [ ] The model tests pass.
+* [ ] There are no [aXe](https://www.deque.com/products/aXe/) warning for UI
+* [ ] This works in IE
 
 ## References
 
-- [Pivotal story](tbd) for this change
-- [this article](tbd) explains more about the approach used.
+* [Pivotal story](tbd) for this change
+* [this article](tbd) explains more about the approach used.
 
 ## Screenshots
 
