@@ -23,3 +23,14 @@
 .shipment-card.awarded {
   background-color: lightgreen;
 }
+
+.tdl-box {
+  padding: 1rem;
+  background: #eee;
+  margin-bottom: 3rem;
+}
+
+.tdl-box h3 {
+  margin-top: .5em;
+  margin-left: .5em;
+}
