@@ -36,6 +36,8 @@ export class Shipments extends Component {
       );
     }
 
+    // TODO: Move to reducer and memoize this, possibly including tdl grouping.
+    // Inquire with Erin how should we allow users to sort.
     const filteredShipments = shipments.filter(shipment => {
       return (
         shipmentsStatus === 'all' ||
