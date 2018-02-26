@@ -93,7 +93,7 @@ export function feedbackReducer(state = initialState, action) {
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
         hasSubmitError: true,
-        confirmationText: 'Errir!!',
+        confirmationText: 'Submission error.',
       });
     default:
       return state;
