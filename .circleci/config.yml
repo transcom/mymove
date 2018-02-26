@@ -98,7 +98,6 @@ jobs:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-      - run: make e2e_test
 
       - run: *announce_failure
 
@@ -141,6 +140,14 @@ jobs:
           command: |
             bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
             ecs-deploy -c app-staging -n app -t 600 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+      - run: *announce_failure
+
+  integration_tests:
+    docker:
+      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+    steps:
+      - checkout
+      - run: make e2e_test
       - run: *announce_failure
 
   update_dependencies:
@@ -198,6 +205,18 @@ workflows:
           filters:
             branches:
               only: master
+      - integration_tests:
+          requires:
+            - deploy_app
+          filters:
+            branches:
+              only: master
+
+  rebecca:
+    jobs:
+      - integration_tests:
+          filters:
+            branches: rek_move-e2e-run
 
   dependency_updater:
     triggers:
