@@ -4,7 +4,7 @@ import validator from './validator';
 import { Field } from 'redux-form';
 import './index.css';
 
-// ---- Validator -----
+// ---- Parsers -----
 
 const parseNumberField = value => {
   if (!value || validator.isNumber(value)) {
@@ -135,7 +135,6 @@ const renderInputField = ({
     </div>
   );
 };
-// also should put a star by its name.
 
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
