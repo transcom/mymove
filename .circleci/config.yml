@@ -193,12 +193,6 @@ jobs:
 
 workflows:
   version: 2
-  rebecca:
-    jobs:
-      - integration_tests:
-          filters:
-            branches:
-              only: rek_cache-yarn-e2e
 
   app:
     jobs:
