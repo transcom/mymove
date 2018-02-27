@@ -195,18 +195,21 @@ func Test_BVSWithLowMPS(t *testing.T) {
 		testdatagen.MakeBestValueScore(db, tsp, tdl, 15)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
-	tsp, _ := testdatagen.MakeTSP(db, "Low BVS Test Shipper", "TEST")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 1)
+	mpsTSP, _ := testdatagen.MakeTSP(db, "Low BVS Test Shipper", "TEST")
+	testdatagen.MakeBestValueScore(db, mpsTSP, tdl, 1)
 
 	// Fetch TSPs in TDL
 	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
-	qbs := assignTSPsToBands(tspsbb)
+
+	// Then: Expect to find TSPs in TDL
 	if err != nil {
 		t.Errorf("Failed to find TSPs: %v", err)
 	}
-
-	if len(qbs[0]) != 2 || len(qbs[1]) != 1 {
-		t.Errorf("Failed to correctly add TSPs to quality bands abiding by MPS.")
+	// Then: Expect TSP with low BVS won't be in sorted TSP slice
+	for _, tsp := range tspsbb {
+		if tsp.ID == mpsTSP.ID {
+			t.Errorf("TSP: %v with a BVS below MPS incorrectly included.", mpsTSP.ID)
+		}
 	}
 }
 
