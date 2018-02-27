@@ -128,7 +128,7 @@ definitions:
         example: This is a test issue
         format: textarea
         minLength: 1
-        maxLength: 12
+        maxLength: 1024
         title: Description
       reporter_name:
         type: string
@@ -156,11 +156,6 @@ definitions:
       reporter_name:
         type: string
         example: Jane Doe
-        x-nullable: true
-      due_date:
-        type: string
-        format: date
-        example: 2019-03-15
         x-nullable: true
       created_at:
         type: string
