@@ -135,6 +135,11 @@ definitions:
         example: Jane Doe
         x-nullable: true
         title: Reporter Name
+      due_date:
+        type: string
+        format: date
+        example: 2019-03-15
+        x-nullable: true
     required:
       - description
   IndexIssuesPayload:
@@ -156,6 +161,11 @@ definitions:
       reporter_name:
         type: string
         example: Jane Doe
+        x-nullable: true
+      due_date:
+        type: string
+        format: date
+        example: 2019-03-15
         x-nullable: true
       created_at:
         type: string

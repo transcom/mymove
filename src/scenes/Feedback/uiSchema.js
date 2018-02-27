@@ -12,4 +12,5 @@ groups:
     fields:
       - description
       - reporter_name
+      - due_date
 `;
