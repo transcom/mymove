@@ -171,6 +171,8 @@ If you need to see some output during the development process (say, for debuggin
 
 ### Database
 
+* Read [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) to prevent SQL injections! *
+
 #### Dev Commands
 
 There are a few handy targets in the Makefile to help you interact with the dev database:
