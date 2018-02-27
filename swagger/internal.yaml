@@ -140,6 +140,7 @@ definitions:
         format: date
         example: 2019-03-15
         x-nullable: true
+        title: Due Date
     required:
       - description
   IndexIssuesPayload:

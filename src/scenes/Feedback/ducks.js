@@ -73,7 +73,6 @@ const initialState = {
 export function feedbackReducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_SCHEMA_SUCCESS:
-      console.log('WOEINOWNFOWIENFOIWENFIIIIII');
       return Object.assign({}, state, {
         schema: action.schema.definitions.CreateIssuePayload,
         hasSchemaError: false,
