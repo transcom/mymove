@@ -12,9 +12,4 @@ groups:
     fields:
       - description
       - reporter_name
-      - due_date
-      - telephone
-      - annoyance_level
-      - some_uuid
-      - station_orders_type
 `;

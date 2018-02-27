@@ -130,49 +130,13 @@ definitions:
         minLength: 1
         maxLength: 12
         title: Description
-      annoyance_level:
-        type: number
-        example: 11
-        maximum: 11
-        minimum: 0
-        x-nullable: true
-        title: Annyoance Level
-      some_uuid:
-        type: string
-        format: uuid
-        x-nullable: true
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        title: Some Kind Of UUID
       reporter_name:
         type: string
         example: Jane Doe
         x-nullable: true
         title: Reporter Name
-      due_date:
-        type: string
-        format: date
-        example: 2018-03-15
-        x-nullable: true
-        title: Due Date
-      telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-666-6666
-        x-nullable: true
-        title: Telephone No.
-      station_orders_type:
-        type: string
-        enum:
-        - PERMANENT
-        - TEMPORARY
-        x-display-value:
-          PERMANENT: permanent
-          TEMPORARY: temporary
-        title: Type Orders
     required:
       - description
-      - station_orders_type
   IndexIssuesPayload:
     type: array
     items:

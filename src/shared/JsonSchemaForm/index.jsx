@@ -58,7 +58,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   if (spec.required) {
     spec.required.forEach(requiredFieldName => {
       if (values[requiredFieldName] === undefined) {
-        // check if the required thing is a ref, in that case put it on its required fields. Otherwise recurse.
+        // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
         let schemaForKey = spec.properties[requiredFieldName];
         if (schemaForKey) {
           if (schemaForKey.type === 'object') {
@@ -95,8 +95,6 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   });
 
   return requiredErrors;
-  // gotta start testing.
-  // should be easy, tests are: a schema, a uischema, a data, and wether it's valid?(or the errors hash)
 };
 
 // To validate that fields are required, we look at the list of top level required
