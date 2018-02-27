@@ -47,7 +47,8 @@ func (t TransportationServiceProvider) String() string {
 // TransportationServiceProviders is not required by pop and may be deleted
 type TransportationServiceProviders []TransportationServiceProvider
 
-// Minimum Performance Score (MPS) is currently a constant, which we expect to change
+// Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
+// TODO: Implement as something other than a constant.
 const mps = 10
 
 // String is not required by pop and may be deleted
