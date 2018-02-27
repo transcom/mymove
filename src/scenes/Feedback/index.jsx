@@ -10,7 +10,7 @@ import { loadSchema, createIssue } from './ducks';
 
 const FeedbackForm = reduxifyForm('Feedback');
 
-class Feedback extends Component {
+export class Feedback extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
     this.props.loadSchema();
@@ -39,7 +39,6 @@ class Feedback extends Component {
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
   confirmationText: PropTypes.string.isRequired,
-
   loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
