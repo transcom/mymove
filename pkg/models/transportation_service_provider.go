@@ -48,7 +48,7 @@ func (t TransportationServiceProvider) String() string {
 type TransportationServiceProviders []TransportationServiceProvider
 
 // Minimum Performance Score (MPS) is currently a constant, which we expect to change
-const MPS = 10
+const mps = 10
 
 // String is not required by pop and may be deleted
 func (t TransportationServiceProviders) String() string {
@@ -86,14 +86,16 @@ func FetchTSPsInTDLSortByAward(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBV
 			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
 		LEFT JOIN shipment_awards ON
 			transportation_service_providers.id = shipment_awards.transportation_service_provider_id
+		AND
+			best_value_scores.score > $1
 		WHERE
-			best_value_scores.traffic_distribution_list_id = ?
+			best_value_scores.traffic_distribution_list_id = $2
 		GROUP BY best_value_scores.id
 		ORDER BY award_count ASC, best_value_score DESC
 		`
 
 	tsps := []TSPWithBVSAndAwardCount{}
-	err := tx.RawQuery(sql, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, mps, tdlID).All(&tsps)
 
 	return tsps, err
 }
@@ -126,7 +128,7 @@ func FetchTSPsInTDLSortByBVS(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSC
 		`
 
 	tsps := []TSPWithBVSCount{}
-	err := tx.RawQuery(sql, MPS, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, mps, tdlID).All(&tsps)
 
 	return tsps, err
 }
