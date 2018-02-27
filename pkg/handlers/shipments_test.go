@@ -18,7 +18,9 @@ func mustSave(t *testing.T, s interface{}) {
 	}
 }
 
-func TestIndexShipmentsHandler(t *testing.T) {
+func (suite *HandlerSuite) TestIndexShipmentsHandler() {
+	t := suite.T()
+
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "scac",
 		Name: "Transportation Service Provider 1",

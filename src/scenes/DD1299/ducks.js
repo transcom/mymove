@@ -58,7 +58,11 @@ export function loadSchema() {
 }
 
 export function submitForm(formData) {
-  return function(dispatch) {
+  return function(dispatch, getState) {
+    if (!formData) {
+      // HACK: since we are using redux-thunk, have access to other state
+      formData = getState().form.DD1299.values;
+    }
     dispatch(createRequestSubmit());
     CreateForm1299(formData)
       .then(result => dispatch(createSubmitSuccess(result)))

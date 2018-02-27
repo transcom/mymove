@@ -1,18 +1,14 @@
 package handlers
 
 import (
-	"log"
-	"os"
-	"testing"
 	"time"
-
-	"github.com/markbates/pop"
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-func TestSubmitIssueHandler(t *testing.T) {
+func (suite *HandlerSuite) TestSubmitIssueHandler() {
+	t := suite.T()
 
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
@@ -35,7 +31,9 @@ func TestSubmitIssueHandler(t *testing.T) {
 
 }
 
-func TestSubmitDueDate(t *testing.T) {
+func (suite *HandlerSuite) TestSubmitDueDate() {
+	t := suite.T()
+
 	testDescription := "This is a test issue. The tests are not working. 🍏🍎😍"
 	testDate := fmtDate(time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC))
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
@@ -56,7 +54,9 @@ func TestSubmitDueDate(t *testing.T) {
 	}
 }
 
-func TestIndexIssuesHandler(t *testing.T) {
+func (suite *HandlerSuite) TestIndexIssuesHandler() {
+	t := suite.T()
+
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
@@ -88,23 +88,4 @@ func TestIndexIssuesHandler(t *testing.T) {
 	if issueExists == false {
 		t.Errorf("Expected an issue to contain '%v'. None do.", testDescription)
 	}
-}
-
-func setupDBConnection() {
-
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	dbConnection, err := pop.Connect("test")
-	if err != nil {
-		log.Panic(err)
-	}
-
-	Init(dbConnection)
-
-}
-
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
 }
