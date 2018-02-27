@@ -15,14 +15,6 @@ produces:
   - application/json
 paths:
   /tsp:
-    get:
-      summary: List all TSPs
-      description: Gets a list of all TSPs registered.
-      operationId: indexTSPs
-      tags:
-        - issues
-      responses:
-        204:
-          description: list of TSPs
-        400:
-          description: invalid request
+    $ref: 'tsp/paths.yaml#/Tsps'
+  /tsp/{tspUuid}/shipments:
+    $ref: 'tsp/paths.yaml#/TspShipments'
