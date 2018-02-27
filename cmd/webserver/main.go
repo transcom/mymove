@@ -41,7 +41,7 @@ func main() {
 	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
 	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the `port` to listen on.")
-	callbackPort := flag.String("callback_port", "80", "The port for callback urls.")
+	callbackPort := flag.String("callback_port", "443", "The port for callback urls.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")

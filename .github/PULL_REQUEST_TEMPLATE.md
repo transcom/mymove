@@ -8,12 +8,15 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 ## Verification Steps
 
-- [ ] The model tests pass.
+* [ ] All tests pass.
+* [ ] The requirements listed in [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) have been satisfied.
+* [ ] There are no [aXe](https://www.deque.com/products/aXe/) warnings for UI.
+* [ ] This works in IE.
 
 ## References
 
-- [Pivotal story](tbd) for this change
-- [this article](tbd) explains more about the approach used.
+* [Pivotal story](tbd) for this change
+* [this article](tbd) explains more about the approach used.
 
 ## Screenshots
 

@@ -6,6 +6,7 @@
 
 * [Go](#go)
   * [Style and Conventions](#style-and-conventions)
+  * [Querying the Database Safely](#querying-the-database-safely)
   * [Libraries](#libraries)
     * [Pop](#pop)
   * [Learning](#learning)
@@ -32,6 +33,26 @@ Beyond what is described above, the following contain additional insights into h
 * [What's in a name?](https://talks.golang.org/2014/names.slide#1) (how to name things in Go)
 * [Go best practices, six years in](https://peter.bourgon.org/go-best-practices-2016/)
 * [A theory of modern Go](https://peter.bourgon.org/blog/2017/06/09/theory-of-modern-go.html)
+
+### Querying the Database Safely
+
+* SQL statements *must* use Postgres-native parameter replacement format (e.g. `$1`, `$2`, etc.) and *never* interpolate values into SQL fragments in any other way.
+* SQL statements must only be defined in the `models` package.
+
+Here is an example of a safe query for a single `Shipment`:
+
+```golang
+// db is a *pop.Connection
+
+id := "0186ad95-14ed-4c9b-9f62-d5bd124f62a1"
+
+query := db.Where("id = $1", id)
+
+shipment := &models.Shipment{}
+if err = query.First(shipment); err == nil {
+  pp.Println(shipment)
+}
+```
 
 ### Libraries
 
@@ -64,7 +85,7 @@ Knowing what deserves a test and what doesn’t can be tricky, especially early 
 #### General
 
 * Use table-driven tests where appropriate.
-* Make judicious use of helper funcs so that the intent of a test is not lost in a sea of error checking and boilerplate.
+* Make judicious use of helper funcs so that the intent of a test is not lost in a sea of error checking and boilerplate. Use [`t.Helper()`](https://golang.org/pkg/testing/#T.Helper) in your test helper funcs to keep stack traces clean.
 
 #### Models
 

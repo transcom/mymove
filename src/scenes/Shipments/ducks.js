@@ -40,7 +40,7 @@ export function shipmentsReducer(
     case SHOW_SHIPMENTS_SUCCESS:
       return { shipments: action.shipments, hasError: false };
     case SHOW_SHIPMENTS_FAILURE:
-      return { shipments: null, hasError: true };
+      return { shipments: [], hasError: true };
     default:
       return state;
   }

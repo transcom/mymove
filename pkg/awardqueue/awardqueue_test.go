@@ -114,18 +114,85 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 
 // Ensure that if we create a TSP in a TDL, the function that finds it can
 // indeed find it.
-func Test_FetchTSPsInTDLForSQL(t *testing.T) {
+func Test_FetchTSPsInTDL(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
 	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
 
-	tsps, err := models.FetchTransportationServiceProvidersInTDL(db, tdl.ID)
+	tsps, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
 	} else if len(tsps) != 1 {
 		t.Errorf("Failed to find TSP. Expected to find 1, found %d", len(tsps))
 	}
+}
+
+func Test_FetchTSPsInTDLByBVS(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
+	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
+	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+
+	tsps, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
+
+	if err != nil {
+		t.Errorf("Failed to find TSPs: %v", err)
+	} else if len(tsps) != 1 {
+		t.Errorf("Failed to find TSP. Expected to find 1, found %d", len(tsps))
+	}
+}
+
+func Test_getTSPsPerBandWithRemainder(t *testing.T) {
+	// Check bands should expect differing num of TSPs when not divisible by 4
+	// Remaining TSPs should be divided among bands in descending order
+	tspPerBandList := getTSPsPerBand(10)
+	expectedBandList := []int{3, 3, 2, 2}
+	if !equalSlice(tspPerBandList, []int{3, 3, 2, 2}) {
+		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
+	}
+}
+
+func Test_getTSPsPerBandNoRemainder(t *testing.T) {
+	// Check bands should expect correct num of TSPs when num of TSPs is divisible by 4
+	tspPerBandList := getTSPsPerBand(8)
+	expectedBandList := []int{2, 2, 2, 2}
+	if !equalSlice(tspPerBandList, []int{2, 2, 2, 2}) {
+		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
+	}
+}
+
+func Test_assignTSPsToBands(t *testing.T) {
+	tspsToMake := 5
+
+	// Make a TDL to contain our tests
+	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
+
+	// Make 10 (not divisible by 4) TSPs in this TDL with BVSs
+	for i := 0; i < tspsToMake; i++ {
+		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
+		testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	}
+	// Fetch TSPs in TDL
+	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
+	qbs := assignTSPsToBands(tspsbb)
+	if err != nil {
+		t.Errorf("Failed to find TSPs: %v", err)
+	}
+	if len(qbs[0]) != 2 || len(qbs[2]) != 1 {
+		t.Errorf("Failed to correctly add TSPs to quality bands.")
+	}
+}
+
+func equalSlice(a []int, b []int) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
 
 func setupDBConnection() {
