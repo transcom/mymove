@@ -1,6 +1,6 @@
 # The TSP Data Models
 
-**User Story:** *[155524224](https://www.pivotaltracker.com/story/show/155524224)*
+**User Story:** [155524224](https://www.pivotaltracker.com/story/show/155524224)
 
 The TSP Award Queue needs to be able to access information from the database efficiently enough to award shipments to TSP based on TDL, Performance Period, Best Value Score, Quality Band, and number of shipments already awarded.
 Decision drivers included the anticipated format of frequent queries, query speed, and size of data.
@@ -21,7 +21,7 @@ Decision drivers included the anticipated format of frequent queries, query spee
 
 ## Pros and Cons of the Alternatives
 
-### Quality Band Assignment, Performance Period, Best Value Score tables
+### *Quality Band Assignment, Performance Period, Best Value Score tables*
 
 This was the original proposal. It included the following 3 tables:
 
@@ -29,12 +29,14 @@ This was the original proposal. It included the following 3 tables:
 * Quality Band Assignment table with id, TSPs, TDL, band number, performance period, and number of shipments per band
 * Performance Period table with id, start date, and end date.
 
+We quickly discovered blockers we could not ignore.
+
 * `+` Separate interests
 * `+` Conceptually easy to understand
 * `-` DEALBREAKER: Made impossible assumptions (for example, included a "transportation_service_provider_ids" field, which would have called for a 1:many. It is not be possible to point from the 1 quality band to many TSPs, which is the direction 1:many relationships are oriented).
 * `-` Would need to JOIN quality band assignment and performance period tables first to determine quality bands and then to determine which TSPs are next in line to receive shipment awards.
 
-### TSP Performance table without award count
+### *TSP Performance table without award count*
 
 * `+` Same pros as chosen alternative
 * `+` Does not denormalize data by having award_count derived from shipment awards
