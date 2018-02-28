@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -14,13 +13,16 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/context"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/pkg/errors"
 )
 
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
+const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
 
 // JwtCookieName is the key we're storing cookies under in our cookie store
 const JwtCookieName = "JWT_COOKIE"
@@ -35,9 +37,84 @@ type UserClaims struct {
 	jwt.StandardClaims
 }
 
-// SetCookieStoreMaxAge sets max age of our secure cookies
-func SetCookieStoreMaxAge() {
-	cookieStore.MaxAge(60 * sessionExpiryInMinutes)
+func getExpiryTimeFromMinutes(min int64) int64 {
+	return time.Now().Add(time.Second * time.Duration(60*min)).Unix()
+}
+
+func shouldRenewForClaims(claims UserClaims) bool {
+	exp := claims.StandardClaims.ExpiresAt
+	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes)
+	fmt.Println(exp)
+	fmt.Println(renewal)
+	return exp < renewal
+}
+
+func parseClaimsFromTokenString(ss string, secret string) (claims *UserClaims, err error) {
+	token, err := jwt.ParseWithClaims(ss, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, err
+	})
+	if err != nil {
+		return
+	}
+	if !token.Valid {
+		err = errors.New("Token failed validation")
+		return
+	}
+
+	claims, ok := token.Claims.(*UserClaims)
+	if claims == nil || !ok {
+		err = errors.New("Failed extracting claims from token")
+	}
+
+	return
+}
+
+func signedTokenStringWithUserInfo(email string, idToken string, expiry int64, secret string) (ss string, err error) {
+	claims := UserClaims{
+		email,
+		idToken,
+		jwt.StandardClaims{
+			ExpiresAt: expiry,
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+	if err != nil {
+		err = errors.Wrap(err, "Parsing RSA key from PEM")
+		return
+	}
+
+	ss, err = token.SignedString(rsaKey)
+	if err != nil {
+		err = errors.Wrap(err, "Signing string with token")
+		return
+	}
+
+	return
+}
+
+func saveTokenStringToStore(ss string, w http.ResponseWriter, r *http.Request) (err error) {
+	// This will return a new session if non exists
+	s, err := cookieStore.Get(r, JwtCookieName)
+	if err != nil {
+		err = errors.Wrap(err, "Fetching session from cookie store")
+		return
+	}
+
+	// Flashes are one-time use data, so retrieving them clears the Flash
+	// store so we start with a clean slate
+	s.Flashes()
+	s.AddFlash(ss)
+
+	err = s.Save(r, w)
+	if err != nil {
+		err = errors.Wrap(err, "Saving session back to store")
+		return
+	}
+
+	return
 }
 
 // RegisterProvider registers Login.gov with Goth, which uses
@@ -68,45 +145,49 @@ type AuthorizationRedirectHandler struct {
 }
 
 // UserAuthMiddleware attempts to decrypt the provided token or redirects to landing page
-func UserAuthMiddleware(clientAuthSecretKey string) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(clientAuthSecretKey string, hostname string) func(next http.Handler) http.Handler {
+	redirectURL := fmt.Sprintf("%s/landing", hostname)
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			invalidAuth := false
 			s, err := cookieStore.Get(r, JwtCookieName)
-			if err != nil || s.IsNew {
+			if err != nil {
 				zap.L().Error("Getting session from store", zap.Error(err))
-				invalidAuth = true
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
 			}
 
+			// Our token is stored as a flash message under the default key ("_flash")
 			flashes := s.Flashes()
-			if len(flashes) == 0 {
-				invalidAuth = true
-			} else {
-				// Exract user info from the JWT
-				ss := flashes[0].(string)
-				token, err := jwt.ParseWithClaims(ss, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-					rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey))
-					return &rsaKey.PublicKey, err
-				})
-				claims, ok := token.Claims.(*UserClaims)
-				if ok && token.Valid {
-					fmt.Printf("%v %v", claims.Email, claims.StandardClaims.ExpiresAt)
-				} else {
-					invalidAuth = true
-					fmt.Println(err)
+			if s.IsNew || len(flashes) == 0 {
+				fmt.Println("No prior token found")
+				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+				return
+			}
+
+			// Exract user info from the JWT
+			ss := flashes[0].(string)
+			claims, err := parseClaimsFromTokenString(ss, clientAuthSecretKey)
+			if err != nil {
+				fmt.Println("Parsing claims from token", zap.Error(err))
+				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+				return
+			}
+
+			if shouldRenewForClaims(*claims) {
+				// Renew the token
+				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+				ss, err := signedTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, clientAuthSecretKey)
+				if err != nil {
+					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
-
-				// And put the user info on the request context
-				// TODO: Look into not using context.Value:
-				// https://medium.com/@cep21/how-to-correctly-use-context-context-in-go-1-7-8f2c0fafdf39
-				ctx := context.WithValue(r.Context(), "email", claims.Email)
-				ctx = context.WithValue(ctx, "id_token", claims.IDToken)
-				r = r.WithContext(ctx)
+				if err := saveTokenStringToStore(ss, w, r); err != nil {
+					zap.L().Error("Saving token to store", zap.Error(err))
+				}
 			}
 
-			if invalidAuth == true {
-				// TODO: Redirect user to login/403 page
-			}
+			// And put the user info on the request context
+			context.Set(r, "email", claims.Email)
+			context.Set(r, "id_token", claims.IDToken)
 
 			next.ServeHTTP(w, r)
 		}
@@ -122,27 +203,35 @@ func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectH
 	return &handler
 }
 
+// AuthorizationLogoutHandler handles logging the user out of login.gov
 func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		parsedUrl, err := url.Parse(logoutURL)
+		parsedURL, err := url.Parse(logoutURL)
 		if err != nil {
 			zap.L().Error("Parse logout URL", zap.Error(err))
 		}
 
-		redirect_url := fmt.Sprintf("%s/internal/docs", hostname)
-		ctx := r.Context()
-		idToken := ctx.Value("id_token").(string)
+		s, err := cookieStore.Get(r, JwtCookieName)
+		if err != nil || s.IsNew {
+			zap.L().Error("Getting session from store", zap.Error(err))
+		}
+		// This kills the cookie
+		s.Options.MaxAge = -1
+		s.Save(r, w)
 
-		params := parsedUrl.Query()
+		redirectURL := fmt.Sprintf("%s/landing", hostname)
+		idToken := context.Get(r, "id_token").(string)
+
+		params := parsedURL.Query()
 		params.Add("id_token_hint", idToken)
-		params.Add("post_logout_redirect_uri", redirect_url)
+		params.Add("post_logout_redirect_uri", redirectURL)
 		params.Set("state", generateNonce())
 
-		parsedUrl.RawQuery = params.Encode()
+		parsedURL.RawQuery = params.Encode()
 
-		http.Redirect(w, r, parsedUrl.String(), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 	}
 }
 
@@ -214,33 +303,14 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	claims := UserClaims{
-		user.Email,
-		session.IDToken,
-		jwt.StandardClaims{
-			ExpiresAt: session.ExpiresAt.Unix(),
-		},
-	}
-
-	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
-	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(clientAuthSecretKey))
+	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+	ss, err := signedTokenStringWithUserInfo(user.Email, session.IDToken, expiry, clientAuthSecretKey)
 	if err != nil {
-		zap.L().Error("Parsing RSA key", zap.Error(err))
-	}
-	ss, err := token.SignedString(rsaKey)
-	if err != nil {
-		zap.L().Error("Signing JWT", zap.Error(err))
+		zap.L().Error("Generating signed token string", zap.Error(err))
 	}
 
-	s, err := cookieStore.Get(r, JwtCookieName)
-	if err != nil {
-		zap.L().Error("Getting session from store", zap.Error(err))
-	}
-
-	s.AddFlash(ss)
-
-	if err := s.Save(r, w); err != nil {
-		zap.L().Error("Saving cookie to store", zap.Error(err))
+	if err := saveTokenStringToStore(ss, w, r); err != nil {
+		zap.L().Error("Saving token to store", zap.Error(err))
 	}
 
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
