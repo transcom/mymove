@@ -59,27 +59,25 @@ const configureNumberField = (swaggerField, props) => {
   return props;
 };
 
-const normalizePhone = (value, previousValue) => {
-  if (!value) {
-    return value;
-  }
-  const onlyNums = value.replace(/[^\d]/g, '');
-  let normalizedPhone = '';
-  for (let i = 0; i < 10; i++) {
-    if (i >= onlyNums.length) {
-      break;
-    }
-    if (i === 3 || i === 6) {
-      normalizedPhone += '-';
-    }
-    normalizedPhone += onlyNums[i];
-  }
-  return normalizedPhone;
+const configureTelephoneField = (swaggerField, props) => {
+  props.normalize = validator.normalizePhone;
+  props.validate.push(validator.isPhoneNumber);
+  props.type = 'text';
+
+  return props;
 };
 
-const configureTelephoneField = (swaggerField, props) => {
-  props.normalize = normalizePhone;
-  props.validate.push(validator.isPhoneNumber);
+const configureSSNField = (swaggerField, props) => {
+  props.normalize = validator.normalizeSSN;
+  props.validate.push(validator.isSSN);
+  props.type = 'text';
+
+  return props;
+};
+
+const configureZipField = (swaggerField, props) => {
+  props.normalize = validator.normalizeZip;
+  props.validate.push(validator.isZip);
   props.type = 'text';
 
   return props;
@@ -164,12 +162,29 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     fieldProps = configureNumberField(swaggerField, fieldProps);
   } else if (swaggerField.type === 'string') {
-    if (swaggerField.format === 'telephone') {
-      fieldProps = configureTelephoneField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'date') {
+    if (swaggerField.format === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
-      // more cases go here. Datetime, Date, SSN, (UUID)
+    } else if (swaggerField.format === 'telephone') {
+      fieldProps = configureTelephoneField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'ssn') {
+      fieldProps = configureSSNField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'zip') {
+      fieldProps = configureZipField(swaggerField, fieldProps);
+      // more cases go here. Datetime, Date,
     } else {
+      if (swaggerField.pattern) {
+        console.error(
+          'This swagger field contains a pattern but does not have a custom "format" property',
+          fieldName,
+          swaggerField,
+        );
+        console.error(
+          "Since it's not feasable to generate a sensible error message from a regex, please add a new format and matching validator",
+        );
+        fieldProps.validate.push(
+          validator.patternMatches(swaggerField.pattern, swaggerField.example),
+        );
+      }
       // The last case is the simple text field / textarea which are the same but the componentOverride
       if (swaggerField.format === 'textarea') {
         fieldProps.componentOverride = 'textarea';

@@ -212,25 +212,67 @@ describe('SchemaField tests', () => {
   });
 
   describe('telephone field', () => {
-    describe('with limits', () => {
-      const textFieldWithLimits = {
-        type: 'string',
-        format: 'telephone',
-        example: '615-222-3323',
-        'x-nullable': true,
-        title: 'Telephone No.',
-      };
+    const telephoneField = {
+      type: 'string',
+      format: 'telephone',
+      pattern: /^[2-9]\d{2}-\d{3}-\d{4}$/,
+      example: '615-222-3323',
+      'x-nullable': true,
+      title: 'Telephone No.',
+    };
 
-      const stringTests = [
-        ['615-222-3323', '615-222-3323', null],
-        ['6152223323', '615-222-3323', null],
-        ['615-222-332sdfsdfsd3', '615-222-3323', null],
-        ['615-222-332', '615-222-332', 'Number must have 10 digits.'],
-        ['615-222-33233', '615-222-3323', null],
-      ];
+    const stringTests = [
+      ['615-222-3323', '615-222-3323', null],
+      ['6152223323', '615-222-3323', null],
+      ['615-222-332sdfsdfsd3', '615-222-3323', null],
+      ['615-222-332', '615-222-332', 'Number must have 10 digits.'],
+      ['615-222-33233', '615-222-3323', null],
+    ];
 
-      testField(textFieldWithLimits, stringTests);
-    });
+    testField(telephoneField, stringTests);
+  });
+
+  describe('ssn field', () => {
+    const ssnField = {
+      type: 'string',
+      format: 'ssn',
+      pattern: /^\d{3}-\d{2}-\d{4}$/,
+      example: '615-22-3323',
+      'x-nullable': true,
+      title: 'SSN No.',
+    };
+
+    const stringTests = [
+      ['615-22-3323', '615-22-3323', null],
+      ['615223323', '615-22-3323', null],
+      ['615-22-332sdfsdfsd3', '615-22-3323', null],
+      ['615-22-332', '615-22-332', 'SSN must have 9 digits.'],
+      ['615-22-33233', '615-22-3323', null],
+    ];
+
+    testField(ssnField, stringTests);
+  });
+
+  describe('zip field', () => {
+    const ssnField = {
+      type: 'string',
+      format: 'zip',
+      pattern: /^(\d{5}([\-]\d{4})?)$/,
+      example: '61522-3323',
+      'x-nullable': true,
+      title: 'ZIP Code',
+    };
+
+    const stringTests = [
+      ['61522-3323', '61522-3323', null],
+      ['61522', '61522', null],
+      ['615223323', '61522-3323', null],
+      ['615-22-332sdfsdfsd3', '61522-3323', null],
+      ['615-22-332', '61522-332', 'Zip code must have 5 or 9 digits.'],
+      ['615-22-33233', '61522-3323', null],
+    ];
+
+    testField(ssnField, stringTests);
   });
 });
 

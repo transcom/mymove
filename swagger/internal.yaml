@@ -230,6 +230,7 @@ definitions:
         $ref: '#/definitions/ServiceMemberRank'
       service_member_ssn:
         type: string
+        format: ssn
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
@@ -533,6 +534,7 @@ definitions:
         $ref: '#/definitions/ServiceMemberRank'
       service_member_ssn:
         type: string
+        format: ssn
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
@@ -967,6 +969,7 @@ definitions:
           - WY
       zip:
         type: string
+        format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'

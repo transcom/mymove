@@ -49,6 +49,86 @@ const isPhoneNumber = value => {
   }
 };
 
+const normalizePhone = (value, previousValue) => {
+  if (!value) {
+    return value;
+  }
+  const onlyNums = value.replace(/[^\d]/g, '');
+  let normalizedPhone = '';
+  for (let i = 0; i < 10; i++) {
+    if (i >= onlyNums.length) {
+      break;
+    }
+    if (i === 3 || i === 6) {
+      normalizedPhone += '-';
+    }
+    normalizedPhone += onlyNums[i];
+  }
+  return normalizedPhone;
+};
+
+const isSSN = value => {
+  if (value && value.replace(/[^\d]/g, '').length !== 9) {
+    return 'SSN must have 9 digits.';
+  }
+};
+
+const normalizeSSN = (value, previousValue) => {
+  if (!value) {
+    return value;
+  }
+  const onlyNums = value.replace(/[^\d]/g, '');
+  let normalizedSSN = '';
+  for (let i = 0; i < 9; i++) {
+    if (i >= onlyNums.length) {
+      break;
+    }
+    if (i === 3 || i === 5) {
+      normalizedSSN += '-';
+    }
+    normalizedSSN += onlyNums[i];
+  }
+  return normalizedSSN;
+};
+
+const isZip = value => {
+  if (value) {
+    const zipLength = value.replace(/[^\d]/g, '').length;
+    if (!(zipLength === 9 || zipLength === 5)) {
+      return 'Zip code must have 5 or 9 digits.';
+    }
+  }
+};
+
+const normalizeZip = (value, previousValue) => {
+  if (!value) {
+    return value;
+  }
+  const onlyNums = value.replace(/[^\d]/g, '');
+  let normalizedZip = '';
+  for (let i = 0; i < 9; i++) {
+    if (i >= onlyNums.length) {
+      break;
+    }
+    if (i === 5) {
+      normalizedZip += '-';
+    }
+    normalizedZip += onlyNums[i];
+  }
+  return normalizedZip;
+};
+
+const patternMatches = memoize((pattern, example) => {
+  console.log('patternavlaid');
+  const regex = RegExp(pattern);
+  return value => {
+    console.log('patternavlaidsssss');
+    if (!regex.test(value)) {
+      return 'Incorrect Format. This is a valid example: ' + example;
+    }
+  };
+});
+
 export default {
   maxLength,
   minLength,
@@ -58,4 +138,10 @@ export default {
   isNumber,
   isInteger,
   isPhoneNumber,
+  normalizePhone,
+  isSSN,
+  normalizeSSN,
+  isZip,
+  normalizeZip,
+  patternMatches,
 };
