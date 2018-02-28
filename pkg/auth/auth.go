@@ -42,10 +42,12 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 	}
 }
 
+// AuthorizationRedirectHandler handles redirection
 type AuthorizationRedirectHandler struct {
 	logger *zap.Logger
 }
 
+// NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
 func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectHandler {
 	handler := AuthorizationRedirectHandler{
 		logger: logger,
@@ -64,6 +66,7 @@ func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	http.Redirect(w, r, url, http.StatusTemporaryRedirect)
 }
 
+// AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
 	loginGovSecretKey string
 	loginGovClientID  string
@@ -71,6 +74,7 @@ type AuthorizationCallbackHandler struct {
 	logger            *zap.Logger
 }
 
+// NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
 func NewAuthorizationCallbackHandler(loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
 		loginGovSecretKey: loginGovSecretKey,
