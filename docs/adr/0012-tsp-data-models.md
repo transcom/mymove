@@ -9,13 +9,13 @@ Decision drivers included the anticipated format of frequent queries, query spee
 
 * Separate Quality Band Assignment, Performance Period, and Best Value Score tables.
 * TSP Performance table excluding award count. This table has all relevant information from Best Value Score, Quality Band, and Performance Period tables. Those tables do not exist. Join Shipment Awards table on TDL to determine the number of shipments already awarded to TSP (known as award count).
-* TSP Performance table including award count. This is the same TSP Performance table as described above, but also includes an award_count field, obviating the need for Shipment Awards table join to determine TSP award counts. Essentially, denormalizing data from Shipment Awards table.
+* TSP Performance table including award count. This is the same TSP Performance table as described above, with the addition of an award_count field, obviating the need for a join between the Shipment Awards and TSP performance tables to determine TSP award counts. Ends up denormalizing data from Shipment Awards table.
 
 ## Decision Outcome
 
 ### Chosen Alternative: *TSP Performance table including award count*
 
-* Justification: This option allows us to eliminate separate tables for performance period and quality bands that contain almost no unique information. Originally, the proposal included the three separate tables described in alternative 1. After realizing we'd be unable to pursue this route for the reasons detailed below, we thought that a table that included the BVS information and quality band information was logical, since the latter was dependent on the former. At that point, the BVS table no longer contained information specific to BVS, at which point we began considering it a table to represent TSP performance. Performance is relevant because that determines the order amount of shipments awarded.
+* Justification: Originally, the proposal included the three separate tables detailed in alternative 1. After realizing we'd be unable to pursue this route for the reasons described below, we concluded that a table that included the BVS information and quality band information was logical, since the latter depends on the former. After making this decision, it was clear the BVS table no longer contained information specific to BVS. So we began considering it a table to represent TSP performance, which is what determines the order and number of shipments awarded to each TSP.
 
 * Consequences: Denormalization means that we have to be vigilant that the award_count does not get out of sync with our source of truth, the Shipment Awards table. We also are still not totally clear how to index our new TSP Performance table so that we can reap the benefits of indices without bloating our table with them.
 
@@ -25,9 +25,9 @@ Decision drivers included the anticipated format of frequent queries, query spee
 
 This was the original proposal. It included the following 3 tables:
 
-* Best Value Scores table with an id, tdl, bvs, and tsp
-* Quality Band Assignment table with id, TSPs, TDL, band number, performance period, and number of shipments per band
-* Performance Period table with id, start date, and end date.
+* Best Value Scores table with an ID, TDL and TSP foreign keys, and a BVS
+* Quality Band Assignment table with ID, TSPs, TDL, band number, performance period, and number of shipments per band
+* Performance Period table with ID, start date, and end date.
 
 We quickly discovered blockers we could not ignore.
 
@@ -40,4 +40,4 @@ We quickly discovered blockers we could not ignore.
 
 * `+` Same pros as chosen alternative
 * `+` Does not denormalize data by having award_count derived from shipment awards
-* `-` Requires joining shipment_awards to transportation_service_provider_performance and iterating through all the TSPs in the relevant TDL in order to determine which would be the next TSP to award a shipment to. This join was thought to be prohibitive in terms of speed for a query that would be made fairly frequently.
+* `-` Requires joining shipment_awards to transportation_service_provider_performance and iterating through all the TSPs in the relevant TDL to determine the next TSP to award a shipment to. This join was thought to be prohibitively slow for a query that would be made fairly frequently.
