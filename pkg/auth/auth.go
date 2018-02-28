@@ -15,10 +15,21 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/markbates/pop"
+
+	"github.com/satori/go.uuid"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
+
+var dbConnection *pop.Connection
+
+// Init the Auth package with its database connection
+func Init(dbInitialConnection *pop.Connection) {
+	dbConnection = dbInitialConnection
+}
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
@@ -68,10 +79,10 @@ func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname 
 	return func(w http.ResponseWriter, r *http.Request) {
 
 		authError := r.URL.Query().Get("error")
-
+		landingURL := fmt.Sprintf("%s/landing", hostname)
 		// The user has either cancelled or declined to authorize the client
 		if authError == "access_denied" {
-			http.Redirect(w, r, fmt.Sprintf("%s/landing", hostname), http.StatusTemporaryRedirect)
+			http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 			return
 		}
 
@@ -94,15 +105,57 @@ func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname 
 			return
 		}
 
-		user, err := provider.FetchUser(session)
+		openIdUser, err := provider.FetchUser(session)
 		if err != nil {
 			zap.L().Error("Login.gov user info request", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
-		landingURL := fmt.Sprintf("%s/landing?email=%s", hostname, user.RawData["email"])
+
+		user, err := getOrCreateUser(openIdUser.RawData)
+		if err == nil {
+			landingURL = fmt.Sprintf("%s/landing?email=%s", hostname, user.LoginGovEmail)
+		} else {
+			// TODO: handle this a better way.
+			landingURL = fmt.Sprintf("%s/landing?error=%s", hostname, err.Error())
+		}
 		http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
+		return
 	}
+}
+
+func getOrCreateUser(userData map[string]interface{}) (models.User, error) {
+
+	// Check if user already exists
+	loginGovUUID := userData["sub"].(string)
+	loginGovEmail := userData["email"].(string)
+	query := dbConnection.Where("login_gov_uuid = ? and login_gov_email = ?", loginGovUUID, loginGovEmail)
+	var users []models.User
+	err := query.All(&users)
+	if err != nil {
+		zap.L().Error("DB Query Error", zap.Error(err))
+		return (models.User{}), err
+	}
+
+	if len(users) > 1 {
+		zap.L().Panic("More than one user found with logingov UUID and email.", zap.Error(err))
+	}
+
+	if len(users) == 0 {
+		fmt.Println("USER NOT FOUND. Attempting to create user.")
+		loginGovUUID, _ := uuid.FromString(loginGovUUID)
+		newUser := models.User{
+			LoginGovUUID:  loginGovUUID,
+			LoginGovEmail: loginGovEmail,
+		}
+		if _, err := dbConnection.ValidateAndCreate(&newUser); err != nil {
+			zap.L().Error("Unable to create user", zap.Error(err))
+			return (models.User{}), err
+		}
+		return newUser, nil
+	}
+	// if here, one user was found
+	return users[0], nil
 }
 
 func getAuthorizationURL() (string, error) {
