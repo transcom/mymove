@@ -27,5 +27,5 @@ func main() {
 	testdatagen.MakeTSPData(db)
 	testdatagen.MakeShipmentData(db)
 	testdatagen.MakeShipmentAwardData(db)
-	testdatagen.MakeTspPerformanceData(db)
+	testdatagen.MakeTSPPerformanceData(db)
 }
