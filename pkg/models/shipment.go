@@ -27,6 +27,8 @@ type PossiblyAwardedShipment struct {
 	UpdatedAt                       time.Time  `db:"updated_at"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
+	Accepted                        *bool      `json:"accepted" db:"accepted"`
+	RejectionReason                 *string    `json:"rejection_reason" db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
