@@ -103,7 +103,7 @@ ShipmentMarket:
   description: One of the possible 'Markets' for a shipment (see ?????)
   example: dHHG
   enum: # Todo(nick) - There may be more of these
-    - gHHG
+    - dHHG
     - iHHG
     - iUB
 

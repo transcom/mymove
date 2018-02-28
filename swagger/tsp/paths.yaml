@@ -19,7 +19,7 @@ TspShipments:
     operationId: tspShipments
     x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
     parameters:
-      - name: tspUuid
+      - name: tspUUID
         in: path
         type: string
         format: uuid

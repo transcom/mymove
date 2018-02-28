@@ -19,6 +19,8 @@ import (
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
+	"github.com/transcom/mymove/pkg/gen/restapi"
+	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -76,20 +78,28 @@ func main() {
 	// initialize api pkg with dbConnection created above
 	handlers.Init(dbConnection)
 
-	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
+	// Wire up the handlers to the publicAPIMux
+	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
 	}
 
-	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
+	publicAPI := publicops.NewMymoveAPI(apiSpec)
+	publicAPI.IssuesIndexTSPsHandler = nil
+	publicAPI.TspShipmentsHandler = nil
 
+	// Wire up the handlers to the internalSwaggerMux
+	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	internalAPI := internalops.NewMymoveAPI(internalSpec)
 	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
 	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
-
 	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
 	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
 	internalAPI.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
-
 	internalAPI.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
 
 	// Serves files out of build folder
@@ -107,6 +117,7 @@ func main() {
 	root := goji.NewMux()
 	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*apiSwagger))
 	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+	root.Handle(pat.Get("/api/*"), publicAPI.Serve(nil))
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
