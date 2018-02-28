@@ -63,7 +63,7 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // FetchTSPPerformanceForAwardQueue returns TSP performance records in a given TDL
 // in the order that they should be awarded new shipments.
-func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID) (
+func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps int) (
 	TransportationServiceProviderPerformances, error) {
 
 	sql := `SELECT
@@ -71,21 +71,23 @@ func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID) (
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = ?
+			traffic_distribution_list_id = $1
+			AND
+			best_value_score > $2
 		ORDER BY
 			award_count ASC,
 			best_value_score DESC
 		`
 
 	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
 
 	return tsps, err
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
 // order that they should be assigned quality bands.
-func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
+func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
 
 	sql := `SELECT
 			*
@@ -93,12 +95,14 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 			transportation_service_provider_performances
 		WHERE
 			traffic_distribution_list_id = ?
+			AND
+			best_value_score > $2
 		ORDER BY
 			best_value_score DESC
 		`
 
 	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
 
 	return tsps, err
 }

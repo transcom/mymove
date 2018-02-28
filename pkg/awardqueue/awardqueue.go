@@ -13,6 +13,10 @@ var db *pop.Connection
 
 const numQualBands = 4
 
+// Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
+// TODO: This will eventually need to be configurable; implement as something other than a constant.
+const mps = 10
+
 type qualityBand models.TransportationServiceProviderPerformances
 type qualityBands []qualityBand
 
@@ -30,7 +34,7 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	tdl := models.TrafficDistributionList{}
 	err := db.Find(&tdl, shipment.TrafficDistributionListID)
 
-	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID)
+	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID, mps)
 
 	if err != nil {
 		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
@@ -98,7 +102,7 @@ func assignTSPsToBands(tspPerfs models.TransportationServiceProviderPerformances
 func assignQualityBands() (qualityBands, error) {
 	fmt.Printf("Assigning TSPs quality bands")
 	tdl := models.TrafficDistributionList{}
-	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID)
+	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
 	return assignTSPsToBands(tspPerfs), err
 }
 
