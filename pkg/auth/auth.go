@@ -41,6 +41,7 @@ func getExpiryTimeFromMinutes(min int64) int64 {
 	return time.Now().Add(time.Second * time.Duration(60*min)).Unix()
 }
 
+// Returns true if the expiration time is inside the renewal window
 func shouldRenewForClaims(claims UserClaims) bool {
 	exp := claims.StandardClaims.ExpiresAt
 	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes)
@@ -115,6 +116,35 @@ func saveTokenStringToStore(ss string, w http.ResponseWriter, r *http.Request) (
 	return
 }
 
+func populateUserInfoFromToken(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+	s, err := cookieStore.Get(r, JwtCookieName)
+	if err != nil {
+		zap.L().Error("Getting session from store", zap.Error(err))
+		return
+	}
+
+	// Our token is stored as a flash message under the default key ("_flash")
+	flashes := s.Flashes()
+	if s.IsNew || len(flashes) == 0 {
+		return
+	}
+
+	// Exract user info from the JWT
+	ss := flashes[0].(string)
+	claims, err = parseClaimsFromTokenString(ss, secret)
+	if claims == nil || err != nil {
+		zap.L().Error("Parsing claims from token", zap.Error(err))
+		return
+	}
+
+	// And put the user info on the request context
+	context.Set(r, "email", claims.Email)
+	context.Set(r, "id_token", claims.IDToken)
+	ok = true
+
+	return
+}
+
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
 func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovClientID string) {
@@ -142,39 +172,21 @@ type AuthorizationRedirectHandler struct {
 	logger *zap.Logger
 }
 
-// UserAuthMiddleware attempts to decrypt the provided token or redirects to landing page
-func UserAuthMiddleware(clientAuthSecretKey string, hostname string) func(next http.Handler) http.Handler {
+// UserAuthMiddleware attempts to populate user data or optionally redirects to landing page
+func UserAuthMiddleware(secret string, hostname string, enforceAuth bool) func(next http.Handler) http.Handler {
 	redirectURL := fmt.Sprintf("%s/landing", hostname)
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			s, err := cookieStore.Get(r, JwtCookieName)
-			if err != nil {
-				zap.L().Error("Getting session from store", zap.Error(err))
-				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-				return
-			}
-
-			// Our token is stored as a flash message under the default key ("_flash")
-			flashes := s.Flashes()
-			if s.IsNew || len(flashes) == 0 {
-				fmt.Println("No prior token found")
+			claims, ok := populateUserInfoFromToken(secret, r)
+			if enforceAuth && !ok {
 				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 				return
 			}
 
-			// Exract user info from the JWT
-			ss := flashes[0].(string)
-			claims, err := parseClaimsFromTokenString(ss, clientAuthSecretKey)
-			if err != nil {
-				fmt.Println("Parsing claims from token", zap.Error(err))
-				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-				return
-			}
-
-			if shouldRenewForClaims(*claims) {
+			if ok && shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-				ss, err := signedTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, clientAuthSecretKey)
+				ss, err := signedTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
 					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
@@ -182,10 +194,6 @@ func UserAuthMiddleware(clientAuthSecretKey string, hostname string) func(next h
 					zap.L().Error("Saving token to store", zap.Error(err))
 				}
 			}
-
-			// And put the user info on the request context
-			context.Set(r, "email", claims.Email)
-			context.Set(r, "id_token", claims.IDToken)
 
 			next.ServeHTTP(w, r)
 		}
@@ -204,8 +212,16 @@ func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectH
 // AuthorizationLogoutHandler handles logging the user out of login.gov
 func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
+	redirectURL := fmt.Sprintf("%s/landing", hostname)
 
 	return func(w http.ResponseWriter, r *http.Request) {
+		idToken, ok := context.Get(r, "id_token").(string)
+		if !ok {
+			// Can't log out of login.gov without a token, redirect and let them re-auth
+			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+			return
+		}
+
 		parsedURL, err := url.Parse(logoutURL)
 		if err != nil {
 			zap.L().Error("Parse logout URL", zap.Error(err))
@@ -218,14 +234,6 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 		// This kills the cookie
 		s.Options.MaxAge = -1
 		s.Save(r, w)
-
-		redirectURL := fmt.Sprintf("%s/landing", hostname)
-		idToken, ok := context.Get(r, "id_token").(string)
-		if !ok {
-			// Can't log out of login.gov without a token, redirect and let them re-auth
-			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-			return
-		}
 
 		// Parameters taken from https://developers.login.gov/oidc/#logout
 		params := parsedURL.Query()

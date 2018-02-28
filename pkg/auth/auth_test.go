@@ -124,7 +124,8 @@ func TestAuthorizationLogoutHandler(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithBadToken(t *testing.T) {
+func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
+	enforceAuth := true
 	fakeToken := "some_token"
 	pem, err := createRandomRSAPEM()
 	if err != nil {
@@ -132,7 +133,7 @@ func TestUserAuthMiddlewareWithBadToken(t *testing.T) {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname)(handler)
+	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
 	rr, req := getHandlerParamsWithCookie(fakeToken)
 
@@ -147,7 +148,8 @@ func TestUserAuthMiddlewareWithBadToken(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
+func TestEnforceUserAuthMiddlewareWithValidToken(t *testing.T) {
+	enforceAuth := true
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -164,7 +166,7 @@ func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname)(handler)
+	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
 	rr, req := getHandlerParamsWithCookie(ss)
 
@@ -186,7 +188,8 @@ func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
+func TestEnforceUserAuthMiddlewareWithRenewalToken(t *testing.T) {
+	enforceAuth := true
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -205,7 +208,7 @@ func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		fmt.Println(r.Header)
 	})
-	middleware := UserAuthMiddleware(pem, testHostname)(handler)
+	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
 	rr, req := getHandlerParamsWithCookie(ss)
 
@@ -227,7 +230,8 @@ func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithExpiredToken(t *testing.T) {
+func TestEnforceUserAuthMiddlewareWithExpiredToken(t *testing.T) {
+	enforceAuth := true
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -243,7 +247,7 @@ func TestUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname)(handler)
+	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
 	rr, req := getHandlerParamsWithCookie(ss)
 
@@ -252,6 +256,45 @@ func TestUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	// We should be redirected to the landing page
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
+	}
+
+	// And there should be no token passed through
+	if incomingToken, ok := context.Get(req, "id_token").(string); ok {
+		t.Errorf("expected id_token to be nil, got %v", incomingToken)
+	}
+
+	// And the cookie should not be renewed
+	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
+		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
+	}
+}
+
+func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
+	enforceAuth := false
+	email := "some_email@domain.com"
+	idToken := "fake_id_token"
+
+	pem, err := createRandomRSAPEM()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	expiry := getExpiryTimeFromMinutes(-1)
+	ss, err := signedTokenStringWithUserInfo(email, idToken, expiry, pem)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
+
+	rr, req := getHandlerParamsWithCookie(ss)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're not enforcing auth
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
 	}
 
 	// And there should be no token passed through
