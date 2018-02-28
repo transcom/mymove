@@ -30,7 +30,7 @@ func (t TransportationServiceProviderPerformance) String() string {
 	return string(jt)
 }
 
-// BestValueScores is not required by pop and may be deleted
+// TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
 type TransportationServiceProviderPerformances []TransportationServiceProviderPerformance
 
 // String is not required by pop and may be deleted
