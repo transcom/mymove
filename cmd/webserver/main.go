@@ -70,9 +70,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	// initialize api pkg with dbConnection created above
-	handlers.Init(dbConnection)
-
 	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)

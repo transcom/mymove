@@ -1,22 +1,9 @@
 package handlers
 
 import (
-	"log"
-	"testing"
-
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-func mustSave(t *testing.T, s interface{}) {
-	verrs, err := dbConnection.ValidateAndSave(s)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() > 0 {
-		t.Fatalf("errors encountered saving %v: %v", s, verrs)
-	}
-}
 
 func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 	t := suite.T()
@@ -25,30 +12,30 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 		StandardCarrierAlphaCode: "scac",
 		Name: "Transportation Service Provider 1",
 	}
-	mustSave(t, &tsp)
+	suite.mustSave(&tsp)
 
 	tdl := models.TrafficDistributionList{
 		CodeOfService:     "cos",
 		DestinationRegion: "dr",
 		SourceRateArea:    "sra",
 	}
-	mustSave(t, &tdl)
+	suite.mustSave(&tdl)
 
 	avs := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 	}
-	mustSave(t, &avs)
+	suite.mustSave(&avs)
 
 	aws := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 	}
-	mustSave(t, &aws)
+	suite.mustSave(&aws)
 
 	award := models.ShipmentAward{
 		ShipmentID:                      aws.ID,
 		TransportationServiceProviderID: tsp.ID,
 	}
-	mustSave(t, &award)
+	suite.mustSave(&award)
 
 	params := shipmentop.NewIndexShipmentsParams()
 	indexHandler := NewIndexShipmentsHandler(suite.db, suite.logger)

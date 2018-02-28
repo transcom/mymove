@@ -32,6 +32,7 @@ type CreateIssueHandler struct {
 	logger *zap.Logger
 }
 
+// NewCreateIssueHandler returns a new CreateIssueHandler
 func NewCreateIssueHandler(db *pop.Connection, logger *zap.Logger) CreateIssueHandler {
 	return CreateIssueHandler{
 		db:     db,
@@ -39,6 +40,7 @@ func NewCreateIssueHandler(db *pop.Connection, logger *zap.Logger) CreateIssueHa
 	}
 }
 
+// Handle creates a new Issue from a request payload
 func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.Responder {
 	newIssue := models.Issue{
 		Description:  *params.CreateIssuePayload.Description,
@@ -64,6 +66,7 @@ type IndexIssuesHandler struct {
 	logger *zap.Logger
 }
 
+// NewIndexIssuesHandler returns a new IndexIssuesHandler
 func NewIndexIssuesHandler(db *pop.Connection, logger *zap.Logger) IndexIssuesHandler {
 	return IndexIssuesHandler{
 		db:     db,
@@ -71,6 +74,7 @@ func NewIndexIssuesHandler(db *pop.Connection, logger *zap.Logger) IndexIssuesHa
 	}
 }
 
+// Handle retrieves a list of all issues in the system
 func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {
 	var issues models.Issues
 	var response middleware.Responder

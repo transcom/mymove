@@ -110,11 +110,13 @@ func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299
 	return form1299Payload
 }
 
+// ShowForm1299Handler shows a single Form1299
 type ShowForm1299Handler struct {
 	db     *pop.Connection
 	logger *zap.Logger
 }
 
+// NewShowForm1299Handler creates a new ShowForm1299Handler
 func NewShowForm1299Handler(db *pop.Connection, logger *zap.Logger) ShowForm1299Handler {
 	return ShowForm1299Handler{
 		db:     db,
@@ -122,7 +124,7 @@ func NewShowForm1299Handler(db *pop.Connection, logger *zap.Logger) ShowForm1299
 	}
 }
 
-// ShowForm1299Handler fetches a single form1299 by id
+// Handle fetches a single form1299 by id
 func (h ShowForm1299Handler) Handle(params form1299op.ShowForm1299Params) middleware.Responder {
 	formID := params.Form1299ID
 
@@ -149,11 +151,13 @@ func (h ShowForm1299Handler) Handle(params form1299op.ShowForm1299Params) middle
 	return response
 }
 
+// CreateForm1299Handler creates a new Form1299
 type CreateForm1299Handler struct {
 	db     *pop.Connection
 	logger *zap.Logger
 }
 
+// NewCreateForm1299Handler creates a new CreateForm1299Handler
 func NewCreateForm1299Handler(db *pop.Connection, logger *zap.Logger) CreateForm1299Handler {
 	return CreateForm1299Handler{
 		db:     db,
@@ -161,7 +165,7 @@ func NewCreateForm1299Handler(db *pop.Connection, logger *zap.Logger) CreateForm
 	}
 }
 
-// CreateForm1299Handler creates a new form1299 via POST /form1299
+// Handle creates a new form1299 via POST /form1299
 func (h CreateForm1299Handler) Handle(params form1299op.CreateForm1299Params) middleware.Responder {
 	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
 	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
@@ -247,11 +251,13 @@ func (h CreateForm1299Handler) Handle(params form1299op.CreateForm1299Params) mi
 	return response
 }
 
+// IndexForm1299sHandler returns a list of Form1299s
 type IndexForm1299sHandler struct {
 	db     *pop.Connection
 	logger *zap.Logger
 }
 
+// NewIndexForm1299sHandler creates a new IndexForm1299sHandler
 func NewIndexForm1299sHandler(db *pop.Connection, logger *zap.Logger) IndexForm1299sHandler {
 	return IndexForm1299sHandler{
 		db:     db,
@@ -259,7 +265,7 @@ func NewIndexForm1299sHandler(db *pop.Connection, logger *zap.Logger) IndexForm1
 	}
 }
 
-// IndexForm1299sHandler returns a list of all form1299s
+// Handle returns a list of all form1299s
 func (h IndexForm1299sHandler) Handle(params form1299op.IndexForm1299sParams) middleware.Responder {
 	var form1299s models.Form1299s
 	var response middleware.Responder

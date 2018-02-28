@@ -19,6 +19,16 @@ func (suite *HandlerSuite) SetupTest() {
 	suite.db.TruncateAll()
 }
 
+func (suite *HandlerSuite) mustSave(model interface{}) {
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(err)
+	}
+	if verrs.Count() > 0 {
+		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
+	}
+}
+
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -26,7 +36,6 @@ func TestHandlerSuite(t *testing.T) {
 	if err != nil {
 		log.Panic(err)
 	}
-	Init(db)
 
 	logger, err := zap.NewDevelopment()
 	if err != nil {

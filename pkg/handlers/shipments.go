@@ -26,11 +26,13 @@ func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmessages
 	return shipmentPayload
 }
 
+// IndexShipmentsHandler returns a list of shipments
 type IndexShipmentsHandler struct {
 	db     *pop.Connection
 	logger *zap.Logger
 }
 
+// NewIndexShipmentsHandler creates a new IndexShipmentsHandler
 func NewIndexShipmentsHandler(db *pop.Connection, logger *zap.Logger) IndexShipmentsHandler {
 	return IndexShipmentsHandler{
 		db:     db,
@@ -38,7 +40,7 @@ func NewIndexShipmentsHandler(db *pop.Connection, logger *zap.Logger) IndexShipm
 	}
 }
 
-// IndexShipmentsHandler returns a list of all shipments
+// Handle retrieves a list of all shipments
 func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
