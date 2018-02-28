@@ -37,6 +37,8 @@ func TestAwardSingleShipment(t *testing.T) {
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: nil,
+		Accepted:                        nil,
+		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
 	}
 
@@ -112,33 +114,65 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 	}
 }
 
-// Ensure that if we create a TSP in a TDL, the function that finds it can
-// indeed find it.
-func Test_FetchTSPsInTDL(t *testing.T) {
+// Test_FetchTSPPerformanceForAwardQueue ensures that TSPs are returned in the expected
+// order for the Award Queue operation.
+func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
-	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
+	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
+	// TSPs should be orderd by award_count first, then BVS.
+	testdatagen.MakeTspPerformance(db, tsp1, tdl, nil, 10, 0)
+	testdatagen.MakeTspPerformance(db, tsp2, tdl, nil, 90, 1)
+	testdatagen.MakeTspPerformance(db, tsp3, tdl, nil, 80, 1)
 
-	tsps, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
+	tsps, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
-	} else if len(tsps) != 1 {
-		t.Errorf("Failed to find TSP. Expected to find 1, found %d", len(tsps))
+	} else if len(tsps) != 3 {
+		t.Errorf("Failed to find TSPs. Expected to find 3, found %d", len(tsps))
+	} else if tsps[0].TransportationServiceProviderID != tsp1.ID &&
+		tsps[1].TransportationServiceProviderID != tsp2.ID &&
+		tsps[2].TransportationServiceProviderID != tsp3.ID {
+
+		t.Errorf("TSPs returned out of expected order.\n"+
+			"\tExpected: [%s, %s, %s]\nFound:    [%s, %s, %s]",
+			tsp1.ID, tsp2.ID, tsp3.ID,
+			tsps[0].TransportationServiceProviderID,
+			tsps[1].TransportationServiceProviderID,
+			tsps[2].TransportationServiceProviderID)
 	}
 }
 
-func Test_FetchTSPsInTDLByBVS(t *testing.T) {
+// Test_FetchTSPPerformanceForQualityBandAssignment ensures that TSPs are returned in the expected
+// order for the division into quality bands.
+func Test_FetchTSPPerformanceForQualityBandAssignment(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
-	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
+	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
+	// What matter is the BVS score order; award_count has no influence.
+	testdatagen.MakeTspPerformance(db, tsp1, tdl, nil, 90, 0)
+	testdatagen.MakeTspPerformance(db, tsp2, tdl, nil, 50, 1)
+	testdatagen.MakeTspPerformance(db, tsp3, tdl, nil, 10, 1)
 
-	tsps, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
+	tsps, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID)
 
 	if err != nil {
-		t.Errorf("Failed to find TSPs: %v", err)
-	} else if len(tsps) != 1 {
-		t.Errorf("Failed to find TSP. Expected to find 1, found %d", len(tsps))
+		t.Errorf("Failed to find TSP: %v", err)
+	} else if len(tsps) != 3 {
+		t.Errorf("Failed to find TSPs. Expected to find 3, found %d", len(tsps))
+	} else if tsps[0].TransportationServiceProviderID != tsp1.ID &&
+		tsps[1].TransportationServiceProviderID != tsp2.ID &&
+		tsps[2].TransportationServiceProviderID != tsp3.ID {
+
+		t.Errorf("TSPs returned out of expected order.\n"+
+			"\tExpected: [%s, %s, %s]\nFound:    [%s, %s, %s]",
+			tsp1.ID, tsp2.ID, tsp3.ID,
+			tsps[0].TransportationServiceProviderID,
+			tsps[1].TransportationServiceProviderID,
+			tsps[2].TransportationServiceProviderID)
 	}
 }
 
@@ -173,8 +207,8 @@ func Test_assignTSPsToBands(t *testing.T) {
 		testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 	}
 	// Fetch TSPs in TDL
-	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
-	qbs := assignTSPsToBands(tspsbb)
+	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID)
+	qbs := assignTSPsToBands(tspPerfs)
 	if err != nil {
 		t.Errorf("Failed to find TSPs: %v", err)
 	}

@@ -47,15 +47,19 @@ func MakeTspPerformanceData(db *pop.Connection) {
 		fmt.Println("TDL ID import failed.")
 	}
 
-	// Make 3 TspPerformances with random TSPs, random TDLs, different quality bands, and random scores
-	for qualityBand := 0; qualityBand < 3; qualityBand++ {
+	// Make 4 TspPerformances with random TSPs, random TDLs, different quality bands, and random scores
+	for qualityBand := 1; qualityBand < 5; qualityBand++ {
+		// For quality band 1, generate a random number between 0 - 25,
+		// for quality band 2 between 25-50, etc.
+		minBvs := (qualityBand - 1) * 25
+		bvs := rand.Intn(25) + minBvs
 		MakeTspPerformance(
 			db,
 			tspList[rand.Intn(len(tspList))],
 			tdlList[rand.Intn(len(tdlList))],
 			&qualityBand,
+			bvs,
 			0,
-			rand.Intn(99),
 		)
 	}
 }

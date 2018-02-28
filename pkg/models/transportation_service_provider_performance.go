@@ -60,3 +60,45 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 		&validators.IntIsLessThan{Field: t.BestValueScore, Name: "BestValueScore", Compared: 101},
 	), nil
 }
+
+// FetchTSPPerformanceForAwardQueue returns TSP performance records in a given TDL
+// in the order that they should be awarded new shipments.
+func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID) (
+	TransportationServiceProviderPerformances, error) {
+
+	sql := `SELECT
+			*
+		FROM
+			transportation_service_provider_performances
+		WHERE
+			traffic_distribution_list_id = ?
+		ORDER BY
+			award_count ASC,
+			best_value_score DESC
+		`
+
+	tsps := TransportationServiceProviderPerformances{}
+	err := tx.RawQuery(sql, tdlID).All(&tsps)
+
+	return tsps, err
+}
+
+// FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
+// order that they should be assigned quality bands.
+func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
+
+	sql := `SELECT
+			*
+		FROM
+			transportation_service_provider_performances
+		WHERE
+			traffic_distribution_list_id = ?
+		ORDER BY
+			best_value_score DESC
+		`
+
+	tsps := TransportationServiceProviderPerformances{}
+	err := tx.RawQuery(sql, tdlID).All(&tsps)
+
+	return tsps, err
+}

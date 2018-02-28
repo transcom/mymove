@@ -5,19 +5,24 @@ import (
 	"log"
 	"math/rand"
 
+	"github.com/go-openapi/swag"
 	"github.com/markbates/pop"
+
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeShipmentAward a single AwardedShipment record
 func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
-	tsp models.TransportationServiceProvider, admin bool) (models.ShipmentAward, error) {
+	tsp models.TransportationServiceProvider, admin bool, accepted *bool,
+	rejection_reason *string) (models.ShipmentAward, error) {
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
 	shipmentAward := models.ShipmentAward{
 		ShipmentID:                      shipment.ID,
 		TransportationServiceProviderID: tsp.ID,
 		AdministrativeShipment:          admin,
+		Accepted:                        accepted,
+		RejectionReason:                 rejection_reason,
 	}
 
 	_, err := db.ValidateAndSave(&shipmentAward)
@@ -49,5 +54,7 @@ func MakeShipmentAwardData(db *pop.Connection) {
 		shipmentList[rand.Intn(len(shipmentList))],
 		tspList[rand.Intn(len(tspList))],
 		false,
+		swag.Bool(true),
+		nil,
 	)
 }
