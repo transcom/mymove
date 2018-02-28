@@ -105,14 +105,14 @@ func AuthorizationCallbackHandler(loginGovSecretKey, loginGovClientID, hostname 
 			return
 		}
 
-		openIdUser, err := provider.FetchUser(session)
+		openIDuser, err := provider.FetchUser(session)
 		if err != nil {
 			zap.L().Error("Login.gov user info request", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
 
-		user, err := getOrCreateUser(openIdUser.RawData)
+		user, err := getOrCreateUser(openIDuser.RawData)
 		if err == nil {
 			landingURL = fmt.Sprintf("%s/landing?email=%s", hostname, user.LoginGovEmail)
 		} else {
@@ -128,8 +128,7 @@ func getOrCreateUser(userData map[string]interface{}) (models.User, error) {
 
 	// Check if user already exists
 	loginGovUUID := userData["sub"].(string)
-	loginGovEmail := userData["email"].(string)
-	query := dbConnection.Where("login_gov_uuid = ? and login_gov_email = ?", loginGovUUID, loginGovEmail)
+	query := dbConnection.Where("login_gov_uuid = ?", loginGovUUID)
 	var users []models.User
 	err := query.All(&users)
 	if err != nil {
@@ -138,12 +137,13 @@ func getOrCreateUser(userData map[string]interface{}) (models.User, error) {
 	}
 
 	if len(users) > 1 {
-		zap.L().Panic("More than one user found with logingov UUID and email.", zap.Error(err))
+		zap.L().Panic("More than one user found with logingov UUID.", zap.Error(err))
 	}
 
 	if len(users) == 0 {
 		fmt.Println("USER NOT FOUND. Attempting to create user.")
 		loginGovUUID, _ := uuid.FromString(loginGovUUID)
+		loginGovEmail := userData["email"].(string)
 		newUser := models.User{
 			LoginGovUUID:  loginGovUUID,
 			LoginGovEmail: loginGovEmail,
