@@ -14,7 +14,7 @@ import (
 // MakeShipmentAward a single AwardedShipment record
 func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
 	tsp models.TransportationServiceProvider, admin bool, accepted *bool,
-	rejection_reason *string) (models.ShipmentAward, error) {
+	rejectionReason *string) (models.ShipmentAward, error) {
 
 	// Add one awarded shipment record using existing shipment and TSP IDs
 	shipmentAward := models.ShipmentAward{
@@ -22,7 +22,7 @@ func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
 		TransportationServiceProviderID: tsp.ID,
 		AdministrativeShipment:          admin,
 		Accepted:                        accepted,
-		RejectionReason:                 rejection_reason,
+		RejectionReason:                 rejectionReason,
 	}
 
 	_, err := db.ValidateAndSave(&shipmentAward)
