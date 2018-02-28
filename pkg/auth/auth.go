@@ -44,8 +44,6 @@ func getExpiryTimeFromMinutes(min int64) int64 {
 func shouldRenewForClaims(claims UserClaims) bool {
 	exp := claims.StandardClaims.ExpiresAt
 	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes)
-	fmt.Println(exp)
-	fmt.Println(renewal)
 	return exp < renewal
 }
 
