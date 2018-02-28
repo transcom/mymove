@@ -2,7 +2,6 @@ import React, { Fragment } from 'react';
 
 import validator from './validator';
 import { Field } from 'redux-form';
-import './index.css';
 
 // ---- Parsers -----
 

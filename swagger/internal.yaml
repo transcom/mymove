@@ -352,6 +352,7 @@ definitions:
         title: Paragraph Number
       station_orders_in_transit_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         x-nullable: true
@@ -362,6 +363,7 @@ definitions:
         $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
@@ -629,6 +631,7 @@ definitions:
         x-nullable: true
       station_orders_in_transit_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         x-nullable: true
@@ -638,6 +641,7 @@ definitions:
         $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
