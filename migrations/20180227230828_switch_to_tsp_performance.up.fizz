@@ -1,0 +1,26 @@
+drop_table("best_value_scores")
+
+create_table("transportation_service_provider_performance", func(t) {
+  t.Column("id", "uuid", {"primary": true})
+  t.Column("performance_period_start", "date", {})
+  t.Column("performance_period_end", "date", {})
+  t.Column("traffic_distribution_list_id", "uuid", {})
+  t.Column("quality_band", "integer", {"null": true})
+  t.Column("award_count", "integer", {})
+  t.Column("best_value_score", "integer", {})
+  t.Column("transportation_service_provider_id", "uuid", {})
+  t.ForeignKey("traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
+  t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
+})
+
+add_index("transportation_service_provider_performance", [
+  "performance_period_start",
+  "performance_period_end",
+  "quality_band",
+  "award_count"], {})
+
+add_column("shipments", "accepted", "boolean", {})
+add_column("shipments", "rejected_reason", "string", {})
+
+drop_table("quality_band_assignments")
+drop_table("performance_periods")
