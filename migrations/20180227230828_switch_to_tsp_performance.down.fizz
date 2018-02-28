@@ -6,7 +6,7 @@ drop_column("shipment_awards", "rejection_reason")
 create_table("best_value_scores", func(t) {
   t.Column("id", "uuid", {"primary": true})
   t.Column("transportation_service_provider_id", "uuid", {})
-	t.Column("traffic_distribution_list_id", "uuid", {})
+  t.Column("traffic_distribution_list_id", "uuid", {})
   t.Column("score", "integer", {})
   t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
   t.ForeignKey("traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})

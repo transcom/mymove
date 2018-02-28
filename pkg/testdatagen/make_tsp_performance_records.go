@@ -10,8 +10,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeTspPerformance makes a single best_value_score record
-func MakeTspPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
+// MakeTSPPerformance makes a single best_value_score record
+func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
 	tdl models.TrafficDistributionList, qualityBand *int, score int, awardCount int) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
@@ -32,8 +32,8 @@ func MakeTspPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 	return tspPerformance, err
 }
 
-// MakeTspPerformanceData creates three best value score records
-func MakeTspPerformanceData(db *pop.Connection) {
+// MakeTSPPerformanceData creates three best value score records
+func MakeTSPPerformanceData(db *pop.Connection) {
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
 	err := db.All(&tspList)
@@ -53,7 +53,7 @@ func MakeTspPerformanceData(db *pop.Connection) {
 		// for quality band 2 between 25-50, etc.
 		minBvs := (qualityBand - 1) * 25
 		bvs := rand.Intn(25) + minBvs
-		MakeTspPerformance(
+		MakeTSPPerformance(
 			db,
 			tspList[rand.Intn(len(tspList))],
 			tdlList[rand.Intn(len(tdlList))],

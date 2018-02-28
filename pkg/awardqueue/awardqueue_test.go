@@ -30,7 +30,7 @@ func TestAwardSingleShipment(t *testing.T) {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, mps+1, 0)
 
 	// Create a PossiblyAwardedShipment to feed the award queue
 	pas := models.PossiblyAwardedShipment{
@@ -96,13 +96,13 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, mps+1, 0)
 
 	// Run the Award Queue
 	Run(db)
 
 	// Count the number of shipments awarded to our TSP
-	query := db.Where("transportation_service_provider_id = ?", tsp.ID)
+	query := db.Where("transportation_service_provider_id = $1", tsp.ID)
 	awards := []models.ShipmentAward{}
 	count, err := query.Count(&awards)
 
@@ -122,9 +122,9 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
 	// TSPs should be orderd by award_count first, then BVS.
-	testdatagen.MakeTspPerformance(db, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTspPerformance(db, tsp2, tdl, nil, mps+3, 1)
-	testdatagen.MakeTspPerformance(db, tsp3, tdl, nil, mps+2, 1)
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, nil, mps+3, 1)
+	testdatagen.MakeTSPPerformance(db, tsp3, tdl, nil, mps+2, 1)
 
 	tsps, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID, mps)
 
@@ -152,8 +152,8 @@ func Test_MinimumPerformanceScore(t *testing.T) {
 	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTspPerformance(db, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTspPerformance(db, tsp2, tdl, nil, mps-1, 1)
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, nil, mps-1, 1)
 
 	tsps, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
 
@@ -176,9 +176,9 @@ func Test_FetchTSPPerformanceForQualityBandAssignment(t *testing.T) {
 	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
 	// What matter is the BVS score order; award_count has no influence.
-	testdatagen.MakeTspPerformance(db, tsp1, tdl, nil, 90, 0)
-	testdatagen.MakeTspPerformance(db, tsp2, tdl, nil, 50, 1)
-	testdatagen.MakeTspPerformance(db, tsp3, tdl, nil, 15, 1)
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, nil, 90, 0)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, nil, 50, 1)
+	testdatagen.MakeTSPPerformance(db, tsp3, tdl, nil, 15, 1)
 
 	tsps, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
 
@@ -227,7 +227,7 @@ func Test_assignTSPsToBands(t *testing.T) {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-		testdatagen.MakeTspPerformance(db, tsp, tdl, nil, mps+1, 0)
+		testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, mps+1, 0)
 	}
 	// Fetch TSPs in TDL
 	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
@@ -249,11 +249,11 @@ func Test_BVSWithLowMPS(t *testing.T) {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-		testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 15, 0)
+		testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, 15, 0)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
 	mpsTSP, _ := testdatagen.MakeTSP(db, "Low BVS Test Shipper", "TEST")
-	testdatagen.MakeTspPerformance(db, mpsTSP, tdl, nil, mps-1, 0)
+	testdatagen.MakeTSPPerformance(db, mpsTSP, tdl, nil, mps-1, 0)
 
 	// Fetch TSPs in TDL
 	tspsbb, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
