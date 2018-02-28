@@ -75,5 +75,6 @@ repos:
         exclude: >
           (?x)^(
             node_modules/|
-            vendor/
+            vendor/|
+            docs/adr/README.md
           )$

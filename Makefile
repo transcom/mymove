@@ -20,7 +20,8 @@ spellcheck:
 	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
 		`find . -type f -name "*.md" \
 			-not -path "./vendor/*" \
-			-not -path "./node_modules/*"`
+			-not -path "./node_modules/*" \
+			-not -path "./docs/adr/README.md"`
 
 client_deps_update:
 	yarn upgrade

@@ -32,6 +32,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Dev Commands](#dev-commands)
     * [Migrations](#migrations)
   * [Documentation](#documentation)
+  * [Spellcheck](#spellcheck)
+    * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
 
 _Regenerate with `bin/generate-md-toc.sh`_
@@ -214,7 +216,7 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 
 ### Documentation
 
-You can view the project's godoc on [godoc.org](https://godoc.org/github.com/transcom/mymove).
+You can view the project's GoDoc on [godoc.org](https://godoc.org/github.com/transcom/mymove).
 
 Alternatively, run the documentation locally using:
 
@@ -223,7 +225,19 @@ Alternatively, run the documentation locally using:
 $ godoc -http=:6060
 ```
 
-Then visit [http://localhost:6060/pkg/github.com/transcom/mymove/](http://localhost:6060/pkg/github.com/transcom/mymove/) in a web browser.
+Then visit <http://localhost:6060/pkg/github.com/transcom/mymove/>
+
+### Spellcheck
+
+We use [markdown-spellcheck](https://github.com/lukeapage/node-markdown-spellcheck) as a pre-commit hook to catch spelling errors in Markdown files. To make fixing caught errors easier, there's a handy make target that runs the spellchecker in interactive mode:
+
+* `make spellcheck`
+
+This will let you walk through the caught spelling errors one-by-one and choose whether to fix it, add it to the dictionary, or have it be permanently ignored for that file.
+
+#### Tips for staying sane
+
+* If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
 
 ### Troubleshooting
 

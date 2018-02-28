@@ -24,7 +24,7 @@ Our priorities are, in order:
 
 * `go test` executes tests from a single package serially unless there are tests that are explicitly marked as able to run in parallel using [`t.Parallel()`](https://golang.org/pkg/testing/#T.Parallel). We do, however, have multiple packages with tests that use the database (currently `models` and `handlers`), so we will additionally need to pass `-test.parallel 1` to `go test` so that packages as well as individual tests are executed serially. Otherwise, multiple tests using the database will encounter collisions.
 
-  Executing each package's tests serially will increase the time required for a project-wide test run, but at this time this is a reasonable tradeoff as the suite duration time is currently acceptable. If speed of tests execution become a concern in the future, there are a few approaches we could pursue without too much effort, including having a test database per package with tests hitting the database.
+  Executing each package's tests serially will increase the time required for a project-wide test run, but at this time this is a reasonable trade-off as the suite duration time is currently acceptable. If speed of tests execution become a concern in the future, there are a few approaches we could pursue without too much effort, including having a test database per package with tests hitting the database.
 
 * This strategy requires the ability to run code before or after each test, which will be addressed in a future ADR.
 
