@@ -117,7 +117,7 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 func Test_FetchTSPsInTDL(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeBestValueScore(db, tsp, tdl, 15)
 
 	tsps, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
@@ -131,7 +131,7 @@ func Test_FetchTSPsInTDL(t *testing.T) {
 func Test_FetchTSPsInTDLByBVS(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeBestValueScore(db, tsp, tdl, 15)
 
 	tsps, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
 
@@ -167,10 +167,10 @@ func Test_assignTSPsToBands(t *testing.T) {
 	// Make a TDL to contain our tests
 	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
 
-	// Make 10 (not divisible by 4) TSPs in this TDL with BVSs
+	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-		testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+		testdatagen.MakeBestValueScore(db, tsp, tdl, 15)
 	}
 	// Fetch TSPs in TDL
 	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
@@ -178,8 +178,38 @@ func Test_assignTSPsToBands(t *testing.T) {
 	if err != nil {
 		t.Errorf("Failed to find TSPs: %v", err)
 	}
-	if len(qbs[0]) != 2 || len(qbs[2]) != 1 {
+	if len(qbs[0]) != 2 || len(qbs[1]) != 1 {
 		t.Errorf("Failed to correctly add TSPs to quality bands.")
+	}
+}
+
+func Test_BVSWithLowMPS(t *testing.T) {
+	tspsToMake := 5
+
+	// Make a TDL to contain our tests
+	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
+
+	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
+	for i := 0; i < tspsToMake; i++ {
+		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
+		testdatagen.MakeBestValueScore(db, tsp, tdl, 15)
+	}
+	// Make 1 TSP in this TDL with BVS below the MPS threshold
+	mpsTSP, _ := testdatagen.MakeTSP(db, "Low BVS Test Shipper", "TEST")
+	testdatagen.MakeBestValueScore(db, mpsTSP, tdl, 1)
+
+	// Fetch TSPs in TDL
+	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
+
+	// Then: Expect to find TSPs in TDL
+	if err != nil {
+		t.Errorf("Failed to find TSPs: %v", err)
+	}
+	// Then: Expect TSP with low BVS won't be in sorted TSP slice
+	for _, tsp := range tspsbb {
+		if tsp.ID == mpsTSP.ID {
+			t.Errorf("TSP: %v with a BVS below MPS incorrectly included.", mpsTSP.ID)
+		}
 	}
 }
 
