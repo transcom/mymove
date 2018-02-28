@@ -1,7 +1,7 @@
-drop_table("transportation_service_provider_performance")
+drop_table("transportation_service_provider_performances")
 
-drop_column("shipments", "accepted")
-drop_column("shipments", "rejected_reason")
+drop_column("shipment_awards", "accepted")
+drop_column("shipment_awards", "rejection_reason")
 
 create_table("best_value_scores", func(t) {
   t.Column("id", "uuid", {"primary": true})

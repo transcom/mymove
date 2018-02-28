@@ -1,6 +1,6 @@
 drop_table("best_value_scores")
 
-create_table("transportation_service_provider_performance", func(t) {
+create_table("transportation_service_provider_performances", func(t) {
   t.Column("id", "uuid", {"primary": true})
   t.Column("performance_period_start", "date", {})
   t.Column("performance_period_end", "date", {})
@@ -13,14 +13,14 @@ create_table("transportation_service_provider_performance", func(t) {
   t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
 })
 
-add_index("transportation_service_provider_performance", [
+add_index("transportation_service_provider_performances", [
   "performance_period_start",
   "performance_period_end",
   "quality_band",
   "award_count"], {})
 
-add_column("shipments", "accepted", "boolean", {})
-add_column("shipments", "rejected_reason", "string", {})
+add_column("shipment_awards", "accepted", "boolean", {"null": true})
+add_column("shipment_awards", "rejection_reason", "string", {"null": true})
 
 drop_table("quality_band_assignments")
 drop_table("performance_periods")

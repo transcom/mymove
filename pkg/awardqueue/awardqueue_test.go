@@ -30,7 +30,7 @@ func TestAwardSingleShipment(t *testing.T) {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 
 	// Create a PossiblyAwardedShipment to feed the award queue
 	pas := models.PossiblyAwardedShipment{
@@ -94,13 +94,13 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
 
 	// ... and give this TSP a BVS
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 
 	// Run the Award Queue
 	Run(db)
 
 	// Count the number of shipments awarded to our TSP
-	query := db.Where(fmt.Sprintf("transportation_service_provider_id = '%s'", tsp.ID))
+	query := db.Where("transportation_service_provider_id = ?", tsp.ID)
 	awards := []models.ShipmentAward{}
 	count, err := query.Count(&awards)
 
@@ -117,7 +117,7 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 func Test_FetchTSPsInTDL(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 
 	tsps, err := models.FetchTSPsInTDLSortByAward(db, tdl.ID)
 
@@ -131,7 +131,7 @@ func Test_FetchTSPsInTDL(t *testing.T) {
 func Test_FetchTSPsInTDLByBVS(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp, _ := testdatagen.MakeTSP(db, "Test TSP", "TSP1")
-	testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+	testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 
 	tsps, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
 
@@ -170,7 +170,7 @@ func Test_assignTSPsToBands(t *testing.T) {
 	// Make 10 (not divisible by 4) TSPs in this TDL with BVSs
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-		testdatagen.MakeBestValueScore(db, tsp, tdl, 10)
+		testdatagen.MakeTspPerformance(db, tsp, tdl, nil, 10, 0)
 	}
 	// Fetch TSPs in TDL
 	tspsbb, err := models.FetchTSPsInTDLSortByBVS(db, tdl.ID)
