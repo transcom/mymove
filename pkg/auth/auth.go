@@ -96,7 +96,7 @@ func signedTokenStringWithUserInfo(email string, idToken string, expiry int64, s
 }
 
 func saveTokenStringToStore(ss string, w http.ResponseWriter, r *http.Request) (err error) {
-	// This will return a new session if non exists
+	// This will return a new session if not exists
 	s, err := cookieStore.Get(r, JwtCookieName)
 	if err != nil {
 		err = errors.Wrap(err, "Fetching session from cookie store")
@@ -222,8 +222,14 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 		s.Save(r, w)
 
 		redirectURL := fmt.Sprintf("%s/landing", hostname)
-		idToken := context.Get(r, "id_token").(string)
+		idToken, ok := context.Get(r, "id_token").(string)
+		if !ok {
+			// Can't log out of login.gov without a token, redirect and let them re-auth
+			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+			return
+		}
 
+		// Parameters taken from https://developers.login.gov/oidc/#logout
 		params := parsedURL.Query()
 		params.Add("id_token_hint", idToken)
 		params.Add("post_logout_redirect_uri", redirectURL)
