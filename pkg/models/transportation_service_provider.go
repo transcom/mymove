@@ -47,6 +47,10 @@ func (t TransportationServiceProvider) String() string {
 // TransportationServiceProviders is not required by pop and may be deleted
 type TransportationServiceProviders []TransportationServiceProvider
 
+// Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
+// TODO: Implement as something other than a constant.
+const mps = 10
+
 // String is not required by pop and may be deleted
 func (t TransportationServiceProviders) String() string {
 	jt, _ := json.Marshal(t)
@@ -83,14 +87,16 @@ func FetchTSPsInTDLSortByAward(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBV
 			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
 		LEFT JOIN shipment_awards ON
 			transportation_service_providers.id = shipment_awards.transportation_service_provider_id
+		AND
+			best_value_scores.score > $1
 		WHERE
-			best_value_scores.traffic_distribution_list_id = ?
+			best_value_scores.traffic_distribution_list_id = $2
 		GROUP BY best_value_scores.id
 		ORDER BY award_count ASC, best_value_score DESC
 		`
 
 	tsps := []TSPWithBVSAndAwardCount{}
-	err := tx.RawQuery(sql, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, mps, tdlID).All(&tsps)
 
 	return tsps, err
 }
@@ -114,14 +120,16 @@ func FetchTSPsInTDLSortByBVS(tx *pop.Connection, tdlID uuid.UUID) ([]TSPWithBVSC
 			transportation_service_providers
 		JOIN best_value_scores ON
 			transportation_service_providers.id = best_value_scores.transportation_service_provider_id
+		AND
+			best_value_scores.score > $1
 		WHERE
-			best_value_scores.traffic_distribution_list_id = ?
+			best_value_scores.traffic_distribution_list_id = $2
 		GROUP BY best_value_scores.id
 		ORDER BY best_value_score DESC
 		`
 
 	tsps := []TSPWithBVSCount{}
-	err := tx.RawQuery(sql, tdlID).All(&tsps)
+	err := tx.RawQuery(sql, mps, tdlID).All(&tsps)
 
 	return tsps, err
 }
