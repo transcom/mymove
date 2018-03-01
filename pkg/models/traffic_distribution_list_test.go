@@ -1,6 +1,10 @@
-package models
+package models_test
 
-import "testing"
+import (
+	"testing"
+
+	. "github.com/transcom/mymove/pkg/models"
+)
 
 func Test_TrafficDistributionList(t *testing.T) {
 	tdl := &TrafficDistributionList{}
