@@ -13,6 +13,7 @@ import (
 	"os"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/gorilla/context"
 	"github.com/markbates/pop"
@@ -42,22 +43,18 @@ func setupDBConnection() {
 	dbConnection = conn
 }
 
-func getHandlerParamsWithCookie(ss string) (*httptest.ResponseRecorder, *http.Request) {
+func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/protected", nil)
 
-	// Set a secure cookie on the recorder
-	s, _ := cookieStore.Get(req, JwtCookieName)
-	s.AddFlash(ss)
-	s.IsNew = false
-	s.Save(req, rr)
-
-	// Calling Get sets the Set-Cookie header, so let's grab that cookie
-	// and set it as the Cookie header to trick the middleware
-	cookies := rr.Header()["Set-Cookie"]
-	req.Header.Set("Cookie", cookies[0])
-	// And refresh the recorder to get rid of the Set-Cookie header
-	rr = httptest.NewRecorder()
+	// Set a secure cookie on the request
+	cookie := http.Cookie{
+		Name:    JwtCookieName,
+		Value:   ss,
+		Path:    "/",
+		Expires: expiry,
+	}
+	req.AddCookie(&cookie)
 
 	return rr, req
 }
@@ -118,7 +115,6 @@ func TestAuthorizationLogoutHandler(t *testing.T) {
 		t.Errorf("handler returned wrong redirect URI hostname: got %v wanted %v", postRedirectURI.Host, testHostname)
 	}
 
-	fmt.Println(params)
 	if token := params["id_token_hint"][0]; token != fakeToken {
 		t.Errorf("handler returned wrong id_token: got %v wanted %v", token, fakeToken)
 	}
@@ -132,10 +128,13 @@ func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
 		t.Error("error creating RSA key", err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("We should never get here")
+	})
 	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
-	rr, req := getHandlerParamsWithCookie(fakeToken)
+	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -160,15 +159,14 @@ func TestEnforceUserAuthMiddlewareWithValidToken(t *testing.T) {
 
 	// Brand new token, shouldn't be renewed
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signedTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
+	rr, req := getHandlerParamsWithToken(ss, expiry)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
-
-	rr, req := getHandlerParamsWithCookie(ss)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -200,17 +198,14 @@ func TestEnforceUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 
 	// Token will expire in 1 minute, should be renewed
 	expiry := getExpiryTimeFromMinutes(1)
-	ss, err := signedTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
+	rr, req := getHandlerParamsWithToken(ss, expiry)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println(r.Header)
-	})
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
-
-	rr, req := getHandlerParamsWithCookie(ss)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -241,15 +236,16 @@ func TestEnforceUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	}
 
 	expiry := getExpiryTimeFromMinutes(-1)
-	ss, err := signedTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
+	rr, req := getHandlerParamsWithToken(ss, expiry)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		t.Fatal("We should never get here")
+	})
 	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
-
-	rr, req := getHandlerParamsWithCookie(ss)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -280,7 +276,7 @@ func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	}
 
 	expiry := getExpiryTimeFromMinutes(-1)
-	ss, err := signedTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -288,7 +284,7 @@ func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
 	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
 
-	rr, req := getHandlerParamsWithCookie(ss)
+	rr, req := getHandlerParamsWithToken(ss, expiry)
 
 	middleware.ServeHTTP(rr, req)
 

@@ -14,7 +14,6 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gorilla/context"
-	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
@@ -22,13 +21,12 @@ import (
 
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
+
+// This sets a small window during which tokens won't be renewed
 const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
 
-// JwtCookieName is the key we're storing cookies under in our cookie store
+// JwtCookieName is the key at which we're storing our token cookie
 const JwtCookieName = "JWT_COOKIE"
-
-// TODO: Use a stronger auth key for this
-var cookieStore = sessions.NewCookieStore([]byte("supersecretstring"))
 
 // UserClaims does a thing
 type UserClaims struct {
@@ -37,14 +35,14 @@ type UserClaims struct {
 	jwt.StandardClaims
 }
 
-func getExpiryTimeFromMinutes(min int64) int64 {
-	return time.Now().Add(time.Second * time.Duration(60*min)).Unix()
+func getExpiryTimeFromMinutes(min int64) time.Time {
+	return time.Now().Add(time.Second * time.Duration(60*min))
 }
 
 // Returns true if the expiration time is inside the renewal window
 func shouldRenewForClaims(claims UserClaims) bool {
 	exp := claims.StandardClaims.ExpiresAt
-	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes)
+	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes).Unix()
 	return exp < renewal
 }
 
@@ -54,6 +52,7 @@ func parseClaimsFromTokenString(ss string, secret string) (claims *UserClaims, e
 		return &rsaKey.PublicKey, err
 	})
 	if err != nil {
+		err = errors.New("Failed decrypting signed token string")
 		return
 	}
 	if !token.Valid {
@@ -66,15 +65,15 @@ func parseClaimsFromTokenString(ss string, secret string) (claims *UserClaims, e
 		err = errors.New("Failed extracting claims from token")
 	}
 
-	return
+	return claims, err
 }
 
-func signedTokenStringWithUserInfo(email string, idToken string, expiry int64, secret string) (ss string, err error) {
+func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
 	claims := UserClaims{
 		email,
 		idToken,
 		jwt.StandardClaims{
-			ExpiresAt: expiry,
+			ExpiresAt: expiry.Unix(),
 		},
 	}
 
@@ -91,58 +90,38 @@ func signedTokenStringWithUserInfo(email string, idToken string, expiry int64, s
 		return
 	}
 
-	return
+	return ss, err
 }
 
-func saveTokenStringToStore(ss string, w http.ResponseWriter, r *http.Request) (err error) {
-	// This will return a new session if not exists
-	s, err := cookieStore.Get(r, JwtCookieName)
-	if err != nil {
-		err = errors.Wrap(err, "Fetching session from cookie store")
-		return
+func deleteCookie(w http.ResponseWriter, name string) {
+	// We delete the cookie by setting an expired cookie with the same name
+	expire := time.Now().Add(-7 * 24 * time.Hour)
+	// Not all browsers support MaxAge, so set Expires too
+	cookie := http.Cookie{
+		Name:    name,
+		Value:   "blank",
+		Path:    "/",
+		Expires: expire,
+		MaxAge:  -1,
 	}
-
-	// Flashes are one-time use data, so retrieving them clears the Flash
-	// store so we start with a clean slate
-	s.Flashes()
-	s.AddFlash(ss)
-
-	err = s.Save(r, w)
-	if err != nil {
-		err = errors.Wrap(err, "Saving session back to store")
-		return
-	}
-
-	return
+	http.SetCookie(w, &cookie)
 }
 
-func populateUserInfoFromToken(secret string, r *http.Request) (claims *UserClaims, ok bool) {
-	s, err := cookieStore.Get(r, JwtCookieName)
+func getUserClaimsFromCookie(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+	cookie, err := r.Cookie(JwtCookieName)
 	if err != nil {
-		zap.L().Error("Getting session from store", zap.Error(err))
+		zap.L().Error("No cookie set on client", zap.Error(err))
 		return
 	}
 
-	// Our token is stored as a flash message under the default key ("_flash")
-	flashes := s.Flashes()
-	if s.IsNew || len(flashes) == 0 {
-		return
-	}
-
-	// Exract user info from the JWT
-	ss := flashes[0].(string)
-	claims, err = parseClaimsFromTokenString(ss, secret)
+	claims, err = parseClaimsFromTokenString(cookie.Value, secret)
 	if claims == nil || err != nil {
 		zap.L().Error("Parsing claims from token", zap.Error(err))
 		return
 	}
-
-	// And put the user info on the request context
-	context.Set(r, "email", claims.Email)
-	context.Set(r, "id_token", claims.IDToken)
 	ok = true
 
-	return
+	return claims, ok
 }
 
 // RegisterProvider registers Login.gov with Goth, which uses
@@ -177,7 +156,7 @@ func UserAuthMiddleware(secret string, hostname string, enforceAuth bool) func(n
 	redirectURL := fmt.Sprintf("%s/landing", hostname)
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := populateUserInfoFromToken(secret, r)
+			claims, ok := getUserClaimsFromCookie(secret, r)
 			if enforceAuth && !ok {
 				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 				return
@@ -186,13 +165,23 @@ func UserAuthMiddleware(secret string, hostname string, enforceAuth bool) func(n
 			if ok && shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-				ss, err := signedTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
+				ss, err := signTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
 					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
-				if err := saveTokenStringToStore(ss, w, r); err != nil {
-					zap.L().Error("Saving token to store", zap.Error(err))
+				cookie := http.Cookie{
+					Name:    JwtCookieName,
+					Value:   ss,
+					Path:    "/",
+					Expires: expiry,
 				}
+				http.SetCookie(w, &cookie)
+			}
+
+			if ok {
+				// And put the user info on the request context
+				context.Set(r, "email", claims.Email)
+				context.Set(r, "id_token", claims.IDToken)
 			}
 
 			next.ServeHTTP(w, r)
@@ -202,9 +191,10 @@ func UserAuthMiddleware(secret string, hostname string, enforceAuth bool) func(n
 }
 
 // NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
-func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectHandler {
+func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
 	handler := AuthorizationRedirectHandler{
-		logger: logger,
+		logger:   logger,
+		hostname: hostname,
 	}
 	return &handler
 }
@@ -227,21 +217,15 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 			zap.L().Error("Parse logout URL", zap.Error(err))
 		}
 
-		s, err := cookieStore.Get(r, JwtCookieName)
-		if err != nil || s.IsNew {
-			zap.L().Error("Getting session from store", zap.Error(err))
-		}
-		// This kills the cookie
-		s.Options.MaxAge = -1
-		s.Save(r, w)
-
 		// Parameters taken from https://developers.login.gov/oidc/#logout
 		params := parsedURL.Query()
 		params.Add("id_token_hint", idToken)
 		params.Add("post_logout_redirect_uri", redirectURL)
 		params.Set("state", generateNonce())
-
 		parsedURL.RawQuery = params.Encode()
+
+		// Also need to clear the cookie on the client
+		deleteCookie(w, JwtCookieName)
 
 		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 	}
@@ -249,6 +233,14 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	redirectURL := fmt.Sprintf("%s/landing", h.hostname)
+	token := context.Get(r, "id_token")
+	if token != nil {
+		// User is already authed, redirect to landing page
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
 	url, err := getAuthorizationURL(h.logger)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -315,15 +307,22 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
+	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signedTokenStringWithUserInfo(user.Email, session.IDToken, expiry, clientAuthSecretKey)
+	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, clientAuthSecretKey)
 	if err != nil {
 		zap.L().Error("Generating signed token string", zap.Error(err))
 	}
-
-	if err := saveTokenStringToStore(ss, w, r); err != nil {
-		zap.L().Error("Saving token to store", zap.Error(err))
+	cookie := http.Cookie{
+		Name:    JwtCookieName,
+		Value:   ss,
+		Path:    "/",
+		Expires: expiry,
 	}
+	http.SetCookie(w, &cookie)
+
+	landingURL := fmt.Sprintf("%s/landing?email=%s", hostname, user.Email)
+	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
