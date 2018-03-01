@@ -1,0 +1,1 @@
+add_index("blackout_dates", ["transportation_service_provider_id", "start_blackout_date", "end_blackout_date", "traffic_distribution_list_id", "code_of_service"], {})
