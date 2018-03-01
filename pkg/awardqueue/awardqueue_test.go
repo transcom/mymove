@@ -123,29 +123,6 @@ func TestAwardQueueEndToEnd(t *testing.T) {
 	}
 }
 
-// Test_MinimumPerformanceScore ensures that TSPs whose BVS is below the MPS
-// do not enter the Award Queue process.
-func Test_MinimumPerformanceScore(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(testDB, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(testDB, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(testDB, "Test TSP 2", "TSP2")
-	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(testDB, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTSPPerformance(testDB, tsp2, tdl, nil, mps-1, 1)
-
-	tsps, err := models.FetchTSPPerformanceForQualityBandAssignment(testDB, tdl.ID, mps)
-
-	if err != nil {
-		t.Errorf("Failed to find TSP: %v", err)
-	} else if len(tsps) != 1 {
-		t.Errorf("Failed to find TSPs. Expected to find 1, found %d", len(tsps))
-	} else if tsps[0].TransportationServiceProviderID != tsp1.ID {
-		t.Errorf("Incorrect TSP returned. Expected %s, received %s.",
-			tsp1.ID,
-			tsps[0].TransportationServiceProviderID)
-	}
-}
-
 func Test_getTSPsPerBandWithRemainder(t *testing.T) {
 	// Check bands should expect differing num of TSPs when not divisible by 4
 	// Remaining TSPs should be divided among bands in descending order
@@ -166,25 +143,43 @@ func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 }
 
 func Test_assignTSPsToBands(t *testing.T) {
+	pop.Debug = true
+	queue := NewAwardQueue(testDB)
 	tspsToMake := 5
 
-	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(testDB, "california", "90210", "2")
+	tdl, err := testdatagen.MakeTDL(testDB, "california", "90210", "2")
+	if err != nil {
+		t.Errorf("Failed to create TDL: %v", err)
+	}
 
-	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(testDB, "Test Shipper", "TEST")
-		testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, mps+1, 0)
+		score := mps + i + 1
+		testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, score, 0)
 	}
-	// Fetch TSPs in TDL
-	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(testDB, tdl.ID, mps)
-	qbs := assignTSPsToBands(tspPerfs)
+
+	err = queue.assignPerformanceBands()
+
 	if err != nil {
-		t.Errorf("Failed to find TSPs: %v", err)
+		t.Errorf("Failed to assign to performance bands: %v", err)
 	}
-	if len(qbs[0]) != 2 || len(qbs[1]) != 1 {
-		t.Errorf("Failed to correctly add TSPs to quality bands.")
+
+	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(testDB, tdl.ID, mps)
+	if err != nil {
+		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
+
+	expectedBands := []int{0, 0, 1, 2, 3}
+
+	for i, perf := range perfs {
+		band := expectedBands[i]
+		if perf.QualityBand == nil {
+			t.Errorf("No quality band assigned for Peformance #%v, got nil", perf.ID)
+		} else if (*perf.QualityBand) != band {
+			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
+		}
+	}
+	pop.Debug = false
 }
 
 func equalSlice(a []int, b []int) bool {

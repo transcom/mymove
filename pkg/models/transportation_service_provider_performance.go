@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
@@ -105,4 +106,18 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
 
 	return tsps, err
+}
+
+// AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
+func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
+	performance := TransportationServiceProviderPerformance{}
+	if err := db.Find(&performance, id); err != nil {
+		return err
+	}
+	performance.QualityBand = &band
+	_, err := db.ValidateAndUpdate(&performance)
+	if err != nil {
+		fmt.Printf("did not save %#v\n", err)
+	}
+	return err
 }

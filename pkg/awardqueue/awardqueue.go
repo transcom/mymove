@@ -110,20 +110,55 @@ func getTSPsPerBand(count int) []int {
 	return bands
 }
 
-// assignTSPsToBands takes slice of tsps and returns
-// slice of slices in which they're sorted into 4 bands
-func assignTSPsToBands(tspPerfs models.TransportationServiceProviderPerformances) qualityBands {
-	tspIndex := 0
-	qbs := make(qualityBands, numQualBands)
-	tsppbList := getTSPsPerBand(len(tspPerfs))
+// assignPerformanceBands loops through each TDL and assigns any
+// TransportationServiceProviderPerformances without a quality band to a band.
+//
+// This assumes that all TransportationServiceProviderPerformances have been properly
+// created and have a valid BestValueScore.
+func (aq *AwardQueue) assignPerformanceBands() error {
 
-	for i, tsppb := range tsppbList {
-		for j := tspIndex; j < tspIndex+tsppb; j++ {
-			qbs[i] = append(qbs[i], tspPerfs[j])
-		}
-		tspIndex += tsppb
+	// for each TDL with pending performances
+	tdls, err := models.FetchTDLsAwaitingBandAssignment(aq.db)
+	if err != nil {
+		return err
 	}
-	return qbs
+
+	for _, tdl := range tdls {
+		if err := aq.assignPerformanceBandsForTDL(tdl); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// assignPerformanceBands loops through a TDL's TransportationServiceProviderPerformances
+// and assigns a QualityBand to each one.
+//
+// This assumes that all TransportationServiceProviderPerformances have been properly
+// created and have a valid BestValueScore.
+func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributionList) error {
+	fmt.Printf("Assigning performance bands for TDL %s\n", tdl.ID)
+
+	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(aq.db, tdl.ID, mps)
+	if err != nil {
+		return err
+	}
+
+	perfsIndex := 0
+	bands := getTSPsPerBand(len(perfs))
+
+	for band, count := range bands {
+		for i := 0; i < count; i++ {
+			performance := perfs[perfsIndex]
+			fmt.Printf("Assigning tspp %s to band %d\n", performance.ID, band)
+			err := models.AssignQualityBandToTSPPerformance(aq.db, band, performance.ID)
+			if err != nil {
+				return err
+			}
+			perfsIndex++
+		}
+	}
+	return nil
 }
 
 // NewAwardQueue creates a new AwardQueue
@@ -132,7 +167,14 @@ func NewAwardQueue(db *pop.Connection) *AwardQueue {
 }
 
 // Run will execute the award queue algorithm.
-func Run(db *pop.Connection) {
+func Run(db *pop.Connection) error {
 	queue := NewAwardQueue(db)
+
+	if err := queue.assignPerformanceBands(); err != nil {
+		return err
+	}
+
+	// This method should also return an error
 	queue.assignUnawardedShipments()
+	return nil
 }
