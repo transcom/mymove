@@ -34,6 +34,10 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	tdl := models.TrafficDistributionList{}
 	err := db.Find(&tdl, shipment.TrafficDistributionListID)
 
+	if err != nil {
+		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
+	}
+
 	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID, mps)
 
 	if err != nil {
@@ -65,21 +69,22 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	return shipmentAward, err
 }
 
-// getTSPsPerBand detemines how many TSPs should be assigned to each Quality Band
+// getTSPsPerBand determines how many TSPs should be assigned to each Quality Band
 // If the number of TSPs in the TDL does not divide evenly into 4 bands, the remainder
-// is divided from the top band down. Function takes length of TSPs array as arg.
-func getTSPsPerBand(tspc int) []int {
-	// tsppb is TSP per band
-	tsppbList := make([]int, numQualBands)
-	tsppb := int(math.Floor(float64(tspc) / float64(numQualBands)))
-	for i := range tsppbList {
-		tsppbList[i] = tsppb
+// is divided from the top band down.
+//
+// count is the number of TSPs to distribute.
+func getTSPsPerBand(count int) []int {
+	bands := make([]int, numQualBands)
+	base := int(math.Floor(float64(count) / float64(numQualBands)))
+	for i := range bands {
+		bands[i] = base
 	}
 
-	for i := 0; i < tspc%numQualBands; i++ {
-		tsppbList[i]++
+	for i := 0; i < count%numQualBands; i++ {
+		bands[i]++
 	}
-	return tsppbList
+	return bands
 }
 
 // assignTSPsToBands takes slice of tsps and returns
@@ -96,14 +101,6 @@ func assignTSPsToBands(tspPerfs models.TransportationServiceProviderPerformances
 		tspIndex += tsppb
 	}
 	return qbs
-}
-
-// Assign TSPs to bands and return struct slice of band slices
-func assignQualityBands() (qualityBands, error) {
-	fmt.Printf("Assigning TSPs quality bands")
-	tdl := models.TrafficDistributionList{}
-	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
-	return assignTSPsToBands(tspPerfs), err
 }
 
 // Run will execute the award queue algorithm.
