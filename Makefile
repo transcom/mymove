@@ -16,6 +16,13 @@ prereqs: .prereqs.stamp
 deps: prereqs pre-commit client_deps server_deps
 test: client_test server_test e2e_test
 
+spellcheck:
+	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
+		`find . -type f -name "*.md" \
+			-not -path "./vendor/*" \
+			-not -path "./node_modules/*" \
+			-not -path "./docs/adr/README.md"`
+
 client_deps_update:
 	yarn upgrade
 client_deps: .client_deps.stamp
@@ -85,7 +92,7 @@ tsp_run_only_docker: db_dev_run
 
 build: server_build tools_build client_build
 
-server_test: db_dev_run db_test_reset server_deps server_generate
+server_test: server_deps server_generate db_dev_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures

@@ -59,8 +59,22 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: v0.2
+    sha: 12ebecb5071d6c407f722dfbcc3eb6654b38f3df
     hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: go-lint
+    -   id: go-fmt
+    -   id: go-vet
+    -   id: go-lint
+
+  - repo: local
+    hooks:
+      - id: mdspell
+        name: mdspell
+        entry: bin/pre-commit-spellcheck
+        language: script
+        files: \.md$
+        exclude: >
+          (?x)^(
+            node_modules/|
+            vendor/|
+            docs/adr/README.md
+          )$
