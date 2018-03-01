@@ -8,7 +8,6 @@ import './index.css';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:
-   SSN/ pattern validation
    dates look wonky in chrome
    styling in accordance with USWDS
    validate group names don't colide with field names
