@@ -28,7 +28,7 @@ const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
 // JwtCookieName is the key at which we're storing our token cookie
 const JwtCookieName = "JWT_COOKIE"
 
-// UserClaims does a thing
+// UserClaims wraps StandardClaims with some user info we care about
 type UserClaims struct {
 	Email   string `json:"email"`
 	IDToken string `json:"id_token"`
