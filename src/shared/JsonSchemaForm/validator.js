@@ -100,8 +100,10 @@ const normalizeZip = (value, previousValue) => {
 const patternMatches = memoize((pattern, message) => {
   const regex = RegExp(pattern);
   return value => {
-    if (!regex.test(value)) {
-      return message;
+    if (value) {
+      if (!regex.test(value)) {
+        return message;
+      }
     }
   };
 });
