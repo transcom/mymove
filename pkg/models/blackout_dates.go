@@ -19,6 +19,11 @@ type BlackoutDate struct {
 	EndBlackoutDate                 time.Time `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	CodeOfService                   string    `json:"code_of_service" db:"code_of_service"`
+	Channel                         string    `json:"channel" db:"channel"`
+	Gbloc                           string    `json:"gbloc" db:"gbloc"`
+	Market                          string    `json:"market" db:"market"`
+	Zip3                            int       `json:"zip3" db:"zip3"`
+	VolumeMove                      bool      `json:"volume_move" db:"volume_move"`
 }
 
 // String is not required by pop and may be deleted
