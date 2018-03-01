@@ -1,0 +1,5 @@
+drop_column("blackout_dates", "channel")
+drop_column("blackout_dates", "gbloc")
+drop_column("blackout_dates", "market")
+drop_column("blackout_dates", "zip3")
+drop_column("blackout_dates", "volume_move")

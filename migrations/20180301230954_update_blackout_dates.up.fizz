@@ -1,0 +1,5 @@
+add_column("blackout_dates", "channel", "string", {})
+add_column("blackout_dates", "gbloc", "string", {})
+add_column("blackout_dates", "market", "string", {})
+add_column("blackout_dates", "zip3", "integer", {})
+add_column("blackout_dates", "volume_move", "bool", {})
