@@ -32,6 +32,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Dev Commands](#dev-commands)
     * [Migrations](#migrations)
   * [Documentation](#documentation)
+  * [Spellcheck](#spellcheck)
+    * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
 
 _Regenerate with `bin/generate-md-toc.sh`_
@@ -99,7 +101,7 @@ The following commands will get mymove running on your machine for the first tim
 ### Setup: Prerequisites
 
 * Install Go with Homebrew. Make sure you do not have other installations.
-* Run `bin/prereqs` and install everything it tells you to. _Do not configure postgres to automatically start at boot time!_
+* Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time!_
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
 
@@ -107,15 +109,15 @@ The following commands will get mymove running on your machine for the first tim
 
 You will need to setup a local database before you can begin working on the local server / client. Docker will need to be running for any of this to work.
 
-1. `make db_dev_migrate`: Creates a postgres docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
+1. `make db_dev_migrate`: Creates a PostgreSQL docker container if you haven't made one yet and runs all existing database migrations, which do things like creating table structures, etc. You will run this command again anytime you add new migrations to the app (see below for more)
 
-You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a postgres shell. Type `\dt` to show all tables, and `\q` to quit.
+You can validate that your dev database is running by running `bin/psql-dev`. This puts you in a PostgreSQL shell. Type `\dt` to show all tables, and `\q` to quit.
 
 ### Setup: Server
 
 1. `make server_run`: installs dependencies, then builds and runs the server using `gin`, which is a hot reloading go server. It will listen on 8080 and will rebuild the actual server any time a go file changes. Pair this with `make client_run` to have hot reloading of the entire application.
 
-In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client js on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
+In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
 You can verify the server is working as follows:
 
@@ -131,7 +133,7 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 
 1. `make client_run`
 
-The above will start the webpack dev server, serving the frontend on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all api calls through to the server.
+The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
@@ -151,16 +153,16 @@ There is also a package (`/pkg/testdatagen`) that can be imported to create arbi
 
 ### API / Swagger
 
-The public API is defined in a single file: swagger/api.yaml and served at /api/v1/swagger.yaml. This file is the single source of truth for the public API. In addition, internal services, i.e. endpoints only intended for use by the React client are defined in swagger/internal.yaml and served at /internal/swagger.yaml. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API. In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
-You can view the API's documentation (powered by Swagger UI) at [http://localhost:8081/api/v1/docs](http://localhost:8081/api/v1/docs) when a local server is running.
+You can view the API's documentation (powered by Swagger UI) at <http://localhost:8081/api/v1/docs> when a local server is running.
 
 ### Testing
 
 There are a few handy targets in the Makefile to help you run tests:
 
-* `make client_test`: Run frontend testing suites.
-* `make server_test`: Run backend testing suites.
+* `make client_test`: Run front-end testing suites.
+* `make server_test`: Run back-end testing suites.
 * `make e2e_test`: Run e2e testing suite. To run locally, add an environment variable called SAUCE_ACCESS_KEY, which you can find in team DP3 Engineering Vault of 1Password under Sauce Labs or by logging in to Sauce itself. In 1Password, the access key is labeled SAUCE_ACCESS_KEY.
 * `make test`: Run e2e, client- and server-side testing suites.
 
@@ -214,7 +216,7 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 
 ### Documentation
 
-You can view the project's godoc on [godoc.org](https://godoc.org/github.com/transcom/mymove).
+You can view the project's GoDoc on [godoc.org](https://godoc.org/github.com/transcom/mymove).
 
 Alternatively, run the documentation locally using:
 
@@ -223,10 +225,22 @@ Alternatively, run the documentation locally using:
 $ godoc -http=:6060
 ```
 
-Then visit [http://localhost:6060/pkg/github.com/transcom/mymove/](http://localhost:6060/pkg/github.com/transcom/mymove/) in a web browser.
+Then visit <http://localhost:6060/pkg/github.com/transcom/mymove/>
+
+### Spellcheck
+
+We use [markdown-spellcheck](https://github.com/lukeapage/node-markdown-spellcheck) as a pre-commit hook to catch spelling errors in Markdown files. To make fixing caught errors easier, there's a handy make target that runs the spellchecker in interactive mode:
+
+* `make spellcheck`
+
+This will let you walk through the caught spelling errors one-by-one and choose whether to fix it, add it to the dictionary, or have it be permanently ignored for that file.
+
+#### Tips for staying sane
+
+* If you want to use a bare hyperlink, wrap it in angle braces: `<http://example.com>`
 
 ### Troubleshooting
 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
-* If you have problems connecting to postgres, or running related scripts, make sure you aren't already running a postgres daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
+* If you have problems connecting to PostgreSQL, or running related scripts, make sure you aren't already running a PostgreSQL daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
 * If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.

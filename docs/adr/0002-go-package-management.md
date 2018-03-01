@@ -8,7 +8,7 @@
 
 ## Decision Outcome
 
-The official golang package manager `dep` will be used to manage server dependencies. `dep ensure` will be used to install all dependencies, Godep.toml will only be used to add required packages and to pin versions when incompatibilities are found. In the normal course of things, most dependencies will not need to be added to Godep.toml and we will rely on ensure's ability to automatically detect dependencies from imports.
+The official Golang package manager `dep` will be used to manage server dependencies. `dep ensure` will be used to install all dependencies, `Godep.toml` will only be used to add required packages and to pin versions when incompatibilities are found. In the normal course of things, most dependencies will not need to be added to `Godep.toml` and we will rely on ensure's ability to automatically detect dependencies from imports.
 
 ## Pros and Cons of the Alternatives
 
