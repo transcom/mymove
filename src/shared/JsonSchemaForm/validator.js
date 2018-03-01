@@ -43,12 +43,6 @@ const isInteger = value => {
   }
 };
 
-const isPhoneNumber = value => {
-  if (value && value.replace(/[^\d]/g, '').length !== 10) {
-    return 'Number must have 10 digits.';
-  }
-};
-
 const normalizePhone = (value, previousValue) => {
   if (!value) {
     return value;
@@ -65,12 +59,6 @@ const normalizePhone = (value, previousValue) => {
     normalizedPhone += onlyNums[i];
   }
   return normalizedPhone;
-};
-
-const isSSN = value => {
-  if (value && value.replace(/[^\d]/g, '').length !== 9) {
-    return 'SSN must have 9 digits.';
-  }
 };
 
 const normalizeSSN = (value, previousValue) => {
@@ -91,15 +79,6 @@ const normalizeSSN = (value, previousValue) => {
   return normalizedSSN;
 };
 
-const isZip = value => {
-  if (value) {
-    const zipLength = value.replace(/[^\d]/g, '').length;
-    if (!(zipLength === 9 || zipLength === 5)) {
-      return 'Zip code must have 5 or 9 digits.';
-    }
-  }
-};
-
 const normalizeZip = (value, previousValue) => {
   if (!value) {
     return value;
@@ -118,13 +97,11 @@ const normalizeZip = (value, previousValue) => {
   return normalizedZip;
 };
 
-const patternMatches = memoize((pattern, example) => {
-  console.log('patternavlaid');
+const patternMatches = memoize((pattern, message) => {
   const regex = RegExp(pattern);
   return value => {
-    console.log('patternavlaidsssss');
     if (!regex.test(value)) {
-      return 'Incorrect Format. This is a valid example: ' + example;
+      return message;
     }
   };
 });
@@ -137,11 +114,8 @@ export default {
   isRequired,
   isNumber,
   isInteger,
-  isPhoneNumber,
   normalizePhone,
-  isSSN,
   normalizeSSN,
-  isZip,
   normalizeZip,
   patternMatches,
 };

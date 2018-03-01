@@ -61,7 +61,12 @@ const configureNumberField = (swaggerField, props) => {
 
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = validator.normalizePhone;
-  props.validate.push(validator.isPhoneNumber);
+  props.validate.push(
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Number must have 10 digits.',
+    ),
+  );
   props.type = 'text';
 
   return props;
@@ -69,7 +74,9 @@ const configureTelephoneField = (swaggerField, props) => {
 
 const configureSSNField = (swaggerField, props) => {
   props.normalize = validator.normalizeSSN;
-  props.validate.push(validator.isSSN);
+  props.validate.push(
+    validator.patternMatches(swaggerField.pattern, 'SSN must have 9 digits.'),
+  );
   props.type = 'text';
 
   return props;
@@ -77,7 +84,12 @@ const configureSSNField = (swaggerField, props) => {
 
 const configureZipField = (swaggerField, props) => {
   props.normalize = validator.normalizeZip;
-  props.validate.push(validator.isZip);
+  props.validate.push(
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Zip code must have 5 or 9 digits.',
+    ),
+  );
   props.type = 'text';
 
   return props;
