@@ -110,7 +110,7 @@ func deleteCookie(w http.ResponseWriter, name string) {
 func getUserClaimsFromCookie(secret string, r *http.Request) (claims *UserClaims, ok bool) {
 	cookie, err := r.Cookie(JwtCookieName)
 	if err != nil {
-		zap.L().Error("No cookie set on client", zap.Error(err))
+		// No cookie set on client
 		return
 	}
 
@@ -152,15 +152,10 @@ type AuthorizationRedirectHandler struct {
 }
 
 // UserAuthMiddleware attempts to populate user data or optionally redirects to landing page
-func UserAuthMiddleware(secret string, hostname string, enforceAuth bool) func(next http.Handler) http.Handler {
-	redirectURL := fmt.Sprintf("%s/landing", hostname)
+func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := getUserClaimsFromCookie(secret, r)
-			if enforceAuth && !ok {
-				http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-				return
-			}
 
 			if ok && shouldRenewForClaims(*claims) {
 				// Renew the token

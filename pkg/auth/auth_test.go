@@ -20,8 +20,6 @@ import (
 	"github.com/pkg/errors"
 )
 
-const testHostname = "hostname"
-
 func TestGenerateNonce(t *testing.T) {
 	nonce := generateNonce()
 
@@ -83,6 +81,7 @@ func TestMain(m *testing.M) {
 
 func TestAuthorizationLogoutHandler(t *testing.T) {
 	fakeToken := "some_token"
+	testHostname := "hostname"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
 	if err != nil {
@@ -121,34 +120,37 @@ func TestAuthorizationLogoutHandler(t *testing.T) {
 }
 
 func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
-	enforceAuth := true
 	fakeToken := "some_token"
 	pem, err := createRandomRSAPEM()
 	if err != nil {
 		t.Error("error creating RSA key", err)
 	}
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t.Fatal("We should never get here")
-	})
-	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := UserAuthMiddleware(pem)(handler)
 
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
 
 	middleware.ServeHTTP(rr, req)
 
-	if status := rr.Code; status != http.StatusTemporaryRedirect {
-		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
+	// We should be not be redirected since we're not enforcing auth
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
 	}
 
-	if incomingToken, ok := context.Get(req, "id_token").(*string); ok {
+	// And there should be no token passed through
+	if incomingToken, ok := context.Get(req, "id_token").(string); ok {
 		t.Errorf("expected id_token to be nil, got %v", incomingToken)
+	}
+
+	// And the cookie should not be renewed
+	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
+		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
 	}
 }
 
-func TestEnforceUserAuthMiddlewareWithValidToken(t *testing.T) {
-	enforceAuth := true
+func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -166,7 +168,7 @@ func TestEnforceUserAuthMiddlewareWithValidToken(t *testing.T) {
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
+	middleware := UserAuthMiddleware(pem)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -186,8 +188,7 @@ func TestEnforceUserAuthMiddlewareWithValidToken(t *testing.T) {
 	}
 }
 
-func TestEnforceUserAuthMiddlewareWithRenewalToken(t *testing.T) {
-	enforceAuth := true
+func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -205,7 +206,7 @@ func TestEnforceUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
+	middleware := UserAuthMiddleware(pem)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -225,48 +226,7 @@ func TestEnforceUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	}
 }
 
-func TestEnforceUserAuthMiddlewareWithExpiredToken(t *testing.T) {
-	enforceAuth := true
-	email := "some_email@domain.com"
-	idToken := "fake_id_token"
-
-	pem, err := createRandomRSAPEM()
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	expiry := getExpiryTimeFromMinutes(-1)
-	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
-	if err != nil {
-		t.Fatal(err)
-	}
-	rr, req := getHandlerParamsWithToken(ss, expiry)
-
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		t.Fatal("We should never get here")
-	})
-	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
-
-	middleware.ServeHTTP(rr, req)
-
-	// We should be redirected to the landing page
-	if status := rr.Code; status != http.StatusTemporaryRedirect {
-		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
-	}
-
-	// And there should be no token passed through
-	if incomingToken, ok := context.Get(req, "id_token").(string); ok {
-		t.Errorf("expected id_token to be nil, got %v", incomingToken)
-	}
-
-	// And the cookie should not be renewed
-	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
-		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
-	}
-}
-
 func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
-	enforceAuth := false
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 
@@ -282,7 +242,7 @@ func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem, testHostname, enforceAuth)(handler)
+	middleware := UserAuthMiddleware(pem)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 

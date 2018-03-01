@@ -98,8 +98,8 @@ func main() {
 	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
 	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
 
-	enforceAuthMiddleware := auth.UserAuthMiddleware(*clientAuthSecretKey, fullHostname, true)
-	passiveAuthMiddleware := auth.UserAuthMiddleware(*clientAuthSecretKey, fullHostname, false)
+	// Populates user info using cookie and renews token
+	authMiddleware := auth.UserAuthMiddleware(*clientAuthSecretKey)
 
 	// Base routes
 	root := goji.NewMux()
@@ -111,14 +111,13 @@ func main() {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Use(enforceAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Use(passiveAuthMiddleware)
+	authMux.Use(authMiddleware)
 	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(logger, fullHostname))
 	authMux.Handle(pat.Get("/login-gov/callback"), auth.AuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(fullHostname))
