@@ -26,7 +26,7 @@ COPY config/database.yml /migrate
 ENV GO_ENV=container
 
 ENTRYPOINT ["/bin/soda"]
-CMD ["migrate", "-d", \
+CMD ["migrate", \
      "-c", "/migrate/database.yml", \
      "-p", "/migrate/migrations", \
      "up"]

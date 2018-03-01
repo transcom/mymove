@@ -1,4 +1,4 @@
-# Frontend / React Guide
+# Front-end / React Guide
 
 ## Table of Contents
 
@@ -20,12 +20,12 @@
   * [USWDS](#uswds)
 * [Tooling](#tooling)
   * [Sublime Plugins](#sublime-plugins)
-  * [Webstorm](#webstorm)
+  * [WebStorm](#webstorm)
   * [VS Code](#vs-code)
   * [vi](#vi)
   * [Browser Extensions](#browser-extensions)
 * [Learning](#learning)
-  * [Javascript Concepts](#javascript-concepts)
+  * [JavaScript Concepts](#javascript-concepts)
   * [Resources](#resources)
 
 _Regenerate with `bin/generate-md-toc.sh`_
@@ -56,7 +56,7 @@ _Regenerate with `bin/generate-md-toc.sh`_
 
 ## Style
 
-Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript) unless they conflict with the project’s Prettier or Lint rules.
+Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript) unless they conflict with the project’s Prettier or Lint rules.
 
 ### Auto-formatting
 
@@ -72,13 +72,13 @@ Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript
 
 ### File Layout & Naming
 
-* All frontend client code is kept within a subdirectory called ‘src’. This is an artifact of using `create-react-app`.
+* All front-end client code is kept within a subdirectory called `src`. This is an artifact of using `create-react-app`.
 * Inside that directory:
   * `/src`
   * `/src/scenes` Group components by scene name
   * `/src/shared` Group shared components, like headers
 * File naming
-  * All component files should be named in `PascalCase`, component names should match the file names (Exception: Higher Order Components are named in camelCase)
+  * All component files should be named in `PascalCase`, component names should match the file names (Exception: Higher Order Components are named in `camelCase`)
   * Other files should be in `camelCase`
   * Component files should use the `.jsx` file extension
   * If there are multiple components for a feature, they should be in a folder with the primary component in a file named `index.jsx`.
@@ -113,8 +113,8 @@ Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript
 
 * Where we need to write CSS, follow the BEM naming convention to increase readability & reusability.
   * BEM is short for Block, Element, Modifier which are the three components of classnames.
-  * From [CSS Tricks](https://css-tricks.com/bem-101/): “In this CSS methodology a block is a top-level abstraction of a new component, for example a button: .btn { }. This block should be thought of as a parent. Child items, or elements, can be placed inside and these are denoted by two underscores following the name of the block like .btn__price { }. Finally, modifiers can manipulate the block so that we can theme or style that particular component without inflicting changes on a completely unrelated module. This is done by appending two hyphens to the name of the block just like btn--orange.”
-  * Expanding on this, a modified child class would have a class name like .btn__price--orange.
+  * From [CSS Tricks](https://css-tricks.com/bem-101/): "In this CSS methodology a block is a top-level abstraction of a new component, for example a button: `.btn { }`. This block should be thought of as a parent. Child items, or elements, can be placed inside and these are denoted by two underscores following the name of the block like `.btn__price { }`. Finally, modifiers can manipulate the block so that we can theme or style that particular component without inflicting changes on a completely unrelated module. This is done by appending two hyphens to the name of the block just like `btn--orange`."
+  * Expanding on this, a modified child class would have a class name like `.btn__price--orange`.
 
 ### USWDS
 
@@ -126,20 +126,20 @@ Adhere to AirBnB's [Javascript Style Guide](https://github.com/airbnb/javascript
 If you are using Sublime, Webpack, or VS Code, you may want to install plugins to support the following:
 
 * Prettier
-* Eslint
+* ESLint
 * React
 
-Below are some suggestions for plugins. However, to get the plugins to work, you may need to install prettier and eslint globally. You will have to make sure they are kept up to date with the project.
+Below are some suggestions for plugins. However, to get the plugins to work, you may need to install prettier and ESLint globally. You will have to make sure they are kept up to date with the project.
 
 ### Sublime Plugins
 
 * PackageControl
 * EditorConfig
 * JsPrettier (you will need to configure it to auto-format on save)
-* Babel (for jsx syntax--though looking for better option)
+* Babel (for JSX syntax--though looking for better option)
 * Git
 
-### Webstorm
+### WebStorm
 
 Has plugins for most out the box, but setting up Prettier is tricky. See [the documentation](https://prettier.io/docs/en/webstorm.html).
 
@@ -163,12 +163,12 @@ Install the following extensions to assist with debugging React and Redux applic
 
 ## Learning
 
-### Javascript Concepts
+### JavaScript Concepts
 
 Important JS patterns and features to understand.
 
 * Destructuring Assignment
-  * [A Dead Simple Intro to Destructuring Javascript Objects](http://wesbos.com/destructuring-objects/)
+  * [A Dead Simple Intro to Destructuring JavaScript Objects](http://wesbos.com/destructuring-objects/)
 * Fat Arrow Functions
   * [ES5 Functions vs ES6 Fat Arrow Functions](https://medium.com/@thejasonfile/es5-functions-vs-es6-fat-arrow-functions-864033baa1a)
 * Higher Order Components
@@ -176,8 +176,8 @@ Important JS patterns and features to understand.
 * Promises
   * [An incremental tutorial on promises](https://www.sohamkamani.com/blog/2016/08/28/incremenal-tutorial-to-promises/)
 * Spread Operator/Rest Params
-  * [Javascript & The Spread Operator](https://codeburst.io/javascript-the-spread-operator-a867a71668ca)
-  * [How Three Dots Changed Javascript](https://dmitripavlutin.com/how-three-dots-changed-javascript/)
+  * [JavaScript & The Spread Operator](https://codeburst.io/javascript-the-spread-operator-a867a71668ca)
+  * [How Three Dots Changed JavaScript](https://dmitripavlutin.com/how-three-dots-changed-javascript/)
 * Template Literals
   * [Template Literals](https://css-tricks.com/template-literals/)
 
