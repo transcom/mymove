@@ -17,6 +17,9 @@ jobs:
           name: Install prettier
           command: npm install prettier
       - run:
+          name: Install markdown-spellcheck
+          command: npm install markdown-spellcheck
+      - run:
           name: Install markdown-toc
           command: npm install markdown-toc
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV

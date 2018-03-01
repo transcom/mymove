@@ -6,5 +6,5 @@ If you are looking to understand choices made in this project, see the list of [
 
 ## Programming Guides
 
-* [Frontend / React](frontend.md) guide
-* [Backend / Go](backend.md) guide
+* [Front-end / React](frontend.md) guide
+* [Back-end / Go](backend.md) guide
