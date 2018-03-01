@@ -9,8 +9,6 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-var db *pop.Connection
-
 const numQualBands = 4
 
 // Minimum Performance Score (MPS) is the lowest BVS a TSP can have and still be assigned shipments.
@@ -20,25 +18,30 @@ const mps = 10
 type qualityBand models.TransportationServiceProviderPerformances
 type qualityBands []qualityBand
 
-func findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(db)
+// AwardQueue encapsulates the TSP award queue process
+type AwardQueue struct {
+	db *pop.Connection
+}
+
+func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
+	shipments, err := models.FetchAwardedShipments(aq.db)
 	return shipments, err
 }
 
 // AttemptShipmentAward will attempt to take the given Shipment and award it to
 // a TSP.
-func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
+func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
-	err := db.Find(&tdl, shipment.TrafficDistributionListID)
+	err := aq.db.Find(&tdl, shipment.TrafficDistributionListID)
 
 	if err != nil {
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID, mps)
+	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(aq.db, tdl.ID, mps)
 
 	if err != nil {
 		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
@@ -52,9 +55,9 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
-		if err := db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
+			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 			if err == nil {
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
@@ -67,6 +70,26 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	}
 
 	return shipmentAward, err
+}
+
+func (aq *AwardQueue) assignUnawardedShipments() {
+	fmt.Println("TSP Award Queue running.")
+
+	shipments, err := aq.findAllUnawardedShipments()
+	if err == nil {
+		count := 0
+		for _, shipment := range shipments {
+			_, err = aq.attemptShipmentAward(shipment)
+			if err != nil {
+				fmt.Printf("\tFailed to award shipment: %s\n", err)
+			} else {
+				count++
+			}
+		}
+		fmt.Printf("Awarded %d shipments.\n", count)
+	} else {
+		fmt.Printf("Failed to query for shipments: %s", err)
+	}
 }
 
 // getTSPsPerBand determines how many TSPs should be assigned to each Quality Band
@@ -103,25 +126,13 @@ func assignTSPsToBands(tspPerfs models.TransportationServiceProviderPerformances
 	return qbs
 }
 
+// NewAwardQueue creates a new AwardQueue
+func NewAwardQueue(db *pop.Connection) *AwardQueue {
+	return &AwardQueue{db: db}
+}
+
 // Run will execute the award queue algorithm.
-func Run(dbConnection *pop.Connection) {
-	db = dbConnection
-
-	fmt.Println("TSP Award Queue running.")
-
-	shipments, err := findAllUnawardedShipments()
-	if err == nil {
-		count := 0
-		for _, shipment := range shipments {
-			_, err = AttemptShipmentAward(shipment)
-			if err != nil {
-				fmt.Printf("\tFailed to award shipment: %s\n", err)
-			} else {
-				count++
-			}
-		}
-		fmt.Printf("Awarded %d shipments.\n", count)
-	} else {
-		fmt.Printf("Failed to query for shipments: %s", err)
-	}
+func Run(db *pop.Connection) {
+	queue := NewAwardQueue(db)
+	queue.assignUnawardedShipments()
 }
