@@ -118,8 +118,8 @@ func main() {
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Use(authMiddleware)
-	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(logger, fullHostname))
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.AuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	authMux.Handle(pat.Get("/login-gov"), auth.NewAuthorizationRedirectHandler(logger, fullHostname))
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(fullHostname))
 
 	root.Handle(pat.Get("/static/*"), clientHandler)

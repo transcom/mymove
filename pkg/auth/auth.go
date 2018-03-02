@@ -137,12 +137,6 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 	}
 }
 
-// AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler struct {
-	logger   *zap.Logger
-	hostname string
-}
-
 // UserAuthMiddleware attempts to populate user data or optionally redirects to landing page
 func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -177,6 +171,12 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 		}
 		return http.HandlerFunc(mw)
 	}
+}
+
+// AuthorizationRedirectHandler handles redirection
+type AuthorizationRedirectHandler struct {
+	logger   *zap.Logger
+	hostname string
 }
 
 // NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
@@ -240,19 +240,21 @@ func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 // AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
-	loginGovSecretKey string
-	loginGovClientID  string
-	hostname          string
-	logger            *zap.Logger
+	clientAuthSecretKey string
+	loginGovSecretKey   string
+	loginGovClientID    string
+	hostname            string
+	logger              *zap.Logger
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
-		loginGovSecretKey: loginGovSecretKey,
-		loginGovClientID:  loginGovClientID,
-		hostname:          hostname,
-		logger:            logger,
+		clientAuthSecretKey: clientAuthSecretKey,
+		loginGovSecretKey:   loginGovSecretKey,
+		loginGovClientID:    loginGovClientID,
+		hostname:            hostname,
+		logger:              logger,
 	}
 	return &handler
 }
@@ -264,7 +266,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
-		http.Redirect(w, r, landingURL(hostname), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -297,20 +299,17 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, clientAuthSecretKey)
+	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
 		zap.L().Error("Generating signed token string", zap.Error(err))
 	}
 	cookie := http.Cookie{
-		Name:    JwtCookieName,
+		Name:    UserSessionCookieName,
 		Value:   ss,
 		Path:    "/",
 		Expires: expiry,
 	}
 	http.SetCookie(w, &cookie)
-
-	landingURL := fmt.Sprintf("%s/landing?email=%s", hostname, user.Email)
-	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
