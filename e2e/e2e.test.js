@@ -4,7 +4,7 @@ const E2E_BASE = process.env.E2E_BASE || 'https://app.staging.dp3.us/';
 if (process.env.E2E_BASE) console.log('base url is ', E2E_BASE);
 const BASE_URL = new URL(E2E_BASE);
 
-function buildStagingURL(path) {
+function buildURL(path) {
   return new URL(path, BASE_URL);
 }
 
@@ -61,7 +61,7 @@ describe('issue pages', async () => {
     await feedback_form.submit();
 
     // Then: Visit submitted page
-    await driver.get(buildStagingURL('submitted'));
+    await driver.get(buildURL('submitted'));
     await driver.wait(until.titleIs('Transcom PPP: Submitted Feedback'), 2000);
 
     issue_cards = await driver.findElement(By.className('issue-cards'));
@@ -73,24 +73,24 @@ describe('issue pages', async () => {
 describe('shipments pages', async () => {
   it('loads all shipments page', async () => {
     // When: Page is loaded, should display expected title
-    await driver.navigate().to(buildStagingURL('shipments/all'));
+    await driver.navigate().to(buildURL('shipments/all'));
     await driver.wait(until.titleIs('Transcom PPP: All Shipments'), 2000);
   });
 
   it('loads available shipments page', async () => {
     // When: Page is loaded, should display expected title
-    await driver.navigate().to(buildStagingURL('shipments/available'));
+    await driver.navigate().to(buildURL('shipments/available'));
     await driver.wait(until.titleIs('Transcom PPP: Available Shipments'), 2000);
   });
 
   it('loads awarded shipments page', async () => {
     // When: Page is loaded, should display expected title
-    await driver.navigate().to(buildStagingURL('shipments/awarded'));
+    await driver.navigate().to(buildURL('shipments/awarded'));
     await driver.wait(until.titleIs('Transcom PPP: Awarded Shipments'), 2000);
   });
 
   it('displays alert on incorrect url', async () => {
-    await driver.navigate().to(buildStagingURL('shipments/dogs'));
+    await driver.navigate().to(buildURL('shipments/dogs'));
     // Expect: Alert error exists on page
     await driver.wait(
       until.elementLocated(By.className('usa-alert-error')),
@@ -100,7 +100,7 @@ describe('shipments pages', async () => {
 });
 
 describe('DD1299 page', async () => {
-  beforeEach(async () => await driver.navigate().to(buildStagingURL('DD1299')));
+  beforeEach(async () => await driver.navigate().to(buildURL('DD1299')));
 
   it('loads DD1299 page', async () => {
     // When: Page is loaded, should display expected title
