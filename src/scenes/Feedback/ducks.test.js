@@ -21,6 +21,8 @@ describe('Feedback Reducer', () => {
     expect(newState).toEqual({
       pendingValue: '',
       confirmationText: 'Feedback submitted!',
+      hasSubmitError: false,
+      hasSubmitSuccess: true,
     });
   });
 
@@ -35,17 +37,8 @@ describe('Feedback Reducer', () => {
     expect(newState).toEqual({
       pendingValue: '',
       confirmationText: 'Submission error.',
+      hasSubmitError: true,
+      hasSubmitSuccess: false,
     });
-  });
-
-  it('Should handle CREATE_PENDING_ISSUE_VALUE', () => {
-    const initialState = { pendingValue: '', confirmationText: '' };
-
-    const newState = feedbackReducer(initialState, {
-      type: 'CREATE_PENDING_ISSUE_VALUE',
-      value: 'asd',
-    });
-
-    expect(newState).toEqual({ pendingValue: 'asd', confirmationText: '' });
   });
 });
