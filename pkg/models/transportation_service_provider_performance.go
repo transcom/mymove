@@ -96,7 +96,7 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = ?
+			traffic_distribution_list_id = $1
 			AND
 			best_value_score > $2
 		ORDER BY

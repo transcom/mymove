@@ -16,6 +16,13 @@ prereqs: .prereqs.stamp
 deps: prereqs pre-commit client_deps server_deps
 test: client_test server_test e2e_test
 
+spellcheck:
+	node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us \
+		`find . -type f -name "*.md" \
+			-not -path "./vendor/*" \
+			-not -path "./node_modules/*" \
+			-not -path "./docs/adr/README.md"`
+
 client_deps_update:
 	yarn upgrade
 client_deps: .client_deps.stamp
