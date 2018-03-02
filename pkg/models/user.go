@@ -37,6 +37,7 @@ func (u Users) String() string {
 // This method is not required and may be deleted.
 func (u *User) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.UUIDIsPresent{Field: u.LoginGovUUID, Name: "LoginGovUUID"},
 		&validators.StringIsPresent{Field: u.LoginGovEmail, Name: "LoginGovEmail"},
 	), nil
 }
