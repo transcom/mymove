@@ -30,7 +30,7 @@ func TestUserCreation(t *testing.T) {
 	}
 }
 
-func TestBadUserCreation(t *testing.T) {
+func TestUserCreationWithoutValues(t *testing.T) {
 
 	newUser := &User{}
 
@@ -40,4 +40,26 @@ func TestBadUserCreation(t *testing.T) {
 	}
 
 	verifyValidationErrors(newUser, expErrors, t)
+}
+
+func TestUserCreationDuplicateUUID(t *testing.T) {
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
+	userEmail := "sally@government.gov"
+
+	newUser := User{
+		LoginGovUUID:  fakeUUID,
+		LoginGovEmail: userEmail,
+	}
+
+	sameUser := User{
+		LoginGovUUID:  fakeUUID,
+		LoginGovEmail: userEmail,
+	}
+
+	dbConnection.Create(&newUser)
+	err := dbConnection.Create(&sameUser)
+
+	if err.Error() != `pq: duplicate key value violates unique constraint "constraint_name"` {
+		t.Fatal("Db should have errored on unique constraint for UUID")
+	}
 }
