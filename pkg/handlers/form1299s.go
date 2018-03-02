@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/markbates/pop"
 	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
@@ -109,20 +110,34 @@ func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299
 	return form1299Payload
 }
 
-// ShowForm1299Handler fetches a single form1299 by id
-func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Responder {
+// ShowForm1299Handler shows a single Form1299
+type ShowForm1299Handler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewShowForm1299Handler creates a new ShowForm1299Handler
+func NewShowForm1299Handler(db *pop.Connection, logger *zap.Logger) ShowForm1299Handler {
+	return ShowForm1299Handler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle fetches a single form1299 by id
+func (h ShowForm1299Handler) Handle(params form1299op.ShowForm1299Params) middleware.Responder {
 	formID := params.Form1299ID
 
 	var response middleware.Responder
 	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
 	if strfmt.IsUUID(string(formID)) {
-		form, err := models.FetchForm1299ByID(dbConnection, formID)
+		form, err := models.FetchForm1299ByID(h.db, formID)
 		if err != nil {
 			if err.Error() == "sql: no rows in result set" {
 				response = form1299op.NewShowForm1299NotFound()
 			} else {
 				// This is an unknown error from the db, nothing to do but log and 500
-				zap.L().Error("DB Insertion error", zap.Error(err))
+				h.logger.Error("DB Insertion error", zap.Error(err))
 				response = form1299op.NewShowForm1299InternalServerError()
 			}
 		} else {
@@ -136,8 +151,22 @@ func ShowForm1299Handler(params form1299op.ShowForm1299Params) middleware.Respon
 	return response
 }
 
-// CreateForm1299Handler creates a new form1299 via POST /form1299
-func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Responder {
+// CreateForm1299Handler creates a new Form1299
+type CreateForm1299Handler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewCreateForm1299Handler creates a new CreateForm1299Handler
+func NewCreateForm1299Handler(db *pop.Connection, logger *zap.Logger) CreateForm1299Handler {
+	return CreateForm1299Handler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle creates a new form1299 via POST /form1299
+func (h CreateForm1299Handler) Handle(params form1299op.CreateForm1299Params) middleware.Responder {
 	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
 	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
 	pickupAddress := addressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
@@ -208,12 +237,12 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 		TitleOfCertifiedBySignature:            params.CreateForm1299Payload.TitleOfCertifiedBySignature,
 	}
 	var response middleware.Responder
-	verrs, err := models.CreateForm1299WithAddresses(dbConnection, &newForm1299)
+	verrs, err := models.CreateForm1299WithAddresses(h.db, &newForm1299)
 	if verrs.HasAny() {
-		zap.L().Error("DB Validation", zap.Error(verrs))
+		h.logger.Error("DB Validation", zap.Error(verrs))
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else if err != nil {
-		zap.L().Error("DB Insertion", zap.Error(err))
+		h.logger.Error("DB Insertion", zap.Error(err))
 		response = form1299op.NewCreateForm1299BadRequest()
 	} else {
 		form1299Payload := payloadForForm1299Model(newForm1299)
@@ -222,13 +251,27 @@ func CreateForm1299Handler(params form1299op.CreateForm1299Params) middleware.Re
 	return response
 }
 
-// IndexForm1299sHandler returns a list of all form1299s
-func IndexForm1299sHandler(params form1299op.IndexForm1299sParams) middleware.Responder {
+// IndexForm1299sHandler returns a list of Form1299s
+type IndexForm1299sHandler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewIndexForm1299sHandler creates a new IndexForm1299sHandler
+func NewIndexForm1299sHandler(db *pop.Connection, logger *zap.Logger) IndexForm1299sHandler {
+	return IndexForm1299sHandler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle returns a list of all form1299s
+func (h IndexForm1299sHandler) Handle(params form1299op.IndexForm1299sParams) middleware.Responder {
 	var form1299s models.Form1299s
 	var response middleware.Responder
-	form1299s, err := models.FetchAllForm1299s(dbConnection)
+	form1299s, err := models.FetchAllForm1299s(h.db)
 	if err != nil {
-		zap.L().Error("DB Query", zap.Error(err))
+		h.logger.Error("DB Query", zap.Error(err))
 		response = form1299op.NewIndexForm1299sBadRequest()
 	} else {
 		form1299Payloads := make(internalmessages.IndexForm1299sPayload, len(form1299s))
