@@ -14,7 +14,6 @@ export class Landing extends Component {
 
     return (
       <div className="usa-grid">
-        {query.error && <h1>YOU DO NOT EXIST: {query.error}</h1>}
         {query.email && <h1>Welcome {query.email}!</h1>}
         {!query.email && (
           <Fragment>
