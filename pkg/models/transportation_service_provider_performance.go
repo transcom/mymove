@@ -96,7 +96,7 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = $1
+			traffic_distribution_list_id = ?
 			AND
 			best_value_score > $2
 		ORDER BY
@@ -120,7 +120,7 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	if err != nil {
 		return err
 	} else if verrs.Count() > 0 {
-		return errors.New("could not update quality band.")
+		return errors.New("could not update quality band")
 	}
 	return nil
 }
