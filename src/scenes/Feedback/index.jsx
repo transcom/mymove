@@ -4,33 +4,31 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
-import FeedbackForm from 'scenes/Feedback/FeedbackForm';
+import { reduxifyForm } from 'shared/JsonSchemaForm';
 
-import { createIssue, updatePendingIssueValue } from './ducks';
+import { loadSchema, createIssue } from './ducks';
 
-class Feedback extends Component {
+const FeedbackForm = reduxifyForm('Feedback');
+
+export class Feedback extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
+    this.props.loadSchema();
   }
 
-  handleChange = e => {
-    this.props.updatePendingIssueValue(e.target.value);
-  };
-
-  handleSubmit = async e => {
-    e.preventDefault();
-    this.props.createIssue(this.props.pendingValue);
+  handleSubmit = values => {
+    this.props.createIssue(values);
   };
 
   render() {
-    const { pendingValue, confirmationText } = this.props;
+    const { confirmationText } = this.props;
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
         <FeedbackForm
-          handleChange={this.handleChange}
-          handleSubmit={this.handleSubmit}
-          textValue={pendingValue}
+          onSubmit={this.handleSubmit}
+          schema={this.props.schema}
+          uiSchema={this.props.uiSchema}
         />
         <FeedbackConfirmation confirmationText={confirmationText} />
       </div>
@@ -40,20 +38,21 @@ class Feedback extends Component {
 
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
-  updatePendingIssueValue: PropTypes.func.isRequired,
-  pendingValue: PropTypes.string.isRequired,
   confirmationText: PropTypes.string.isRequired,
+  loadSchema: PropTypes.func.isRequired,
+  schema: PropTypes.object.isRequired,
+  uiSchema: PropTypes.object.isRequired,
+  hasSchemaError: PropTypes.bool.isRequired,
+  hasSubmitError: PropTypes.bool.isRequired,
+  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
-  return {
-    pendingValue: state.feedback.pendingValue,
-    confirmationText: state.feedback.confirmationText,
-  };
+  return state.feedback;
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createIssue, updatePendingIssueValue }, dispatch);
+  return bindActionCreators({ loadSchema, createIssue }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feedback);
