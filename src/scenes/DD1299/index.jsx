@@ -67,6 +67,7 @@ export class DD1299 extends Component {
 
 DD1299.propTypes = {
   loadSchema: PropTypes.func.isRequired,
+  submitForm: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   hasSchemaError: PropTypes.bool.isRequired,
