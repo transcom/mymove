@@ -149,6 +149,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := getUserClaimsFromRequest(secret, r)
 			if !ok {
+				next.ServeHTTP(w, r)
 				return
 			}
 
