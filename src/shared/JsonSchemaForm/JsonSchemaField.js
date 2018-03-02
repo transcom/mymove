@@ -3,6 +3,8 @@ import React, { Fragment } from 'react';
 import validator from './validator';
 import { Field } from 'redux-form';
 
+export const ALWAYS_REQUIRED_KEY = 'x-always-required';
+
 // ---- Parsers -----
 
 const parseNumberField = value => {
@@ -116,6 +118,7 @@ const renderInputField = ({
   type,
   step,
   title,
+  always_required,
   componentOverride,
   meta: { touched, error, warning },
   children,
@@ -144,6 +147,7 @@ const renderInputField = ({
         htmlFor={input.name}
       >
         {title}
+        {always_required ? '*' : null}
       </label>
       {touched &&
         error && (
@@ -183,6 +187,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.title = swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
+  fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 
   let children = null;
 

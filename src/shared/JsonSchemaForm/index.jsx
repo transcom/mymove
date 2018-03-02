@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import SchemaField from './JsonSchemaField';
+import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
 import { isEmpty } from 'lodash';
 import { reduxForm } from 'redux-form';
@@ -107,8 +107,30 @@ const validateRequiredFields = (values, form, somethingelse, andhow) => {
   return requiredErrors;
 };
 
+// Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
+// Fields like Address in the Form1299 are not required, so even though they have required subfields they are not annotated.
+const recursivleyAnnotateRequiredFields = schema => {
+  if (schema.required) {
+    schema.required.forEach(requiredFieldName => {
+      // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
+      let schemaForKey = schema.properties[requiredFieldName];
+      if (schemaForKey) {
+        if (schemaForKey.type === 'object') {
+          recursivleyAnnotateRequiredFields(schemaForKey);
+        } else {
+          schemaForKey[ALWAYS_REQUIRED_KEY] = true;
+        }
+      } else {
+        console.error('The schema should have all required fields in it.');
+      }
+    });
+  }
+};
+
 const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
+    recursivleyAnnotateRequiredFields(schema);
+
     const fields = schema.properties || [];
     return uiSchema.order.map(i =>
       renderGroupOrField(i, fields, uiSchema, nameSpace),
