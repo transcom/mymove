@@ -115,6 +115,7 @@ const renderInputField = ({
   input,
   type,
   step,
+  title,
   componentOverride,
   meta: { touched, error, warning },
   children,
@@ -130,16 +131,31 @@ const renderInputField = ({
       ...input,
       type: type,
       step: step,
+      'aria-describedby': input.name + '-error',
     },
     children,
   );
 
+  const displayError = touched && error;
   return (
-    <div>
-      {FieldComponent}
+    <div className={displayError ? 'usa-input-error' : 'usa-input'}>
+      <label
+        className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
+        htmlFor={input.name}
+      >
+        {title}
+      </label>
       {touched &&
-        ((error && <span>{error}</span>) ||
-          (warning && <span>{warning}</span>))}
+        error && (
+          <span
+            className="usa-input-error-message"
+            id={input.name + '-error'}
+            role="alert"
+          >
+            {error}
+          </span>
+        )}
+      {FieldComponent}
     </div>
   );
 };
@@ -154,7 +170,9 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     return (
       <Fragment key={fieldName}>
         {createCheckbox(fieldName, swaggerField, nameAttr)}
-        <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
+        <label htmlFor={fieldName} className="usa-input-label">
+          {swaggerField.title || fieldName}
+        </label>
       </Fragment>
     );
   }
@@ -162,6 +180,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   // configure the basic Field props
   let fieldProps = {};
   fieldProps.name = nameAttr;
+  fieldProps.title = swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
 
@@ -207,12 +226,10 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       'ERROR: This is an unimplemented type in our JSONSchemaForm implmentation',
     );
   }
-
   return (
-    <label key={fieldName}>
-      {swaggerField.title || fieldName}
-      <Field {...fieldProps}>{children}</Field>
-    </label>
+    <Field key={fieldName} {...fieldProps}>
+      {children}
+    </Field>
   );
 };
 
