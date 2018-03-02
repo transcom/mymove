@@ -3,6 +3,7 @@ package awardqueue
 import (
 	"fmt"
 	"os"
+	"sort"
 	"testing"
 	"time"
 
@@ -120,7 +121,7 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP3")
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(db, tsp1, tdl, nil, mps+1, 0)
 	testdatagen.MakeTSPPerformance(db, tsp2, tdl, nil, mps+3, 1)
@@ -142,6 +143,48 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 			tsps[0].TransportationServiceProviderID,
 			tsps[1].TransportationServiceProviderID,
 			tsps[2].TransportationServiceProviderID)
+	}
+}
+
+// Test_SortTSPsByQBBVSandAwardCount ensures that TSP Performances are sorted by
+// QualityBands, then BVS, and finally AwardCount.
+func Test_SortTSPsByQBBVSandAwardCount(t *testing.T) {
+	// Given: 5 TSP Perf entries with different Quality Bands
+	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(db, "Test TSP 4", "TSP4")
+	tsp5, _ := testdatagen.MakeTSP(db, "Test TSP 5", "TSP5")
+
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(2), mps+3, 1)
+	testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(3), mps+2, 1)
+	testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(4), mps+2, 1)
+	testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(3), mps+4, 1)
+
+	// TSPs should be orderd by award_count first, then BVS.
+	tspPerfs, err := models.FetchTSPPerformanceForAwardQueue(db, tdl.ID, mps)
+	if err != nil {
+		t.Errorf("Failed to find TSP: %v", err)
+	}
+	// When: Sort TSPs by quality band, then BVS, then award count
+	sort.Sort(ByQualityBand(tspPerfs))
+
+	// Then: We expect tspPerfs to be returned in order sorted as described above
+	if tspPerfs[0].TransportationServiceProviderID != tsp1.ID &&
+		tspPerfs[1].TransportationServiceProviderID != tsp2.ID &&
+		tspPerfs[2].TransportationServiceProviderID != tsp5.ID &&
+		tspPerfs[3].TransportationServiceProviderID != tsp3.ID &&
+		tspPerfs[4].TransportationServiceProviderID != tsp4.ID {
+		t.Errorf("TSPs sorted out of expected order.\n"+
+			"\tExpected: [%s, %s, %s, %s, %s]\nFound:    [%s, %s, %s, %s, %s]",
+			tsp1.ID, tsp2.ID, tsp5.ID, tsp3.ID, tsp4.ID,
+			tspPerfs[0].TransportationServiceProviderID,
+			tspPerfs[1].TransportationServiceProviderID,
+			tspPerfs[2].TransportationServiceProviderID,
+			tspPerfs[3].TransportationServiceProviderID,
+			tspPerfs[4].TransportationServiceProviderID)
 	}
 }
 
