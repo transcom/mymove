@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/markbates/pop"
 	"go.uber.org/zap"
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
@@ -26,15 +27,29 @@ func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
 }
 
 // CreateIssueHandler creates a new issue via POST /issue
-func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
+type CreateIssueHandler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewCreateIssueHandler returns a new CreateIssueHandler
+func NewCreateIssueHandler(db *pop.Connection, logger *zap.Logger) CreateIssueHandler {
+	return CreateIssueHandler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle creates a new Issue from a request payload
+func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.Responder {
 	newIssue := models.Issue{
 		Description:  *params.CreateIssuePayload.Description,
 		ReporterName: params.CreateIssuePayload.ReporterName,
 		DueDate:      (*time.Time)(params.CreateIssuePayload.DueDate),
 	}
 	var response middleware.Responder
-	if _, err := dbConnection.ValidateAndCreate(&newIssue); err != nil {
-		zap.L().Error("DB Insertion", zap.Error(err))
+	if _, err := h.db.ValidateAndCreate(&newIssue); err != nil {
+		h.logger.Error("DB Insertion", zap.Error(err))
 		// how do I raise an erorr?
 		response = issueop.NewCreateIssueBadRequest()
 	} else {
@@ -46,11 +61,25 @@ func CreateIssueHandler(params issueop.CreateIssueParams) middleware.Responder {
 }
 
 // IndexIssuesHandler returns a list of all issues
-func IndexIssuesHandler(params issueop.IndexIssuesParams) middleware.Responder {
+type IndexIssuesHandler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewIndexIssuesHandler returns a new IndexIssuesHandler
+func NewIndexIssuesHandler(db *pop.Connection, logger *zap.Logger) IndexIssuesHandler {
+	return IndexIssuesHandler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle retrieves a list of all issues in the system
+func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {
 	var issues models.Issues
 	var response middleware.Responder
-	if err := dbConnection.All(&issues); err != nil {
-		zap.L().Error("DB Query", zap.Error(err))
+	if err := h.db.All(&issues); err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
 		response = issueop.NewIndexIssuesBadRequest()
 	} else {
 		issuePayloads := make(internalmessages.IndexIssuesPayload, len(issues))
