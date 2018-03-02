@@ -150,8 +150,8 @@ func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributio
 	for band, count := range bands {
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
-			fmt.Printf("Assigning tspp %s to band %d\n", performance.ID, band)
-			err := models.AssignQualityBandToTSPPerformance(aq.db, band, performance.ID)
+			fmt.Printf("Assigning tspp %s to band %d\n", performance.ID, band+1)
+			err := models.AssignQualityBandToTSPPerformance(aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
 			}

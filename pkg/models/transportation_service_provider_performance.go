@@ -2,12 +2,13 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
+	"errors"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // TransportationServiceProviderPerformance is a combination of all TSP
@@ -115,9 +116,11 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 		return err
 	}
 	performance.QualityBand = &band
-	_, err := db.ValidateAndUpdate(&performance)
+	verrs, err := db.ValidateAndUpdate(&performance)
 	if err != nil {
-		fmt.Printf("did not save %#v\n", err)
+		return err
+	} else if verrs.Count() > 0 {
+		return errors.New("could not update quality band.")
 	}
-	return err
+	return nil
 }

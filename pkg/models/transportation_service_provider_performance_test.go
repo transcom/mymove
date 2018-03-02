@@ -27,6 +27,29 @@ func Test_BestValueScoreValidations(t *testing.T) {
 	verifyValidationErrors(tspPerformance, expErrors, t)
 }
 
+func Test_AssignQualityBandToTSPPerformance(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(dbConnection, "california", "90210", "2")
+	tsp, _ := testdatagen.MakeTSP(dbConnection, "Test Shipper", "TEST")
+	perf, _ := testdatagen.MakeTSPPerformance(dbConnection, tsp, tdl, nil, mps, 0)
+	band := 1
+
+	err := AssignQualityBandToTSPPerformance(dbConnection, band, perf.ID)
+	if err != nil {
+		t.Fatalf("Did not update quality band: %v", err)
+	}
+
+	performance := TransportationServiceProviderPerformance{}
+	if err := dbConnection.Find(&performance, perf.ID); err != nil {
+		t.Fatalf("could not find perf: %v", err)
+	}
+
+	if performance.QualityBand == nil {
+		t.Errorf("No value for QualityBand: expected %v, got %v", band, performance.QualityBand)
+	} else if *performance.QualityBand != band {
+		t.Errorf("Wrong value for QualityBand: expected %d, got %d", band, *performance.QualityBand)
+	}
+}
+
 func Test_BVSWithLowMPS(t *testing.T) {
 	tspsToMake := 5
 

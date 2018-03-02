@@ -169,7 +169,7 @@ func Test_assignTSPsToBands(t *testing.T) {
 		t.Errorf("Failed to fetch TSPPerformances: %v", err)
 	}
 
-	expectedBands := []int{0, 0, 1, 2, 3}
+	expectedBands := []int{1, 1, 2, 3, 4}
 
 	for i, perf := range perfs {
 		band := expectedBands[i]
