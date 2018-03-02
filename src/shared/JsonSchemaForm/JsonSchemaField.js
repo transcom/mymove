@@ -40,8 +40,7 @@ const dropDownChildren = (swaggerField, props) => {
 };
 
 const configureNumberField = (swaggerField, props) => {
-  props.type = 'number';
-  props.step = 'any';
+  props.type = 'text';
   props.parse = parseNumberField;
 
   if (swaggerField.maximum != null) {
