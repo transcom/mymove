@@ -1,8 +1,11 @@
 const { URL } = require('url');
-const STAGING_BASE = new URL('https://app.staging.dp3.us/');
+
+const E2E_BASE = process.env.E2E_BASE || 'https://app.staging.dp3.us/';
+if (process.env.E2E_BASE) console.log('base url is ', E2E_BASE);
+const BASE_URL = new URL(E2E_BASE);
 
 function buildStagingURL(path) {
-  return new URL(path, STAGING_BASE);
+  return new URL(path, BASE_URL);
 }
 
 var webdriver = require('selenium-webdriver'),
@@ -39,7 +42,7 @@ beforeAll(async function() {
 });
 
 describe('issue pages', async () => {
-  beforeEach(async () => await driver.navigate().to(STAGING_BASE));
+  beforeEach(async () => await driver.navigate().to(BASE_URL));
 
   it('loads Submit Feedback page', async () => {
     // When: Page is loaded, should display expected title
@@ -48,19 +51,19 @@ describe('issue pages', async () => {
 
   it('allows issue submission and retrieval', async () => {
     // Given: A test issue and a feedback form on index page
+    const descriptionTextArea = 'textarea[name="description"]';
     test_issue = 'Too few dogs. Time: ' + Date.now();
-    await driver.wait(
-      until.elementLocated(By.css('[data-test="feedback-form"]')),
-    );
-    feedback_form = await driver.findElement(
-      By.css('[data-test="feedback-form"]'),
-    );
+    await driver.wait(until.elementLocated(By.css(descriptionTextArea)));
+    feedback_form = await driver.findElement(By.css(descriptionTextArea));
     feedback_form.clear();
     // When: Submit issue
     feedback_form.sendKeys(test_issue);
-    await driver.findElement(By.css("input[type='submit']")).click();
+    await feedback_form.submit();
+
     // Then: Visit submitted page
     await driver.get(buildStagingURL('submitted'));
+    await driver.wait(until.titleIs('Transcom PPP: Submitted Feedback'), 2000);
+
     issue_cards = await driver.findElement(By.className('issue-cards'));
     // Expect: Submitted issue exists on page
     await driver.wait(until.elementTextContains(issue_cards, test_issue), 1000);
