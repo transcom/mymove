@@ -86,6 +86,10 @@ denormalize
 sqlx
 godoc.org
 aXe
+E2E_BASE
+url
+ngrok
+localtunnel
  - docs/backend.md
 _Regenerate
 _
