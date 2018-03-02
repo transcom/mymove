@@ -47,7 +47,7 @@ func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseR
 
 	// Set a secure cookie on the request
 	cookie := http.Cookie{
-		Name:    JwtCookieName,
+		Name:    UserSessionCookieName,
 		Value:   ss,
 		Path:    "/",
 		Expires: expiry,

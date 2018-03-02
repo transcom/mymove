@@ -25,8 +25,8 @@ const sessionExpiryInMinutes = 15
 // This sets a small window during which tokens won't be renewed
 const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
 
-// JwtCookieName is the key at which we're storing our token cookie
-const JwtCookieName = "JWT_COOKIE"
+// UserSessionCookieName is the key at which we're storing our token cookie
+const UserSessionCookieName = "user_session"
 
 // UserClaims wraps StandardClaims with some user info we care about
 type UserClaims struct {
@@ -35,8 +35,12 @@ type UserClaims struct {
 	jwt.StandardClaims
 }
 
+func landingURL(hostname string) string {
+	return fmt.Sprintf("%s/landing", hostname)
+}
+
 func getExpiryTimeFromMinutes(min int64) time.Time {
-	return time.Now().Add(time.Second * time.Duration(60*min))
+	return time.Now().Add(time.Minute * time.Duration(min))
 }
 
 // Returns true if the expiration time is inside the renewal window
@@ -44,28 +48,6 @@ func shouldRenewForClaims(claims UserClaims) bool {
 	exp := claims.StandardClaims.ExpiresAt
 	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes).Unix()
 	return exp < renewal
-}
-
-func parseClaimsFromTokenString(ss string, secret string) (claims *UserClaims, err error) {
-	token, err := jwt.ParseWithClaims(ss, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
-		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
-		return &rsaKey.PublicKey, err
-	})
-	if err != nil {
-		err = errors.New("Failed decrypting signed token string")
-		return
-	}
-	if !token.Valid {
-		err = errors.New("Token failed validation")
-		return
-	}
-
-	claims, ok := token.Claims.(*UserClaims)
-	if claims == nil || !ok {
-		err = errors.New("Failed extracting claims from token")
-	}
-
-	return claims, err
 }
 
 func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
@@ -94,32 +76,41 @@ func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time,
 }
 
 func deleteCookie(w http.ResponseWriter, name string) {
-	// We delete the cookie by setting an expired cookie with the same name
-	expire := time.Now().Add(-7 * 24 * time.Hour)
 	// Not all browsers support MaxAge, so set Expires too
 	cookie := http.Cookie{
 		Name:    name,
 		Value:   "blank",
 		Path:    "/",
-		Expires: expire,
+		Expires: time.Unix(0, 0),
 		MaxAge:  -1,
 	}
 	http.SetCookie(w, &cookie)
 }
 
-func getUserClaimsFromCookie(secret string, r *http.Request) (claims *UserClaims, ok bool) {
-	cookie, err := r.Cookie(JwtCookieName)
+func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+	cookie, err := r.Cookie(UserSessionCookieName)
 	if err != nil {
 		// No cookie set on client
 		return
 	}
 
-	claims, err = parseClaimsFromTokenString(cookie.Value, secret)
-	if claims == nil || err != nil {
-		zap.L().Error("Parsing claims from token", zap.Error(err))
+	token, err := jwt.ParseWithClaims(cookie.Value, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, err
+	})
+
+	if token == nil || !token.Valid {
+		zap.L().Error("Failed token validation", zap.Error(err))
 		return
 	}
-	ok = true
+
+	// The token actually just stores a Claims interface, so we need to explicitly
+	// cast back to UserClaims
+	claims, ok = token.Claims.(*UserClaims)
+	if !ok {
+		zap.L().Error("Failed getting claims from token", zap.Error(err))
+		return
+	}
 
 	return claims, ok
 }
@@ -148,16 +139,20 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 
 // AuthorizationRedirectHandler handles redirection
 type AuthorizationRedirectHandler struct {
-	logger *zap.Logger
+	logger   *zap.Logger
+	hostname string
 }
 
 // UserAuthMiddleware attempts to populate user data or optionally redirects to landing page
 func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := getUserClaimsFromCookie(secret, r)
+			claims, ok := getUserClaimsFromRequest(secret, r)
+			if !ok {
+				return
+			}
 
-			if ok && shouldRenewForClaims(*claims) {
+			if shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 				ss, err := signTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
@@ -165,7 +160,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
 				cookie := http.Cookie{
-					Name:    JwtCookieName,
+					Name:    UserSessionCookieName,
 					Value:   ss,
 					Path:    "/",
 					Expires: expiry,
@@ -173,11 +168,9 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 				http.SetCookie(w, &cookie)
 			}
 
-			if ok {
-				// And put the user info on the request context
-				context.Set(r, "email", claims.Email)
-				context.Set(r, "id_token", claims.IDToken)
-			}
+			// And put the user info on the request context
+			context.Set(r, "email", claims.Email)
+			context.Set(r, "id_token", claims.IDToken)
 
 			next.ServeHTTP(w, r)
 		}
@@ -197,7 +190,7 @@ func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *Autho
 // AuthorizationLogoutHandler handles logging the user out of login.gov
 func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
-	redirectURL := fmt.Sprintf("%s/landing", hostname)
+	redirectURL := landingURL(hostname)
 
 	return func(w http.ResponseWriter, r *http.Request) {
 		idToken, ok := context.Get(r, "id_token").(string)
@@ -220,7 +213,7 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 		parsedURL.RawQuery = params.Encode()
 
 		// Also need to clear the cookie on the client
-		deleteCookie(w, JwtCookieName)
+		deleteCookie(w, UserSessionCookieName)
 
 		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 	}
@@ -228,11 +221,10 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	redirectURL := fmt.Sprintf("%s/landing", h.hostname)
 	token := context.Get(r, "id_token")
 	if token != nil {
 		// User is already authed, redirect to landing page
-		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -271,7 +263,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
-		http.Redirect(w, r, fmt.Sprintf("%s/landing", h.hostname), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, landingURL(hostname), http.StatusTemporaryRedirect)
 		return
 	}
 
