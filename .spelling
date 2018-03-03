@@ -91,6 +91,10 @@ rpc
 json
 github
 codegen
+E2E_BASE
+url
+ngrok
+localtunnel
  - docs/backend.md
 _Regenerate
 _
