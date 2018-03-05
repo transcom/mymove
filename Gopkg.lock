@@ -57,8 +57,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "f7f1ee9550cc76ceea731d99c8dbe00a0c39f66d"
-  version = "v1.13.4"
+  revision = "aace5875a5c3b85a3902c6d72b9caed301d64cce"
+  version = "v1.13.8"
 
 [[projects]]
   branch = "master"
@@ -181,7 +181,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "1de3e0542de65ad8d75452a595886fdd0befb363"
+  revision = "d8000b5bfbd1147255710505a27c735b6b2ae2ac"
 
 [[projects]]
   branch = "master"
@@ -193,7 +193,7 @@
   branch = "master"
   name = "github.com/go-openapi/swag"
   packages = ["."]
-  revision = "0d03ad0b6405ada874d59d97c416b5cf4234e154"
+  revision = "ceb469cb0fdf2d792f28d771bc05da6c606f55e5"
 
 [[projects]]
   branch = "master"
@@ -223,8 +223,8 @@
 [[projects]]
   name = "github.com/gobuffalo/envy"
   packages = ["."]
-  revision = "50fabbbaf1e65fc9b739f37a00590c396485d84d"
-  version = "v1.4.0"
+  revision = "15f5083a6e269f8698715b13dd25f0538754ab37"
+  version = "v1.4.1"
 
 [[projects]]
   name = "github.com/gobuffalo/makr"
@@ -241,11 +241,8 @@
 [[projects]]
   branch = "master"
   name = "github.com/golang/lint"
-  packages = [
-    ".",
-    "golint"
-  ]
-  revision = "3ea3fa98a8104b2c8f8a7bffaebc7e54dddf99e1"
+  packages = ["golint"]
+  revision = "fb4f8c1d3a179654f93ef7e91d68fc7b1de6e88f"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -300,7 +297,7 @@
     ".",
     "reflectx"
   ]
-  revision = "05cef0741ade10ca668982355b3f3f0bcf0ff0a8"
+  revision = "cf35089a197953c69420c8d0cecda90809764b1d"
 
 [[projects]]
   name = "github.com/joho/godotenv"
@@ -368,7 +365,7 @@
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "80fa1ea41b0dc859816314ab0b85f07a6bc57923"
+  revision = "3e32b42850a9f09fac18a6c09bbd04325f51f732"
 
 [[projects]]
   name = "github.com/markbates/pop"
@@ -384,7 +381,7 @@
     "soda/cmd/schema"
   ]
   revision = "f230643ae0f8fa01e9444c2fb857ba1f1a78eb1f"
-  version = "v3.60.5"
+  version = "v4.0.0"
 
 [[projects]]
   name = "github.com/markbates/validate"
@@ -503,8 +500,8 @@
     "cmd",
     "store"
   ]
-  revision = "90b27b1f06791f8a193ef4ca38506f880cdb1ffe"
-  version = "v1.15.0"
+  revision = "6479554259298f650c411e130224065ff823e5c5"
+  version = "v1.16.0"
 
 [[projects]]
   branch = "master"
@@ -611,13 +608,19 @@
 
 [[projects]]
   branch = "master"
+  name = "golang.org/x/lint"
+  packages = ["."]
+  revision = "fb4f8c1d3a179654f93ef7e91d68fc7b1de6e88f"
+
+[[projects]]
+  branch = "master"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
     "idna"
   ]
-  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
+  revision = "22ae77b79946ea320088417e4d50825671d82d57"
 
 [[projects]]
   branch = "master"
@@ -626,7 +629,7 @@
     ".",
     "internal"
   ]
-  revision = "543e37812f10c46c622c9575afd7ad22f22a12ba"
+  revision = "2f32c3ac0fa4fb807a0fcefb0b6f2468a0d99bd0"
 
 [[projects]]
   branch = "master"
@@ -638,7 +641,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
+  revision = "dd2ff4accc098aceecb86b36eaa7829b2a17b1c9"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -674,7 +677,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "2ae76fd1560b622911f444c1e66b70a857e1de67"
+  revision = "73e16cff9e0d4a802937444bebb562458548241d"
 
 [[projects]]
   name = "google.golang.org/appengine"
