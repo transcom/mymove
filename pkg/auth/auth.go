@@ -137,7 +137,7 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 	}
 }
 
-// UserAuthMiddleware attempts to populate user data or optionally redirects to landing page
+// UserAuthMiddleware attempts to populate user data onto request context
 func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
@@ -173,21 +173,6 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	}
 }
 
-// AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler struct {
-	logger   *zap.Logger
-	hostname string
-}
-
-// NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
-func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
-	handler := AuthorizationRedirectHandler{
-		logger:   logger,
-		hostname: hostname,
-	}
-	return &handler
-}
-
 // AuthorizationLogoutHandler handles logging the user out of login.gov
 func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
@@ -218,6 +203,21 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 
 		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 	}
+}
+
+// AuthorizationRedirectHandler handles redirection
+type AuthorizationRedirectHandler struct {
+	logger   *zap.Logger
+	hostname string
+}
+
+// NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
+func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
+	handler := AuthorizationRedirectHandler{
+		logger:   logger,
+		hostname: hostname,
+	}
+	return &handler
 }
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
