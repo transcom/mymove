@@ -4,7 +4,7 @@ import { DD1299 } from '.';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 
-const loadSchema = () => {};
+const dummyFunc = () => {};
 const schema = {};
 const uiSchema = {};
 const mockStore = configureStore();
@@ -23,7 +23,8 @@ describe('When there is a form creation error', () => {
         hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={loadSchema}
+        loadSchema={dummyFunc}
+        submitForm={dummyFunc}
       />,
     );
   });
@@ -49,7 +50,8 @@ describe('When a form is successfully created', () => {
         hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={loadSchema}
+        loadSchema={dummyFunc}
+        submitForm={dummyFunc}
       />,
     );
   });
@@ -77,7 +79,8 @@ describe('When a form fails to be created', () => {
           hasSubmitError={hasSubmitError}
           schema={schema}
           uiSchema={uiSchema}
-          loadSchema={loadSchema}
+          loadSchema={dummyFunc}
+          submitForm={dummyFunc}
         />
       </Provider>,
     );

@@ -16,9 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
-	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -73,9 +70,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	// initialize api pkg with dbConnection created above
-	handlers.Init(dbConnection)
-
 	swaggerSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
 		log.Fatalln(err)
@@ -83,14 +77,14 @@ func main() {
 
 	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
 
-	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
-	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
+	internalAPI.IssuesCreateIssueHandler = handlers.NewCreateIssueHandler(dbConnection, logger)
+	internalAPI.IssuesIndexIssuesHandler = handlers.NewIndexIssuesHandler(dbConnection, logger)
 
-	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
-	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
-	internalAPI.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
+	internalAPI.Form1299sCreateForm1299Handler = handlers.NewCreateForm1299Handler(dbConnection, logger)
+	internalAPI.Form1299sIndexForm1299sHandler = handlers.NewIndexForm1299sHandler(dbConnection, logger)
+	internalAPI.Form1299sShowForm1299Handler = handlers.NewShowForm1299Handler(dbConnection, logger)
 
-	internalAPI.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
+	internalAPI.ShipmentsIndexShipmentsHandler = handlers.NewIndexShipmentsHandler(dbConnection, logger)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
@@ -101,7 +95,7 @@ func main() {
 		*callbackPort = "3000"
 	}
 	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
-	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
+	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Base routes
 	root := goji.NewMux()
@@ -110,8 +104,8 @@ func main() {
 	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
 	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
-	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
-	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
+	root.Handle(pat.Get("/auth/login-gov"), auth.NewAuthorizationRedirectHandler(logger))
+	root.Handle(pat.Get("/auth/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname, logger))
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
