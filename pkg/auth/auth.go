@@ -13,12 +13,107 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/pkg/errors"
 )
 
 const gothProviderType = "openid-connect"
 const sessionExpiryInMinutes = 15
+
+// This sets a small window during which tokens won't be renewed
+const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
+
+// UserSessionCookieName is the key at which we're storing our token cookie
+const UserSessionCookieName = "user_session"
+
+// UserClaims wraps StandardClaims with some user info we care about
+type UserClaims struct {
+	Email   string `json:"email"`
+	IDToken string `json:"id_token"`
+	jwt.StandardClaims
+}
+
+func landingURL(hostname string) string {
+	return fmt.Sprintf("%s/landing", hostname)
+}
+
+func getExpiryTimeFromMinutes(min int64) time.Time {
+	return time.Now().Add(time.Minute * time.Duration(min))
+}
+
+// Returns true if the expiration time is inside the renewal window
+func shouldRenewForClaims(claims UserClaims) bool {
+	exp := claims.StandardClaims.ExpiresAt
+	renewal := getExpiryTimeFromMinutes(sessionRenewalTimeInMinutes).Unix()
+	return exp < renewal
+}
+
+func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
+	claims := UserClaims{
+		email,
+		idToken,
+		jwt.StandardClaims{
+			ExpiresAt: expiry.Unix(),
+		},
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodRS256, claims)
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+	if err != nil {
+		err = errors.Wrap(err, "Parsing RSA key from PEM")
+		return
+	}
+
+	ss, err = token.SignedString(rsaKey)
+	if err != nil {
+		err = errors.Wrap(err, "Signing string with token")
+		return
+	}
+
+	return ss, err
+}
+
+func deleteCookie(w http.ResponseWriter, name string) {
+	// Not all browsers support MaxAge, so set Expires too
+	cookie := http.Cookie{
+		Name:    name,
+		Value:   "blank",
+		Path:    "/",
+		Expires: time.Unix(0, 0),
+		MaxAge:  -1,
+	}
+	http.SetCookie(w, &cookie)
+}
+
+func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+	cookie, err := r.Cookie(UserSessionCookieName)
+	if err != nil {
+		// No cookie set on client
+		return
+	}
+
+	token, err := jwt.ParseWithClaims(cookie.Value, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+		rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(secret))
+		return &rsaKey.PublicKey, err
+	})
+
+	if token == nil || !token.Valid {
+		zap.L().Error("Failed token validation", zap.Error(err))
+		return
+	}
+
+	// The token actually just stores a Claims interface, so we need to explicitly
+	// cast back to UserClaims
+	claims, ok = token.Claims.(*UserClaims)
+	if !ok {
+		zap.L().Error("Failed getting claims from token", zap.Error(err))
+		return
+	}
+
+	return claims, ok
+}
 
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
@@ -42,21 +137,98 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 	}
 }
 
+// UserAuthMiddleware attempts to populate user data onto request context
+func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			claims, ok := getUserClaimsFromRequest(secret, r)
+			if !ok {
+				next.ServeHTTP(w, r)
+				return
+			}
+
+			if shouldRenewForClaims(*claims) {
+				// Renew the token
+				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+				ss, err := signTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
+				if err != nil {
+					zap.L().Error("Generating signed token string", zap.Error(err))
+				}
+				cookie := http.Cookie{
+					Name:    UserSessionCookieName,
+					Value:   ss,
+					Path:    "/",
+					Expires: expiry,
+				}
+				http.SetCookie(w, &cookie)
+			}
+
+			// And put the user info on the request context
+			context.Set(r, "email", claims.Email)
+			context.Set(r, "id_token", claims.IDToken)
+
+			next.ServeHTTP(w, r)
+		}
+		return http.HandlerFunc(mw)
+	}
+}
+
+// AuthorizationLogoutHandler handles logging the user out of login.gov
+func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
+	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
+	redirectURL := landingURL(hostname)
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		idToken, ok := context.Get(r, "id_token").(string)
+		if !ok {
+			// Can't log out of login.gov without a token, redirect and let them re-auth
+			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+			return
+		}
+
+		parsedURL, err := url.Parse(logoutURL)
+		if err != nil {
+			zap.L().Error("Parse logout URL", zap.Error(err))
+		}
+
+		// Parameters taken from https://developers.login.gov/oidc/#logout
+		params := parsedURL.Query()
+		params.Add("id_token_hint", idToken)
+		params.Add("post_logout_redirect_uri", redirectURL)
+		params.Set("state", generateNonce())
+		parsedURL.RawQuery = params.Encode()
+
+		// Also need to clear the cookie on the client
+		deleteCookie(w, UserSessionCookieName)
+
+		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
+	}
+}
+
 // AuthorizationRedirectHandler handles redirection
 type AuthorizationRedirectHandler struct {
-	logger *zap.Logger
+	logger   *zap.Logger
+	hostname string
 }
 
 // NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
-func NewAuthorizationRedirectHandler(logger *zap.Logger) *AuthorizationRedirectHandler {
+func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
 	handler := AuthorizationRedirectHandler{
-		logger: logger,
+		logger:   logger,
+		hostname: hostname,
 	}
 	return &handler
 }
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	token := context.Get(r, "id_token")
+	if token != nil {
+		// User is already authed, redirect to landing page
+		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
+		return
+	}
+
 	url, err := getAuthorizationURL(h.logger)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -68,19 +240,21 @@ func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 // AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
-	loginGovSecretKey string
-	loginGovClientID  string
-	hostname          string
-	logger            *zap.Logger
+	clientAuthSecretKey string
+	loginGovSecretKey   string
+	loginGovClientID    string
+	hostname            string
+	logger              *zap.Logger
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
-		loginGovSecretKey: loginGovSecretKey,
-		loginGovClientID:  loginGovClientID,
-		hostname:          hostname,
-		logger:            logger,
+		clientAuthSecretKey: clientAuthSecretKey,
+		loginGovSecretKey:   loginGovSecretKey,
+		loginGovClientID:    loginGovClientID,
+		hostname:            hostname,
+		logger:              logger,
 	}
 	return &handler
 }
@@ -92,7 +266,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
-		http.Redirect(w, r, fmt.Sprintf("%s/landing", h.hostname), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -122,6 +296,21 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+
+	// Sign a token and save it as a cookie on the client
+	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, h.clientAuthSecretKey)
+	if err != nil {
+		zap.L().Error("Generating signed token string", zap.Error(err))
+	}
+	cookie := http.Cookie{
+		Name:    UserSessionCookieName,
+		Value:   ss,
+		Path:    "/",
+		Expires: expiry,
+	}
+	http.SetCookie(w, &cookie)
+
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 }
@@ -160,7 +349,7 @@ func getAuthorizationURL(logger *zap.Logger) (string, error) {
 	return authURL.String(), err
 }
 
-func fetchToken(logger *zap.Logger, code string, loginGovSecretKey string, loginGovClientID string) (goth.Session, error) {
+func fetchToken(logger *zap.Logger, code string, loginGovSecretKey string, loginGovClientID string) (*openidConnect.Session, error) {
 	// TODO: Get the token endpoint URL from Goth instead when
 	// https://github.com/markbates/goth/pull/207 is resolved
 	tokenURL := "https://idp.int.identitysandbox.gov/api/openid_connect/token"

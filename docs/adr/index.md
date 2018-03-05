@@ -1,8 +1,9 @@
 # Architectural Decision Log
 
-This log lists the architectural decisions for DP3 server- and client-side code.
+This log lists the architectural decisions for DP3 Infrastructure.
 
-<!-- adrlog -- Regenerate the content by using "adr-log -i". You can install it via "npm install -g adr-log" -->
+<!--Regenerate the content by using "npx adr-log -i". You can install it via "yarn". -->
+<!-- adrlog -->
 
 - [ADR-0000](0000-server-framework.md) - Use Truss' [Golang](https://golang.org/) web server skeleton to build API for DP3
 - [ADR-0001](0001-go-orm.md) - Use [Pop](https://github.com/markbates/pop) as the ORM for 3M
@@ -17,11 +18,11 @@ This log lists the architectural decisions for DP3 server- and client-side code.
 - [ADR-0010](0010-isolate-test-access-to-database.md) - Isolate Test Access to Database
 - [ADR-0011](0011-test-suites.md) - Test Suites
 - [ADR-0012](0012-tsp-data-models.md) - The TSP Data Models
-- [ADR-0015](0015-session-storage.md) - Session storage/handling
+- [ADR-0013](0013-rest-api-updates.md) - REST API Updates
 
 <!-- adrlogstop -->
 
-For new ADRs, please use `template.md`.
+For new ADRs, please use [template.md](template.md).
 
 More information on MADR is available at <https://adr.github.io/madr/>.
 General information about architectural decision records is available at <https://adr.github.io/>.
