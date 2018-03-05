@@ -170,7 +170,7 @@ func FetchForm1299ByID(dbConnection *pop.Connection, id strfmt.UUID) (Form1299, 
 	return form1299, err
 }
 
-// Populates address fields for form1299 structs if ID is present
+// PopulateAddresses populates address fields for form1299 structs if ID is present
 func (f *Form1299) PopulateAddresses(dbConnection *pop.Connection) {
 	if f.OriginOfficeAddressID != nil {
 		f.OriginOfficeAddress = FetchAddressByID(dbConnection, f.OriginOfficeAddressID)
