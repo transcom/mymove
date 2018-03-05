@@ -3,7 +3,6 @@ package awardqueue
 import (
 	"fmt"
 	"math"
-	"sort"
 
 	"github.com/markbates/pop"
 
@@ -44,8 +43,6 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	if len(tspPerformances) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
-
-	sort.Sort(ByQualityBand(tspPerformances))
 
 	var shipmentAward *models.ShipmentAward
 	for _, tspPerformance := range tspPerformances {
@@ -107,22 +104,6 @@ func assignQualityBands() (qualityBands, error) {
 	tdl := models.TrafficDistributionList{}
 	tspPerfs, err := models.FetchTSPPerformanceForQualityBandAssignment(db, tdl.ID, mps)
 	return assignTSPsToBands(tspPerfs), err
-}
-
-// ByQualityBand implements sort.Interface for []tspPerformance based on
-// the QualityBand field then the BestValueScore field then Award Count field.
-type ByQualityBand models.TransportationServiceProviderPerformances
-
-func (q ByQualityBand) Swap(i, j int) { q[i], q[j] = q[j], q[i] }
-func (q ByQualityBand) Len() int      { return len(q) }
-func (q ByQualityBand) Less(i, j int) bool {
-	if *q[i].QualityBand != *q[j].QualityBand {
-		return *q[i].QualityBand < *q[j].QualityBand
-	}
-	if q[i].BestValueScore != q[j].BestValueScore {
-		return q[i].BestValueScore < q[j].BestValueScore
-	}
-	return q[i].AwardCount < q[j].AwardCount
 }
 
 // Run will execute the award queue algorithm.
