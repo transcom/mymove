@@ -2,6 +2,7 @@ package awardqueue
 
 import (
 	"fmt"
+	"log"
 	"math"
 
 	"github.com/markbates/pop"
@@ -52,7 +53,12 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
-				fmt.Print("\tShipment awarded to TSP!\n")
+				tspPerformance.AwardCount++
+				_, validationErr := db.ValidateAndSave(&tspPerformance)
+				if validationErr != nil {
+					log.Panic(validationErr)
+				}
+				fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards\n", tspPerformance.AwardCount)
 				break
 			} else {
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)

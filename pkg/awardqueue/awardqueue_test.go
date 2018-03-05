@@ -30,7 +30,7 @@ func TestAwardSingleShipment(t *testing.T) {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(db, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, mps+1, 0)
+	tspPerf, _ := testdatagen.MakeTSPPerformance(db, tsp, tdl, nil, mps+1, 0)
 
 	// Create a PossiblyAwardedShipment to feed the award queue
 	pas := models.PossiblyAwardedShipment{
@@ -51,6 +51,10 @@ func TestAwardSingleShipment(t *testing.T) {
 	}
 	if award == nil {
 		t.Error("ShipmentAward was not found.")
+	}
+	db.Find(&tspPerf, tspPerf.ID)
+	if tspPerf.AwardCount != 1 {
+		t.Errorf("AwardCount not incremented for TSP: %d", tspPerf.AwardCount)
 	}
 }
 
