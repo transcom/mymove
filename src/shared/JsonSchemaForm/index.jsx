@@ -1,15 +1,13 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
+import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
-import { Field, reduxForm } from 'redux-form';
+import { isEmpty } from 'lodash';
+import { reduxForm } from 'redux-form';
 import './index.css';
 
-const isEmpty = obj =>
-  Object.keys(obj).length === 0 && obj.constructor === Object;
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:
-   telephone numbers/ pattern validation
-   textbox vs textarea (e.g for addresses)
    dates look wonky in chrome
    styling in accordance with USWDS
    validate group names don't colide with field names
@@ -35,82 +33,104 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   return renderField(fieldName, fields, nameSpace);
 };
 
-const createDropDown = (fieldName, field, nameAttr) => {
-  return (
-    <Field name={nameAttr} component="select">
-      <option />
-      {field.enum.map(e => (
-        <option key={e} value={e}>
-          {field['x-display-value'][e]}
-        </option>
-      ))}
-    </Field>
-  );
-};
-
-const parseNumberField = value => (!value ? null : Number(value));
-const createNumberField = (fieldName, field, nameAttr) => (
-  <Field
-    component="input"
-    name={nameAttr}
-    parse={parseNumberField}
-    type="Number"
-  />
-);
-
-const createCheckbox = (fieldName, field, nameAttr) => {
-  return (
-    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
-  );
-};
-
-const createInputField = (fieldName, field, nameAttr) => {
-  return <Field name={nameAttr} component="input" type={field.format} />;
-};
-
-// This function switches on the type of the field and creates the correct
-// Label and Field combination.
-const createField = (fieldName, swaggerField, nameSpace) => {
-  // Early return here, this is an edge case for label placement.
-  // USWDS CSS only renders a checkbox if it is followed by its label
-  const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
-  if (swaggerField.type === 'boolean') {
-    return (
-      <Fragment key={fieldName}>
-        {createCheckbox(fieldName, swaggerField, nameAttr)}
-        <label htmlFor={fieldName}>{swaggerField.title || fieldName}</label>
-      </Fragment>
-    );
-  }
-
-  let fieldComponent;
-  if (swaggerField.enum) {
-    fieldComponent = createDropDown(fieldName, swaggerField, nameAttr);
-  } else if (swaggerField.type === 'integer') {
-    fieldComponent = createNumberField(fieldName, swaggerField, nameAttr);
-  } else {
-    // more cases go here. Datetime, Date, UUID
-    fieldComponent = createInputField(fieldName, swaggerField, nameAttr);
-  }
-
-  return (
-    <label key={fieldName}>
-      {swaggerField.title || fieldName}
-      {fieldComponent}
-    </label>
-  );
-};
-
 const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
     return;
   }
-  return createField(fieldName, field, nameSpace);
+  return SchemaField.createSchemaField(fieldName, field, nameSpace);
+};
+
+// Because we have nested objects it's possible to have
+// An object that is not-required that itself has required properties. This makes sense, in that
+// If the entire object is omitted (say, an address) then the form is valid, but if a
+// single property of the object is included, then all its required properties must be
+// as well.
+// Therefore, the rules for wether or not a field is required are:
+// 1. If it is listed in the top level definition, it's required.
+// 2. If it is required and it is an object, its required fields are required
+// 3. If it is an object and some value in it has been set, then all it's required fields must be set too
+// This is a recusive definition.
+export const recursivelyValidateRequiredFields = (values, spec) => {
+  let requiredErrors = {};
+  // first, check that all required fields are present
+  if (spec.required) {
+    spec.required.forEach(requiredFieldName => {
+      if (values[requiredFieldName] === undefined) {
+        // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
+        let schemaForKey = spec.properties[requiredFieldName];
+        if (schemaForKey) {
+          if (schemaForKey.type === 'object') {
+            let subErrors = recursivelyValidateRequiredFields({}, schemaForKey);
+            if (!isEmpty(subErrors)) {
+              requiredErrors[requiredFieldName] = subErrors;
+            }
+          } else {
+            requiredErrors[requiredFieldName] = 'Required.';
+          }
+        } else {
+          console.error('The schema should have all required fields in it.');
+        }
+      }
+    });
+  }
+
+  // now go through every existing value, if its an object, we must recurse to see if its required properties are there.
+  Object.keys(values).forEach(function(key) {
+    let schemaForKey = spec.properties[key];
+    if (schemaForKey) {
+      if (schemaForKey.type === 'object') {
+        let subErrors = recursivelyValidateRequiredFields(
+          values[key],
+          schemaForKey,
+        );
+        if (!isEmpty(subErrors)) {
+          requiredErrors[key] = subErrors;
+        }
+      }
+    } else {
+      console.error('The schema should have fields for all present values..');
+    }
+  });
+
+  return requiredErrors;
+};
+
+// To validate that fields are required, we look at the list of top level required
+// fields and then validate them and their children.
+const validateRequiredFields = (values, form, somethingelse, andhow) => {
+  const swaggerSpec = form.schema;
+  let requiredErrors;
+  if (swaggerSpec && !isEmpty(swaggerSpec)) {
+    requiredErrors = recursivelyValidateRequiredFields(values, swaggerSpec);
+  }
+  return requiredErrors;
+};
+
+// Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
+// Fields like Address in the Form1299 are not required, so even though they have required subfields they are not annotated.
+const recursivleyAnnotateRequiredFields = schema => {
+  if (schema.required) {
+    schema.required.forEach(requiredFieldName => {
+      // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
+      let schemaForKey = schema.properties[requiredFieldName];
+      if (schemaForKey) {
+        if (schemaForKey.type === 'object') {
+          recursivleyAnnotateRequiredFields(schemaForKey);
+        } else {
+          schemaForKey[ALWAYS_REQUIRED_KEY] = true;
+        }
+      } else {
+        console.error('The schema should have all required fields in it.');
+      }
+    });
+  }
 };
 
 const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
+    recursivleyAnnotateRequiredFields(schema);
+
     const fields = schema.properties || [];
     return uiSchema.order.map(i =>
       renderGroupOrField(i, fields, uiSchema, nameSpace),
@@ -151,4 +171,5 @@ JsonSchemaForm.defaultProps = {
   showSubmit: true,
 };
 
-export const reduxifyForm = name => reduxForm({ form: name })(JsonSchemaForm);
+export const reduxifyForm = name =>
+  reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);

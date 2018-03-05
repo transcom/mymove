@@ -100,6 +100,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 	t := suite.T()
 
 	var rankE6 = internalmessages.ServiceMemberRankE6
+	var ssn strfmt.SSN = "555-55-5555"
 	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := internalmessages.CreateForm1299Payload{
@@ -112,7 +113,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 		ServiceMemberFirstName:                 swag.String("random string bla"),
 		ServiceMemberMiddleInitial:             swag.String("random string bla"),
 		ServiceMemberLastName:                  swag.String("random string bla"),
-		ServiceMemberSsn:                       swag.String("random string bla"),
+		ServiceMemberSsn:                       &ssn,
 		ServiceMemberAgency:                    swag.String("random string bla"),
 		ServiceMemberRank:                      &rankE6,
 		HhgTotalPounds:                         fmtInt64(10500),
