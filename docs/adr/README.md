@@ -17,6 +17,7 @@ This log lists the architectural decisions for DP3 server- and client-side code.
 - [ADR-0010](0010-isolate-test-access-to-database.md) - Isolate Test Access to Database
 - [ADR-0011](0011-test-suites.md) - Test Suites
 - [ADR-0012](0012-tsp-data-models.md) - The TSP Data Models
+- [ADR-0015](0015-session-storage.md) - Session storage/handling
 
 <!-- adrlogstop -->
 

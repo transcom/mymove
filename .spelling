@@ -95,6 +95,10 @@ E2E_BASE
 url
 ngrok
 localtunnel
+Redis
+stateful
+Memcached
+jwt-go
 ADR-0000
 ADR-0001
 ADR-0002
