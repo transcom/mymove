@@ -45,13 +45,13 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	}
 
 	var shipmentAward *models.ShipmentAward
+
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
 		if err := db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 			shipmentAward, err = models.CreateShipmentAward(db, shipment.ID, tsp.ID, false)
 			if err == nil {
-				tspPerformance.AwardCount++
 				fmt.Print("\tShipment awarded to TSP!\n")
 				break
 			} else {
