@@ -90,6 +90,10 @@ E2E_BASE
 url
 ngrok
 localtunnel
+Redis
+stateful
+Memcached
+jwt-go
  - docs/backend.md
 _Regenerate
 _
