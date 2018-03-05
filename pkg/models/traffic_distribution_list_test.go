@@ -1,8 +1,10 @@
-package models
+package models_test
 
-import "testing"
+import (
+	. "github.com/transcom/mymove/pkg/models"
+)
 
-func Test_TrafficDistributionList(t *testing.T) {
+func (suite *ModelSuite) Test_TrafficDistributionList() {
 	tdl := &TrafficDistributionList{}
 
 	var expErrors = map[string][]string{
@@ -11,5 +13,5 @@ func Test_TrafficDistributionList(t *testing.T) {
 		"code_of_service":    []string{"CodeOfService can not be blank."},
 	}
 
-	verifyValidationErrors(tdl, expErrors, t)
+	suite.verifyValidationErrors(tdl, expErrors)
 }

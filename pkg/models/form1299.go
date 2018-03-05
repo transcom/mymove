@@ -151,7 +151,7 @@ func FetchAllForm1299s(dbConnection *pop.Connection) (Form1299s, error) {
 		zap.L().Error("DB Query", zap.Error(err))
 	} else {
 		for i, form1299 := range form1299s {
-			form1299.populateAddresses(dbConnection)
+			form1299.PopulateAddresses(dbConnection)
 			form1299s[i] = form1299
 		}
 	}
@@ -165,13 +165,13 @@ func FetchForm1299ByID(dbConnection *pop.Connection, id strfmt.UUID) (Form1299, 
 	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 	} else {
-		form1299.populateAddresses(dbConnection)
+		form1299.PopulateAddresses(dbConnection)
 	}
 	return form1299, err
 }
 
 // Populates address fields for form1299 structs if ID is present
-func (f *Form1299) populateAddresses(dbConnection *pop.Connection) {
+func (f *Form1299) PopulateAddresses(dbConnection *pop.Connection) {
 	if f.OriginOfficeAddressID != nil {
 		f.OriginOfficeAddress = FetchAddressByID(dbConnection, f.OriginOfficeAddressID)
 	}

@@ -1,7 +1,6 @@
 package models_test
 
-import "testing"
-
-func Test_BlackoutDate(t *testing.T) {
+func (suite *ModelSuite) Test_BlackoutDate() {
+	// t := suite.T()
 	// TODO: add test for this model
 }
