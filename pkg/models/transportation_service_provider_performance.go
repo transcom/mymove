@@ -76,6 +76,7 @@ func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps i
 			best_value_score > $2
 		ORDER BY
 			award_count ASC,
+			quality_band DESC,
 			best_value_score DESC
 		`
 

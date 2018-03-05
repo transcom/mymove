@@ -120,7 +120,7 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(db, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(db, "Test TSP 3", "TSP3")
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(db, tsp1, tdl, nil, mps+1, 0)
 	testdatagen.MakeTSPPerformance(db, tsp2, tdl, nil, mps+3, 1)
