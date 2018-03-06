@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
+	"github.com/satori/go.uuid"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -111,6 +113,83 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 	}
 }
 
+// Test_FetchTSPPerformanceForAwardQueueAllNullAwarded ensures that TSPs are returned in the expected
+// order for the Award Queue operation.
+func Test_FetchTSPPerformanceForAwardQueueAllNullAwarded(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
+	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
+
+	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
+
+	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
+
+	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID, tsp5.ID}
+	if err != nil {
+		t.Errorf("Failed to find TSP: %v", err)
+	} else if len(tsps) != 5 {
+		t.Errorf("Failed to find TSPs. Expected to find 5, found %d", len(tsps))
+	}
+
+	TSPorder := []uuid.UUID{
+		tsps[0].TransportationServiceProviderID,
+		tsps[1].TransportationServiceProviderID,
+		tsps[2].TransportationServiceProviderID,
+		tsps[3].TransportationServiceProviderID,
+		tsps[4].TransportationServiceProviderID}
+
+	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
+		t.Errorf("TSPs returned out of expected order.\n"+
+			"\tExpected: %v \nFound: %v",
+			expectedTSPorder,
+			TSPorder)
+	}
+}
+
+// Test_FetchTSPPerformanceForAwardQueueHalfAwarded ensures that TSPs are returned in the expected
+// order for the Award Queue operation.
+func Test_FetchTSPPerformanceForAwardQueueHalfAwarded(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
+
+	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 5)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 3)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
+
+	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
+
+	expectedTSPorder := []uuid.UUID{tsp3.ID, tsp4.ID, tsp1.ID, tsp2.ID}
+	if err != nil {
+		t.Errorf("Failed to find TSP: %v", err)
+	} else if len(tsps) != 4 {
+		t.Errorf("Failed to find TSPs. Expected to find 4, found %d", len(tsps))
+	}
+
+	TSPorder := []uuid.UUID{
+		tsps[2].TransportationServiceProviderID,
+		tsps[3].TransportationServiceProviderID,
+		tsps[0].TransportationServiceProviderID,
+		tsps[1].TransportationServiceProviderID}
+
+	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
+		t.Errorf("TSPs returned out of expected order.\n"+
+			"\tExpected: %v \nFound: %v",
+			expectedTSPorder,
+			TSPorder)
+	}
+}
+
 // Test_FetchTSPPerformanceForQualityBandAssignment ensures that TSPs are returned in the expected
 // order for the division into quality bands.
 func Test_FetchTSPPerformanceForQualityBandAssignment(t *testing.T) {
@@ -163,4 +242,16 @@ func Test_MinimumPerformanceScore(t *testing.T) {
 			tsp1.ID,
 			tsps[0].TransportationServiceProviderID)
 	}
+}
+
+func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
+	if len(a) != len(b) {
+		return false
+	}
+	for i, v := range a {
+		if v != b[i] {
+			return false
+		}
+	}
+	return true
 }
