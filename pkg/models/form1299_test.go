@@ -1,4 +1,4 @@
-package models
+package models_test
 
 import (
 	"fmt"
@@ -7,6 +7,8 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/satori/go.uuid"
+
+	. "github.com/transcom/mymove/pkg/models"
 )
 
 func TestBasicForm1299Instantiation(t *testing.T) {
@@ -153,8 +155,8 @@ func TestPopulateAddressesMethod(t *testing.T) {
 		t.Fatal("Form should not have an address yet")
 	}
 
-	// When: populateAddresses is called
-	returnedForm.populateAddresses(dbConnection)
+	// When: PopulateAddresses is called
+	returnedForm.PopulateAddresses(dbConnection)
 
 	// Then: Addresses are populated as expected
 	if returnedForm.OriginOfficeAddress == nil {
