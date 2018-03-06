@@ -1,9 +1,11 @@
-package models
+package models_test
 
 import (
 	"testing"
 
 	"github.com/satori/go.uuid"
+
+	. "github.com/transcom/mymove/pkg/models"
 )
 
 func TestUserCreation(t *testing.T) {
