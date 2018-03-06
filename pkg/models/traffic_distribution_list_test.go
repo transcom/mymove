@@ -3,6 +3,8 @@ package models_test
 import (
 	"testing"
 
+	"github.com/go-openapi/swag"
+
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -26,7 +28,7 @@ func Test_FetchTDLsAwaitingBandAssignment(t *testing.T) {
 
 	notFoundTDL, _ := testdatagen.MakeTDL(dbConnection, "california", "90210", "2")
 	notFoundTSP, _ := testdatagen.MakeTSP(dbConnection, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(dbConnection, notFoundTSP, notFoundTDL, intPtr(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, notFoundTSP, notFoundTDL, swag.Int(1), mps+1, 0)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(dbConnection)
 	if err != nil {
@@ -36,8 +38,4 @@ func Test_FetchTDLsAwaitingBandAssignment(t *testing.T) {
 	if len(tdls) != 1 {
 		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(tdls))
 	}
-}
-
-func intPtr(i int) *int {
-	return &i
 }
