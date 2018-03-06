@@ -2,6 +2,7 @@ package models_test
 
 import (
 	"github.com/satori/go.uuid"
+
 	. "github.com/transcom/mymove/pkg/models"
 )
 
