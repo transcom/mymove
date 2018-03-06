@@ -1,8 +1,10 @@
-package models
+package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"testing"
+
+	"github.com/go-openapi/swag"
+	. "github.com/transcom/mymove/pkg/models"
 )
 
 func TestBasicAddressInstantiation(t *testing.T) {
