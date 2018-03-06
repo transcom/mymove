@@ -18,6 +18,7 @@ import (
 	"github.com/gorilla/context"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
 )
 
 func TestGenerateNonce(t *testing.T) {
@@ -153,6 +154,7 @@ func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
 func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 
 	pem, err := createRandomRSAPEM()
 	if err != nil {
@@ -161,7 +163,7 @@ func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 
 	// Brand new token, shouldn't be renewed
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(fakeUUID, email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -191,6 +193,7 @@ func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 
 	pem, err := createRandomRSAPEM()
 	if err != nil {
@@ -199,7 +202,7 @@ func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 
 	// Token will expire in 1 minute, should be renewed
 	expiry := getExpiryTimeFromMinutes(1)
-	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(fakeUUID, email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -229,6 +232,7 @@ func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 
 	pem, err := createRandomRSAPEM()
 	if err != nil {
@@ -236,7 +240,7 @@ func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 	}
 
 	expiry := getExpiryTimeFromMinutes(-1)
-	ss, err := signTokenStringWithUserInfo(email, idToken, expiry, pem)
+	ss, err := signTokenStringWithUserInfo(fakeUUID, email, idToken, expiry, pem)
 	if err != nil {
 		t.Fatal(err)
 	}
