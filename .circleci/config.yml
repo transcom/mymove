@@ -217,12 +217,6 @@ workflows:
           filters:
             branches:
               only: master
-      - integration_tests:
-          requires:
-            - deploy_app
-          filters:
-            branches:
-              only: master
 
   dependency_updater:
     triggers:
