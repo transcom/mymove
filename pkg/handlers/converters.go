@@ -38,3 +38,12 @@ func fmtInt64(i int) *int64 {
 	fmtInt := int64(i)
 	return &fmtInt
 }
+
+func stringFromSSN(ssn *strfmt.SSN) *string {
+	var stringPointer *string
+	if ssn != nil {
+		plainString := ssn.String()
+		stringPointer = &plainString
+	}
+	return stringPointer
+}

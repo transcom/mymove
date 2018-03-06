@@ -126,17 +126,21 @@ definitions:
       description:
         type: string
         example: This is a test issue
+        format: textarea
         minLength: 1
         maxLength: 1024
+        title: Description
       reporter_name:
         type: string
         example: Jane Doe
         x-nullable: true
+        title: Reporter Name
       due_date:
         type: string
         format: date
-        example: 2018-03-15
+        example: 2019-03-15
         x-nullable: true
+        title: Due Date
     required:
       - description
   IndexIssuesPayload:
@@ -226,6 +230,7 @@ definitions:
         $ref: '#/definitions/ServiceMemberRank'
       service_member_ssn:
         type: string
+        format: ssn
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
@@ -348,6 +353,7 @@ definitions:
         title: Paragraph Number
       station_orders_in_transit_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         x-nullable: true
@@ -358,6 +364,7 @@ definitions:
         $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
@@ -527,6 +534,7 @@ definitions:
         $ref: '#/definitions/ServiceMemberRank'
       service_member_ssn:
         type: string
+        format: ssn
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
@@ -625,6 +633,7 @@ definitions:
         x-nullable: true
       station_orders_in_transit_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-666-6666
         x-nullable: true
@@ -634,6 +643,7 @@ definitions:
         $ref: '#/definitions/Address'
       pickup_telephone:
         type: string
+        format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
@@ -959,6 +969,7 @@ definitions:
           - WY
       zip:
         type: string
+        format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
