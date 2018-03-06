@@ -16,13 +16,11 @@ import (
 	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 
-	"github.com/go-openapi/runtime/logger"
-	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
-	"gopkg.in/mgo.v2/dbtest"
 )
 
 const gothProviderType = "openid-connect"
@@ -36,8 +34,9 @@ const UserSessionCookieName = "user_session"
 
 // UserClaims wraps StandardClaims with some user info we care about
 type UserClaims struct {
-	Email   string `json:"email"`
-	IDToken string `json:"id_token"`
+	UserID  uuid.UUID `json:"user_id"`
+	Email   string    `json:"email"`
+	IDToken string    `json:"id_token"`
 	jwt.StandardClaims
 }
 
@@ -56,8 +55,9 @@ func shouldRenewForClaims(claims UserClaims) bool {
 	return exp < renewal
 }
 
-func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
+func signTokenStringWithUserInfo(userID uuid.UUID, email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
 	claims := UserClaims{
+		userID,
 		email,
 		idToken,
 		jwt.StandardClaims{
@@ -146,11 +146,8 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 // UserAuthMiddleware attempts to populate user data onto request context
 func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
-		fmt.Println("LSDFKJLKSDFJLKSDJF")
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := getUserClaimsFromRequest(secret, r)
-			fmt.Println("CLAIMS", claims)
-
 			if !ok {
 				next.ServeHTTP(w, r)
 				return
@@ -159,7 +156,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			if shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-				ss, err := signTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
+				ss, err := signTokenStringWithUserInfo(claims.UserID, claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
 					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
@@ -173,12 +170,12 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			}
 
 			// And put the user info on the request context
+			context.Set(r, "user_id", claims.UserID)
 			context.Set(r, "email", claims.Email)
 			context.Set(r, "id_token", claims.IDToken)
 
 			next.ServeHTTP(w, r)
 		}
-		fmt.Println("SLDKFJLSKDJF")
 		return http.HandlerFunc(mw)
 	}
 }
@@ -308,12 +305,17 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
-	fmt.Println("!!!", h.db)
-	//user, err := getOrCreateUser(openIDuser.RawData)
+
+	user, err := getOrCreateUser(h.db, openIDuser.RawData)
+	if err != nil {
+		h.logger.Error("Unable to create user.", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
 
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, h.clientAuthSecretKey)
+	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
 		zap.L().Error("Generating signed token string", zap.Error(err))
 	}
@@ -325,43 +327,38 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	}
 	http.SetCookie(w, &cookie)
 
-	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
+	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.LoginGovEmail)
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 }
 
-//func getOrCreateUser(userData map[string]interface{}) (models.User, error) {
-//
-//	// Check if user already exists
-//	loginGovUUID := userData["sub"].(string)
-//	query := dbConnection.Where("login_gov_uuid = ?", loginGovUUID)
-//	var users []models.User
-//	err := query.All(&users)
-//	if err != nil {
-//		zap.L().Error("DB Query Error", zap.Error(err))
-//		return (models.User{}), err
-//	}
-//
-//	if len(users) > 1 {
-//		zap.L().Panic("More than one user found with logingov UUID.", zap.Error(err))
-//	}
-//
-//	if len(users) == 0 {
-//		fmt.Println("USER NOT FOUND. Attempting to create user.")
-//		loginGovUUID, _ := uuid.FromString(loginGovUUID)
-//		loginGovEmail := userData["email"].(string)
-//		newUser := models.User{
-//			LoginGovUUID:  loginGovUUID,
-//			LoginGovEmail: loginGovEmail,
-//		}
-//		if _, err := dbConnection.ValidateAndCreate(&newUser); err != nil {
-//			zap.L().Error("Unable to create user", zap.Error(err))
-//			return (models.User{}), err
-//		}
-//		return newUser, nil
-//	}
-//	// if here, one user was found
-//	return users[0], nil
-//}
+func getOrCreateUser(db *pop.Connection, userData map[string]interface{}) (models.User, error) {
+
+	// Check if user already exists
+	loginGovUUID := userData["sub"].(string)
+	query := db.Where("login_gov_uuid = ?", loginGovUUID)
+	var users []models.User
+	err := query.All(&users)
+	if err != nil {
+		zap.L().Error("DB Query Error", zap.Error(err))
+		return (models.User{}), err
+	}
+
+	if len(users) == 0 {
+		loginGovUUID, _ := uuid.FromString(loginGovUUID)
+		loginGovEmail := userData["email"].(string)
+		newUser := models.User{
+			LoginGovUUID:  loginGovUUID,
+			LoginGovEmail: loginGovEmail,
+		}
+		if _, err := db.ValidateAndCreate(&newUser); err != nil {
+			zap.L().Error("Unable to create user", zap.Error(err))
+			return (models.User{}), err
+		}
+		return newUser, nil
+	}
+	// one user was found, return it
+	return users[0], nil
+}
 
 func getAuthorizationURL(logger *zap.Logger) (string, error) {
 	provider, err := goth.GetProvider(gothProviderType)
