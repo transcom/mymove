@@ -120,6 +120,20 @@ paths:
           description: server error
 
 definitions:
+  LegalesePayload:
+    type: object
+    properties:
+      date:
+        type: string
+        format: date
+      signature:
+        type: string
+      legalese_text:
+        type: string
+    required:
+      - date
+      - signature
+      - legalese_text
   CreateIssuePayload:
     type: object
     properties:
