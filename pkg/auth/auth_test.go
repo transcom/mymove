@@ -10,7 +10,6 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"net/url"
-	"os"
 	"regexp"
 	"testing"
 	"time"
@@ -19,27 +18,44 @@ import (
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 )
 
-func TestGenerateNonce(t *testing.T) {
-	nonce := generateNonce()
+type AuthSuite struct {
+	suite.Suite
+	db     *pop.Connection
+	logger *zap.Logger
+}
 
-	if (nonce == "") || (len(nonce) < 1) {
-		t.Error("No nonce was returned.")
+func (suite *AuthSuite) SetupTest() {
+	suite.db.TruncateAll()
+}
+
+func (suite *AuthSuite) mustSave(model interface{}) {
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(err)
+	}
+	if verrs.Count() > 0 {
+		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
 	}
 }
 
-var dbConnection *pop.Connection
-
-func setupDBConnection() {
+func TestAuthSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
-	conn, err := pop.Connect("test")
+	db, err := pop.Connect("test")
 	if err != nil {
 		log.Panic(err)
 	}
 
-	dbConnection = conn
+	logger, err := zap.NewDevelopment()
+	if err != nil {
+		log.Panic(err)
+	}
+	hs := &AuthSuite{db: db, logger: logger}
+	suite.Run(t, hs)
 }
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
@@ -75,12 +91,17 @@ func createRandomRSAPEM() (s string, err error) {
 	return
 }
 
-func TestMain(m *testing.M) {
-	setupDBConnection()
-	os.Exit(m.Run())
+func (suite *AuthSuite) TestGenerateNonce() {
+	t := suite.T()
+	nonce := generateNonce()
+
+	if (nonce == "") || (len(nonce) < 1) {
+		t.Error("No nonce was returned.")
+	}
 }
 
-func TestAuthorizationLogoutHandler(t *testing.T) {
+func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
+	t := suite.T()
 	fakeToken := "some_token"
 	testHostname := "hostname"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
@@ -120,7 +141,8 @@ func TestAuthorizationLogoutHandler(t *testing.T) {
 	}
 }
 
-func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
+func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
+	t := suite.T()
 	fakeToken := "some_token"
 	pem, err := createRandomRSAPEM()
 	if err != nil {
@@ -151,7 +173,8 @@ func TestEnforceUserAuthMiddlewareWithBadToken(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
+func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
+	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -190,7 +213,8 @@ func TestUserAuthMiddlewareWithValidToken(t *testing.T) {
 	}
 }
 
-func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
+func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
+	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -229,7 +253,8 @@ func TestUserAuthMiddlewareWithRenewalToken(t *testing.T) {
 	}
 }
 
-func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
+func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
+	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
@@ -267,3 +292,8 @@ func TestPassiveUserAuthMiddlewareWithExpiredToken(t *testing.T) {
 		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
 	}
 }
+
+//func (suite *AuthSuite) TestGetOrCreateUserWithNewUser() {
+//t := suite.T()
+//
+//}
