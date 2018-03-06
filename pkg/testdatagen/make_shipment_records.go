@@ -18,7 +18,7 @@ func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 		TrafficDistributionListID: tdl.ID,
 		PickupDate:                pickup,
 		DeliveryDate:              delivery,
-		Gbloc:                     "AGFM",
+		GBLOC:                     "AGFM",
 		Market:                    &market,
 	}
 
