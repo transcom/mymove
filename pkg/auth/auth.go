@@ -16,7 +16,14 @@ import (
 	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/markbates/pop"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
+
+	"github.com/go-openapi/runtime/logger"
+	"github.com/markbates/pop"
+	"github.com/transcom/mymove/pkg/models"
+	"gopkg.in/mgo.v2/dbtest"
 )
 
 const gothProviderType = "openid-connect"
@@ -140,8 +147,11 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 // UserAuthMiddleware attempts to populate user data onto request context
 func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
+		fmt.Println("LSDFKJLKSDFJLKSDJF")
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := getUserClaimsFromRequest(secret, r)
+			fmt.Println("CLAIMS", claims)
+
 			if !ok {
 				next.ServeHTTP(w, r)
 				return
@@ -169,6 +179,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 
 			next.ServeHTTP(w, r)
 		}
+		fmt.Println("SLDKFJLSKDJF")
 		return http.HandlerFunc(mw)
 	}
 }
@@ -240,6 +251,7 @@ func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 // AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
+	db                  *pop.Connection
 	clientAuthSecretKey string
 	loginGovSecretKey   string
 	loginGovClientID    string
@@ -248,8 +260,9 @@ type AuthorizationCallbackHandler struct {
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
+		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		loginGovSecretKey:   loginGovSecretKey,
 		loginGovClientID:    loginGovClientID,
@@ -290,12 +303,14 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	user, err := provider.FetchUser(session)
+	openIDuser, err := provider.FetchUser(session)
 	if err != nil {
 		h.logger.Error("Login.gov user info request", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
+	fmt.Println("!!!", h.db)
+	//user, err := getOrCreateUser(openIDuser.RawData)
 
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
@@ -314,6 +329,40 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
 }
+
+//func getOrCreateUser(userData map[string]interface{}) (models.User, error) {
+//
+//	// Check if user already exists
+//	loginGovUUID := userData["sub"].(string)
+//	query := dbConnection.Where("login_gov_uuid = ?", loginGovUUID)
+//	var users []models.User
+//	err := query.All(&users)
+//	if err != nil {
+//		zap.L().Error("DB Query Error", zap.Error(err))
+//		return (models.User{}), err
+//	}
+//
+//	if len(users) > 1 {
+//		zap.L().Panic("More than one user found with logingov UUID.", zap.Error(err))
+//	}
+//
+//	if len(users) == 0 {
+//		fmt.Println("USER NOT FOUND. Attempting to create user.")
+//		loginGovUUID, _ := uuid.FromString(loginGovUUID)
+//		loginGovEmail := userData["email"].(string)
+//		newUser := models.User{
+//			LoginGovUUID:  loginGovUUID,
+//			LoginGovEmail: loginGovEmail,
+//		}
+//		if _, err := dbConnection.ValidateAndCreate(&newUser); err != nil {
+//			zap.L().Error("Unable to create user", zap.Error(err))
+//			return (models.User{}), err
+//		}
+//		return newUser, nil
+//	}
+//	// if here, one user was found
+//	return users[0], nil
+//}
 
 func getAuthorizationURL(logger *zap.Logger) (string, error) {
 	provider, err := goth.GetProvider(gothProviderType)

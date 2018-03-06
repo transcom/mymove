@@ -119,7 +119,7 @@ func main() {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Use(authMiddleware)
 	authMux.Handle(pat.Get("/login-gov"), auth.NewAuthorizationRedirectHandler(logger, fullHostname))
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger, dbConnection))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(fullHostname))
 
 	root.Handle(pat.Get("/static/*"), clientHandler)
