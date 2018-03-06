@@ -22,7 +22,7 @@ promise.USE_PROMISE_MANAGER = false;
 // jest.set_timeout() doesn't work in this circumstance, so using jasmine timeout.
 jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 60 * 5;
 
-const WAIT_TIME = 1000 * 10;
+const WEB_DRIVER_WAIT_TIME = 1000 * 10;
 
 beforeAll(async function() {
   driver = new webdriver.Builder()
@@ -50,7 +50,7 @@ describe('issue pages', async () => {
     // When: Page is loaded, should display expected title
     await driver.wait(
       until.titleIs('Transcom PPP: Submit Feedback'),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
   });
 
@@ -69,14 +69,14 @@ describe('issue pages', async () => {
     await driver.get(buildURL('submitted'));
     await driver.wait(
       until.titleIs('Transcom PPP: Submitted Feedback'),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
 
     issue_cards = await driver.findElement(By.className('issue-cards'));
     // Expect: Submitted issue exists on page
     await driver.wait(
       until.elementTextContains(issue_cards, test_issue),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
   });
 });
@@ -85,7 +85,10 @@ describe('shipments pages', async () => {
   it('loads all shipments page', async () => {
     // When: Page is loaded, should display expected title
     await driver.navigate().to(buildURL('shipments/all'));
-    await driver.wait(until.titleIs('Transcom PPP: All Shipments'), WAIT_TIME);
+    await driver.wait(
+      until.titleIs('Transcom PPP: All Shipments'),
+      WEB_DRIVER_WAIT_TIME,
+    );
   });
 
   it('loads available shipments page', async () => {
@@ -93,7 +96,7 @@ describe('shipments pages', async () => {
     await driver.navigate().to(buildURL('shipments/available'));
     await driver.wait(
       until.titleIs('Transcom PPP: Available Shipments'),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
   });
 
@@ -102,7 +105,7 @@ describe('shipments pages', async () => {
     await driver.navigate().to(buildURL('shipments/awarded'));
     await driver.wait(
       until.titleIs('Transcom PPP: Awarded Shipments'),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
   });
 
@@ -111,7 +114,7 @@ describe('shipments pages', async () => {
     // Expect: Alert error exists on page
     await driver.wait(
       until.elementLocated(By.className('usa-alert-error')),
-      WAIT_TIME,
+      WEB_DRIVER_WAIT_TIME,
     );
   });
 });
@@ -121,7 +124,10 @@ describe('DD1299 page', async () => {
 
   it('loads DD1299 page', async () => {
     // When: Page is loaded, should display expected title
-    await driver.wait(until.titleIs('Transcom PPP: DD1299'), WAIT_TIME);
+    await driver.wait(
+      until.titleIs('Transcom PPP: DD1299'),
+      WEB_DRIVER_WAIT_TIME,
+    );
   });
 });
 
