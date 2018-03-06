@@ -11,7 +11,7 @@ import DD1299 from 'scenes/DD1299';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
-
+import PrivateRoute from 'shared/User/PrivateRoute';
 const redirect = pathname => () => (
   <Redirect
     to={{
