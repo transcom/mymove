@@ -13,6 +13,8 @@ import (
 
 // No test includes a zip3 or a volume_move value, as we're not
 // currently fully implementing those.
+
+// MakeBlackoutDate creates a test blackoutDate object to add to the database.
 func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
 	tdl *models.TrafficDistributionList, cos *string, channel *string, gbloc *string,
 	market *string) (models.BlackoutDate, error) {
@@ -36,8 +38,8 @@ func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvid
 	return blackoutDates, err
 }
 
+// MakeBlackoutDateData creates three blackoutDate objects and commits them to the blackout_dates table.
 func MakeBlackoutDateData(db *pop.Connection) {
-
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
 	err := db.All(&tspList)

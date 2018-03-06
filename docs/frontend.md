@@ -28,7 +28,7 @@
   * [JavaScript Concepts](#javascript-concepts)
   * [Resources](#resources)
 
-_Regenerate with `bin/generate-md-toc.sh`_
+_Regenerate with error: must supply a markdown file to generate table of contents._
 
 <!-- tocstop -->
 
