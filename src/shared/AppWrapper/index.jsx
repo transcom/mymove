@@ -27,7 +27,7 @@ const AppWrapper = () => (
         <Route exact path="/" component={Feedback} />
         <Route path="/submitted" component={SubmittedFeedback} />
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
-        <Route path="/DD1299" component={DD1299} />
+        <PrivateRoute path="/DD1299" component={DD1299} />
         <Route path="/landing" component={Landing} />
         <Route exact path="/mymove" render={redirect('/mymove/intro')} />
         {WizardDemo()}
