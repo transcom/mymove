@@ -88,7 +88,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 	}
 }
 
-func TestAwardQueueEndToEnd(t *testing.T) {
+func TestAwardAssignUnawardedShipments(t *testing.T) {
 	queue := NewAwardQueue(testDB)
 
 	shipmentsToMake := 10
