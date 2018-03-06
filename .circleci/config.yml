@@ -126,10 +126,10 @@ jobs:
       - checkout
       - run:
           name: Snapshot database
-          command: bin/rds-snapshot-app-db staging
+          command: bin/rds-snapshot-app-db experimental
       - run:
           name: Run database migrations
-          command: bin/ecs-run-migration-container ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} staging
+          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:${CIRCLE_SHA1} experimental
       - run: *announce_failure
 
   deploy_app:
@@ -139,10 +139,8 @@ jobs:
       - checkout
       - setup_remote_docker
       - deploy:
-          name: Deploy demo site
-          command: |
-            bash -c "$(aws ecr get-login --no-include-email --region $AWS_DEFAULT_REGION)"
-            ecs-deploy -c app-staging -n app -t 600 -i ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1}
+          name: Deploy experimental site
+          command: bin/ecs-deploy-app-container config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:${CIRCLE_SHA1} experimental
       - run: *announce_failure
 
   integration_tests:
@@ -210,13 +208,13 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: bsik-ecs-refactor
       - deploy_app:
           requires:
             - deploy_migrations
           filters:
             branches:
-              only: master
+              only: bsik-ecs-refactor
 
   dependency_updater:
     triggers:
