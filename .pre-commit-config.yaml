@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v1.2.0
+    sha: v1.2.1-1
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -61,6 +61,20 @@ repos:
   - repo: git://github.com/dnephin/pre-commit-golang
     sha: 12ebecb5071d6c407f722dfbcc3eb6654b38f3df
     hooks:
-      - id: go-fmt
-      - id: go-vet
-      - id: go-lint
+    -   id: go-fmt
+    -   id: go-vet
+    -   id: go-lint
+
+  - repo: local
+    hooks:
+      - id: mdspell
+        name: mdspell
+        entry: bin/pre-commit-spellcheck
+        language: script
+        files: \.md$
+        exclude: >
+          (?x)^(
+            node_modules/|
+            vendor/|
+            docs/adr/README.md
+          )$

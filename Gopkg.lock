@@ -44,6 +44,7 @@
     "aws/request",
     "aws/session",
     "aws/signer/v4",
+    "internal/sdkrand",
     "internal/shareddefaults",
     "private/protocol",
     "private/protocol/json/jsonutil",
@@ -56,14 +57,14 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "82eadef012f77590875babb177c60878727821c0"
-  version = "v1.12.74"
+  revision = "f7f1ee9550cc76ceea731d99c8dbe00a0c39f66d"
+  version = "v1.13.4"
 
 [[projects]]
   branch = "master"
   name = "github.com/cockroachdb/cockroach-go"
   packages = ["crdb"]
-  revision = "0d8b4682f140f0fe486ef7e3d2f70665f3066906"
+  revision = "59c0560478b705bf9bd12f9252224a0fad7c87df"
 
 [[projects]]
   branch = "master"
@@ -87,10 +88,10 @@
   version = "v1.1.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/daviddengcn/go-colortext"
   packages = ["."]
   revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
+  version = "1.0.0"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -107,8 +108,8 @@
 [[projects]]
   name = "github.com/fatih/color"
   packages = ["."]
-  revision = "570b54cabe6b8eb0bc2dfce68d964677d63b5260"
-  version = "v1.5.0"
+  revision = "507f6050b8568533fb3f5504de8e5205fa62a114"
+  version = "v1.6.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -180,7 +181,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "e5cac0107f33264c59bcfe43d12a0e19eba644f0"
+  revision = "1de3e0542de65ad8d75452a595886fdd0befb363"
 
 [[projects]]
   branch = "master"
@@ -192,13 +193,13 @@
   branch = "master"
   name = "github.com/go-openapi/swag"
   packages = ["."]
-  revision = "84f4bee7c0a6db40e3166044c7983c1c32125429"
+  revision = "0d03ad0b6405ada874d59d97c416b5cf4234e154"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "19a59381e29bac1412963d73aac16803265a71a3"
+  revision = "180bba53b98899f743a112e568bed9e2ef31aa20"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -222,8 +223,8 @@
 [[projects]]
   name = "github.com/gobuffalo/envy"
   packages = ["."]
-  revision = "e613c80275b86293880eddeb27417c9a7c670ff3"
-  version = "v1.3.0"
+  revision = "50fabbbaf1e65fc9b739f37a00590c396485d84d"
+  version = "v1.4.0"
 
 [[projects]]
   name = "github.com/gobuffalo/makr"
@@ -234,8 +235,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "64c3dd439b5efc5cd9fb69a8fb209a03cd7c5b86"
-  version = "v1.10.3"
+  revision = "6434a292ac52e6964adebfdce3f9ce6d9f16be01"
+  version = "v1.10.4"
 
 [[projects]]
   branch = "master"
@@ -244,13 +245,19 @@
     ".",
     "golint"
   ]
-  revision = "e14d9b0f1d332b1420c1ffa32562ad2dc84d645d"
+  revision = "3ea3fa98a8104b2c8f8a7bffaebc7e54dddf99e1"
 
 [[projects]]
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   revision = "925541529c1fa6821df4e44ce2723319eb2be768"
   version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/gorilla/context"
+  packages = ["."]
+  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
+  version = "v1.1"
 
 [[projects]]
   name = "github.com/gorilla/handlers"
@@ -331,8 +338,8 @@
 [[projects]]
   name = "github.com/magiconair/properties"
   packages = ["."]
-  revision = "d419a98cdbed11a922bf76f257b7c4be79b50e73"
-  version = "v1.7.4"
+  revision = "c3beff4c2358b44d0493c7dda585e7db7ff28ae6"
+  version = "v1.7.6"
 
 [[projects]]
   branch = "master"
@@ -360,14 +367,14 @@
     ".",
     "providers/openidConnect"
   ]
-  revision = "7bce57bf3e9a3d61d19787b7abc41daefb8dbc44"
-  version = "v1.45.2"
+  revision = "bc7deaf077a50416cf3a23aa5903d2a7b5a30ada"
+  version = "v1.45.3"
 
 [[projects]]
   branch = "master"
   name = "github.com/markbates/inflect"
   packages = ["."]
-  revision = "fec282d55240317f603bca7e2e4d81865cc84f4e"
+  revision = "80fa1ea41b0dc859816314ab0b85f07a6bc57923"
 
 [[projects]]
   name = "github.com/markbates/pop"
@@ -382,8 +389,8 @@
     "soda/cmd/generate",
     "soda/cmd/schema"
   ]
-  revision = "2a4f22c5d7806305df801668254060d7a47a2863"
-  version = "3.60.0"
+  revision = "f230643ae0f8fa01e9444c2fb857ba1f1a78eb1f"
+  version = "v3.60.5"
 
 [[projects]]
   name = "github.com/markbates/validate"
@@ -427,7 +434,7 @@
     "parser",
     "vm"
   ]
-  revision = "44bfbd5ea908ffdb0c8ac1733d6bf208cce39100"
+  revision = "d5441ca3f0c7e071a9ede864f9db2cc652690f42"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -463,7 +470,7 @@
   branch = "master"
   name = "github.com/mitchellh/mapstructure"
   packages = ["."]
-  revision = "a4e142e9c047c904fa2f1e144d9a84e6133024bc"
+  revision = "00c29f56e2386353d58c599509e8dc3801b0d716"
 
 [[projects]]
   name = "github.com/namsral/flag"
@@ -523,8 +530,8 @@
 [[projects]]
   name = "github.com/spf13/cast"
   packages = ["."]
-  revision = "acbeb36b902d72a7a4c18e8f3241075e7ab763e4"
-  version = "v1.1.0"
+  revision = "8965335b8c7107321228e3e3702cab9832751bac"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/spf13/cobra"
@@ -616,7 +623,7 @@
     "context/ctxhttp",
     "idna"
   ]
-  revision = "f5dfe339be1d06f81b22525fe34671ee7d2c8904"
+  revision = "cbe0f9307d0156177f9dd5dc85da1a31abc5f2fb"
 
 [[projects]]
   branch = "master"
@@ -637,10 +644,9 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "37707fdb30a5b38865cfb95e5aab41707daec7fd"
+  revision = "f6cff0780e542efa0c8e864dc8fa522808f6a598"
 
 [[projects]]
-  branch = "master"
   name = "golang.org/x/text"
   packages = [
     "collate",
@@ -659,7 +665,8 @@
     "unicode/rangetable",
     "width"
   ]
-  revision = "4e4a3210bb54bb31f6ab2cdca2edcc0b50c420c1"
+  revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
+  version = "v0.3.0"
 
 [[projects]]
   branch = "master"
@@ -673,7 +680,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "95b47aa5df4eda9bfbc0133f77c0e320f0275eba"
+  revision = "2ae76fd1560b622911f444c1e66b70a857e1de67"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -705,14 +712,14 @@
   version = "v1.20.0"
 
 [[projects]]
-  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "d670f9405373e636a5a2765eea47fac0c9bc91a4"
+  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
+  version = "v2.1.1"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8401f58900a7bd3b34e662734598aa3f4eff5300e9695d468d8b41520017e2be"
+  inputs-digest = "bf6b43ebe32aecad2eff7118509440920c5649b1e15528ef0d2e3e37f4f3fe11"
   solver-name = "gps-cdcl"
   solver-version = 1

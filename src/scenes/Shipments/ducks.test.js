@@ -11,17 +11,17 @@ import {
 
 describe('Shipments Reducer', () => {
   it('Should handle SHOW_SHIPMENTS', () => {
-    const initialState = { shipments: null, hasError: false };
+    const initialState = { shipments: [], hasError: false };
 
     const newState = shipmentsReducer(initialState, {
       type: 'SHOW_SHIPMENTS',
     });
 
-    expect(newState).toEqual({ shipments: null, hasError: false });
+    expect(newState).toEqual({ shipments: [], hasError: false });
   });
 
   it('Should handle SHOW_SHIPMENTS_SUCCESS', () => {
-    const initialState = { shipments: null, hasError: false };
+    const initialState = { shipments: [], hasError: false };
 
     const newState = shipmentsReducer(initialState, {
       type: 'SHOW_SHIPMENTS_SUCCESS',
@@ -35,19 +35,19 @@ describe('Shipments Reducer', () => {
   });
 
   it('Should handle SHOW_SHIPMENTS_FAILURE', () => {
-    const initialState = { shipments: null, hasError: false };
+    const initialState = { shipments: [], hasError: false };
 
     const newState = shipmentsReducer(initialState, {
       type: 'SHOW_SHIPMENTS_FAILURE',
       error: 'Boring',
     });
 
-    expect(newState).toEqual({ shipments: null, hasError: true });
+    expect(newState).toEqual({ shipments: [], hasError: true });
   });
 });
 
 describe('Shipments actions without optional props', () => {
-  const initialState = { shipments: null, hasError: false };
+  const initialState = { shipments: [], hasError: false };
   const mockStore = configureStore();
   let store;
 
@@ -89,7 +89,7 @@ describe('Shipments actions without optional props', () => {
 });
 
 describe('Shipments actions with optional props', () => {
-  const initialState = { shipments: null, hasError: false };
+  const initialState = { shipments: [], hasError: false };
   const mockStore = configureStore();
   let store;
 

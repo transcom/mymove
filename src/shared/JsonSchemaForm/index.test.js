@@ -5,6 +5,7 @@ import { Provider } from 'react-redux';
 import { reduxifyForm } from '.';
 import configureStore from 'redux-mock-store';
 import { shallow, mount, render } from 'enzyme';
+
 const simpleSchema = {
   title: 'A registration form',
   description: 'A simple form example.',

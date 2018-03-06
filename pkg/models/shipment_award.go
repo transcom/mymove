@@ -19,6 +19,8 @@ type ShipmentAward struct {
 	ShipmentID                      uuid.UUID `json:"shipment_id" db:"shipment_id"`
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	AdministrativeShipment          bool      `json:"administrative_shipment" db:"administrative_shipment"`
+	Accepted                        *bool     `json:"accepted" db:"accepted"`
+	RejectionReason                 *string   `json:"rejection_reason" db:"rejection_reason"`
 }
 
 // String is not required by pop and may be deleted

@@ -15,7 +15,7 @@
 ## Decision Outcome
 
 * Chosen Alternative: *[alternative 1]*
-* *[justification. e.g., only alternative, which meets k.o. criterion decision driver | which resolves force force | ... | comes out best (see below)]*
+* *[justification. e.g., only alternative, which meets KO criterion decision driver | which resolves force force | ... | comes out best (see below)]*
 * *[consequences. e.g., negative impact on quality attribute, follow-up decisions required, ...]* <!-- optional -->
 
 ## Pros and Cons of the Alternatives <!-- optional -->

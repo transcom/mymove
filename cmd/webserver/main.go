@@ -16,9 +16,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
-	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
-	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
@@ -50,8 +47,9 @@ func main() {
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
-	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Auth secret JWT key.")
+	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 
 	flag.Parse()
 
@@ -75,9 +73,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	// initialize api pkg with dbConnection created above
-	handlers.Init(dbConnection)
-
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
@@ -93,14 +88,14 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
-	internalAPI.IssuesCreateIssueHandler = issueop.CreateIssueHandlerFunc(handlers.CreateIssueHandler)
-	internalAPI.IssuesIndexIssuesHandler = issueop.IndexIssuesHandlerFunc(handlers.IndexIssuesHandler)
-	internalAPI.Form1299sCreateForm1299Handler = form1299op.CreateForm1299HandlerFunc(handlers.CreateForm1299Handler)
-	internalAPI.Form1299sIndexForm1299sHandler = form1299op.IndexForm1299sHandlerFunc(handlers.IndexForm1299sHandler)
-	internalAPI.Form1299sShowForm1299Handler = form1299op.ShowForm1299HandlerFunc(handlers.ShowForm1299Handler)
-	internalAPI.ShipmentsIndexShipmentsHandler = shipmentop.IndexShipmentsHandlerFunc(handlers.IndexShipmentsHandler)
+
+	internalAPI.IssuesCreateIssueHandler = handlers.NewCreateIssueHandler(dbConnection, logger)
+	internalAPI.IssuesIndexIssuesHandler = handlers.NewIndexIssuesHandler(dbConnection, logger)
+	internalAPI.Form1299sCreateForm1299Handler = handlers.NewCreateForm1299Handler(dbConnection, logger)
+	internalAPI.Form1299sIndexForm1299sHandler = handlers.NewIndexForm1299sHandler(dbConnection, logger)
+	internalAPI.Form1299sShowForm1299Handler = handlers.NewShowForm1299Handler(dbConnection, logger)
+	internalAPI.ShipmentsIndexShipmentsHandler = handlers.NewIndexShipmentsHandler(dbConnection, logger)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
@@ -111,18 +106,32 @@ func main() {
 		*callbackPort = "3000"
 	}
 	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
-	auth.RegisterProvider(*loginGovSecretKey, fullHostname, *loginGovClientID)
+	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
+
+	// Populates user info using cookie and renews token
+	authMiddleware := auth.UserAuthMiddleware(*clientAuthSecretKey)
 
 	// Base routes
 	root := goji.NewMux()
-	root.Handle(pat.Get("/api/v1/swagger.yaml"), fileHandler(*apiSwagger))
-	root.Handle(pat.Get("/api/v1/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-	root.Handle(pat.Get("/api/*"), publicAPI.Serve(nil))
-	root.Handle(pat.Get("/internal/swagger.yaml"), fileHandler(*internalSwagger))
-	root.Handle(pat.Get("/internal/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	root.Handle(pat.New("/internal/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
-	root.Handle(pat.Get("/auth/login-gov"), auth.AuthorizationRedirectHandler())
-	root.Handle(pat.Get("/auth/login-gov/callback"), auth.AuthorizationCallbackHandler(*loginGovSecretKey, *loginGovClientID, fullHostname))
+
+	apiMux := goji.SubMux()
+	root.Handle(pat.New("/api/v1/*"), apiMux)
+	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
+	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+
+	internalMux := goji.SubMux()
+	root.Handle(pat.New("/internal/*"), internalMux)
+	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
+	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
+	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+
+	authMux := goji.SubMux()
+	root.Handle(pat.New("/auth/*"), authMux)
+	authMux.Use(authMiddleware)
+	authMux.Handle(pat.Get("/login-gov"), auth.NewAuthorizationRedirectHandler(logger, fullHostname))
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(*clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(fullHostname))
+
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)

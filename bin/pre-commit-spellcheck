@@ -1,0 +1,21 @@
+#! /bin/bash
+
+# This wrapper exists because mdspell doesn't think that pre-commit supports colors.
+# markdown-spellcheck, the library we're using here, isn't doing a great job
+# of telling its color library, chalk.js, about when `--color always` is set. Even
+# if it were, chalk has its own bug (https://github.com/chalk/chalk/issues/234)
+# that is preventing users from forcing colors. Setting the environment variable
+# FORCE_COLOR circumvents all of this and tells the library ultimately responsible
+# (https://github.com/chalk/supports-color) that we support color.
+
+GREEN='\033[0;32m'
+NC='\033[0m'
+export FORCE_COLOR=true
+
+node_modules/.bin/mdspell --ignore-numbers --ignore-acronyms --en-us -r $@
+
+exitCode=$?
+if [ ! ${exitCode} -eq 0 ]; then
+  echo -e "Oh no! There's a spelling error. Run ${GREEN}make spellcheck${NC} to interactively handle these spelling errors."
+fi
+exit ${exitCode}
