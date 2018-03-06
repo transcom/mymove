@@ -38,4 +38,8 @@ func Test_FetchTDLsAwaitingBandAssignment(t *testing.T) {
 	if len(tdls) != 1 {
 		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(tdls))
 	}
+
+	if tdls[0].ID != foundTDL.ID {
+		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, tdls[0].ID)
+	}
 }
