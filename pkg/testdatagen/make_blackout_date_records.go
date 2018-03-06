@@ -26,7 +26,7 @@ func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvid
 		TrafficDistributionListID:       &tdl.ID,
 		CodeOfService:                   cos,
 		Channel:                         channel,
-		Gbloc:                           gbloc,
+		GBLOC:                           gbloc,
 		Market:                          market,
 	}
 
