@@ -2,11 +2,13 @@ package models
 
 import (
 	"encoding/json"
+	"errors"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // TransportationServiceProviderPerformance is a combination of all TSP
@@ -94,7 +96,7 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = $1
+			traffic_distribution_list_id = ?
 			AND
 			best_value_score > $2
 		ORDER BY
@@ -105,4 +107,20 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
 
 	return tsps, err
+}
+
+// AssignQualityBandToTSPPerformance sets the QualityBand value for a TransportationServiceProviderPerformance.
+func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUID) error {
+	performance := TransportationServiceProviderPerformance{}
+	if err := db.Find(&performance, id); err != nil {
+		return err
+	}
+	performance.QualityBand = &band
+	verrs, err := db.ValidateAndUpdate(&performance)
+	if err != nil {
+		return err
+	} else if verrs.Count() > 0 {
+		return errors.New("could not update quality band")
+	}
+	return nil
 }
