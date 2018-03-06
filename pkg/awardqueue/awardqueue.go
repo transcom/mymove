@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math"
+	// "sort"
 
 	"github.com/markbates/pop"
 
@@ -44,6 +45,8 @@ func AttemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.Ship
 	if len(tspPerformances) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
+
+	// sort.Sort(models.ByNormalizedAwardCount(tspPerformances))
 
 	var shipmentAward *models.ShipmentAward
 
