@@ -293,7 +293,14 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	}
 }
 
-//func (suite *AuthSuite) TestGetOrCreateUserWithNewUser() {
-//t := suite.T()
-//
-//}
+func (suite *AuthSuite) TestGetOrCreateUserWithNewUser() {
+	t := suite.T()
+
+	userData := map[string]interface{}{}
+	userData["sub"] = "39b28c92-0506-4bef-8b57-e39519f42dc2"
+	userData["email"] = "sally@government.gov"
+
+	newUser, err := getOrCreateUser(suite.db, userData)
+
+	fmt.Println(newUser)
+}
