@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -10,6 +11,16 @@ import (
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
 )
+
+var qualityBands = []int{1, 2, 3, 4}
+
+// awardsPerQualityBand struct contains the number of shipments awarded to each tsp according to quality band
+var awardsPerQualityBand = map[int]int{
+	1: 5,
+	2: 3,
+	3: 2,
+	4: 1,
+}
 
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
@@ -63,10 +74,10 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	), nil
 }
 
-// FetchTSPPerformanceForAwardQueue returns TSP performance records in a given TDL
+// FetchNextQualityBandTSPPerformance returns TSP performance records in a given TDL
 // in the order that they should be awarded new shipments.
-func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps int) (
-	TransportationServiceProviderPerformances, error) {
+func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
+	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
 			*
@@ -75,16 +86,39 @@ func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps i
 		WHERE
 			traffic_distribution_list_id = $1
 			AND
-			best_value_score > $2
+			quality_band = $2
 		ORDER BY
 			award_count ASC,
 			best_value_score DESC
 		`
 
-	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
+	tsp := TransportationServiceProviderPerformance{}
+	err := tx.RawQuery(sql, tdlID, qualityBand).First(&tsp)
 
-	return tsps, err
+	return tsp, err
+}
+
+// DetermineNextTSPPerformance takes in one TSPPerformance from each Quality Band and returns the one that is next to receive a shipment.
+func DetermineNextTSPPerformance(tx *pop.Connection, tdlID uuid.UUID) (*TransportationServiceProviderPerformance, error) {
+	tspPerformances := TransportationServiceProviderPerformances{}
+
+	for i, qualityBand := range qualityBands {
+		tsp, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
+		if err != nil {
+			fmt.Printf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+			return nil, err
+		}
+		tspPerformances[i] = tsp
+	}
+
+	// First time through, no rounds have yet occurred so set to 0.
+	var rounds = 0
+	for j, tspPerformance := range tspPerformances {
+		if rounds <= tspPerformance.AwardCount/awardsPerQualityBand[j] {
+			return &tspPerformance, nil
+		}
+		rounds = tspPerformance.AwardCount / awardsPerQualityBand[j]
+	}
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
@@ -96,7 +130,7 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = ?
+			traffic_distribution_list_id = $1
 			AND
 			best_value_score > $2
 		ORDER BY

@@ -41,32 +41,30 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(aq.db, tdl.ID, mps)
+	tspPerformance, err := models.DetermineNextTSPPerformance(aq.db, tdl.ID)
 
 	if err != nil {
 		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
 	}
 
-	if len(tspPerformances) == 0 {
+	if len(tspPerformance) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
 
 	var shipmentAward *models.ShipmentAward
 
-	for _, tspPerformance := range tspPerformances {
-		tsp := models.TransportationServiceProvider{}
-		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
-			if err == nil {
-				fmt.Print("\tShipment awarded to TSP!\n")
-				break
-			} else {
-				fmt.Printf("\tFailed to award to TSP: %v\n", err)
-			}
+	tsp := models.TransportationServiceProvider{}
+	if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+		fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
+		shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
+		if err == nil {
+			fmt.Print("\tShipment awarded to TSP!\n")
+			break
 		} else {
 			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 		}
+	} else {
+		fmt.Printf("\tFailed to award to TSP: %v\n", err)
 	}
 
 	return shipmentAward, err
