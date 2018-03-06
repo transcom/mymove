@@ -23,7 +23,7 @@ const AppWrapper = () => (
   <ConnectedRouter history={history}>
     <div className="App site">
       <Header />
-      <main className="site__content">
+      <div className="site__content">
         <Route exact path="/" component={Feedback} />
         <Route path="/submitted" component={SubmittedFeedback} />
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
@@ -33,7 +33,7 @@ const AppWrapper = () => (
         {WizardDemo()}
         <Route exact path="/demo" render={redirect('/demo/sm')} />
         {DemoWorkflowRoutes()}
-      </main>
+      </div>
       <Footer />
     </div>
   </ConnectedRouter>
