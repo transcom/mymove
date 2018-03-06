@@ -112,9 +112,6 @@ func getTSPsPerBand(count int) []int {
 
 // assignPerformanceBands loops through each TDL and assigns any
 // TransportationServiceProviderPerformances without a quality band to a band.
-//
-// This assumes that all TransportationServiceProviderPerformances have been properly
-// created and have a valid BestValueScore.
 func (aq *AwardQueue) assignPerformanceBands() error {
 
 	// for each TDL with pending performances
@@ -131,7 +128,7 @@ func (aq *AwardQueue) assignPerformanceBands() error {
 	return nil
 }
 
-// assignPerformanceBands loops through a TDL's TransportationServiceProviderPerformances
+// assignPerformanceBandsForTDL loops through a TDL's TransportationServiceProviderPerformances
 // and assigns a QualityBand to each one.
 //
 // This assumes that all TransportationServiceProviderPerformances have been properly
