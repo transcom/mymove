@@ -18,6 +18,8 @@ type Shipment struct {
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	Gbloc                     string    `json:"gbloc" db:"gbloc"`
+	Market                    *string   `json:"market" db:"market"`
 }
 
 // PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
@@ -90,5 +92,6 @@ func (s Shipments) String() string {
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
+		&validators.StringIsPresent{Field: s.Gbloc, Name: "gbloc"},
 	), nil
 }
