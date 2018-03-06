@@ -1,7 +1,7 @@
 import React, { Fragment, Component } from 'react';
 import { parse } from 'qs';
 
-import LoginButton from 'scenes/Landing/LoginButton';
+import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
