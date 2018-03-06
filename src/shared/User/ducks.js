@@ -1,4 +1,4 @@
-//import * as Cookies from 'js-cookie';
+import * as Cookies from 'js-cookie';
 const LOGOUT = 'USER|LOGOUT';
 
 export function logOut() {
@@ -8,13 +8,12 @@ export function logOut() {
   };
 }
 const initialState = {
-  //  loggedIn: Cookies.get('user_session'),
-  loggedIn: false,
+  isLoggedIn: Cookies.get('user_session') ? true : false,
 };
 const userReducer = (state = initialState, action) => {
   switch (action.type) {
     case LOGOUT:
-      return { loggedIn: false };
+      return { isLoggedIn: false };
     default: {
       return state;
     }
