@@ -118,6 +118,33 @@ paths:
           description: unknown form1299Id
         500:
           description: server error
+  /moves/{moveId}/legalese:
+    post:
+      summary: Submits signed legalese for the given move ID
+      description: Create an instance of legalese tied to the move ID
+      operationId: createLegalese
+      tags:
+        - moves
+        - legalese
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move being signed for
+        - in: body
+          name: createLegalesePayload
+          required: true
+          schema:
+            $ref: '#/definitions/LegalesePayload'
+      responses:
+        201:
+          description: created instance of legalese
+          schema:
+            $ref: '#/definitions/Form1299Payload'
+        400:
+          description: invalid request
 
 definitions:
   LegalesePayload:
