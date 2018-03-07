@@ -118,6 +118,7 @@ func main() {
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
+	apiMux.Handle(pat.New("/*"), publicAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
