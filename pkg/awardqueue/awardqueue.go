@@ -63,7 +63,6 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 		if err == nil {
 			fmt.Print("\tShipment awarded to TSP!\n")
-			break
 		} else {
 			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 		}
