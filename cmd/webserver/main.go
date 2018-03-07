@@ -80,8 +80,8 @@ func main() {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IssuesIndexTSPsHandler = nil
-	publicAPI.TspShipmentsHandler = nil
+	publicAPI.IndexTSPsHandler = handlers.NewTSPIndexHandler(dbConnection, logger)
+	publicAPI.TspShipmentsHandler = handlers.NewTSPShipmentsHandler(dbConnection, logger)
 
 	// Wire up the handlers to the internalSwaggerMux
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")

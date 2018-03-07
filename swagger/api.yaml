@@ -20,8 +20,6 @@ paths:
       description: Gets a list of all TSPs registered.
       operationId: indexTSPs
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
-      tags:
-        - issues
       responses:
         200:
           description: list of TSPs
