@@ -118,14 +118,14 @@ paths:
           description: unknown form1299Id
         500:
           description: server error
-  /moves/{moveId}/legalese:
+  /moves/{moveId}/sign_certification:
     post:
-      summary: Submits signed legalese for the given move ID
-      description: Create an instance of legalese tied to the move ID
-      operationId: createLegalese
+      summary: Submits signed certification for the given move ID
+      description: Create an instance of signed_certification tied to the move ID
+      operationId: createSignedCertification
       tags:
         - moves
-        - legalese
+        - certification
       parameters:
         - in: path
           name: moveId
@@ -134,20 +134,22 @@ paths:
           required: true
           description: UUID of the move being signed for
         - in: body
-          name: createLegalesePayload
+          name: createSignedCertificationPayload
           required: true
           schema:
-            $ref: '#/definitions/LegalesePayload'
+            $ref: '#/definitions/SignedCertificationPayload'
       responses:
         201:
-          description: created instance of legalese
-          schema:
-            $ref: '#/definitions/Form1299Payload'
+          description: created instance of signed_certification
         400:
           description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
 
 definitions:
-  LegalesePayload:
+  SignedCertificationPayload:
     type: object
     properties:
       date:
@@ -155,12 +157,12 @@ definitions:
         format: date
       signature:
         type: string
-      legalese_text:
+      certification_text:
         type: string
     required:
       - date
       - signature
-      - legalese_text
+      - certification_text
   CreateIssuePayload:
     type: object
     properties:
