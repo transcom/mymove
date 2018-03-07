@@ -14,6 +14,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 <!-- toc -->
 
+* [Supported clients](#supported-clients)
 * [Development](#development)
   * [Git](#git)
   * [Project location](#project-location)
@@ -36,9 +37,13 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
 
-_Regenerate with `bin/generate-md-toc.sh`_
+Regenerate with "bin/generate-md-toc.sh"
 
 <!-- tocstop -->
+
+## Supported clients
+
+As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android.
 
 ## Development
 
