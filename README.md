@@ -14,8 +14,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 
 <!-- toc -->
 
+* [Supported clients](#supported-clients)
 * [Development](#development)
-  * [Supported clients](#supported-clients)
   * [Git](#git)
   * [Project location](#project-location)
   * [Project Layout](#project-layout)
@@ -37,15 +37,15 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
 
-_Regenerate with error: must supply a markdown file to generate table of contents._
+Regenerate with "bin/generate-md-toc.sh"
 
 <!-- tocstop -->
 
-## Development
-
-### Supported clients
+## Supported clients
 
 As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android.
+
+## Development
 
 ### Git
 
