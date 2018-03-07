@@ -105,7 +105,7 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (Tra
 		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
 		if err != nil {
 			fmt.Printf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
-			return nil, err
+			// continue
 		}
 		tspPerformances = append(tspPerformances, tspPerformance)
 	}

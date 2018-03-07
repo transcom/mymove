@@ -87,7 +87,7 @@ func Test_FetchNextQualityBandTSPPerformance(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+1, 0)
 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(1), mps+3, 0)
@@ -138,6 +138,25 @@ func Test_GatherNextEligibleTSPPerformances(t *testing.T) {
 			"\tExpected: %v \nFound: %v",
 			expectedTSPorder,
 			actualTSPorder)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceAllNullAwarded(t *testing.T) {
+	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+2, 0)
+	tsps, _ := GatherNextEligibleTSPPerformances(dbConnection, tdl.ID)
+	tsp, err := DetermineNextTSPPerformance(tsps)
+	if err != nil {
+		t.Errorf("Failed to select next TSPPerformance: %v", err)
+	} else if tsp.ID != tsp1.ID {
+		t.Errorf("Incorrect TSP returned. Expected: %v, Found: %v\n",
+			tsp1.ID,
+			tsp.ID)
 	}
 }
 
