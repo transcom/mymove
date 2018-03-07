@@ -41,7 +41,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformances, dbErr := models.GatherNextEligibleTSPPerformanceByBand(aq.db, tdl.ID)
+	tspPerformances, dbErr := models.GatherNextEligibleTSPPerformances(aq.db, tdl.ID)
 	tspPerformance, err := models.DetermineNextTSPPerformance(tspPerformances)
 
 	if dbErr != nil {

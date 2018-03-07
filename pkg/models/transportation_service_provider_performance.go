@@ -98,31 +98,34 @@ func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qua
 	return tsp, err
 }
 
-// GatherEligibleTSPPerformancePerBand returns a slice of the next eligible TSPPerformance from each Quality Band.
-func GatherNextEligibleTSPPerformanceByBand(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
+// GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
 	tspPerformances := TransportationServiceProviderPerformances{}
-	for i, qualityBand := range qualityBands {
+	for _, qualityBand := range qualityBands {
 		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
 		if err != nil {
 			fmt.Printf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 			return nil, err
 		}
-		tspPerformances[i] = tspPerformance
+		tspPerformances = append(tspPerformances, tspPerformance)
 	}
 	return tspPerformances, nil
 }
 
 // DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
-func DetermineNextTSPPerformance(tspPerformances TransportationServiceProviderPerformances) (*TransportationServiceProviderPerformance, error) {
+func DetermineNextTSPPerformance(tspPerformances TransportationServiceProviderPerformances) (TransportationServiceProviderPerformance, error) {
 	// First time through, no rounds have yet occurred so set to 0.
-	var rounds = 0
-	for j, tspPerformance := range tspPerformances {
-		if rounds <= tspPerformance.AwardCount/awardsPerQualityBand[j] {
-			return &tspPerformance, nil
+	var tspPerformance TransportationServiceProviderPerformance
+	previousRounds := 0
+	for qualityBand, tspPerformance := range tspPerformances {
+		rounds := tspPerformance.AwardCount / awardsPerQualityBand[qualityBand]
+
+		if rounds <= previousRounds {
+			return tspPerformance, nil
 		}
-		rounds = tspPerformance.AwardCount / awardsPerQualityBand[j]
+		previousRounds = rounds
 	}
-	return nil, errors.New("There was an issue determining which TSP should next be awarded a shipment.")
+	return tspPerformance, errors.New("there was an issue determining which TSP should next be awarded a shipment")
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
