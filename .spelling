@@ -99,6 +99,12 @@ Redis
 stateful
 Memcached
 jwt-go
+deps
+initializer
+initializers
+main.go
+globals
+deps
 ADR-0000
 ADR-0001
 ADR-0002
