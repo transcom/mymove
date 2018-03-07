@@ -36,7 +36,7 @@ function Footer() {
           <div className="usa-footer-logo usa-width-one-half">
             <a href="https://www.ustranscom.mil/">
               <img
-                className="usa-footer-logo-img"
+                className="usa-footer-logo-img _fix-ie-11-height"
                 src={transcomEmblem}
                 alt="United States Transportation Command Emblem"
               />
