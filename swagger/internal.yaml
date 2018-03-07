@@ -118,8 +118,51 @@ paths:
           description: unknown form1299Id
         500:
           description: server error
+  /moves/{moveId}/sign_certification:
+    post:
+      summary: Submits signed certification for the given move ID
+      description: Create an instance of signed_certification tied to the move ID
+      operationId: createSignedCertification
+      tags:
+        - moves
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move being signed for
+        - in: body
+          name: createSignedCertificationPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SignedCertificationPayload'
+      responses:
+        201:
+          description: created instance of signed_certification
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
 
 definitions:
+  SignedCertificationPayload:
+    type: object
+    properties:
+      date:
+        type: string
+        format: date
+      signature:
+        type: string
+      certification_text:
+        type: string
+    required:
+      - date
+      - signature
+      - certification_text
   CreateIssuePayload:
     type: object
     properties:
