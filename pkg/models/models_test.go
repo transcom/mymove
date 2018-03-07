@@ -1,35 +1,38 @@
-package models
+package models_test
 
 import (
 	"log"
-	"os"
 	"testing"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
+	"github.com/stretchr/testify/suite"
 )
 
-var dbConnection *pop.Connection
+type ModelSuite struct {
+	suite.Suite
+	db *pop.Connection
+}
 
-func setupDBConnection() {
-	configLocation := "../../config"
-	pop.AddLookupPaths(configLocation)
-	conn, err := pop.Connect("test")
+func (suite *ModelSuite) SetupTest() {
+	suite.db.TruncateAll()
+}
+
+func (suite *ModelSuite) mustSave(model interface{}) {
+	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
 		log.Panic(err)
 	}
-
-	dbConnection = conn
+	if verrs.Count() > 0 {
+		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
+	}
 }
 
-type validatableModel interface {
-	Validate(*pop.Connection) (*validate.Errors, error)
-}
-
-func verifyValidationErrors(model validatableModel, exp map[string][]string, t *testing.T) {
+func (suite *ModelSuite) verifyValidationErrors(model validatableModel, exp map[string][]string) {
+	t := suite.T()
 	t.Helper()
 
-	verrs, err := model.Validate(dbConnection)
+	verrs, err := model.Validate(suite.db)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -55,6 +58,22 @@ func verifyValidationErrors(model validatableModel, exp map[string][]string, t *
 	}
 }
 
+func TestModelSuite(t *testing.T) {
+	configLocation := "../../config"
+	pop.AddLookupPaths(configLocation)
+	db, err := pop.Connect("test")
+	if err != nil {
+		log.Panic(err)
+	}
+
+	hs := &ModelSuite{db: db}
+	suite.Run(t, hs)
+}
+
+type validatableModel interface {
+	Validate(*pop.Connection) (*validate.Errors, error)
+}
+
 func sliceContains(needle string, haystack []string) bool {
 	for _, s := range haystack {
 		if s == needle {
@@ -74,10 +93,4 @@ func equalSlice(a []string, b []string) bool {
 		}
 	}
 	return true
-}
-
-func TestMain(m *testing.M) {
-	setupDBConnection()
-
-	os.Exit(m.Run())
 }

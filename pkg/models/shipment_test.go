@@ -1,8 +1,10 @@
-package models
+package models_test
 
-import "testing"
+import (
+	. "github.com/transcom/mymove/pkg/models"
+)
 
-func Test_Shipment(t *testing.T) {
+func (suite *ModelSuite) Test_ShipmentValidations() {
 	shipment := &Shipment{}
 
 	expErrors := map[string][]string{
@@ -10,5 +12,5 @@ func Test_Shipment(t *testing.T) {
 		"gbloc": []string{"gbloc can not be blank."},
 	}
 
-	verifyValidationErrors(shipment, expErrors, t)
+	suite.verifyValidationErrors(shipment, expErrors)
 }

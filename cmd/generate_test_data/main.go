@@ -28,4 +28,5 @@ func main() {
 	testdatagen.MakeShipmentData(db)
 	testdatagen.MakeShipmentAwardData(db)
 	testdatagen.MakeTSPPerformanceData(db)
+	testdatagen.MakeBlackoutDateData(db)
 }

@@ -1,8 +1,10 @@
-package models
+package models_test
 
-import "testing"
+import (
+	. "github.com/transcom/mymove/pkg/models"
+)
 
-func Test_ShipmentAwardValidations(t *testing.T) {
+func (suite *ModelSuite) Test_ShipmentAwardValidations() {
 	sa := &ShipmentAward{}
 
 	var expErrors = map[string][]string{
@@ -10,5 +12,5 @@ func Test_ShipmentAwardValidations(t *testing.T) {
 		"transportation_service_provider_id": []string{"TransportationServiceProviderID can not be blank."},
 	}
 
-	verifyValidationErrors(sa, expErrors, t)
+	suite.verifyValidationErrors(sa, expErrors)
 }
