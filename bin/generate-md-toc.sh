@@ -7,7 +7,7 @@
 #
 # Generated with https://github.com/jonschlinkert/markdown-toc
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 function generate_toc() {
   filename="$1"
