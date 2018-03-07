@@ -1,12 +1,14 @@
-package models
+package models_test
 
 import (
-	"testing"
-
 	"github.com/satori/go.uuid"
+
+	. "github.com/transcom/mymove/pkg/models"
 )
 
-func TestOptionalProperty(t *testing.T) {
+func (suite *ModelSuite) TestOptionalProperty() {
+	t := suite.T()
+
 	reporterName := "Janice Doe"
 
 	hasReporter := Issue{
@@ -14,7 +16,7 @@ func TestOptionalProperty(t *testing.T) {
 		ReporterName: &reporterName,
 	}
 
-	if err := dbConnection.Create(&hasReporter); err != nil {
+	if err := suite.db.Create(&hasReporter); err != nil {
 		t.Fatal("Didn't write it to the db")
 	}
 
@@ -30,7 +32,7 @@ func TestOptionalProperty(t *testing.T) {
 		Description: "This describes an issue without a reporter",
 	}
 
-	if err := dbConnection.Create(&sansReporter); err != nil {
+	if err := suite.db.Create(&sansReporter); err != nil {
 		t.Fatal("Didn't write sans to the db")
 	}
 

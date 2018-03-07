@@ -1,13 +1,15 @@
-package models
+package models_test
 
-import "testing"
+import (
+	. "github.com/transcom/mymove/pkg/models"
+)
 
-func Test_Shipment(t *testing.T) {
+func (suite *ModelSuite) Test_ShipmentValidations() {
 	shipment := &Shipment{}
 
 	expErrors := map[string][]string{
 		"traffic_distribution_list_id": []string{"traffic_distribution_list_id can not be blank."},
 	}
 
-	verifyValidationErrors(shipment, expErrors, t)
+	suite.verifyValidationErrors(shipment, expErrors)
 }

@@ -1,20 +1,21 @@
-package models
+package models_test
 
 import (
 	"fmt"
-	"testing"
 	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/satori/go.uuid"
+
+	. "github.com/transcom/mymove/pkg/models"
 )
 
-func TestBasicForm1299Instantiation(t *testing.T) {
+func (suite *ModelSuite) TestBasicForm1299Instantiation() {
+	t := suite.T()
 
 	// Given: an instance of form 1299 with some optional values
-	var (
-		mobileHomeHeightft int64 = 12
-	)
+	var mobileHomeHeightft int64 = 12
+
 	stationOrdersDate := time.Date(2019, 2, 8, 0, 0, 0, 0, time.UTC)
 	serviceMemberFirstName := "Jane"
 	serviceMemberLastName := "Goodall"
@@ -27,7 +28,7 @@ func TestBasicForm1299Instantiation(t *testing.T) {
 	}
 
 	// When: A Form entry is created in the db
-	err := dbConnection.Create(&newForm)
+	err := suite.db.Create(&newForm)
 	if err != nil {
 		t.Fatal("Didn't write to the db.")
 	}
@@ -48,7 +49,7 @@ func TestBasicForm1299Instantiation(t *testing.T) {
 	// When: column values are updated
 	oldUpdated := newForm.UpdatedAt
 	serviceMemberFirstName = "Bob"
-	err1 := dbConnection.Update(&newForm)
+	err1 := suite.db.Update(&newForm)
 	if err1 != nil {
 		t.Fatal("Didn't update entry.")
 	}
@@ -60,10 +61,11 @@ func TestBasicForm1299Instantiation(t *testing.T) {
 	}
 }
 
-func TestFetchAllForm1299s(t *testing.T) {
+func (suite *ModelSuite) TestFetchAllForm1299s() {
+	t := suite.T()
 	// Need to know how many we start with until we start using transactions
 	initialSet := []Form1299{}
-	dbConnection.All(&initialSet)
+	suite.db.All(&initialSet)
 	initialLength := len(initialSet)
 
 	// Given: A couple 1299 forms
@@ -77,14 +79,14 @@ func TestFetchAllForm1299s(t *testing.T) {
 		ServiceMemberFirstName: &serviceMemberFirstName2,
 	}
 
-	err1 := dbConnection.Create(&form1)
-	err2 := dbConnection.Create(&form2)
+	err1 := suite.db.Create(&form1)
+	err2 := suite.db.Create(&form2)
 	if err1 != nil || err2 != nil {
 		t.Fatal("Didn't write to the db.")
 	}
 
 	// When: Fetch all Form1299s is called
-	form1299s, _ := FetchAllForm1299s(dbConnection)
+	form1299s, _ := FetchAllForm1299s(suite.db)
 
 	// Then: Two records are returned as expected
 	if length := len(form1299s); length != numRecords {
@@ -92,20 +94,21 @@ func TestFetchAllForm1299s(t *testing.T) {
 	}
 }
 
-func TestFetchForm1299ByID(t *testing.T) {
+func (suite *ModelSuite) TestFetchForm1299ByID() {
+	t := suite.T()
 	// Given: A 1299 form
 	serviceMemberFirstName1 := "Janine"
 	form := Form1299{
 		ServiceMemberFirstName: &serviceMemberFirstName1,
 	}
 
-	if err := dbConnection.Create(&form); err != nil {
+	if err := suite.db.Create(&form); err != nil {
 		t.Fatal("Didn't write to the db.")
 	}
 
 	// When: Fetch form 1299 by ID is called
 	id := strfmt.UUID(form.ID.String())
-	returnedForm, err := FetchForm1299ByID(dbConnection, id)
+	returnedForm, err := FetchForm1299ByID(suite.db, id)
 
 	// Then: The specified record is returned
 	if err != nil {
@@ -118,12 +121,13 @@ func TestFetchForm1299ByID(t *testing.T) {
 	}
 }
 
-func TestFetchForm1299ByIDReturnsError(t *testing.T) {
+func (suite *ModelSuite) TestFetchForm1299ByIDReturnsError() {
+	t := suite.T()
 	// Given: A fake ID
 	unknownID := "2400c3c5-019d-4031-9c27-8a553e022297"
 
 	// When: Fetch form 1299 by ID is called
-	_, err := FetchForm1299ByID(dbConnection, strfmt.UUID(unknownID))
+	_, err := FetchForm1299ByID(suite.db, strfmt.UUID(unknownID))
 
 	// Then: No record is returned
 	if err == nil || err.Error() != "sql: no rows in result set" {
@@ -131,7 +135,9 @@ func TestFetchForm1299ByIDReturnsError(t *testing.T) {
 	}
 }
 
-func TestPopulateAddressesMethod(t *testing.T) {
+func (suite *ModelSuite) TestPopulateAddressesMethod() {
+	t := suite.T()
+
 	// Given: A form that should have an address but doesn't
 	address := Address{
 		StreetAddress1: "123 My Way",
@@ -139,22 +145,22 @@ func TestPopulateAddressesMethod(t *testing.T) {
 		State:          "NY",
 		Zip:            "12345",
 	}
-	dbConnection.Create(&address)
+	suite.db.Create(&address)
 
 	sentForm := Form1299{
 		OriginOfficeAddress:   &address,
 		OriginOfficeAddressID: &address.ID,
 	}
-	dbConnection.Create(&sentForm)
+	suite.db.Create(&sentForm)
 	returnedForm := Form1299{}
-	dbConnection.Find(&returnedForm, sentForm.ID)
+	suite.db.Find(&returnedForm, sentForm.ID)
 
 	if returnedForm.OriginOfficeAddress != nil {
 		t.Fatal("Form should not have an address yet")
 	}
 
 	// When: populateAddresses is called
-	returnedForm.populateAddresses(dbConnection)
+	returnedForm.PopulateAddresses(suite.db)
 
 	// Then: Addresses are populated as expected
 	if returnedForm.OriginOfficeAddress == nil {
@@ -162,7 +168,9 @@ func TestPopulateAddressesMethod(t *testing.T) {
 	}
 }
 
-func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
+func (suite *ModelSuite) TestCreateForm1299WithAddressesSavesAddresses() {
+	t := suite.T()
+
 	// Given: A form1299 model with an address struct
 	address := Address{
 		StreetAddress1: "123 My Way",
@@ -175,7 +183,7 @@ func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
 	}
 
 	// When: CreateForm1299WithAddressesSavesAddresses is called on the form
-	verrs, err := CreateForm1299WithAddresses(dbConnection, &form)
+	verrs, err := CreateForm1299WithAddresses(suite.db, &form)
 
 	// Then: The address and form should be saved to DB, ID populated
 	blankUUID := uuid.UUID{}
@@ -189,7 +197,9 @@ func TestCreateForm1299WithAddressesSavesAddresses(t *testing.T) {
 	}
 }
 
-func TestCreateForm1299WithAddressesReturnsErrors(t *testing.T) {
+func (suite *ModelSuite) TestCreateForm1299WithAddressesReturnsErrors() {
+	t := suite.T()
+
 	// Given: A form1299 model with a blank StreetAddress1 field
 	address := Address{
 		City:  "Seattle",
@@ -201,7 +211,7 @@ func TestCreateForm1299WithAddressesReturnsErrors(t *testing.T) {
 	}
 
 	// When: CreateForm1299WithAddressesSavesAddresses is called on the form
-	verrs, _ := CreateForm1299WithAddresses(dbConnection, &form)
+	verrs, _ := CreateForm1299WithAddresses(suite.db, &form)
 
 	// Then: The address and form should not be saved to DB, ID left blank
 	if form.OriginOfficeAddressID != nil {

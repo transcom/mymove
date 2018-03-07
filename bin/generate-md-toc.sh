@@ -11,7 +11,10 @@ set -eu -o pipefail
 
 function generate_toc() {
   filename="$1"
-  regen=$'\n\n_Regenerate with `bin/generate-md-toc.sh`_'
+  # Using backticks in this appended comment seems to make the script
+  # indicated run after a 3/5 update to markdown-toc 1.2.0;
+  # stick with quotes for now.
+  regen=$'\n\nRegenerate with "bin/generate-md-toc.sh"'
 
   # shellcheck disable=SC2016
   yarn run markdown-toc -i "${filename}" --bullets='*' --append="${regen}"
