@@ -330,7 +330,7 @@ func (suite *AuthSuite) TestGetOrCreateUser() {
 	}
 
 	// And: no new user to have been created
-	query := suite.db.Where("login_gov_uuid = ?", loginGovUUID)
+	query := suite.db.Where("login_gov_uuid = $1", loginGovUUID)
 	var users []models.User
 	queryErr := query.All(&users)
 	if queryErr != nil {

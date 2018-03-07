@@ -335,7 +335,7 @@ func getOrCreateUser(db *pop.Connection, userData map[string]interface{}) (model
 
 	// Check if user already exists
 	loginGovUUID := userData["sub"].(string)
-	query := db.Where("login_gov_uuid = ?", loginGovUUID)
+	query := db.Where("login_gov_uuid = $1", loginGovUUID)
 	var users []models.User
 	err := query.All(&users)
 	if err != nil {
