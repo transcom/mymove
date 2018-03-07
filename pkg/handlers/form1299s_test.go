@@ -163,8 +163,9 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 	}
 
 	// When: New Form1299 is posted
+	handlerContext := NewHandlerContext(suite.db, suite.logger)
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := NewCreateForm1299Handler(suite.db, suite.logger)
+	handler := CreateForm1299Handler(handlerContext)
 	response := handler.Handle(newForm1299Params)
 
 	// Then: Assert we got back the 201 response
@@ -177,7 +178,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 	// Then confirm the same thing is returned by GET
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: *createdForm1299Payload.ID}
 
-	showHandler := NewShowForm1299Handler(suite.db, suite.logger)
+	showHandler := ShowForm1299Handler(handlerContext)
 	showResponse := showHandler.Handle(showFormParams)
 
 	showOKResponse := showResponse.(*form1299op.ShowForm1299OK)
@@ -199,7 +200,7 @@ func (suite *HandlerSuite) TestShowUnknown() {
 	unknownID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: unknownID}
 
-	handler := NewShowForm1299Handler(suite.db, suite.logger)
+	handler := ShowForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(showFormParams)
 
 	// assert we got back the 404 response
@@ -210,7 +211,7 @@ func (suite *HandlerSuite) TestShowBadID() {
 	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297xxx")
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
 
-	handler := NewShowForm1299Handler(suite.db, suite.logger)
+	handler := ShowForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(showFormParams)
 
 	// assert we got back the 400 response
@@ -230,7 +231,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerNoRequiredValues() {
 		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
 	}
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := NewCreateForm1299Handler(suite.db, suite.logger)
+	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newForm1299Params)
 
 	// Then: Assert we got back the 201 response
@@ -275,7 +276,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerSomeValues() {
 
 	// When: a new Form1299 is posted
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := NewCreateForm1299Handler(suite.db, suite.logger)
+	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newForm1299Params)
 
 	// Then: Assert we got back the 201 response
@@ -309,7 +310,8 @@ func (suite *HandlerSuite) TestIndexForm1299sHandler() {
 
 	// When: New Form1299 is posted
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := NewCreateForm1299Handler(suite.db, suite.logger)
+	handlerContext := NewHandlerContext(suite.db, suite.logger)
+	handler := CreateForm1299Handler(handlerContext)
 	createResponse := handler.Handle(newForm1299Params)
 
 	// Assert we got back the 201 response
@@ -317,7 +319,7 @@ func (suite *HandlerSuite) TestIndexForm1299sHandler() {
 
 	// And: All Form1299s are queried
 	indexForm1299sParams := form1299op.NewIndexForm1299sParams()
-	indexHandler := NewIndexForm1299sHandler(suite.db, suite.logger)
+	indexHandler := IndexForm1299sHandler(handlerContext)
 	indexResponse := indexHandler.Handle(indexForm1299sParams)
 
 	// Then: Expect a 200 status code

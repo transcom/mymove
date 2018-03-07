@@ -76,16 +76,18 @@ func main() {
 		log.Fatalln(err)
 	}
 
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+
 	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
 
-	internalAPI.IssuesCreateIssueHandler = handlers.NewCreateIssueHandler(dbConnection, logger)
-	internalAPI.IssuesIndexIssuesHandler = handlers.NewIndexIssuesHandler(dbConnection, logger)
+	internalAPI.IssuesCreateIssueHandler = handlers.CreateIssueHandler(handlerContext)
+	internalAPI.IssuesIndexIssuesHandler = handlers.IndexIssuesHandler(handlerContext)
 
-	internalAPI.Form1299sCreateForm1299Handler = handlers.NewCreateForm1299Handler(dbConnection, logger)
-	internalAPI.Form1299sIndexForm1299sHandler = handlers.NewIndexForm1299sHandler(dbConnection, logger)
-	internalAPI.Form1299sShowForm1299Handler = handlers.NewShowForm1299Handler(dbConnection, logger)
+	internalAPI.Form1299sCreateForm1299Handler = handlers.CreateForm1299Handler(handlerContext)
+	internalAPI.Form1299sIndexForm1299sHandler = handlers.IndexForm1299sHandler(handlerContext)
+	internalAPI.Form1299sShowForm1299Handler = handlers.ShowForm1299Handler(handlerContext)
 
-	internalAPI.ShipmentsIndexShipmentsHandler = handlers.NewIndexShipmentsHandler(dbConnection, logger)
+	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
