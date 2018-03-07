@@ -1,34 +1,34 @@
 import React from 'react';
-import { Route } from 'react-router-dom';
-
+import { Route, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
-
-import LoginButton from 'shared/User/LoginButton';
 
 class PrivateRouteContainer extends React.Component {
   render() {
     const { isLoggedIn, component: Component, ...props } = this.props;
-
     return (
       <Route
         {...props}
-        render={props =>
-          isLoggedIn ? (
-            <Component {...props} />
-          ) : (
-            <div className="usa-grid">
-              <h1>Please login to access this page </h1>
-              <LoginButton />
-            </div>
-          )
-        }
+        render={props => {
+          if (isLoggedIn) {
+            return <Component {...props} />;
+          } else {
+            return (
+              <Redirect
+                to={{
+                  pathname: '/landing',
+                  state: { from: props.location },
+                }}
+              />
+            );
+          }
+        }}
       />
     );
   }
 }
-
-const PrivateRoute = connect(state => ({
+const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
-}))(PrivateRouteContainer);
+});
+const PrivateRoute = connect(mapStateToProps)(PrivateRouteContainer);
 
 export default PrivateRoute;
