@@ -1,0 +1,162 @@
+Tsp:
+  type: object
+  description: The primary definition of a Transport Service Provider
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    name:
+      type: string
+      example: Name of the TSP
+      minLength: 1
+      maxLength: 1024
+    contact_email:
+      type: string
+      format: email
+
+Shipment:
+  type: object
+  description: A shipment which may be awarded to a TSP
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    status:
+      $ref: '#ShipmentStatus'
+    customer:
+      $ref: '#/Customer'
+    dates:
+      $ref: '#/ShipmentDates'
+    estimated_weight:
+      type: integer
+      description: Estimated weight of the shipment in lbs
+      example: 500
+    type:
+      $ref: '#/ShipmentType'
+    market:
+      $ref: '#/ShipmentMarket'
+    channel:
+      $ref: '#/Channel'
+    origin_gbloc:
+      $ref: '#/GBLOC'
+    destination_gbloc:
+      $ref: '#/GBLOC'
+    primary_pickup:
+      $ref: '../common/definitions.yaml#/Address'
+    secondary_pickup:
+      $ref: '../common/definitions.yaml#/Address'
+    primary_delivery:
+      $ref: '../common/definitions.yaml#/Address'
+    secondary_delivery:
+      $ref: '../common/definitions.yaml#/Address'
+
+ShipmentStatus:
+  type: string
+  description: The status of a Shipment
+  enum:
+    - IN_PROGRESS
+    - COMPLETE
+    - AWARDED
+    - ACCEPTED
+    - REJECTED
+    - IN_TRANSIT
+    - SIT_ORIGIN
+    - SIT_DEST
+    - DELIVERED
+    - COMPLETED
+    - CLAIMS
+  description: The stages in the lifecycle of a Shipment
+
+ShipmentDates:
+  type: object
+  description: The various dates associated with a shipment
+  properties:
+    requested_pack:
+      type: string
+      format: date
+      example: 2018-03-15
+    requested_pickup:
+      type: string
+      format: date
+      example: 2018-03-15
+    requested_pack:
+      type: string
+      format: date
+      example: 2018-03-15
+    requested_pack:
+      type: string
+      format: date
+      example: 2018-03-15
+
+ShipmentType:
+  type: string
+  description: The type of a shipment
+  example: HHG
+  enum: # Todo(Nick) - There may be more of these
+    - HHG
+    - PPM
+
+ShipmentMarket:
+  type: string
+  description: One of the possible 'Markets' for a shipment (see ?????)
+  example: dHHG
+  enum: # Todo(nick) - There may be more of these
+    - dHHG
+    - iHHG
+    - iUB
+
+GBLOC:
+  type: string
+  description: Office Codes for Transcom offices originating GBLs
+  example: LHNQ
+  pattern: '^[A-Z]{4}$'
+
+Channel:
+  type: object
+  description: The channel (pickup location & destination region)
+  properties:
+    origin:
+      type: string
+      enum: # Add other values
+        - US49
+      example: US49
+    destination:
+      type: string
+      enum: # Add other values
+        - REGION_6
+      example: REGION_6
+
+PreMoveSurvey:
+  type: object
+  description: A shipment which may be awarded to a TSP
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    shipment_id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+
+Claim:
+  type: object
+  description: A claim resulting from an earlier shipment
+  properties:
+    id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    shipment_id:
+      type: string
+      format: uuid
+      example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    claim_date:
+      type: string
+      format: date
+      example: 2018-03-15
+    description:
+      type: string
+      example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
