@@ -1,18 +1,17 @@
 import * as Cookies from 'js-cookie';
 const LOGOUT = 'USER|LOGOUT';
 
-const LOAD_USER_AND_TOKEN = 'LOAD_USER_AND_TOKEN';
+const LOAD_USER_AND_TOKEN = 'USER|ZLOAD_USER_AND_TOKEN';
 
 function getUserInfo() {
   const cookie = Cookies.get('user_session');
   return {
     jwt: cookie || null,
-    isLoggedIn: cookie && true,
+    isLoggedIn: cookie ? true : false,
   };
 }
 
 export function loadUserAndToken() {
-  console.log('action creator');
   const jwt = getUserInfo();
   return { type: LOAD_USER_AND_TOKEN, payload: jwt };
 }
@@ -26,7 +25,7 @@ export function logOut() {
 
 const initialState = getUserInfo();
 
-const userReducer = (state = initialState, action) => {
+const userReducer = (state = { jwt: null, isLoggedIn: false }, action) => {
   switch (action.type) {
     case LOAD_USER_AND_TOKEN:
       return action.payload;

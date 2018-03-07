@@ -26,11 +26,11 @@ const AppWrapper = () => (
       <Header />
       <main className="site__content">
         <Switch>
-          <Route exact path="/" component={Feedback} />
+          <Route exact path="/" component={Landing} />
           <Route path="/submitted" component={SubmittedFeedback} />
           <Route path="/shipments/:shipmentsStatus" component={Shipments} />
           <PrivateRoute path="/DD1299" component={DD1299} />
-          <Route path="/landing" component={Landing} />
+          <Route path="/feedback" component={Feedback} />
           <Route exact path="/mymove" render={redirect('/mymove/intro')} />
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />

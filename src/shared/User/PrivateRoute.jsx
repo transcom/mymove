@@ -15,7 +15,7 @@ class PrivateRouteContainer extends React.Component {
             return (
               <Redirect
                 to={{
-                  pathname: '/landing',
+                  pathname: '/',
                   state: { from: props.location },
                 }}
               />
