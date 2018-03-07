@@ -11,5 +11,4 @@ function mapStateToProps(state) {
     loggedIn: state.user.loggedIn,
   };
 }
-//export default connect(mapStateToProps)(LoginButton);
-export default LoginButton;
+export default connect(mapStateToProps)(LoginButton);
