@@ -98,19 +98,22 @@ func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qua
 	return tsp, err
 }
 
-// DetermineNextTSPPerformance takes in one TSPPerformance from each Quality Band and returns the one that is next to receive a shipment.
-func DetermineNextTSPPerformance(tx *pop.Connection, tdlID uuid.UUID) (*TransportationServiceProviderPerformance, error) {
+// GatherEligibleTSPPerformancePerBand returns a slice of the next eligible TSPPerformance from each Quality Band.
+func GatherNextEligibleTSPPerformanceByBand(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
 	tspPerformances := TransportationServiceProviderPerformances{}
-
 	for i, qualityBand := range qualityBands {
-		tsp, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
+		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
 		if err != nil {
 			fmt.Printf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 			return nil, err
 		}
-		tspPerformances[i] = tsp
+		tspPerformances[i] = tspPerformance
 	}
+	return tspPerformances, nil
+}
 
+// DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
+func DetermineNextTSPPerformance(tspPerformances TransportationServiceProviderPerformances) (*TransportationServiceProviderPerformance, error) {
 	// First time through, no rounds have yet occurred so set to 0.
 	var rounds = 0
 	for j, tspPerformance := range tspPerformances {
@@ -119,6 +122,7 @@ func DetermineNextTSPPerformance(tx *pop.Connection, tdlID uuid.UUID) (*Transpor
 		}
 		rounds = tspPerformance.AwardCount / awardsPerQualityBand[j]
 	}
+	return nil, errors.New("There was an issue determining which TSP should next be awarded a shipment.")
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the

@@ -82,113 +82,144 @@ func Test_BVSWithLowMPS(t *testing.T) {
 	}
 }
 
-// Test_FetchTSPPerformanceForAwardQueue ensures that TSPs are returned in the expected
-// order for the Award Queue operation.
-func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
+// Test_FetchNextQualityBandTSPPerformance ensures that the TSP with the highest BVS is returned in the expected band
+func Test_FetchNextQualityBandTSPPerformance(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
 	// TSPs should be orderd by award_count first, then BVS.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, nil, mps+3, 1)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, nil, mps+2, 1)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(1), mps+3, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
+	tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, 1)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
-	} else if len(tsps) != 3 {
-		t.Errorf("Failed to find TSPs. Expected to find 3, found %d", len(tsps))
-	} else if tsps[0].TransportationServiceProviderID != tsp1.ID &&
-		tsps[1].TransportationServiceProviderID != tsp2.ID &&
-		tsps[2].TransportationServiceProviderID != tsp3.ID {
-
-		t.Errorf("TSPs returned out of expected order.\n"+
-			"\tExpected: [%s, %s, %s]\nFound:    [%s, %s, %s]",
-			tsp1.ID, tsp2.ID, tsp3.ID,
-			tsps[0].TransportationServiceProviderID,
-			tsps[1].TransportationServiceProviderID,
-			tsps[2].TransportationServiceProviderID)
+	} else if tsp.TransportationServiceProviderID != tsp2.ID {
+		t.Errorf("Incorrect TSP returned.\n"+
+			"\tExpected: %s \nFound: %s",
+			tsp2.ID,
+			tsp.TransportationServiceProviderID)
 	}
 }
 
-// Test_FetchTSPPerformanceForAwardQueueAllNullAwarded ensures that TSPs are returned in the expected
+// Test_GatherNextEligibleTSPPerformanceByBand ensures that TSPs are returned in the expected
 // order for the Award Queue operation.
-func Test_FetchTSPPerformanceForAwardQueueAllNullAwarded(t *testing.T) {
+func Test_GatherNextEligibleTSPPerformanceByBand(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
 	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
-
+	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+2, 0)
+	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(3), mps+3, 0)
 	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
 
-	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
-
-	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID, tsp5.ID}
-	if err != nil {
-		t.Errorf("Failed to find TSP: %v", err)
-	} else if len(tsps) != 5 {
-		t.Errorf("Failed to find TSPs. Expected to find 5, found %d", len(tsps))
-	}
-
-	TSPorder := []uuid.UUID{
+	tsps, err := GatherNextEligibleTSPPerformanceByBand(dbConnection, tdl.ID)
+	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp4.ID, tsp5.ID}
+	actualTSPorder := []uuid.UUID{
 		tsps[0].TransportationServiceProviderID,
 		tsps[1].TransportationServiceProviderID,
 		tsps[2].TransportationServiceProviderID,
 		tsps[3].TransportationServiceProviderID,
 		tsps[4].TransportationServiceProviderID}
-
-	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
-		t.Errorf("TSPs returned out of expected order.\n"+
-			"\tExpected: %v \nFound: %v",
-			expectedTSPorder,
-			TSPorder)
-	}
-}
-
-// Test_FetchTSPPerformanceForAwardQueueHalfAwarded ensures that TSPs are returned in the expected
-// order for the Award Queue operation.
-func Test_FetchTSPPerformanceForAwardQueueHalfAwarded(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
-	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
-
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 5)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 3)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
-
-	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
-
-	expectedTSPorder := []uuid.UUID{tsp3.ID, tsp4.ID, tsp1.ID, tsp2.ID}
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
 	} else if len(tsps) != 4 {
 		t.Errorf("Failed to find TSPs. Expected to find 4, found %d", len(tsps))
-	}
-
-	TSPorder := []uuid.UUID{
-		tsps[2].TransportationServiceProviderID,
-		tsps[3].TransportationServiceProviderID,
-		tsps[0].TransportationServiceProviderID,
-		tsps[1].TransportationServiceProviderID}
-
-	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
+	} else if !equalUUIDSlice(expectedTSPorder, actualTSPorder) {
 		t.Errorf("TSPs returned out of expected order.\n"+
 			"\tExpected: %v \nFound: %v",
 			expectedTSPorder,
-			TSPorder)
+			actualTSPorder)
 	}
 }
+
+// // Test_FetchNextQualityBandTSPPerformanceAllNullAwarded ensures that TSPs are returned in the expected
+// // order for the Award Queue operation.
+// func Test_FetchNextQualityBandTSPPerformanceAllNullAwarded(t *testing.T) {
+// 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
+// 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
+// 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
+// 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+// 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
+// 	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
+
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
+
+// 	for _, qualityBand := range qualityBands {
+// 		tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, qualityBand)
+
+// 	}
+
+// 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID, tsp5.ID}
+// 	if err != nil {
+// 		t.Errorf("Failed to find TSP: %v", err)
+// 	} else if len(tsps) != 5 {
+// 		t.Errorf("Failed to find TSPs. Expected to find 5, found %d", len(tsps))
+// 	}
+
+// 	TSPorder := []uuid.UUID{
+// 		tsps[0].TransportationServiceProviderID,
+// 		tsps[1].TransportationServiceProviderID,
+// 		tsps[2].TransportationServiceProviderID,
+// 		tsps[3].TransportationServiceProviderID,
+// 		tsps[4].TransportationServiceProviderID}
+
+// 	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
+// 		t.Errorf("TSPs returned out of expected order.\n"+
+// 			"\tExpected: %v \nFound: %v",
+// 			expectedTSPorder,
+// 			TSPorder)
+// 	}
+// }
+
+// // Test_FetchNextQualityBandTSPPerformanceHalfAwarded ensures that TSPs are returned in the expected
+// // order for the Award Queue operation.
+// func Test_FetchNextQualityBandTSPPerformanceHalfAwarded(t *testing.T) {
+// 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
+// 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
+// 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
+// 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+// 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
+
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 5)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 3)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
+// 	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
+
+// 	tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, mps)
+
+// 	expectedTSPorder := []uuid.UUID{tsp3.ID, tsp4.ID, tsp1.ID, tsp2.ID}
+// 	if err != nil {
+// 		t.Errorf("Failed to find TSP: %v", err)
+// 	} else if len(tsps) != 4 {
+// 		t.Errorf("Failed to find TSPs. Expected to find 4, found %d", len(tsps))
+// 	}
+
+// 	TSPorder := []uuid.UUID{
+// 		tsps[2].TransportationServiceProviderID,
+// 		tsps[3].TransportationServiceProviderID,
+// 		tsps[0].TransportationServiceProviderID,
+// 		tsps[1].TransportationServiceProviderID}
+
+// 	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
+// 		t.Errorf("TSPs returned out of expected order.\n"+
+// 			"\tExpected: %v \nFound: %v",
+// 			expectedTSPorder,
+// 			TSPorder)
+// 	}
+// }
 
 // Test_FetchTSPPerformanceForQualityBandAssignment ensures that TSPs are returned in the expected
 // order for the division into quality bands.

@@ -41,13 +41,17 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformance, err := models.DetermineNextTSPPerformance(aq.db, tdl.ID)
+	tspPerformances, dbErr := models.GatherNextEligibleTSPPerformanceByBand(aq.db, tdl.ID)
+	tspPerformance, err := models.DetermineNextTSPPerformance(tspPerformances)
 
-	if err != nil {
+	if dbErr != nil {
 		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
 	}
+	if err != nil {
+		return nil, fmt.Errorf("Cannot award. Error with round robin: %s", err)
+	}
 
-	if len(tspPerformance) == 0 {
+	if len(tspPerformances) == 0 {
 		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
 	}
 
