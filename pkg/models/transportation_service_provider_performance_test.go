@@ -1,22 +1,20 @@
 package models_test
 
 import (
-	"testing"
-
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 var mps = 10
 
-func Test_BestValueScoreValidations(t *testing.T) {
+func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance := &TransportationServiceProviderPerformance{BestValueScore: 101}
 
 	var expErrors = map[string][]string{
 		"best_value_score": []string{"101 is not less than 101."},
 	}
 
-	verifyValidationErrors(tspPerformance, expErrors, t)
+	suite.verifyValidationErrors(tspPerformance, expErrors)
 
 	tspPerformance = &TransportationServiceProviderPerformance{BestValueScore: -1}
 
@@ -24,22 +22,24 @@ func Test_BestValueScoreValidations(t *testing.T) {
 		"best_value_score": []string{"-1 is not greater than -1."},
 	}
 
-	verifyValidationErrors(tspPerformance, expErrors, t)
+	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
-func Test_AssignQualityBandToTSPPerformance(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "california", "90210", "2")
-	tsp, _ := testdatagen.MakeTSP(dbConnection, "Test Shipper", "TEST")
-	perf, _ := testdatagen.MakeTSPPerformance(dbConnection, tsp, tdl, nil, mps, 0)
+func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
+	t := suite.T()
+
+	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 	band := 1
 
-	err := AssignQualityBandToTSPPerformance(dbConnection, band, perf.ID)
+	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
 	if err != nil {
 		t.Fatalf("Did not update quality band: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}
-	if err := dbConnection.Find(&performance, perf.ID); err != nil {
+	if err := suite.db.Find(&performance, perf.ID); err != nil {
 		t.Fatalf("could not find perf: %v", err)
 	}
 
@@ -50,23 +50,24 @@ func Test_AssignQualityBandToTSPPerformance(t *testing.T) {
 	}
 }
 
-func Test_BVSWithLowMPS(t *testing.T) {
+func (suite *ModelSuite) Test_BVSWithLowMPS() {
+	t := suite.T()
 	tspsToMake := 5
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(dbConnection, "Test Shipper", "TEST")
-		testdatagen.MakeTSPPerformance(dbConnection, tsp, tdl, nil, 15, 0)
+		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
-	mpsTSP, _ := testdatagen.MakeTSP(dbConnection, "Low BVS Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(dbConnection, mpsTSP, tdl, nil, mps-1, 0)
+	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", "TEST")
+	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0)
 
 	// Fetch TSPs in TDL
-	tspsbb, err := FetchTSPPerformanceForQualityBandAssignment(dbConnection, tdl.ID, mps)
+	tspsbb, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
 	// Then: Expect to find TSPs in TDL
 	if err != nil {
@@ -82,17 +83,19 @@ func Test_BVSWithLowMPS(t *testing.T) {
 
 // Test_FetchTSPPerformanceForAwardQueue ensures that TSPs are returned in the expected
 // order for the Award Queue operation.
-func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
-	// TSPs should be orderd by award_count first, then BVS.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, nil, mps+3, 1)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, nil, mps+2, 1)
+func (suite *ModelSuite) Test_FetchTSPPerformanceForAwardQueue() {
+	t := suite.T()
 
-	tsps, err := FetchTSPPerformanceForAwardQueue(dbConnection, tdl.ID, mps)
+	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	// TSPs should be orderd by award_count first, then BVS.
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps+3, 1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, mps+2, 1)
+
+	tsps, err := FetchTSPPerformanceForAwardQueue(suite.db, tdl.ID, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -113,17 +116,19 @@ func Test_FetchTSPPerformanceForAwardQueue(t *testing.T) {
 
 // Test_FetchTSPPerformanceForQualityBandAssignment ensures that TSPs are returned in the expected
 // order for the division into quality bands.
-func Test_FetchTSPPerformanceForQualityBandAssignment(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
-	// What matter is the BVS score order; award_count has no influence.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, nil, 90, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, nil, 50, 1)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, nil, 15, 1)
+func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
+	t := suite.T()
 
-	tsps, err := FetchTSPPerformanceForQualityBandAssignment(dbConnection, tdl.ID, mps)
+	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	// What matter is the BVS score order; award_count has no influence.
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1)
+
+	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -144,15 +149,17 @@ func Test_FetchTSPPerformanceForQualityBandAssignment(t *testing.T) {
 
 // Test_MinimumPerformanceScore ensures that TSPs whose BVS is below the MPS
 // do not enter the Award Queue process.
-func Test_MinimumPerformanceScore(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, nil, mps-1, 1)
+func (suite *ModelSuite) Test_MinimumPerformanceScore() {
+	t := suite.T()
 
-	tsps, err := FetchTSPPerformanceForQualityBandAssignment(dbConnection, tdl.ID, mps)
+	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1)
+
+	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)

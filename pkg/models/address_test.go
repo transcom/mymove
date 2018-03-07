@@ -1,13 +1,13 @@
 package models_test
 
 import (
-	"testing"
-
 	"github.com/go-openapi/swag"
 	. "github.com/transcom/mymove/pkg/models"
 )
 
-func TestBasicAddressInstantiation(t *testing.T) {
+func (suite *ModelSuite) TestBasicAddressInstantiation() {
+	t := suite.T()
+
 	newAddress := Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: swag.String("street 2"),
@@ -16,7 +16,7 @@ func TestBasicAddressInstantiation(t *testing.T) {
 		Zip:            "90210",
 	}
 
-	verrs, err := dbConnection.ValidateAndCreate(&newAddress)
+	verrs, err := suite.db.ValidateAndCreate(&newAddress)
 
 	if err != nil {
 		t.Fatal("Error writing to the db.", err)
