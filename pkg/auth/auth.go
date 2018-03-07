@@ -306,7 +306,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	user, err := getOrCreateUser(h.db, openIDuser.RawData)
+	user, err := models.GetOrCreateUser(h.db, openIDuser.RawData)
 	if err != nil {
 		h.logger.Error("Unable to create user.", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -329,35 +329,6 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.LoginGovEmail)
 	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
-}
-
-func getOrCreateUser(db *pop.Connection, userData map[string]interface{}) (models.User, error) {
-
-	// Check if user already exists
-	loginGovUUID := userData["sub"].(string)
-	query := db.Where("login_gov_uuid = $1", loginGovUUID)
-	var users []models.User
-	err := query.All(&users)
-	if err != nil {
-		zap.L().Error("DB Query Error", zap.Error(err))
-		return (models.User{}), err
-	}
-
-	if len(users) == 0 {
-		loginGovUUID, _ := uuid.FromString(loginGovUUID)
-		loginGovEmail := userData["email"].(string)
-		newUser := models.User{
-			LoginGovUUID:  loginGovUUID,
-			LoginGovEmail: loginGovEmail,
-		}
-		if _, err := db.ValidateAndCreate(&newUser); err != nil {
-			zap.L().Error("Unable to create user", zap.Error(err))
-			return (models.User{}), err
-		}
-		return newUser, nil
-	}
-	// one user was found, return it
-	return users[0], nil
 }
 
 func getAuthorizationURL(logger *zap.Logger) (string, error) {

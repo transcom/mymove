@@ -53,3 +53,34 @@ func (u *User) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// getOrCreateUser is called upon successful login.gov verification
+func GetOrCreateUser(db *pop.Connection, userData map[string]interface{}) (User, error) {
+
+	// Check if user already exists
+	loginGovUUID := userData["sub"].(string)
+	query := db.Where("login_gov_uuid = $1", loginGovUUID)
+	var users []User
+	err := query.All(&users)
+	if err != nil {
+		//zap.L().Error("DB Query Error", zap.Error(err))
+		return (User{}), err
+	}
+
+	// If user is not in DB, create it
+	if len(users) == 0 {
+		loginGovUUID, _ := uuid.FromString(loginGovUUID)
+		loginGovEmail := userData["email"].(string)
+		newUser := User{
+			LoginGovUUID:  loginGovUUID,
+			LoginGovEmail: loginGovEmail,
+		}
+		if _, err := db.ValidateAndCreate(&newUser); err != nil {
+			//zap.L().Error("Unable to create user", zap.Error(err))
+			return (User{}), err
+		}
+		return newUser, nil
+	}
+	// one user was found, return it
+	return users[0], nil
+}

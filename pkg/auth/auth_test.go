@@ -20,8 +20,6 @@ import (
 	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/models"
 )
 
 type AuthSuite struct {
@@ -292,51 +290,5 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	// And the cookie should not be renewed
 	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
 		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
-	}
-}
-
-func (suite *AuthSuite) TestGetOrCreateUser() {
-	t := suite.T()
-
-	// When: login gov UUID is passed to create user func
-	userData := map[string]interface{}{}
-	userData["sub"] = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-	userData["email"] = "sally@government.gov"
-	loginGovUUID, _ := uuid.FromString(userData["sub"].(string))
-
-	// And: user does not yet exist in the db
-	newUser, err := getOrCreateUser(suite.db, userData)
-	if err != nil {
-		t.Error("error querying or creating user.")
-	}
-
-	// Then: expect fields to be set on returned user
-	if newUser.LoginGovEmail != userData["email"] {
-		t.Error("expected email to be set")
-	}
-	if newUser.LoginGovUUID != loginGovUUID {
-		t.Error("expected uuid to be set")
-	}
-
-	// When: The same UUID is passed in func
-	sameUser, err := getOrCreateUser(suite.db, userData)
-	if err != nil {
-		t.Error("error querying or creating user.")
-	}
-
-	// Then: expect the existing user to be returned
-	if sameUser.LoginGovEmail != newUser.LoginGovEmail {
-		t.Error("expected existing user to have been returned")
-	}
-
-	// And: no new user to have been created
-	query := suite.db.Where("login_gov_uuid = $1", loginGovUUID)
-	var users []models.User
-	queryErr := query.All(&users)
-	if queryErr != nil {
-		t.Error("DB Query Error", zap.Error(err))
-	}
-	if len(users) > 1 {
-		t.Error("1 user should have been returned")
 	}
 }
