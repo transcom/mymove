@@ -54,6 +54,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// GetOrCreateMove gets or creates a move
 func GetOrCreateMove(db *pop.Connection, userID uuid.UUID) (Move, error) {
 	// Check if move already exists
 	query := db.Where("user_id = $1", userID)
