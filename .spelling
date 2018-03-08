@@ -108,7 +108,6 @@ backend
 api
 protos
 config
-Exploramed
 yaml
 codegen
 js
