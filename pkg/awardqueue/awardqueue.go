@@ -3,8 +3,10 @@ package awardqueue
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/markbates/pop"
+	"github.com/satori/go.uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -31,6 +33,8 @@ func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipm
 // AttemptShipmentAward will attempt to take the given Shipment and award it to
 // a TSP.
 func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
+	// If this is being given a PossiblyAwardedShipment and not a shipment, how are we
+	// supposed to test against the proposed pickup date?
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
@@ -55,11 +59,12 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
+		tspBlackoutDatesPresent := checkTSPBlackoutDates(tsp.ID, shipment.PickupDate)
 
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-			// Put function here, used in if statement so that if blackout dates overlap = true, it bails and goes to the next iteration of the loop.
-			if checkTSPBlackoutDates(tsp.ID, shipment.PickupDate) == true {
+			if tspBlackoutDatesPresent == true {
+				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, true)
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)
 			} else {
 				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
@@ -69,12 +74,9 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 				} else {
 					fmt.Printf("\tFailed to award to TSP: %v\n", err)
 				}
-			} else {
-				fmt.Printf("\tFailed to award to TSP: %v\n", err)
 			}
 		}
 	}
-
 	return shipmentAward, err
 }
 
@@ -185,17 +187,25 @@ func Run(db *pop.Connection) error {
 // checkTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares
 // start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls
 // within the window created by the blackout date record.
-func (aq *AwardQueue) checkTSPBlackoutDates(tspid UUID, pickupDate time) bool {
+func (aq *AwardQueue) checkTSPBlackoutDates(tspid uuid.UUID, pickupDate time.Time) bool {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspid)
+	if len(blackoutDates) == 0 {
+		return false
+	}
 
 	for _, blackoutDate := range blackoutDates {
-		// if (pickupDate.Before(blackoutDate.start_blackout_date) || pickupDate.After(blackoutDate.end_blackout_date)) {
-		// 	return false
-		// }
-		if (pickupDate.Equal(blackoutDate.StartBlackoutDate) || pickupDate.After(blackoutDate.StartBlackoutDate) || pickupDate.Equal(blackoutDate.EndBlackoutDate) || pickupDate.Before(blackoutDate.EndBlackoutDate)) {
+		// Need to fix this logic. It's more like (before && after) || Equal || Equal
+		// As it is, if it's after the start date but also after the end date, it'll still
+		// return true! D'oh. Also, is there a prettier way to do this?
+		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
+			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
+			pickupDate.Equal(blackoutDate.StartBlackoutDate) {
 			return true
 		} else {
 			return false
 		}
 	}
+	// Needs a return at the end; feels unsafe to return false (or true!) outside of tests.
+	// Is the solution in the vein of "if err != nil"?
+	return false // added for debugging; do not keep this in a PR.
 }
