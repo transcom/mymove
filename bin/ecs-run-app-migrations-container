@@ -1,0 +1,78 @@
+#!/bin/bash
+#
+#   Creates and runs a migration task using the given container definition
+#   template, image, and environment.
+#
+set -eo pipefail
+
+usage() {
+    echo "$0 <template> <image> <environment>"
+    exit 1
+}
+[[ -z $1 || -z $2 || -z $3 ]] && usage
+
+set -u
+
+readonly template=$1
+readonly image=$2
+readonly environment=$3
+
+readonly log_prefix=app-migrations
+readonly container_name=app-migrations-${environment}
+readonly task_family=app-migrations-${environment}
+readonly cluster=app-${environment}
+
+check_arn() {
+    local arn=$1
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+}
+
+show_logs() {
+    local arn=$1
+    local task_id
+    task_id=$(echo "$arn" | grep -Eo ':task/([[:alnum:]-]+)$' | cut -d / -f 2)
+    echo "CloudWatch logs:"
+    aws logs get-log-events --log-group-name "ecs-tasks-$cluster" --log-stream-name "$log_prefix/$container_name/$task_id" --query 'events[].message' || true
+    echo
+}
+
+# get network configuration from the cluster we'll run on
+network_configuration=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
+readonly network_configuration
+
+# get the DB address
+db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
+readonly db_host
+
+# create the container definition from the json template
+container_definition_json=$(perl -pe "s|{{environment}}|$environment|g; s|{{image}}|$image|g; s|{{db_host}}|$db_host|g;" "$template")
+readonly container_definition_json
+
+# create new task definition with the given image
+task_definition_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-$environment" --family "$task_family" --container-definitions "$container_definition_json" --query 'taskDefinition.taskDefinitionArn' --output text)
+readonly task_definition_arn
+check_arn "$task_definition_arn"
+
+# run the task
+echo "Running task definition $task_definition_arn …"
+task_arn=$(aws ecs run-task --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
+readonly task_arn
+check_arn "$task_arn"
+time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
+echo
+
+# check for success
+exit_code=$(aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster" --query 'tasks[].containers[].exitCode' --output text)
+if [[ $exit_code = "0" ]]; then
+    show_logs "$task_arn"
+    echo "Task $task_arn finished."
+    exit 0
+fi
+
+# announce task run failure
+echo "Task $task_arn failed!"
+echo
+aws ecs describe-tasks --tasks "$task_arn" --cluster "$cluster"
+echo
+show_logs "$task_arn"
+exit 1
