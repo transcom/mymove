@@ -313,12 +313,6 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	_, moveErr := models.GetOrCreateMove(h.db, user.ID)
-	if moveErr != nil {
-		h.logger.Error("Unable to create move.", zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-	}
-
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)

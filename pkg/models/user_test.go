@@ -89,6 +89,17 @@ func (suite *ModelSuite) TestGetOrCreateUser() {
 		t.Error("expected uuid to be set")
 	}
 
+	// And: expect a move to have been created for the user
+	var moves []Move
+	moveQuery := suite.db.Where("user_id = $1", (newUser.ID).String())
+	moveErr := moveQuery.All(&moves)
+	if moveErr != nil {
+		t.Error("DB Query Error")
+	}
+	if moves[0].UserID != newUser.ID {
+		t.Error("expected created move to have same user id value.")
+	}
+
 	// When: The same UUID is passed in func
 	sameUser, err := GetOrCreateUser(suite.db, gothUser)
 	if err != nil {
@@ -109,5 +120,15 @@ func (suite *ModelSuite) TestGetOrCreateUser() {
 	}
 	if len(users) > 1 {
 		t.Error("1 user should have been returned")
+	}
+
+	// And: no new move to have been created
+	var newMoves []Move
+	moveErrs := moveQuery.All(&newMoves)
+	if moveErrs != nil {
+		t.Error("DB Query Error")
+	}
+	if len(moves) > 1 {
+		t.Error("too many moves for user.")
 	}
 }
