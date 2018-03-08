@@ -245,6 +245,26 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceHalfAwarded() {
 	}
 }
 
+func (suite *ModelSuite) Test_DetermineNextTSPPerformancePartialRound() {
+	t := suite.T()
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp3 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)
+	}
+}
+
 // Test_GatherNextEligibleTSPPerformanceByBand ensures that TSPs are returned in the expected
 // order for the Award Queue operation.
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
