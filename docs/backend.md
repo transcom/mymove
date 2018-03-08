@@ -15,7 +15,7 @@
     * [Models](#models)
     * [Miscellaneous Tips](#miscellaneous-tips)
 
-_Regenerate with `bin/generate-md-toc.sh`_
+Regenerate with "bin/generate-md-toc.sh"
 
 <!-- tocstop -->
 

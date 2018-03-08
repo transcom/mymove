@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v1.2.1-1
+    sha: v1.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -59,7 +59,7 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: 12ebecb5071d6c407f722dfbcc3eb6654b38f3df
+    sha: v0.3
     hooks:
     -   id: go-fmt
     -   id: go-vet
