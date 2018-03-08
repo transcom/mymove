@@ -33,7 +33,7 @@ paths:
           description: not authorized to get list of TSPs
   /tsp/{tspUUID}/shipments:
     get:
-      summary: Retreive shipments associated with a TSP
+      summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
       operationId: tspShipments
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
@@ -59,7 +59,7 @@ paths:
         400:
           description: invalid request
         403:
-          description: not authorized to get list of TSPs
+          description: not authorized to get list of shipments for this TSP
 
 definitions:
   TSP:
@@ -72,7 +72,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
-        example: Name of the TSP
+        example: Moving Company, Inc.
         minLength: 1
         maxLength: 1024
       contact_email:
@@ -231,7 +231,7 @@ definitions:
         example: REGION_6
   PreMoveSurvey:
     type: object
-    description: A shipment which may be awarded to a TSP
+    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
     properties:
       id:
         type: string
