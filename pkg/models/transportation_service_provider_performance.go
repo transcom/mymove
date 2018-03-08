@@ -77,8 +77,8 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	), nil
 }
 
-// FetchNextQualityBandTSPPerformance returns TSP performance records in a given TDL
-// in the order that they should be awarded new shipments.
+// FetchNextQualityBandTSPPerformance returns the TSP performance record in a given TDL
+// and Quality Band that will next be awarded a shipment.
 func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
 	TransportationServiceProviderPerformance, error) {
 
@@ -107,6 +107,7 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map
 	for _, qualityBand := range qualityBands {
 		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
 		if err != nil {
+			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			zap.S().Infof("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 		} else {
 			tspPerformances[qualityBand] = tspPerformance
@@ -130,9 +131,9 @@ func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID) (Transporta
 
 // DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
 func DetermineNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
-	// First time through, no rounds have yet occurred so set to 0.
-
 	bands := sortedMapIntKeys(tspPerformances)
+	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
+	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
 	maxRounds := float64(tspPerformances[bands[0]].AwardCount) / float64(awardsPerQualityBand[bands[0]])
 	previousRounds := math.Ceil(maxRounds)
 
