@@ -118,6 +118,7 @@ paths:
           description: unknown form1299Id
         500:
           description: server error
+
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
