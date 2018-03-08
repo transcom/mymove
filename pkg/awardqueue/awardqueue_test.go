@@ -176,6 +176,12 @@ func verifyAwardCount(t *testing.T, tsp models.TransportationServiceProvider, ex
 	if count != expectedCount {
 		t.Errorf("Wrong number of ShipmentAwards found: expected %d, got %d", expectedCount, count)
 	}
+
+	var tspPerformance models.TransportationServiceProviderPerformance
+	query.First(&tspPerformance)
+	if expectedCount != tspPerformance.AwardCount {
+		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
+	}
 }
 
 func Test_getTSPsPerBandWithRemainder(t *testing.T) {

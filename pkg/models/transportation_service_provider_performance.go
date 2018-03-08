@@ -200,15 +200,19 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	return nil
 }
 
-// IncrementTSPPerformanceAwardCount increments the award_count column by 1.
+// IncrementTSPPerformanceAwardCount increments the award_count column by 1 and validates.
 func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
-	sql := `UPDATE
-				transportation_service_provider_performances
-			SET
-				award_count = award_count + 1
-			WHERE
-				id = $1
-			`
-
-	return db.RawQuery(sql, tspPerformanceID).Exec()
+	var tspPerformance TransportationServiceProviderPerformance
+	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
+		return err
+	}
+	tspPerformance.AwardCount++
+	validationErr, databaseErr := db.ValidateAndSave(&tspPerformance)
+	if databaseErr != nil {
+		return databaseErr
+	} else if validationErr.HasAny() {
+		return fmt.Errorf("Validation failure: %s", validationErr)
+	}
+	fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards\n", tspPerformance.AwardCount)
+	return nil
 }
