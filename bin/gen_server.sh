@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -eu -o pipefail
+
 gendir=./pkg/gen
 
 rm -rf $gendir
