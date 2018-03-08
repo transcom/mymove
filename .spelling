@@ -97,6 +97,8 @@ ngrok
 localtunnel
 Redis
 stateful
+iOS
+generate-md-toc
 Memcached
 jwt-go
 deps
@@ -120,21 +122,14 @@ ADR-0011
 ADR-0012
 ADR-0013
 template.md
- - docs/backend.md
 _Regenerate
-_
+Codegen
 30x
 ish
- - docs/adr/0007-swagger-client.md
-Codegen
- - README.md
-_Regenerate
 _
+# Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
+ - docs/backend.md
+ - docs/adr/0007-swagger-client.md
+ - README.md
  - docs/frontend.md
 _Regenerate
-_
- - ./docs/backend.md
-_Regenerate
-_
-ish
-30x
