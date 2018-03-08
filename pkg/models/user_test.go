@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/satori/go.uuid"
 
+	"github.com/markbates/goth"
 	. "github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 )
@@ -71,19 +72,17 @@ func (suite *ModelSuite) TestGetOrCreateUser() {
 	t := suite.T()
 
 	// When: login gov UUID is passed to create user func
-	userData := map[string]interface{}{}
-	userData["sub"] = "39b28c92-0506-4bef-8b57-e39519f42dc2"
-	userData["email"] = "sally@government.gov"
-	loginGovUUID, _ := uuid.FromString(userData["sub"].(string))
+	gothUser := goth.User{Email: "sally@government.gov", UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2"}
+	loginGovUUID, _ := uuid.FromString(gothUser.UserID)
 
 	// And: user does not yet exist in the db
-	newUser, err := GetOrCreateUser(suite.db, userData)
+	newUser, err := GetOrCreateUser(suite.db, gothUser)
 	if err != nil {
 		t.Error("error querying or creating user.")
 	}
 
 	// Then: expect fields to be set on returned user
-	if newUser.LoginGovEmail != userData["email"] {
+	if newUser.LoginGovEmail != gothUser.Email {
 		t.Error("expected email to be set")
 	}
 	if newUser.LoginGovUUID != loginGovUUID {
@@ -91,7 +90,7 @@ func (suite *ModelSuite) TestGetOrCreateUser() {
 	}
 
 	// When: The same UUID is passed in func
-	sameUser, err := GetOrCreateUser(suite.db, userData)
+	sameUser, err := GetOrCreateUser(suite.db, gothUser)
 	if err != nil {
 		t.Error("error querying or creating user.")
 	}

@@ -2,9 +2,11 @@ package models
 
 import (
 	"encoding/json"
+	"github.com/markbates/goth"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
+	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"time"
 )
@@ -54,29 +56,30 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// getOrCreateUser is called upon successful login.gov verification
-func GetOrCreateUser(db *pop.Connection, userData map[string]interface{}) (User, error) {
+// GetOrCreateUser is called upon successful login.gov verification
+func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (User, error) {
 
 	// Check if user already exists
-	loginGovUUID := userData["sub"].(string)
-	query := db.Where("login_gov_uuid = $1", loginGovUUID)
+	query := db.Where("login_gov_uuid = $1", gothUser.UserID)
 	var users []User
 	err := query.All(&users)
 	if err != nil {
-		//zap.L().Error("DB Query Error", zap.Error(err))
+		err = errors.Wrap(err, "DB Query Error")
 		return (User{}), err
 	}
 
 	// If user is not in DB, create it
 	if len(users) == 0 {
-		loginGovUUID, _ := uuid.FromString(loginGovUUID)
-		loginGovEmail := userData["email"].(string)
+		loginGovUUID, _ := uuid.FromString(gothUser.UserID)
 		newUser := User{
 			LoginGovUUID:  loginGovUUID,
-			LoginGovEmail: loginGovEmail,
+			LoginGovEmail: gothUser.Email,
 		}
-		if _, err := db.ValidateAndCreate(&newUser); err != nil {
-			//zap.L().Error("Unable to create user", zap.Error(err))
+		verrs, err := db.ValidateAndCreate(&newUser)
+		if verrs.HasAny() {
+			return (User{}), verrs
+		} else if err != nil {
+			err = errors.Wrap(err, "Unable to create user")
 			return (User{}), err
 		}
 		return newUser, nil

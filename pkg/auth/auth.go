@@ -306,7 +306,9 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	user, err := models.GetOrCreateUser(h.db, openIDuser.RawData)
+	fmt.Println("!!! ", openIDuser)
+	fmt.Println(openIDuser.UserID)
+	user, err := models.GetOrCreateUser(h.db, openIDuser)
 	if err != nil {
 		h.logger.Error("Unable to create user.", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
