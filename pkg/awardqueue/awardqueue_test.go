@@ -123,6 +123,50 @@ func TestAwardAssignUnawardedShipments(t *testing.T) {
 	}
 }
 
+//TODO: Make test with multiple TSPs that sorts and awards
+func TestAwardAssignUnawardedShipmentsToMultipleTSPs(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+
+	shipmentsToMake := 10
+
+	// Make a TDL to contain our tests
+	tdl, _ := testdatagen.MakeTDL(testDB, "california", "90210", "2")
+
+	// Make a few shipments in this TDL
+	for i := 0; i < shipmentsToMake; i++ {
+		testdatagen.MakeShipment(testDB, time.Now(), time.Now(), tdl)
+	}
+
+	// Make a TSPs in the same TDL to handle these shipments
+	tsp1, _ := testdatagen.MakeTSP(testDB, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(testDB, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(testDB, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(testDB, "Test TSP 4", "TSP4")
+	tsp5, _ := testdatagen.MakeTSP(testDB, "Test TSP 5", "TSP5")
+	// TSPs should be orderd by award_count first, then BVS.
+	testdatagen.MakeTSPPerformance(testDB, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp2, tdl, swag.Int(2), mps+4, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp3, tdl, swag.Int(3), mps+2, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp4, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp5, tdl, swag.Int(4), mps+1, 0)
+
+	// Run the Award Queue
+	queue.assignUnawardedShipments()
+
+	// Count the number of shipments awarded to our TSP
+	query := testDB.Where("transportation_service_provider_id = $1", tsp1.ID)
+	awards := []models.ShipmentAward{}
+	count, err := query.Count(&awards)
+
+	if err != nil {
+		t.Errorf("Error counting shipment awards: %v", err)
+	}
+	// There should be 5 shipments awarded to tsp1, in quality band 1.
+	if count != 5 {
+		t.Errorf("Not all ShipmentAwards found. Expected %d found %d", 5, count)
+	}
+}
+
 func Test_getTSPsPerBandWithRemainder(t *testing.T) {
 	// Check bands should expect differing num of TSPs when not divisible by 4
 	// Remaining TSPs should be divided among bands in descending order
