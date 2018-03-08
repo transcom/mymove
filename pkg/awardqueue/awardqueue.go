@@ -29,6 +29,7 @@ func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipm
 
 // AttemptShipmentAward will attempt to take the given Shipment and award it to
 // a TSP.
+// TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
@@ -48,24 +49,23 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	var shipmentAward *models.ShipmentAward
 
-	// TODO: refactor this
-	// TODO: wrap in transaction
-	tsp := models.TransportationServiceProvider{}
-	if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-		fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-		shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
-		if err == nil {
-			if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
-				fmt.Print("\tShipment awarded to TSP!\n")
-				return shipmentAward, err
+	err = aq.db.Transaction(func(tx *pop.Connection) error {
+		tsp := models.TransportationServiceProvider{}
+		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
+			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
+			if err == nil {
+				if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
+					fmt.Print("\tShipment awarded to TSP!\n")
+					return nil
+				}
 			}
-			// TODO: rollback transaction
 		}
 		fmt.Printf("\tFailed to award to TSP: %v\n", err)
-	} else {
-		fmt.Printf("\tFailed to award to TSP: %v\n", err)
-	}
-	return nil, err
+		return err
+	})
+
+	return shipmentAward, err
 }
 
 func (aq *AwardQueue) assignUnawardedShipments() {
