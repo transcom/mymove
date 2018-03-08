@@ -13,10 +13,13 @@ import (
 func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
+	market := "dHHG"
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		PickupDate:                pickup,
 		DeliveryDate:              delivery,
+		GBLOC:                     "AGFM",
+		Market:                    &market,
 	}
 
 	_, err := db.ValidateAndSave(&shipment)
