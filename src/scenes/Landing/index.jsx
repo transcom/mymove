@@ -21,11 +21,6 @@ export class Landing extends Component {
   }
 }
 
-function mapStateToProps(state) {
-  return {
-    loggedIn: state.user.loggedIn,
-  };
-}
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadUserAndToken }, dispatch);
 }
