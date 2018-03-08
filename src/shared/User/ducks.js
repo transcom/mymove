@@ -3,7 +3,7 @@ import * as decode from 'jwt-decode';
 
 const LOGOUT = 'USER|LOGOUT';
 
-const LOAD_USER_AND_TOKEN = 'USER|ZLOAD_USER_AND_TOKEN';
+const LOAD_USER_AND_TOKEN = 'USER|LOAD_USER_AND_TOKEN';
 
 const loggedOutUser = {
   isLoggedIn: false,
