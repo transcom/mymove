@@ -143,7 +143,6 @@ frontend
 symlinks
 vendored
 json
-depdency
 structs
 struct
 nullable
