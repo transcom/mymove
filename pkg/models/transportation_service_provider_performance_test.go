@@ -95,7 +95,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	tsp, err := FetchNextQualityBandTSPPerformance(suite.db, tdl.ID, 1)
+	tsp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -107,7 +107,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceAllZeros() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceAllZeros() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
@@ -120,14 +120,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceAllZeros() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp1 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceOneAssigned() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
@@ -140,14 +140,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceOneAssigned() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp1 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceOneFullRound() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
@@ -160,14 +160,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceOneFullRound() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp1 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceTwoFullRounds() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 6, QualityBand: swag.Int(2)}
@@ -180,14 +180,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceTwoFullRounds() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp1 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceFirstBandFilled() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
@@ -200,14 +200,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceFirstBandFilled() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp2 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp2.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceThreeBands() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
@@ -218,14 +218,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceThreeBands() {
 		2: tspp2,
 		3: tspp3}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp1 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformanceHalfAwarded() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
@@ -238,14 +238,14 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceHalfAwarded() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp3 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)
 	}
 }
 
-func (suite *ModelSuite) Test_DetermineNextTSPPerformancePartialRound() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
@@ -258,7 +258,7 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformancePartialRound() {
 		3: tspp3,
 		4: tspp4}
 
-	chosen := DetermineNextTSPPerformance(choices)
+	chosen := SelectNextTSPPerformance(choices)
 
 	if chosen != tspp3 {
 		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)

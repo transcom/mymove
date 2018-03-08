@@ -77,9 +77,9 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	), nil
 }
 
-// FetchNextQualityBandTSPPerformance returns the TSP performance record in a given TDL
+// NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be awarded a shipment.
-func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -105,7 +105,7 @@ func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qua
 func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			zap.S().Infof("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -124,13 +124,13 @@ func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID) (Transporta
 	var tspPerformance TransportationServiceProviderPerformance
 	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID)
 	if err == nil {
-		return DetermineNextTSPPerformance(tspPerformances), nil
+		return SelectNextTSPPerformance(tspPerformances), nil
 	}
 	return tspPerformance, err
 }
 
-// DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
-func DetermineNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
+// SelectNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
+func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
 	bands := sortedMapIntKeys(tspPerformances)
 	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
 	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
@@ -198,4 +198,17 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 		return errors.New("could not update quality band")
 	}
 	return nil
+}
+
+// IncrementTSPPerformanceAwardCount increments the award_count column by 1.
+func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
+	sql := `UPDATE
+				transportation_service_provider_performances
+			SET
+				award_count = award_count + 1
+			WHERE
+				id = $1
+			`
+
+	return db.RawQuery(sql, tspPerformanceID).Exec()
 }

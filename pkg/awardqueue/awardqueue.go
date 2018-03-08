@@ -49,13 +49,17 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	var shipmentAward *models.ShipmentAward
 
 	// TODO: refactor this
+	// TODO: wrap in transaction
 	tsp := models.TransportationServiceProvider{}
 	if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 		fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 		shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 		if err == nil {
-			fmt.Print("\tShipment awarded to TSP!\n")
-			return shipmentAward, err
+			if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
+				fmt.Print("\tShipment awarded to TSP!\n")
+				return shipmentAward, err
+			}
+			// TODO: rollback transaction
 		}
 		fmt.Printf("\tFailed to award to TSP: %v\n", err)
 	} else {
