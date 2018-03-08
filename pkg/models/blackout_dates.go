@@ -26,6 +26,22 @@ type BlackoutDate struct {
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
 }
 
+// FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
+func FetchTSPBlackoutDates(tx *pop.Connection, tspid UUID) (models.TransportationServiceProvider, err) {
+	tsps := []TransportationServiceProvider{}
+
+	sql := `SELECT
+			*
+		FROM
+			blackout_dates
+		WHERE
+			transportation_service_provider_id = $1`
+
+	err := tx.RawQuery(sql, tdlID).All(&tsps)
+
+	return tsps, err
+}
+
 // String is not required by pop and may be deleted
 func (b BlackoutDate) String() string {
 	jb, _ := json.Marshal(b)

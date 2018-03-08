@@ -55,17 +55,23 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
+
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
-			if err == nil {
-				fmt.Print("\tShipment awarded to TSP!\n")
-				break
+			// Put function here, used in if statement so that if blackout dates overlap = true, it bails and goes to the next iteration of the loop.
+			if checkTSPBlackoutDates(tsp.ID, shipment.PickupDate) == true {
+				fmt.Printf("\tFailed to award to TSP: %v\n", err)
+			} else {
+				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
+				if err == nil {
+					fmt.Print("\tShipment awarded to TSP!\n")
+					break
+				} else {
+					fmt.Printf("\tFailed to award to TSP: %v\n", err)
+				}
 			} else {
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)
 			}
-		} else {
-			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 		}
 	}
 
@@ -174,4 +180,22 @@ func Run(db *pop.Connection) error {
 	// This method should also return an error
 	queue.assignUnawardedShipments()
 	return nil
+}
+
+// checkTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares
+// start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls
+// within the window created by the blackout date record.
+func (aq *AwardQueue) checkTSPBlackoutDates(tspid UUID, pickupDate time) bool {
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspid)
+
+	for _, blackoutDate := range blackoutDates {
+		// if (pickupDate.Before(blackoutDate.start_blackout_date) || pickupDate.After(blackoutDate.end_blackout_date)) {
+		// 	return false
+		// }
+		if (pickupDate.Equal(blackoutDate.StartBlackoutDate) || pickupDate.After(blackoutDate.StartBlackoutDate) || pickupDate.Equal(blackoutDate.EndBlackoutDate) || pickupDate.Before(blackoutDate.EndBlackoutDate)) {
+			return true
+		} else {
+			return false
+		}
+	}
 }
