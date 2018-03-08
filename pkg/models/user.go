@@ -56,6 +56,13 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// GetUserByID fetches a user model by their database ID
+func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
+	user := User{}
+	err := db.Find(&user, id)
+	return user, err
+}
+
 // GetOrCreateUser is called upon successful login.gov verification
 func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (User, error) {
 

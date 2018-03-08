@@ -12,6 +12,7 @@ import (
 
 type SignedCertification struct {
 	ID                uuid.UUID `json:"id" db:"id"`
+	SubmittingUserID  uuid.UUID `json:"submitting_user_id" db:"submitting_user_id"`
 	CreatedAt         time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
 	CertificationText string    `json:"certification_text" db:"certification_text"`
