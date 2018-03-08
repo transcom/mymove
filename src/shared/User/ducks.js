@@ -1,8 +1,6 @@
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 
-const LOGOUT = 'USER|LOGOUT';
-
 const LOAD_USER_AND_TOKEN = 'USER|LOAD_USER_AND_TOKEN';
 
 const loggedOutUser = {
@@ -27,19 +25,10 @@ export function loadUserAndToken() {
   return { type: LOAD_USER_AND_TOKEN, payload: jwt };
 }
 
-export function logOut() {
-  //todo: call server endpoint, clean up cookies?
-  return {
-    type: LOGOUT,
-  };
-}
-
 const userReducer = (state = loggedOutUser, action) => {
   switch (action.type) {
     case LOAD_USER_AND_TOKEN:
       return action.payload;
-    case LOGOUT:
-      return loggedOutUser;
     default: {
       return state;
     }

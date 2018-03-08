@@ -1,4 +1,7 @@
 import React from 'react';
+
+// this is from https://hackernoon.com/role-based-authorization-in-react-c70bb7641db4
+// as of 3/8 we are not using this yet, but it seems like it would work once we have a need to include roles in user state
 const AuthorizationContainer = (WrappedComponent, allowedRoles) =>
   function WithAuthorization(props) {
     const { role } = props;
