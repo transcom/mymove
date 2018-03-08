@@ -86,16 +86,16 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 // Test_FetchNextQualityBandTSPPerformance ensures that the TSP with the highest BVS is returned in the expected band
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
 	// TSPs should be orderd by award_count first, then BVS.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+1, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(1), mps+3, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(1), mps+2, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, 1)
+	tsp, err := FetchNextQualityBandTSPPerformance(suite.db, tdl.ID, 1)
 
 	if err != nil {
 		t.Errorf("Failed to find TSP: %v", err)
@@ -225,23 +225,44 @@ func (suite *ModelSuite) Test_DetermineNextTSPPerformanceThreeBands() {
 	}
 }
 
+func (suite *ModelSuite) Test_DetermineNextTSPPerformanceHalfAwarded() {
+	t := suite.T()
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp3 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp3.QualityBand, *chosen.QualityBand)
+	}
+}
+
 // Test_GatherNextEligibleTSPPerformanceByBand ensures that TSPs are returned in the expected
 // order for the Award Queue operation.
-func Test_GatherNextEligibleTSPPerformances(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
-	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
-	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
+func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
+	t := suite.T()
+	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
+	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
 	// TSPs should be orderd by award_count first, then BVS.
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+2, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(3), mps+3, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(2), mps+4, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(3), mps+2, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
-	tsps, err := GatherNextEligibleTSPPerformances(dbConnection, tdl.ID)
+	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp4.ID, tsp5.ID}
 	actualTSPorder := []uuid.UUID{
 		tsps[1].TransportationServiceProviderID,
@@ -260,82 +281,6 @@ func Test_GatherNextEligibleTSPPerformances(t *testing.T) {
 			actualTSPorder)
 	}
 }
-
-// // Test_FetchNextQualityBandTSPPerformanceAllNullAwarded ensures that TSPs are returned in the expected
-// // order for the Award Queue operation.
-// func Test_FetchNextQualityBandTSPPerformanceAllNullAwarded(t *testing.T) {
-// 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-// 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-// 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-// 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
-// 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
-// 	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
-//
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
-//
-// 	tspp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, 1)
-//
-// 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID}
-// 	if err != nil {
-// 		t.Errorf("Failed to find TSP: %v", err)
-// 	} else if len(tsps) != 5 {
-// 		t.Errorf("Failed to find TSPs. Expected to find 5, found %d", len(tsps))
-// 	}
-//
-// 	TSPorder := []uuid.UUID{
-// 		tsps[1].TransportationServiceProviderID,
-// 		tsps[2].TransportationServiceProviderID,
-// 		tsps[3].TransportationServiceProviderID,
-// 		tsps[4].TransportationServiceProviderID}
-//
-// 	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
-// 		t.Errorf("TSPs returned out of expected order.\n"+
-// 			"\tExpected: %v \nFound: %v",
-// 			expectedTSPorder,
-// 			TSPorder)
-// 	}
-// }
-
-// // Test_FetchNextQualityBandTSPPerformanceHalfAwarded ensures that TSPs are returned in the expected
-// // order for the Award Queue operation.
-// func Test_FetchNextQualityBandTSPPerformanceHalfAwarded(t *testing.T) {
-// 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-// 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-// 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-// 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
-// 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
-
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 5)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 3)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
-// 	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
-
-// 	tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, mps)
-
-// 	expectedTSPorder := []uuid.UUID{tsp3.ID, tsp4.ID, tsp1.ID, tsp2.ID}
-// 	if err != nil {
-// 		t.Errorf("Failed to find TSP: %v", err)
-// 	} else if len(tsps) != 4 {
-// 		t.Errorf("Failed to find TSPs. Expected to find 4, found %d", len(tsps))
-// 	}
-
-// 	TSPorder := []uuid.UUID{
-// 		tsps[2].TransportationServiceProviderID,
-// 		tsps[3].TransportationServiceProviderID,
-// 		tsps[0].TransportationServiceProviderID,
-// 		tsps[1].TransportationServiceProviderID}
-
-// 	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
-// 		t.Errorf("TSPs returned out of expected order.\n"+
-// 			"\tExpected: %v \nFound: %v",
-// 			expectedTSPorder,
-// 			TSPorder)
-// 	}
-// }
 
 // Test_FetchTSPPerformanceForQualityBandAssignment ensures that TSPs are returned in the expected
 // order for the division into quality bands.
