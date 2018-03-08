@@ -1,18 +1,16 @@
 package models_test
 
 import (
-	"testing"
-
 	. "github.com/transcom/mymove/pkg/models"
 )
 
-func Test_TransportationServiceProvider(t *testing.T) {
+func (suite *ModelSuite) Test_TransportationServiceProvider() {
 	tsp := &TransportationServiceProvider{}
 
-	var expErrors = map[string][]string{
+	expErrors := map[string][]string{
 		"name": []string{"Name can not be blank."},
 		"standard_carrier_alpha_code": []string{"StandardCarrierAlphaCode can not be blank."},
 	}
 
-	verifyValidationErrors(tsp, expErrors, t)
+	suite.verifyValidationErrors(tsp, expErrors)
 }
