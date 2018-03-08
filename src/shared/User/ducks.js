@@ -1,13 +1,24 @@
 import * as Cookies from 'js-cookie';
+import * as decode from 'jwt-decode';
+
 const LOGOUT = 'USER|LOGOUT';
 
 const LOAD_USER_AND_TOKEN = 'USER|ZLOAD_USER_AND_TOKEN';
 
+const loggedOutUser = {
+  isLoggedIn: false,
+  email: null,
+  jwt: null,
+};
 function getUserInfo() {
   const cookie = Cookies.get('user_session');
+  if (!cookie) return loggedOutUser;
+  const jwt = decode(cookie);
+  //if (jwt.exp <  Date.now().valueOf() / 1000) return loggedOutUser;
   return {
-    jwt: cookie || null,
-    isLoggedIn: cookie ? true : false,
+    jwt: cookie,
+    email: jwt.email,
+    isLoggedIn: true,
   };
 }
 
@@ -23,14 +34,12 @@ export function logOut() {
   };
 }
 
-const initialState = getUserInfo();
-
-const userReducer = (state = { jwt: null, isLoggedIn: false }, action) => {
+const userReducer = (state = loggedOutUser, action) => {
   switch (action.type) {
     case LOAD_USER_AND_TOKEN:
       return action.payload;
     case LOGOUT:
-      return { isLoggedIn: false, jwt: null };
+      return loggedOutUser;
     default: {
       return state;
     }
