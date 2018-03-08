@@ -76,9 +76,9 @@ func main() {
 		log.Fatalln(err)
 	}
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-
 	internalAPI := internalops.NewMymoveAPI(swaggerSpec)
+
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
 	internalAPI.IssuesCreateIssueHandler = handlers.CreateIssueHandler(handlerContext)
 	internalAPI.IssuesIndexIssuesHandler = handlers.IndexIssuesHandler(handlerContext)
@@ -117,12 +117,13 @@ func main() {
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
+	authContext := auth.NewAuthContext(fullHostname, logger)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Use(authMiddleware)
-	authMux.Handle(pat.Get("/login-gov"), auth.NewAuthorizationRedirectHandler(logger, fullHostname))
+	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(authContext))
 	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
-	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(fullHostname))
+	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
 
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)

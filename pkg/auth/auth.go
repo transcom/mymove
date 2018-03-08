@@ -180,55 +180,56 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 	}
 }
 
-// AuthorizationLogoutHandler handles logging the user out of login.gov
-func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
-	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
-	redirectURL := landingURL(hostname)
+type AuthContext struct {
+	hostname string
+	logger   *zap.Logger
+}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, ok := context.Get(r, "id_token").(string)
-		if !ok {
-			// Can't log out of login.gov without a token, redirect and let them re-auth
-			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-			return
-		}
-
-		parsedURL, err := url.Parse(logoutURL)
-		if err != nil {
-			zap.L().Error("Parse logout URL", zap.Error(err))
-		}
-
-		// Parameters taken from https://developers.login.gov/oidc/#logout
-		params := parsedURL.Query()
-		params.Add("id_token_hint", idToken)
-		params.Add("post_logout_redirect_uri", redirectURL)
-		params.Set("state", generateNonce())
-		parsedURL.RawQuery = params.Encode()
-
-		// Also need to clear the cookie on the client
-		deleteCookie(w, UserSessionCookieName)
-
-		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
+func NewAuthContext(hostname string, logger *zap.Logger) AuthContext {
+	context := AuthContext{
+		hostname: hostname,
+		logger:   logger,
 	}
+	return context
+}
+
+// AuthorizationLogoutHandler handles logging the user out of login.gov
+type AuthorizationLogoutHandler AuthContext
+
+func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
+	redirectURL := landingURL(h.hostname)
+
+	idToken, ok := context.Get(r, "id_token").(string)
+	if !ok {
+		// Can't log out of login.gov without a token, redirect and let them re-auth
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
+	parsedURL, err := url.Parse(logoutURL)
+	if err != nil {
+		h.logger.Error("Parse logout URL", zap.Error(err))
+	}
+
+	// Parameters taken from https://developers.login.gov/oidc/#logout
+	params := parsedURL.Query()
+	params.Add("id_token_hint", idToken)
+	params.Add("post_logout_redirect_uri", redirectURL)
+	params.Set("state", generateNonce())
+	parsedURL.RawQuery = params.Encode()
+
+	// Also need to clear the cookie on the client
+	deleteCookie(w, UserSessionCookieName)
+
+	http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 }
 
 // AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler struct {
-	logger   *zap.Logger
-	hostname string
-}
-
-// NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
-func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
-	handler := AuthorizationRedirectHandler{
-		logger:   logger,
-		hostname: hostname,
-	}
-	return &handler
-}
+type AuthorizationRedirectHandler AuthContext
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
-func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	token := context.Get(r, "id_token")
 	if token != nil {
 		// User is already authed, redirect to landing page
@@ -256,7 +257,7 @@ type AuthorizationCallbackHandler struct {
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
@@ -265,11 +266,11 @@ func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey str
 		hostname:            hostname,
 		logger:              logger,
 	}
-	return &handler
+	return handler
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
-func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	authError := r.URL.Query().Get("error")
 
