@@ -4,12 +4,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
+	"sort"
 	"time"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -92,40 +95,70 @@ func FetchNextQualityBandTSPPerformance(tx *pop.Connection, tdlID uuid.UUID, qua
 			best_value_score DESC
 		`
 
-	tsp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand).First(&tsp)
+	tspp := TransportationServiceProviderPerformance{}
+	err := tx.RawQuery(sql, tdlID, qualityBand).First(&tspp)
 
-	return tsp, err
+	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformances, error) {
-	tspPerformances := TransportationServiceProviderPerformances{}
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map[int]TransportationServiceProviderPerformance, error) {
+	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
 		tspPerformance, err := FetchNextQualityBandTSPPerformance(tx, tdlID, qualityBand)
 		if err != nil {
-			fmt.Printf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
-			// continue
+			zap.S().Infof("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+		} else {
+			tspPerformances[qualityBand] = tspPerformance
 		}
-		tspPerformances = append(tspPerformances, tspPerformance)
+	}
+	if len(tspPerformances) == 0 {
+		return tspPerformances, fmt.Errorf("\tNo TSPPerformances found for TDL %s", tdlID)
 	}
 	return tspPerformances, nil
 }
 
-// DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
-func DetermineNextTSPPerformance(tspPerformances TransportationServiceProviderPerformances) (TransportationServiceProviderPerformance, error) {
-	// First time through, no rounds have yet occurred so set to 0.
+// NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	previousRounds := 0
-	for qualityBand, tspPerformance := range tspPerformances {
-		rounds := tspPerformance.AwardCount / awardsPerQualityBand[qualityBand]
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID)
+	if err == nil {
+		return DetermineNextTSPPerformance(tspPerformances), nil
+	}
+	return tspPerformance, err
+}
 
-		if rounds <= previousRounds {
-			return tspPerformance, nil
+// DetermineNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
+func DetermineNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
+	// First time through, no rounds have yet occurred so set to 0.
+
+	bands := sortedMapIntKeys(tspPerformances)
+	maxRounds := float64(tspPerformances[bands[0]].AwardCount) / float64(awardsPerQualityBand[bands[0]])
+	previousRounds := math.Ceil(maxRounds)
+
+	for _, band := range bands {
+		tspPerformance := tspPerformances[band]
+		rounds := float64(tspPerformance.AwardCount) / float64(awardsPerQualityBand[band])
+
+		if rounds < previousRounds {
+			return tspPerformance
 		}
 		previousRounds = rounds
 	}
-	return tspPerformance, errors.New("there was an issue determining which TSP should next be awarded a shipment")
+
+	// If we get all the way through, it means all of the TSPPerformances have had the
+	// same number of awards and we should wrap around and assign the next award to
+	// the first quality band.
+	return tspPerformances[bands[0]]
+}
+
+func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerformance) []int {
+	keys := []int{}
+	for key := range mapWithIntKeys {
+		keys = append(keys, key)
+	}
+	sort.Ints(keys)
+	return keys
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the

@@ -35,7 +35,7 @@ func TestAwardSingleShipment(t *testing.T) {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(testDB, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Create a PossiblyAwardedShipment to feed the award queue
 	pas := models.PossiblyAwardedShipment{
@@ -105,7 +105,7 @@ func TestAwardAssignUnawardedShipments(t *testing.T) {
 	tsp, _ := testdatagen.MakeTSP(testDB, "Test Shipper", "TEST")
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Run the Award Queue
 	queue.assignUnawardedShipments()

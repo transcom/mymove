@@ -16,7 +16,6 @@ const numQualBands = 4
 const mps = 10
 
 type qualityBand models.TransportationServiceProviderPerformances
-type qualityBands []qualityBand
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
@@ -41,36 +40,28 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformances, dbErr := models.GatherNextEligibleTSPPerformances(aq.db, tdl.ID)
-	tspPerformance, err := models.DetermineNextTSPPerformance(tspPerformances)
+	tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
 
-	if dbErr != nil {
-		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
-	}
 	if err != nil {
-		return nil, fmt.Errorf("Cannot award. Error with round robin: %s", err)
-	}
-
-	if len(tspPerformances) == 0 {
-		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
+		return nil, fmt.Errorf("Cannot award. Error: %s", err)
 	}
 
 	var shipmentAward *models.ShipmentAward
 
+	// TODO: refactor this
 	tsp := models.TransportationServiceProvider{}
 	if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 		fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 		shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 		if err == nil {
 			fmt.Print("\tShipment awarded to TSP!\n")
-		} else {
-			fmt.Printf("\tFailed to award to TSP: %v\n", err)
+			return shipmentAward, err
 		}
+		fmt.Printf("\tFailed to award to TSP: %v\n", err)
 	} else {
 		fmt.Printf("\tFailed to award to TSP: %v\n", err)
 	}
-
-	return shipmentAward, err
+	return nil, err
 }
 
 func (aq *AwardQueue) assignUnawardedShipments() {

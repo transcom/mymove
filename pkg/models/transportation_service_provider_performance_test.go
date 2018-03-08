@@ -87,7 +87,7 @@ func Test_FetchNextQualityBandTSPPerformance(t *testing.T) {
 	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
+	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP2")
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+1, 0)
 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(1), mps+3, 0)
@@ -102,6 +102,118 @@ func Test_FetchNextQualityBandTSPPerformance(t *testing.T) {
 			"\tExpected: %s \nFound: %s",
 			tsp2.ID,
 			tsp.TransportationServiceProviderID)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceAllZeros(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp1 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceOneAssigned(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp1 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceOneFullRound(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp1 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceTwoFullRounds(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 6, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 4, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp1 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceFirstBandFilled(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3,
+		4: tspp4}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp2 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp2.QualityBand, *chosen.QualityBand)
+	}
+}
+
+func Test_DetermineNextTSPPerformanceThreeBands(t *testing.T) {
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
+
+	choices := map[int]TransportationServiceProviderPerformance{
+		1: tspp1,
+		2: tspp2,
+		3: tspp3}
+
+	chosen := DetermineNextTSPPerformance(choices)
+
+	if chosen != tspp1 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
 	}
 }
 
@@ -124,10 +236,10 @@ func Test_GatherNextEligibleTSPPerformances(t *testing.T) {
 	tsps, err := GatherNextEligibleTSPPerformances(dbConnection, tdl.ID)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp4.ID, tsp5.ID}
 	actualTSPorder := []uuid.UUID{
-		tsps[0].TransportationServiceProviderID,
 		tsps[1].TransportationServiceProviderID,
 		tsps[2].TransportationServiceProviderID,
-		tsps[3].TransportationServiceProviderID}
+		tsps[3].TransportationServiceProviderID,
+		tsps[4].TransportationServiceProviderID}
 
 	if err != nil {
 		t.Errorf("Failed to find TSPPerformances: %v", err)
@@ -141,25 +253,6 @@ func Test_GatherNextEligibleTSPPerformances(t *testing.T) {
 	}
 }
 
-func Test_DetermineNextTSPPerformanceAllNullAwarded(t *testing.T) {
-	tdl, _ := testdatagen.MakeTDL(dbConnection, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
-	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
-	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+2, 0)
-	tsps, _ := GatherNextEligibleTSPPerformances(dbConnection, tdl.ID)
-	tsp, err := DetermineNextTSPPerformance(tsps)
-	if err != nil {
-		t.Errorf("Failed to select next TSPPerformance: %v", err)
-	} else if tsp.ID != tsp1.ID {
-		t.Errorf("Incorrect TSP returned. Expected: %v, Found: %v\n",
-			tsp1.ID,
-			tsp.ID)
-	}
-}
-
 // // Test_FetchNextQualityBandTSPPerformanceAllNullAwarded ensures that TSPs are returned in the expected
 // // order for the Award Queue operation.
 // func Test_FetchNextQualityBandTSPPerformanceAllNullAwarded(t *testing.T) {
@@ -169,32 +262,28 @@ func Test_DetermineNextTSPPerformanceAllNullAwarded(t *testing.T) {
 // 	tsp3, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 3", "TSP3")
 // 	tsp4, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 4", "TSP4")
 // 	tsp5, _ := testdatagen.MakeTSP(dbConnection, "Test TSP 5", "TSP5")
-
+//
 // 	testdatagen.MakeTSPPerformance(dbConnection, tsp1, tdl, swag.Int(1), mps+5, 0)
 // 	testdatagen.MakeTSPPerformance(dbConnection, tsp2, tdl, swag.Int(2), mps+4, 0)
 // 	testdatagen.MakeTSPPerformance(dbConnection, tsp3, tdl, swag.Int(3), mps+3, 0)
 // 	testdatagen.MakeTSPPerformance(dbConnection, tsp4, tdl, swag.Int(4), mps+2, 0)
 // 	testdatagen.MakeTSPPerformance(dbConnection, tsp5, tdl, swag.Int(4), mps+1, 0)
-
-// 	for _, qualityBand := range qualityBands {
-// 		tsp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, qualityBand)
-
-// 	}
-
-// 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID, tsp5.ID}
+//
+// 	tspp, err := FetchNextQualityBandTSPPerformance(dbConnection, tdl.ID, 1)
+//
+// 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp3.ID, tsp4.ID}
 // 	if err != nil {
 // 		t.Errorf("Failed to find TSP: %v", err)
 // 	} else if len(tsps) != 5 {
 // 		t.Errorf("Failed to find TSPs. Expected to find 5, found %d", len(tsps))
 // 	}
-
+//
 // 	TSPorder := []uuid.UUID{
-// 		tsps[0].TransportationServiceProviderID,
 // 		tsps[1].TransportationServiceProviderID,
 // 		tsps[2].TransportationServiceProviderID,
 // 		tsps[3].TransportationServiceProviderID,
 // 		tsps[4].TransportationServiceProviderID}
-
+//
 // 	if !equalUUIDSlice(TSPorder, expectedTSPorder) {
 // 		t.Errorf("TSPs returned out of expected order.\n"+
 // 			"\tExpected: %v \nFound: %v",
