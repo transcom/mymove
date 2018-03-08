@@ -41,7 +41,7 @@ type UserClaims struct {
 }
 
 func landingURL(hostname string) string {
-	return fmt.Sprintf("%s/landing", hostname)
+	return fmt.Sprintf("%s", hostname)
 }
 
 func getExpiryTimeFromMinutes(min int64) time.Time {
@@ -327,8 +327,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	}
 	http.SetCookie(w, &cookie)
 
-	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.LoginGovEmail)
-	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 }
 
 func getAuthorizationURL(logger *zap.Logger) (string, error) {
