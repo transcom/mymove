@@ -1017,7 +1017,7 @@ definitions:
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
     required:
-    - street_address_1
-    - city
-    - state
-    - zip
+      - street_address_1
+      - city
+      - state
+      - zip
