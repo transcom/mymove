@@ -27,6 +27,28 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
+func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
+	t := suite.T()
+
+	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
+
+	err := IncrementTSPPerformanceAwardCount(suite.db, perf.ID)
+	if err != nil {
+		t.Fatalf("Could not increament award_count: %v", err)
+	}
+
+	performance := TransportationServiceProviderPerformance{}
+	if err := suite.db.Find(&performance, perf.ID); err != nil {
+		t.Fatalf("could not find perf: %v", err)
+	}
+
+	if performance.AwardCount != 1 {
+		t.Errorf("Wrong AwardCount: expected %d, got %d", 1, performance.AwardCount)
+	}
+}
+
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
