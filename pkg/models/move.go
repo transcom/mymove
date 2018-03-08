@@ -5,6 +5,7 @@ import (
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
+	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"time"
 )
@@ -51,4 +52,32 @@ func (m *Move) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+func GetOrCreateMove(db *pop.Connection, userID uuid.UUID) (Move, error) {
+	// Check if move already exists
+	query := db.Where("user_id = $1", userID)
+	var moves []Move
+	err := query.All(&moves)
+	if err != nil {
+		err = errors.Wrap(err, "DB Query Error")
+		return (Move{}), err
+	}
+
+	// If move is not in DB, create it
+	if len(moves) == 0 {
+		newMove := Move{
+			UserID: userID,
+		}
+		verrs, err := db.ValidateAndCreate(&newMove)
+		if verrs.HasAny() {
+			return (Move{}), verrs
+		} else if err != nil {
+			err = errors.Wrap(err, "Unable to create move")
+			return (Move{}), err
+		}
+		return newMove, nil
+	}
+	// one move was found, return it
+	return moves[0], nil
 }
