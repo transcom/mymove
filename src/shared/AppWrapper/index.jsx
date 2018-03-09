@@ -8,6 +8,7 @@ import { history } from 'shared/store';
 import Shipments from 'scenes/Shipments';
 import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
+import Legalese from 'scenes/Legalese';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
@@ -28,6 +29,7 @@ const AppWrapper = () => (
         <Route path="/submitted" component={SubmittedFeedback} />
         <Route path="/shipments/:shipmentsStatus" component={Shipments} />
         <Route path="/DD1299" component={DD1299} />
+        <Route path="/:moveId/legalese" component={Legalese} />
         <Route path="/landing" component={Landing} />
         <Route exact path="/mymove" render={redirect('/mymove/intro')} />
         {WizardDemo()}
