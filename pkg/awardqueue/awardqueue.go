@@ -59,12 +59,12 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		tsp := models.TransportationServiceProvider{}
 		tspBlackoutDatesPresent := aq.checkTSPBlackoutDates(tsp.ID, shipment.PickupDate)
 
+		fmt.Printf("\tAttempting to award to TSP: %v. \n", tsp.Name)
+		fmt.Printf("\tQuerying TSP %v for blackout dates for blackout dates.\n", tsp.Name)
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-			fmt.Printf("\tAttempting to award to TSP: %v. \n", tsp.Name)
-			fmt.Printf("\tQuerying TSP %v for blackout dates for blackout dates.\n", tsp.Name)
 			if tspBlackoutDatesPresent == true {
 				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, true)
-				fmt.Printf("\tFailed to award to TSP: %v\n", err)
+				fmt.Printf("\tShipment pickup date is during a blackout period. Failed to award to TSP %v\n", err)
 			} else {
 				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 				if err == nil {
@@ -206,7 +206,5 @@ func (aq *AwardQueue) checkTSPBlackoutDates(tspid uuid.UUID, pickupDate time.Tim
 			return true
 		}
 	}
-	// Needs a return at the end; feels unsafe to return false (or true!) outside of tests.
-	// Is the solution in the vein of "if err != nil"?
-	return false // added for debugging; do not keep this in a PR.
+	return false
 }
