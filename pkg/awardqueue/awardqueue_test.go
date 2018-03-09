@@ -32,35 +32,35 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 	testTSP2, _ := testdatagen.MakeTSP(testDB, "A Spotless TSP", "PORK")
 
 	// Checks a date that falls within the blackout date range; returns true.
-	test1 := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateBetween)
+	test1, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateBetween)
 
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	if test1 == false {
+	if !test1 {
 		t.Errorf("Expected true, got false instead.")
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	test2 := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateAfter)
+	test2, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateAfter)
 
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	if test2 == true {
+	if !test2 {
 		t.Errorf("Expected false, got true instead.")
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3 := queue.CheckTSPBlackoutDates(testTSP2.ID, testPickupDateAfter)
+	test3, err := queue.CheckTSPBlackoutDates(testTSP2.ID, testPickupDateAfter)
 
-	// if err != nil {
-	// 	t.Fatal(err)
-	// }
+	if err != nil {
+		t.Fatal(err)
+	}
 
-	if test3 == true {
+	if test3 {
 		t.Errorf("Expected false, got true instead.")
 	}
 }
