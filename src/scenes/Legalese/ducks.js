@@ -65,7 +65,6 @@ export function createSignedCertification(value) {
 
 // Reducer
 const initialState = {
-  schema: {},
   hasSubmitError: false,
   hasSubmitSuccess: false,
   confirmationText: '',

@@ -3,8 +3,8 @@ package models
 import (
 	"net/http"
 	"time"
-
 	"encoding/json"
+
 	"github.com/markbates/goth"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
