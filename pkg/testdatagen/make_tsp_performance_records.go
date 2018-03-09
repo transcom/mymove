@@ -55,16 +55,18 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 		minBvs := (qualityBand - 1) * 25
 		bvs := 100 - (rand.Intn(25) + minBvs)
 		// Set rounds according to the flag passed in
-		if rounds == "none" {
-			awards = 0
-		} else if rounds == "full" {
-			awards = models.AwardsPerQualityBand[qualityBand]
-		} else {
+
+		if rounds == "half" {
 			if qualityBand == 1 || qualityBand == 2 {
 				awards = models.AwardsPerQualityBand[qualityBand]
 			} else {
 				awards = 0
 			}
+		} else if rounds == "full" {
+			awards = models.AwardsPerQualityBand[qualityBand]
+		} else {
+			// default case, no awards
+			awards = 0
 		}
 
 		MakeTSPPerformance(
