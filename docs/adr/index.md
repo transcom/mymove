@@ -19,6 +19,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0011](0011-test-suites.md) - Test Suites
 - [ADR-0012](0012-tsp-data-models.md) - The TSP Data Models
 - [ADR-0013](0013-rest-api-updates.md) - REST API Updates
+- [ADR-0016](0016-Browser-support.md) - Browser support for the prototype
 
 <!-- adrlogstop -->
 
