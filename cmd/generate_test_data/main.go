@@ -51,8 +51,8 @@ func main() {
 		// TSPs should be orderd by award_count first, then BVS.
 		testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), mps+5, 0)
 		testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), mps+4, 0)
-		testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), mps+2, 0)
-		testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), mps+3, 0)
+		testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), mps+3, 0)
+		testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), mps+2, 0)
 		testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), mps+1, 0)
 	} else if *halfRound == true {
 		shipmentsToMake := 9
@@ -72,17 +72,21 @@ func main() {
 		tsp3, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 2", "TSP3")
 		tsp4, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 3", "TSP4")
 		tsp5, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 4", "TSP5")
+		tsp6, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 1", "TSP6")
+		tsp7, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 2", "TSP7")
+		tsp8, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 3", "TSP8")
+		tsp9, _ := testdatagen.MakeTSP(db, "Test TSP Quality Band 4", "TSP9")
 
 		// TSPs should be orderd by award_count first, then BVS.
 		testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), mps+5, 0)
 		testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), mps+4, 0)
-		testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), mps+2, 0)
-		testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), mps+3, 0)
+		testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), mps+3, 0)
+		testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), mps+2, 0)
 		testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), mps+1, 0)
-		testdatagen.MakeTSPPerformance(db, tsp1, tdl2, swag.Int(1), mps+5, 0)
-		testdatagen.MakeTSPPerformance(db, tsp2, tdl2, swag.Int(2), mps+4, 0)
-		testdatagen.MakeTSPPerformance(db, tsp3, tdl2, swag.Int(3), mps+2, 0)
-		testdatagen.MakeTSPPerformance(db, tsp5, tdl2, swag.Int(4), mps+1, 0)
+		testdatagen.MakeTSPPerformance(db, tsp6, tdl2, swag.Int(1), mps+5, 0)
+		testdatagen.MakeTSPPerformance(db, tsp7, tdl2, swag.Int(2), mps+4, 0)
+		testdatagen.MakeTSPPerformance(db, tsp8, tdl2, swag.Int(3), mps+2, 0)
+		testdatagen.MakeTSPPerformance(db, tsp9, tdl2, swag.Int(4), mps+1, 0)
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)

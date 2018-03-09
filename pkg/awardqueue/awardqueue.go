@@ -80,7 +80,8 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 						if tspBlackoutDatesPresent == true {
 							fmt.Printf("\tShipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.\n")
 						} else {
-							fmt.Print("\tShipment awarded to TSP!\n")
+							// TODO: AwardCount is off by 1
+							fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards.\n", tspPerformance.AwardCount+1)
 							foundAvailableTSP = true
 						}
 						return nil
