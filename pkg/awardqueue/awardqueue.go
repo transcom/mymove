@@ -33,8 +33,6 @@ func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipm
 // AttemptShipmentAward will attempt to take the given Shipment and award it to
 // a TSP.
 func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
-	// If this is being given a PossiblyAwardedShipment and not a shipment, how are we
-	// supposed to test against the proposed pickup date?
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
 	// Query the shipment's TDL
