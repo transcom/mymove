@@ -19,6 +19,7 @@ function SignatureForm(props) {
           <Field
             name="signature"
             component="input"
+            placeholder="Joseph Snuffy"
             type="text"
             validate={validator.isRequired}
           />
