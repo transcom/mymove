@@ -16,13 +16,13 @@ import (
 
 // MakeBlackoutDate creates a test blackoutDate object to add to the database.
 func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl *models.TrafficDistributionList, cos *string, channel *string, gbloc *string,
-	market *string) (models.BlackoutDate, error) {
+	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, cos *string,
+	channel *string, gbloc *string, market *string) (models.BlackoutDate, error) {
 
 	blackoutDates := models.BlackoutDate{
 		TransportationServiceProviderID: tsp.ID,
-		StartBlackoutDate:               time.Now(),
-		EndBlackoutDate:                 time.Now(),
+		StartBlackoutDate:               startDate,
+		EndBlackoutDate:                 endDate,
 		TrafficDistributionListID:       &tdl.ID,
 		CodeOfService:                   cos,
 		Channel:                         channel,
@@ -61,6 +61,8 @@ func MakeBlackoutDateData(db *pop.Connection) {
 	// Make a blackout date with market and channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
 		&conus,
@@ -71,6 +73,8 @@ func MakeBlackoutDateData(db *pop.Connection) {
 	// Make a blackout date with a channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
 		&conus,
@@ -81,6 +85,8 @@ func MakeBlackoutDateData(db *pop.Connection) {
 	// Make a blackout date with market, GBLOC, and channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
 		&conus,
