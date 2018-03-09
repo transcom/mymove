@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"time"
-
 	"github.com/go-openapi/swag"
 	"github.com/satori/go.uuid"
 
@@ -122,8 +120,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	date, _ := time.Parse("Jan 2, 2006", "May 16, 2019")
-	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, date)
+	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod)
 
 	if err != nil {
 		t.Errorf("Failed to find TSPPerformance: %v", err)
@@ -308,11 +305,8 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
-	now, err := time.Parse("Jan 2, 2006", "Jun 1, 2019")
-	if err != nil {
-		t.Fatalf("could not construct date: %v", err)
-	}
-	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, now)
+	date := testdatagen.DateInsidePerformancePeriod
+	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, date)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp3.ID, tsp4.ID, tsp5.ID}
 
 	actualTSPorder := []uuid.UUID{

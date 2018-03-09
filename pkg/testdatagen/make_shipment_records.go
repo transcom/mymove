@@ -13,11 +13,6 @@ import (
 func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
-	date, err := time.Parse("Jan 2, 2006", "May 16, 2019")
-	if err != nil {
-		log.Panic(err)
-	}
-
 	market := "dHHG"
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
@@ -25,10 +20,10 @@ func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 		DeliveryDate:              delivery,
 		GBLOC:                     "AGFM",
 		Market:                    &market,
-		AwardDate:                 date,
+		AwardDate:                 DateInsidePerformancePeriod,
 	}
 
-	_, err = db.ValidateAndSave(&shipment)
+	_, err := db.ValidateAndSave(&shipment)
 	if err != nil {
 		log.Panic(err)
 	}
