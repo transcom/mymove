@@ -1,7 +1,16 @@
 package models_test
 
-import "testing"
+import (
+	. "github.com/transcom/mymove/pkg/models"
+)
 
-func Test_SignedCertification(t *testing.T) {
-	t.Fatal("This test needs to be implemented!")
+func (suite *ModelSuite) Test_SignedCertificationValidations() {
+	signedCert := &SignedCertification{}
+
+	expErrors := map[string][]string{
+		"certification_text": {"CertificationText can not be blank."},
+		"signature":          {"Signature can not be blank."},
+	}
+
+	suite.verifyValidationErrors(signedCert, expErrors)
 }

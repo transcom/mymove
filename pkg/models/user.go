@@ -1,14 +1,17 @@
 package models
 
 import (
+	"net/http"
+	"time"
+
 	"encoding/json"
+	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -60,6 +63,27 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 	user := User{}
 	err := db.Find(&user, id)
+	return user, err
+}
+
+// GetUserFromRequest extracts the user model from the request context's user ID
+func GetUserFromRequest(db *pop.Connection, r *http.Request) (user User, err error) {
+	userID, ok := context.Get(r, "user_id").(string)
+	if !ok {
+		err = errors.New("Failed to fetch user_id from context")
+		return
+	}
+
+	userUUID, err := uuid.FromString(userID)
+	if err != nil {
+		return
+	}
+
+	user, err = GetUserByID(db, userUUID)
+	if err != nil {
+		return
+	}
+
 	return user, err
 }
 
