@@ -15,8 +15,6 @@ const numQualBands = 4
 // TODO: This will eventually need to be configurable; implement as something other than a constant.
 const mps = 10
 
-type qualityBand models.TransportationServiceProviderPerformances
-
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
 	db *pop.Connection
@@ -41,7 +39,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
+	tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
 
 	if err != nil {
 		return nil, fmt.Errorf("Cannot award. Error: %s", err)
@@ -61,8 +59,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 				}
 			}
 		}
-		fmt.Printf("\tFailed to award to TSP: %v\n", err)
-		return err
+		return fmt.Errorf("Failed to award to TSP: %v", err)
 	})
 
 	return shipmentAward, err

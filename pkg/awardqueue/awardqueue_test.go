@@ -28,6 +28,7 @@ func TestFindAllUnawardedShipments(t *testing.T) {
 // it actually gets awarded.
 func TestAwardSingleShipment(t *testing.T) {
 	queue := NewAwardQueue(testDB)
+	pop.Debug = true
 
 	// Make a shipment
 	tdl, _ := testdatagen.MakeTDL(testDB, "california", "90210", "2")
@@ -45,6 +46,7 @@ func TestAwardSingleShipment(t *testing.T) {
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
+		AwardDate:                       shipment.AwardDate,
 	}
 
 	// Run the Award Queue
@@ -53,8 +55,7 @@ func TestAwardSingleShipment(t *testing.T) {
 	// See if shipment was awarded
 	if err != nil {
 		t.Errorf("Shipment award expected no errors, received: %v", err)
-	}
-	if award == nil {
+	} else if award == nil {
 		t.Error("ShipmentAward was not found.")
 	}
 }
@@ -84,7 +85,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 		t.Errorf("Shipment award expected an error, received none.")
 	}
 	if award != nil {
-		t.Error("ShipmentAward was created, expected 'nil'.")
+		t.Errorf("Wrong return value, expected nil, got %v", award)
 	}
 }
 

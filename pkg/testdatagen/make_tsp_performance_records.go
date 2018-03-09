@@ -14,9 +14,18 @@ import (
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
 	tdl models.TrafficDistributionList, qualityBand *int, score int, awardCount int) (models.TransportationServiceProviderPerformance, error) {
 
+	format := "Jan 2, 2006"
+	periodStart, err := time.Parse(format, "May 15, 2019")
+	if err != nil {
+		log.Panic(err)
+	}
+	periodEnd, err := time.Parse(format, "Jul 31, 2019")
+	if err != nil {
+		log.Panic(err)
+	}
 	tspPerformance := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          time.Now(),
-		PerformancePeriodEnd:            time.Now(),
+		PerformancePeriodStart:          periodStart,
+		PerformancePeriodEnd:            periodEnd,
 		TransportationServiceProviderID: tsp.ID,
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
@@ -24,7 +33,7 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 		AwardCount:                      awardCount,
 	}
 
-	_, err := db.ValidateAndSave(&tspPerformance)
+	_, err = db.ValidateAndSave(&tspPerformance)
 	if err != nil {
 		log.Panic(err)
 	}
