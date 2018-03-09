@@ -28,7 +28,6 @@ func TestFindAllUnawardedShipments(t *testing.T) {
 // it actually gets awarded.
 func TestAwardSingleShipment(t *testing.T) {
 	queue := NewAwardQueue(testDB)
-	pop.Debug = true
 
 	// Make a shipment
 	tdl, _ := testdatagen.MakeTDL(testDB, "california", "90210", "2")
@@ -207,7 +206,6 @@ func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 }
 
 func Test_assignTSPsToBands(t *testing.T) {
-	pop.Debug = true
 	queue := NewAwardQueue(testDB)
 	tspsToMake := 5
 
@@ -243,7 +241,6 @@ func Test_assignTSPsToBands(t *testing.T) {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
 	}
-	pop.Debug = false
 }
 
 func equalSlice(a []int, b []int) bool {
