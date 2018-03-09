@@ -59,10 +59,10 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
-		tspBlackoutDatesPresent := checkTSPBlackoutDates(tsp.ID, shipment.PickupDate)
+		tspBlackoutDatesPresent := aq.checkTSPBlackoutDates(tsp.ID, shipment.PickupDate)
 
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
+			fmt.Printf("\tAttempting to award to TSP: %v. \n", tsp.Name)
 			if tspBlackoutDatesPresent == true {
 				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, true)
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)
@@ -189,20 +189,22 @@ func Run(db *pop.Connection) error {
 // within the window created by the blackout date record.
 func (aq *AwardQueue) checkTSPBlackoutDates(tspid uuid.UUID, pickupDate time.Time) bool {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspid)
+
+	if err != nil {
+		fmt.Println("Error retrieving blackout dates.")
+	}
+
 	if len(blackoutDates) == 0 {
 		return false
 	}
 
+	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
+	// or if the pickupDate falls between the start and end.
 	for _, blackoutDate := range blackoutDates {
-		// Need to fix this logic. It's more like (before && after) || Equal || Equal
-		// As it is, if it's after the start date but also after the end date, it'll still
-		// return true! D'oh. Also, is there a prettier way to do this?
 		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
 			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
 			pickupDate.Equal(blackoutDate.StartBlackoutDate) {
 			return true
-		} else {
-			return false
 		}
 	}
 	// Needs a return at the end; feels unsafe to return false (or true!) outside of tests.
