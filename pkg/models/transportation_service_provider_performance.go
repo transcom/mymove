@@ -3,13 +3,19 @@ package models
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"math"
+	"sort"
 	"time"
 
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 )
+
+var qualityBands = []int{1, 2, 3, 4}
 
 // AwardsPerQualityBand is a map of the number of shipments to be awarded per round to each quality band
 var AwardsPerQualityBand = map[int]int{
@@ -71,10 +77,10 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	), nil
 }
 
-// FetchTSPPerformanceForAwardQueue returns TSP performance records in a given TDL
-// in the order that they should be awarded new shipments.
-func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps int) (
-	TransportationServiceProviderPerformances, error) {
+// NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
+// and Quality Band that will next be awarded a shipment.
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
+	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
 			*
@@ -83,16 +89,77 @@ func FetchTSPPerformanceForAwardQueue(tx *pop.Connection, tdlID uuid.UUID, mps i
 		WHERE
 			traffic_distribution_list_id = $1
 			AND
-			best_value_score > $2
+			quality_band = $2
 		ORDER BY
 			award_count ASC,
 			best_value_score DESC
 		`
 
-	tsps := TransportationServiceProviderPerformances{}
-	err := tx.RawQuery(sql, tdlID, mps).All(&tsps)
+	tspp := TransportationServiceProviderPerformance{}
+	err := tx.RawQuery(sql, tdlID, qualityBand).First(&tspp)
 
-	return tsps, err
+	return tspp, err
+}
+
+// GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map[int]TransportationServiceProviderPerformance, error) {
+	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
+	for _, qualityBand := range qualityBands {
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand)
+		if err != nil {
+			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
+			zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+		} else {
+			tspPerformances[qualityBand] = tspPerformance
+		}
+	}
+	if len(tspPerformances) == 0 {
+		return tspPerformances, fmt.Errorf("\tNo TSPPerformances found for TDL %s", tdlID)
+	}
+	return tspPerformances, nil
+}
+
+// NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformance, error) {
+	var tspPerformance TransportationServiceProviderPerformance
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID)
+	if err == nil {
+		return SelectNextTSPPerformance(tspPerformances), nil
+	}
+	return tspPerformance, err
+}
+
+// SelectNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
+func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
+	bands := sortedMapIntKeys(tspPerformances)
+	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
+	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
+	maxRounds := float64(tspPerformances[bands[0]].AwardCount) / float64(awardsPerQualityBand[bands[0]])
+	previousRounds := math.Ceil(maxRounds)
+
+	for _, band := range bands {
+		tspPerformance := tspPerformances[band]
+		rounds := float64(tspPerformance.AwardCount) / float64(awardsPerQualityBand[band])
+
+		if rounds < previousRounds {
+			return tspPerformance
+		}
+		previousRounds = rounds
+	}
+
+	// If we get all the way through, it means all of the TSPPerformances have had the
+	// same number of awards and we should wrap around and assign the next award to
+	// the first quality band.
+	return tspPerformances[bands[0]]
+}
+
+func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerformance) []int {
+	keys := []int{}
+	for key := range mapWithIntKeys {
+		keys = append(keys, key)
+	}
+	sort.Ints(keys)
+	return keys
 }
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
@@ -104,7 +171,7 @@ func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.
 		FROM
 			transportation_service_provider_performances
 		WHERE
-			traffic_distribution_list_id = ?
+			traffic_distribution_list_id = $1
 			AND
 			best_value_score > $2
 		ORDER BY
@@ -130,5 +197,22 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	} else if verrs.Count() > 0 {
 		return errors.New("could not update quality band")
 	}
+	return nil
+}
+
+// IncrementTSPPerformanceAwardCount increments the award_count column by 1 and validates.
+func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
+	var tspPerformance TransportationServiceProviderPerformance
+	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
+		return err
+	}
+	tspPerformance.AwardCount++
+	validationErr, databaseErr := db.ValidateAndSave(&tspPerformance)
+	if databaseErr != nil {
+		return databaseErr
+	} else if validationErr.HasAny() {
+		return fmt.Errorf("Validation failure: %s", validationErr)
+	}
+	fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards\n", tspPerformance.AwardCount)
 	return nil
 }

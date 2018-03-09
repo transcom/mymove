@@ -16,7 +16,6 @@ const numQualBands = 4
 const mps = 10
 
 type qualityBand models.TransportationServiceProviderPerformances
-type qualityBands []qualityBand
 
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
@@ -30,6 +29,7 @@ func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipm
 
 // AttemptShipmentAward will attempt to take the given Shipment and award it to
 // a TSP.
+// TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipment) (*models.ShipmentAward, error) {
 	fmt.Printf("Attempting to award shipment: %v\n", shipment.ID)
 
@@ -41,33 +41,31 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformances, err := models.FetchTSPPerformanceForAwardQueue(aq.db, tdl.ID, mps)
+	tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
 
 	if err != nil {
-		return nil, fmt.Errorf("Cannot award. Database error: %s", err)
-	}
-
-	if len(tspPerformances) == 0 {
-		return nil, fmt.Errorf("Cannot award. No TSPs found in TDL (%v)", tdl.ID)
+		return nil, fmt.Errorf("Cannot award. Error: %s", err)
 	}
 
 	var shipmentAward *models.ShipmentAward
 
-	for _, tspPerformance := range tspPerformances {
+	err = aq.db.Transaction(func(tx *pop.Connection) error {
 		tsp := models.TransportationServiceProvider{}
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
 			if err == nil {
-				fmt.Print("\tShipment awarded to TSP!\n")
-				break
-			} else {
-				fmt.Printf("\tFailed to award to TSP: %v\n", err)
+				if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
+					fmt.Print("\tShipment awarded to TSP!\n")
+					return nil
+				}
+				fmt.Printf("\tDatabase error: %v\n", err)
+				return err
 			}
-		} else {
-			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 		}
-	}
+		fmt.Printf("\tFailed to award to TSP: %v\n", err)
+		return err
+	})
 
 	return shipmentAward, err
 }
