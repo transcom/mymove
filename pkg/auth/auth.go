@@ -16,7 +16,11 @@ import (
 	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/markbates/pop"
 	"github.com/pkg/errors"
+	"github.com/satori/go.uuid"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 const gothProviderType = "openid-connect"
@@ -30,13 +34,14 @@ const UserSessionCookieName = "user_session"
 
 // UserClaims wraps StandardClaims with some user info we care about
 type UserClaims struct {
-	Email   string `json:"email"`
-	IDToken string `json:"id_token"`
+	UserID  uuid.UUID `json:"user_id"`
+	Email   string    `json:"email"`
+	IDToken string    `json:"id_token"`
 	jwt.StandardClaims
 }
 
 func landingURL(hostname string) string {
-	return fmt.Sprintf("%s/landing", hostname)
+	return fmt.Sprintf("%s", hostname)
 }
 
 func getExpiryTimeFromMinutes(min int64) time.Time {
@@ -50,8 +55,9 @@ func shouldRenewForClaims(claims UserClaims) bool {
 	return exp < renewal
 }
 
-func signTokenStringWithUserInfo(email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
+func signTokenStringWithUserInfo(userID uuid.UUID, email string, idToken string, expiry time.Time, secret string) (ss string, err error) {
 	claims := UserClaims{
+		userID,
 		email,
 		idToken,
 		jwt.StandardClaims{
@@ -150,7 +156,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			if shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-				ss, err := signTokenStringWithUserInfo(claims.Email, claims.IDToken, expiry, secret)
+				ss, err := signTokenStringWithUserInfo(claims.UserID, claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
 					zap.L().Error("Generating signed token string", zap.Error(err))
 				}
@@ -164,6 +170,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			}
 
 			// And put the user info on the request context
+			context.Set(r, "user_id", claims.UserID)
 			context.Set(r, "email", claims.Email)
 			context.Set(r, "id_token", claims.IDToken)
 
@@ -240,6 +247,7 @@ func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.
 
 // AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
+	db                  *pop.Connection
 	clientAuthSecretKey string
 	loginGovSecretKey   string
 	loginGovClientID    string
@@ -248,8 +256,9 @@ type AuthorizationCallbackHandler struct {
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
+		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		loginGovSecretKey:   loginGovSecretKey,
 		loginGovClientID:    loginGovClientID,
@@ -290,16 +299,23 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 		return
 	}
 
-	user, err := provider.FetchUser(session)
+	openIDuser, err := provider.FetchUser(session)
 	if err != nil {
 		h.logger.Error("Login.gov user info request", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
+	user, err := models.GetOrCreateUser(h.db, openIDuser)
+	if err != nil {
+		h.logger.Error("Unable to create user.", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	ss, err := signTokenStringWithUserInfo(user.Email, session.IDToken, expiry, h.clientAuthSecretKey)
+	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
 		zap.L().Error("Generating signed token string", zap.Error(err))
 	}
@@ -311,8 +327,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	}
 	http.SetCookie(w, &cookie)
 
-	landingURL := fmt.Sprintf("%s/landing?email=%s", h.hostname, user.RawData["email"])
-	http.Redirect(w, r, landingURL, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 }
 
 func getAuthorizationURL(logger *zap.Logger) (string, error) {

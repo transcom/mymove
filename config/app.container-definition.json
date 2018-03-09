@@ -1,0 +1,66 @@
+{
+  "name": "app-{{environment}}",
+  "image": "{{image}}",
+  "cpu": 1024,
+  "memoryReservation": 256,
+  "portMappings": [
+    {
+      "containerPort": 8080,
+      "hostPort": 8080,
+      "protocol": "tcp"
+    }
+  ],
+  "essential": true,
+  "entryPoint": [
+    "/bin/chamber",
+    "exec",
+    "app-{{environment}}",
+    "--",
+    "/bin/mymove-server"
+  ],
+  "command": [
+    "-env",
+    "container",
+    "-debug_logging"
+  ],
+  "environment": [
+    {
+      "name": "ENVIRONMENT",
+      "value": "{{environment}}"
+    },
+    {
+      "name": "DB_HOST",
+      "value": "{{db_host}}"
+    },
+    {
+      "name": "DB_PORT",
+      "value": "5432"
+    },
+    {
+      "name": "DB_USER",
+      "value": "master"
+    },
+    {
+      "name": "CHAMBER_KMS_KEY_ALIAS",
+      "value": "alias/aws/ssm"
+    },
+    {
+      "name": "CHAMBER_USE_PATHS",
+      "value": "1"
+    },
+    {
+      "name": "HTTP_SERVER_NAME",
+      "value": "app.{{environment}}.dp3.us"
+    }
+  ],
+  "logConfiguration": {
+    "logDriver": "awslogs",
+    "options": {
+      "awslogs-group": "ecs-tasks-app-{{environment}}",
+      "awslogs-region": "us-west-2",
+      "awslogs-stream-prefix": "app"
+    }
+  },
+  "mountPoints": [],
+  "volumesFrom": []
+}
