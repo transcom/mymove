@@ -10,6 +10,7 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// SignedCertification represents users acceptance
 type SignedCertification struct {
 	ID                uuid.UUID `json:"id" db:"id"`
 	SubmittingUserID  uuid.UUID `json:"submitting_user_id" db:"submitting_user_id"`
