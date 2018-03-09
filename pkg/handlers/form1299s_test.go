@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"encoding/json"
-	"fmt"
 	"reflect"
 	"testing"
 	"time"
@@ -10,7 +8,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 )
@@ -86,22 +83,11 @@ func fakeAddress() *internalmessages.Address {
 	}
 }
 
-// Sets up a basic logger so logs are printed to stdout during tests
-func setUpLogger() {
-	logger, _ := zap.NewDevelopment()
-	defer logger.Sync()
-
-	zap.ReplaceGlobals(logger)
-
-	zap.L().Info("replaced zap's global loggers")
-}
-
 func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 	t := suite.T()
 
 	var rankE6 = internalmessages.ServiceMemberRankE6
 	var ssn strfmt.SSN = "555-55-5555"
-	setUpLogger()
 	// Given: an instance of Form1299 with all valid values
 	newForm1299Payload := internalmessages.CreateForm1299Payload{
 		ShipmentNumber:                         swag.String("23098eifjsldkjf"),
@@ -182,15 +168,6 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 
 	showOKResponse := showResponse.(*form1299op.ShowForm1299OK)
 	showFormPayload := showOKResponse.Payload
-
-	b1, _ := json.MarshalIndent(newForm1299Payload, "", "  ")
-	fmt.Println(string(b1))
-
-	b2, _ := json.MarshalIndent(*createdForm1299Payload, "", "  ")
-	fmt.Println(string(b2))
-
-	b, _ := json.MarshalIndent(*showFormPayload, "", "  ")
-	fmt.Println(string(b))
 
 	compareRequestAndResponsePayloads(t, newForm1299Payload, *showFormPayload)
 }
