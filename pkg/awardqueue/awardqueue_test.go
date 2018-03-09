@@ -3,6 +3,7 @@ package awardqueue
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +15,43 @@ import (
 )
 
 var testDB *pop.Connection
+
+func TestCheckAllTSPsBlackedOut(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+
+	tsp, err := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
+	tdl, err := testdatagen.MakeTDL(testDB, "Oklahoma", "62240", "5")
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
+	blackoutStartDate := time.Now()
+	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
+	testdatagen.MakeBlackoutDate(testDB, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil, nil, nil)
+
+	pickupDate := blackoutStartDate.Add(time.Hour)
+	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
+	shipment, _ := testdatagen.MakeShipment(testDB, pickupDate, deliverDate, tdl)
+
+	// Create a PossiblyAwardedShipment to feed the award queue
+	pas := models.PossiblyAwardedShipment{
+		ID: shipment.ID,
+		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      pickupDate,
+		TransportationServiceProviderID: nil,
+		Accepted:                        nil,
+		RejectionReason:                 nil,
+		AdministrativeShipment:          swag.Bool(false),
+	}
+
+	// Run the Award Queue
+	award, err := queue.attemptShipmentAward(pas)
+
+	expectedError := "Could not find a TSP without blackout dates"
+	// See if shipment was awarded
+	if err == nil || award != nil {
+		t.Errorf("Shipment was awarded to a blacked out TSP!")
+	} else if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Did not receive proper error message. Expected '%s', got '%s' instead.", expectedError, err)
+	}
+}
 
 func TestCheckTSPBlackoutDates(t *testing.T) {
 	queue := NewAwardQueue(testDB)
@@ -36,9 +74,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if !test1 {
+	} else if !test1 {
 		t.Errorf("Expected true, got false instead.")
 	}
 
@@ -47,9 +83,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if !test2 {
+	} else if test2 {
 		t.Errorf("Expected false, got true instead.")
 	}
 
@@ -58,9 +92,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 
 	if err != nil {
 		t.Fatal(err)
-	}
-
-	if test3 {
+	} else if test3 {
 		t.Errorf("Expected false, got true instead.")
 	}
 }
@@ -91,6 +123,7 @@ func TestAwardSingleShipment(t *testing.T) {
 	pas := models.PossiblyAwardedShipment{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      time.Now(),
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
@@ -122,6 +155,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 	pas := models.PossiblyAwardedShipment{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      time.Now(),
 		TransportationServiceProviderID: nil,
 		AdministrativeShipment:          swag.Bool(false),
 	}

@@ -51,9 +51,9 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	// administrative shipments forever.
 	foundAvailableTSP := false
 	loopCount := 0
-	infiniteLoopCheck := 1000
+	blackoutRetries := 1000
 
-	for !foundAvailableTSP && loopCount < infiniteLoopCheck {
+	for !foundAvailableTSP && loopCount < blackoutRetries {
 		loopCount++
 
 		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
@@ -69,7 +69,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 
 				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment.PickupDate)
-				if err != nil {
+				if err == nil {
 					shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, tspBlackoutDatesPresent)
 				} else {
 					return err
@@ -93,6 +93,13 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 			return err
 		})
+		if !foundAvailableTSP {
+			fmt.Printf("\tChecking for another TSP. Tries left: %d\n", blackoutRetries-loopCount)
+		}
+	}
+
+	if loopCount == blackoutRetries {
+		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries.", blackoutRetries)
 	}
 
 	return shipmentAward, err
@@ -217,6 +224,7 @@ func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Tim
 	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
 	// or if the pickupDate falls between the start and end.
 	for _, blackoutDate := range blackoutDates {
+		fmt.Printf("Comparing blackout date: %s < %s < %s\n", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
 		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
 			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
 			pickupDate.Equal(blackoutDate.StartBlackoutDate) {

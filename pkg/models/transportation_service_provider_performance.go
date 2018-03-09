@@ -12,7 +12,7 @@ import (
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"go.uber.org/zap"
+	//"go.uber.org/zap"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -108,7 +108,7 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map
 		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
-			zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 		} else {
 			tspPerformances[qualityBand] = tspPerformance
 		}
@@ -213,6 +213,5 @@ func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid
 	} else if validationErr.HasAny() {
 		return fmt.Errorf("Validation failure: %s", validationErr)
 	}
-	fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards\n", tspPerformance.AwardCount)
 	return nil
 }
