@@ -231,7 +231,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
+	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
 	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
 
@@ -242,8 +242,8 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 
 	chosen := SelectNextTSPPerformance(choices)
 
-	if chosen != tspp1 {
-		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp1.QualityBand, *chosen.QualityBand)
+	if chosen != tspp2 {
+		t.Errorf("Wrong TSPPerformance selected: expected band %v, got %v", *tspp2.QualityBand, *chosen.QualityBand)
 	}
 }
 
