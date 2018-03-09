@@ -31,7 +31,7 @@ const AppWrapper = () => (
           <Route path="/submitted" component={SubmittedFeedback} />
           <Route path="/shipments/:shipmentsStatus" component={Shipments} />
           <PrivateRoute path="/DD1299" component={DD1299} />
-          <PrivateRoute path="moves/:moveId/legalese" component={Legalese} />
+          <PrivateRoute path="/moves/:moveId/legalese" component={Legalese} />
           <Route path="/feedback" component={Feedback} />
           <Route exact path="/mymove" render={redirect('/mymove/intro')} />
           {WizardDemo()}
