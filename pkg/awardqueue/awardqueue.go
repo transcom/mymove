@@ -99,7 +99,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	}
 
 	if loopCount == blackoutRetries {
-		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries.", blackoutRetries)
+		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
 	}
 
 	return shipmentAward, err
