@@ -3,8 +3,10 @@ package awardqueue
 import (
 	"fmt"
 	"math"
+	"time"
 
 	"github.com/markbates/pop"
+	"github.com/satori/go.uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -41,31 +43,64 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		return nil, fmt.Errorf("Cannot find TDL in database: %s", err)
 	}
 
-	tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
-
-	if err != nil {
-		return nil, fmt.Errorf("Cannot award. Error: %s", err)
-	}
-
 	var shipmentAward *models.ShipmentAward
 
-	err = aq.db.Transaction(func(tx *pop.Connection) error {
-		tsp := models.TransportationServiceProvider{}
-		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-			fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
-			shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, false)
-			if err == nil {
-				if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
-					fmt.Print("\tShipment awarded to TSP!\n")
-					return nil
-				}
-				fmt.Printf("\tDatabase error: %v\n", err)
-				return err
-			}
+	// TODO: We need to loop here, because if a TSP has a blackout date we need to try again.
+	// we _also_ want to watch out for inifite loops, because if all the TSPs in the selection
+	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
+	// administrative shipments forever.
+	foundAvailableTSP := false
+	loopCount := 0
+	blackoutRetries := 1000
+
+	for !foundAvailableTSP && loopCount < blackoutRetries {
+		loopCount++
+
+		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
+
+		if err != nil {
+			return nil, fmt.Errorf("Cannot award. Error: %s", err)
 		}
-		fmt.Printf("\tFailed to award to TSP: %v\n", err)
-		return err
-	})
+
+		err = aq.db.Transaction(func(tx *pop.Connection) error {
+			tsp := models.TransportationServiceProvider{}
+
+			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
+
+				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment.PickupDate)
+				if err == nil {
+					shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, tspBlackoutDatesPresent)
+				} else {
+					return err
+				}
+
+				if err == nil {
+					if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
+						if tspBlackoutDatesPresent == true {
+							fmt.Printf("\tShipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.\n")
+						} else {
+							fmt.Print("\tShipment awarded to TSP!\n")
+							foundAvailableTSP = true
+						}
+						return nil
+					}
+				} else {
+					fmt.Printf("\tFailed to award to TSP: %v\n", err)
+				}
+			}
+
+			fmt.Printf("\tFailed to award to TSP: %v\n", err)
+			return err
+		})
+		if !foundAvailableTSP {
+			fmt.Printf("\tChecking for another TSP. Tries left: %d\n", blackoutRetries-loopCount)
+		}
+	}
+
+	if loopCount == blackoutRetries {
+		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
+	}
 
 	return shipmentAward, err
 }
@@ -172,4 +207,30 @@ func Run(db *pop.Connection) error {
 	// This method should also return an error
 	queue.assignUnawardedShipments()
 	return nil
+}
+
+// CheckTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls within the window created by the blackout date record.
+func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Time) (bool, error) {
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID)
+
+	if err != nil {
+		return false, fmt.Errorf("Error retrieving blackout dates from database: %s", err)
+	}
+
+	if len(blackoutDates) == 0 {
+		return false, nil
+	}
+
+	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
+	// or if the pickupDate falls between the start and end.
+	for _, blackoutDate := range blackoutDates {
+		fmt.Printf("Comparing blackout date: %s < %s < %s\n", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
+		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
+			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
+			pickupDate.Equal(blackoutDate.StartBlackoutDate) {
+			return true, nil
+		}
+	}
+
+	return false, nil
 }
