@@ -79,7 +79,7 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be awarded a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, when time.Time) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, awardDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -98,16 +98,16 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, when).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, awardDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, when time.Time) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, when)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, awardDate)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -122,9 +122,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, when
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, when time.Time) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, when)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, awardDate)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
