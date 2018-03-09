@@ -92,8 +92,7 @@ func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (*User, error) {
 			return nil, moveErr
 		}
 		return &newUser, nil
-	} else {
-		// Return found user
-		return &user, nil
 	}
+	// Return found user
+	return &user, nil
 }
