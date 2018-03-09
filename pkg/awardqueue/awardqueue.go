@@ -63,6 +63,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 		if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 			fmt.Printf("\tAttempting to award to TSP: %v. \n", tsp.Name)
+			fmt.Printf("\tQuerying TSP %v for blackout dates for blackout dates.\n", tsp.Name)
 			if tspBlackoutDatesPresent == true {
 				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, true)
 				fmt.Printf("\tFailed to award to TSP: %v\n", err)
