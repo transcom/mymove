@@ -2,7 +2,7 @@
 
 **User Story:** 155599293
 
-*There are dozen of browsers supported on multiple operating systems.  We need to manage the level of dev and testing effort required to support additional browsers and the overall impact to the user*
+There are dozen of browsers supported on multiple operating systems.  We need to manage the level of dev and testing effort required to support additional browsers and the overall impact to the user
 
 ## Considered Alternatives
 
@@ -22,9 +22,9 @@
 * `+` *The mobile browsers selected represent a dominant market share on their respective mobile OS*
 * `-` *Slight risk of a service member unable to complete their process by using an unsupported browser*
 
-### *Increase browser vesions to increase user reach*
+### *Increase browser versions to increase user reach*
 
-* `+` *Reduces the likelyhood of a service member not completing the process buy using an unsupported browser*
+* `+` *Reduces the likelihood of a service member not completing the process buy using an unsupported browser*
 * `+` *The mobile browsers selected represent a dominant market share on their respective mobile OS*
 * `-` *Extra coding effort to support older IE versions*
 * `-` *Extra testing effort to support older browsers*

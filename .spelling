@@ -182,6 +182,9 @@ HOCs
 PrivateRoute
 EnsureLoggedInContainer
 jwt
+ADR-0015
+ADR-0016
+ADR-0017
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
  - docs/adr/0007-swagger-client.md
