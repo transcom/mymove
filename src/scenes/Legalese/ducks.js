@@ -88,7 +88,6 @@ export function signedCertificationReducer(state = initialState, action) {
         confirmationText: 'Feedback submitted!',
       });
     case CREATE_CERTIFICATION_FAILURE:
-      console.log('WOEIFNWOEIFNWEINFONEFWI');
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
         hasSubmitError: true,

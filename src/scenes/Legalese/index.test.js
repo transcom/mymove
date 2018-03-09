@@ -2,7 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
-import { Feedback } from '.';
+import SignedCertification from '.';
 import store from 'shared/store';
 
 const dummyFunc = () => {};
@@ -16,7 +16,7 @@ it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
-      <Feedback
+      <SignedCertification
         hasSchemaError={hasSchemaError}
         hasSubmitSuccess={hasSubmitSuccess}
         hasSubmitError={hasSubmitError}
@@ -25,6 +25,7 @@ it('renders without crashing', () => {
         loadSchema={dummyFunc}
         confirmationText=""
         createIssue={dummyFunc}
+        match={{ match: 'match' }}
       />
     </Provider>,
     div,

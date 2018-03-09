@@ -1,20 +1,15 @@
-import configureStore from 'redux-mock-store';
-// import thunk from 'redux-thunk';
 import {
-  feedbackReducer,
-  createIssueRequest,
-  createIssueSuccess,
-  createIssueFailure,
-  updateIssueValue,
-  createIssue,
+  CREATE_CERTIFICATION_SUCCESS,
+  CREATE_CERTIFICATION_FAILURE,
+  signedCertificationReducer,
 } from './ducks';
 
 describe('Feedback Reducer', () => {
   it('Should handle CREATE_CERTIFICATION_SUCCESS', () => {
     const initialState = { pendingValue: '', confirmationText: '' };
 
-    const newState = feedbackReducer(initialState, {
-      type: 'CREATE_CERTIFICATION_SUCCESS',
+    const newState = signedCertificationReducer(initialState, {
+      type: CREATE_CERTIFICATION_SUCCESS,
       item: 'Successful item!',
     });
 
@@ -29,8 +24,8 @@ describe('Feedback Reducer', () => {
   it('Should handle CREATE_CERTIFICATION_FAILURE', () => {
     const initialState = { pendingValue: '', confirmationText: '' };
 
-    const newState = feedbackReducer(initialState, {
-      type: 'CREATE_CERTIFICATION_FAILURE',
+    const newState = signedCertificationReducer(initialState, {
+      type: CREATE_CERTIFICATION_FAILURE,
       error: 'No bueno.',
     });
 
