@@ -11,6 +11,14 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// AwardsPerQualityBand is a map of the number of shipments to be awarded per round to each quality band
+var AwardsPerQualityBand = map[int]int{
+	1: 5,
+	2: 3,
+	3: 2,
+	4: 1,
+}
+
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {

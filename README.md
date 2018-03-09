@@ -152,7 +152,7 @@ This background job is built as a separate binary which can be built using
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make tools_build` will build the fake data generator binary
-* `bin/generate_test_data` will run binary and create a preconfigured set of test data.
+* `bin/generate_test_data` will run binary and create a preconfigured set of test data. There are options to determine what this data will look like. To specify the number of awards for each TSP performance, use the flag `rounds` with one of three arguments: 'none', 'half', and 'full'. This will create the TSP performance records with either no rounds of awards completed, half a round, or a full round. It will default to none if not specified. To specify how many TSPs should be created, use the flag `numTSP`. It will default to 15 if not specified. A sample command: `./bin/generate-test-data -rounds=half -numTSP=6`.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 

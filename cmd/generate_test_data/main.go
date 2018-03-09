@@ -13,6 +13,8 @@ import (
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	rounds := flag.String("rounds", "none", "Choose none (no awards), full (1 full round of awards), or half (partial round of awards)")
+	numTSP := flag.Int("numTSP", 15, "The number of TSPs you'd like to create")
 	flag.Parse()
 
 	//DB connection
@@ -24,9 +26,9 @@ func main() {
 
 	// Can this be less repetitive without being overly clever?
 	testdatagen.MakeTDLData(db)
-	testdatagen.MakeTSPData(db)
+	testdatagen.MakeMoreTSP(db, *numTSP)
 	testdatagen.MakeShipmentData(db)
 	testdatagen.MakeShipmentAwardData(db)
-	testdatagen.MakeTSPPerformanceData(db)
+	testdatagen.MakeTSPPerformanceData(db, *rounds)
 	testdatagen.MakeBlackoutDateData(db)
 }
