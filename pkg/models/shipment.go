@@ -28,6 +28,7 @@ type PossiblyAwardedShipment struct {
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
+	PickupDate                      time.Time  `json:"pickup_date" db:"pickup_date"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
 	Accepted                        *bool      `json:"accepted" db:"accepted"`
 	RejectionReason                 *string    `json:"rejection_reason" db:"rejection_reason"`
@@ -46,6 +47,7 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 		"shipments.created_at",
 		"shipments.updated_at",
 		"shipments.traffic_distribution_list_id",
+		"shipments.pickup_date",
 		"shipment_awards.transportation_service_provider_id",
 		"shipment_awards.administrative_shipment",
 	)
