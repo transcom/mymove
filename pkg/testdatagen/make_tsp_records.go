@@ -28,7 +28,7 @@ func MakeTSPData(db *pop.Connection) {
 	MakeTSP(db, "Serviceable and Adequate TSP", "IJKL")
 }
 
-// MakeMoreTSP creates numTSP number of TSP records
+// MakeTSPs creates numTSP number of TSP records
 func MakeTSPs(db *pop.Connection, numTSP int) {
 	for i := 0; i < numTSP; i++ {
 		tspName := fmt.Sprintf("Just another TSP %d", i)
