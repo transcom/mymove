@@ -299,13 +299,13 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(2), mps+4, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(3), mps+2, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
 	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID)
-	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp2.ID, tsp4.ID, tsp5.ID}
+	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp3.ID, tsp4.ID, tsp5.ID}
 	actualTSPorder := []uuid.UUID{
 		tsps[1].TransportationServiceProviderID,
 		tsps[2].TransportationServiceProviderID,

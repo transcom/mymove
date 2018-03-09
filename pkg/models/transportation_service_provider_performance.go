@@ -108,7 +108,7 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map
 		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
-			zap.S().Infof("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+			zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 		} else {
 			tspPerformances[qualityBand] = tspPerformance
 		}

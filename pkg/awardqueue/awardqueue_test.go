@@ -178,7 +178,9 @@ func verifyAwardCount(t *testing.T, tsp models.TransportationServiceProvider, ex
 	}
 
 	var tspPerformance models.TransportationServiceProviderPerformance
-	query.First(&tspPerformance)
+	if err := query.First(&tspPerformance); err != nil {
+		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
+	}
 	if expectedCount != tspPerformance.AwardCount {
 		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
 	}
