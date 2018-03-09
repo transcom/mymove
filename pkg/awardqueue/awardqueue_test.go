@@ -15,12 +15,62 @@ import (
 
 var testDB *pop.Connection
 
+func TestCheckTSPBlackoutDates(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+	// Creates a TSP and TDL with a blackout date connected to both.
+	testTSP1, _ := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
+	testTDL, _ := testdatagen.MakeTDL(testDB, "Oklahoma", "62240", "5")
+	testStartDate := time.Now()
+	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
+	testdatagen.MakeBlackoutDate(testDB, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil, nil, nil)
+
+	// Two pickup times to check with CheckTSPBlackoutDates
+	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
+	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
+
+	// One TSP with no blackout dates
+	testTSP2, _ := testdatagen.MakeTSP(testDB, "A Spotless TSP", "PORK")
+
+	// Checks a date that falls within the blackout date range; returns true.
+	test1 := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateBetween)
+
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
+	if test1 == false {
+		t.Errorf("Expected true, got false instead.")
+	}
+
+	// Checks a date that falls after the blackout date range; returns false.
+	test2 := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateAfter)
+
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
+	if test2 == true {
+		t.Errorf("Expected false, got true instead.")
+	}
+
+	// Checks a TSP with no blackout dates and returns false.
+	test3 := queue.CheckTSPBlackoutDates(testTSP2.ID, testPickupDateAfter)
+
+	// if err != nil {
+	// 	t.Fatal(err)
+	// }
+
+	if test3 == true {
+		t.Errorf("Expected false, got true instead.")
+	}
+}
+
 func TestFindAllUnawardedShipments(t *testing.T) {
 	queue := NewAwardQueue(testDB)
 	_, err := queue.findAllUnawardedShipments()
 
 	if err != nil {
-		t.Fatal("Unable to find shipments: ", err)
+		t.Error("Unable to find shipments: ", err)
 	}
 }
 

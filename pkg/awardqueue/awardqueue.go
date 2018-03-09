@@ -57,7 +57,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	for _, tspPerformance := range tspPerformances {
 		tsp := models.TransportationServiceProvider{}
-		tspBlackoutDatesPresent := aq.checkTSPBlackoutDates(tsp.ID, shipment.PickupDate)
+		tspBlackoutDatesPresent := aq.CheckTSPBlackoutDates(tsp.ID, shipment.PickupDate)
 
 		fmt.Printf("\tAttempting to award to TSP: %v. \n", tsp.Name)
 		fmt.Printf("\tQuerying TSP %v for blackout dates for blackout dates.\n", tsp.Name)
@@ -183,10 +183,8 @@ func Run(db *pop.Connection) error {
 	return nil
 }
 
-// checkTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares
-// start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls
-// within the window created by the blackout date record.
-func (aq *AwardQueue) checkTSPBlackoutDates(tspid uuid.UUID, pickupDate time.Time) bool {
+// CheckTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls within the window created by the blackout date record.
+func (aq *AwardQueue) CheckTSPBlackoutDates(tspid uuid.UUID, pickupDate time.Time) bool {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspid)
 
 	if err != nil {
