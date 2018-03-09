@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import CertificationText from './CertificationText';
-import SignitureForm from './SignatureForm';
+import SignatureForm from './SignatureForm';
 import Alert from 'shared/Alert';
 import './index.css';
 
@@ -46,7 +46,7 @@ export class SignedCertification extends Component {
         </span>
 
         <CertificationText certificationText={this.props.certificationText} />
-        <SignitureForm
+        <SignatureForm
           onSubmit={this.handleSubmit}
           initialValues={initialValues}
         />

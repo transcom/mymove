@@ -20,7 +20,6 @@ function SignatureForm(props) {
             name="signature"
             component="input"
             type="text"
-            placeholder="Joseph Snuffy"
             validate={validator.isRequired}
           />
         </label>
@@ -37,5 +36,5 @@ function SignatureForm(props) {
 }
 
 export default reduxForm({
-  form: 'certification_signiture', // a unique identifier for this form
+  form: 'certification_signature', // a unique identifier for this form
 })(SignatureForm);
