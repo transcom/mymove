@@ -1,0 +1,80 @@
+#!/bin/bash
+#
+#   Updates the app service with the given container definition template, image,
+#   and environment.
+#
+set -eo pipefail
+
+usage() {
+    echo "$0 <template> <image> <environment>"
+    exit 1
+}
+[[ -z $1 || -z $2 || -z $3 ]] && usage
+
+set -u
+
+readonly template=$1
+readonly image=$2
+readonly environment=$3
+
+readonly log_prefix=app
+readonly container_name=app-${environment}
+readonly task_family=app-${environment}
+readonly cluster=app-${environment}
+
+
+check_arn() {
+    local arn=$1
+    [[ $arn = arn:* ]] || { echo "Error: Bad ARN: $arn"; exit 1; }
+}
+
+update_service() {
+    local arn="$1"
+
+    echo "* Updating app service to use $arn"
+    aws ecs update-service --cluster "$cluster" --service app --task-definition "$arn" --query 'service.deployments' || return 1
+    echo "* Waiting for service to stabilize (this takes a while)"
+    time aws ecs wait services-stable --services app --cluster "$cluster"
+    local exit_code=$?
+
+    # show event log
+    echo
+    echo "Last 5 service events:"
+    aws ecs describe-services --service app --cluster "$cluster" --query 'services[].events[:5]'
+    echo
+
+    return $exit_code
+}
+
+
+# get current task definiton (for rollback)
+blue_task_def_arn=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
+
+# get the DB address
+echo "* Looking up DB host"
+db_host=$(aws rds describe-db-instances --db-instance-identifier "app-$environment" --query 'DBInstances[0].Endpoint.Address' | jq -r .)
+readonly db_host
+
+# create the container definition from the json template
+container_definition_json=$(perl -pe "s|{{environment}}|$environment|g; s|{{image}}|$image|g; s|{{db_host}}|$db_host|g;" "$template")
+readonly container_definition_json
+
+# create new task definition with the given image
+echo "* Registering new task definition"
+green_task_def_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-$environment" --family "$task_family" --container-definitions "$container_definition_json" --query 'taskDefinition.taskDefinitionArn' --output text)
+readonly green_task_def_arn
+check_arn "$green_task_def_arn"
+
+if update_service "$green_task_def_arn"; then
+    echo "Success."
+    exit 0
+fi
+echo "Service failed to stabilize!"
+
+echo "* Rolling back to $blue_task_def_arn"
+if update_service "$blue_task_def_arn"; then
+    echo "Rollback complete."
+    exit 1
+fi
+echo "Rollback failed!"
+exit 1
