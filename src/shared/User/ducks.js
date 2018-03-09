@@ -25,7 +25,7 @@ export function loadUserAndToken() {
   return { type: LOAD_USER_AND_TOKEN, payload: jwt };
 }
 
-const userReducer = (state = loggedOutUser, action) => {
+const userReducer = (state = getUserInfo(), action) => {
   switch (action.type) {
     case LOAD_USER_AND_TOKEN:
       return action.payload;
