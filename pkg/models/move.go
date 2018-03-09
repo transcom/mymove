@@ -15,7 +15,7 @@ type Move struct {
 	CreatedAt        time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at" db:"updated_at"`
 	UserID           uuid.UUID `json:"user_id" db:"user_id"`
-	SelectedMoveType *string   `json:"selected_move_type" db:"selected_move_type"`
+	SelectedMoveType string    `json:"selected_move_type" db:"selected_move_type"`
 }
 
 // String is not required by pop and may be deleted
@@ -38,6 +38,7 @@ func (m Moves) String() string {
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.UserID, Name: "UserID"},
+		&validators.StringIsPresent{Field: m.SelectedMoveType, Name: "SelectedMoveType"},
 	), nil
 }
 

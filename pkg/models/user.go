@@ -80,9 +80,11 @@ func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (*User, error) {
 			err = errors.Wrap(err, "Unable to create user")
 			return nil, err
 		}
+		// TODO: Separate Move Creation from User creation
 		// Create new move for user
 		newMove := Move{
-			UserID: newUser.ID,
+			UserID:           newUser.ID,
+			SelectedMoveType: "HHG",
 		}
 		moveVerrs, moveErr := db.ValidateAndCreate(&newMove)
 		if moveVerrs.HasAny() {
