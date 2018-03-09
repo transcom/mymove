@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"encoding/json"
-	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
@@ -68,18 +67,13 @@ func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 
 // GetUserFromRequest extracts the user model from the request context's user ID
 func GetUserFromRequest(db *pop.Connection, r *http.Request) (user User, err error) {
-	userID, ok := context.Get(r, "user_id").(string)
+	userID, ok := r.Context().Value("user_id").(uuid.UUID)
 	if !ok {
 		err = errors.New("Failed to fetch user_id from context")
 		return
 	}
 
-	userUUID, err := uuid.FromString(userID)
-	if err != nil {
-		return
-	}
-
-	user, err = GetUserByID(db, userUUID)
+	user, err = GetUserByID(db, userID)
 	if err != nil {
 		return
 	}
