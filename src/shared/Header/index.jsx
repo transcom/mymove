@@ -129,9 +129,25 @@ function Header() {
               </ul>
             </li>
             <li>
-              <NavLink to="/submitted" className="usa-nav-link">
-                <span>Submitted Feedback</span>
-              </NavLink>
+              <button
+                className="usa-accordion-button usa-nav-link"
+                aria-expanded="false"
+                aria-controls="side-nav-3"
+              >
+                <span>Feedback</span>
+              </button>
+              <ul id="side-nav-3" className="usa-nav-submenu">
+                <li>
+                  <NavLink to="/Feedback" className="usa-nav-link">
+                    <span>Report a bug</span>
+                  </NavLink>
+                </li>
+                <li>
+                  <NavLink to="/submitted" className="usa-nav-link">
+                    <span>Submitted Feedback</span>
+                  </NavLink>
+                </li>
+              </ul>
             </li>
           </ul>
           <form className="usa-search usa-search-small">
