@@ -85,7 +85,7 @@ func TestAwardSingleShipment(t *testing.T) {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(testDB, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Create a PossiblyAwardedShipment to feed the award queue
 	pas := models.PossiblyAwardedShipment{
@@ -138,7 +138,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 	}
 }
 
-func TestAwardAssignUnawardedShipments(t *testing.T) {
+func TestAwardAssignUnawardedShipmentsSingleTSP(t *testing.T) {
 	queue := NewAwardQueue(testDB)
 
 	shipmentsToMake := 10
@@ -155,7 +155,7 @@ func TestAwardAssignUnawardedShipments(t *testing.T) {
 	tsp, _ := testdatagen.MakeTSP(testDB, "Test Shipper", "TEST")
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Run the Award Queue
 	queue.assignUnawardedShipments()
@@ -170,6 +170,69 @@ func TestAwardAssignUnawardedShipments(t *testing.T) {
 	}
 	if count != shipmentsToMake {
 		t.Errorf("Not all ShipmentAwards found. Expected %d found %d", shipmentsToMake, count)
+	}
+}
+
+func TestAwardAssignUnawardedShipmentsToMultipleTSPs(t *testing.T) {
+	testDB.TruncateAll()
+
+	queue := NewAwardQueue(testDB)
+
+	shipmentsToMake := 17
+
+	// Make a TDL to contain our tests
+	tdl, _ := testdatagen.MakeTDL(testDB, "california", "90210", "2")
+
+	// Make shipments in this TDL
+	for i := 0; i < shipmentsToMake; i++ {
+		testdatagen.MakeShipment(testDB, time.Now(), time.Now(), tdl)
+	}
+
+	// Make TSPs in the same TDL to handle these shipments
+	tsp1, _ := testdatagen.MakeTSP(testDB, "Test TSP 1", "TSP1")
+	tsp2, _ := testdatagen.MakeTSP(testDB, "Test TSP 2", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(testDB, "Test TSP 3", "TSP3")
+	tsp4, _ := testdatagen.MakeTSP(testDB, "Test TSP 4", "TSP4")
+	tsp5, _ := testdatagen.MakeTSP(testDB, "Test TSP 5", "TSP5")
+
+	// TSPs should be orderd by award_count first, then BVS.
+	testdatagen.MakeTSPPerformance(testDB, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp2, tdl, swag.Int(1), mps+4, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp3, tdl, swag.Int(2), mps+2, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp4, tdl, swag.Int(3), mps+3, 0)
+	testdatagen.MakeTSPPerformance(testDB, tsp5, tdl, swag.Int(4), mps+1, 0)
+
+	// Run the Award Queue
+	queue.assignUnawardedShipments()
+
+	verifyAwardCount(t, tsp1, 6)
+	verifyAwardCount(t, tsp2, 5)
+	verifyAwardCount(t, tsp3, 3)
+	verifyAwardCount(t, tsp4, 2)
+	verifyAwardCount(t, tsp5, 1)
+}
+
+func verifyAwardCount(t *testing.T, tsp models.TransportationServiceProvider, expectedCount int) {
+	t.Helper()
+
+	// TODO is there a more concise way to do this?
+	query := testDB.Where("transportation_service_provider_id = $1", tsp.ID)
+	awards := []models.ShipmentAward{}
+	count, err := query.Count(&awards)
+
+	if err != nil {
+		t.Fatalf("Error counting shipment awards: %v", err)
+	}
+	if count != expectedCount {
+		t.Errorf("Wrong number of ShipmentAwards found: expected %d, got %d", expectedCount, count)
+	}
+
+	var tspPerformance models.TransportationServiceProviderPerformance
+	if err := query.First(&tspPerformance); err != nil {
+		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
+	}
+	if expectedCount != tspPerformance.AwardCount {
+		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
 	}
 }
 
