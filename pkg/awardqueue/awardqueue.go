@@ -57,6 +57,8 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 					fmt.Print("\tShipment awarded to TSP!\n")
 					return nil
 				}
+				fmt.Printf("\tDatabase error: %v\n", err)
+				return err
 			}
 		}
 		return fmt.Errorf("Failed to award to TSP: %v", err)

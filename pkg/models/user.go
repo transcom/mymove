@@ -57,19 +57,17 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // GetOrCreateUser is called upon successful login.gov verification
-func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (User, error) {
+func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (*User, error) {
 
 	// Check if user already exists
 	query := db.Where("login_gov_uuid = $1", gothUser.UserID)
-	var users []User
-	err := query.All(&users)
+	var user User
+	err := query.First(&user)
 	if err != nil {
-		err = errors.Wrap(err, "DB Query Error")
-		return (User{}), err
-	}
-
-	// If user is not in DB, create it
-	if len(users) == 0 {
+		if err.Error() != "sql: no rows in result set" {
+			return nil, errors.Wrap(err, "Failed to load user")
+		}
+		// No user found, creating new user
 		loginGovUUID, _ := uuid.FromString(gothUser.UserID)
 		newUser := User{
 			LoginGovUUID:  loginGovUUID,
@@ -77,13 +75,24 @@ func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (User, error) {
 		}
 		verrs, err := db.ValidateAndCreate(&newUser)
 		if verrs.HasAny() {
-			return (User{}), verrs
+			return nil, verrs
 		} else if err != nil {
 			err = errors.Wrap(err, "Unable to create user")
-			return (User{}), err
+			return nil, err
 		}
-		return newUser, nil
+		// Create new move for user
+		newMove := Move{
+			UserID: newUser.ID,
+		}
+		moveVerrs, moveErr := db.ValidateAndCreate(&newMove)
+		if moveVerrs.HasAny() {
+			return nil, moveVerrs
+		} else if moveErr != nil {
+			moveErr = errors.Wrap(err, "Unable to create move")
+			return nil, moveErr
+		}
+		return &newUser, nil
 	}
-	// one user was found, return it
-	return users[0], nil
+	// Return found user
+	return &user, nil
 }
