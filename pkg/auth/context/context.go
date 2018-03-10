@@ -17,7 +17,6 @@ var idTokenKey = moveCtxKey("id_token")
 func PopulateAuthContext(ctx context.Context, userID uuid.UUID, idToken string) context.Context {
 	ctx = context.WithValue(ctx, userIDKey, userID)
 	ctx = context.WithValue(ctx, idTokenKey, idToken)
-
 	return ctx
 }
 
