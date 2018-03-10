@@ -2,17 +2,17 @@ package handlers
 
 import (
 	"fmt"
-	"time"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/satori/go.uuid"
 
+	"github.com/transcom/mymove/pkg/context"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/context"
 )
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: *fmtUUID(move.ID),
+		MoveID:      *fmtUUID(move.ID),
 		HTTPRequest: req,
 	}
 
@@ -91,7 +91,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: *fmtUUID(move.ID),
+		MoveID:      *fmtUUID(move.ID),
 		HTTPRequest: req,
 	}
 
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: *fmtUUID(move.ID),
+		MoveID:      *fmtUUID(move.ID),
 		HTTPRequest: req,
 	}
 
@@ -196,7 +196,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID: badMoveID,
+		MoveID:      badMoveID,
 		HTTPRequest: req,
 	}
 

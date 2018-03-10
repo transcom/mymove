@@ -1,9 +1,9 @@
 package models
 
 import (
+	"encoding/json"
 	"net/http"
 	"time"
-	"encoding/json"
 
 	"github.com/markbates/goth"
 	"github.com/markbates/pop"

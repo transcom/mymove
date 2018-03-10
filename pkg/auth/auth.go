@@ -10,13 +10,13 @@ import (
 	"net/url"
 	"time"
 
-	"go.uber.org/zap"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/context"
 	"github.com/transcom/mymove/pkg/models"
