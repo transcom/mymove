@@ -6,10 +6,10 @@ import (
 	"github.com/satori/go.uuid"
 )
 
-type authCtxKey string
+type moveCtxKey string
 
-var userIDKey = authCtxKey("user_id")
-var idTokenKey = authCtxKey("id_token")
+var userIDKey = moveCtxKey("user_id")
+var idTokenKey = moveCtxKey("id_token")
 
 // PopulateAuthContext sets the values that the auth package wants in the context
 func PopulateAuthContext(ctx context.Context, userID uuid.UUID, idToken string) context.Context {
