@@ -7,7 +7,7 @@ import (
 	"github.com/markbates/pop"
 )
 
-// RunScenarioOne creates 17 shipments and 5 TSPs in 1 TDL. This allows testing against
+// RunScenarioTwo creates 17 shipments and 5 TSPs in 1 TDL. This allows testing against
 // award queue to ensure it behaves as expected. This doesn't track blackout dates.
 func RunScenarioTwo(db *pop.Connection) {
 	shipmentsToMake := 9
