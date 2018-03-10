@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
@@ -52,6 +53,14 @@ func main() {
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 
 	flag.Parse()
+
+	// Assert that our secret keys can be parsed into actual private keys
+	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
+		log.Fatalln(err)
+	}
+	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*clientAuthSecretKey)); err != nil {
+		log.Fatalln(err)
+	}
 
 	// Set up logger for the system
 	var err error
