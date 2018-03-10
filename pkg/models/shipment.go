@@ -18,9 +18,11 @@ type Shipment struct {
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	CodeOfService             *string   `json:"code_of_service" db:"code_of_service"`
+	Channel                   *string   `json:"channel" db:"channel"`
 	GBLOC                     string    `json:"gbloc" db:"gbloc"`
 	Market                    *string   `json:"market" db:"market"`
-}
+} // To do, Breanne: whatever's needed to integrate these three new fields throughout test data and tests and other functions. For instance, adding these new fields - possibly - to the PAS below. And adding it to the query that makes it.
 
 // PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
 type PossiblyAwardedShipment struct {
