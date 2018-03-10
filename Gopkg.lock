@@ -251,12 +251,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  revision = "1ea25387ff6f684839d82767c1733ff4d4d15d0a"
-  version = "v1.1"
-
-[[projects]]
   name = "github.com/gorilla/handlers"
   packages = ["."]
   revision = "90663712d74cb411cbef281bc1e08c19d1a76145"
@@ -723,6 +717,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "bf6b43ebe32aecad2eff7118509440920c5649b1e15528ef0d2e3e37f4f3fe11"
+  inputs-digest = "ad7b257f757b75b68c7ccfbad270576916858815683fa6ad5b8773e48ec7e664"
   solver-name = "gps-cdcl"
   solver-version = 1

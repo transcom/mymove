@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"time"
-	"context"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -13,6 +12,7 @@ import (
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/context"
 )
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
@@ -45,7 +45,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 
 	ctx := params.HTTPRequest.Context()
-	ctx = context.WithValue(ctx, "user_id", user.ID)
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
@@ -149,7 +149,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	// Uses a different user than is on the move object
 	ctx := params.HTTPRequest.Context()
-	ctx = context.WithValue(ctx, "user_id", user2.ID)
+	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	// Uses a different user than is on the move object
 	ctx := params.HTTPRequest.Context()
-	ctx = context.WithValue(ctx, "user_id", user.ID)
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 

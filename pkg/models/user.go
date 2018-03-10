@@ -11,6 +11,8 @@ import (
 	"github.com/markbates/validate/validators"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
+
+	"github.com/transcom/mymove/pkg/context"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -67,7 +69,7 @@ func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 
 // GetUserFromRequest extracts the user model from the request context's user ID
 func GetUserFromRequest(db *pop.Connection, r *http.Request) (user User, err error) {
-	userID, ok := r.Context().Value("user_id").(uuid.UUID)
+	userID, ok := context.GetUserID(r.Context())
 	if !ok {
 		err = errors.New("Failed to fetch user_id from context")
 		return

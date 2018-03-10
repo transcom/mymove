@@ -1,7 +1,6 @@
 package auth
 
 import (
-	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
@@ -12,7 +11,6 @@ import (
 	"time"
 
 	"go.uber.org/zap"
-
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
@@ -20,6 +18,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 
+	"github.com/transcom/mymove/pkg/context"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -170,10 +169,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			}
 
 			// And put the user info on the request context
-			ctx := r.Context()
-			ctx = context.WithValue(ctx, "user_id", claims.UserID)
-			ctx = context.WithValue(ctx, "email", claims.Email)
-			ctx = context.WithValue(ctx, "id_token", claims.IDToken)
+			ctx := context.PopulateAuthContext(r.Context(), claims.UserID, claims.IDToken)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
@@ -187,7 +183,7 @@ func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
 	redirectURL := landingURL(hostname)
 
 	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, ok := r.Context().Value("id_token").(string)
+		idToken, ok := context.GetIDToken(r.Context())
 		if !ok {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
 			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
@@ -230,8 +226,8 @@ func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *Autho
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	token := r.Context().Value("id_token")
-	if token != nil {
+	_, ok := context.GetIDToken(r.Context())
+	if !ok {
 		// User is already authed, redirect to landing page
 		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return
