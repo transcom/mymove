@@ -1,0 +1,8 @@
+.box_top {
+  display: flex;
+  justify-content: space-between;
+}
+
+.instructions {
+  margin: 0;
+}

@@ -105,6 +105,8 @@ func main() {
 	internalAPI.Form1299sCreateForm1299Handler = handlers.NewCreateForm1299Handler(dbConnection, logger)
 	internalAPI.Form1299sIndexForm1299sHandler = handlers.NewIndexForm1299sHandler(dbConnection, logger)
 	internalAPI.Form1299sShowForm1299Handler = handlers.NewShowForm1299Handler(dbConnection, logger)
+	internalAPI.CertificationCreateSignedCertificationHandler = handlers.NewCreateSignedCertificationHandler(dbConnection, logger)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.NewIndexShipmentsHandler(dbConnection, logger)
 
 	// Serves files out of build folder
@@ -131,6 +133,7 @@ func main() {
 	apiMux.Handle(pat.New("/*"), publicAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
 	internalMux := goji.SubMux()
+	internalMux.Use(authMiddleware)
 	root.Handle(pat.New("/internal/*"), internalMux)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
