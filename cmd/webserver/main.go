@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"path"
 
+	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
@@ -65,6 +66,15 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	// Assert that our secret keys can be parsed into actual private keys
+	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
+	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
+		log.Fatalln(err)
+	}
+	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*clientAuthSecretKey)); err != nil {
+		log.Fatalln(err)
+	}
 
 	//DB connection
 	pop.AddLookupPaths(*config)
