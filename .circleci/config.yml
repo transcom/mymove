@@ -78,6 +78,10 @@ jobs:
           command: |
             go get -u github.com/golang/dep/cmd/dep
             echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
+      - run:
+          name: Install direnv
+          command: |
+            sudo apt-get -qq -y install direnv
 
       - run: echo 'export PATH=${PATH}:~/go/bin' >> $BASH_ENV
       - run: make deps
