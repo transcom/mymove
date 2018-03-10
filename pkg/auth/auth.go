@@ -18,7 +18,7 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/context"
+	"github.com/transcom/mymove/pkg/auth/context"
 	"github.com/transcom/mymove/pkg/models"
 )
 

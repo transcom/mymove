@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/satori/go.uuid"
 
-	"github.com/transcom/mymove/pkg/context"
+	"github.com/transcom/mymove/pkg/auth/context"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"

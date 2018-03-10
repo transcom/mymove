@@ -12,7 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 
-	"github.com/transcom/mymove/pkg/context"
+	"github.com/transcom/mymove/pkg/auth/context"
 )
 
 // User is an entity with a registered uuid and email at login.gov
