@@ -6,6 +6,8 @@ import (
 	"github.com/satori/go.uuid"
 )
 
+// Keys for values stored in the context are supposed to be of a custom type, not string
+// so as to avoid collisions with other packages.
 type moveCtxKey string
 
 var userIDKey = moveCtxKey("user_id")
