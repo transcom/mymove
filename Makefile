@@ -13,7 +13,12 @@ prereqs: .prereqs.stamp
 	bin/prereqs
 	touch .prereqs.stamp
 
-deps: prereqs pre-commit client_deps server_deps
+go_version: .go_version.stamp
+.go_version.stamp: bin/check_go_version
+	bin/check_go_version
+	touch .go_version.stamp
+
+deps: prereqs go_version pre-commit client_deps server_deps
 test: client_test server_test e2e_test
 
 spellcheck:

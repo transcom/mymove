@@ -1,0 +1,13 @@
+#! /bin/bash
+
+set -eu -o pipefail
+
+VERSION="go1.9.3"
+
+if [[ $(go version) = *$VERSION* ]]; then
+  echo "$VERSION installed"
+else
+  echo "$VERSION is required to run this project!"
+  exit 1
+fi
+
