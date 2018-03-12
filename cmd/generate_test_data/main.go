@@ -8,15 +8,11 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-const mps int = 15
-
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
 // querying the db for them again.
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
-	rounds := flag.String("rounds", "none", "Choose none (no awards), full (1 full round of awards), or half (partial round of awards)")
-	numTSP := flag.Int("numTSP", 15, "The number of TSPs you'd like to create")
 	scenarioOne := flag.Bool("scenarioOne", false, "To run test data generation scenario 1.")
 	scenarioTwo := flag.Bool("scenarioTwo", false, "To run test data generation scenario 2.")
 	flag.Parse()
