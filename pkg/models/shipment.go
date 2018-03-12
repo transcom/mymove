@@ -17,6 +17,7 @@ type Shipment struct {
 	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
+	AwardDate                 time.Time `json:"award_date" db:"award_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	GBLOC                     string    `json:"gbloc" db:"gbloc"`
 	Market                    *string   `json:"market" db:"market"`
@@ -27,6 +28,7 @@ type PossiblyAwardedShipment struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
+	AwardDate                       time.Time  `json:"award_date" db:"award_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	PickupDate                      time.Time  `json:"pickup_date" db:"pickup_date"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
@@ -46,6 +48,7 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 		"shipments.id",
 		"shipments.created_at",
 		"shipments.updated_at",
+		"shipments.award_date",
 		"shipments.traffic_distribution_list_id",
 		"shipments.pickup_date",
 		"shipment_awards.transportation_service_provider_id",
@@ -63,6 +66,7 @@ func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipm
 
 	sql := `SELECT
 				shipments.id,
+				shipments.award_date,
 				shipments.traffic_distribution_list_id,
 				shipments.pickup_date,
 				shipment_awards.transportation_service_provider_id

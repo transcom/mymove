@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
-	"time"
 
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,8 +14,8 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 	tdl models.TrafficDistributionList, qualityBand *int, score int, awardCount int) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          time.Now(),
-		PerformancePeriodEnd:            time.Now(),
+		PerformancePeriodStart:          PerformancePeriodStart,
+		PerformancePeriodEnd:            PerformancePeriodEnd,
 		TransportationServiceProviderID: tsp.ID,
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,

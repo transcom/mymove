@@ -39,6 +39,7 @@ func TestCheckAllTSPsBlackedOut(t *testing.T) {
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
+		AwardDate:                       testdatagen.DateInsidePerformancePeriod,
 	}
 
 	// Run the Award Queue
@@ -128,6 +129,7 @@ func TestAwardSingleShipment(t *testing.T) {
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
+		AwardDate:                       shipment.AwardDate,
 	}
 
 	// Run the Award Queue
@@ -136,8 +138,7 @@ func TestAwardSingleShipment(t *testing.T) {
 	// See if shipment was awarded
 	if err != nil {
 		t.Errorf("Shipment award expected no errors, received: %v", err)
-	}
-	if award == nil {
+	} else if award == nil {
 		t.Error("ShipmentAward was not found.")
 	}
 }
@@ -168,7 +169,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 		t.Errorf("Shipment award expected an error, received none.")
 	}
 	if award != nil {
-		t.Error("ShipmentAward was created, expected 'nil'.")
+		t.Errorf("Wrong return value, expected nil, got %v", award)
 	}
 }
 
@@ -290,7 +291,6 @@ func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 }
 
 func Test_assignTSPsToBands(t *testing.T) {
-	pop.Debug = true
 	queue := NewAwardQueue(testDB)
 	tspsToMake := 5
 
@@ -326,7 +326,6 @@ func Test_assignTSPsToBands(t *testing.T) {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
 	}
-	pop.Debug = false
 }
 
 func equalSlice(a []int, b []int) bool {
