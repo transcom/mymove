@@ -1,6 +1,16 @@
 import React from 'react';
-import { Route, Redirect } from 'react-router-dom';
+import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
+
+import LoginButton from './LoginButton';
+
+const NotAuthenticated = ({ location }) => (
+  <div>
+    <h3>
+      Please login to access <code>{location.pathname}</code>
+    </h3>
+  </div>
+);
 
 // this was adapted from https://github.com/ReactTraining/react-router/blob/master/packages/react-router-redux/examples/AuthExample.js
 // note that it does not work if the route is not inside a Switch
@@ -15,12 +25,10 @@ class PrivateRouteContainer extends React.Component {
             return <Component {...props} />;
           } else {
             return (
-              <Redirect
-                to={{
-                  pathname: '/',
-                  state: { from: props.location },
-                }}
-              />
+              <div className="usa-grid">
+                <NotAuthenticated location={props.location} />
+                <LoginButton />
+              </div>
             );
           }
         }}
