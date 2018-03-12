@@ -1,29 +1,44 @@
-import React, { Fragment, Component } from 'react';
-import { parse } from 'qs';
+import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
-import LoginButton from 'scenes/Landing/LoginButton';
-
+import LoginButton from 'shared/User/LoginButton';
+import { bindActionCreators } from 'redux';
+import { loadUserAndToken } from 'shared/User/ducks';
+import { push } from 'react-router-redux';
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
+    this.props.loadUserAndToken();
   }
-
+  gotoLegalese = values => {
+    this.props.push(getLegaleseRoute());
+  };
   render() {
-    const location = this.props.location;
-    const query = parse(location.search.substr(1));
-
     return (
       <div className="usa-grid">
-        {query.email && <h1>Welcome {query.email}!</h1>}
-        {!query.email && (
-          <Fragment>
-            <h1>Welcome!</h1>
-            <LoginButton />
-          </Fragment>
+        <h1>Welcome!</h1>
+        <div>
+          <LoginButton />
+        </div>
+        {this.props.isLoggedIn && (
+          <button onClick={this.gotoLegalese}>Start a move</button>
         )}
       </div>
     );
   }
 }
 
-export default Landing;
+function getLegaleseRoute() {
+  //this is a horrible hack until we can get move id from server
+  const moveId = process.env.REACT_APP_MOVE_UUID;
+  return `moves/${moveId}/legalese`;
+}
+
+const mapStateToProps = state => ({
+  isLoggedIn: state.user.isLoggedIn,
+});
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ push, loadUserAndToken }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Landing);
