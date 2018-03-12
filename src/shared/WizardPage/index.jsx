@@ -1,5 +1,8 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 
 import {
   getNextPagePath,
@@ -8,7 +11,7 @@ import {
   isLastPage,
 } from './utils';
 
-class WizardPage extends Component {
+export class WizardPage extends Component {
   constructor(props) {
     super(props);
     this.nextPage = this.nextPage.bind(this);
@@ -19,17 +22,17 @@ class WizardPage extends Component {
   }
 
   nextPage() {
-    const { pageList, pageKey, history } = this.props;
+    const { pageList, pageKey, push } = this.props;
     const path = getNextPagePath(pageList, pageKey);
-    // history comes from react router: doing this moves to the route at path
-    history.push(path);
+    // comes from react router redux: doing this moves to the route at path
+    push(path);
   }
 
   previousPage() {
-    const { pageList, pageKey, history } = this.props;
+    const { pageList, pageKey, push } = this.props;
     const path = getPreviousPagePath(pageList, pageKey);
-    // history comes from react router: doing this moves to the route at path
-    history.push(path);
+    // push comes from react router redux : doing this moves to the route at path
+    push(path);
   }
 
   render() {
@@ -68,6 +71,11 @@ WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
+  push: PropTypes.func,
 };
 
-export default WizardPage;
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ push }, dispatch);
+}
+
+export default connect(null, mapDispatchToProps)(WizardPage);
