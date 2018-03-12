@@ -27,6 +27,10 @@ has python3.6 "(assuming you're using pyenv) pyenv install 3.6.2"
 # macOS only
 if [[ $(uname -s) = Darwin ]]; then
     has watchman "brew install watchman"
+fi
+
+# not on CircleCI
+if [[ -z $CIRCLECI ]]; then
     has direnv "brew install direnv"
 fi
 
