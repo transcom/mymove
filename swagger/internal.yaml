@@ -133,11 +133,15 @@ paths:
             $ref: '#/definitions/CreateMovePayload'
       responses:
         201:
-          description: created move
+          description: created instance of move
           schema:
             $ref: '#/definitions/MovePayload'
         400:
           description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID

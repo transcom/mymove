@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"github.com/gorilla/context"
 	"github.com/markbates/pop"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -36,17 +35,21 @@ func NewCreateMoveHandler(db *pop.Connection, logger *zap.Logger) CreateMoveHand
 	}
 }
 
-// CreateMoveHandler creates a new Move from a request payload
+// Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
+	var response middleware.Responder
 	// Get user id from context
-	fmt.Println("HIT IT")
-	fmt.Println("!!!", params.HTTPRequest)
-	//fmt.Println("CONTEXT", context.GetAll(params.Ht))
-	fmt.Println(context.GetAll(params.HTTPRequest))
+	fmt.Println("HIT create move handler")
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewCreateMoveUnauthorized()
+		return response
+	}
+	fmt.Println(user)
+
 	//newMove := models.Move{
 	//	SelectedMoveType:  *params.CreateMovePayload.SelectedMoveType,
 	//}
-	var response middleware.Responder
 	//if _, err := h.db.ValidateAndCreate(&newMove); err != nil {
 	//	h.logger.Error("DB Insertion", zap.Error(err))
 	//	response = moveop.NewCreateMoveBadRequest()
