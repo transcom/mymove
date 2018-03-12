@@ -51,7 +51,7 @@ export class DemoWorkflow extends Component {
       );
 
     const CurrentForm = reduxifyForm('DD1299');
-
+    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     return (
       <Fragment>
         <WizardPage
@@ -59,8 +59,10 @@ export class DemoWorkflow extends Component {
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
+          pageIsValid={isValid}
         >
           <CurrentForm
+            ref="currentForm"
             className="usa-width-one-whole"
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
