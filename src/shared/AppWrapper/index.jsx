@@ -21,6 +21,13 @@ const redirect = pathname => () => (
     }}
   />
 );
+const NoMatch = ({ location }) => (
+  <div>
+    <h3>
+      No match for <code>{location.pathname}</code>
+    </h3>
+  </div>
+);
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
     <div className="App site">
@@ -37,6 +44,7 @@ const AppWrapper = () => (
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />
           {DemoWorkflowRoutes()}
+          <Route component={NoMatch} />
         </Switch>
       </main>
       <Footer />
