@@ -1,5 +1,7 @@
 *.swp
 
+.envrc
+
 # dependencies
 /vendor
 /node_modules
