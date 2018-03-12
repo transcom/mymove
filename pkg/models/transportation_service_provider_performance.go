@@ -12,7 +12,7 @@ import (
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"go.uber.org/zap"
+	//"go.uber.org/zap"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -79,7 +79,7 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be awarded a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, awardDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -90,25 +90,27 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 			traffic_distribution_list_id = $1
 			AND
 			quality_band = $2
+			AND
+			$3 BETWEEN performance_period_start AND performance_period_end
 		ORDER BY
 			award_count ASC,
 			best_value_score DESC
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, awardDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, awardDate)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
-			zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
+			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
 		} else {
 			tspPerformances[qualityBand] = tspPerformance
 		}
@@ -120,9 +122,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID) (map
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, awardDate)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
@@ -213,6 +215,5 @@ func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid
 	} else if validationErr.HasAny() {
 		return fmt.Errorf("Validation failure: %s", validationErr)
 	}
-	fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards\n", tspPerformance.AwardCount)
 	return nil
 }

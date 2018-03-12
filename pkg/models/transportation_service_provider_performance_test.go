@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/go-openapi/swag"
 	"github.com/satori/go.uuid"
+
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -108,24 +109,24 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 // Test_FetchNextQualityBandTSPPerformance ensures that the TSP with the highest BVS is returned in the expected band
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
+
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+
 	// TSPs should be orderd by award_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	tsp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1)
+	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod)
 
 	if err != nil {
-		t.Errorf("Failed to find TSP: %v", err)
-	} else if tsp.TransportationServiceProviderID != tsp2.ID {
-		t.Errorf("Incorrect TSP returned.\n"+
-			"\tExpected: %s \nFound: %s",
-			tsp2.ID,
-			tsp.TransportationServiceProviderID)
+		t.Errorf("Failed to find TSPPerformance: %v", err)
+	} else if tspp.TransportationServiceProviderID != tsp2.ID {
+		t.Errorf("TSPPerformance for wrong TSP returned: expected %s, got %s",
+			tsp2.ID, tspp.TransportationServiceProviderID)
 	}
 }
 
@@ -304,8 +305,10 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
-	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID)
+	date := testdatagen.DateInsidePerformancePeriod
+	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, date)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp3.ID, tsp4.ID, tsp5.ID}
+
 	actualTSPorder := []uuid.UUID{
 		tsps[1].TransportationServiceProviderID,
 		tsps[2].TransportationServiceProviderID,

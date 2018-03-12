@@ -53,3 +53,10 @@ func (m *Move) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// GetMoveByID fetches a Move model by their database ID
+func GetMoveByID(db *pop.Connection, id uuid.UUID) (Move, error) {
+	move := Move{}
+	err := db.Find(&move, id)
+	return move, err
+}

@@ -138,13 +138,12 @@ paths:
             $ref: '#/definitions/MovePayload'
         400:
           description: invalid request
-  /moves/{moveId}/sign_certification:
+  /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID
       operationId: createSignedCertification
       tags:
-        - moves
         - certification
       parameters:
         - in: path
@@ -157,7 +156,7 @@ paths:
           name: createSignedCertificationPayload
           required: true
           schema:
-            $ref: '#/definitions/SignedCertificationPayload'
+            $ref: '#/definitions/CreateSignedCertificationPayload'
       responses:
         201:
           description: created instance of signed_certification
@@ -214,14 +213,16 @@ definitions:
     - selected_move_type
     - created_at
     - updated_at
-  SignedCertificationPayload:
+  CreateSignedCertificationPayload:
     type: object
     properties:
       date:
         type: string
         format: date
+        title: Date
       signature:
         type: string
+        title: Signature
       certification_text:
         type: string
     required:

@@ -3,6 +3,7 @@ package awardqueue
 import (
 	"fmt"
 	"os"
+	"strings"
 	"testing"
 	"time"
 
@@ -15,12 +16,94 @@ import (
 
 var testDB *pop.Connection
 
+func TestCheckAllTSPsBlackedOut(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+
+	tsp, err := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
+	tdl, err := testdatagen.MakeTDL(testDB, "Oklahoma", "62240", "5")
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
+	blackoutStartDate := time.Now()
+	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
+	testdatagen.MakeBlackoutDate(testDB, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil, nil, nil)
+
+	pickupDate := blackoutStartDate.Add(time.Hour)
+	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
+	shipment, _ := testdatagen.MakeShipment(testDB, pickupDate, deliverDate, tdl)
+
+	// Create a PossiblyAwardedShipment to feed the award queue
+	pas := models.PossiblyAwardedShipment{
+		ID: shipment.ID,
+		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      pickupDate,
+		TransportationServiceProviderID: nil,
+		Accepted:                        nil,
+		RejectionReason:                 nil,
+		AdministrativeShipment:          swag.Bool(false),
+		AwardDate:                       testdatagen.DateInsidePerformancePeriod,
+	}
+
+	// Run the Award Queue
+	award, err := queue.attemptShipmentAward(pas)
+
+	expectedError := "Could not find a TSP without blackout dates"
+	// See if shipment was awarded
+	if err == nil || award != nil {
+		t.Errorf("Shipment was awarded to a blacked out TSP!")
+	} else if !strings.Contains(err.Error(), expectedError) {
+		t.Errorf("Did not receive proper error message. Expected '%s', got '%s' instead.", expectedError, err)
+	}
+}
+
+func TestCheckTSPBlackoutDates(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+	// Creates a TSP and TDL with a blackout date connected to both.
+	testTSP1, _ := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
+	testTDL, _ := testdatagen.MakeTDL(testDB, "Oklahoma", "62240", "5")
+	testStartDate := time.Now()
+	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
+	testdatagen.MakeBlackoutDate(testDB, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil, nil, nil)
+
+	// Two pickup times to check with CheckTSPBlackoutDates
+	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
+	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
+
+	// One TSP with no blackout dates
+	testTSP2, _ := testdatagen.MakeTSP(testDB, "A Spotless TSP", "PORK")
+
+	// Checks a date that falls within the blackout date range; returns true.
+	test1, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateBetween)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if !test1 {
+		t.Errorf("Expected true, got false instead.")
+	}
+
+	// Checks a date that falls after the blackout date range; returns false.
+	test2, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateAfter)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if test2 {
+		t.Errorf("Expected false, got true instead.")
+	}
+
+	// Checks a TSP with no blackout dates and returns false.
+	test3, err := queue.CheckTSPBlackoutDates(testTSP2.ID, testPickupDateAfter)
+
+	if err != nil {
+		t.Fatal(err)
+	} else if test3 {
+		t.Errorf("Expected false, got true instead.")
+	}
+}
+
 func TestFindAllUnawardedShipments(t *testing.T) {
 	queue := NewAwardQueue(testDB)
 	_, err := queue.findAllUnawardedShipments()
 
 	if err != nil {
-		t.Fatal("Unable to find shipments: ", err)
+		t.Error("Unable to find shipments: ", err)
 	}
 }
 
@@ -41,10 +124,12 @@ func TestAwardSingleShipment(t *testing.T) {
 	pas := models.PossiblyAwardedShipment{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      time.Now(),
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
+		AwardDate:                       shipment.AwardDate,
 	}
 
 	// Run the Award Queue
@@ -53,8 +138,7 @@ func TestAwardSingleShipment(t *testing.T) {
 	// See if shipment was awarded
 	if err != nil {
 		t.Errorf("Shipment award expected no errors, received: %v", err)
-	}
-	if award == nil {
+	} else if award == nil {
 		t.Error("ShipmentAward was not found.")
 	}
 }
@@ -72,6 +156,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 	pas := models.PossiblyAwardedShipment{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
+		PickupDate:                      time.Now(),
 		TransportationServiceProviderID: nil,
 		AdministrativeShipment:          swag.Bool(false),
 	}
@@ -84,7 +169,7 @@ func TestFailAwardingSingleShipment(t *testing.T) {
 		t.Errorf("Shipment award expected an error, received none.")
 	}
 	if award != nil {
-		t.Error("ShipmentAward was created, expected 'nil'.")
+		t.Errorf("Wrong return value, expected nil, got %v", award)
 	}
 }
 
@@ -206,7 +291,6 @@ func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 }
 
 func Test_assignTSPsToBands(t *testing.T) {
-	pop.Debug = true
 	queue := NewAwardQueue(testDB)
 	tspsToMake := 5
 
@@ -242,7 +326,6 @@ func Test_assignTSPsToBands(t *testing.T) {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
 	}
-	pop.Debug = false
 }
 
 func equalSlice(a []int, b []int) bool {
