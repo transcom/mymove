@@ -40,3 +40,26 @@ func (suite *ModelSuite) TestOptionalProperty() {
 		t.Error("Somehow got a valid name back")
 	}
 }
+
+func (suite *ModelSuite) TestIssueValidations() {
+	issue := &Issue{}
+
+	expErrors := map[string][]string{
+		"description":   []string{"Description can not be blank."},
+		"reporter_name": []string{"ReporterName can not be blank."},
+	}
+
+	suite.verifyValidationErrors(issue, expErrors)
+
+	empty := ""
+	issue.ReporterName = &empty
+	suite.verifyValidationErrors(issue, expErrors)
+
+	phebe := "Phebe"
+	issue.ReporterName = &phebe
+	expErrors = map[string][]string{
+		"description": []string{"Description can not be blank."},
+	}
+
+	suite.verifyValidationErrors(issue, expErrors)
+}
