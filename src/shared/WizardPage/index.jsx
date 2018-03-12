@@ -33,7 +33,13 @@ class WizardPage extends Component {
   }
 
   render() {
-    const { handleSubmit, pageKey, pageList, children } = this.props;
+    const {
+      handleSubmit,
+      pageKey,
+      pageList,
+      pageIsValid,
+      children,
+    } = this.props;
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">{children}</div>
@@ -53,7 +59,9 @@ class WizardPage extends Component {
         </div>
         <div className="usa-width-one-third">
           {!isLastPage(pageList, pageKey) && (
-            <button onClick={this.nextPage}>Next</button>
+            <button onClick={this.nextPage} disabled={!pageIsValid}>
+              Next
+            </button>
           )}
           {isLastPage(pageList, pageKey) && (
             <button onClick={handleSubmit}>Complete</button>
@@ -68,6 +76,9 @@ WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
+  pageIsValid: PropTypes.bool,
 };
-
+WizardPage.defaultProps = {
+  pageIsValid: true,
+};
 export default WizardPage;

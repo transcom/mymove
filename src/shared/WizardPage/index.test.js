@@ -5,6 +5,56 @@ describe('given a WizardPage', () => {
   let wrapper, buttons, history;
   const pageList = ['1', '2', '3'];
   const submit = jest.fn();
+  describe('when there is a pageIsValid prop set', () => {
+    describe('when pageIsValid is false', () => {
+      beforeEach(() => {
+        history = [];
+        const continueToNextPage = false;
+
+        wrapper = shallow(
+          <WizardPage
+            handleSubmit={submit}
+            pageList={pageList}
+            pageKey="1"
+            history={history}
+            pageIsValid={continueToNextPage}
+          >
+            <div>This is page 1</div>
+          </WizardPage>,
+        );
+        buttons = wrapper.find('button');
+      });
+      it('the next button is last and is disabled', () => {
+        const nextButton = buttons.last();
+        expect(nextButton.text()).toBe('Next');
+        expect(nextButton.prop('disabled')).toBeTruthy();
+      });
+    });
+    describe('when pageIsValid is true', () => {
+      beforeEach(() => {
+        history = [];
+        const continueToNextPage = true;
+
+        wrapper = shallow(
+          <WizardPage
+            handleSubmit={submit}
+            pageList={pageList}
+            pageKey="1"
+            history={history}
+            pageIsValid={continueToNextPage}
+          >
+            <div>This is page 1</div>
+          </WizardPage>,
+        );
+        buttons = wrapper.find('button');
+      });
+      it('the next button is last and is enabled', () => {
+        const nextButton = buttons.last();
+        expect(nextButton.text()).toBe('Next');
+        expect(nextButton.prop('disabled')).toBeFalsy();
+      });
+    });
+  });
   describe('when on the first page', () => {
     beforeEach(() => {
       history = [];
