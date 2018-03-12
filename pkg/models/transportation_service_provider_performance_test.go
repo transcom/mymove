@@ -36,7 +36,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
 
 	err := IncrementTSPPerformanceAwardCount(suite.db, perf.ID)
 	if err != nil {
-		t.Fatalf("Could not increament award_count: %v", err)
+		t.Fatalf("Could not increment award_count: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}

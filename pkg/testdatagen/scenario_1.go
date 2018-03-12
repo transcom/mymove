@@ -21,11 +21,11 @@ func RunScenarioOne(db *pop.Connection) {
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
-	tsp1, _ := MakeTSP(db, "Test TSP Quality Band 1", "TSP1")
-	tsp2, _ := MakeTSP(db, "Test TSP Quality Band 1", "TSP2")
-	tsp3, _ := MakeTSP(db, "Test TSP Quality Band 2", "TSP3")
-	tsp4, _ := MakeTSP(db, "Test TSP Quality Band 3", "TSP4")
-	tsp5, _ := MakeTSP(db, "Test TSP Quality Band 4", "TSP5")
+	tsp1, _ := MakeTSP(db, "Excellent TSP", "TSP1")
+	tsp2, _ := MakeTSP(db, "Pretty Good TSP", "TSP2")
+	tsp3, _ := MakeTSP(db, "Good TSP", "TSP3")
+	tsp4, _ := MakeTSP(db, "OK TSP", "TSP4")
+	tsp5, _ := MakeTSP(db, "Bad TSP", "TSP5")
 
 	// TSPs should be orderd by award_count first, then BVS.
 	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
