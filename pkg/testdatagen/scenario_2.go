@@ -51,10 +51,10 @@ func RunScenarioTwo(db *pop.Connection) {
 	// Add blackout dates
 	blackoutStart := shipmentDate.AddDate(0, 0, -3)
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)
-	cos := "BKAS"
+	cos := "2"
 	channel := "CONUS_CONUS"
-	gbloc := "dHHG"
-	market := "market"
+	gbloc := "BKAS"
+	market := "dHHG"
 	MakeBlackoutDate(db,
 		tsp1,
 		blackoutStart,

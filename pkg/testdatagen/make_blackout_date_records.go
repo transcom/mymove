@@ -53,10 +53,10 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		fmt.Println("TDL ID import failed.")
 	}
 
-	cos := "BKAS"
+	cos := "2"
 	channel := "CONUS_CONUS"
-	gbloc := "dHHG"
-	market := "market"
+	gbloc := "BKAS"
+	market := "dHHG"
 
 	// Make a blackout date with market and channel.
 	MakeBlackoutDate(db,

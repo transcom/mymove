@@ -32,6 +32,8 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 }
 
 // MakeTSPPerformanceData creates three best value score records
+// Variable rounds describes how many rounds should have already been awarded
+// `none` indicates no rounds have been awarded, `half` indicates half a round, and `full` a full round.
 func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
