@@ -122,7 +122,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	okResponse := indexResponse.(*moveop.IndexMovesOK)
 	moves := okResponse.Payload
 
-	// And: Returned query to include our posted issue
+	// And: Returned query to include our added move
 	moveExists := false
 	for _, move := range moves {
 		if move.UserID.String() == user.ID.String() {

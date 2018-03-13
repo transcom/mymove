@@ -67,7 +67,6 @@ func NewIndexMovesHandler(db *pop.Connection, logger *zap.Logger) IndexMovesHand
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
-	var moves models.Moves
 	var response middleware.Responder
 
 	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
@@ -76,8 +75,8 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 		return response
 	}
 
-	query := h.db.Where("user_id = ?", user.ID)
-	if err := query.All(&moves); err != nil {
+	moves, err := models.GetMovesForUserID(h.db, user.ID)
+	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		response = moveop.NewIndexMovesBadRequest()
 	} else {
