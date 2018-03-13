@@ -12,6 +12,7 @@ import Legalese from 'scenes/Legalese';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
+import MoveRoutes from 'scenes/Moves/routes';
 import PrivateRoute from 'shared/User/PrivateRoute';
 
 const redirect = pathname => () => (
@@ -44,6 +45,7 @@ const AppWrapper = () => (
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />
           {DemoWorkflowRoutes()}
+          {MoveRoutes()}
           <Route component={NoMatch} />
         </Switch>
       </main>
