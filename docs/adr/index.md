@@ -22,7 +22,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0013](0013-rest-api-updates.md) - REST API Updates
 - [ADR-0015](0015-session-storage.md) - Session storage/handling
 - [ADR-0017](0017-react-router-redux-authentication.md) - Client side route restriction based on authentication
-- [ADR-0019](0019-optional-field-interop.md) - Optional Field Interop
+- [ADR-0018](0018-optional-field-interop.md) - Optional Field Interop
 
 <!-- adrlogstop -->
 
