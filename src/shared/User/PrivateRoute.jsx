@@ -5,10 +5,11 @@ import { connect } from 'react-redux';
 import LoginButton from './LoginButton';
 
 const NotAuthenticated = ({ location }) => (
-  <div>
+  <div className="usa-grid">
     <h3>
       Please login to access <code>{location.pathname}</code>
     </h3>
+    <LoginButton />
   </div>
 );
 
@@ -16,24 +17,9 @@ const NotAuthenticated = ({ location }) => (
 // note that it does not work if the route is not inside a Switch
 class PrivateRouteContainer extends React.Component {
   render() {
-    const { isLoggedIn, component: Component, ...props } = this.props;
-    return (
-      <Route
-        {...props}
-        render={props => {
-          if (isLoggedIn) {
-            return <Component {...props} />;
-          } else {
-            return (
-              <div className="usa-grid">
-                <NotAuthenticated location={props.location} />
-                <LoginButton />
-              </div>
-            );
-          }
-        }}
-      />
-    );
+    const { isLoggedIn, path, ...props } = this.props;
+    if (isLoggedIn) return <Route {...props} />;
+    else return <Route path={path} component={NotAuthenticated} />;
   }
 }
 const mapStateToProps = state => ({
