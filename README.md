@@ -109,6 +109,13 @@ The following commands will get mymove running on your machine for the first tim
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time!_
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
+* For managing local environment variables, we're using [direnv](https://direnv.net/). After installing it via brew install, which you should have been prompted to do by running `./bin/prereqs` above, add the code below to your `.bashrc`. Then, copy the `example_envrc` file to `.envrc`.  Note: You will need to run any debuggers (e.g. delve or golang) from the project directory.
+
+```bash
+if command -v direnv >/dev/null; then
+    eval "$(direnv hook bash)"
+fi
+```
 
 ### Setup: Database
 
