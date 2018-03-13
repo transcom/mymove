@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
-
+	// Then: we expect no moves to have been created
 	moves := []models.Move{}
 	suite.db.All(&moves)
 

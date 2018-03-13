@@ -68,6 +68,7 @@ func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipm
 				shipments.id,
 				shipments.award_date,
 				shipments.traffic_distribution_list_id,
+				shipments.pickup_date,
 				shipment_awards.transportation_service_provider_id
 			FROM shipments
 			LEFT JOIN shipment_awards ON
