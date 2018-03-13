@@ -180,9 +180,11 @@ definitions:
         enum:
         - HHG
         - PPM
+        - COMBO
         x-display-value:
           HHG: Household Goods Move
           PPM: Personal Property Move
+          COMBO: Both HHG and PPM
         title: Selected Move Type
    required:
     - selected_move_type
@@ -202,9 +204,11 @@ definitions:
        enum:
        - HHG
        - PPM
+       - COMBO
        x-display-value:
          HHG: Household Goods Move
          PPM: Personal Property Move
+         COMBO: Both HHG and PPM
      created_at:
        type: string
        format: date-time

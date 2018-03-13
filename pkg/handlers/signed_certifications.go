@@ -40,7 +40,6 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		return response
 	}
 
-	// TODO: Get move from user
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
 		response = certop.NewCreateSignedCertificationUnauthorized()

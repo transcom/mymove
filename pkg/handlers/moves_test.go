@@ -61,14 +61,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 
 func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
 	t := suite.T()
-	// Given: a user without authentication values in context
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  userUUID,
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
+	// Given: no authentication values in context
 	// When: a new Move is posted
 	movePayload := internalmessages.CreateMovePayload{
 		SelectedMoveType: swag.String("HHG"),
