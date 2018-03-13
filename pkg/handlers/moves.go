@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/markbates/pop"
@@ -11,12 +10,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func payloadForMoveModel(move models.Move) internalmessages.MovePayload {
+func payloadForMoveModel(user models.User, move models.Move) internalmessages.MovePayload {
 	movePayload := internalmessages.MovePayload{
 		CreatedAt:        fmtDateTime(move.CreatedAt),
 		SelectedMoveType: swag.String(move.SelectedMoveType),
 		ID:               fmtUUID(move.ID),
 		UpdatedAt:        fmtDateTime(move.UpdatedAt),
+		UserID:           fmtUUID(user.ID),
 	}
 	return movePayload
 }
@@ -39,24 +39,27 @@ func NewCreateMoveHandler(db *pop.Connection, logger *zap.Logger) CreateMoveHand
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	var response middleware.Responder
 	// Get user id from context
-	fmt.Println("HIT create move handler")
 	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
 	if err != nil {
 		response = moveop.NewCreateMoveUnauthorized()
 		return response
 	}
-	fmt.Println(user)
 
-	//newMove := models.Move{
-	//	SelectedMoveType:  *params.CreateMovePayload.SelectedMoveType,
-	//}
-	//if _, err := h.db.ValidateAndCreate(&newMove); err != nil {
-	//	h.logger.Error("DB Insertion", zap.Error(err))
-	//	response = moveop.NewCreateMoveBadRequest()
-	//} else {
-	//	movePayload := payloadForMoveModel(newMove)
-	//	response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
-	//
-	//}
+	// Create a new move for an authenticated user
+	newMove := models.Move{
+		UserID:           user.ID,
+		SelectedMoveType: *params.CreateMovePayload.SelectedMoveType,
+	}
+	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
+		if verrs.HasAny() {
+			h.logger.Error("DB Validation", zap.Error(verrs))
+		} else {
+			h.logger.Error("DB Insertion", zap.Error(err))
+		}
+		response = moveop.NewCreateMoveBadRequest()
+	} else {
+		movePayload := payloadForMoveModel(user, newMove)
+		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
+	}
 	return response
 }

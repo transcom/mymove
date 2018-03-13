@@ -181,8 +181,8 @@ definitions:
         - HHG
         - PPM
         x-display-value:
-          PERMANENT: Household Goods Move
-          TEMPORARY: Personal Property Move
+          HHG: Household Goods Move
+          PPM: Personal Property Move
         title: Selected Move Type
    required:
     - selected_move_type
@@ -203,8 +203,8 @@ definitions:
        - HHG
        - PPM
        x-display-value:
-         PERMANENT: Household Goods Move
-         TEMPORARY: Personal Property Move
+         HHG: Household Goods Move
+         PPM: Personal Property Move
      created_at:
        type: string
        format: date-time
