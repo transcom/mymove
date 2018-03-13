@@ -27,13 +27,13 @@ export default () => {
     '/moves/:moveId/ppm-size': { render: stub },
     '/moves/:moveId/ppm-incentive': { render: stub },
     '/moves/:moveId/agreement': {
-      render: (key, pages) => () => (
+      render: (key, pages) => ({ match }) => (
         <WizardPage
           handleSubmit={() => undefined}
           pageList={pages}
           pageKey={key}
         >
-          <Agreement />
+          <Agreement match={match} />
         </WizardPage>
       ),
     },
