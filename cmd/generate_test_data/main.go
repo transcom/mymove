@@ -15,8 +15,8 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	rounds := flag.String("rounds", "none", "Choose none (no awards), full (1 full round of awards), or half (partial round of awards)")
 	numTSP := flag.Int("numTSP", 15, "The number of TSPs you'd like to create")
-	scenarioOne := flag.Bool("scenarioOne", false, "To run test data generation scenario 1.")
-	scenarioTwo := flag.Bool("scenarioTwo", false, "To run test data generation scenario 2.")
+	scenario := flag.Int("scenario", 1, "Specify which scenario you'd like to run. Current options: 1, 2.")
+	// scenarioTwo := flag.Bool("scenarioTwo", false, "To run test data generation scenario 2.")
 	flag.Parse()
 
 	//DB connection
@@ -26,9 +26,9 @@ func main() {
 		log.Panic(err)
 	}
 
-	if *scenarioOne == true {
+	if *scenario == 1 {
 		testdatagen.RunScenarioOne(db)
-	} else if *scenarioTwo == true {
+	} else if *scenario == 2 {
 		testdatagen.RunScenarioTwo(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
