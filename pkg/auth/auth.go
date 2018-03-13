@@ -230,7 +230,7 @@ type AuthorizationRedirectHandler AuthorizationContext
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	_, ok := context.GetIDToken(r.Context())
-	if !ok {
+	if ok {
 		// User is already authed, redirect to landing page
 		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return

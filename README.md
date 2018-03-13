@@ -109,6 +109,13 @@ The following commands will get mymove running on your machine for the first tim
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time!_
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
+* For managing local environment variables, we're using [direnv](https://direnv.net/). After installing it via brew install, which you should have been prompted to do by running `./bin/prereqs` above, add the code below to your `.bashrc`. Then, copy the `example_envrc` file to `.envrc`.  Note: You will need to run any debuggers (e.g. delve or golang) from the project directory.
+
+```bash
+if command -v direnv >/dev/null; then
+    eval "$(direnv hook bash)"
+fi
+```
 
 ### Setup: Database
 
@@ -152,7 +159,7 @@ This background job is built as a separate binary which can be built using
 When creating new features, it is helpful to have sample data for the feature to interact with. The TSP Award Queue is an example of that--it matches shipments to TSPs, and it's hard to tell if it's working without some shipments and TSPs in the database!
 
 * `make tools_build` will build the fake data generator binary
-* `bin/generate_test_data` will run binary and create a preconfigured set of test data.
+* `bin/generate_test_data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`. If you'd like to further specify how the data should look, you can specify the number of awards for each TSP performance by use the flag `rounds` with one of three arguments: 'none', 'half', and 'full'. This will create the TSP performance records with either no rounds of awards completed, half a round, or a full round. It will default to none if not specified. To specify how many TSPs should be created, use the flag `numTSP`. It will default to 15 if not specified. A sample command: `./bin/generate-test-data -rounds=half -numTSP=6`. You can use the `numTSP` and `rounds` in conjunction, but you cannot use them with the pre-packaged scenarios.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
 
