@@ -22,7 +22,7 @@ const redirect = pathname => () => (
   />
 );
 const NoMatch = ({ location }) => (
-  <div>
+  <div className="usa-grid">
     <h3>
       No match for <code>{location.pathname}</code>
     </h3>
