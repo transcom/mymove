@@ -177,13 +177,15 @@ func UserAuthMiddleware(logger *zap.Logger, secret string) func(next http.Handle
 	}
 }
 
-type AuthContext struct {
+// AuthenticationContext is the common handler type for auth handlers
+type AuthenticationContext struct {
 	hostname string
 	logger   *zap.Logger
 }
 
-func NewAuthContext(hostname string, logger *zap.Logger) AuthContext {
-	context := AuthContext{
+// NewAuthContext creates an AuthenticationContext
+func NewAuthContext(hostname string, logger *zap.Logger) AuthenticationContext {
+	context := AuthenticationContext{
 		hostname: hostname,
 		logger:   logger,
 	}
@@ -191,7 +193,7 @@ func NewAuthContext(hostname string, logger *zap.Logger) AuthContext {
 }
 
 // AuthorizationLogoutHandler handles logging the user out of login.gov
-type AuthorizationLogoutHandler AuthContext
+type AuthorizationLogoutHandler AuthenticationContext
 
 func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
@@ -223,7 +225,7 @@ func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 }
 
 // AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler AuthContext
+type AuthorizationRedirectHandler AuthenticationContext
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
