@@ -24,8 +24,9 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	suite.mustSave(&user)
 
 	// When: a new Move is posted
+	selectedType := swag.String("HHG")
 	newMovePayload := internalmessages.CreateMovePayload{
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: selectedType,
 	}
 	req := httptest.NewRequest("GET", "/moves", nil)
 
@@ -48,7 +49,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	}
 
 	// Then: we expect a move to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID)).Where("selected_move_type='HHG'")
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID)).Where(fmt.Sprintf("selected_move_type='%v'", *selectedType))
 	moves := []models.Move{}
 	query.All(&moves)
 
@@ -56,4 +57,40 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 		t.Errorf("Expected to find 1 move but found %v", len(moves))
 	}
 
+}
+
+func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
+	t := suite.T()
+	// Given: a user without authentication values in context
+	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  userUUID,
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// When: a new Move is posted
+	movePayload := internalmessages.CreateMovePayload{
+		SelectedMoveType: swag.String("HHG"),
+	}
+	req := httptest.NewRequest("GET", "/moves", nil)
+	params := moveop.CreateMoveParams{
+		CreateMovePayload: &movePayload,
+		HTTPRequest:       req,
+	}
+
+	handler := NewCreateMoveHandler(suite.db, suite.logger)
+	response := handler.Handle(params)
+
+	_, ok := response.(*moveop.CreateMoveUnauthorized)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	moves := []models.Move{}
+	suite.db.All(&moves)
+
+	if len(moves) > 0 {
+		t.Errorf("Expected to find no moves but found %v", len(moves))
+	}
 }
