@@ -29,6 +29,11 @@ if [[ $(uname -s) = Darwin ]]; then
     has watchman "brew install watchman"
 fi
 
+# not on CircleCI
+if [[ -z $CIRCLECI ]]; then
+    has direnv "brew install direnv"
+fi
+
 has node "test"
 
 if [[ $prereqs_found == "true" ]]; then
