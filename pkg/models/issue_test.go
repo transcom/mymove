@@ -45,14 +45,17 @@ func (suite *ModelSuite) TestIssueValidations() {
 	issue := &Issue{}
 
 	expErrors := map[string][]string{
-		"description":   []string{"Description can not be blank."},
-		"reporter_name": []string{"ReporterName can not be blank."},
+		"description": []string{"Description can not be blank."},
 	}
 
 	suite.verifyValidationErrors(issue, expErrors)
 
 	empty := ""
 	issue.ReporterName = &empty
+	expErrors = map[string][]string{
+		"description":   []string{"Description can not be blank."},
+		"reporter_name": []string{"ReporterName can not be blank."},
+	}
 	suite.verifyValidationErrors(issue, expErrors)
 
 	phebe := "Phebe"

@@ -8,14 +8,15 @@ import (
 	"github.com/markbates/validate/validators"
 )
 
-type OptionalStringIsPresent struct {
+// StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
+type StringIsNilOrNotBlank struct {
 	Name  string
 	Field *string
 }
 
-func (v *OptionalStringIsPresent) IsValid(errors *validate.Errors) {
+// IsValid adds an error if the pointer is not nil and also an empty string.
+func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 	if v.Field == nil {
-		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 		return
 	}
 	if strings.TrimSpace(*v.Field) == "" {
