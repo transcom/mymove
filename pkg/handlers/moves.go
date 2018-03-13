@@ -50,3 +50,43 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	}
 	return response
 }
+
+// IndexMovesHandler returns a list of all moves
+type IndexMovesHandler struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
+
+// NewIndexMovesHandler returns a new IndexMovesHandler
+func NewIndexMovesHandler(db *pop.Connection, logger *zap.Logger) IndexMovesHandler {
+	return IndexMovesHandler{
+		db:     db,
+		logger: logger,
+	}
+}
+
+// Handle retrieves a list of all moves in the system belonging to the logged in user
+func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
+	var moves models.Moves
+	var response middleware.Responder
+
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewIndexMovesUnauthorized()
+		return response
+	}
+
+	query := h.db.Where("user_id = ?", user.ID)
+	if err := query.All(&moves); err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = moveop.NewIndexMovesBadRequest()
+	} else {
+		movePayloads := make(internalmessages.IndexMovesPayload, len(moves))
+		for i, move := range moves {
+			movePayload := payloadForMoveModel(user, move)
+			movePayloads[i] = &movePayload
+		}
+		response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
+	}
+	return response
+}
