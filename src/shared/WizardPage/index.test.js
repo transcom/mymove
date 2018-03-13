@@ -14,6 +14,7 @@ describe('given a WizardPage', () => {
           pageList={pageList}
           pageKey="1"
           push={mockPush}
+          match={{}}
         >
           <div>This is page 1</div>
         </WizardPage>,
@@ -65,6 +66,7 @@ describe('given a WizardPage', () => {
           pageList={pageList}
           pageKey="2"
           push={mockPush}
+          match={{}}
         >
           <div>This is page 2</div>
         </WizardPage>,
@@ -124,6 +126,7 @@ describe('given a WizardPage', () => {
           pageList={pageList}
           pageKey="3"
           push={mockPush}
+          match={{}}
         >
           <div>This is page 3</div>
         </WizardPage>,

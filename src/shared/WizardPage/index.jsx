@@ -26,7 +26,6 @@ export class WizardPage extends Component {
   nextPage() {
     const { pageList, pageKey, push, match: { params } } = this.props;
     const path = getNextPagePath(pageList, pageKey);
-    console.log(params);
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, params));
   }
