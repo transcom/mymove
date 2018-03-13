@@ -125,7 +125,7 @@ paths:
       description: Create an instance of signed_certification tied to the move ID
       operationId: createSignedCertification
       tags:
-        - certification
+        - certifications
       parameters:
         - in: path
           name: moveId

@@ -7,7 +7,7 @@ import (
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
-	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certifications"
 	"github.com/transcom/mymove/pkg/models"
 )
 

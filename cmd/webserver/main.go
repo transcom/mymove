@@ -83,6 +83,8 @@ func main() {
 		log.Panic(err)
 	}
 
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
@@ -90,8 +92,8 @@ func main() {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = handlers.NewTSPIndexHandler(dbConnection, logger)
-	publicAPI.TspShipmentsHandler = handlers.NewTSPShipmentsHandler(dbConnection, logger)
+	publicAPI.TspsIndexTSPsHandler = handlers.TSPIndexHandler(handlerContext)
+	publicAPI.ShipmentsTspShipmentsHandler = handlers.TSPShipmentsHandler(handlerContext)
 
 	// Wire up the handlers to the internalSwaggerMux
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
@@ -100,8 +102,6 @@ func main() {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-
 	internalAPI.IssuesCreateIssueHandler = handlers.CreateIssueHandler(handlerContext)
 	internalAPI.IssuesIndexIssuesHandler = handlers.IndexIssuesHandler(handlerContext)
 
@@ -109,7 +109,7 @@ func main() {
 	internalAPI.Form1299sIndexForm1299sHandler = handlers.IndexForm1299sHandler(handlerContext)
 	internalAPI.Form1299sShowForm1299Handler = handlers.ShowForm1299Handler(handlerContext)
 
-	internalAPI.CertificationCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
+	internalAPI.CertificationsCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
 
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
@@ -125,7 +125,7 @@ func main() {
 	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Populates user info using cookie and renews token
-	authMiddleware := auth.UserAuthMiddleware(*clientAuthSecretKey)
+	authMiddleware := auth.UserAuthMiddleware(logger, *clientAuthSecretKey)
 
 	// Base routes
 	root := goji.NewMux()

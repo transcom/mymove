@@ -92,7 +92,7 @@ func deleteCookie(w http.ResponseWriter, name string) {
 	http.SetCookie(w, &cookie)
 }
 
-func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *UserClaims, ok bool) {
 	cookie, err := r.Cookie(UserSessionCookieName)
 	if err != nil {
 		// No cookie set on client
@@ -105,7 +105,7 @@ func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaim
 	})
 
 	if token == nil || !token.Valid {
-		zap.L().Error("Failed token validation", zap.Error(err))
+		logger.Error("Failed token validation", zap.Error(err))
 		return
 	}
 
@@ -113,7 +113,7 @@ func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaim
 	// cast back to UserClaims
 	claims, ok = token.Claims.(*UserClaims)
 	if !ok {
-		zap.L().Error("Failed getting claims from token", zap.Error(err))
+		logger.Error("Failed getting claims from token", zap.Error(err))
 		return
 	}
 
@@ -143,10 +143,10 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 }
 
 // UserAuthMiddleware attempts to populate user data onto request context
-func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(logger *zap.Logger, secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := getUserClaimsFromRequest(secret, r)
+			claims, ok := getUserClaimsFromRequest(logger, secret, r)
 			if !ok {
 				next.ServeHTTP(w, r)
 				return
@@ -157,7 +157,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 				ss, err := signTokenStringWithUserInfo(claims.UserID, claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
-					zap.L().Error("Generating signed token string", zap.Error(err))
+					logger.Error("Generating signed token string", zap.Error(err))
 				}
 				cookie := http.Cookie{
 					Name:    UserSessionCookieName,
@@ -315,7 +315,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
-		zap.L().Error("Generating signed token string", zap.Error(err))
+		h.logger.Error("Generating signed token string", zap.Error(err))
 	}
 	cookie := http.Cookie{
 		Name:    UserSessionCookieName,

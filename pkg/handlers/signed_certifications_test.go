@@ -10,7 +10,7 @@ import (
 	"github.com/satori/go.uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
-	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
+	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certifications"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 		HTTPRequest: req,
 	}
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationUnauthorized)
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)
