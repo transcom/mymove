@@ -92,8 +92,8 @@ func main() {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.TspsIndexTSPsHandler = handlers.TSPIndexHandler(handlerContext)
-	publicAPI.ShipmentsTspShipmentsHandler = handlers.TSPShipmentsHandler(handlerContext)
+	publicAPI.IndexTSPsHandler = handlers.TSPIndexHandler(handlerContext)
+	publicAPI.TspShipmentsHandler = handlers.TSPShipmentsHandler(handlerContext)
 
 	// Wire up the handlers to the internalSwaggerMux
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
@@ -109,7 +109,7 @@ func main() {
 	internalAPI.Form1299sIndexForm1299sHandler = handlers.IndexForm1299sHandler(handlerContext)
 	internalAPI.Form1299sShowForm1299Handler = handlers.ShowForm1299Handler(handlerContext)
 
-	internalAPI.CertificationsCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
+	internalAPI.CertificationCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
 
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 

@@ -19,8 +19,6 @@ paths:
       summary: List all TSPs
       description: Gets a list of all TSPs registered.
       operationId: indexTSPs
-      tags:
-        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
       responses:
         200:
@@ -38,8 +36,6 @@ paths:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
       operationId: tspShipments
-      tags:
-        - shipments
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - name: tspUUID
