@@ -23,7 +23,7 @@ type AwardQueue struct {
 }
 
 func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(aq.db)
+	shipments, err := models.FetchUnawardedShipments(aq.db)
 	return shipments, err
 }
 

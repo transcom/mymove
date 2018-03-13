@@ -58,10 +58,10 @@ func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwar
 	return shipments, err
 }
 
-// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+// FetchUnawardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
 // TODO: This is virtually identical to the function above, except it returns shipments that
 //       are specifically awarded. Consolidate.
-func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+func FetchUnawardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
 	sql := `SELECT

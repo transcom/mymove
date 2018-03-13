@@ -33,3 +33,20 @@ func (suite *ModelSuite) Test_FetchPossiblyAwardedShipments() {
 			shipment.ID, shipments[0].ID)
 	}
 }
+
+// Test_FetchUnawardedShipments tests that a shipment is returned when we fetch possibly awarded shipments
+func (suite *ModelSuite) Test_FetchUnawardedShipments() {
+	t := suite.T()
+	now := time.Now()
+	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now.AddDate(0, 0, 1), tdl)
+
+	shipments, err := FetchUnawardedShipments(suite.db)
+
+	if err != nil {
+		t.Errorf("Failed to find Shipments: %v", err)
+	} else if shipments[0].ID != shipment.ID {
+		t.Errorf("Wrong shipment returned: expected %s, got %s",
+			shipment.ID, shipments[0].ID)
+	}
+}
