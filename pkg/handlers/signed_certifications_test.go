@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
