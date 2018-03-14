@@ -2,7 +2,6 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
@@ -51,7 +50,7 @@ export class DemoWorkflow extends Component {
       );
 
     const CurrentForm = reduxifyForm('DD1299');
-
+    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     return (
       <Fragment>
         <WizardPage
@@ -59,8 +58,10 @@ export class DemoWorkflow extends Component {
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
+          pageIsValid={isValid}
         >
           <CurrentForm
+            ref="currentForm"
             className="usa-width-one-whole"
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
@@ -97,6 +98,4 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ loadSchema, submitForm, resetSuccess }, dispatch);
 }
 
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(DemoWorkflow),
-);
+export default connect(mapStateToProps, mapDispatchToProps)(DemoWorkflow);
