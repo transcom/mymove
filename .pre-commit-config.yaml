@@ -76,5 +76,5 @@ repos:
           (?x)^(
             node_modules/|
             vendor/|
-            docs/adr/README.md
+            docs/adr/index.md
           )$
