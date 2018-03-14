@@ -91,7 +91,7 @@ func TestCheckShipmentDuringBlackOut(t *testing.T) {
 
 	// TODO: (rebecca) This will only work once we change the TSP award queue to only attempt to award
 	// each shipment to each TSP 1 time. See pivotal:https://www.pivotaltracker.com/story/show/155843822
-	// verifyAwardCount(t, tsp, 2)
+	verifyAwardCount(t, tsp, 2)
 
 }
 

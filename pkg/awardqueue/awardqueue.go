@@ -47,6 +47,11 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	// we _also_ want to watch out for inifite loops, because if all the TSPs in the selection
 	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
 	// administrative shipments forever.
+
+	query := testDB.Where("traffic_distribution_list = $1", tdl.ID)
+	tspPerformances := []models.TransportationServiceProviderPerformance{}
+	loopCount, err := query.Count(&tspPerformances)
+
 	foundAvailableTSP := false
 	loopCount := 0
 	blackoutRetries := 1000
