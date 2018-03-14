@@ -1,0 +1,13 @@
+#!/bin/bash
+
+set -eu -o pipefail
+
+db_password="mysecretpassword"
+
+command="${*:-}"
+
+if [ -n "${command[*]}" ]; then
+  exec psql postgres://postgres:${db_password}@localhost/test_db -c "${command}"
+else
+  exec psql postgres://postgres:${db_password}@localhost/test_db
+fi
