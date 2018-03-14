@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -61,7 +63,7 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
-	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
+	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, ReporterName: swag.String("Jackie")}
 
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
