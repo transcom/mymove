@@ -51,7 +51,6 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	query := aq.db.Where("traffic_distribution_list_id = $1", tdl.ID)
 	tspPerformances := []models.TransportationServiceProviderPerformance{}
 	blackoutRetries, err := query.Count(&tspPerformances)
-	fmt.Println(blackoutRetries)
 	foundAvailableTSP := false
 	loopCount := 0
 
