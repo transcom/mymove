@@ -389,8 +389,8 @@ definitions:
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
   CreateMovePayload:
-   type: object
-   properties:
+    type: object
+    properties:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
   MovePayload:
