@@ -23,7 +23,7 @@ type AwardQueue struct {
 }
 
 func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(aq.db)
+	shipments, err := models.FetchUnawardedShipments(aq.db)
 	return shipments, err
 }
 
@@ -66,16 +66,15 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 
-				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment.PickupDate)
-				if err == nil {
-					shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, tspBlackoutDatesPresent)
-				} else {
+				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment.PickupDate)
+				if err != nil {
 					return err
 				}
 
+				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
 				if err == nil {
 					if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
-						if tspBlackoutDatesPresent == true {
+						if isAdministrativeShipment == true {
 							fmt.Printf("\tShipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.\n")
 						} else {
 							// TODO: AwardCount is off by 1
@@ -208,8 +207,9 @@ func Run(db *pop.Connection) error {
 	return nil
 }
 
-// CheckTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls within the window created by the blackout date record.
-func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Time) (bool, error) {
+// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date
+// to a submitted pickup date to see if it falls within the window created by the blackout date record.
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, pickupDate time.Time) (bool, error) {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID)
 
 	if err != nil {
@@ -223,7 +223,7 @@ func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Tim
 	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
 	// or if the pickupDate falls between the start and end.
 	for _, blackoutDate := range blackoutDates {
-		fmt.Printf("Comparing blackout date: %s < %s < %s\n", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
+		fmt.Printf("Evaluating whether pickup date is between blackout dates (%s <= %s <= %s)\n", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
 		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
 			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
 			pickupDate.Equal(blackoutDate.StartBlackoutDate) {
