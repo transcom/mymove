@@ -114,6 +114,7 @@ func main() {
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
 	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
+	internalAPI.MovesIndexMovesHandler = handlers.NewIndexMovesHandler(dbConnection, logger)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
