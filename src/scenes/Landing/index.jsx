@@ -13,7 +13,7 @@ export class Landing extends Component {
   }
   componentDidUpdate() {
     if (this.props.hasSubmitSuccess)
-      this.props.push(getLegaleseRoute(this.props.currentMove));
+      this.props.push(`moves/${this.props.currentMove.id}`);
   }
   startMove = values => {
     this.props.createMove({ selected_move_type: 'COMBO' });
@@ -31,12 +31,6 @@ export class Landing extends Component {
       </div>
     );
   }
-}
-
-function getLegaleseRoute(currentMove) {
-  //this is a horrible hack until we can get move id from server
-  var moveID = currentMove.id;
-  return `moves/${moveID}/legalese`;
 }
 
 const mapStateToProps = state => ({
