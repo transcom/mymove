@@ -148,7 +148,96 @@ paths:
         403:
           description: user is not authorized to sign for this move
 
+  /moves/{moveId}/personally_procured_move:
+    post:
+      summary: Creates a new PPM for the given move
+      description: Create an instance of personally_procured_move tied to the move ID
+      operationId: createPersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move being signed for
+        - in: body
+          name: createPersonallyProcuredMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
+      responses:
+        201:
+          description: created instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
+    get:
+      summary: Returns a list of all PPMs associated with this move
+      description: Returns a list of all PPMs associated with this move
+      operationId: indexPersonallyProcuredMoves
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move being signed for
+      responses:
+        200:
+          description: created instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
+
 definitions:
+  CreatePersonallyProcuredMovePayload:
+    type: object
+    properties:
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+  PersonallyProcuredMovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+  IndexPersonallyProcuredMovePayload:
+    type: array
+    items:
+      $ref: '#/definitions/PersonallyProcuredMovePayload'
   CreateSignedCertificationPayload:
     type: object
     properties:
@@ -782,6 +871,14 @@ definitions:
       - mobile_home_unblocked_requested
       - mobile_home_stored_at_origin_requested
       - mobile_home_stored_at_destination_requested
+  TShirtSize:
+    type: string
+    x-nullable: true
+    title: Size
+    enum:
+      - S
+      - M
+      - L
   ServiceMemberRank:
     type: string
     x-nullable: true
