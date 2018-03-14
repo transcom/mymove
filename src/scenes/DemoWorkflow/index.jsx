@@ -41,7 +41,7 @@ export class DemoWorkflow extends Component {
       return (
         <Fragment>
           <Alert type="success" heading="Form Submitted">
-            Your DD1299 has been sucessfully submitted.
+            Your DD1299 has been successfully submitted.
           </Alert>
           <button type="button" onClick={this.props.resetSuccess}>
             Do another one
