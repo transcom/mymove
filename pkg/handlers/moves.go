@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/markbates/pop"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,18 +20,7 @@ func payloadForMoveModel(user models.User, move models.Move) internalmessages.Mo
 }
 
 // CreateMoveHandler creates a new move via POST /move
-type CreateMoveHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewCreateMoveHandler returns a new CreateMoveHandler
-func NewCreateMoveHandler(db *pop.Connection, logger *zap.Logger) CreateMoveHandler {
-	return CreateMoveHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
