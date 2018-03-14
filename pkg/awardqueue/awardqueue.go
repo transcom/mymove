@@ -3,7 +3,7 @@ package awardqueue
 import (
 	"fmt"
 	"math"
-	"time"
+	// "time"
 
 	"github.com/markbates/pop"
 	"github.com/satori/go.uuid"
@@ -68,7 +68,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 
-				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment.PickupDate, shipment.CodeOfService, shipment.Channel, shipment.GBLOC, shipment.market)
+				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment)
 				// ^^ Hi Breanne! Added stuff there to match new method signature, will need to troubleshoot.
 				if err == nil {
 					shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, tspBlackoutDatesPresent)
@@ -211,8 +211,8 @@ func Run(db *pop.Connection) error {
 }
 
 // CheckTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls within the window created by the blackout date record.
-func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Time, codeOfService string, channel string, gbloc string, market string) (bool, error) {
-	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, pickupDate, codeOfService, channel, gbloc, market)
+func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, shipment models.PossiblyAwardedShipment) (bool, error) {
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, *shipment.CodeOfService, *shipment.Channel, *shipment.GBLOC, *shipment.Market)
 
 	if err != nil {
 		return false, fmt.Errorf("Error retrieving blackout dates from database: %s", err)
@@ -223,17 +223,4 @@ func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, pickupDate time.Tim
 	} else {
 		return true, nil
 	}
-
-	// Have attempted to move all querying over to the SQL query in blackout_dates.go.
-	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
-	// or if the pickupDate falls between the start and end.
-	// for _, blackoutDate := range blackoutDates {
-	// 	fmt.Printf("Comparing blackout date: %s < %s < %s\n", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
-	// 	if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
-	// 		pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
-	// 		pickupDate.Equal(blackoutDate.StartBlackoutDate) {
-	// 		return true, nil
-	// 	}
-	// }
-
 }

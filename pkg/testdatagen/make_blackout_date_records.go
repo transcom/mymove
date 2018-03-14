@@ -16,18 +16,16 @@ import (
 
 // MakeBlackoutDate creates a test blackoutDate object to add to the database.
 func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
-	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, cos *string,
-	channel *string, gbloc *string, market *string) (models.BlackoutDate, error) {
-
+	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, market *string, cos *string, channel *string, gbloc *string) (models.BlackoutDate, error) {
 	blackoutDates := models.BlackoutDate{
 		TransportationServiceProviderID: tsp.ID,
 		StartBlackoutDate:               startDate,
 		EndBlackoutDate:                 endDate,
 		TrafficDistributionListID:       &tdl.ID,
-		CodeOfService:                   cos,
-		Channel:                         channel,
-		GBLOC:                           gbloc,
-		Market:                          market,
+		Market:        market,
+		CodeOfService: cos,
+		Channel:       channel,
+		GBLOC:         gbloc,
 	}
 
 	_, err := db.ValidateAndSave(&blackoutDates)
