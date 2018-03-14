@@ -21,7 +21,7 @@ spellcheck:
 		`find . -type f -name "*.md" \
 			-not -path "./vendor/*" \
 			-not -path "./node_modules/*" \
-			-not -path "./docs/adr/README.md"`
+			-not -path "./docs/adr/index.md"`
 
 client_deps_update:
 	yarn upgrade
