@@ -5,13 +5,14 @@ import LoginButton from 'shared/User/LoginButton';
 import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
+import { createMove } from 'scenes/Moves/ducks';
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
     this.props.loadUserAndToken();
   }
-  gotoLegalese = values => {
-    this.props.push(getLegaleseRoute());
+  startMove = values => {
+    this.props.createMove({ selected_move_type: 'COMBO' });
   };
   render() {
     return (
@@ -21,24 +22,29 @@ export class Landing extends Component {
           <LoginButton />
         </div>
         {this.props.isLoggedIn && (
-          <button onClick={this.gotoLegalese}>Start a move</button>
+          <button onClick={this.startMove}>Start a move</button>
         )}
+        {this.props.hasSubmitSuccess &&
+          this.props.push(getLegaleseRoute(this.prop))}
       </div>
     );
   }
 }
 
-function getLegaleseRoute() {
+function getLegaleseRoute(props) {
   //this is a horrible hack until we can get move id from server
-  const moveId = process.env.REACT_APP_MOVE_UUID;
-  return `moves/${moveId}/legalese`;
+  var moveID = props.currentMove;
+  return `moves/${moveID}/legalese`;
 }
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
+  currentMove: state.submittedMoves.currentMove,
+  hasSubmitError: state.submittedMoves.hasSubmitError,
+  hasSubmitSuccess: state.submittedMoves.hasSubmitSuccess,
 });
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, loadUserAndToken }, dispatch);
+  return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

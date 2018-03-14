@@ -173,8 +173,8 @@ paths:
 
 definitions:
   CreateMovePayload:
-   type: object
-   properties:
+    type: object
+    properties:
       selected_move_type:
         type: string
         enum:
@@ -186,8 +186,8 @@ definitions:
           PPM: Personal Property Move
           COMBO: Both HHG and PPM
         title: Selected Move Type
-   required:
-    - selected_move_type
+    required:
+      - selected_move_type
   MovePayload:
    type: object
    properties:
