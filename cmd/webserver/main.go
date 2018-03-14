@@ -108,6 +108,7 @@ func main() {
 	internalAPI.CertificationCreateSignedCertificationHandler = handlers.NewCreateSignedCertificationHandler(dbConnection, logger)
 
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.NewIndexShipmentsHandler(dbConnection, logger)
+	internalAPI.MovesCreateMoveHandler = handlers.NewCreateMoveHandler(dbConnection, logger)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
