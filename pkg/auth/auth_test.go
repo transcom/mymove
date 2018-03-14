@@ -113,7 +113,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(AuthorizationLogoutHandler(fmt.Sprintf("http://%s", testHostname)))
+	handler := AuthorizationLogoutHandler(NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger))
 
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, fakeUUID, fakeToken)
@@ -153,7 +153,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
 
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -199,7 +199,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handledRequest = r
 	})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -242,7 +242,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handledRequest = r
 	})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -280,7 +280,7 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
