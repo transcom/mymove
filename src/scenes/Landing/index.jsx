@@ -11,6 +11,10 @@ export class Landing extends Component {
     document.title = 'Transcom PPP: Landing Page';
     this.props.loadUserAndToken();
   }
+  componentDidUpdate() {
+    if (this.props.hasSubmitSuccess)
+      this.props.push(getLegaleseRoute(this.props.currentMove));
+  }
   startMove = values => {
     this.props.createMove({ selected_move_type: 'COMBO' });
   };
@@ -24,16 +28,14 @@ export class Landing extends Component {
         {this.props.isLoggedIn && (
           <button onClick={this.startMove}>Start a move</button>
         )}
-        {this.props.hasSubmitSuccess &&
-          this.props.push(getLegaleseRoute(this.prop))}
       </div>
     );
   }
 }
 
-function getLegaleseRoute(props) {
+function getLegaleseRoute(currentMove) {
   //this is a horrible hack until we can get move id from server
-  var moveID = props.currentMove;
+  var moveID = currentMove.id;
   return `moves/${moveID}/legalese`;
 }
 

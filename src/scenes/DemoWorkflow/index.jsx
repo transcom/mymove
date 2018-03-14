@@ -41,7 +41,7 @@ export class DemoWorkflow extends Component {
       return (
         <Fragment>
           <Alert type="success" heading="Form Submitted">
-            Your DD1299 has been sucessfully submitted.
+            Your DD1299 has been successfully submitted.
           </Alert>
           <button type="button" onClick={this.props.resetSuccess}>
             Do another one
@@ -50,7 +50,7 @@ export class DemoWorkflow extends Component {
       );
 
     const CurrentForm = reduxifyForm('DD1299');
-
+    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     return (
       <Fragment>
         <WizardPage
@@ -58,8 +58,10 @@ export class DemoWorkflow extends Component {
           pageList={this.props.pageList}
           pageKey={this.props.path}
           history={this.props.history}
+          pageIsValid={isValid}
         >
           <CurrentForm
+            ref="currentForm"
             className="usa-width-one-whole"
             schema={this.props.schema}
             uiSchema={this.props.uiSchema}
