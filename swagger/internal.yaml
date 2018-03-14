@@ -176,18 +176,7 @@ definitions:
     type: object
     properties:
       selected_move_type:
-        type: string
-        enum:
-        - HHG
-        - PPM
-        - COMBO
-        x-display-value:
-          HHG: Household Goods Move
-          PPM: Personal Property Move
-          COMBO: Both HHG and PPM
-        title: Selected Move Type
-    required:
-      - selected_move_type
+        $ref: '#/definitions/SelectedMoveType'
   MovePayload:
    type: object
    properties:
@@ -200,15 +189,7 @@ definitions:
        format: uuid
        example: c56a4180-65aa-42ec-a945-5fd21dec0538
      selected_move_type:
-       type: string
-       enum:
-       - HHG
-       - PPM
-       - COMBO
-       x-display-value:
-         HHG: Household Goods Move
-         PPM: Personal Property Move
-         COMBO: Both HHG and PPM
+       $ref: '#/definitions/SelectedMoveType'
      created_at:
        type: string
        format: date-time
@@ -221,6 +202,17 @@ definitions:
     - selected_move_type
     - created_at
     - updated_at
+  SelectedMoveType:
+    type: string
+    title: Selected Move Type
+    enum:
+      - HHG
+      - PPM
+      - COMBO
+    x-display-value:
+      HHG: Household Goods Move
+      PPM: Personal Property Move
+      COMBO: Both HHG and PPM
   CreateSignedCertificationPayload:
     type: object
     properties:

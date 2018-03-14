@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/go-openapi/swag"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 
 	"github.com/satori/go.uuid"
@@ -24,7 +23,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	suite.mustSave(&user)
 
 	// When: a new Move is posted
-	selectedType := swag.String("HHG")
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	newMovePayload := internalmessages.CreateMovePayload{
 		SelectedMoveType: selectedType,
 	}
@@ -49,7 +48,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	}
 
 	// Then: we expect a move to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID)).Where(fmt.Sprintf("selected_move_type='%v'", *selectedType))
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID)).Where(fmt.Sprintf("selected_move_type='%v'", selectedType))
 	moves := []models.Move{}
 	query.All(&moves)
 
@@ -63,8 +62,9 @@ func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
 	t := suite.T()
 	// Given: no authentication values in context
 	// When: a new Move is posted
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	movePayload := internalmessages.CreateMovePayload{
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: selectedType,
 	}
 	req := httptest.NewRequest("GET", "/moves", nil)
 	params := moveop.CreateMoveParams{

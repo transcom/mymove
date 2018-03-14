@@ -30,7 +30,7 @@ if [[ $(uname -s) = Darwin ]]; then
 fi
 
 # not on CircleCI
-if [[ -z $CIRCLECI ]]; then
+if [[ -z ${CIRCLECI-} ]]; then
     has direnv "brew install direnv"
 fi
 
