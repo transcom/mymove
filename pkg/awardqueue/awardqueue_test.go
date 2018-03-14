@@ -54,7 +54,48 @@ func TestCheckAllTSPsBlackedOut(t *testing.T) {
 	}
 }
 
-func TestCheckTSPBlackoutDates(t *testing.T) {
+func TestCheckShipmentDuringBlackOut(t *testing.T) {
+	queue := NewAwardQueue(testDB)
+
+	tsp, _ := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
+	tdl, _ := testdatagen.MakeTDL(testDB, "Oklahoma", "62240", "5")
+	testdatagen.MakeTSPPerformance(testDB, tsp, tdl, swag.Int(1), mps+1, 0)
+	blackoutStartDate := time.Now().AddDate(1, 0, 0)
+	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
+	testdatagen.MakeBlackoutDate(testDB, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil, nil, nil)
+	pickupDate := blackoutStartDate.AddDate(0, 0, 1)
+	deliverDate := blackoutStartDate.AddDate(0, 0, 5)
+
+	// Create a shipment within blackout dates and one not within blackout dates
+	blackoutShipment, _ := testdatagen.MakeShipment(testDB, pickupDate, deliverDate, tdl)
+	shipment, _ := testdatagen.MakeShipment(testDB, time.Now(), time.Now().AddDate(0, 0, 1), tdl)
+
+	// Run the Award Queue
+	queue.assignUnawardedShipments()
+
+	shipmentAward := models.ShipmentAward{}
+	query := testDB.Where("shipment_id = $1", shipment.ID)
+	if err := query.First(&shipmentAward); err != nil {
+		t.Errorf("Couldn't find shipment award with shipment_ID: %v\n", shipment.ID)
+	}
+
+	blackoutShipmentAward := models.ShipmentAward{}
+	blackoutQuery := testDB.Where("shipment_id = $1", blackoutShipment.ID)
+	if err := blackoutQuery.First(&blackoutShipmentAward); err != nil {
+		t.Errorf("Couldn't find shipment award: %v", blackoutShipment.ID)
+	}
+
+	if shipmentAward.AdministrativeShipment != false || blackoutShipmentAward.AdministrativeShipment != true {
+		t.Errorf("Shipment Awards erroneously assigned administrative status.")
+	}
+
+	// TODO: (rebecca) This will only work once we change the TSP award queue to only attempt to award
+	// each shipment to each TSP 1 time. See pivotal:https://www.pivotaltracker.com/story/show/155843822
+	// verifyAwardCount(t, tsp, 2)
+
+}
+
+func TestShipmentWithinBlackoutDates(t *testing.T) {
 	queue := NewAwardQueue(testDB)
 	// Creates a TSP and TDL with a blackout date connected to both.
 	testTSP1, _ := testdatagen.MakeTSP(testDB, "A Very Excellent TSP", "XYZA")
@@ -63,7 +104,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
 	testdatagen.MakeBlackoutDate(testDB, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil, nil, nil)
 
-	// Two pickup times to check with CheckTSPBlackoutDates
+	// Two pickup times to check with ShipmentWithinBlackoutDates
 	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
 	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
 
@@ -71,7 +112,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 	testTSP2, _ := testdatagen.MakeTSP(testDB, "A Spotless TSP", "PORK")
 
 	// Checks a date that falls within the blackout date range; returns true.
-	test1, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateBetween)
+	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testPickupDateBetween)
 
 	if err != nil {
 		t.Fatal(err)
@@ -80,7 +121,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	test2, err := queue.CheckTSPBlackoutDates(testTSP1.ID, testPickupDateAfter)
+	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testPickupDateAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -89,7 +130,7 @@ func TestCheckTSPBlackoutDates(t *testing.T) {
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3, err := queue.CheckTSPBlackoutDates(testTSP2.ID, testPickupDateAfter)
+	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, testPickupDateAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -247,36 +288,12 @@ func TestAwardAssignUnawardedShipmentsToMultipleTSPs(t *testing.T) {
 	verifyAwardCount(t, tsp5, 1)
 }
 
-func verifyAwardCount(t *testing.T, tsp models.TransportationServiceProvider, expectedCount int) {
-	t.Helper()
-
-	// TODO is there a more concise way to do this?
-	query := testDB.Where("transportation_service_provider_id = $1", tsp.ID)
-	awards := []models.ShipmentAward{}
-	count, err := query.Count(&awards)
-
-	if err != nil {
-		t.Fatalf("Error counting shipment awards: %v", err)
-	}
-	if count != expectedCount {
-		t.Errorf("Wrong number of ShipmentAwards found: expected %d, got %d", expectedCount, count)
-	}
-
-	var tspPerformance models.TransportationServiceProviderPerformance
-	if err := query.First(&tspPerformance); err != nil {
-		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
-	}
-	if expectedCount != tspPerformance.AwardCount {
-		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
-	}
-}
-
 func Test_getTSPsPerBandWithRemainder(t *testing.T) {
 	// Check bands should expect differing num of TSPs when not divisible by 4
 	// Remaining TSPs should be divided among bands in descending order
 	tspPerBandList := getTSPsPerBand(10)
 	expectedBandList := []int{3, 3, 2, 2}
-	if !equalSlice(tspPerBandList, []int{3, 3, 2, 2}) {
+	if !equalSlice(tspPerBandList, expectedBandList) {
 		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
 	}
 }
@@ -285,7 +302,7 @@ func Test_getTSPsPerBandNoRemainder(t *testing.T) {
 	// Check bands should expect correct num of TSPs when num of TSPs is divisible by 4
 	tspPerBandList := getTSPsPerBand(8)
 	expectedBandList := []int{2, 2, 2, 2}
-	if !equalSlice(tspPerBandList, []int{2, 2, 2, 2}) {
+	if !equalSlice(tspPerBandList, expectedBandList) {
 		t.Errorf("Failed to correctly divide TSP counts. Expected to find %d, found %d", expectedBandList, tspPerBandList)
 	}
 }
@@ -325,6 +342,30 @@ func Test_assignTSPsToBands(t *testing.T) {
 		} else if (*perf.QualityBand) != band {
 			t.Errorf("Wrong quality band: expected %v, got %v", band, *perf.QualityBand)
 		}
+	}
+}
+
+func verifyAwardCount(t *testing.T, tsp models.TransportationServiceProvider, expectedCount int) {
+	t.Helper()
+
+	// TODO is there a more concise way to do this?
+	query := testDB.Where("transportation_service_provider_id = $1", tsp.ID)
+	awards := []models.ShipmentAward{}
+	count, err := query.Count(&awards)
+
+	if err != nil {
+		t.Fatalf("Error counting shipment awards: %v", err)
+	}
+	if count != expectedCount {
+		t.Errorf("Wrong number of ShipmentAwards found: expected %d, got %d", expectedCount, count)
+	}
+
+	var tspPerformance models.TransportationServiceProviderPerformance
+	if err := query.First(&tspPerformance); err != nil {
+		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
+	}
+	if expectedCount != tspPerformance.AwardCount {
+		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
 	}
 }
 
