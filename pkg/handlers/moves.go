@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/markbates/pop"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -13,7 +12,7 @@ import (
 func payloadForMoveModel(user models.User, move models.Move) internalmessages.MovePayload {
 	movePayload := internalmessages.MovePayload{
 		CreatedAt:        fmtDateTime(move.CreatedAt),
-		SelectedMoveType: swag.String(move.SelectedMoveType),
+		SelectedMoveType: move.SelectedMoveType,
 		ID:               fmtUUID(move.ID),
 		UpdatedAt:        fmtDateTime(move.UpdatedAt),
 		UserID:           fmtUUID(user.ID),
@@ -48,7 +47,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	// Create a new move for an authenticated user
 	newMove := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: *params.CreateMovePayload.SelectedMoveType,
+		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
 	}
 	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
 		if verrs.HasAny() {
