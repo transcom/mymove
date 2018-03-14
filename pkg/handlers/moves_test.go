@@ -39,7 +39,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateMoveHandler(suite.db, suite.logger)
+	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.CreateMoveCreated)
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
 		HTTPRequest:       req,
 	}
 
-	handler := NewCreateMoveHandler(suite.db, suite.logger)
+	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.CreateMoveUnauthorized)
