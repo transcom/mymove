@@ -48,13 +48,12 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
 	// administrative shipments forever.
 
-	query := testDB.Where("traffic_distribution_list = $1", tdl.ID)
+	query := testDB.Where("traffic_distribution_list_id = $1", tdl.ID)
 	tspPerformances := []models.TransportationServiceProviderPerformance{}
-	loopCount, err := query.Count(&tspPerformances)
-
+	blackoutRetries, err := query.Count(&tspPerformances)
+	fmt.Println(blackoutRetries)
 	foundAvailableTSP := false
 	loopCount := 0
-	blackoutRetries := 1000
 
 	for !foundAvailableTSP && loopCount < blackoutRetries {
 		loopCount++
@@ -101,7 +100,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 		}
 	}
 
-	if loopCount == blackoutRetries {
+	if loopCount == blackoutRetries && !foundAvailableTSP {
 		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
 	}
 
