@@ -5,6 +5,7 @@
 <!-- toc -->
 
 * [Go](#go)
+  * [Acronyms](#acronyms)
   * [Style and Conventions](#style-and-conventions)
   * [Querying the Database Safely](#querying-the-database-safely)
   * [Libraries](#libraries)
@@ -20,6 +21,43 @@ Regenerate with "bin/generate-md-toc.sh"
 <!-- tocstop -->
 
 ## Go
+
+### Acronyms
+
+Domain concepts should be used without abbreviation when used alone.
+
+Do:
+
+* `TransportationServiceProvider`
+* `TrafficDistributionList`
+
+Avoid:
+
+* `TSP`
+* `TDL`
+
+However, when used as a specifier or part of another name, names that have existing acronyms should use the acronym for brevity.
+
+Do:
+
+* `TSPPerformance`
+
+Avoid:
+
+* `TransportationServiceProviderPerformance`
+
+Acronyms should always be either all caps or all lower-cased.
+
+Do:
+
+* `TSPPerformance`
+* `tspPerformance`
+
+Avoid:
+
+* `tSPPerformance`
+* `tspperformance`
+* `TspPerformance`
 
 ### Style and Conventions
 
