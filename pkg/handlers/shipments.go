@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/markbates/pop"
 	"go.uber.org/zap"
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -27,18 +26,7 @@ func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmessages
 }
 
 // IndexShipmentsHandler returns a list of shipments
-type IndexShipmentsHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewIndexShipmentsHandler creates a new IndexShipmentsHandler
-func NewIndexShipmentsHandler(db *pop.Connection, logger *zap.Logger) IndexShipmentsHandler {
-	return IndexShipmentsHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type IndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
 func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {

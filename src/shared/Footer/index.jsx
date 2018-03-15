@@ -4,9 +4,7 @@ import transcomEmblem from 'shared/images/transcom-emblem.svg';
 function Footer() {
   return (
     <footer className="usa-footer usa-footer-medium" role="contentinfo">
-      <div className="usa-grid usa-footer-return-to-top">
-        <a>Return to top</a>
-      </div>
+      <div className="usa-grid usa-footer-return-to-top" />
       <div className="usa-footer-primary-section">
         <div className="usa-grid-full">
           <nav className="usa-footer-nav">

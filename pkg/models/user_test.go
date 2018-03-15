@@ -78,7 +78,7 @@ func (suite *ModelSuite) TestGetOrCreateUser() {
 	// And: user does not yet exist in the db
 	newUser, err := GetOrCreateUser(suite.db, gothUser)
 	if err != nil {
-		t.Error("error querying or creating user.")
+		t.Error("error querying or creating user.", err)
 	}
 
 	// Then: expect fields to be set on returned user

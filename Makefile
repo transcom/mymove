@@ -21,7 +21,7 @@ spellcheck:
 		`find . -type f -name "*.md" \
 			-not -path "./vendor/*" \
 			-not -path "./node_modules/*" \
-			-not -path "./docs/adr/README.md"`
+			-not -path "./docs/adr/index.md"`
 
 client_deps_update:
 	yarn upgrade
@@ -102,13 +102,16 @@ e2e_test: client_deps
 	yarn e2e-test
 
 db_dev_run:
+	# The version of the postgres container should match production as closely
+	# as possible.
+	# https://github.com/transcom/ppp-infra/blob/1578df6e6bc6bb45d43fdc7762228afdd17a4144/modules/aws-app-environment/database/main.tf#L87
 	docker start $(DB_DOCKER_CONTAINER) || \
 		(docker run --name $(DB_DOCKER_CONTAINER) \
 			-e \
 			POSTGRES_PASSWORD=$(PGPASSWORD) \
 			-d \
 			-p 5432:5432 \
-			postgres:latest && \
+			postgres:10.1 && \
 		bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 # This is just an alias for backwards compatibility

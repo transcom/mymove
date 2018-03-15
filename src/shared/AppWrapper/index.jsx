@@ -8,9 +8,11 @@ import { history } from 'shared/store';
 import Shipments from 'scenes/Shipments';
 import Footer from 'shared/Footer';
 import DD1299 from 'scenes/DD1299';
+import Legalese from 'scenes/Legalese';
 import Landing from 'scenes/Landing';
 import WizardDemo from 'scenes/WizardDemo';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
+import MoveRoutes from 'scenes/Moves/routes';
 import PrivateRoute from 'shared/User/PrivateRoute';
 
 const redirect = pathname => () => (
@@ -19,6 +21,13 @@ const redirect = pathname => () => (
       pathname: pathname,
     }}
   />
+);
+const NoMatch = ({ location }) => (
+  <div className="usa-grid">
+    <h3>
+      No match for <code>{location.pathname}</code>
+    </h3>
+  </div>
 );
 const AppWrapper = () => (
   <ConnectedRouter history={history}>
@@ -30,11 +39,14 @@ const AppWrapper = () => (
           <Route path="/submitted" component={SubmittedFeedback} />
           <Route path="/shipments/:shipmentsStatus" component={Shipments} />
           <PrivateRoute path="/DD1299" component={DD1299} />
+          <PrivateRoute path="/moves/:moveId/legalese" component={Legalese} />
           <Route path="/feedback" component={Feedback} />
           <Route exact path="/mymove" render={redirect('/mymove/intro')} />
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />
           {DemoWorkflowRoutes()}
+          {MoveRoutes()}
+          <Route component={NoMatch} />
         </Switch>
       </main>
       <Footer />

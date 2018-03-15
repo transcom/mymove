@@ -23,6 +23,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0015](0015-session-storage.md) - Session storage/handling
 - [ADR-0016](0016-Browser-Support.md) - Browser Support for Prototype
 - [ADR-0017](0017-react-router-redux-authentication.md) - Client side route restriction based on authentication
+- [ADR-0018](0018-optional-field-interop.md) - Optional Field Interop
 
 <!-- adrlogstop -->
 

@@ -24,12 +24,13 @@ jasmine.DEFAULT_TIMEOUT_INTERVAL = 1000 * 60 * 5;
 
 const WEB_DRIVER_WAIT_TIME = 1000 * 10;
 
+// TRANSCOM has asked us to support Windows 10, IE 11
 beforeAll(async function() {
   driver = new webdriver.Builder()
     .withCapabilities({
       browserName: 'internet explorer',
-      platform: 'Windows 8.1',
-      version: '11.0',
+      platform: 'Windows 10',
+      version: '11',
       username: username,
       accessKey: accessKey,
     })
