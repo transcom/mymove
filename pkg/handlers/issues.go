@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/markbates/pop"
 	"go.uber.org/zap"
 
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
@@ -27,18 +26,7 @@ func payloadForIssueModel(issue models.Issue) internalmessages.IssuePayload {
 }
 
 // CreateIssueHandler creates a new issue via POST /issue
-type CreateIssueHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewCreateIssueHandler returns a new CreateIssueHandler
-func NewCreateIssueHandler(db *pop.Connection, logger *zap.Logger) CreateIssueHandler {
-	return CreateIssueHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type CreateIssueHandler HandlerContext
 
 // Handle creates a new Issue from a request payload
 func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.Responder {
@@ -61,18 +49,7 @@ func (h CreateIssueHandler) Handle(params issueop.CreateIssueParams) middleware.
 }
 
 // IndexIssuesHandler returns a list of all issues
-type IndexIssuesHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewIndexIssuesHandler returns a new IndexIssuesHandler
-func NewIndexIssuesHandler(db *pop.Connection, logger *zap.Logger) IndexIssuesHandler {
-	return IndexIssuesHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type IndexIssuesHandler HandlerContext
 
 // Handle retrieves a list of all issues in the system
 func (h IndexIssuesHandler) Handle(params issueop.IndexIssuesParams) middleware.Responder {

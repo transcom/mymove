@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/markbates/pop"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,18 +20,7 @@ func payloadForMoveModel(user models.User, move models.Move) internalmessages.Mo
 }
 
 // CreateMoveHandler creates a new move via POST /move
-type CreateMoveHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewCreateMoveHandler returns a new CreateMoveHandler
-func NewCreateMoveHandler(db *pop.Connection, logger *zap.Logger) CreateMoveHandler {
-	return CreateMoveHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
@@ -59,6 +47,34 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	} else {
 		movePayload := payloadForMoveModel(user, newMove)
 		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
+	}
+	return response
+}
+
+// IndexMovesHandler returns a list of all moves
+type IndexMovesHandler HandlerContext
+
+// Handle retrieves a list of all moves in the system belonging to the logged in user
+func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
+	var response middleware.Responder
+
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewIndexMovesUnauthorized()
+		return response
+	}
+
+	moves, err := models.GetMovesForUserID(h.db, user.ID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = moveop.NewIndexMovesBadRequest()
+	} else {
+		movePayloads := make(internalmessages.IndexMovesPayload, len(moves))
+		for i, move := range moves {
+			movePayload := payloadForMoveModel(user, move)
+			movePayloads[i] = &movePayload
+		}
+		response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
 	}
 	return response
 }
