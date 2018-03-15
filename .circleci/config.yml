@@ -3,7 +3,7 @@ jobs:
   pre_test:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - restore_cache:
@@ -50,7 +50,7 @@ jobs:
   build_app:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
       - image: postgres:latest
         environment:
           - POSTGRES_PASSWORD: mysecretpassword
@@ -106,7 +106,7 @@ jobs:
 
   build_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - setup_remote_docker
@@ -121,7 +121,7 @@ jobs:
 
   deploy_migrations:
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - run:
@@ -134,7 +134,7 @@ jobs:
 
   deploy_app:
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - setup_remote_docker
@@ -145,7 +145,7 @@ jobs:
 
   integration_tests:
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - restore_cache:
@@ -163,7 +163,7 @@ jobs:
   update_dependencies:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
-      - image: trussworks/circleci-docker-primary:25fb58d78157ba0664802478ea7195cdb1d5f9d7
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
       - restore_cache:
