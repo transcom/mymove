@@ -69,7 +69,9 @@ export class WizardPage extends Component {
             </button>
           )}
           {isLastPage(pageList, pageKey) && (
-            <button onClick={handleSubmit}>Complete</button>
+            <button onClick={handleSubmit} disabled={!pageIsValid}>
+              Complete
+            </button>
           )}
         </div>
       </div>
