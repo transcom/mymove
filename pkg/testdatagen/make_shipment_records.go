@@ -14,11 +14,12 @@ func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
 	market := "dHHG"
+	GBLOC := "AGFM"
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		PickupDate:                pickup,
 		DeliveryDate:              delivery,
-		GBLOC:                     "AGFM",
+		GBLOC:                     &GBLOC,
 		Market:                    &market,
 	}
 

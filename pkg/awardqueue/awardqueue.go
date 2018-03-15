@@ -218,9 +218,5 @@ func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, shipment models.Pos
 		return false, fmt.Errorf("Error retrieving blackout dates from database: %s", err)
 	}
 
-	if len(blackoutDates) == 0 {
-		return false, nil
-	} else {
-		return true, nil
-	}
+	return len(blackoutDates) != 0, nil
 }
