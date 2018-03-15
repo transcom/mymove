@@ -57,6 +57,7 @@ Avoid:
 
 * `tSPPerformance`
 * `tspperformance`
+* `TspPerformance`
 
 ### Style and Conventions
 
