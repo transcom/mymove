@@ -43,30 +43,31 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	var shipmentAward *models.ShipmentAward
 
-	// TODO: We need to loop here, because if a TSP has a blackout date we need to try again.
-	// we _also_ want to watch out for inifite loops, because if all the TSPs in the selection
+	// We need to loop here, because if a TSP has a blackout date we need to try again.
+	// We _also_ want to watch out for infinite loops, because if all the TSPs in the selection
 	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
 	// administrative shipments forever.
-
-	query := aq.db.Where("traffic_distribution_list_id = $1", tdl.ID)
-	tspPerformances := []models.TransportationServiceProviderPerformance{}
-	blackoutRetries, err := query.Count(&tspPerformances)
+	firstEligibleTSPPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
+	firstTSPid := firstEligibleTSPPerformance.ID
 	foundAvailableTSP := false
 	loopCount := 0
 
-	for !foundAvailableTSP && loopCount < blackoutRetries {
-		loopCount++
+	for !foundAvailableTSP {
 
 		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
 
+		if loopCount != 0 && tspPerformance.ID == firstTSPid {
+			return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", loopCount)
+		}
+		loopCount++
 		if err != nil {
 			return nil, fmt.Errorf("Cannot award. Error: %s", err)
 		}
 
 		err = aq.db.Transaction(func(tx *pop.Connection) error {
 			tsp := models.TransportationServiceProvider{}
-
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
+
 				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 
 				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment.PickupDate)
@@ -94,13 +95,10 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			fmt.Printf("\tFailed to award to TSP: %v\n", err)
 			return err
 		})
-		if !foundAvailableTSP {
-			fmt.Printf("\tChecking for another TSP. Tries left: %d\n", blackoutRetries-loopCount)
-		}
-	}
 
-	if loopCount == blackoutRetries && !foundAvailableTSP {
-		return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
+		if !foundAvailableTSP {
+			fmt.Printf("\tChecking for another TSP.\n")
+		}
 	}
 
 	return shipmentAward, err
