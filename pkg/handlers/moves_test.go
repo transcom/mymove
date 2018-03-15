@@ -115,7 +115,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
-	indexHandler := NewIndexMovesHandler(suite.db, suite.logger)
+	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(indexMovesParams)
 
 	// Then: Expect a 200 status code
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestIndexMovesHandlerNoUser() {
 	indexMovesParams.HTTPRequest = req
 
 	// And: All moves are queried
-	indexHandler := NewIndexMovesHandler(suite.db, suite.logger)
+	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(indexMovesParams)
 
 	// Then: Expect a 401 unauthorized
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
-	indexHandler := NewIndexMovesHandler(suite.db, suite.logger)
+	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(indexMovesParams)
 
 	// Then: Expect a 200 status code

@@ -52,18 +52,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 }
 
 // IndexMovesHandler returns a list of all moves
-type IndexMovesHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewIndexMovesHandler returns a new IndexMovesHandler
-func NewIndexMovesHandler(db *pop.Connection, logger *zap.Logger) IndexMovesHandler {
-	return IndexMovesHandler{
-		db:     db,
-		logger: logger,
-	}
-}
+type IndexMovesHandler HandlerContext
 
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
