@@ -41,31 +41,37 @@ type PossiblyAwardedShipment struct {
 func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
-	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftOuterJoin("shipment_awards", "shipment_awards.shipment_id=shipments.id")
+	sql := `SELECT
+				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.award_date,
+				shipments.traffic_distribution_list_id,
+				shipment_awards.transportation_service_provider_id,
+				shipment_awards.administrative_shipment
+			FROM shipments
+			LEFT JOIN shipment_awards ON
+				shipment_awards.shipment_id=shipments.id
+			ORDER BY
+				shipments.created_at ASC`
 
-	sql, args := query.ToSQL(&pop.Model{Value: Shipment{}},
-		"shipments.id",
-		"shipments.created_at",
-		"shipments.updated_at",
-		"shipments.award_date",
-		"shipments.traffic_distribution_list_id",
-		"shipments.pickup_date",
-		"shipment_awards.transportation_service_provider_id",
-		"shipment_awards.administrative_shipment",
-	)
-	err := dbConnection.RawQuery(sql, args...).All(&shipments)
+	err := dbConnection.RawQuery(sql).All(&shipments)
+
 	return shipments, err
 }
 
-// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+// FetchUnawardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
 // TODO: This is virtually identical to the function above, except it returns shipments that
 //       are specifically awarded. Consolidate.
-func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+func FetchUnawardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
 	sql := `SELECT
 				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
 				shipments.award_date,
 				shipments.traffic_distribution_list_id,
 				shipment_awards.transportation_service_provider_id

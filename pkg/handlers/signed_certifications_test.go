@@ -27,7 +27,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -49,7 +49,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -78,7 +78,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 		HTTPRequest: req,
 	}
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationUnauthorized)
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)
@@ -181,7 +181,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: swag.String("HHG"),
+		SelectedMoveType: "HHG",
 	}
 	suite.mustSave(&move)
 
@@ -206,7 +206,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := NewCreateSignedCertificationHandler(suite.db, suite.logger)
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)

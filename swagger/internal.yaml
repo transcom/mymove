@@ -118,7 +118,45 @@ paths:
           description: unknown form1299Id
         500:
           description: server error
-
+  /moves:
+    post:
+      summary: Submits move for a logged-in user
+      description: Creates an instance of a move tied to a user
+      operationId: createMove
+      tags:
+        - moves
+      parameters:
+        - in: body
+          name: createMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMovePayload'
+      responses:
+        201:
+          description: created instance of move
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to sign for this move
+    get:
+      summary: List all moves
+      description: List all moves
+      operationId: indexMoves
+      tags:
+        - moves
+      responses:
+        200:
+          description: list of moves
+          schema:
+            $ref: '#/definitions/IndexMovesPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
@@ -148,7 +186,268 @@ paths:
         403:
           description: user is not authorized to sign for this move
 
+  /moves/{moveId}/personally_procured_move:
+    post:
+      summary: Creates a new PPM for the given move
+      description: Create an instance of personally_procured_move tied to the move ID
+      operationId: createPersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move this PPM is associated with
+        - in: body
+          name: createPersonallyProcuredMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreatePersonallyProcuredMovePayload'
+      responses:
+        201:
+          description: created instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+    get:
+      summary: Returns a list of all PPMs associated with this move
+      description: Returns a list of all PPMs associated with this move
+      operationId: indexPersonallyProcuredMoves
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move these PPMs are associated with
+      responses:
+        200:
+          description: created instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+  /moves/{moveId}/personally_procured_move{personallyProcuredMoveId}:
+    post:
+      summary: Updates the PPM
+      description: This replaces the current version of the PPM with the version sent.
+      operationId: updatePersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being updated
+        - in: body
+          name: personallyProcuredMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
+      responses:
+        201:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+    patch:
+      summary: Patches the PPM
+      description: Any fields sent in this request will be set on the PPM referenced
+      operationId: patchPersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being patched
+        - in: body
+          name: personallyProcuredMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
+      responses:
+        201:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+    get:
+      summary: Returns the given PPM
+      description: Returns the given PPM
+      operationId: showPersonallyProcuredMove
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move being signed for
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: the instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+
 definitions:
+  CreatePersonallyProcuredMovePayload:
+    type: object
+    properties:
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+  UpdatePersonallyProcuredMovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+  PatchPersonallyProcuredMovePayload:
+    type: object
+    properties:
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+  PersonallyProcuredMovePayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      size:
+        $ref: '#/definitions/TShirtSize'
+      weightEstimate:
+        type: integer
+        title: Weight Estimate
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+  IndexPersonallyProcuredMovePayload:
+    type: array
+    items:
+      $ref: '#/definitions/PersonallyProcuredMovePayload'
+  CreateMovePayload:
+    type: object
+    properties:
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+  MovePayload:
+   type: object
+   properties:
+     id:
+       type: string
+       format: uuid
+       example: c56a4180-65aa-42ec-a945-5fd21dec0538
+     user_id:
+       type: string
+       format: uuid
+       example: c56a4180-65aa-42ec-a945-5fd21dec0538
+     selected_move_type:
+       $ref: '#/definitions/SelectedMoveType'
+     created_at:
+       type: string
+       format: date-time
+     updated_at:
+       type: string
+       format: date-time
+   required:
+    - id
+    - user_id
+    - selected_move_type
+    - created_at
+    - updated_at
+  SelectedMoveType:
+    type: string
+    title: Selected Move Type
+    enum:
+      - HHG
+      - PPM
+      - COMBO
+    x-display-value:
+      HHG: Household Goods Move
+      PPM: Personal Property Move
+      COMBO: Both HHG and PPM
+  IndexMovesPayload:
+    type: array
+    items:
+      $ref: '#/definitions/MovePayload'
   CreateSignedCertificationPayload:
     type: object
     properties:
@@ -782,6 +1081,14 @@ definitions:
       - mobile_home_unblocked_requested
       - mobile_home_stored_at_origin_requested
       - mobile_home_stored_at_destination_requested
+  TShirtSize:
+    type: string
+    x-nullable: true
+    title: Size
+    enum:
+      - S
+      - M
+      - L
   ServiceMemberRank:
     type: string
     x-nullable: true

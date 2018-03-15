@@ -3,6 +3,8 @@ package handlers
 import (
 	"time"
 
+	"github.com/go-openapi/swag"
+
 	issueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/issues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -15,7 +17,7 @@ func (suite *HandlerSuite) TestSubmitIssueHandler() {
 
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(suite.db, suite.logger)
+	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -40,7 +42,7 @@ func (suite *HandlerSuite) TestSubmitDueDate() {
 	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, DueDate: testDate}
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(suite.db, suite.logger)
+	handler := CreateIssueHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newIssueParams)
 
 	// assert we got back the 201 response
@@ -61,19 +63,21 @@ func (suite *HandlerSuite) TestIndexIssuesHandler() {
 
 	// Given: An issue
 	testDescription := "This is a test issue for your indexIssueHandler."
-	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription}
+	newIssuePayload := internalmessages.CreateIssuePayload{Description: &testDescription, ReporterName: swag.String("Jackie")}
 
 	// When: New issue is posted
 	newIssueParams := issueop.CreateIssueParams{CreateIssuePayload: &newIssuePayload}
 
-	handler := NewCreateIssueHandler(suite.db, suite.logger)
+	handlerContext := NewHandlerContext(suite.db, suite.logger)
+
+	handler := CreateIssueHandler(handlerContext)
 	createResponse := handler.Handle(newIssueParams)
 	// Assert we got back the 201 response
 	_ = createResponse.(*issueop.CreateIssueCreated)
 
 	// And: All issues are queried
 	indexIssuesParams := issueop.NewIndexIssuesParams()
-	indexHandler := NewIndexIssuesHandler(suite.db, suite.logger)
+	indexHandler := IndexIssuesHandler(handlerContext)
 	indexResponse := indexHandler.Handle(indexIssuesParams)
 
 	// Then: Expect a 200 status code

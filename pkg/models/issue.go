@@ -40,6 +40,7 @@ func (i Issues) String() string {
 func (i *Issue) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: i.Description, Name: "Description"},
+		&StringIsNilOrNotBlank{Field: i.ReporterName, Name: "ReporterName"},
 	), nil
 }
 
