@@ -1,7 +1,6 @@
 package awardqueue
 
 import (
-	"fmt"
 	"math"
 	"time"
 
@@ -100,7 +99,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	}
 
 	if loopCount == blackoutRetries {
-		return nil, errors.New(fmt.Sprintf("Could not find a TSP without blackout dates in %d tries", blackoutRetries))
+		return nil, errors.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
 	}
 
 	return shipmentAward, err
