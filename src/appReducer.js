@@ -1,5 +1,6 @@
 import { combineReducers } from 'redux';
 import { feedbackReducer } from 'scenes/Feedback/ducks';
+import { moveReducer } from 'scenes/Moves/ducks';
 import { default as userReducer } from 'shared/User/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
@@ -11,6 +12,7 @@ import { routerReducer } from 'react-router-redux';
 export const appReducer = combineReducers({
   user: userReducer,
   submittedIssues: issuesReducer,
+  submittedMoves: moveReducer,
   shipments: shipmentsReducer,
   router: routerReducer,
   form: formReducer,
