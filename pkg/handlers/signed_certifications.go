@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/markbates/pop"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
@@ -13,22 +12,11 @@ import (
 )
 
 // CreateSignedCertificationHandler creates a new issue via POST /issue
-type CreateSignedCertificationHandler struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
+type CreateSignedCertificationHandler HandlerContext
 
 func userCanModifyMove(move models.Move, user models.User) bool {
 	// TODO: Handle case where more than one user is authorized to modify move
 	return move.UserID == user.ID
-}
-
-// NewCreateSignedCertificationHandler returns a new CreateSignedCertificationHandler
-func NewCreateSignedCertificationHandler(db *pop.Connection, logger *zap.Logger) CreateSignedCertificationHandler {
-	return CreateSignedCertificationHandler{
-		db:     db,
-		logger: logger,
-	}
 }
 
 // Handle creates a new SignedCertification from a request payload

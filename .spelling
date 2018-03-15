@@ -157,6 +157,10 @@ iOS
 generate-md-toc
 Memcached
 jwt-go
+initializer
+initializers
+main.go
+globals
 ADR-0000
 ADR-0001
 ADR-0002
