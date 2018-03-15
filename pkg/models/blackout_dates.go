@@ -18,10 +18,10 @@ type BlackoutDate struct {
 	StartBlackoutDate               time.Time  `json:"start_blackout_date" db:"start_blackout_date"`
 	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	Market                          *string    `json:"market" db:"market"`
 	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Channel                         *string    `json:"channel" db:"channel"`
 	GBLOC                           *string    `json:"gbloc" db:"gbloc"`
-	Market                          *string    `json:"market" db:"market"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
 }
@@ -38,15 +38,15 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, pickupDate time.
 		AND
 			$2 BETWEEN start_blackout_date and end_blackout_date
 		AND
-			(code_of_service = $3
+			(market = $3
 		OR
-			channel = $4
+			code_of_service = $4
 		OR
-			gbloc = $5
+			channel = $5
 		OR
-			market = $6)`
+			gbloc = $6)`
 
-	err := tx.RawQuery(sql, tspID, pickupDate, codeOfService, channel, gbloc, market).All(&blackoutDates)
+	err := tx.RawQuery(sql, tspID, pickupDate, market, codeOfService, channel, gbloc).All(&blackoutDates)
 
 	return blackoutDates, err
 }
