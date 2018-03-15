@@ -115,6 +115,8 @@ func main() {
 
 	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
 
+	internalAPI.DocumentsCreateDocumentHandler = handlers.CreateDocumentHandler(handlerContext)
+
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
