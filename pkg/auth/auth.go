@@ -10,16 +10,15 @@ import (
 	"net/url"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/dgrijalva/jwt-go"
-	"github.com/gorilla/context"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth/context"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -93,7 +92,7 @@ func deleteCookie(w http.ResponseWriter, name string) {
 	http.SetCookie(w, &cookie)
 }
 
-func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaims, ok bool) {
+func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *UserClaims, ok bool) {
 	cookie, err := r.Cookie(UserSessionCookieName)
 	if err != nil {
 		// No cookie set on client
@@ -106,7 +105,7 @@ func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaim
 	})
 
 	if token == nil || !token.Valid {
-		zap.L().Error("Failed token validation", zap.Error(err))
+		logger.Error("Failed token validation", zap.Error(err))
 		return
 	}
 
@@ -114,7 +113,7 @@ func getUserClaimsFromRequest(secret string, r *http.Request) (claims *UserClaim
 	// cast back to UserClaims
 	claims, ok = token.Claims.(*UserClaims)
 	if !ok {
-		zap.L().Error("Failed getting claims from token", zap.Error(err))
+		logger.Error("Failed getting claims from token", zap.Error(err))
 		return
 	}
 
@@ -144,10 +143,10 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 }
 
 // UserAuthMiddleware attempts to populate user data onto request context
-func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
+func UserAuthMiddleware(logger *zap.Logger, secret string) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			claims, ok := getUserClaimsFromRequest(secret, r)
+			claims, ok := getUserClaimsFromRequest(logger, secret, r)
 			if !ok {
 				next.ServeHTTP(w, r)
 				return
@@ -158,7 +157,7 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 				ss, err := signTokenStringWithUserInfo(claims.UserID, claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
-					zap.L().Error("Generating signed token string", zap.Error(err))
+					logger.Error("Generating signed token string", zap.Error(err))
 				}
 				cookie := http.Cookie{
 					Name:    UserSessionCookieName,
@@ -170,67 +169,68 @@ func UserAuthMiddleware(secret string) func(next http.Handler) http.Handler {
 			}
 
 			// And put the user info on the request context
-			context.Set(r, "user_id", claims.UserID)
-			context.Set(r, "email", claims.Email)
-			context.Set(r, "id_token", claims.IDToken)
+			ctx := context.PopulateAuthContext(r.Context(), claims.UserID, claims.IDToken)
 
-			next.ServeHTTP(w, r)
+			next.ServeHTTP(w, r.WithContext(ctx))
 		}
 		return http.HandlerFunc(mw)
 	}
 }
 
-// AuthorizationLogoutHandler handles logging the user out of login.gov
-func AuthorizationLogoutHandler(hostname string) http.HandlerFunc {
-	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
-	redirectURL := landingURL(hostname)
+// AuthorizationContext is the common handler type for auth handlers
+type AuthorizationContext struct {
+	hostname string
+	logger   *zap.Logger
+}
 
-	return func(w http.ResponseWriter, r *http.Request) {
-		idToken, ok := context.Get(r, "id_token").(string)
-		if !ok {
-			// Can't log out of login.gov without a token, redirect and let them re-auth
-			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-			return
-		}
-
-		parsedURL, err := url.Parse(logoutURL)
-		if err != nil {
-			zap.L().Error("Parse logout URL", zap.Error(err))
-		}
-
-		// Parameters taken from https://developers.login.gov/oidc/#logout
-		params := parsedURL.Query()
-		params.Add("id_token_hint", idToken)
-		params.Add("post_logout_redirect_uri", redirectURL)
-		params.Set("state", generateNonce())
-		parsedURL.RawQuery = params.Encode()
-
-		// Also need to clear the cookie on the client
-		deleteCookie(w, UserSessionCookieName)
-
-		http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
+// NewAuthContext creates an AuthorizationContext
+func NewAuthContext(hostname string, logger *zap.Logger) AuthorizationContext {
+	context := AuthorizationContext{
+		hostname: hostname,
+		logger:   logger,
 	}
+	return context
+}
+
+// AuthorizationLogoutHandler handles logging the user out of login.gov
+type AuthorizationLogoutHandler AuthorizationContext
+
+func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	logoutURL := "https://idp.int.identitysandbox.gov/openid_connect/logout"
+	redirectURL := landingURL(h.hostname)
+
+	idToken, ok := context.GetIDToken(r.Context())
+	if !ok {
+		// Can't log out of login.gov without a token, redirect and let them re-auth
+		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
+		return
+	}
+
+	parsedURL, err := url.Parse(logoutURL)
+	if err != nil {
+		h.logger.Error("Parse logout URL", zap.Error(err))
+	}
+
+	// Parameters taken from https://developers.login.gov/oidc/#logout
+	params := parsedURL.Query()
+	params.Add("id_token_hint", idToken)
+	params.Add("post_logout_redirect_uri", redirectURL)
+	params.Set("state", generateNonce())
+	parsedURL.RawQuery = params.Encode()
+
+	// Also need to clear the cookie on the client
+	deleteCookie(w, UserSessionCookieName)
+
+	http.Redirect(w, r, parsedURL.String(), http.StatusTemporaryRedirect)
 }
 
 // AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler struct {
-	logger   *zap.Logger
-	hostname string
-}
-
-// NewAuthorizationRedirectHandler creates a new AuthorizationRedirectHandler
-func NewAuthorizationRedirectHandler(logger *zap.Logger, hostname string) *AuthorizationRedirectHandler {
-	handler := AuthorizationRedirectHandler{
-		logger:   logger,
-		hostname: hostname,
-	}
-	return &handler
-}
+type AuthorizationRedirectHandler AuthorizationContext
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
-func (h *AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	token := context.Get(r, "id_token")
-	if token != nil {
+func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	_, ok := context.GetIDToken(r.Context())
+	if ok {
 		// User is already authed, redirect to landing page
 		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
 		return
@@ -256,7 +256,7 @@ type AuthorizationCallbackHandler struct {
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) *AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
@@ -265,11 +265,11 @@ func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey str
 		hostname:            hostname,
 		logger:              logger,
 	}
-	return &handler
+	return handler
 }
 
 // AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
-func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	authError := r.URL.Query().Get("error")
 
@@ -317,7 +317,7 @@ func (h *AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
-		zap.L().Error("Generating signed token string", zap.Error(err))
+		h.logger.Error("Generating signed token string", zap.Error(err))
 	}
 	cookie := http.Cookie{
 		Name:    UserSessionCookieName,

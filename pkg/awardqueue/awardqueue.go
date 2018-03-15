@@ -17,15 +17,13 @@ const numQualBands = 4
 // TODO: This will eventually need to be configurable; implement as something other than a constant.
 const mps = 10
 
-type qualityBand models.TransportationServiceProviderPerformances
-
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
 	db *pop.Connection
 }
 
 func (aq *AwardQueue) findAllUnawardedShipments() ([]models.PossiblyAwardedShipment, error) {
-	shipments, err := models.FetchAwardedShipments(aq.db)
+	shipments, err := models.FetchUnawardedShipments(aq.db)
 	return shipments, err
 }
 
@@ -56,7 +54,7 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	for !foundAvailableTSP && loopCount < blackoutRetries {
 		loopCount++
 
-		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID)
+		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
 
 		if err != nil {
 			return nil, fmt.Errorf("Cannot award. Error: %s", err)
@@ -68,20 +66,19 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				fmt.Printf("\tAttempting to award to TSP: %s\n", tsp.Name)
 
-				tspBlackoutDatesPresent, err := aq.CheckTSPBlackoutDates(tsp.ID, shipment)
-				// ^^ Hi Breanne! Added stuff there to match new method signature, will need to troubleshoot.
-				if err == nil {
-					shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, tspBlackoutDatesPresent)
-				} else {
+				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+				if err != nil {
 					return err
 				}
 
+				shipmentAward, err = models.CreateShipmentAward(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
 				if err == nil {
 					if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
-						if tspBlackoutDatesPresent == true {
+						if isAdministrativeShipment == true {
 							fmt.Printf("\tShipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.\n")
 						} else {
-							fmt.Print("\tShipment awarded to TSP!\n")
+							// TODO: AwardCount is off by 1
+							fmt.Printf("\tShipment awarded to TSP! TSP now has %d shipment awards.\n", tspPerformance.AwardCount+1)
 							foundAvailableTSP = true
 						}
 						return nil
@@ -210,8 +207,9 @@ func Run(db *pop.Connection) error {
 	return nil
 }
 
-// CheckTSPBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date to a submitted pickup date to see if it falls within the window created by the blackout date record.
-func (aq *AwardQueue) CheckTSPBlackoutDates(tspID uuid.UUID, shipment models.PossiblyAwardedShipment) (bool, error) {
+// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
+// to see if it falls within the window created by the blackout date record, considering the dates as well as optional channels COS, channel, GBLOC, and market.
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.PossiblyAwardedShipment) (bool, error) {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, *shipment.CodeOfService, *shipment.Channel, *shipment.GBLOC, *shipment.Market)
 
 	if err != nil {

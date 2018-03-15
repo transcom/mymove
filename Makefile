@@ -13,6 +13,11 @@ prereqs: .prereqs.stamp
 	bin/prereqs
 	touch .prereqs.stamp
 
+go_version: .go_version.stamp
+.go_version.stamp: bin/check_go_version
+	bin/check_go_version
+	touch .go_version.stamp
+
 deps: prereqs pre-commit client_deps server_deps
 test: client_test server_test e2e_test
 
@@ -21,7 +26,7 @@ spellcheck:
 		`find . -type f -name "*.md" \
 			-not -path "./vendor/*" \
 			-not -path "./node_modules/*" \
-			-not -path "./docs/adr/README.md"`
+			-not -path "./docs/adr/index.md"`
 
 client_deps_update:
 	yarn upgrade
@@ -39,7 +44,7 @@ client_test: client_deps
 
 server_deps_update: server_generate
 	dep ensure -v -update
-server_deps: .server_deps.stamp
+server_deps: go_version .server_deps.stamp
 .server_deps.stamp: Gopkg.lock
 	bin/check_gopath.sh
 	dep ensure -vendor-only

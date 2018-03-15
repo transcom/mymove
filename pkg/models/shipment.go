@@ -17,18 +17,20 @@ type Shipment struct {
 	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
+	AwardDate                 time.Time `json:"award_date" db:"award_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	Market                    *string   `json:"market" db:"market"`
 	CodeOfService             *string   `json:"code_of_service" db:"code_of_service"`
 	Channel                   *string   `json:"channel" db:"channel"`
 	GBLOC                     *string   `json:"gbloc" db:"gbloc"`
-} // To do, Breanne: whatever's needed to integrate these three new fields throughout test data and tests and other functions. For instance, adding these new fields - possibly - to the PAS below. And adding it to the query that makes it.
+}
 
 // PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
 type PossiblyAwardedShipment struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
+	AwardDate                       time.Time  `json:"award_date" db:"award_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	PickupDate                      time.Time  `json:"pickup_date" db:"pickup_date"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
@@ -45,34 +47,42 @@ type PossiblyAwardedShipment struct {
 func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
-	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftOuterJoin("shipment_awards", "shipment_awards.shipment_id=shipments.id")
+	sql := `SELECT
+				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.award_date,
+				shipments.market,
+				shipments.code_of_service,
+				shipments.channel,
+				shipments.gbloc,
+				shipments.traffic_distribution_list_id,
+				shipment_awards.transportation_service_provider_id,
+				shipment_awards.administrative_shipment
+			FROM shipments
+			LEFT JOIN shipment_awards ON
+				shipment_awards.shipment_id=shipments.id
+			ORDER BY
+				shipments.created_at ASC`
 
-	sql, args := query.ToSQL(&pop.Model{Value: Shipment{}},
-		"shipments.id",
-		"shipments.created_at",
-		"shipments.updated_at",
-		"shipments.traffic_distribution_list_id",
-		"shipments.pickup_date",
-		"shipments.market",
-		"shipments.code_of_service",
-		"shipments.channel",
-		"shipments.gbloc",
-		"shipment_awards.transportation_service_provider_id",
-		"shipment_awards.administrative_shipment",
-	)
-	err := dbConnection.RawQuery(sql, args...).All(&shipments)
+	err := dbConnection.RawQuery(sql).All(&shipments)
+
 	return shipments, err
 }
 
-// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+// FetchUnawardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
 // TODO: This is virtually identical to the function above, except it returns shipments that
 //       are specifically awarded. Consolidate.
-func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+func FetchUnawardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
 	sql := `SELECT
 				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.award_date,
 				shipments.traffic_distribution_list_id,
 				shipment_awards.transportation_service_provider_id
 			FROM shipments
