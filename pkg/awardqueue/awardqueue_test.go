@@ -8,15 +8,16 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/markbates/pop"
-
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, err := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
@@ -55,7 +56,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
@@ -95,7 +96,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	// Creates a TSP and TDL with a blackout date connected to both.
 	testTSP1, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	testTDL, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
@@ -140,7 +141,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 func (suite *AwardQueueSuite) Test_FindAllUnawardedShipments() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	_, err := queue.findAllUnawardedShipments()
 
 	if err != nil {
@@ -152,7 +153,7 @@ func (suite *AwardQueueSuite) Test_FindAllUnawardedShipments() {
 // it actually gets awarded.
 func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
@@ -189,7 +190,7 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 // with any TSPs, and that it doens't get awarded.
 func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
@@ -218,7 +219,7 @@ func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 
 func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsSingleTSP() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	shipmentsToMake := 10
 
@@ -255,7 +256,7 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsSingleTSP() {
 func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsToMultipleTSPs() {
 	suite.db.TruncateAll()
 
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 
 	shipmentsToMake := 17
 
@@ -314,7 +315,7 @@ func (suite *AwardQueueSuite) Test_GetTSPsPerBandNoRemainder() {
 
 func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	t := suite.T()
-	queue := NewAwardQueue(suite.db)
+	queue := NewAwardQueue(suite.db, suite.logger)
 	tspsToMake := 5
 
 	tdl, err := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
@@ -390,7 +391,8 @@ func equalSlice(a []int, b []int) bool {
 
 type AwardQueueSuite struct {
 	suite.Suite
-	db *pop.Connection
+	db     *pop.Connection
+	logger *zap.Logger
 }
 
 func (suite *AwardQueueSuite) SetupTest() {
@@ -405,6 +407,9 @@ func TestAwardQueueSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	hs := &AwardQueueSuite{db: db}
+	// Use a no-op logger during testing
+	logger := zap.NewNop()
+
+	hs := &AwardQueueSuite{db: db, logger: logger}
 	suite.Run(t, hs)
 }
