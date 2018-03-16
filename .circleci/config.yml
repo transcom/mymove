@@ -243,31 +243,31 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
       - staging_health_check:
           requires:
             -deploy_staging_app
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
       - deploy_prod_migrations:
           requires:
             - staging_health_check
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
       - deploy_prod_app:
           requires:
             - deploy_prod_migrations
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
 
 
   dependency_updater:
