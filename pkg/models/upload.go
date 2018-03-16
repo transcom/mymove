@@ -40,6 +40,7 @@ func (u Uploads) String() string {
 	return string(ju)
 }
 
+// Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: u.DocumentID, Name: "DocumentID"},
