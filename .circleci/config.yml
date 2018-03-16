@@ -151,8 +151,7 @@ jobs:
       - checkout
       - run:
           name: Health check staging site
-          command: |
-            curl -H \"Content-Type: application/json\" --data '{\"source_type\": \"Branch\", \"source_name\": \"dev\"}' -X POST https://app.staging.dp3.us
+          command: curl -ISs https://app.staging.dp3.us | head -n 1
       - run: *announce_failure
 
   deploy_prod_migrations:
@@ -251,6 +250,25 @@ workflows:
           filters:
             branches:
               only: master
+      - staging_health_check:
+          requires:
+            -deploy_staging_app
+          filters:
+            branches:
+              only: master
+      - deploy_prod_migrations:
+          requires:
+            - staging_health_check
+          filters:
+            branches:
+              only: master
+      - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
+
 
   dependency_updater:
     triggers:
