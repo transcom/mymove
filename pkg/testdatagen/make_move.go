@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MakeMove creates a single Move and associated User.
 func MakeMove(db *pop.Connection) (models.Move, error) {
 	var move models.Move
 

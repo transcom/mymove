@@ -9,6 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+// MakeUser creates a single User.
 func MakeUser(db *pop.Connection) (models.User, error) {
 	id, err := uuid.NewV4()
 	if err != nil {
