@@ -45,26 +45,29 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 
 	var shipmentAward *models.ShipmentAward
 
-	// TODO: We need to loop here, because if a TSP has a blackout date we need to try again.
-	// we _also_ want to watch out for inifite loops, because if all the TSPs in the selection
+	// We need to loop here, because if a TSP has a blackout date we need to try again.
+	// We _also_ want to watch out for infinite loops, because if all the TSPs in the selection
 	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
 	// administrative shipments forever.
+	firstEligibleTSPPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
+	firstTSPid := firstEligibleTSPPerformance.ID
 	foundAvailableTSP := false
 	loopCount := 0
-	blackoutRetries := 1000
 
-	for !foundAvailableTSP && loopCount < blackoutRetries {
-		loopCount++
+	for !foundAvailableTSP {
 
 		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
 
+		if loopCount != 0 && tspPerformance.ID == firstTSPid {
+			return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", loopCount)
+		}
+		loopCount++
 		if err != nil {
 			return nil, err
 		}
 
 		err = aq.db.Transaction(func(tx *pop.Connection) error {
 			tsp := models.TransportationServiceProvider{}
-
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				aq.logger.Infof("Attempting to award to TSP: %s", tsp.Name)
 
@@ -93,13 +96,10 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 			aq.logger.Errorf("Failed to award to TSP: %s", err)
 			return err
 		})
-		if !foundAvailableTSP {
-			aq.logger.Infof("Checking for another TSP. Tries left: %d", blackoutRetries-loopCount)
-		}
-	}
 
-	if loopCount == blackoutRetries {
-		return nil, errors.Errorf("Could not find a TSP without blackout dates in %d tries", blackoutRetries)
+		if !foundAvailableTSP {
+			aq.logger.Info("Checking for another TSP.")
+		}
 	}
 
 	return shipmentAward, err
