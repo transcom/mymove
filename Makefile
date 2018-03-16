@@ -4,7 +4,7 @@ export PGPASSWORD=mysecretpassword
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
-pre-commit: .git/hooks/pre-commit
+ensure_pre_commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
@@ -18,7 +18,7 @@ go_version: .go_version.stamp
 	bin/check_go_version
 	touch .go_version.stamp
 
-deps: prereqs pre-commit client_deps server_deps
+deps: prereqs ensure_pre_commit client_deps server_deps
 test: client_test server_test e2e_test
 
 spellcheck:
@@ -156,6 +156,9 @@ db_test_reset:
 
 adr_update:
 	yarn run adr-log
+
+pre_commit_tests:
+	pre-commit run --all-files
 
 clean:
 	rm .*.stamp
