@@ -41,6 +41,8 @@ client_run: client_deps
 	yarn start
 client_test: client_deps
 	yarn test
+client_test_coverage : client_deps
+	yarn test:coverage
 
 server_deps_update: server_generate
 	dep ensure -v -update
