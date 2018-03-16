@@ -86,11 +86,11 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 						return nil
 					}
 				} else {
-					aq.logger.Infof("Failed to award to TSP: %s", err)
+					aq.logger.Errorf("Failed to award to TSP: %s", err)
 				}
 			}
 
-			aq.logger.Infof("Failed to award to TSP: %s", err)
+			aq.logger.Errorf("Failed to award to TSP: %s", err)
 			return err
 		})
 		if !foundAvailableTSP {
@@ -114,14 +114,14 @@ func (aq *AwardQueue) assignUnawardedShipments() {
 		for _, shipment := range shipments {
 			_, err = aq.attemptShipmentAward(shipment)
 			if err != nil {
-				aq.logger.Infof("Failed to award shipment: %s", err)
+				aq.logger.Errorf("Failed to award shipment: %s", err)
 			} else {
 				count++
 			}
 		}
 		aq.logger.Infof("Awarded %d shipments.", count)
 	} else {
-		aq.logger.Infof("Failed to query for shipments %s", err)
+		aq.logger.Errorf("Failed to query for shipments %s", err)
 	}
 }
 
@@ -218,7 +218,7 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, pickupDate ti
 	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
 	// or if the pickupDate falls between the start and end.
 	for _, blackoutDate := range blackoutDates {
-		aq.logger.Infof("Evaluating whether pickup date is between blackout dates (%s <= %s <= %s)", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
+		aq.logger.Debugf("Evaluating whether pickup date is between blackout dates (%s <= %s <= %s)", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
 
 		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
 			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
