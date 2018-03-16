@@ -1,0 +1,33 @@
+#!/bin/bash
+#
+#   Show logs from the currently running app containers.
+#
+
+set -eo pipefail
+
+usage() {
+    echo "$0 <environment> | less"
+    exit 1
+}
+[[ -z $1 ]] && usage
+set -u
+
+readonly environment=$1
+readonly container=app
+readonly log_group_name=ecs-tasks-app-$environment
+
+# Get list of running tasks
+for task_arn in $(aws ecs list-tasks --cluster "app-$environment" --query 'taskArns' | jq -r '.[]'); do
+    [[ -z $task_arn ]] && { echo "Missing task ARN"; exit 1; }
+
+    # Parse out the task ID
+    task_id=$(echo "$task_arn" | perl -ne 'm|^arn:aws:ecs:([^:]+:){2}task/([\S]+)|; print "$2\n";')
+    [[ -z $task_id ]] && { echo "Couldn't parse task ID: $task_arn"; exit 1; }
+
+    # Display logs for this task
+    log_stream_name=app/app-$environment/$task_id
+    echo "Task $task_id"
+    echo "-----------------------------------------"
+    aws logs get-log-events --log-group-name "$log_group_name" --log-stream-name "$log_stream_name" --query 'events[].message' | jq -r '.[]'
+    echo
+done
