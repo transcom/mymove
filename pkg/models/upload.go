@@ -46,8 +46,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: u.DocumentID, Name: "DocumentID"},
 		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
-		// TODO create an Int64IsPresent validator
-		&validators.IntIsPresent{Field: int(u.Bytes), Name: "Bytes"},
+		&Int64IsPresent{Field: u.Bytes, Name: "Bytes"},
 		&validators.StringIsPresent{Field: u.ContentType, Name: "ContentType"},
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
