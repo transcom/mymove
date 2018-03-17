@@ -262,12 +262,12 @@ workflows:
           filters:
             branches:
               only: rek_deploy-to-prod
-      # - deploy_prod_app:
-      #     requires:
-      #       - deploy_prod_migrations
-      #     filters:
-      #       branches:
-      #         only: rek_deploy-to-prod
+      - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: rek_deploy-to-prod
 
 
   dependency_updater:
