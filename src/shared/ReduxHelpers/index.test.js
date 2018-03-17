@@ -106,7 +106,11 @@ describe('reduxHelperss', () => {
         const initialState = {};
         Object.freeze(initialState);
         const newstate = reducer(initialState, actions.start());
-        expect(newstate).toEqual({ isLoading: true, hasErrored: false });
+        expect(newstate).toEqual({
+          isLoading: true,
+          hasErrored: false,
+          hasSucceeded: false,
+        });
       });
       it('success', () => {
         const initialState = {};
@@ -116,6 +120,7 @@ describe('reduxHelperss', () => {
           foo: 'my payload',
           isLoading: false,
           hasErrored: false,
+          hasSucceeded: true,
         });
       });
       it('failure', () => {
@@ -129,6 +134,7 @@ describe('reduxHelperss', () => {
           error: 'something is wrong',
           isLoading: false,
           hasErrored: true,
+          hasSucceeded: false,
         });
       });
     });
