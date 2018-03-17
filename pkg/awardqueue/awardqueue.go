@@ -210,7 +210,7 @@ func Run(db *pop.Connection) error {
 // ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
 // to see if it falls within the window created by the blackout date record, considering the dates as well as optional channels COS, channel, GBLOC, and market.
 func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.PossiblyAwardedShipment) (bool, error) {
-	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, *shipment.CodeOfService, *shipment.Channel, *shipment.GBLOC, *shipment.Market)
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, shipment.CodeOfService, shipment.Channel, shipment.GBLOC, shipment.Market)
 
 	if err != nil {
 		return false, fmt.Errorf("Error retrieving blackout dates from database: %s", err)

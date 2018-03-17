@@ -2,10 +2,12 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
+	"strings"
 	"time"
 )
 
@@ -27,9 +29,13 @@ type BlackoutDate struct {
 }
 
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, pickupDate time.Time, codeOfService string, channel string, gbloc string, market string) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, pickupDate time.Time, codeOfService *string, channel *string, gbloc *string, market *string) ([]BlackoutDate, error) {
+	fmt.Println("Hello! It is the blackout dates query.")
+	// If/then it up to build up appropriate query string
+	// A fine place to accommodate the logic that already exists - two attributes that cannot be together
 	blackoutDates := []BlackoutDate{}
-	sql := `SELECT
+	moreThanOneClause := false
+	sqlString := []string{`SELECT
 			*
 		FROM
 			blackout_dates
@@ -38,15 +44,69 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, pickupDate time.
 		AND
 			$2 BETWEEN start_blackout_date and end_blackout_date
 		AND
-			(market = $3
-		OR
-			code_of_service = $4
-		OR
-			channel = $5
-		OR
-			gbloc = $6)`
+			(`}
+	fmt.Println(sqlString)
+	// sqlBase := `SELECT
+	// 		*
+	// 	FROM
+	// 		blackout_dates
+	// 	WHERE
+	// 		transportation_service_provider_id = $1
+	// 	AND
+	// 		$2 BETWEEN start_blackout_date and end_blackout_date
+	// 	AND
+	// 		(`
+	fmt.Printf("%T\n", sqlString)
+	if *codeOfService != "" {
+		sqlString = append(sqlString, `code_of_service = `, *codeOfService, " ")
+		moreThanOneClause = true
+	}
+	fmt.Println("This is line 64: ", sqlString)
+	fmt.Printf("This is line 65: %T\n", codeOfService)
+	fmt.Printf("This is line 66: %T\n", *codeOfService)
+	if *channel != "" {
+		if !moreThanOneClause {
+			sqlString = append(sqlString, `channel = `, *channel, " ")
+			moreThanOneClause = true
+		} else {
+			sqlString = append(sqlString, ` OR channel = `, *channel, " ")
+		}
+	}
+	fmt.Println(sqlString)
+	if *gbloc != "" {
+		if !moreThanOneClause {
+			sqlString = append(sqlString, `gbloc = `, *gbloc, " ")
+			moreThanOneClause = true
+		} else {
+			sqlString = append(sqlString, ` OR gbloc = `, *gbloc, " ")
+		}
+	}
+	fmt.Println(sqlString)
+	// A good place to do that if market, no channel thing - need to change order of things.
+	if *market != "" {
+		if !moreThanOneClause {
+			sqlString = append(sqlString, `market = `, *market, " ")
+			moreThanOneClause = true
+		} else {
+			sqlString = append(sqlString, ` OR market = `, *market, " ")
+		}
+	}
 
-	err := tx.RawQuery(sql, tspID, pickupDate, market, codeOfService, channel, gbloc).All(&blackoutDates)
+	sqlString = append(sqlString, ";")
+
+	sql := strings.Join(sqlString, "")
+	fmt.Println(sql)
+
+	// sql :=
+	// 		(market = $3
+	// 	OR
+	// 		code_of_service = $4
+	// 	OR
+	// 		channel = $5
+	// 	OR
+	// 		gbloc = $6)
+
+	err := tx.RawQuery(sql, tspID, pickupDate).All(&blackoutDates)
 
 	return blackoutDates, err
 }
