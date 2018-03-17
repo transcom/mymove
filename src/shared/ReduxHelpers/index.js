@@ -56,25 +56,24 @@ export function generateAsyncReducer(resourceName, onSuccess) {
           isLoading: true,
           hasErrored: false,
         });
-      case action.success: {
-        const result = Object.assign({}, state, {
+      case actions.success: {
+        return Object.assign({}, state, {
           isLoading: false,
           hasErrored: false,
+          payload: onSuccess(action.payload),
         });
-        result[resourceName] = onSuccess(action.payload);
-        return result;
       }
-      case action.failure: {
+      case actions.failure: {
         const result = Object.assign({}, state, {
           isLoading: false,
           hasErrored: true,
           error: action.error,
         });
-        result[resourceName] = null;
         return result;
       }
-      default:
+      default: {
         return state;
+      }
     }
   };
 }
