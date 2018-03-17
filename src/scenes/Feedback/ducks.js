@@ -1,62 +1,19 @@
 import { CreateIssue } from './api.js';
 import { getUiSchema } from './uiSchema';
+import * as helpers from 'shared/ReduxHelpers';
 
-// Types
-export const CREATE_ISSUE = 'CREATE_ISSUE';
-export const CREATE_ISSUE_SUCCESS = 'CREATE_ISSUE_SUCCESS';
-export const CREATE_ISSUE_FAILURE = 'CREATE_ISSUE_FAILURE';
+const resource = 'CREATE_ISSUE';
 
-// Actions
-export const createIssueRequest = () => ({
-  type: CREATE_ISSUE,
-});
+export const actionsTypes = helpers.generateAsyncActionTypes(resource);
 
-export const createIssueSuccess = item => ({
-  type: CREATE_ISSUE_SUCCESS,
-  item,
-});
+export const createIssue = helpers.generateAsyncActionCreator(
+  resource,
+  CreateIssue,
+);
 
-export const createIssueFailure = error => ({
-  type: CREATE_ISSUE_FAILURE,
-  error,
-});
-
-// Action creator
-export function createIssue(value) {
-  return function(dispatch) {
-    dispatch(createIssueRequest());
-    CreateIssue(value)
-      .then(item => dispatch(createIssueSuccess(item)))
-      .catch(error => dispatch(createIssueFailure(error)));
-  };
-}
-
-// Reducer
-const initialState = {
-  schema: {},
-  uiSchema: getUiSchema(),
-  hasSchemaError: false,
-  hasSubmitError: false,
-  hasSubmitSuccess: false,
-  confirmationText: '',
-};
-export function feedbackReducer(state = initialState, action) {
-  switch (action.type) {
-    case CREATE_ISSUE_SUCCESS:
-      return Object.assign({}, state, {
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
-        confirmationText: 'Feedback submitted!',
-      });
-    case CREATE_ISSUE_FAILURE:
-      return Object.assign({}, state, {
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
-        confirmationText: 'Submission error.',
-      });
-    default:
-      return state;
-  }
-}
-
-// export default feedbackReducer;
+const initialStateMixin = { schema: {}, uiSchema: getUiSchema() };
+export const feedbackReducer = helpers.generateAsyncReducer(
+  resource,
+  v => null,
+  initialStateMixin,
+);

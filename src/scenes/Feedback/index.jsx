@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
+import Alert from 'shared/Alert';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
 import { createIssue } from './ducks';
@@ -22,7 +22,7 @@ export class Feedback extends Component {
   };
 
   render() {
-    const { confirmationText } = this.props;
+    const { hasErrored, hasSucceeded } = this.props;
     return (
       <div className="usa-grid">
         <h1>Report a Bug!</h1>
@@ -31,7 +31,16 @@ export class Feedback extends Component {
           schema={this.props.schema}
           uiSchema={this.props.uiSchema}
         />
-        <FeedbackConfirmation confirmationText={confirmationText} />
+        {hasErrored && (
+          <Alert type="error" heading="Submission Error">
+            Something went wrong
+          </Alert>
+        )}
+        {hasSucceeded && (
+          <Alert type="success" heading="Submission Successful">
+            Your issue is submitted.
+          </Alert>
+        )}
       </div>
     );
   }
@@ -39,13 +48,11 @@ export class Feedback extends Component {
 
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
-  confirmationText: PropTypes.string.isRequired,
   loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
-  hasSchemaError: PropTypes.bool.isRequired,
-  hasSubmitError: PropTypes.bool.isRequired,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
+  hasErrored: PropTypes.bool.isRequired,
+  hasSucceeded: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
