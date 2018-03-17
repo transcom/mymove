@@ -91,7 +91,7 @@ describe('reduxHelperss', () => {
     });
     describe('when generateAsyncReducer is called', () => {
       const actions = helpers.generateAsyncActions(resourceName);
-      const onSuccessTransform = jest.fn().mockImplementation(foo => foo);
+      const onSuccessTransform = jest.fn().mockImplementation(foo => ({ foo }));
       const reducer = helpers.generateAsyncReducer(
         resourceName,
         onSuccessTransform,
@@ -113,7 +113,7 @@ describe('reduxHelperss', () => {
         Object.freeze(initialState);
         const newstate = reducer(initialState, actions.success('my payload'));
         expect(newstate).toEqual({
-          payload: 'my payload',
+          foo: 'my payload',
           isLoading: false,
           hasErrored: false,
         });

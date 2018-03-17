@@ -16,7 +16,7 @@ import { documentReducer } from 'shared/Uploader/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
-  // swagger: swaggerReducer,
+  swagger: swaggerReducer,
   submittedIssues: issuesReducer,
   submittedMoves: moveReducer,
   ppm: ppmReducer,
