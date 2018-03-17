@@ -6,7 +6,8 @@ import PropTypes from 'prop-types';
 import FeedbackConfirmation from 'scenes/Feedback/FeedbackConfirmation';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
-import { loadSchema, createIssue } from './ducks';
+import { createIssue } from './ducks';
+import { loadSchema } from 'shared/Swagger/ducks';
 
 const FeedbackForm = reduxifyForm('Feedback');
 
@@ -48,7 +49,11 @@ Feedback.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.feedback;
+  const props = { ...state.feedback, schema: {} };
+  if (state.swagger.spec) {
+    props.schema = state.swagger.spec.definitions.CreateIssuePayload;
+  }
+  return props;
 }
 
 function mapDispatchToProps(dispatch) {
