@@ -142,6 +142,21 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+    get:
+      summary: List all moves
+      description: List all moves
+      operationId: indexMoves
+      tags:
+        - moves
+      responses:
+        200:
+          description: list of moves
+          schema:
+            $ref: '#/definitions/IndexMovesPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
@@ -404,8 +419,8 @@ definitions:
     items:
       $ref: '#/definitions/PersonallyProcuredMovePayload'
   CreateMovePayload:
-   type: object
-   properties:
+    type: object
+    properties:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
   MovePayload:
@@ -444,6 +459,10 @@ definitions:
       HHG: Household Goods Move
       PPM: Personal Property Move
       COMBO: Both HHG and PPM
+  IndexMovesPayload:
+    type: array
+    items:
+      $ref: '#/definitions/MovePayload'
   CreateSignedCertificationPayload:
     type: object
     properties:

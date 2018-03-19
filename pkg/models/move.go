@@ -128,3 +128,11 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 
 	return result, err
 }
+
+// GetMovesForUserID gets all move models for a given user ID
+func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
+	var moves Moves
+	query := db.Where("user_id = $1", userID)
+	err := query.All(&moves)
+	return moves, err
+}
