@@ -1,38 +1,48 @@
 import React, { Component } from 'react';
-import truckGrayCheckGray from './truck-gray-check-gray.svg';
-import ppmBlack from './ppm-black.svg';
-import './Transition.css';
+import carGray from './car-gray.svg';
+import trailerGray from './trailer-gray.svg';
+import truckGray from './truck-gray.svg';
+import './PpmSize.css';
+
+function BigButton(props) {
+  return <div className="size-button">{props.children}</div>;
+}
 
 export class PpmSize extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Transition Page';
+    document.title = 'Transcom PPP: Size Selection';
   }
   render() {
     return (
-      <div className="transition-box">
-        <div className="hhg-icon">
-          <img src={truckGrayCheckGray} alt={this.props.match.path} />
-          <b>
-            <p> Shipment 1 (HHG)</p>
-          </b>
+      <div className="usa-grid-full ppm-size-content">
+        <h3>How much of your stuff do you intend to move yourself?</h3>
+
+        <div className="usa-width-one-third">
+          <BigButton>
+            <p>A few items in your car?</p>
+            <p>(approx 100 - 800 lbs)</p>
+            <img src={carGray} alt="car-gray" />
+          </BigButton>
         </div>
 
-        <div className="transition-text">
-          <b>
-            <p>Your moving company shipment is now set up.</p>
-          </b>
-          <p>Let’s go on to the stuff you’ll move yourself.</p>
+        <div className="usa-width-one-third">
+          <BigButton>
+            <p>A trailer full of household goods? </p>
+            <p>(approx 400 - 1,200 lbs)</p>
+            <img src={trailerGray} alt="trailer-gray" />
+          </BigButton>
         </div>
 
-        <div className="ppm-icon">
-          <img src={ppmBlack} alt={this.props.match.path} />
-          <b>
-            <p> Shipment 2 (PPM)</p>
-          </b>
+        <div className="usa-width-one-third">
+          <BigButton>
+            <p>A moving truck that you rent yourself?</p>
+            <p>(approx 1,000 - 5,000 lbs)</p>
+            <img src={truckGray} alt="truck-gray" />
+          </BigButton>
         </div>
       </div>
     );
   }
 }
 
-export default Transition;
+export default PpmSize;
