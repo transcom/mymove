@@ -10,6 +10,7 @@
 
 # testing
 /coverage
+coverage.out
 __snapshots__
 
 # production
