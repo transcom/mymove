@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-
 	"time"
 
 	"github.com/markbates/pop"

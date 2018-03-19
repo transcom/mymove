@@ -22,7 +22,6 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 func (suite *ModelSuite) TestGetMoveForUser() {
 	t := suite.T()
-	fmt.Println("Are we testing moves though?")
 
 	user1 := User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
