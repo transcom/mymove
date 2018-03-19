@@ -72,11 +72,11 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	return response
 }
 
-// IndexPersonallyProcuredMoveHandler returns a list of all the PPMs associated with this move.
-type IndexPersonallyProcuredMoveHandler HandlerContext
+// IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
+type IndexPersonallyProcuredMovesHandler HandlerContext
 
 // Handle handles the request
-func (h IndexPersonallyProcuredMoveHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
+func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
 	var response middleware.Responder
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
