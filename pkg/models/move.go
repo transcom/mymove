@@ -60,16 +60,19 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// MoveResult is returned by GetMoveForUser and encapulates wether the call succeeded and why it failed.
 type MoveResult struct {
 	valid     bool
 	errorCode FetchError
 	move      Move
 }
 
+// IsValid indicates wether the MoveResult is valid.
 func (m MoveResult) IsValid() bool {
 	return m.valid
 }
 
+// Move returns the move if and only if the move was correctly fetched
 func (m MoveResult) Move() Move {
 	if !m.valid {
 		fmt.Println("Check if this isValid before accessing the Move()!")
@@ -78,6 +81,7 @@ func (m MoveResult) Move() Move {
 	return m.move
 }
 
+// ErrorCode returns the error if and only iff the move was not correctly fetched
 func (m MoveResult) ErrorCode() FetchError {
 	if m.valid {
 		fmt.Println("Check that this !isValid before accessing the ErrorCode()!")
@@ -86,12 +90,14 @@ func (m MoveResult) ErrorCode() FetchError {
 	return m.errorCode
 }
 
+// NewInvalidMoveResult creates an invalid MoveResult
 func NewInvalidMoveResult(errorCode FetchError) MoveResult {
 	return MoveResult{
 		errorCode: errorCode,
 	}
 }
 
+// NewValidMoveResult creates a valid MoveResult
 func NewValidMoveResult(move Move) MoveResult {
 	return MoveResult{
 		valid: true,
@@ -121,11 +127,4 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 	}
 
 	return result, err
-}
-
-// GetMoveByID fetches a Move model by their database ID
-func GetMoveByID(db *pop.Connection, id uuid.UUID) (Move, error) {
-	move := Move{}
-	err := db.Find(&move, id)
-	return move, err
 }

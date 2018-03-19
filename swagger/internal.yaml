@@ -170,6 +170,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+        404:
+          description: move not found
+        500:
+          description: internal server error
 
   /moves/{moveId}/personally_procured_move:
     post:
