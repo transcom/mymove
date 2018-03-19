@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/satori/go.uuid"
 
@@ -53,21 +52,42 @@ func (suite *ModelSuite) TestGetMoveForUser() {
 		t.Error(verrs, err)
 	}
 
-	theMove, err := GetMoveForUser(suite.db, user1.ID, move.ID)
+	fmt.Println(user1.ID, user2.ID, move.UserID)
+
+	// All correct
+	moveResult, err := GetMoveForUser(suite.db, user1.ID, move.ID)
 	if err != nil {
-		t.Error("Expected to get theMove back.", err)
+		t.Error("Expected to get moveResult back.", err)
 	}
-	if theMove.ID != move.ID {
-		t.Error("Expected theMove to match move.")
+	if !moveResult.IsValid() {
+		t.Error("Expected the move to be valid")
+	}
+	if moveResult.Move().ID != move.ID {
+		t.Error("Expected new move to match move.")
 	}
 
-	_, err = GetMoveForUser(suite.db, user2.ID, move.ID)
+	// Bad Move
+	moveResult, err = GetMoveForUser(suite.db, user1.ID, uuid.Must(uuid.NewV4()))
 	if err != nil {
-		if !strings.HasSuffix(err.Error(), "no rows in result set") {
-			t.Error("Expected the error to end with 'no rows in result set'")
-		}
-	} else {
-		t.Error("We should not have been able to retrieve this move")
+		t.Error("Expected to get a good moveResult back.", err)
+	}
+	if moveResult.IsValid() {
+		t.Error("Expected the moveResult to be invalid")
+	}
+	if moveResult.ErrorCode() != FetchErrorNotFound {
+		t.Error("Should have gotten a not found error")
+	}
+
+	// Bad User
+	moveResult, err = GetMoveForUser(suite.db, user2.ID, move.ID)
+	if err != nil {
+		t.Error("Expected to get a good moveResult back.", err)
+	}
+	if moveResult.IsValid() {
+		t.Error("Expected the moveResult to be invalid")
+	}
+	if moveResult.ErrorCode() != FetchErrorForbidden {
+		t.Error("Should have gotten a forbidden error")
 	}
 
 }

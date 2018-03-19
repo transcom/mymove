@@ -2,7 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"strings"
+	"fmt"
+	"os"
 	"time"
 
 	"github.com/markbates/pop"
@@ -59,30 +60,67 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// ModelFetchErrors describe the expected errors returned by model fetch methods
-const (
-	ModelFetchErrorNotFound      string = "NOT_FOUND"
-	ModelFetchErrorNotAuthorized string = "NOT_AUTHORIZED"
-)
+type MoveResult struct {
+	valid     bool
+	errorCode FetchError
+	move      Move
+}
+
+func (m MoveResult) IsValid() bool {
+	return m.valid
+}
+
+func (m MoveResult) Move() Move {
+	if !m.valid {
+		fmt.Println("Check if this isValid before accessing the Move()!")
+		os.Exit(1)
+	}
+	return m.move
+}
+
+func (m MoveResult) ErrorCode() FetchError {
+	if m.valid {
+		fmt.Println("Check that this !isValid before accessing the ErrorCode()!")
+		os.Exit(1)
+	}
+	return m.errorCode
+}
+
+func NewInvalidMoveResult(errorCode FetchError) MoveResult {
+	return MoveResult{
+		errorCode: errorCode,
+	}
+}
+
+func NewValidMoveResult(move Move) MoveResult {
+	return MoveResult{
+		valid: true,
+		move:  move,
+	}
+}
 
 // GetMoveForUser returns a move only if it is allowed for the given user to access that move.
 // If the user is not authorized to access that move, it behaves as if no such move exists.
-func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (Move, error) {
-	move := Move{}
+func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveResult, error) {
+	var result MoveResult
+	var move Move
 	err := db.Find(&move, id)
 	if err != nil {
-		if strings.HasSuffix(err.Error(), "no rows in result set") {
-			err = errors.Wrap(err, ModelFetchErrorNotFound)
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			result = NewInvalidMoveResult(FetchErrorNotFound)
+			err = nil
 		}
+		// Otherwise, it's an unexpected err so we return that.
 	} else {
 		// TODO: Handle case where more than one user is authorized to modify move
 		if move.UserID != userID {
-			move = Move{} // make sure and return a blank move in this case.
-			err = errors.Wrap(err, ModelFetchErrorNotAuthorized)
+			result = NewInvalidMoveResult(FetchErrorForbidden)
+		} else {
+			result = NewValidMoveResult(move)
 		}
 	}
 
-	return move, err
+	return result, err
 }
 
 // GetMoveByID fetches a Move model by their database ID
