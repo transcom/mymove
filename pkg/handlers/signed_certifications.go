@@ -14,11 +14,6 @@ import (
 // CreateSignedCertificationHandler creates a new issue via POST /issue
 type CreateSignedCertificationHandler HandlerContext
 
-func userCanModifyMove(move models.Move, user models.User) bool {
-	// TODO: Handle case where more than one user is authorized to modify move
-	return move.UserID == user.ID
-}
-
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
 	var response middleware.Responder
@@ -34,17 +29,24 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		return response
 	}
 
-	move, err := models.GetMoveByID(h.db, moveID)
+	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
 	if err != nil {
-		// TODO: Think about returning a 404 not found instead
-		response = certop.NewCreateSignedCertificationForbidden()
+		h.logger.Error("DB Error checking on move validity", zap.Error(err))
+		return certop.NewCreateSignedCertificationInternalServerError()
+	}
+	if !moveResult.IsValid() {
+		switch errCode := moveResult.ErrorCode(); errCode {
+		case models.FetchErrorNotFound: // this won't work yet...
+			response = certop.NewCreateSignedCertificationNotFound()
+		case models.FetchErrorForbidden:
+			response = certop.NewCreateSignedCertificationForbidden()
+		default:
+			h.logger.Fatal("This case statement is no longer exhaustive!")
+		}
 		return response
 	}
 
-	if !userCanModifyMove(move, user) {
-		response = certop.NewCreateSignedCertificationForbidden()
-		return response
-	}
+	move := moveResult.Move()
 
 	newSignedCertification := models.SignedCertification{
 		CertificationText: *params.CreateSignedCertificationPayload.CertificationText,
