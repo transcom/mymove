@@ -33,3 +33,10 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 
 	return move, err
 }
+
+// MakeMoveData created 5 Moves (and in turn a User for each)
+func MakeMoveData(db *pop.Connection) {
+	for i := 0; i < 5; i++ {
+		MakeMove(db)
+	}
+}
