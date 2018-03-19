@@ -94,7 +94,7 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 		response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
 	} else if !moveResult.IsValid() {
 		switch errCode := moveResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound: // this won't work yet...
+		case models.FetchErrorNotFound:
 			response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
 		case models.FetchErrorForbidden:
 			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()

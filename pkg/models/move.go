@@ -60,14 +60,14 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// MoveResult is returned by GetMoveForUser and encapulates wether the call succeeded and why it failed.
+// MoveResult is returned by GetMoveForUser and encapsulates weather the call succeeded and why it failed.
 type MoveResult struct {
 	valid     bool
 	errorCode FetchError
 	move      Move
 }
 
-// IsValid indicates wether the MoveResult is valid.
+// IsValid indicates whether the MoveResult is valid.
 func (m MoveResult) IsValid() bool {
 	return m.valid
 }
@@ -81,7 +81,7 @@ func (m MoveResult) Move() Move {
 	return m.move
 }
 
-// ErrorCode returns the error if and only iff the move was not correctly fetched
+// ErrorCode returns the error if and only if the move was not correctly fetched
 func (m MoveResult) ErrorCode() FetchError {
 	if m.valid {
 		fmt.Println("Check that this !isValid before accessing the ErrorCode()!")
