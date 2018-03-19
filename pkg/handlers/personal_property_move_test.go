@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: request,
 	}
 
-	handler := IndexPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := IndexPersonallyProcuredMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response

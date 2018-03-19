@@ -40,3 +40,11 @@ func (p *PersonallyProcuredMove) ValidateCreate(tx *pop.Connection) (*validate.E
 func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// GetMovesForUserID gets all move models for a given user ID
+func GetPersonallyProcuredMovesForMoveID(db *pop.Connection, moveID uuid.UUID) (PersonallyProcuredMoves, error) {
+	var ppms PersonallyProcuredMoves
+	query := db.Where("move_id = $1", moveID)
+	err := query.All(&ppms)
+	return ppms, err
+}

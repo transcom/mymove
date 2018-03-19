@@ -102,14 +102,18 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 			h.logger.Fatal("This case statement is no longer exhaustive!")
 		}
 	} else { // The given move does belong to the current user.
-		var ppms models.PersonallyProcuredMoves
-		h.db.Where(`move_id = ?`, moveID).All(&ppms)
-		ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
-		for i, ppm := range ppms {
-			ppmPayload := payloadForPPMModel(ppm)
-			ppmsPayload[i] = &ppmPayload
+		ppms, err := models.GetPersonallyProcuredMovesForMoveID(h.db, moveID)
+		if err != nil {
+			h.logger.Error("DB Error checking on move validity", zap.Error(err))
+			response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
+		} else {
+			ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
+			for i, ppm := range ppms {
+				ppmPayload := payloadForPPMModel(ppm)
+				ppmsPayload[i] = &ppmPayload
+			}
+			response = ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 		}
-		response = ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 	}
 
 	return response
