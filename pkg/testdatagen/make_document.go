@@ -34,6 +34,7 @@ func MakeDocument(db *pop.Connection, move *models.Move) (models.Document, error
 	return document, err
 }
 
+// MakeDocumentData creates a Document for every Move in the database.
 func MakeDocumentData(db *pop.Connection) {
 	moveList := []models.Move{}
 	err := db.All(&moveList)
