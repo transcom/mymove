@@ -1,12 +1,4 @@
-import configureStore from 'redux-mock-store';
-import {
-  feedbackReducer,
-  createIssueRequest,
-  createIssueSuccess,
-  createIssueFailure,
-  updateIssueValue,
-  createIssue,
-} from './ducks';
+import { feedbackReducer } from './ducks';
 
 describe('Feedback Reducer', () => {
   it('Should handle CREATE_ISSUE_SUCCESS', () => {
