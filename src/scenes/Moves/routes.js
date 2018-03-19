@@ -16,9 +16,18 @@ const Placeholder = props => {
   );
 };
 
-const stub = (key, pages) => () => (
-  <Placeholder pageList={pages} pageKey={key} title={key} />
-);
+const stub = (key, pages, component) => ({ match }) => {
+  if (component) {
+    const pageComponent = React.createElement(component, { match }, null);
+    return (
+      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
+        {pageComponent}
+      </WizardPage>
+    );
+  } else {
+    return <Placeholder pageList={pages} pageKey={key} title={key} />;
+  }
+};
 
 export default () => {
   const pages = {
@@ -26,21 +35,16 @@ export default () => {
     '/moves/:moveId/ppm-transition': { render: stub },
     '/moves/:moveId/ppm-size': { render: stub },
     '/moves/:moveId/ppm-incentive': { render: stub },
-    '/moves/:moveId/agreement': {
-      render: (key, pages) => ({ match }) => (
-        <WizardPage
-          handleSubmit={() => undefined}
-          pageList={pages}
-          pageKey={key}
-        >
-          <Agreement match={match} />
-        </WizardPage>
-      ),
-    },
+    '/moves/:moveId/agreement': { render: stub },
   };
   const pageList = Object.keys(pages);
+  const componentMap = {
+    agreement: Agreement,
+  };
   return pageList.map(key => {
-    const render = pages[key].render(key, pageList);
+    const step = key.split('/').pop();
+    var component = componentMap[step];
+    const render = pages[key].render(key, pageList, component);
     return <PrivateRoute exact path={key} key={key} render={render} />;
   });
 };
