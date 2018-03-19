@@ -111,6 +111,9 @@ func main() {
 
 	internalAPI.CertificationCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
 
+	internalAPI.PpmCreatePersonallyProcuredMoveHandler = handlers.CreatePersonallyProcuredMoveHandler(handlerContext)
+	internalAPI.PpmIndexPersonallyProcuredMoveHandler = handlers.IndexPersonallyProcuredMoveHandler(handlerContext)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
 	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)

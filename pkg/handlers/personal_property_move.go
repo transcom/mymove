@@ -72,9 +72,45 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	return response
 }
 
-// // IndexPersonallyProcuredMoveHandler returns a list of all the PPMs associated with this move.
-// type IndexPersonallyProcuredMoveHandler HandlerContext
+// IndexPersonallyProcuredMoveHandler returns a list of all the PPMs associated with this move.
+type IndexPersonallyProcuredMoveHandler HandlerContext
 
-// func (h IndexPersonallyProcuredMoveHandler) Handle(params ppmop.IndexPersonallyProcuredMoveParams) middleware.Responder {
+// Handle handles the request
+func (h IndexPersonallyProcuredMoveHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
+	var response middleware.Responder
+	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
+	if !ok {
+		h.logger.Fatal("No User ID, this should never happen.")
+	}
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		h.logger.Fatal("Invalid MoveID, this should never happen.")
+	}
 
-// }
+	// Validate that this move belongs to the current user
+	moveResult, err := models.GetMoveForUser(h.db, userID, moveID)
+	if err != nil {
+		h.logger.Error("DB Error checking on move validity", zap.Error(err))
+		response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
+	} else if !moveResult.IsValid() {
+		switch errCode := moveResult.ErrorCode(); errCode {
+		case models.FetchErrorNotFound: // this won't work yet...
+			response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
+		case models.FetchErrorForbidden:
+			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
+		default:
+			h.logger.Fatal("This case statement is no longer exhaustive!")
+		}
+	} else { // The given move does belong to the current user.
+		var ppms models.PersonallyProcuredMoves
+		h.db.Where(`move_id = ?`, moveID).All(&ppms)
+		ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
+		for i, ppm := range ppms {
+			ppmPayload := payloadForPPMModel(ppm)
+			ppmsPayload[i] = &ppmPayload
+		}
+		response = ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
+	}
+
+	return response
+}
