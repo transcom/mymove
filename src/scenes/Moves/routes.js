@@ -31,7 +31,7 @@ export default () => {
           pageList={pages}
           pageKey={key}
         >
-          <Transition match={match} />
+          <Transition />
         </WizardPage>
       ),
     },

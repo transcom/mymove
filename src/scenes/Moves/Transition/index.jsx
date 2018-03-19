@@ -11,7 +11,7 @@ export class Transition extends Component {
     return (
       <div className="transition-box">
         <div className="hhg-icon">
-          <img src={truckGrayCheckGray} alt={this.props.match.path} />
+          <img src={truckGrayCheckGray} alt="truck-gray-check-gray" />
           <b>
             <p> Shipment 1 (HHG)</p>
           </b>
@@ -25,7 +25,7 @@ export class Transition extends Component {
         </div>
 
         <div className="ppm-icon">
-          <img src={ppmBlack} alt={this.props.match.path} />
+          <img src={ppmBlack} alt="ppm-icon" />
           <b>
             <p> Shipment 2 (PPM)</p>
           </b>
