@@ -1,0 +1,1 @@
+add_column("shipments", "requested_pickup_date", "datetime", {})
