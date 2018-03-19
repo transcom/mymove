@@ -41,7 +41,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 	return validate.NewErrors(), nil
 }
 
-// GetMovesForUserID gets all move models for a given user ID
+// GetPersonallyProcuredMovesForMoveID gets all PPMs models for a given move ID
 func GetPersonallyProcuredMovesForMoveID(db *pop.Connection, moveID uuid.UUID) (PersonallyProcuredMoves, error) {
 	var ppms PersonallyProcuredMoves
 	query := db.Where("move_id = $1", moveID)
