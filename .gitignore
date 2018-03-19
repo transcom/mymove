@@ -25,6 +25,9 @@ __snapshots__
 /bin/swagger
 /bin/gin
 
+#debugging
+/cmd/webserver/debug
+
 # misc
 .DS_Store
 .env.local
@@ -33,6 +36,8 @@ __snapshots__
 .env.production.local
 .idea
 .envrc
+
+.vscode
 
 npm-debug.log*
 yarn-debug.log*
