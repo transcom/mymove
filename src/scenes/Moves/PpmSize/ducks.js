@@ -6,16 +6,16 @@ export const CREATE_PPM_SUCCESS = 'CREATE_PPM_SUCCESS';
 export const CREATE_PPM_FAILURE = 'CREATE_PPM_FAILURE';
 
 // Creating ppm
-export const createSignedPpmRequest = () => ({
+export const createPpmRequest = () => ({
   type: CREATE_PPM,
 });
 
-export const createSignedPpmSuccess = item => ({
+export const createPpmSuccess = item => ({
   type: CREATE_PPM_SUCCESS,
   item,
 });
 
-export const createSignedPpmFailure = error => ({
+export const createPpmFailure = error => ({
   type: CREATE_PPM_FAILURE,
   error,
 });
