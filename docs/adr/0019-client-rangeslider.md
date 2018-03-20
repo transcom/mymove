@@ -10,15 +10,15 @@ We need a range slider component for the PPM Incentives screen. This needs to be
 
 ## Considered Alternatives
 
-* _React-rangeslider_
-* _rc-slider_
-* _rheostat_
-* _rea11y-sliders_
-* _react-html5-slider_
+* _[react-rangeslider](https://whoisandy.github.io/react-rangeslider/)_
+* _[rc-slider](http://react-component.github.io/slider/)_
+* _[rheostat](https://github.com/airbnb/rheostat)_
+* _[rea11y-sliders](https://github.com/felixgirault/rea11y/blob/master/docs/Slider.md)_
+* _[react-html5-slider](https://github.com/brownieboy/react-html5-slider)_
 
 ## Decision Outcome
 
-* Chosen Alternative: _React-rangeslider_
+* Chosen Alternative: _react-rangeslider_
 * _It was the only one that would build, was controllable by keyboard, and looked decent with USWDS CSS_
 
 ## Pros and Cons of the Alternatives <!-- optional -->
