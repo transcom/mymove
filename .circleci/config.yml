@@ -233,7 +233,7 @@ workflows:
               only: rek_deploy-to-prod
       - deploy_${PROD_ENV}_migrations:
           requires:
-            - ${PROD_ENV}_health_check
+            - ${STAGING}_health_check
           filters:
             branches:
               only: rek_deploy-to-prod
