@@ -32,7 +32,7 @@ type IndexShipmentsHandler HandlerContext
 func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments, err := models.FetchPossiblyAwardedShipments(h.db)
+	shipments, err := models.FetchShipments(h.db, false)
 
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))

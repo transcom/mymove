@@ -33,7 +33,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 	}
 	suite.mustSave(&aws)
 
-	award := models.ShipmentAward{
+	award := models.ShipmentOffer{
 		ShipmentID:                      aws.ID,
 		TransportationServiceProviderID: tsp.ID,
 	}

@@ -43,7 +43,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentAward(pas)
+	award, err := queue.attemptShipmentOffer(pas)
 
 	expectedError := "Could not find a TSP without blackout dates"
 	// See if shipment was awarded
@@ -72,15 +72,15 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now().AddDate(0, 0, 1), tdl)
 
 	// Run the Award Queue
-	queue.assignUnawardedShipments()
+	queue.assignShipments()
 
-	shipmentAward := models.ShipmentAward{}
+	shipmentAward := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
 	if err := query.First(&shipmentAward); err != nil {
 		t.Errorf("Couldn't find shipment award with shipment_ID: %v\n", shipment.ID)
 	}
 
-	blackoutShipmentAward := models.ShipmentAward{}
+	blackoutShipmentAward := models.ShipmentOffer{}
 	blackoutQuery := suite.db.Where("shipment_id = $1", blackoutShipment.ID)
 	if err := blackoutQuery.First(&blackoutShipmentAward); err != nil {
 		t.Errorf("Couldn't find shipment award: %v", blackoutShipment.ID)
@@ -141,7 +141,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 func (suite *AwardQueueSuite) Test_FindAllUnawardedShipments() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-	_, err := queue.findAllUnawardedShipments()
+	_, err := queue.findAllUnassignedShipments()
 
 	if err != nil {
 		t.Error("Unable to find shipments: ", err)
@@ -175,7 +175,7 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentAward(pas)
+	award, err := queue.attemptShipmentOffer(pas)
 
 	// See if shipment was awarded
 	if err != nil {
@@ -205,7 +205,7 @@ func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentAward(pas)
+	award, err := queue.attemptShipmentOffer(pas)
 
 	// See if shipment was awarded
 	if err == nil {
@@ -237,11 +237,11 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsSingleTSP() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Run the Award Queue
-	queue.assignUnawardedShipments()
+	queue.assignShipments()
 
 	// Count the number of shipments awarded to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
-	awards := []models.ShipmentAward{}
+	awards := []models.ShipmentOffer{}
 	count, err := query.Count(&awards)
 
 	if err != nil {
@@ -282,7 +282,7 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsToMultipleTSPs()
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
 	// Run the Award Queue
-	queue.assignUnawardedShipments()
+	queue.assignShipments()
 
 	suite.verifyAwardCount(tsp1, 6)
 	suite.verifyAwardCount(tsp2, 5)
@@ -357,7 +357,7 @@ func (suite *AwardQueueSuite) verifyAwardCount(tsp models.TransportationServiceP
 
 	// TODO is there a more concise way to do this?
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
-	awards := []models.ShipmentAward{}
+	awards := []models.ShipmentOffer{}
 	count, err := query.Count(&awards)
 
 	if err != nil {

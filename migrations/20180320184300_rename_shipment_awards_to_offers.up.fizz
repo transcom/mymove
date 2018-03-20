@@ -1,0 +1,1 @@
+rename_table("shipment_awards", "shipment_offers")

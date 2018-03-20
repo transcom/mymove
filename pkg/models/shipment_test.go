@@ -19,7 +19,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 }
 
 // Test_FetchPossiblyAwardedShipments tests that a shipment is returned when we fetch possibly awarded shipments
-func (suite *ModelSuite) Test_FetchPossiblyAwardedShipments() {
+func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
@@ -29,9 +29,9 @@ func (suite *ModelSuite) Test_FetchPossiblyAwardedShipments() {
 	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	// Award one of the shipments
-	CreateShipmentAward(suite.db, shipment.ID, tsp.ID, false)
+	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	// Run FetchPossiblyAwardedShipments
-	shipments, err := FetchPossiblyAwardedShipments(suite.db)
+	shipments, err := FetchShipments(suite.db, false)
 
 	// Expect both shipments returned
 	if err != nil {
@@ -43,7 +43,7 @@ func (suite *ModelSuite) Test_FetchPossiblyAwardedShipments() {
 }
 
 // Test_FetchUnawardedShipments tests that a shipment is returned when we fetch possibly awarded shipments
-func (suite *ModelSuite) Test_FetchUnawardedShipments() {
+func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
@@ -51,9 +51,9 @@ func (suite *ModelSuite) Test_FetchUnawardedShipments() {
 	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	// Award one of the shipments
-	CreateShipmentAward(suite.db, shipment.ID, tsp.ID, false)
+	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	// Run FetchUnawardedShipments
-	shipments, err := FetchUnawardedShipments(suite.db)
+	shipments, err := FetchShipments(suite.db, true)
 	// Expect only unawarded shipment returned
 	if err != nil {
 		t.Errorf("Failed to find Shipments: %v", err)
