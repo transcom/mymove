@@ -2,8 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
-	"os"
 	"time"
 
 	"github.com/markbates/pop"
@@ -11,6 +9,7 @@ import (
 	"github.com/markbates/validate/validators"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -75,8 +74,7 @@ func (m MoveResult) IsValid() bool {
 // Move returns the move if and only if the move was correctly fetched
 func (m MoveResult) Move() Move {
 	if !m.valid {
-		fmt.Println("Check if this isValid before accessing the Move()!")
-		os.Exit(1)
+		zap.L().Fatal("Check if this isValid before accessing the Move()!")
 	}
 	return m.move
 }
@@ -84,8 +82,7 @@ func (m MoveResult) Move() Move {
 // ErrorCode returns the error if and only if the move was not correctly fetched
 func (m MoveResult) ErrorCode() FetchError {
 	if m.valid {
-		fmt.Println("Check that this !isValid before accessing the ErrorCode()!")
-		os.Exit(1)
+		zap.L().Fatal("Check that this !isValid before accessing the ErrorCode()!")
 	}
 	return m.errorCode
 }
