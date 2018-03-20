@@ -14,6 +14,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+// Document represents all files related to a single physical document
 type Document struct {
 	ID uuid.UUID
 }
@@ -42,7 +43,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	uploadsDir := filepath.Join(cwd, "uploads")
-	if err = os.Mkdir(uploadsDir, 0777); err != nil {
+	if err = os.MkdirAll(uploadsDir, 0777); err != nil {
 		h.logger.Error("Could not make directory", zap.Error(err))
 	}
 

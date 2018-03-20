@@ -1,5 +1,9 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import PropTypes from 'prop-types';
+import { createDocument } from './ducks';
 
 export class Uploader extends Component {
   constructor(props) {
@@ -8,9 +12,9 @@ export class Uploader extends Component {
   }
 
   uploadFile() {
-    console.log(this.fileInput.files[0]);
-    // createDocument(this.fileInput.files[0])
+    this.props.createDocument(this.fileInput.files[0]);
   }
+
   render() {
     return (
       <div className="uploader">
@@ -26,4 +30,18 @@ export class Uploader extends Component {
   }
 }
 
-export default Uploader;
+Uploader.propTypes = {
+  createDocument: PropTypes.func.isRequired,
+  hasSubmitError: PropTypes.bool.isRequired,
+  hasSubmitSuccess: PropTypes.bool.isRequired,
+};
+
+function mapStateToProps(state) {
+  return state.document;
+}
+
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ createDocument }, dispatch);
+}
+
+export default connect(mapStateToProps, mapDispatchToProps)(Uploader);

@@ -6,6 +6,7 @@ import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
 import dd1299Reducer from 'scenes/DD1299/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
+import { documentReducer } from 'shared/Uploader/ducks';
 import { reducer as formReducer } from 'redux-form';
 import { routerReducer } from 'react-router-redux';
 
@@ -19,6 +20,7 @@ export const appReducer = combineReducers({
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   DD1299: dd1299Reducer,
+  document: documentReducer,
 });
 
 export default appReducer;
