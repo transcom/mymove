@@ -33,10 +33,10 @@
   user-select: none;
 }
 
-.container label > input{ /* HIDE RADIO */
-  visibility: hidden;
-  position: absolute;
-}
+/*.container label > input{ !* HIDE RADIO *!*/
+  /*visibility: hidden;*/
+  /*position: absolute;*/
+/*}*/
 
 /* On mouse-over, add a grey background color */
 .container:hover input ~ div{

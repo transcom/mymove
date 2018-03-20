@@ -23,7 +23,7 @@ import (
 )
 
 const gothProviderType = "openid-connect"
-const sessionExpiryInMinutes = 215
+const sessionExpiryInMinutes = 15
 
 // This sets a small window during which tokens won't be renewed
 const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
