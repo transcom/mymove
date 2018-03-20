@@ -23,3 +23,28 @@
 .size-button img {
   margin-top: 3rem;
 }
+
+/* Radio styling */
+.container {
+  cursor: pointer;
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+.container label > input{ /* HIDE RADIO */
+  visibility: hidden;
+  position: absolute;
+}
+
+/* On mouse-over, add a grey background color */
+.container:hover input ~ div{
+  background-color: #ccc;
+}
+
+/* When the radio button is checked, add a blue background */
+.container input:checked + div {
+  background-color: #f0f6fb;
+  border: 2px solid #949494;
+}
