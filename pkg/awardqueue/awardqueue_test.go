@@ -90,8 +90,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		t.Errorf("Shipment Awards erroneously assigned administrative status.")
 	}
 
-	// suite.verifyAwardCount(tsp, 2)
-
+	suite.verifyAwardCount(tsp, 2)
 }
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {

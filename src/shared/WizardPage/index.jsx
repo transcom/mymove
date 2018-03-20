@@ -5,6 +5,7 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'react-router-redux';
 import generatePath from './generatePath';
+import './index.css';
 
 import {
   getNextPagePath,
@@ -48,29 +49,41 @@ export class WizardPage extends Component {
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">{children}</div>
-        <div className="usa-width-one-third">
-          <button
-            className="usa-button-secondary"
-            onClick={this.previousPage}
-            disabled={isFirstPage(pageList, pageKey)}
-          >
-            Prev
-          </button>
-        </div>
-        <div className="usa-width-one-third">
-          <button className="usa-button-secondary" disabled={true}>
-            Save for later
-          </button>
-        </div>
-        <div className="usa-width-one-third">
-          {!isLastPage(pageList, pageKey) && (
-            <button onClick={this.nextPage} disabled={!pageIsValid}>
-              Next
+        <div className="usa-width-one-whole lower-nav-btns">
+          <div className="usa-width-one-third">
+            <button
+              className="usa-button-secondary"
+              onClick={this.previousPage}
+              disabled={isFirstPage(pageList, pageKey)}
+            >
+              Prev
             </button>
-          )}
-          {isLastPage(pageList, pageKey) && (
-            <button onClick={handleSubmit}>Complete</button>
-          )}
+          </div>
+          <div className="usa-width-one-third center">
+            <button className="usa-button-secondary" disabled={true}>
+              Save for later
+            </button>
+          </div>
+          <div className="usa-width-one-third right-align">
+            {!isLastPage(pageList, pageKey) && (
+              <button
+                className="usa-button-secondary"
+                onClick={this.nextPage}
+                disabled={!pageIsValid}
+              >
+                Next
+              </button>
+            )}
+            {isLastPage(pageList, pageKey) && (
+              <button
+                className="usa-button-secondary"
+                onClick={handleSubmit}
+                disabled={!pageIsValid}
+              >
+                Complete
+              </button>
+            )}
+          </div>
         </div>
       </div>
     );

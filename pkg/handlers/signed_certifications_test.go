@@ -209,7 +209,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*certop.CreateSignedCertificationForbidden)
+	_, ok := response.(*certop.CreateSignedCertificationNotFound)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
