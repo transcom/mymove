@@ -11,6 +11,10 @@ import (
 )
 
 // Shipment represents a single shipment within a Service Member's move.
+// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// RequestedPickupDate: when the shipment was originally scheduled to be picked up
+// DeliveryDate: when the shipment is to be delivered
+// BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
 	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
