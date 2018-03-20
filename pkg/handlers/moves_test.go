@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"net/http/httptest"
 
 	"github.com/satori/go.uuid"
+
 	"github.com/transcom/mymove/pkg/auth/context"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"net/http/httptest"
 )
 
 func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
