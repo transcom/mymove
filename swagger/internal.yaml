@@ -185,6 +185,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+        404:
+          description: move not found
+        500:
+          description: internal server error
 
   /moves/{moveId}/personally_procured_move:
     post:
@@ -216,6 +220,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: server error
     get:
       summary: Returns a list of all PPMs associated with this move
       description: Returns a list of all PPMs associated with this move
@@ -351,6 +359,7 @@ definitions:
       weightEstimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -358,17 +367,21 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       size:
         $ref: '#/definitions/TShirtSize'
       weightEstimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
       created_at:
         type: string
         format: date-time
+        x-nullable: true
       updated_at:
         type: string
         format: date-time
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -377,6 +390,7 @@ definitions:
       weightEstimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -389,6 +403,7 @@ definitions:
       weightEstimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
       created_at:
         type: string
         format: date-time

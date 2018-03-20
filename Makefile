@@ -4,7 +4,7 @@ export PGPASSWORD=mysecretpassword
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
-pre-commit: .git/hooks/pre-commit
+ensure_pre_commit: .git/hooks/pre-commit
 .git/hooks/pre-commit: /usr/local/bin/pre-commit
 	pre-commit install
 
@@ -18,7 +18,7 @@ go_version: .go_version.stamp
 	bin/check_go_version
 	touch .go_version.stamp
 
-deps: prereqs pre-commit client_deps server_deps
+deps: prereqs ensure_pre_commit client_deps server_deps
 test: client_test server_test e2e_test
 
 spellcheck:
@@ -41,6 +41,8 @@ client_run: client_deps
 	yarn start
 client_test: client_deps
 	yarn test
+client_test_coverage : client_deps
+	yarn test:coverage
 
 server_deps_update: server_generate
 	dep ensure -v -update
@@ -103,6 +105,15 @@ server_test: server_deps server_generate db_dev_run db_test_reset
 	# Disable test caching with `-count 1` - caching was masking local test failures
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
+server_test_coverage: server_deps server_generate db_dev_run db_test_reset
+	# Don't run tests in /cmd or /pkg/gen
+	# Use -test.parallel 1 to test packages serially and avoid database collisions
+	# Disable test caching with `-count 1` - caching was masking local test failures
+	# Add coverage tracker via go cover
+	# Then open coverage tracker in HTML
+	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	go tool cover -html=coverage.out
+
 e2e_test: client_deps
 	yarn e2e-test
 
@@ -145,6 +156,9 @@ db_test_reset:
 
 adr_update:
 	yarn run adr-log
+
+pre_commit_tests:
+	pre-commit run --all-files
 
 clean:
 	rm .*.stamp

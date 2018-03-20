@@ -8,28 +8,55 @@ describe('given a WizardPage', () => {
   const mockPush = jest.fn();
   describe('when there is a pageIsValid prop set', () => {
     describe('when pageIsValid is false', () => {
-      beforeEach(() => {
-        history = [];
-        const continueToNextPage = false;
+      describe('when on the first page', () => {
+        beforeEach(() => {
+          history = [];
+          const continueToNextPage = false;
 
-        wrapper = shallow(
-          <WizardPage
-            handleSubmit={submit}
-            pageList={pageList}
-            pageKey="1"
-            history={history}
-            pageIsValid={continueToNextPage}
-            match={{}}
-          >
-            <div>This is page 1</div>
-          </WizardPage>,
-        );
-        buttons = wrapper.find('button');
+          wrapper = shallow(
+            <WizardPage
+              handleSubmit={submit}
+              pageList={pageList}
+              pageKey="1"
+              history={history}
+              pageIsValid={continueToNextPage}
+              match={{}}
+            >
+              <div>This is page 1</div>
+            </WizardPage>,
+          );
+          buttons = wrapper.find('button');
+        });
+        it('the next button is last and is disabled', () => {
+          const nextButton = buttons.last();
+          expect(nextButton.text()).toBe('Next');
+          expect(nextButton.prop('disabled')).toBeTruthy();
+        });
       });
-      it('the next button is last and is disabled', () => {
-        const nextButton = buttons.last();
-        expect(nextButton.text()).toBe('Next');
-        expect(nextButton.prop('disabled')).toBeTruthy();
+      describe('when on the last page', () => {
+        beforeEach(() => {
+          history = [];
+          const pageIsValid = false;
+
+          wrapper = shallow(
+            <WizardPage
+              handleSubmit={submit}
+              pageList={pageList}
+              pageKey="3"
+              history={history}
+              pageIsValid={pageIsValid}
+              match={{}}
+            >
+              <div>This is page 1</div>
+            </WizardPage>,
+          );
+          buttons = wrapper.find('button');
+        });
+        it('the complete button is last and is disabled', () => {
+          const nextButton = buttons.last();
+          expect(nextButton.text()).toBe('Complete');
+          expect(nextButton.prop('disabled')).toBeTruthy();
+        });
       });
     });
     describe('when pageIsValid is true', () => {
@@ -74,7 +101,7 @@ describe('given a WizardPage', () => {
     });
     it('it starts on the first page', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 1');
     });
     it('it renders button for prev, save, next', () => {
@@ -126,7 +153,7 @@ describe('given a WizardPage', () => {
     });
     it('it shows its child', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 2');
     });
     it('it renders button for prev, save, next', () => {
@@ -186,7 +213,7 @@ describe('given a WizardPage', () => {
     });
     it('it shows its child', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 3');
     });
     it('it renders button for prev, save, next', () => {

@@ -10,10 +10,14 @@
 
 # testing
 /coverage
+coverage.out
 __snapshots__
 
 # production
 /build
+
+# development
+/uploads
 
 # built binaries
 /bin/webserver
