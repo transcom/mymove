@@ -101,7 +101,7 @@ describe('given a WizardPage', () => {
     });
     it('it starts on the first page', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 1');
     });
     it('it renders button for prev, save, next', () => {
@@ -153,7 +153,7 @@ describe('given a WizardPage', () => {
     });
     it('it shows its child', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 2');
     });
     it('it renders button for prev, save, next', () => {
@@ -213,7 +213,7 @@ describe('given a WizardPage', () => {
     });
     it('it shows its child', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
-      expect(childContainer.length).toBe(1);
+      expect(childContainer.length).toBe(2);
       expect(childContainer.first().text()).toBe('This is page 3');
     });
     it('it renders button for prev, save, next', () => {
