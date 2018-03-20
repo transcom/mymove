@@ -9,3 +9,6 @@ EOM
 )
 
 export LOGIN_GOV_CLIENT_ID=<login_gov_client_id_value>
+
+# Prevents user sessions from timing out
+export NO_SESSION_TIMEOUT=true
