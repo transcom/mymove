@@ -17,7 +17,7 @@ func RunScenarioOne(db *pop.Connection) {
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, time.Now(), time.Now(), tdl)
+		MakeShipment(db, time.Now(), time.Now(), time.Now(), tdl)
 	}
 
 	// Make TSPs in the same TDL to handle these shipments

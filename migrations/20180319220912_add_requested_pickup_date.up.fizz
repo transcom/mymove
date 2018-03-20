@@ -1,1 +1,2 @@
 add_column("shipments", "requested_pickup_date", "datetime", {})
+rename_column("shipments", "award_date", "book_date")

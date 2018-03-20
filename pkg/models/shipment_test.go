@@ -23,9 +23,9 @@ func (suite *ModelSuite) Test_FetchPossiblyAwardedShipments() {
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	// Make a shipment to award
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now.AddDate(0, 0, 1), tdl)
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
 	// Make a shipment not to award
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now.AddDate(0, 0, 1), tdl)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	// Award one of the shipments
 	CreateShipmentAward(suite.db, shipment.ID, tsp.ID, false)
@@ -46,8 +46,8 @@ func (suite *ModelSuite) Test_FetchUnawardedShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now.AddDate(0, 0, 1), tdl)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now.AddDate(0, 0, 1), tdl)
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	// Award one of the shipments
 	CreateShipmentAward(suite.db, shipment.ID, tsp.ID, false)
