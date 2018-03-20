@@ -51,6 +51,7 @@ func main() {
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
+	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
 
 	flag.Parse()
 
@@ -131,10 +132,11 @@ func main() {
 	auth.RegisterProvider(logger, *loginGovSecretKey, fullHostname, *loginGovClientID)
 
 	// Populates user info using cookie and renews token
-	authMiddleware := auth.UserAuthMiddleware(logger, *clientAuthSecretKey)
+	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
 	// Base routes
 	root := goji.NewMux()
+	root.Use(tokenMiddleware)
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
@@ -143,8 +145,8 @@ func main() {
 	apiMux.Handle(pat.New("/*"), publicAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
 	internalMux := goji.SubMux()
-	internalMux.Use(authMiddleware)
 	root.Handle(pat.New("/internal/*"), internalMux)
+	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
 	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
@@ -152,9 +154,8 @@ func main() {
 	authContext := auth.NewAuthContext(fullHostname, logger)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Use(authMiddleware)
 	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(authContext))
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, logger))
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *loginGovSecretKey, *loginGovClientID, fullHostname, *noSessionTimeout, logger))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
 
 	root.Handle(pat.Get("/static/*"), clientHandler)

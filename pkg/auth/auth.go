@@ -31,6 +31,9 @@ const sessionRenewalTimeInMinutes = sessionExpiryInMinutes - 1
 // UserSessionCookieName is the key at which we're storing our token cookie
 const UserSessionCookieName = "user_session"
 
+// Taken from answer here: https://stackoverflow.com/a/32620397
+var maxPossibleTimeValue = time.Unix(1<<63-62135596801, 999999999)
+
 // UserClaims wraps StandardClaims with some user info we care about
 type UserClaims struct {
 	UserID  uuid.UUID `json:"user_id"`
@@ -142,8 +145,23 @@ func RegisterProvider(logger *zap.Logger, loginGovSecretKey, hostname, loginGovC
 	}
 }
 
-// UserAuthMiddleware attempts to populate user data onto request context
-func UserAuthMiddleware(logger *zap.Logger, secret string) func(next http.Handler) http.Handler {
+// RequireAuthMiddleware enforces that the incoming request is tied to a user session
+func RequireAuthMiddleware(next http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		_, ok := context.GetUserID(r.Context())
+		if !ok {
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		}
+
+		next.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
+// TokenParsingMiddleware attempts to populate user data onto request context
+func TokenParsingMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			claims, ok := getUserClaimsFromRequest(logger, secret, r)
@@ -155,6 +173,10 @@ func UserAuthMiddleware(logger *zap.Logger, secret string) func(next http.Handle
 			if shouldRenewForClaims(*claims) {
 				// Renew the token
 				expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+				// Never expire token if in development
+				if noSessionTimeout {
+					expiry = maxPossibleTimeValue
+				}
 				ss, err := signTokenStringWithUserInfo(claims.UserID, claims.Email, claims.IDToken, expiry, secret)
 				if err != nil {
 					logger.Error("Generating signed token string", zap.Error(err))
@@ -252,17 +274,19 @@ type AuthorizationCallbackHandler struct {
 	loginGovSecretKey   string
 	loginGovClientID    string
 	hostname            string
+	noSessionTimeout    bool
 	logger              *zap.Logger
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, logger *zap.Logger) AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, loginGovSecretKey string, loginGovClientID string, hostname string, noSessionTimeout bool, logger *zap.Logger) AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
 		db:                  db,
 		clientAuthSecretKey: clientAuthSecretKey,
 		loginGovSecretKey:   loginGovSecretKey,
 		loginGovClientID:    loginGovClientID,
 		hostname:            hostname,
+		noSessionTimeout:    noSessionTimeout,
 		logger:              logger,
 	}
 	return handler
@@ -315,6 +339,10 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 
 	// Sign a token and save it as a cookie on the client
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
+	// Never expire token if in development
+	if h.noSessionTimeout {
+		expiry = maxPossibleTimeValue
+	}
 	ss, err := signTokenStringWithUserInfo(user.ID, user.LoginGovEmail, session.IDToken, expiry, h.clientAuthSecretKey)
 	if err != nil {
 		h.logger.Error("Generating signed token string", zap.Error(err))
