@@ -1,9 +1,10 @@
 package models_test
 
 import (
+	"time"
+
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"time"
 )
 
 func (suite *ModelSuite) Test_ShipmentValidations() {
