@@ -17,57 +17,7 @@ There are several ways in which you can help improve this project:
 
 ## Getting Started
 
-MyMove is a [React](https://reactjs.org/) (version ???) and [Go](https://golang.org/) (version ???) application with a [PostgreSQL](https://www.postgresql.org) database (version ???). Development dependencies are managed using ???.
-
-If you're using macOS, you can use [Postgres.app](https://postgresapp.com) to quickly get PostgreSQL installed and running. You may also install PostgreSQL using [Homebrew](https://brew.sh):
-
-```sh
-brew install postgresql
-```
-
-If you're using Homebrew, consider installing [Homebrew Services](https://github.com/Homebrew/homebrew-services) to easily start and stop PostgreSQL:
-
-```sh
-brew tap homebrew/services
-brew services run postgresql
-```
-
-This project uses React (version ???) which can be installed using ??? like []().
-
-```sh
-
-```
-
-This project uses Go (version ???) which can be installed using ??? like []().
-
-Once you've installed React and Go, install the dependency thing:
-
-```sh
-
-```
-
-With your PostgreSQL server started, run the following setup script from the root of the project:
-
-```sh
-bin/setup
-```
-
-This script will install the dependencies specified in the project's thing, set development environment configuration variables, and create and migrate the application's databases.
-
-Lastly, start the application by `typing something` and opening [http://localhost:3000](http://localhost:3000) in your Web browser of choice.
-
-### Environment Variables
-
-The `bin/setup` script will generate (or update) a `.env` file in the root of the project and create several default environment variables.
-
-To obtain a Google Maps API key, visit [Google's API Console](https://console.developers.google.com) and select "Credentials" in the left-hand navigation. Click "Create Credentials" and choose "API Key" from the list of options. Copy the generated API key and update the `.env` file, replacing `<your api key here>` with the generated API key:
-
-```
-export GOOGLE_MAPS_API_KEY=<your api key here>
-```
-Enable the Google Maps Geocoding API by going [here](https://console.developers.google.com/apis/api/geocoding_backend).
-
-To work with encrypted seed data, you need to know the secret `SEEDS_ENC_KEY` variable and set it in the `.env` file. This was originally generated once during the `bin/setup` process. Once set, run `bin/rails db:setup` to load the encrypted data.
+See our [Development Setup](https://github.com/transcom/mymove#development)
 
 ## Making Changes
 
