@@ -50,14 +50,14 @@ func (aq *AwardQueue) attemptShipmentAward(shipment models.PossiblyAwardedShipme
 	// We _also_ want to watch out for infinite loops, because if all the TSPs in the selection
 	// have blackout dates (imagine a 1-TSP-TDL, with a blackout date) we will keep awarding
 	// administrative shipments forever.
-	firstEligibleTSPPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
+	firstEligibleTSPPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.BookDate)
 	firstTSPid := firstEligibleTSPPerformance.ID
 	foundAvailableTSP := false
 	loopCount := 0
 
 	for !foundAvailableTSP {
 
-		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.AwardDate)
+		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.BookDate)
 
 		if loopCount != 0 && tspPerformance.ID == firstTSPid {
 			return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", loopCount)
