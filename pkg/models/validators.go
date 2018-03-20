@@ -23,3 +23,16 @@ func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }
+
+// Int64IsPresent validates that an int64 is greater than 0.
+type Int64IsPresent struct {
+	Name  string
+	Field int64
+}
+
+// IsValid adds an error if the value is equal to 0.
+func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
+	if v.Field == 0 {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
