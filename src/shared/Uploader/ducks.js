@@ -50,7 +50,7 @@ export function documentReducer(state = initialState, action) {
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
         hasSubmitError: true,
-        confirmationText: 'Submission error.',
+        confirmationText: 'Upload error.',
       });
     default:
       return state;

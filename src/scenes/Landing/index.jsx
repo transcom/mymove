@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import LoginButton from 'shared/User/LoginButton';
-import Uploader from 'shared/Uploader';
 import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
@@ -25,7 +24,6 @@ export class Landing extends Component {
         <h1>Welcome!</h1>
         <div>
           <LoginButton />
-          <Uploader />
           <div />
         </div>
         {this.props.isLoggedIn && (
