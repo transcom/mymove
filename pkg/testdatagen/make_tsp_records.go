@@ -2,9 +2,10 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
+
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
-	"log"
 )
 
 // MakeTSP makes a single transportation service provider record.

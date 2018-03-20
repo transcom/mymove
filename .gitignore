@@ -16,6 +16,9 @@ __snapshots__
 # production
 /build
 
+# development
+/uploads
+
 # built binaries
 /bin/webserver
 /bin/tsp-award-queue
