@@ -1,14 +1,14 @@
 package models
 
 import (
-	"fmt"
-
 	"encoding/json"
+	"fmt"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
-	"time"
 )
 
 // Address is an address
