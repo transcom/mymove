@@ -43,71 +43,53 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, pickupDate time.
 		WHERE
 			transportation_service_provider_id = $1
 		AND
-			$2 BETWEEN start_blackout_date and end_blackout_date
-		AND
-			(`}
-	fmt.Println(sqlString)
-	// sqlBase := `SELECT
-	// 		*
-	// 	FROM
-	// 		blackout_dates
-	// 	WHERE
-	// 		transportation_service_provider_id = $1
-	// 	AND
-	// 		$2 BETWEEN start_blackout_date and end_blackout_date
-	// 	AND
-	// 		(`
-	fmt.Printf("%T\n", sqlString)
-	if *codeOfService != "" {
-		sqlString = append(sqlString, `code_of_service = `, *codeOfService, " ")
+			$2 BETWEEN start_blackout_date AND end_blackout_date`}
+	// fmt.Println(sqlString)
+
+	// fmt.Printf("%T\n", sqlString)
+	if codeOfService != nil {
+		sqlString = append(sqlString, `AND (code_of_service = `, *codeOfService, " ")
 		moreThanOneClause = true
 	}
-	fmt.Println("This is line 64: ", sqlString)
-	fmt.Printf("This is line 65: %T\n", codeOfService)
-	fmt.Printf("This is line 66: %T\n", *codeOfService)
-	if *channel != "" {
+	// fmt.Println("This is line 54: ", sqlString)
+	// fmt.Printf("This is line 55: %T\n", codeOfService)
+	// fmt.Printf("This is line 66: %T\n", *codeOfService)
+	if channel != nil {
 		if !moreThanOneClause {
-			sqlString = append(sqlString, `channel = `, *channel, " ")
+			sqlString = append(sqlString, `AND (channel = `, *channel, " ")
 			moreThanOneClause = true
 		} else {
 			sqlString = append(sqlString, ` OR channel = `, *channel, " ")
 		}
 	}
-	fmt.Println(sqlString)
-	if *gbloc != "" {
+	// fmt.Println("Line 64! ", sqlString)
+	if gbloc != nil {
 		if !moreThanOneClause {
-			sqlString = append(sqlString, `gbloc = `, *gbloc, " ")
+			sqlString = append(sqlString, `AND (gbloc = `, *gbloc, " ")
 			moreThanOneClause = true
 		} else {
 			sqlString = append(sqlString, ` OR gbloc = `, *gbloc, " ")
 		}
 	}
-	fmt.Println(sqlString)
+	// fmt.Println("Line 74! ", sqlString)
 	// A good place to do that if market, no channel thing - need to change order of things.
-	if *market != "" {
+	if market != nil {
 		if !moreThanOneClause {
-			sqlString = append(sqlString, `market = `, *market, " ")
+			sqlString = append(sqlString, `AND (market = `, *market, " ")
 			moreThanOneClause = true
 		} else {
 			sqlString = append(sqlString, ` OR market = `, *market, " ")
 		}
 	}
 
-	sqlString = append(sqlString, ";")
+	// fmt.Println(sqlString)
+	sqlString = append(sqlString, ";") // Address the paren problem later
 
 	sql := strings.Join(sqlString, "")
-	fmt.Println(sql)
-
-	// sql :=
-	// 		(market = $3
-	// 	OR
-	// 		code_of_service = $4
-	// 	OR
-	// 		channel = $5
-	// 	OR
-	// 		gbloc = $6)
+	// fmt.Println("Line 89! ", sql)
 
 	err := tx.RawQuery(sql, tspID, pickupDate).All(&blackoutDates)
+	// fmt.Println("These are the blackout dates: ", blackoutDates)
 
 	return blackoutDates, err
 }
