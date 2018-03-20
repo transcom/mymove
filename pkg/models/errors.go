@@ -10,5 +10,5 @@ const (
 	// FetchErrorNotFound means that the requested record does not exist
 	FetchErrorNotFound FetchError = "NOT_FOUND"
 	// FetchErrorForbidden means that the record exists but that the user does not have access to it
-	FetchErrorForbidden FetchError = "NOT_AUTHORIZED"
+	FetchErrorForbidden FetchError = "FORBIDDEN"
 )
