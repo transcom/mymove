@@ -21,6 +21,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 type AuthSuite struct {
@@ -144,7 +145,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 }
 
-func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithBadToken() {
 	t := suite.T()
 	fakeToken := "some_token"
 	pem, err := createRandomRSAPEM()
@@ -153,7 +154,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -176,7 +177,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 }
 
-func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithValidToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -199,7 +200,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handledRequest = r
 	})
-	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -219,7 +220,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	}
 }
 
-func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithRenewalToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -242,7 +243,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handledRequest = r
 	})
-	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -262,7 +263,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	}
 }
 
-func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithExpiredToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -280,7 +281,7 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(suite.logger, pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
@@ -299,5 +300,53 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	// And the cookie should not be renewed
 	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
 		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
+	}
+}
+
+func (suite *AuthSuite) TestRequireAuthMiddleware() {
+	t := suite.T()
+
+	// Given: a logged in user
+	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  userUUID,
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/moves", nil)
+
+	// And: the context contains the auth values
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := RequireAuthMiddleware(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
+	}
+}
+
+func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
+	t := suite.T()
+
+	// Given: No logged in users
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/moves", nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := RequireAuthMiddleware(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should receive an unauthorized response
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
 }
