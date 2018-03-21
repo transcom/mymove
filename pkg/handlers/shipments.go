@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmessages.ShipmentPayload {
+func payloadForShipmentModel(s models.ShipmentWithOffer) *internalmessages.ShipmentPayload {
 	shipmentPayload := &internalmessages.ShipmentPayload{
 		ID:                              fmtUUID(s.ID),
 		PickupDate:                      fmtDate(time.Now()),

@@ -30,8 +30,8 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
 	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl)
 
-	// Create a PossiblyAwardedShipment to feed the award queue
-	pas := models.PossiblyAwardedShipment{
+	// Create a ShipmentWithOfferAwardedShipment to feed the award queue
+	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		PickupDate:                      pickupDate,
@@ -43,12 +43,12 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentOffer(pas)
+	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
 
 	expectedError := "Could not find a TSP without blackout dates"
-	// See if shipment was awarded
-	if err == nil || award != nil {
-		t.Errorf("Shipment was awarded to a blacked out TSP!")
+	// See if shipment was offered
+	if err == nil || offer != nil {
+		t.Errorf("Shipment was offered to a blacked out TSP!")
 	} else if !strings.Contains(err.Error(), expectedError) {
 		t.Errorf("Did not receive proper error message. Expected '%s', got '%s' instead.", expectedError, err)
 	}
@@ -77,20 +77,20 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	shipmentAward := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
 	if err := query.First(&shipmentAward); err != nil {
-		t.Errorf("Couldn't find shipment award with shipment_ID: %v\n", shipment.ID)
+		t.Errorf("Couldn't find shipment offer with shipment_ID: %v\n", shipment.ID)
 	}
 
 	blackoutShipmentAward := models.ShipmentOffer{}
 	blackoutQuery := suite.db.Where("shipment_id = $1", blackoutShipment.ID)
 	if err := blackoutQuery.First(&blackoutShipmentAward); err != nil {
-		t.Errorf("Couldn't find shipment award: %v", blackoutShipment.ID)
+		t.Errorf("Couldn't find shipment offer: %v", blackoutShipment.ID)
 	}
 
 	if shipmentAward.AdministrativeShipment != false || blackoutShipmentAward.AdministrativeShipment != true {
 		t.Errorf("Shipment Awards erroneously assigned administrative status.")
 	}
 
-	suite.verifyAwardCount(tsp, 2)
+	suite.verifyOfferCount(tsp, 2)
 }
 
 func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
@@ -138,7 +138,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 }
 
-func (suite *AwardQueueSuite) Test_FindAllUnawardedShipments() {
+func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 	_, err := queue.findAllUnassignedShipments()
@@ -148,8 +148,8 @@ func (suite *AwardQueueSuite) Test_FindAllUnawardedShipments() {
 	}
 }
 
-// Test that we can create a shipment that should be awarded, and that
-// it actually gets awarded.
+// Test that we can create a shipment that should be offered, and that
+// it actually gets offered.
 func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
@@ -162,8 +162,8 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
-	// Create a PossiblyAwardedShipment to feed the award queue
-	pas := models.PossiblyAwardedShipment{
+	// Create a ShipmentWithOfferAwardedShipment to feed the award queue
+	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		PickupDate:                      time.Now(),
@@ -175,18 +175,18 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentOffer(pas)
+	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
 
-	// See if shipment was awarded
+	// See if shipment was offered
 	if err != nil {
-		t.Errorf("Shipment award expected no errors, received: %v", err)
-	} else if award == nil {
+		t.Errorf("Shipment offer expected no errors, received: %v", err)
+	} else if offer == nil {
 		t.Error("ShipmentAward was not found.")
 	}
 }
 
-// Test that we can create a shipment that should NOT be awarded because it is not in a TDL
-// with any TSPs, and that it doens't get awarded.
+// Test that we can create a shipment that should NOT be offered because it is not in a TDL
+// with any TSPs, and that it doens't get offered.
 func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
@@ -195,8 +195,8 @@ func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl)
 
-	// Create a PossiblyAwardedShipment to feed the award queue
-	pas := models.PossiblyAwardedShipment{
+	// Create a ShipmentWithOffer to feed the award queue
+	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
 		PickupDate:                      time.Now(),
@@ -205,18 +205,18 @@ func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
 	}
 
 	// Run the Award Queue
-	award, err := queue.attemptShipmentOffer(pas)
+	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
 
-	// See if shipment was awarded
+	// See if shipment was offered
 	if err == nil {
-		t.Errorf("Shipment award expected an error, received none.")
+		t.Errorf("Shipment offer expected an error, received none.")
 	}
-	if award != nil {
-		t.Errorf("Wrong return value, expected nil, got %v", award)
+	if offer != nil {
+		t.Errorf("Wrong return value, expected nil, got %v", offer)
 	}
 }
 
-func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsSingleTSP() {
+func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
@@ -239,20 +239,20 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsSingleTSP() {
 	// Run the Award Queue
 	queue.assignShipments()
 
-	// Count the number of shipments awarded to our TSP
+	// Count the number of shipments offered to our TSP
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
-	awards := []models.ShipmentOffer{}
-	count, err := query.Count(&awards)
+	offers := []models.ShipmentOffer{}
+	count, err := query.Count(&offers)
 
 	if err != nil {
-		t.Errorf("Error counting shipment awards: %v", err)
+		t.Errorf("Error counting shipment offers: %v", err)
 	}
 	if count != shipmentsToMake {
-		t.Errorf("Not all ShipmentAwards found. Expected %d found %d", shipmentsToMake, count)
+		t.Errorf("Not all ShipmentOffers found. Expected %d found %d", shipmentsToMake, count)
 	}
 }
 
-func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsToMultipleTSPs() {
+func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	suite.db.TruncateAll()
 
 	queue := NewAwardQueue(suite.db, suite.logger)
@@ -274,7 +274,7 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsToMultipleTSPs()
 	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
 	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
 
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0)
@@ -284,11 +284,11 @@ func (suite *AwardQueueSuite) Test_AwardAssignUnawardedShipmentsToMultipleTSPs()
 	// Run the Award Queue
 	queue.assignShipments()
 
-	suite.verifyAwardCount(tsp1, 6)
-	suite.verifyAwardCount(tsp2, 5)
-	suite.verifyAwardCount(tsp3, 3)
-	suite.verifyAwardCount(tsp4, 2)
-	suite.verifyAwardCount(tsp5, 1)
+	suite.verifyOfferCount(tsp1, 6)
+	suite.verifyOfferCount(tsp2, 5)
+	suite.verifyOfferCount(tsp3, 3)
+	suite.verifyOfferCount(tsp4, 2)
+	suite.verifyOfferCount(tsp5, 1)
 }
 
 func (suite *AwardQueueSuite) Test_GetTSPsPerBandWithRemainder() {
@@ -351,28 +351,28 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	}
 }
 
-func (suite *AwardQueueSuite) verifyAwardCount(tsp models.TransportationServiceProvider, expectedCount int) {
+func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceProvider, expectedCount int) {
 	t := suite.T()
 	t.Helper()
 
 	// TODO is there a more concise way to do this?
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
-	awards := []models.ShipmentOffer{}
-	count, err := query.Count(&awards)
+	offers := []models.ShipmentOffer{}
+	count, err := query.Count(&offers)
 
 	if err != nil {
-		t.Fatalf("Error counting shipment awards: %v", err)
+		t.Fatalf("Error counting shipment offers: %v", err)
 	}
 	if count != expectedCount {
-		t.Errorf("Wrong number of ShipmentAwards found: expected %d, got %d", expectedCount, count)
+		t.Errorf("Wrong number of ShipmentOffers found: expected %d, got %d", expectedCount, count)
 	}
 
 	var tspPerformance models.TransportationServiceProviderPerformance
 	if err := query.First(&tspPerformance); err != nil {
 		t.Errorf("No TSP Performance record found with id %s", tsp.ID)
 	}
-	if expectedCount != tspPerformance.AwardCount {
-		t.Errorf("Wrong AwardCount for TSP: expected %d, got %d", expectedCount, tspPerformance.AwardCount)
+	if expectedCount != tspPerformance.OfferCount {
+		t.Errorf("Wrong OfferCount for TSP: expected %d, got %d", expectedCount, tspPerformance.OfferCount)
 	}
 }
 

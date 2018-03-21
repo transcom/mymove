@@ -45,8 +45,8 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
 		t.Fatalf("could not find perf: %v", err)
 	}
 
-	if performance.AwardCount != 1 {
-		t.Errorf("Wrong AwardCount: expected %d, got %d", 1, performance.AwardCount)
+	if performance.OfferCount != 1 {
+		t.Errorf("Wrong AwardCount: expected %d, got %d", 1, performance.OfferCount)
 	}
 }
 
@@ -132,10 +132,10 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceAllZeros() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -152,10 +152,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceAllZeros() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -172,10 +172,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -192,10 +192,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 6, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 4, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 10, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 6, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 4, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -212,10 +212,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -232,9 +232,9 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 10, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(3)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -250,10 +250,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -270,10 +270,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,

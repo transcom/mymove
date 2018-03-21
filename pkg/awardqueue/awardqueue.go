@@ -32,7 +32,7 @@ type AwardQueue struct {
 	logger *zap.SugaredLogger
 }
 
-func (aq *AwardQueue) findAllUnassignedShipments() ([]models.PossiblyAwardedShipment, error) {
+func (aq *AwardQueue) findAllUnassignedShipments() ([]models.ShipmentWithOffer, error) {
 	shipments, err := models.FetchShipments(aq.db, true)
 	return shipments, err
 }
@@ -40,7 +40,7 @@ func (aq *AwardQueue) findAllUnassignedShipments() ([]models.PossiblyAwardedShip
 // attemptShipmentOffer will attempt to take the given Shipment and award it to
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
-func (aq *AwardQueue) attemptShipmentOffer(shipment models.PossiblyAwardedShipment) (*models.ShipmentOffer, error) {
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
 	aq.logger.Infof("Attempting to offer shipment: %s", shipment.ID)
 
 	// Query the shipment's TDL
@@ -91,7 +91,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.PossiblyAwardedShipme
 							aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 						} else {
 							// TODO: AwardCount is off by 1
-							aq.logger.Infof("Shipment offered to TSP! TSP now has %d shipment offers.", tspPerformance.AwardCount+1)
+							aq.logger.Infof("Shipment offered to TSP! TSP now has %d shipment offers.", tspPerformance.OfferCount+1)
 							foundAvailableTSP = true
 						}
 						return nil

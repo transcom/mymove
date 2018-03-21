@@ -37,7 +37,7 @@ type TransportationServiceProviderPerformance struct {
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	QualityBand                     *int      `json:"quality_band" db:"quality_band"`
 	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	AwardCount                      int       `json:"award_count" db:"award_count"`
+	OfferCount                      int       `json:"offer_count" db:"offer_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -93,7 +93,7 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 			AND
 			$3 BETWEEN performance_period_start AND performance_period_end
 		ORDER BY
-			award_count ASC,
+			offer_count ASC,
 			best_value_score DESC
 		`
 
@@ -136,12 +136,12 @@ func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProvi
 	bands := sortedMapIntKeys(tspPerformances)
 	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
 	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
-	maxRounds := float64(tspPerformances[bands[0]].AwardCount) / float64(AwardsPerQualityBand[bands[0]])
+	maxRounds := float64(tspPerformances[bands[0]].OfferCount) / float64(AwardsPerQualityBand[bands[0]])
 	previousRounds := math.Ceil(maxRounds)
 
 	for _, band := range bands {
 		tspPerformance := tspPerformances[band]
-		rounds := float64(tspPerformance.AwardCount) / float64(AwardsPerQualityBand[band])
+		rounds := float64(tspPerformance.OfferCount) / float64(AwardsPerQualityBand[band])
 
 		if rounds < previousRounds {
 			return tspPerformance
@@ -202,13 +202,13 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	return nil
 }
 
-// IncrementTSPPerformanceAwardCount increments the award_count column by 1 and validates.
+// IncrementTSPPerformanceAwardCount increments the offer_count column by 1 and validates.
 func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
 	var tspPerformance TransportationServiceProviderPerformance
 	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
 		return err
 	}
-	tspPerformance.AwardCount++
+	tspPerformance.OfferCount++
 	validationErr, databaseErr := db.ValidateAndSave(&tspPerformance)
 	if databaseErr != nil {
 		return databaseErr

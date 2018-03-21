@@ -11,13 +11,13 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeShipmentAward a single AwardedShipment record
-func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
+// MakeShipmentOffer a single ShipmentOffer record
+func MakeShipmentOffer(db *pop.Connection, shipment models.Shipment,
 	tsp models.TransportationServiceProvider, admin bool, accepted *bool,
 	rejectionReason *string) (models.ShipmentOffer, error) {
 
-	// Add one awarded shipment record using existing shipment and TSP IDs
-	shipmentAward := models.ShipmentOffer{
+	// Add one offered shipment record using existing shipment and TSP IDs
+	shipmentOffer := models.ShipmentOffer{
 		ShipmentID:                      shipment.ID,
 		TransportationServiceProviderID: tsp.ID,
 		AdministrativeShipment:          admin,
@@ -25,16 +25,16 @@ func MakeShipmentAward(db *pop.Connection, shipment models.Shipment,
 		RejectionReason:                 rejectionReason,
 	}
 
-	_, err := db.ValidateAndSave(&shipmentAward)
+	_, err := db.ValidateAndSave(&shipmentOffer)
 	if err != nil {
 		log.Panic(err)
 	}
 
-	return shipmentAward, err
+	return shipmentOffer, err
 }
 
-// MakeShipmentAwardData creates one awarded shipment record
-func MakeShipmentAwardData(db *pop.Connection) {
+// MakeShipmentOfferData creates one offered shipment record
+func MakeShipmentOfferData(db *pop.Connection) {
 	// Get a shipment ID
 	shipmentList := []models.Shipment{}
 	err := db.All(&shipmentList)
@@ -49,8 +49,8 @@ func MakeShipmentAwardData(db *pop.Connection) {
 		fmt.Println("TSP ID import failed.")
 	}
 
-	// Add one awarded shipment record using existing, random shipment and TSP IDs
-	MakeShipmentAward(db,
+	// Add one offered shipment record using existing, random shipment and TSP IDs
+	MakeShipmentOffer(db,
 		shipmentList[rand.Intn(len(shipmentList))],
 		tspList[rand.Intn(len(tspList))],
 		false,

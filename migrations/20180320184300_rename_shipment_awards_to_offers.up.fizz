@@ -1,1 +1,2 @@
 rename_table("shipment_awards", "shipment_offers")
+rename_column("transportation_service_provider_performances", "award_count", "offer_count")

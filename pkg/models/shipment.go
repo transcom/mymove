@@ -29,8 +29,8 @@ type Shipment struct {
 	Market                    *string   `json:"market" db:"market"`
 }
 
-// PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
-type PossiblyAwardedShipment struct {
+// ShipmentWithOffer represents a single awarded shipment within a Service Member's move.
+type ShipmentWithOffer struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
@@ -45,10 +45,10 @@ type PossiblyAwardedShipment struct {
 }
 
 // FetchShipments looks up all shipments joined with their award information in a
-// PossiblyAwardedShipment struct. Optionally, you can only query for unassigned
+// ShipmentWithOffer struct. Optionally, you can only query for unassigned
 // shipments with the `onlyUnassigned` parameter.
-func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]PossiblyAwardedShipment, error) {
-	shipments := []PossiblyAwardedShipment{}
+func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
+	shipments := []ShipmentWithOffer{}
 
 	var unassignedSQL string
 

@@ -20,7 +20,7 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
 		BestValueScore:                  score,
-		AwardCount:                      awardCount,
+		OfferCount:                      awardCount,
 	}
 
 	_, err := db.ValidateAndSave(&tspPerformance)
