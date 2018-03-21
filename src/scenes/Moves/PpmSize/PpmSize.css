@@ -4,31 +4,11 @@
   font-size: 2.5rem;
 }
 
-.size-button {
+.ppm-size-button {
   border: 1px solid #808080;
   height: 200px;
   text-align: center;
   box-shadow: 5px 5px 5px #e2e2e2;
-}
-
-.size-button:hover {
-  background-color: green;
-}
-.size-button p:first-child {
-  margin-top: 3rem;
-}
-
-.size-button p {
-  margin-top: 0rem;
-  margin-bottom: 0rem;
-}
-
-.size-button img {
-  margin-top: 3rem;
-}
-
-/* Radio styling */
-.container {
   cursor: pointer;
   -webkit-user-select: none;
   -moz-user-select: none;
@@ -36,20 +16,22 @@
   user-select: none;
 }
 
-/*.container label > input{ !* HIDE RADIO *!*/
-  /*visibility: hidden;*/
-  /*position: absolute;*/
-/*}*/
-
-/* On mouse-over, add a grey background color */
-.container:hover input ~ div{
-  background-color: #ccc;
+.ppm-size-button p:first-child {
+  margin-top: 3rem;
 }
 
-/* When the radio button is checked, add a blue background */
-.container input:checked + div {
+.ppm-size-button p {
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+}
+
+.ppm-size-button img {
+  margin-top: 3rem;
+}
+
+/* On mouse-over, add a grey background color */
+.ppm-size-button:hover {
   background-color: #f0f6fb;
-  border: 2px solid #949494;
 }
 
  .selected {
