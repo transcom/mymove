@@ -22,7 +22,7 @@ export const createPpmFailure = error => ({
 
 // Action creation
 export function createPpm(value) {
-  return function(dispatch, getState) {
+  return function(dispatch) {
     dispatch(createPpmRequest());
     CreatePpm(value)
       .then(item => dispatch(createPpmSuccess(item)))
