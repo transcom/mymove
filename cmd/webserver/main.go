@@ -146,10 +146,14 @@ func main() {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+
+	// Mux for internal API that enforces auth
+	internalAPIMux := goji.SubMux()
+	internalAPIMux.Use(auth.RequireAuthMiddleware)
+	internalMux.Handle(pat.New("/*"), internalAPIMux)
+	internalAPIMux.Handle(pat.New("*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
 
 	authContext := auth.NewAuthContext(fullHostname, logger)
 	authMux := goji.SubMux()
