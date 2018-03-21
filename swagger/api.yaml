@@ -29,6 +29,8 @@ paths:
               $ref: '#/definitions/TSP'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this API
         403:
           description: not authorized to get list of TSPs
   /tsp/{tspUUID}/shipments:
@@ -58,8 +60,67 @@ paths:
               $ref: '#/definitions/Shipment'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this API
         403:
           description: not authorized to get list of shipments for this TSP
+  /shipments/{shipmentUUID}/accept:
+    post:
+      summary: Accepts an awarded shipment
+      description: Accepts a shipment awarded to a TSP
+      operationId: acceptShipment
+      parameters:
+        - name: shipmentUUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the tsp
+        - name: acceptShipmentPayload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AcceptShipmentPayload'
+      responses:
+        200:
+          description: returns updated (accepted) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+  /shipments/{shipmentUUID}/reject:
+    post:
+      summary: Rejects an awarded shipment
+      description: Allows a TSP to reject an awarded shipment
+      operationId: rejectShipment
+      parameters:
+        - name: shipmentUUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the tsp
+        - in: body
+          name: rejectShipmentPayload
+          description: reason for rejecting award
+          required: true
+          schema:
+            $ref: '#/definitions/RejectShipmentPayload'
+      responses:
+        200:
+          description: returns updated (rejected) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
 
 definitions:
   TSP:
@@ -114,6 +175,14 @@ definitions:
         $ref: '#/definitions/Address'
       secondary_delivery:
         $ref: '#/definitions/Address'
+      accept_url:
+        type: string
+        format: URL
+        description: URL to use to accept the shipment
+      reject_url:
+        type: string
+        format: URL
+        description: URL to use to reject the shipment
   Customer:
     type: object
     description: The person moving
@@ -229,37 +298,72 @@ definitions:
         enum: # Add other values
           - REGION_6
         example: REGION_6
-  PreMoveSurvey:
+#  PreMoveSurvey:
+#    type: object
+#    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
+#    properties:
+#      id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      shipment_id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#  Claim:
+#    type: object
+#    description: A claim resulting from an earlier shipment
+#    properties:
+#      id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      shipment_id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      claim_date:
+#        type: string
+#        format: date
+#        example: 2018-03-15
+#      description:
+#        type: string
+#        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+  AcceptShipmentPayload:
     type: object
-    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
+    description: Payload for the accept shipment API endpoint, sets the Origin and Destination Agent contact details
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  Claim:
+      originShippingAgent:
+        $ref: '#/definitions/ShippingAgentContact'
+      destinationShippingAgent:
+        $ref: '#/definitions/ShippingAgentContact'
+    required:
+      - originShippingAgent
+      - destinationShippingAgent
+  RejectShipmentPayload:
     type: object
-    description: A claim resulting from an earlier shipment
+    description: Payload for the reject shipment API endpoint.
     properties:
-      id:
+      reason:
+       type: string
+       example: "This shipment has been awarded for a recently blacked out date"
+    required:
+      - reason
+  ShippingAgentContact:
+    type: object
+    description:  Contact details for a shipping agent
+    properties:
+      name:
         type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
+        example: Local Shipping Agents, Inc
+      phone_number:
         type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      claim_date:
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1212
+      email:
         type: string
-        format: date
-        example: 2018-03-15
-      description:
-        type: string
-        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+        format: email
   Address:
     type: object
     properties:
