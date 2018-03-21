@@ -18,7 +18,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	suite.verifyValidationErrors(shipment, expErrors)
 }
 
-// Test_FetchAllShipments tests that a shipment is returned when we fetch possibly awarded shipments
+// Test_FetchAllShipments tests that a shipment is returned when we fetch shipments with their offers.
 func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	now := time.Now()
@@ -38,7 +38,7 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	}
 }
 
-// Test_FetchUnawardedShipments tests that a shipment is returned when we fetch possibly awarded shipments
+// Test_FetchUnassignedShipments tests that a shipment is returned when we fetch shipments with offers.
 func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	now := time.Now()
@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)
 
-	// Expect only unawarded shipment returned
+	// Expect only unassigned shipment returned
 	if err != nil {
 		t.Errorf("Failed to find Shipments: %v", err)
 	} else if len(shipments) != 1 {

@@ -30,7 +30,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
 	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl)
 
-	// Create a ShipmentWithOfferAwardedShipment to feed the award queue
+	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
