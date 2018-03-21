@@ -20,7 +20,7 @@ export class BigButton extends Component {
       <div className={className} onClick={this.props.onButtonClick}>
         <p>{this.props.firstLine}</p>
         <p>{this.props.secondLine}</p>
-        <img className="icon" src={this.props.icon} />
+        <img className="icon" src={this.props.icon} alt={this.props.altTag} />
       </div>
     );
   }
@@ -30,13 +30,14 @@ BigButton.propTypes = {
   firstLine: PropTypes.string.isRequired,
   secondLine: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
+  altTag: PropTypes.string.isRequired,
   selected: PropTypes.bool,
   onButtonClick: PropTypes.func,
 };
 
 export class BigButtonGroup extends Component {
   render() {
-    var createButton = (value, firstLine, secondLine, icon) => {
+    var createButton = (value, firstLine, secondLine, icon, altTag) => {
       var onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
@@ -46,6 +47,7 @@ export class BigButtonGroup extends Component {
           firstLine={firstLine}
           secondLine={secondLine}
           icon={icon}
+          altTag={altTag}
           selected={this.props.selectedOption === value}
           onButtonClick={onButtonClick}
         />
@@ -56,18 +58,21 @@ export class BigButtonGroup extends Component {
       'A few items in your car?',
       '(approx 100 - 800 lbs)',
       carGray,
+      'car-gray',
     );
     var medium = createButton(
       'M',
       'A trailer full of household goods?',
       '(approx 400 - 1,200 lbs)',
       trailerGray,
+      'trailer-gray',
     );
     var large = createButton(
       'L',
       'A moving truck that you rent yourself?',
       '(approx 1,000 - 5,000 lbs)',
       truckGray,
+      'truck-gray',
     );
 
     return (
