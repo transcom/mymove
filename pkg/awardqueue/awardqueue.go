@@ -86,7 +86,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 
 				shipmentOffer, err = models.CreateShipmentOffer(aq.db, shipment.ID, tsp.ID, isAdministrativeShipment)
 				if err == nil {
-					if err = models.IncrementTSPPerformanceAwardCount(aq.db, tspPerformance.ID); err == nil {
+					if err = models.IncrementTSPPerformanceOfferCount(aq.db, tspPerformance.ID); err == nil {
 						if isAdministrativeShipment == true {
 							aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 						} else {

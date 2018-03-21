@@ -11,7 +11,7 @@ import (
 )
 
 // ShipmentOffer maps a Transportation Service Provider to a shipment,
-// indicating that the shipment has been awarded to that TSP.
+// indicating that the shipment has been offered to that TSP.
 type ShipmentOffer struct {
 	ID                              uuid.UUID `json:"id" db:"id"`
 	CreatedAt                       time.Time `json:"created_at" db:"created_at"`

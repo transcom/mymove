@@ -80,13 +80,13 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		t.Errorf("Couldn't find shipment offer with shipment_ID: %v\n", shipment.ID)
 	}
 
-	blackoutShipmentAward := models.ShipmentOffer{}
+	blackoutShipmentOffer := models.ShipmentOffer{}
 	blackoutQuery := suite.db.Where("shipment_id = $1", blackoutShipment.ID)
-	if err := blackoutQuery.First(&blackoutShipmentAward); err != nil {
+	if err := blackoutQuery.First(&blackoutShipmentOffer); err != nil {
 		t.Errorf("Couldn't find shipment offer: %v", blackoutShipment.ID)
 	}
 
-	if shipmentOffer.AdministrativeShipment != false || blackoutShipmentAward.AdministrativeShipment != true {
+	if shipmentOffer.AdministrativeShipment != false || blackoutShipmentOffer.AdministrativeShipment != true {
 		t.Errorf("Shipment Awards erroneously assigned administrative status.")
 	}
 

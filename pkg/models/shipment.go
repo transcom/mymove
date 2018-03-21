@@ -29,7 +29,7 @@ type Shipment struct {
 	Market                    *string   `json:"market" db:"market"`
 }
 
-// ShipmentWithOffer represents a single awarded shipment within a Service Member's move.
+// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
 type ShipmentWithOffer struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
@@ -44,7 +44,7 @@ type ShipmentWithOffer struct {
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
-// FetchShipments looks up all shipments joined with their award information in a
+// FetchShipments looks up all shipments joined with their offer information in a
 // ShipmentWithOffer struct. Optionally, you can only query for unassigned
 // shipments with the `onlyUnassigned` parameter.
 func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {

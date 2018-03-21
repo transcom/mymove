@@ -28,16 +28,16 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
-func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
+func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 
-	err := IncrementTSPPerformanceAwardCount(suite.db, perf.ID)
+	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
-		t.Fatalf("Could not increment award_count: %v", err)
+		t.Fatalf("Could not increment offer_count: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}
@@ -46,7 +46,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
 	}
 
 	if performance.OfferCount != 1 {
-		t.Errorf("Wrong AwardCount: expected %d, got %d", 1, performance.OfferCount)
+		t.Errorf("Wrong OfferCount: expected %d, got %d", 1, performance.OfferCount)
 	}
 }
 
@@ -115,7 +115,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
 
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
@@ -248,7 +248,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	}
 }
 
-func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfOffered() {
 	t := suite.T()
 	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
 	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
@@ -298,7 +298,7 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
 	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
 	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0)
@@ -336,7 +336,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
-	// What matter is the BVS score order; award_count has no influence.
+	// What matter is the BVS score order; offer count has no influence.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1)

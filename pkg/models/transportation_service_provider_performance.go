@@ -17,8 +17,8 @@ import (
 
 var qualityBands = []int{1, 2, 3, 4}
 
-// AwardsPerQualityBand is a map of the number of shipments to be awarded per round to each quality band
-var AwardsPerQualityBand = map[int]int{
+// OffersPerQualityBand is a map of the number of shipments to be offered per round to each quality band
+var OffersPerQualityBand = map[int]int{
 	1: 5,
 	2: 3,
 	3: 2,
@@ -78,7 +78,7 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 }
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
-// and Quality Band that will next be awarded a shipment.
+// and Quality Band that will next be offered a shipment.
 func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, bookDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
@@ -135,13 +135,13 @@ func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate ti
 func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
 	bands := sortedMapIntKeys(tspPerformances)
 	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
-	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
-	maxRounds := float64(tspPerformances[bands[0]].OfferCount) / float64(AwardsPerQualityBand[bands[0]])
+	// Since the TSPs in quality band 1 will always have been offered the greatest number of shipments, we use that to calculate max.
+	maxRounds := float64(tspPerformances[bands[0]].OfferCount) / float64(OffersPerQualityBand[bands[0]])
 	previousRounds := math.Ceil(maxRounds)
 
 	for _, band := range bands {
 		tspPerformance := tspPerformances[band]
-		rounds := float64(tspPerformance.OfferCount) / float64(AwardsPerQualityBand[band])
+		rounds := float64(tspPerformance.OfferCount) / float64(OffersPerQualityBand[band])
 
 		if rounds < previousRounds {
 			return tspPerformance
@@ -150,7 +150,7 @@ func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProvi
 	}
 
 	// If we get all the way through, it means all of the TSPPerformances have had the
-	// same number of awards and we should wrap around and assign the next award to
+	// same number of offers and we should wrap around and assign the next offer to
 	// the first quality band.
 	return tspPerformances[bands[0]]
 }
@@ -202,8 +202,8 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	return nil
 }
 
-// IncrementTSPPerformanceAwardCount increments the offer_count column by 1 and validates.
-func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
+// IncrementTSPPerformanceOfferCount increments the offer_count column by 1 and validates.
+func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
 	var tspPerformance TransportationServiceProviderPerformance
 	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
 		return err
