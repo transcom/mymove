@@ -74,9 +74,9 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	// Run the Award Queue
 	queue.assignShipments()
 
-	shipmentAward := models.ShipmentOffer{}
+	shipmentOffer := models.ShipmentOffer{}
 	query := suite.db.Where("shipment_id = $1", shipment.ID)
-	if err := query.First(&shipmentAward); err != nil {
+	if err := query.First(&shipmentOffer); err != nil {
 		t.Errorf("Couldn't find shipment offer with shipment_ID: %v\n", shipment.ID)
 	}
 
@@ -86,7 +86,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		t.Errorf("Couldn't find shipment offer: %v", blackoutShipment.ID)
 	}
 
-	if shipmentAward.AdministrativeShipment != false || blackoutShipmentAward.AdministrativeShipment != true {
+	if shipmentOffer.AdministrativeShipment != false || blackoutShipmentAward.AdministrativeShipment != true {
 		t.Errorf("Shipment Awards erroneously assigned administrative status.")
 	}
 
@@ -150,7 +150,7 @@ func (suite *AwardQueueSuite) Test_FindAllUnassignedShipments() {
 
 // Test that we can create a shipment that should be offered, and that
 // it actually gets offered.
-func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
+func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
@@ -162,7 +162,7 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
-	// Create a ShipmentWithOfferAwardedShipment to feed the award queue
+	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
@@ -181,13 +181,13 @@ func (suite *AwardQueueSuite) Test_AwardSingleShipment() {
 	if err != nil {
 		t.Errorf("Shipment offer expected no errors, received: %v", err)
 	} else if offer == nil {
-		t.Error("ShipmentAward was not found.")
+		t.Error("ShipmentOffer was not found.")
 	}
 }
 
 // Test that we can create a shipment that should NOT be offered because it is not in a TDL
 // with any TSPs, and that it doens't get offered.
-func (suite *AwardQueueSuite) Test_FailAwardingSingleShipment() {
+func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
