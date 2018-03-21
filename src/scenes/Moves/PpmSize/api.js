@@ -5,10 +5,11 @@ export async function GetSpec() {
   return client.spec;
 }
 
-export async function CreatePpm(ppmRequest) {
+export async function CreatePpm(moveId, size) {
   const client = await getClient();
   const response = await client.apis.ppm.createPersonallyProcuredMove({
-    createPersonallyProcuredMovePayload: ppmRequest,
+    moveId,
+    createPersonallyProcuredMovePayload: { size },
   });
   checkResponse(response, 'failed to create ppm due to server error');
   return response.body;

@@ -28,7 +28,10 @@ export function setPendingPpmSize(value) {
 export function createPpm() {
   return function(dispatch, getState) {
     dispatch(createPpmRequest());
-    CreatePpm(getState().ppp.pendingPpmSize)
+    const state = getState();
+    const size = state.ppm.pendingPpmSize;
+    const moveId = state.submittedMoves.currentMove;
+    CreatePpm(moveId, size)
       .then(item => dispatch(createPpmSuccess(item)))
       .catch(error => dispatch(createPpmFailure(error)));
   };
