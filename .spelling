@@ -205,6 +205,10 @@ EnsureLoggedInContainer
 jwt
 direnv
 golang
+RSpec
+RuboCop
+contributors.md
+LICENSE.md
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
  - docs/adr/0007-swagger-client.md
