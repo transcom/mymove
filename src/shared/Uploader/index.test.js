@@ -5,16 +5,16 @@ import { Uploader } from '.';
 import store from 'shared/store';
 
 const dummyFunc = () => {};
-const hasSubmitError = false;
-const hasSubmitSuccess = false;
+const hasErrored = false;
+const hasSucceeded = false;
 
 it('renders without crashing', () => {
   const div = document.createElement('div');
   ReactDOM.render(
     <Provider store={store}>
       <Uploader
-        hasSubmitSuccess={hasSubmitSuccess}
-        hasSubmitError={hasSubmitError}
+        hasSucceeded={hasSucceeded}
+        hasErrored={hasErrored}
         confirmationText=""
         createDocument={dummyFunc}
       />

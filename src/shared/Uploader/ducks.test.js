@@ -7,8 +7,8 @@ import {
 describe('Document Reducer', () => {
   it('Should handle CREATE_DOCUMENT_SUCCESS', () => {
     const initialState = {
-      hasSubmitError: false,
-      hasSubmitSuccess: false,
+      hasErrored: false,
+      hasSucceeded: false,
       confirmationText: '',
     };
 
@@ -19,15 +19,15 @@ describe('Document Reducer', () => {
 
     expect(newState).toEqual({
       confirmationText: 'Document uploaded!',
-      hasSubmitError: false,
-      hasSubmitSuccess: true,
+      hasErrored: false,
+      hasSucceeded: true,
     });
   });
 
   it('Should handle CREATE_DOCUMENT_FAILURE', () => {
     const initialState = {
-      hasSubmitError: false,
-      hasSubmitSuccess: false,
+      hasErrored: false,
+      hasSucceeded: false,
       confirmationText: '',
     };
 
@@ -38,8 +38,8 @@ describe('Document Reducer', () => {
 
     expect(newState).toEqual({
       confirmationText: 'Upload error.',
-      hasSubmitError: true,
-      hasSubmitSuccess: false,
+      hasErrored: true,
+      hasSucceeded: false,
     });
   });
 });

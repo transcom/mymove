@@ -42,7 +42,7 @@ const AppWrapper = () => (
           <PrivateRoute path="/DD1299" component={DD1299} />
           <PrivateRoute path="/moves/:moveId/legalese" component={Legalese} />
           <Route path="/feedback" component={Feedback} />
-          <Route path="/upload" component={Uploader} />
+          <PrivateRoute path="/upload" component={Uploader} />
           <Route exact path="/mymove" render={redirect('/mymove/intro')} />
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />

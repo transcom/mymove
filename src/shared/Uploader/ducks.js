@@ -33,8 +33,8 @@ export function createDocument(fileUpload) {
 
 // Reducer
 const initialState = {
-  hasSubmitError: false,
-  hasSubmitSuccess: false,
+  hasErrored: false,
+  hasSucceeded: false,
   confirmationText: '',
 };
 
@@ -42,14 +42,14 @@ export function documentReducer(state = initialState, action) {
   switch (action.type) {
     case CREATE_DOCUMENT_SUCCESS:
       return Object.assign({}, state, {
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        hasSucceeded: true,
+        hasErrored: false,
         confirmationText: 'Document uploaded!',
       });
     case CREATE_DOCUMENT_FAILURE:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        hasSucceeded: false,
+        hasErrored: true,
         confirmationText: 'Upload error.',
       });
     default:

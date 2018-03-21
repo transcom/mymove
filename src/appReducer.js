@@ -20,7 +20,7 @@ export const appReducer = combineReducers({
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   DD1299: dd1299Reducer,
-  document: documentReducer,
+  upload: documentReducer,
 });
 
 export default appReducer;

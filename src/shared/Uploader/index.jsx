@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { createDocument } from './ducks';
-import UploadConfirmation from 'shared/Uploader/UploadConfirmation';
+import Alert from 'shared/Alert';
 
 export class Uploader extends Component {
   componentDidMount() {
@@ -21,7 +21,7 @@ export class Uploader extends Component {
   }
 
   render() {
-    const { confirmationText } = this.props;
+    const { hasErrored, hasSucceeded } = this.props;
     return (
       <div className="usa-grid">
         <input
@@ -31,7 +31,16 @@ export class Uploader extends Component {
           }}
         />
         <button onClick={this.uploadFile}>Upload Now</button>
-        <UploadConfirmation confirmationText={confirmationText} />
+        {hasErrored && (
+          <Alert type="error" heading="Submission Error">
+            Something went wrong with your upload
+          </Alert>
+        )}
+        {hasSucceeded && (
+          <Alert type="success" heading="Submission Successful">
+            Your document was successfully uploaded.
+          </Alert>
+        )}
       </div>
     );
   }
@@ -39,13 +48,12 @@ export class Uploader extends Component {
 
 Uploader.propTypes = {
   createDocument: PropTypes.func.isRequired,
-  hasSubmitError: PropTypes.bool.isRequired,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
-  confirmationText: PropTypes.string.isRequired,
+  hasErrored: PropTypes.bool.isRequired,
+  hasSucceeded: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
-  return state.document;
+  return state.upload;
 }
 
 function mapDispatchToProps(dispatch) {
