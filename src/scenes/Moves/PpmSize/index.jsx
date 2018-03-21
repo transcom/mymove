@@ -103,7 +103,7 @@ export class PpmSize extends Component {
     this.setState({ selectedOption: value });
   };
   render() {
-    console.log('selected value', this.state.selectedOption);
+    // console.log('selected value', this.state.selectedOption);
     return (
       <div className="usa-grid-full ppm-size-content">
         <h3>How much of your stuff do you intend to move yourself?</h3>
