@@ -11,6 +11,9 @@
   box-shadow: 5px 5px 5px #e2e2e2;
 }
 
+.size-button:hover {
+  background-color: green;
+}
 .size-button p:first-child {
   margin-top: 3rem;
 }
@@ -48,3 +51,8 @@
   background-color: #f0f6fb;
   border: 2px solid #949494;
 }
+
+ .selected {
+   background-color:  #f0f6fb;
+   border: 2px solid #949494
+ }

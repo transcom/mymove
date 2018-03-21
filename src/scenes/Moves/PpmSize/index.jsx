@@ -10,6 +10,30 @@ import './PpmSize.css';
 
 import { createPpm } from './ducks';
 
+export class BigButton extends Component {
+  render() {
+    let className = 'size-button';
+    if (this.props.selected) {
+      className += ' selected';
+    }
+    return (
+      <div className={className} onClick={this.props.onButtonClick}>
+        <div>{this.props.firstLine}</div>
+        <div>{this.props.secondLine}</div>
+        <img className="icon" src={this.props.icon} />
+      </div>
+    );
+  }
+}
+
+BigButton.propTypes = {
+  firstLine: PropTypes.string.isRequired,
+  secondLine: PropTypes.string.isRequired,
+  icon: PropTypes.string.isRequired,
+  selected: PropTypes.bool,
+  onButtonClick: PropTypes.func,
+};
+
 export class BigButtonGroup extends Component {
   constructor(props) {
     super(props);
@@ -18,106 +42,74 @@ export class BigButtonGroup extends Component {
     };
   }
   render() {
-    return React.Children.map(props.children, child => {
-      if (child.type === BigButton)
-        return React.cloneElement(child, {
-          isSelected: props.value === child.props.value,
-          name: props.name,
-          onChange: props.handleChange,
-        });
-      return child;
-    });
+    var createButton = (value, firstLine, secondLine, icon) => {
+      var onButtonClick = () => {
+        this.setState({ selectedOption: value });
+        this.props.onMoveTypeSelected(value);
+      };
+      return (
+        <BigButton
+          firstLine={firstLine}
+          secondLine={secondLine}
+          icon={icon}
+          selected={this.state.selectedOption === value}
+          onButtonClick={onButtonClick}
+        />
+      );
+    };
+    console.log(this.state.selectedOption);
+    var small = createButton(
+      'small',
+      'A few items in your car?',
+      '(approx 100 - 800 lbs)',
+      carGray,
+    );
+    var medium = createButton(
+      'medium',
+      'A trailer full of household goods?',
+      '(approx 400 - 1,200 lbs)',
+      trailerGray,
+    );
+    var large = createButton(
+      'large',
+      'A moving truck that you rent yourself?',
+      '(approx 1,000 - 5,000 lbs)',
+      truckGray,
+    );
+
+    return (
+      <div>
+        <div className="usa-width-one-third container">{small}</div>
+        <div className="usa-width-one-third">{medium}</div>
+        <div className="usa-width-one-third">{large}</div>
+      </div>
+    );
   }
 }
-
 BigButtonGroup.propTypes = {
-  children: PropTypes.node,
-  value: PropTypes.object,
-  handleChange: PropTypes.func.isRequired,
-  name: PropTypes.string.isRequired,
-};
-
-function BigButton(props) {
-  return (
-    <div onClick={props.onChange} className="size-button">
-      {props.children}
-    </div>
-  );
-}
-BigButton.propTypes = {
-  children: PropTypes.node,
-  value: PropTypes.object.isRequired,
-  name: PropTypes.string,
-  isSelected: PropTypes.bool.isRequired,
-};
-BigButton.defaultProps = {
-  isSelected: false,
+  selectedValue: PropTypes.string,
+  onMoveTypeSelected: PropTypes.func,
 };
 
 export class PpmSize extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Size Selection';
   }
-
   constructor(props) {
     super(props);
     this.state = {
       selectedOption: null,
     };
   }
-
-  handleOptionChange = evt => {
-    this.setState({
-      selectedOption: evt.currentTarget.value,
-    });
+  onMoveTypeSelected = value => {
+    this.setState({ selectedOption: value });
   };
-
   render() {
+    console.log('selected value', this.state.selectedOption);
     return (
       <div className="usa-grid-full ppm-size-content">
         <h3>How much of your stuff do you intend to move yourself?</h3>
-
-        <BigButtonGroup
-          value={this.state.selectedOption}
-          handleChange={this.handleOptionChange}
-          name="foo"
-        >
-          <BigButton value="S"> S </BigButton>
-          <BigButton value="M"> M </BigButton>
-          <BigButton value="L"> L </BigButton>
-        </BigButtonGroup>
-        <div className="usa-width-one-third">
-          <label className="container">
-            <input type="radio" value="small" name="size-selector" />
-            <BigButton value="S">
-              <p>A few items in your car?</p>
-              <p>(approx 100 - 800 lbs)</p>
-              <img src={carGray} alt="car-gray" />
-            </BigButton>
-          </label>
-        </div>
-
-        <div className="usa-width-one-third">
-          <label className="container">
-            <input type="radio" value="medium" name="size-selector" />
-            <BigButton value="M">
-              <p>A trailer full of household goods? </p>
-              <p>(approx 400 - 1,200 lbs)</p>
-              <img src={trailerGray} alt="trailer-gray" />
-            </BigButton>
-          </label>
-        </div>
-
-        <div className="usa-width-one-third">
-          <label className="container">
-            <input type="radio" value="large" name="size-selector" />
-            <BigButton value="L">
-              <p>A moving truck that you rent yourself?</p>
-              <p>(approx 1,000 - 5,000 lbs)</p>
-              <img src={truckGray} alt="truck-gray" />
-            </BigButton>
-          </label>
-        </div>
+        <BigButtonGroup onMoveTypeSelected={this.onMoveTypeSelected} />
       </div>
     );
   }
@@ -132,7 +124,7 @@ PpmSize.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.ppmSize;
+  return state.ppm;
 }
 
 function mapDispatchToProps(dispatch) {

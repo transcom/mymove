@@ -14,7 +14,7 @@ export const appReducer = combineReducers({
   user: userReducer,
   submittedIssues: issuesReducer,
   submittedMoves: moveReducer,
-  submittedPpms: ppmReducer,
+  ppm: ppmReducer,
   shipments: shipmentsReducer,
   router: routerReducer,
   form: formReducer,
