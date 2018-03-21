@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 	suite.mustSave(&award)
 
 	params := shipmentop.NewIndexShipmentsParams()
-	indexHandler := NewIndexShipmentsHandler(suite.db, suite.logger)
+	indexHandler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(params)
 
 	okResponse, ok := indexResponse.(*shipmentop.IndexShipmentsOK)

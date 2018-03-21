@@ -14,12 +14,14 @@ import (
 	"testing"
 	"time"
 
-	"github.com/gorilla/context"
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
 	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 type AuthSuite struct {
@@ -103,6 +105,7 @@ func (suite *AuthSuite) TestGenerateNonce() {
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	t := suite.T()
 	fakeToken := "some_token"
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	testHostname := "hostname"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
@@ -111,11 +114,12 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(AuthorizationLogoutHandler(fmt.Sprintf("http://%s", testHostname)))
+	handler := AuthorizationLogoutHandler(NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger))
 
-	context.Set(req, "id_token", fakeToken)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, fakeUUID, fakeToken)
 
-	handler.ServeHTTP(rr, req)
+	handler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
@@ -141,7 +145,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 }
 
-func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithBadToken() {
 	t := suite.T()
 	fakeToken := "some_token"
 	pem, err := createRandomRSAPEM()
@@ -150,7 +154,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
 	rr, req := getHandlerParamsWithToken(fakeToken, expiry)
@@ -163,7 +167,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 
 	// And there should be no token passed through
-	if incomingToken, ok := context.Get(req, "id_token").(string); ok {
+	if incomingToken, ok := context.GetIDToken(req.Context()); ok {
 		t.Errorf("expected id_token to be nil, got %v", incomingToken)
 	}
 
@@ -173,7 +177,7 @@ func (suite *AuthSuite) TestEnforceUserAuthMiddlewareWithBadToken() {
 	}
 }
 
-func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithValidToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -192,8 +196,11 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	}
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	var handledRequest *http.Request
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handledRequest = r
+	})
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -203,7 +210,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	}
 
 	// And there should be an ID token in the request context
-	if incomingToken, ok := context.Get(req, "id_token").(string); !ok || incomingToken != idToken {
+	if incomingToken, ok := context.GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
 		t.Errorf("handler returned wrong id_token: got %v, wanted %v", incomingToken, idToken)
 	}
 
@@ -213,7 +220,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithValidToken() {
 	}
 }
 
-func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithRenewalToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -232,8 +239,11 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	}
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	var handledRequest *http.Request
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		handledRequest = r
+	})
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -243,7 +253,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	}
 
 	// And there should be an ID token in the request context
-	if incomingToken, ok := context.Get(req, "id_token").(string); !ok || incomingToken != idToken {
+	if incomingToken, ok := context.GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
 		t.Errorf("handler returned wrong id_token: got %v, wanted %v", incomingToken, idToken)
 	}
 
@@ -253,7 +263,7 @@ func (suite *AuthSuite) TestUserAuthMiddlewareWithRenewalToken() {
 	}
 }
 
-func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
+func (suite *AuthSuite) TestTokenParsingMiddlewareWithExpiredToken() {
 	t := suite.T()
 	email := "some_email@domain.com"
 	idToken := "fake_id_token"
@@ -271,7 +281,7 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	}
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware(pem)(handler)
+	middleware := TokenParsingMiddleware(suite.logger, pem, false)(handler)
 
 	rr, req := getHandlerParamsWithToken(ss, expiry)
 
@@ -283,12 +293,60 @@ func (suite *AuthSuite) TestPassiveUserAuthMiddlewareWithExpiredToken() {
 	}
 
 	// And there should be no token passed through
-	if incomingToken, ok := context.Get(req, "id_token").(string); ok {
+	if incomingToken, ok := context.GetIDToken(req.Context()); ok {
 		t.Errorf("expected id_token to be nil, got %v", incomingToken)
 	}
 
 	// And the cookie should not be renewed
 	if setCookies := rr.HeaderMap["Set-Cookie"]; len(setCookies) != 0 {
 		t.Errorf("expected no cookies to be set, got %v", len(setCookies))
+	}
+}
+
+func (suite *AuthSuite) TestRequireAuthMiddleware() {
+	t := suite.T()
+
+	// Given: a logged in user
+	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	user := models.User{
+		LoginGovUUID:  userUUID,
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/moves", nil)
+
+	// And: the context contains the auth values
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := RequireAuthMiddleware(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should be not be redirected since we're logged in
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
+	}
+}
+
+func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
+	t := suite.T()
+
+	// Given: No logged in users
+	rr := httptest.NewRecorder()
+	req := httptest.NewRequest("GET", "/moves", nil)
+
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
+	middleware := RequireAuthMiddleware(handler)
+
+	middleware.ServeHTTP(rr, req)
+
+	// We should receive an unauthorized response
+	if status := rr.Code; status != http.StatusUnauthorized {
+		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusUnauthorized)
 	}
 }

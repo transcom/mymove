@@ -4,8 +4,12 @@
     "classnames": "^2.2.5",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "js-cookie": "^2.2.0",
     "js-yaml": "^3.10.0",
+    "jwt-decode": "^2.2.0",
     "lodash": "^4.17.5",
+    "marked": "^0.3.17",
+    "path-to-regexp": "^2.2.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-redux": "^5.0.6",
@@ -29,6 +33,7 @@
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
     "test:debug": "NODE_PATH=./src react-scripts --inspect-brk test --runInBand --env=jsdom",
+    "test:coverage": "NODE_PATH=./src react-scripts test --coverage --env=jsdom",
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
@@ -41,6 +46,9 @@
       "target": "http://localhost:8080"
     },
     "/auth": {
+      "target": "http://localhost:8080"
+    },
+    "/logout": {
       "target": "http://localhost:8080"
     }
   },

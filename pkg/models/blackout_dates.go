@@ -2,11 +2,12 @@ package models
 
 import (
 	"encoding/json"
+	"time"
+
 	"github.com/markbates/pop"
 	"github.com/markbates/validate"
 	"github.com/markbates/validate/validators"
 	"github.com/satori/go.uuid"
-	"time"
 )
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
@@ -24,6 +25,23 @@ type BlackoutDate struct {
 	Market                          *string    `json:"market" db:"market"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
+}
+
+// FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID) ([]BlackoutDate, error) {
+	blackoutDates := []BlackoutDate{}
+	// TODO: update query to do the work of seeing if the proposed pickup date being checked
+	// against in awardqueue.go is within the window created by the dates in this record.
+	sql := `SELECT
+			*
+		FROM
+			blackout_dates
+		WHERE
+			transportation_service_provider_id = $1`
+
+	err := tx.RawQuery(sql, tspID).All(&blackoutDates)
+
+	return blackoutDates, err
 }
 
 // String is not required by pop and may be deleted

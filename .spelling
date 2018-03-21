@@ -157,6 +157,10 @@ iOS
 generate-md-toc
 Memcached
 jwt-go
+initializer
+initializers
+main.go
+globals
 ADR-0000
 ADR-0001
 ADR-0002
@@ -171,15 +175,41 @@ ADR-0010
 ADR-0011
 ADR-0012
 ADR-0013
+ADR-0014
+ADR-0015
+ADR-0016
+ADR-0017
+ADR-0018
+ADR-0019
+ADR-0020
+ADR-0021
+ADR-0022
+ADR-0023
+ADR-0024
+ADR-0025
+interop
+runtime
+NullString
+NullField
+NullInt
 template.md
 _Regenerate
 Codegen
 30x
 ish
 _
+HOC
+HOCs
+PrivateRoute
+EnsureLoggedInContainer
+jwt
+direnv
+golang
+OAuth
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
  - docs/adr/0007-swagger-client.md
  - README.md
  - docs/frontend.md
 _Regenerate
+ - ./README.md

@@ -16,13 +16,13 @@ import (
 
 // MakeBlackoutDate creates a test blackoutDate object to add to the database.
 func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl *models.TrafficDistributionList, cos *string, channel *string, gbloc *string,
-	market *string) (models.BlackoutDate, error) {
+	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, cos *string,
+	channel *string, gbloc *string, market *string) (models.BlackoutDate, error) {
 
 	blackoutDates := models.BlackoutDate{
 		TransportationServiceProviderID: tsp.ID,
-		StartBlackoutDate:               time.Now(),
-		EndBlackoutDate:                 time.Now(),
+		StartBlackoutDate:               startDate,
+		EndBlackoutDate:                 endDate,
 		TrafficDistributionListID:       &tdl.ID,
 		CodeOfService:                   cos,
 		Channel:                         channel,
@@ -53,17 +53,19 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		fmt.Println("TDL ID import failed.")
 	}
 
-	conus := "CONUS_CONUS"
-	market := "market"
-	cos := "BKAS"
-	channel := "dHHG"
+	cos := "2"
+	channel := "CONUS_CONUS"
+	gbloc := "BKAS"
+	market := "dHHG"
 
 	// Make a blackout date with market and channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
-		&conus,
+		&channel,
 		nil,
 		&market,
 	)
@@ -71,20 +73,36 @@ func MakeBlackoutDateData(db *pop.Connection) {
 	// Make a blackout date with a channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
-		&conus,
+		&channel,
 		nil,
 		nil,
 	)
 
-	// Make a blackout date with market, GBLOC, and channel.
+	// Make a blackout date with market, gbloc, and channel.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
-		&conus,
+		&channel,
+		&gbloc,
+		&market,
+	)
+
+	// Make a blackout date with cos, market, gbloc, and channel.
+	MakeBlackoutDate(db,
+		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
+		&tdlList[rand.Intn(len(tdlList))],
 		&cos,
 		&channel,
+		&gbloc,
+		&market,
 	)
 }

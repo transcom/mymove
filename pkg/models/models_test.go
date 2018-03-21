@@ -46,7 +46,7 @@ func (suite *ModelSuite) verifyValidationErrors(model validatableModel, exp map[
 		e := verrs.Get(key)
 		expKeys = append(expKeys, key)
 		if !equalSlice(e, errors) {
-			t.Errorf("expected errors on %s to be %v, got %v", key, e, errors)
+			t.Errorf("expected errors on %s to be %v, got %v", key, errors, e)
 		}
 	}
 

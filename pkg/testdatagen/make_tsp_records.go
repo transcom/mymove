@@ -1,9 +1,11 @@
 package testdatagen
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/markbates/pop"
 	"github.com/transcom/mymove/pkg/models"
-	"log"
 )
 
 // MakeTSP makes a single transportation service provider record.
@@ -25,4 +27,15 @@ func MakeTSPData(db *pop.Connection) {
 	MakeTSP(db, "Very Good TSP", "ABCD")
 	MakeTSP(db, "Pretty Alright TSP", "EFGH")
 	MakeTSP(db, "Serviceable and Adequate TSP", "IJKL")
+}
+
+// MakeTSPs creates numTSP number of TSP records
+// numTSP specifies how many TSPs to create
+func MakeTSPs(db *pop.Connection, numTSP int) {
+	for i := 0; i < numTSP; i++ {
+		tspName := fmt.Sprintf("Just another TSP %d", i)
+		tspSCAC := fmt.Sprintf("XYZ%d", i)
+		MakeTSP(db, tspName, tspSCAC)
+	}
+
 }

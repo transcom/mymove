@@ -1,0 +1,14 @@
+export LOGIN_GOV_SECRET_KEY=$(cat <<EOM
+<your_secret_key_content_here>
+EOM
+)
+
+export CLIENT_AUTH_SECRET_KEY=$(cat <<EOM
+<your_secret_key_content_here>
+EOM
+)
+
+export LOGIN_GOV_CLIENT_ID=<login_gov_client_id_value>
+
+# Prevents user sessions from timing out
+export NO_SESSION_TIMEOUT=true

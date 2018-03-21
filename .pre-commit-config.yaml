@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    sha: v1.2.3
+    rev: v1.2.3
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -11,18 +11,18 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    sha: v0.7.1
+    rev: v0.7.1
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
 
   - repo: git://github.com/detailyang/pre-commit-shell
-    sha: 1.0.2
+    rev: 1.0.2
     hooks:
       - id: shell-lint
 
   - repo: git://github.com/kintoandar/pre-commit.git
-    sha: v2.1.0
+    rev: v2.1.0
     hooks:
       - id: terraform_fmt
       - id: terraform_validate
@@ -59,7 +59,7 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    sha: v0.3
+    rev: v0.3
     hooks:
     -   id: go-fmt
     -   id: go-vet
@@ -76,5 +76,5 @@ repos:
           (?x)^(
             node_modules/|
             vendor/|
-            docs/adr/README.md
+            docs/adr/index.md
           )$

@@ -11,12 +11,18 @@ import (
 )
 
 // Shipment represents a single shipment within a Service Member's move.
+// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// RequestedPickupDate: when the shipment was originally scheduled to be picked up
+// DeliveryDate: when the shipment is to be delivered
+// BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
 	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
+	RequestedPickupDate       time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
+	BookDate                  time.Time `json:"book_date" db:"book_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	GBLOC                     string    `json:"gbloc" db:"gbloc"`
 	Market                    *string   `json:"market" db:"market"`
@@ -27,7 +33,10 @@ type PossiblyAwardedShipment struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
+	BookDate                        time.Time  `json:"book_date" db:"book_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
+	PickupDate                      time.Time  `json:"pickup_date" db:"pickup_date"`
+	RequestedPickupDate             time.Time  `json:"requested_pickup_date" db:"requested_pickup_date"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
 	Accepted                        *bool      `json:"accepted" db:"accepted"`
 	RejectionReason                 *string    `json:"rejection_reason" db:"rejection_reason"`
@@ -38,29 +47,38 @@ type PossiblyAwardedShipment struct {
 func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
-	// TODO Can Q() be .All(&shipments)
-	query := dbConnection.Q().LeftOuterJoin("shipment_awards", "shipment_awards.shipment_id=shipments.id")
+	sql := `SELECT
+				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.book_date,
+				shipments.traffic_distribution_list_id,
+				shipment_awards.transportation_service_provider_id,
+				shipment_awards.administrative_shipment
+			FROM shipments
+			LEFT JOIN shipment_awards ON
+				shipment_awards.shipment_id=shipments.id
+			ORDER BY
+				shipments.created_at ASC`
 
-	sql, args := query.ToSQL(&pop.Model{Value: Shipment{}},
-		"shipments.id",
-		"shipments.created_at",
-		"shipments.updated_at",
-		"shipments.traffic_distribution_list_id",
-		"shipment_awards.transportation_service_provider_id",
-		"shipment_awards.administrative_shipment",
-	)
-	err := dbConnection.RawQuery(sql, args...).All(&shipments)
+	err := dbConnection.RawQuery(sql).All(&shipments)
+
 	return shipments, err
 }
 
-// FetchAwardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
+// FetchUnawardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
 // TODO: This is virtually identical to the function above, except it returns shipments that
 //       are specifically awarded. Consolidate.
-func FetchAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
+func FetchUnawardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
 	sql := `SELECT
 				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.book_date,
 				shipments.traffic_distribution_list_id,
 				shipment_awards.transportation_service_provider_id
 			FROM shipments
