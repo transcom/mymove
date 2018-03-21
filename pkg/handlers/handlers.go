@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/markbates/pop"
 	"go.uber.org/zap"
 )
@@ -18,5 +19,23 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return HandlerContext{
 		db:     db,
 		logger: logger,
+	}
+}
+
+type S3Puter interface {
+	PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error)
+}
+
+type S3HandlerContext struct {
+	db     *pop.Connection
+	logger *zap.Logger
+	s3     S3Puter
+}
+
+func NewS3HandlerContext(db *pop.Connection, logger *zap.Logger, s3Client S3Puter) S3HandlerContext {
+	return S3HandlerContext{
+		db:     db,
+		logger: logger,
+		s3:     s3Client,
 	}
 }
