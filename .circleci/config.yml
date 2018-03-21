@@ -1,5 +1,6 @@
 version: 2
 jobs:
+
   pre_test:
     working_directory: ~/go/src/github.com/transcom/mymove
     docker:
@@ -119,29 +120,57 @@ jobs:
             docker push ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1}
       - run: *announce_failure
 
-  deploy_migrations:
+  deploy_staging_migrations:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
-    steps:
+    environment:
+      - ENVIRONMENT: "staging"
+    steps: &deploy_migrations_steps
       - checkout
       - run:
           name: Snapshot database
-          command: bin/rds-snapshot-app-db staging
+          command: bin/rds-snapshot-app-db $ENVIRONMENT
       - run:
           name: Run database migrations
-          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} staging
+          command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $ENVIRONMENT
       - run: *announce_failure
 
-  deploy_app:
+  deploy_staging_app:
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+    environment:
+      - ENVIRONMENT: "staging"
+    steps: &deploy_app_steps
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy $ENVIRONMENT site
+          command: bin/ecs-deploy-app-container config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $ENVIRONMENT
+      - run: *announce_failure
+
+  staging_health_check:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
-      - setup_remote_docker
-      - deploy:
-          name: Deploy staging site
-          command: bin/ecs-deploy-app-container config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} staging
+      - run:
+          name: Health check staging site
+          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null https://app.staging.dp3.us; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
+
+  deploy_prod_migrations:
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+    environment:
+      - ENVIRONMENT: "prod"
+    steps: *deploy_migrations_steps
+
+  deploy_prod_app:
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+    environment:
+      - ENVIRONMENT: "prod"
+    steps: *deploy_app_steps
 
   integration_tests:
     docker:
@@ -157,7 +186,6 @@ jobs:
           key: yarn-node-modules-cache-{{ checksum "yarn.lock" }}
           paths:
             - node_modules
-
       - run: *announce_failure
 
   update_dependencies:
@@ -201,20 +229,39 @@ workflows:
       - build_app
       - build_migrations
 
-      - deploy_migrations:
+      - deploy_staging_migrations:
           requires:
             - pre_test
             - build_app
             - build_migrations
           filters:
             branches:
-              only: master
-      - deploy_app:
+              only: rek_deploy-to-prod
+      - deploy_staging_app:
           requires:
-            - deploy_migrations
+            - deploy_staging_migrations
           filters:
             branches:
-              only: master
+              only: rek_deploy-to-prod
+      - staging_health_check:
+          requires:
+            - deploy_staging_app
+          filters:
+            branches:
+              only: rek_deploy-to-prod
+      - deploy_prod_migrations:
+          requires:
+            - staging_health_check
+          filters:
+            branches:
+              only: rek_deploy-to-prod
+      - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: rek_deploy-to-prod
+
 
   dependency_updater:
     triggers:
