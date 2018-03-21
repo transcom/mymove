@@ -50,10 +50,10 @@ type PossiblyAwardedShipment struct {
 func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]PossiblyAwardedShipment, error) {
 	shipments := []PossiblyAwardedShipment{}
 
-	var unassignedSql string
+	var unassignedSQL string
 
 	if onlyUnassigned {
-		unassignedSql = "WHERE shipment_offers.id IS NULL"
+		unassignedSQL = "WHERE shipment_offers.id IS NULL"
 	}
 
 	sql := fmt.Sprintf(`SELECT
@@ -70,7 +70,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Possib
 			LEFT JOIN shipment_offers ON
 				shipment_offers.shipment_id=shipments.id
 			%s`,
-		unassignedSql)
+		unassignedSQL)
 
 	err := dbConnection.RawQuery(sql).All(&shipments)
 
