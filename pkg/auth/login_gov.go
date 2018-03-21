@@ -18,21 +18,17 @@ const gothProviderType = "openid-connect"
 // LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
 type LoginGovProvider struct {
 	hostname  string
-	SecretKey string
-	ClientID  string
+	secretKey string
+	clientID  string
 	logger    *zap.Logger
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider
 func NewLoginGovProvider(hostname string, secretKey string, clientID string, logger *zap.Logger) LoginGovProvider {
-	if secretKey == "" {
-		logger.Warn("Login.gov secret key must be set.")
-	}
-
 	return LoginGovProvider{
 		hostname:  hostname,
-		SecretKey: secretKey,
-		ClientID:  clientID,
+		secretKey: secretKey,
+		clientID:  clientID,
 		logger:    logger,
 	}
 }
@@ -41,8 +37,8 @@ func NewLoginGovProvider(hostname string, secretKey string, clientID string, log
 // auto-discovery to get the OpenID configuration
 func (p LoginGovProvider) RegisterProvider(hostname string) {
 	provider, err := openidConnect.New(
-		p.ClientID,
-		p.SecretKey,
+		p.clientID,
+		p.secretKey,
 		fmt.Sprintf("%s/auth/login-gov/callback", hostname),
 		p.ConfigURL(),
 	)
@@ -136,14 +132,14 @@ func (p LoginGovProvider) TokenParams(code string, expiry time.Time) (url.Values
 
 func (p LoginGovProvider) createClientAssertionJWT(expiry time.Time) (string, error) {
 	claims := &jwt.StandardClaims{
-		Issuer:    p.ClientID,
-		Subject:   p.ClientID,
+		Issuer:    p.clientID,
+		Subject:   p.clientID,
 		Audience:  p.TokenURL(),
 		Id:        generateNonce(),
 		ExpiresAt: expiry.Unix(),
 	}
 
-	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(p.SecretKey))
+	rsaKey, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(p.secretKey))
 	if err != nil {
 		p.logger.Error("JWT parse private key from PEM", zap.Error(err))
 		return "", err
