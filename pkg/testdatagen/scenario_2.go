@@ -19,11 +19,11 @@ func RunScenarioTwo(db *pop.Connection) {
 
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, tdl)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl)
 	}
 	// Make shipments in second TDL
 	for i := 0; i <= shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, tdl2)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2)
 	}
 
 	// Make TSPs
