@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
+import { setPendingPpmSize } from './ducks';
+
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import './PpmSize.css';
-
-import { createPpm } from './ducks';
 
 export class BigButton extends Component {
   render() {
@@ -93,21 +93,16 @@ export class PpmSize extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Size Selection';
   }
-  constructor(props) {
-    super(props);
-    this.state = {
-      selectedOption: null,
-    };
-  }
+
   onMoveTypeSelected = value => {
-    this.setState({ selectedOption: value });
+    this.props.setPendingPpmSize(value);
   };
   render() {
     return (
       <div className="usa-grid-full ppm-size-content">
         <h3>How much of your stuff do you intend to move yourself?</h3>
         <BigButtonGroup
-          selectedOption={this.state.selectedOption}
+          selectedOption={this.props.pendingPpmSize}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
       </div>
@@ -116,11 +111,8 @@ export class PpmSize extends Component {
 }
 
 PpmSize.propTypes = {
-  createPpm: PropTypes.func.isRequired,
-  currentPpm: PropTypes.object,
-  match: PropTypes.object.isRequired,
-  hasSubmitError: PropTypes.bool.isRequired,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
+  pendingPpmSize: PropTypes.string,
+  setPendingPpmSize: PropTypes.func.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -128,7 +120,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createPpm }, dispatch);
+  return bindActionCreators({ setPendingPpmSize }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(PpmSize);

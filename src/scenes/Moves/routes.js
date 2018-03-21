@@ -4,7 +4,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
-import PpmSize from 'scenes/Moves/PpmSize';
+import PpmSize from 'scenes/Moves/PpmSize/WizardPage';
 
 const Placeholder = props => {
   return (
@@ -45,7 +45,9 @@ export default () => {
         </WizardPage>
       ),
     },
-    '/moves/:moveId/ppm-size': { render: stub },
+    '/moves/:moveId/ppm-size': {
+      render: (key, pages) => () => <PpmSize pages={pages} pageKey={key} />,
+    },
     '/moves/:moveId/ppm-incentive': { render: stub },
     '/moves/:moveId/agreement': { render: stub },
   };
