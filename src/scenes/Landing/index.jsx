@@ -24,6 +24,7 @@ export class Landing extends Component {
         <h1>Welcome!</h1>
         <div>
           <LoginButton />
+          <div />
         </div>
         {this.props.isLoggedIn && (
           <button onClick={this.startMove}>Start a move</button>
@@ -39,6 +40,7 @@ const mapStateToProps = state => ({
   hasSubmitError: state.submittedMoves.hasSubmitError,
   hasSubmitSuccess: state.submittedMoves.hasSubmitSuccess,
 });
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
 }
