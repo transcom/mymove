@@ -157,8 +157,6 @@ definitions:
         type: integer
         description: Estimated weight of the shipment in lbs
         example: 500
-      type:
-        $ref: '#/definitions/ShipmentType'
       market:
         $ref: '#/definitions/ShipmentMarket'
       channel:
@@ -228,26 +226,6 @@ definitions:
         type: string
         format: date
         example: 2018-03-15
-      planned_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      scheduled_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
       required_delivery:
         type: string
         format: date
@@ -264,13 +242,6 @@ definitions:
         type: string
         format: date
         example: 2018-03-15
-  ShipmentType:
-    type: string
-    description: The type of a shipment
-    example: HHG
-    enum: # Todo(Nick) - There may be more of these
-      - HHG
-      - PPM
   ShipmentMarket:
     type: string
     description: One of the possible 'Markets' for a shipment (see ?????)

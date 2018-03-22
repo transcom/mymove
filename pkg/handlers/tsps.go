@@ -21,3 +21,19 @@ type TSPShipmentsHandler HandlerContext
 func (h TSPShipmentsHandler) Handle(params apioperations.TspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .IndexTSPs has not yet been implemented")
 }
+
+// TSPAcceptShipmentsHandler accepts a shipment offered to a TSP
+type TSPAcceptShipmentsHandler HandlerContext
+
+// Handle simply returns a NotImplementedError
+func (h TSPAcceptShipmentsHandler) Handle(params apioperations.AcceptShipmentParams) middleware.Responder {
+	return middleware.NotImplemented("operation .IndexTSPs has not yet been implemented")
+}
+
+// TSPRejectShipmentsHandler accepts a shipment offered to a TSP
+type TSPRejectShipmentsHandler HandlerContext
+
+// Handle simply returns a NotImplementedError
+func (h TSPRejectShipmentsHandler) Handle(params apioperations.RejectShipmentParams) middleware.Responder {
+	return middleware.NotImplemented("operation .IndexTSPs has not yet been implemented")
+}
