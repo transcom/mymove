@@ -8,7 +8,7 @@ import { setPendingPpmSize } from './ducks';
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
-import './PpmSize.css';
+import './size.css';
 
 export class BigButton extends Component {
   render() {
