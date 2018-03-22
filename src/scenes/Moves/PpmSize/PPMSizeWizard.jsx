@@ -6,11 +6,17 @@ import { createPpm } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import PPMSize from '.';
 export class PpmSizeWizardPage extends Component {
+  handleSubmit = () => {
+    const { pendingPpmSize, createPpm } = this.props;
+    //todo: we should make sure this move matches the redux state
+    const moveId = this.props.match.params.moveId;
+    createPpm(moveId, pendingPpmSize);
+  };
   render() {
     const { pages, pageKey, pendingPpmSize, createPpm } = this.props;
     return (
       <WizardPage
-        handleSubmit={createPpm}
+        handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={pendingPpmSize !== null}
