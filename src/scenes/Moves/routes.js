@@ -4,7 +4,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
-import PpmSize from 'scenes/Moves/PpmSize/PPMSizeWizard';
+import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 
 const Placeholder = props => {
   return (

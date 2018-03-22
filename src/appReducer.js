@@ -1,7 +1,7 @@
 import { combineReducers } from 'redux';
 import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
-import { ppmReducer } from 'scenes/Moves/PpmSize/ducks';
+import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { default as userReducer } from 'shared/User/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';

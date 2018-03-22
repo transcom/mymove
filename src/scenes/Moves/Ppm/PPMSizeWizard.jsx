@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { createOrUpdatePpm, loadPpm } from './ducks';
 import WizardPage from 'shared/WizardPage';
-import PPMSize from '.';
+import PpmSize from '.';
 export class PpmSizeWizardPage extends Component {
   componentDidMount() {
     this.props.loadPpm(this.props.match.params.moveId);
@@ -28,7 +28,7 @@ export class PpmSizeWizardPage extends Component {
         pageKey={pageKey}
         pageIsValid={ppmSize !== null}
       >
-        <PPMSize />
+        <PpmSize />
       </WizardPage>
     );
   }

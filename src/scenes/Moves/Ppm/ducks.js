@@ -87,8 +87,8 @@ export function ppmReducer(state = initialState, action) {
       });
     case CREATE_OR_UPDATE_PPM_SUCCESS:
       return Object.assign({}, state, {
-        pendingPpmSize: null,
         currentPpm: action.item,
+        pendingPpmSize: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
