@@ -126,6 +126,28 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 	return result, err
 }
 
+// ValidateMoveOwnership validates that a user owns a move that exists
+func ValidateMoveOwnership(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (exists bool, userOwns bool) {
+	var move Move
+	err := db.Find(&move, id)
+	if err != nil {
+		if errors.Cause(err).Error() == "sql: no rows in result set" {
+			exists = false
+		}
+		// Otherwise, it's an unexpected err so we return that.
+	} else {
+		exists = true
+		// TODO: Handle case where more than one user is authorized to modify move
+		if move.UserID != userID {
+			userOwns = false
+		} else {
+			userOwns = true
+		}
+	}
+
+	return exists, userOwns
+}
+
 // GetMovesForUserID gets all move models for a given user ID
 func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
 	var moves Moves

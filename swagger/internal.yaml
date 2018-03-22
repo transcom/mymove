@@ -284,6 +284,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        500:
+          description: internal server error
     patch:
       summary: Patches the PPM
       description: Any fields sent in this request will be set on the PPM referenced
