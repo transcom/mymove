@@ -78,7 +78,9 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				aq.logger.Infof("Attempting to offer to TSP: %s", tsp.Name)
 
-				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+				//isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+				isAdministrativeShipment := false
+
 				if err != nil {
 					return err
 				}
@@ -213,7 +215,7 @@ func (aq *AwardQueue) Run() error {
 
 // ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
 // to see if it falls within the window created by the blackout date record, considering the dates as well as optional channels COS, channel, GBLOC, and market.
-func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.PossiblyAwardedShipment) (bool, error) {
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
 	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, shipment.CodeOfService, shipment.Channel, shipment.GBLOC, shipment.Market)
 
 	if err != nil {

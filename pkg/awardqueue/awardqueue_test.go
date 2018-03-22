@@ -112,10 +112,10 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testTSP2, _ := testdatagen.MakeTSP(suite.db, "A Spotless TSP", "PORK")
 
 	// One shipment
-	shipment, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, time.Now().AddDate(0, 0, 1), testTDL)
+	shipment, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testPickupDateBetween, time.Now().AddDate(0, 0, 1), testTDL)
 
 	// One possibly awarded shipment
-	pas := models.PossiblyAwardedShipment{
+	swo := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       testTDL.ID,
 		PickupDate:                      testStartDate.Add(time.Hour * 24 * 1),
@@ -123,11 +123,11 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		AwardDate:                       testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        testdatagen.DateInsidePerformancePeriod,
 	}
 
 	// Checks a date that falls within the blackout date range; returns true.
-	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, pas)
+	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, swo)
 
 	if err != nil {
 		t.Fatal(err)
@@ -136,8 +136,8 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	pas.PickupDate = testPickupDateAfter
-	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, pas)
+	swo.PickupDate = testPickupDateAfter
+	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, swo)
 
 	if err != nil {
 		t.Fatal(err)
@@ -146,7 +146,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, pas)
+	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, swo)
 
 	if err != nil {
 		t.Fatal(err)
