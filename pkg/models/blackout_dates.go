@@ -19,10 +19,8 @@ type BlackoutDate struct {
 	StartBlackoutDate               time.Time  `json:"start_blackout_date" db:"start_blackout_date"`
 	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Market                          *string    `json:"market" db:"market"`
-	Channel                         *string    `json:"channel" db:"channel"`
-	GBLOC                           *string    `json:"gbloc" db:"gbloc"`
+	SourceGBLOC                     *string    `json:"source_gbloc" db:"source_gbloc"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
 }
