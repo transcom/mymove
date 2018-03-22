@@ -25,12 +25,9 @@ export const createPpmFailure = error => ({
 export function setPendingPpmSize(value) {
   return { type: SET_PENDING_PPM_SIZE, payload: value };
 }
-export function createPpm() {
-  return function(dispatch, getState) {
+export function createPpm(moveId, size) {
+  return function(dispatch) {
     dispatch(createPpmRequest());
-    const state = getState();
-    const size = state.ppm.pendingPpmSize;
-    const moveId = state.submittedMoves.currentMove;
     CreatePpm(moveId, size)
       .then(item => dispatch(createPpmSuccess(item)))
       .catch(error => dispatch(createPpmFailure(error)));
