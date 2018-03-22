@@ -236,31 +236,31 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: revert-278-revert-275-rek_prod-deploy
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
           filters:
             branches:
-              only: master
+              only: revert-278-revert-275-rek_prod-deploy
       - staging_health_check:
           requires:
             - deploy_staging_app
           filters:
             branches:
-              only: master
+              only: revert-278-revert-275-rek_prod-deploy
       - deploy_prod_migrations:
           requires:
             - staging_health_check
           filters:
             branches:
-              only: master
+              only: revert-278-revert-275-rek_prod-deploy
       - deploy_prod_app:
           requires:
             - deploy_prod_migrations
           filters:
             branches:
-              only: master
+              only: revert-278-revert-275-rek_prod-deploy
 
 
   dependency_updater:
