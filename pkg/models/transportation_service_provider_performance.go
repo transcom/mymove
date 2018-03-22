@@ -28,16 +28,18 @@ var OffersPerQualityBand = map[int]int{
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
-	ID                              uuid.UUID `json:"id" db:"id"`
-	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	PerformancePeriodStart          time.Time `json:"performance_period_start" db:"performance_period_start"`
-	PerformancePeriodEnd            time.Time `json:"performance_period_end" db:"performance_period_end"`
-	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	QualityBand                     *int      `json:"quality_band" db:"quality_band"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                      int       `json:"offer_count" db:"offer_count"`
+	ID                              uuid.UUID `db:"id"`
+	CreatedAt                       time.Time `db:"created_at"`
+	UpdatedAt                       time.Time `db:"updated_at"`
+	PerformancePeriodStart          time.Time `db:"performance_period_start"`
+	PerformancePeriodEnd            time.Time `db:"performance_period_end"`
+	RateCycleStart                  time.Time `db:"rate_cycle_start"`
+	RateCycleEnd                    time.Time `db:"rate_cycle_end"`
+	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
+	QualityBand                     *int      `db:"quality_band"`
+	BestValueScore                  int       `db:"best_value_score"`
+	OfferCount                      int       `db:"offer_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -65,6 +67,12 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	}
 
 	return validate.Validate(
+		// Start times should be before End times
+		&validators.TimeIsBeforeTime{FirstTime: t.PerformancePeriodStart, FirstName: "PerformancePeriodStart",
+			SecondTime: t.PerformancePeriodEnd, SecondName: "PerformancePeriodEnd"},
+		&validators.TimeIsBeforeTime{FirstTime: t.RateCycleStart, FirstName: "RateCycleStart",
+			SecondTime: t.RateCycleEnd, SecondName: "RateCycleEnd"},
+
 		// Quality Bands can have a range from 1 - 4 as defined in DTR 402. See page 67 of
 		// https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-402.pdf
 		&validators.IntIsGreaterThan{Field: qualityBand, Name: "QualityBand", Compared: 0},

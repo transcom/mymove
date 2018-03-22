@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
@@ -9,6 +11,40 @@ import (
 )
 
 var mps = 10
+
+func (suite *ModelSuite) Test_PerformancePeriodValidations() {
+	now := time.Now()
+	earlier := now.AddDate(0, 0, -1)
+	later := now.AddDate(0, 0, 1)
+
+	tspPerformance := &TransportationServiceProviderPerformance{
+		PerformancePeriodStart: later,
+		PerformancePeriodEnd:   earlier,
+	}
+
+	var expErrors = map[string][]string{
+		"performance_period_start": []string{"PerformancePeriodStart must be before PerformancePeriodEnd."},
+	}
+
+	suite.verifyValidationErrors(tspPerformance, expErrors)
+}
+
+func (suite *ModelSuite) Test_RateCycleValidations() {
+	now := time.Now()
+	earlier := now.AddDate(0, 0, -1)
+	later := now.AddDate(0, 0, 1)
+
+	tspPerformance := &TransportationServiceProviderPerformance{
+		RateCycleStart: later,
+		RateCycleEnd:   earlier,
+	}
+
+	var expErrors = map[string][]string{
+		"rate_cycle_start": []string{"RateCycleStart must be before RateCycleEnd."},
+	}
+
+	suite.verifyValidationErrors(tspPerformance, expErrors)
+}
 
 func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance := &TransportationServiceProviderPerformance{BestValueScore: 101}
