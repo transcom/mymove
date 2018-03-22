@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(s models.PossiblyAwardedShipment) *internalmessages.ShipmentPayload {
+func payloadForShipmentModel(s models.ShipmentWithOffer) *internalmessages.ShipmentPayload {
 	shipmentPayload := &internalmessages.ShipmentPayload{
 		ID:                              fmtUUID(s.ID),
 		PickupDate:                      fmtDate(time.Now()),
@@ -32,7 +32,7 @@ type IndexShipmentsHandler HandlerContext
 func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {
 	var response middleware.Responder
 
-	shipments, err := models.FetchPossiblyAwardedShipments(h.db)
+	shipments, err := models.FetchShipments(h.db, false)
 
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))

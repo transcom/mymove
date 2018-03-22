@@ -38,5 +38,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	awardqueue.Run(dbConnection)
+	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
+	awardQueue.Run()
 }

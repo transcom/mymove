@@ -34,11 +34,11 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 	}
 	suite.mustSave(&aws)
 
-	award := models.ShipmentAward{
+	offer := models.ShipmentOffer{
 		ShipmentID:                      aws.ID,
 		TransportationServiceProviderID: tsp.ID,
 	}
-	suite.mustSave(&award)
+	suite.mustSave(&offer)
 
 	params := shipmentop.NewIndexShipmentsParams()
 	indexHandler := IndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -54,11 +54,11 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 		t.Errorf("expected %d shipments, got %d", 2, len(shipments))
 	}
 
-	awardedCount := 0
+	offeredCount := 0
 	availableCount := 0
 	for _, shipment := range shipments {
 		if shipment.TransportationServiceProviderID != nil {
-			awardedCount++
+			offeredCount++
 			if shipment.TransportationServiceProviderID.String() != tsp.ID.String() {
 				t.Errorf("got wrong tsp id, expected %s, got %s", tsp.ID.String(), shipment.TransportationServiceProviderID.String())
 
@@ -68,8 +68,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 		}
 	}
 
-	if awardedCount != 1 {
-		t.Errorf("expected %d awarded shipments, got %d", 1, awardedCount)
+	if offeredCount != 1 {
+		t.Errorf("expected %d offered shipments, got %d", 1, offeredCount)
 	}
 
 	if availableCount != 1 {
