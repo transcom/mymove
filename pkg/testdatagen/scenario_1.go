@@ -27,7 +27,7 @@ func RunScenarioOne(db *pop.Connection) {
 	tsp4, _ := MakeTSP(db, "OK TSP", "TSP4")
 	tsp5, _ := MakeTSP(db, "Bad TSP", "TSP5")
 
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
 	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0)
 	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0)
