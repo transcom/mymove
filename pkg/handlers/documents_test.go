@@ -1,10 +1,13 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/satori/go.uuid"
+	"net/http"
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
-	// "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -17,7 +20,12 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	params := documentop.NewCreateDocumentParams()
+	params.MoveID = *fmtUUID(move.ID)
+	httpRequest := &http.Request{}
+	params.HTTPRequest = httpRequest
+	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "Jim"}
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
+	fmt.Printf("NOW HERE")
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
@@ -33,10 +41,16 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	if documentPayload.Name == nil {
 		t.Errorf("got nil document name")
 	} else if *documentPayload.Name != "test document" {
-		t.Errorf("wrong document name, expected %s, got %s")
+		t.Errorf("wrong document name, expected %s, got %s", "test document", *documentPayload.Name)
 	}
 
 	if len(documentPayload.Uploads) != 0 {
 		t.Errorf("wrong number of uploads, expected 0, got %d", len(documentPayload.Uploads))
+	}
+
+	document := models.Document{}
+	err = suite.db.Find(&document, documentPayload.ID)
+	if err != nil {
+		t.Errorf("Couldn't find expected document.")
 	}
 }

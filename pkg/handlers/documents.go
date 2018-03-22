@@ -28,10 +28,12 @@ type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
+	fmt.Printf("YOU ARE HERE %v", params.HTTPRequest)
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
 		h.logger.Fatal("No User ID, this should never happen.")
 	}
+	// userID := uuid.Must(uuid.FromString(params.MoveID.String()))
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
