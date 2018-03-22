@@ -60,6 +60,10 @@ func TestAuthSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
+func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
+	return NewLoginGovProvider("fakeHostname", "secret_key", "client_id", logger)
+}
+
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
 	rr := httptest.NewRecorder()
 	req, _ := http.NewRequest("GET", "/protected", nil)
@@ -114,7 +118,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := AuthorizationLogoutHandler(NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger))
+	authContext := NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger, fakeLoginGovProvider(suite.logger))
+	handler := AuthorizationLogoutHandler(authContext)
 
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, fakeUUID, fakeToken)
