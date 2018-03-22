@@ -98,11 +98,13 @@ export class PpmSize extends Component {
     this.props.setPendingPpmSize(value);
   };
   render() {
+    const { pendingPpmSize, currentPpm } = this.props;
+    const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <div className="usa-grid-full ppm-size-content">
         <h3>How much of your stuff do you intend to move yourself?</h3>
         <BigButtonGroup
-          selectedOption={this.props.pendingPpmSize}
+          selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
       </div>
@@ -112,6 +114,7 @@ export class PpmSize extends Component {
 
 PpmSize.propTypes = {
   pendingPpmSize: PropTypes.string,
+  currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
 };
 

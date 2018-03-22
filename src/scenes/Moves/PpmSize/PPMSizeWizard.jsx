@@ -2,24 +2,31 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { createPpm } from './ducks';
+import { createOrUpdatePpm, loadPpm } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import PPMSize from '.';
 export class PpmSizeWizardPage extends Component {
+  componentDidMount() {
+    this.props.loadPpm(this.props.match.params.moveId);
+  }
   handleSubmit = () => {
-    const { pendingPpmSize, createPpm } = this.props;
+    const { pendingPpmSize, createOrUpdatePpm } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
-    createPpm(moveId, pendingPpmSize);
+    if (pendingPpmSize) {
+      //don't update a ppm unless the size has changed
+      createOrUpdatePpm(moveId, pendingPpmSize);
+    }
   };
   render() {
-    const { pages, pageKey, pendingPpmSize, createPpm } = this.props;
+    const { pages, pageKey, pendingPpmSize, currentPpm } = this.props;
+    const ppmSize = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={pendingPpmSize !== null}
+        pageIsValid={ppmSize !== null}
       >
         <PPMSize />
       </WizardPage>
@@ -27,14 +34,15 @@ export class PpmSizeWizardPage extends Component {
   }
 }
 PpmSizeWizardPage.propTypes = {
-  createPpm: PropTypes.func.isRequired,
+  createOrUpdatePpm: PropTypes.func.isRequired,
   pendingPpmSize: PropTypes.string,
+  currentPpm: PropTypes.shape({ size: PropTypes.string, id: PropTypes.string }),
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createPpm }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm, loadPpm }, dispatch);
 }
 function mapStateToProps(state) {
-  return state.ppm;
+  return { ...state.ppm, move: state.submittedMoves };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PpmSizeWizardPage);
