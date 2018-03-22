@@ -212,32 +212,17 @@ func (aq *AwardQueue) Run() error {
 	return nil
 }
 
-// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and then compares start_blackout_date and end_blackout_date
-// to a submitted pickup date to see if it falls within the window created by the blackout date record.
-func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, pickupDate time.Time) (bool, error) {
-	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID)
+// ShipmentWithinBlackoutDates searches the blackout_dates table by TSP ID and shipment details
+// to see if it falls within the window created by the blackout date record and if it matches on
+// optional fields COS, channel, GBLOC, and market.
+func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, shipment.CodeOfService, shipment.Channel, shipment.GBLOC, shipment.Market)
 
 	if err != nil {
 		return false, errors.Wrap(err, "Error retrieving blackout dates from database")
 	}
 
-	if len(blackoutDates) == 0 {
-		return false, nil
-	}
-
-	// Checks to see if pickupDate is equal to the start or end dates of the blackout period
-	// or if the pickupDate falls between the start and end.
-	for _, blackoutDate := range blackoutDates {
-		aq.logger.Debugf("Evaluating whether pickup date is between blackout dates (%s <= %s <= %s)", blackoutDate.StartBlackoutDate, pickupDate, blackoutDate.EndBlackoutDate)
-
-		if (pickupDate.After(blackoutDate.StartBlackoutDate) && pickupDate.Before(blackoutDate.EndBlackoutDate)) ||
-			pickupDate.Equal(blackoutDate.EndBlackoutDate) ||
-			pickupDate.Equal(blackoutDate.StartBlackoutDate) {
-			return true, nil
-		}
-	}
-
-	return false, nil
+	return len(blackoutDates) != 0, nil
 }
 
 // NewAwardQueue creates a new AwardQueue

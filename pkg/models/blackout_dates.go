@@ -20,15 +20,15 @@ type BlackoutDate struct {
 	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
+	Market                          *string    `json:"market" db:"market"`
 	Channel                         *string    `json:"channel" db:"channel"`
 	GBLOC                           *string    `json:"gbloc" db:"gbloc"`
-	Market                          *string    `json:"market" db:"market"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
 }
 
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment models.ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
 	// TODO: update query to do the work of seeing if the proposed pickup date being checked
 	// against in awardqueue.go is within the window created by the dates in this record.
@@ -37,9 +37,11 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID) ([]BlackoutDate,
 		FROM
 			blackout_dates
 		WHERE
-			transportation_service_provider_id = $1`
+			transportation_service_provider_id = $1
+		AND
+			$2 BETWEEN start_blackout_date and end_blackout_date`
 
-	err := tx.RawQuery(sql, tspID).All(&blackoutDates)
+	err := tx.RawQuery(sql, tspID, shipment.PickupDate).All(&blackoutDates)
 
 	return blackoutDates, err
 }
