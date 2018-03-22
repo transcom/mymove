@@ -1,0 +1,2 @@
+drop_column("shipments", "code_of_service")
+drop_column("shipments", "channel")
