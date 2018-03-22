@@ -37,7 +37,7 @@ export async function UpdatePpm(
   const response = await client.apis.ppm.updatePersonallyProcuredMove({
     moveId,
     personallyProcuredMoveId,
-    createPersonallyProcuredMovePayload: payload,
+    updatePersonallyProcuredMovePayload: payload,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;

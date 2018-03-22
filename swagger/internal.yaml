@@ -248,7 +248,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move{personallyProcuredMoveId}:
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     post:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
@@ -269,7 +269,7 @@ paths:
           required: true
           description: UUID of the PPM being updated
         - in: body
-          name: personallyProcuredMovePayload
+          name: updatePersonallyProcuredMovePayload
           required: true
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
