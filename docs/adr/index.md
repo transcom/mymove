@@ -20,10 +20,12 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0011](0011-test-suites.md) - Test Suites
 - [ADR-0012](0012-tsp-data-models.md) - The TSP Data Models
 - [ADR-0013](0013-rest-api-updates.md) - REST API Updates
+- [ADR-0014](0014-go-dependency-management.md) - Go Dependency Management
 - [ADR-0015](0015-session-storage.md) - Session storage/handling
 - [ADR-0016](0016-Browser-Support.md) - Browser Support for Prototype
 - [ADR-0017](0017-react-router-redux-authentication.md) - Client side route restriction based on authentication
 - [ADR-0018](0018-optional-field-interop.md) - Optional Field Interop
+- [ADR-0019](0019-client-rangeslider.md) - _Range Slider React Component_
 
 <!-- adrlogstop -->
 
