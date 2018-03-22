@@ -31,13 +31,15 @@ func main() {
 		testdatagen.RunScenarioTwo(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
-		testdatagen.MakeTDLData(db)
+		// testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
+		testdatagen.MakeTDLData(db)
 		testdatagen.MakeShipmentData(db)
 		testdatagen.MakeShipmentOfferData(db)
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
 		testdatagen.MakeDocumentData(db)
+		testdatagen.MakeShipmentWithOfferData(db)
 	}
 }

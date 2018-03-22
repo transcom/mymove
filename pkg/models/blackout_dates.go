@@ -28,7 +28,7 @@ type BlackoutDate struct {
 }
 
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment models.ShipmentWithOffer) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
 	// TODO: update query to do the work of seeing if the proposed pickup date being checked
 	// against in awardqueue.go is within the window created by the dates in this record.

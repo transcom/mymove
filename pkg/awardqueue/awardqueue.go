@@ -10,7 +10,7 @@ package awardqueue
 import (
 	"fmt"
 	"math"
-	"time"
+	// "time"
 
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
@@ -79,7 +79,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
 				aq.logger.Infof("Attempting to offer to TSP: %s", tsp.Name)
 
-				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment.PickupDate)
+				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
 				if err != nil {
 					return err
 				}
@@ -216,7 +216,7 @@ func (aq *AwardQueue) Run() error {
 // to see if it falls within the window created by the blackout date record and if it matches on
 // optional fields COS, channel, GBLOC, and market.
 func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
-	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment.PickupDate, shipment.CodeOfService, shipment.Channel, shipment.GBLOC, shipment.Market)
+	blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
 
 	if err != nil {
 		return false, errors.Wrap(err, "Error retrieving blackout dates from database")
