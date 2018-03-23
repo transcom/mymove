@@ -61,7 +61,6 @@ export default () => {
   const pageList = Object.keys(pages);
   const componentMap = {
     agreement: Agreement,
-    'ppm-size': PpmSize,
   };
   return pageList.map(key => {
     const step = key.split('/').pop();
