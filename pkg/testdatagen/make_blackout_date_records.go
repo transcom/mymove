@@ -80,7 +80,7 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		&market,
-    &gbloc,
+		&gbloc,
 	)
 
 	// Make a blackout date with market and source gbloc.

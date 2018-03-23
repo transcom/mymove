@@ -116,7 +116,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 	// Two shipments with offers, using the shipments above
 	shipmentWithOfferBetween := models.ShipmentWithOffer{
-		ID: 														 testShipmentBetween.ID,
+		ID: testShipmentBetween.ID,
 		TrafficDistributionListID:       testTDL.ID,
 		PickupDate:                      testPickupDateBetween,
 		TransportationServiceProviderID: nil,
@@ -127,7 +127,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	shipmentWithOfferAfter := models.ShipmentWithOffer{
-		ID: 														 testShipmentAfter.ID,
+		ID: testShipmentAfter.ID,
 		TrafficDistributionListID:       testTDL.ID,
 		PickupDate:                      testPickupDateAfter,
 		TransportationServiceProviderID: nil,
