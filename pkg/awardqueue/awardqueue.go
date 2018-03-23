@@ -10,7 +10,6 @@ package awardqueue
 import (
 	"fmt"
 	"math"
-	// "time"
 
 	"github.com/markbates/pop"
 	"github.com/pkg/errors"
