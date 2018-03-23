@@ -1,10 +1,12 @@
 package handlers
 
 import (
-	"fmt"
-	"github.com/satori/go.uuid"
+	"context"
 	"net/http"
 
+	"github.com/satori/go.uuid"
+
+	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -19,13 +21,16 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 		t.Fatalf("could not create move: %s", err)
 	}
 
+	userID := move.UserID
+
 	params := documentop.NewCreateDocumentParams()
 	params.MoveID = *fmtUUID(move.ID)
-	httpRequest := &http.Request{}
-	params.HTTPRequest = httpRequest
-	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "Jim"}
+	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "test document"}
+
+	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
+	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
-	fmt.Printf("NOW HERE")
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)
