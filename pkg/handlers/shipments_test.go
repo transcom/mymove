@@ -23,7 +23,7 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 
 	avs := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
-		SourceGBLOC:               "AGFM",
+		SourceGBLOC:               "AGFM", // token change
 	}
 	suite.mustSave(&avs)
 
