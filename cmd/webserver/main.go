@@ -30,7 +30,7 @@ var logger *zap.Logger
 func requestLogger(h http.Handler) http.Handler {
 	zap.L().Info("Request logger installed")
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request", zap.String("url", r.URL.String()))
+		zap.L().Info("Request", zap.String("method", r.Method), zap.String("url", r.URL.String()))
 		h.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(wrapper)
@@ -120,11 +120,13 @@ func main() {
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = handlers.CreatePersonallyProcuredMoveHandler(handlerContext)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = handlers.IndexPersonallyProcuredMovesHandler(handlerContext)
+	internalAPI.PpmPatchPersonallyProcuredMoveHandler = handlers.PatchPersonallyProcuredMoveHandler(handlerContext)
 
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
 	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
 	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
+	internalAPI.MovesPatchMoveHandler = handlers.PatchMoveHandler(handlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
