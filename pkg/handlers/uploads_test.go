@@ -3,6 +3,7 @@ package handlers
 import (
 	"context"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -57,6 +58,7 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 		Header: &header,
 		Data:   data,
 	}
+	// TODO close file when tests complete
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandler() {
@@ -83,7 +85,8 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	handler := CreateUploadHandler(NewS3HandlerContext(suite.db, suite.logger, fakeS3))
+	context := NewHandlerContext(suite.db, suite.logger)
+	handler := CreateUploadHandler(NewS3HandlerContext(context, fakeS3))
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
@@ -95,7 +98,12 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	upload := models.Upload{}
 	err = suite.db.Find(&upload, uploadPayload.ID)
 	if err != nil {
-		t.Errorf("Couldn't find expected upload.")
+		t.Fatalf("Couldn't find expected upload.")
+	}
+
+	expectedChecksum := "nOE6HwzyE4VEDXn67ULeeA=="
+	if upload.Checksum != expectedChecksum {
+		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}
 
 	if len(fakeS3.putFiles) != 1 {
@@ -105,6 +113,15 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
 	if *fakeS3.putFiles[0].Key != key {
 		t.Errorf("Wrong key name: expected %s, got %s", key, *fakeS3.putFiles[0].Key)
+	}
+
+	pos, err := (*fakeS3.putFiles[0]).Body.Seek(0, io.SeekCurrent)
+	if err != nil {
+		t.Fatalf("Could't check position in uploaded file: %s", err)
+	}
+
+	if pos != 0 {
+		t.Errorf("Wrong file position: expected 0, got %d", pos)
 	}
 
 	// TODO verify Body

@@ -27,15 +27,13 @@ type S3Puter interface {
 }
 
 type S3HandlerContext struct {
-	db     *pop.Connection
-	logger *zap.Logger
-	s3     S3Puter
+	HandlerContext
+	s3 S3Puter
 }
 
-func NewS3HandlerContext(db *pop.Connection, logger *zap.Logger, s3Client S3Puter) S3HandlerContext {
+func NewS3HandlerContext(handlerContext HandlerContext, s3Client S3Puter) S3HandlerContext {
 	return S3HandlerContext{
-		db:     db,
-		logger: logger,
-		s3:     s3Client,
+		HandlerContext: handlerContext,
+		s3:             s3Client,
 	}
 }

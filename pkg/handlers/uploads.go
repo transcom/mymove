@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"crypto/md5"
+	"encoding/base64"
 	"fmt"
+	"io"
 	"os"
 
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -39,17 +42,17 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Fatal("No User ID, this should never happen.")
+		h.logger.Panic("No User ID, this should never happen.")
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
+		h.logger.Panic("Invalid MoveID, this should never happen.")
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		h.logger.Fatal("Invalid DocumentID, this should never happen.")
+		h.logger.Panic("Invalid DocumentID, this should never happen.")
 	}
 
 	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
@@ -58,13 +61,22 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
+	hash := md5.New()
+	if _, err := io.Copy(hash, file.Data); err != nil {
+		h.logger.Panic("failed to hash uploaded file", zap.Error(err))
+	}
+	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
+	if err != nil {
+		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
+	}
+
 	newUpload := models.Upload{
 		DocumentID:  documentID,
 		UploaderID:  userID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: "application/pdf",
-		Checksum:    "abcdefg",
+		Checksum:    base64.StdEncoding.EncodeToString(hash.Sum(nil)),
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newUpload)
@@ -89,6 +101,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 			h.logger.Error("PutObject failed")
 			return uploadop.NewCreateUploadInternalServerError()
 		}
+
+		// TODO verify checksum
 
 		uploadPayload := payloadForUploadModel(newUpload)
 		return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)

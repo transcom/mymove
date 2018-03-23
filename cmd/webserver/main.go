@@ -6,6 +6,8 @@ import (
 	"net/http"
 	"path"
 
+	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
@@ -121,6 +123,11 @@ func main() {
 	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
 
 	internalAPI.DocumentsCreateDocumentHandler = handlers.CreateDocumentHandler(handlerContext)
+
+	aws := awssession.Must(awssession.NewSession())
+	s3Client := s3.New(aws)
+	s3HandlerContext := handlers.NewS3HandlerContext(handlerContext, s3Client)
+	internalAPI.UploadsCreateUploadHandler = handlers.CreateUploadHandler(s3HandlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
