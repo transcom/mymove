@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"

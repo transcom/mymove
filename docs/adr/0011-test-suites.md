@@ -2,7 +2,7 @@
 
 **User Story:** [155076695](https://www.pivotaltracker.com/story/show/155076695)
 
-Go's built in `testing` package does not support setup, teardown, etc. functionality that is provided by xUnit testing frameworks. In order to ensure that our test are running in a clean database, we want to call [`TruncateAll()`](https://godoc.org/github.com/markbates/pop#Connection.TruncateAll) before each test executes (for more background, see ADR #0010).
+Go's built in `testing` package does not support setup, teardown, etc. functionality that is provided by xUnit testing frameworks. In order to ensure that our test are running in a clean database, we want to call [`TruncateAll()`](https://godoc.org/github.com/gobuffalo/pop#Connection.TruncateAll) before each test executes (for more background, see ADR #0010).
 
 Running code before or after *all* tests is supported by `go test` by defining a `TestMain` function, but this only allows for code to be run once at the very beginning and end of test execution and not before or after each test. Our requirement is for per-test setup and teardown, which is not supported.
 

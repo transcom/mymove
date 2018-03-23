@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/markbates/goth"
 	. "github.com/transcom/mymove/pkg/models"
@@ -37,8 +37,8 @@ func (suite *ModelSuite) TestUserCreationWithoutValues() {
 	newUser := &User{}
 
 	expErrors := map[string][]string{
-		"login_gov_email": []string{"LoginGovEmail can not be blank."},
-		"login_gov_uuid":  []string{"LoginGovUUID can not be blank."},
+		"login_gov_email": {"LoginGovEmail can not be blank."},
+		"login_gov_uuid":  {"LoginGovUUID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(newUser, expErrors)
