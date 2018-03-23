@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -11,74 +12,65 @@ import (
 )
 
 // Shipment represents a single shipment within a Service Member's move.
+// PickupDate: when the shipment is currently scheduled to be picked up by the TSP
+// RequestedPickupDate: when the shipment was originally scheduled to be picked up
+// DeliveryDate: when the shipment is to be delivered
+// BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
 	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
 	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
+	RequestedPickupDate       time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
-	AwardDate                 time.Time `json:"award_date" db:"award_date"`
+	BookDate                  time.Time `json:"book_date" db:"book_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	GBLOC                     string    `json:"gbloc" db:"gbloc"`
 	Market                    *string   `json:"market" db:"market"`
 }
 
-// PossiblyAwardedShipment represents a single awarded shipment within a Service Member's move.
-type PossiblyAwardedShipment struct {
+// ShipmentWithOffer represents a single offered shipment within a Service Member's move.
+type ShipmentWithOffer struct {
 	ID                              uuid.UUID  `db:"id"`
 	CreatedAt                       time.Time  `db:"created_at"`
 	UpdatedAt                       time.Time  `db:"updated_at"`
-	AwardDate                       time.Time  `json:"award_date" db:"award_date"`
+	BookDate                        time.Time  `db:"book_date"`
+	PickupDate                      time.Time  `db:"pickup_date"`
+	RequestedPickupDate             time.Time  `db:"requested_pickup_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
-	PickupDate                      time.Time  `json:"pickup_date" db:"pickup_date"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	Accepted                        *bool      `json:"accepted" db:"accepted"`
-	RejectionReason                 *string    `json:"rejection_reason" db:"rejection_reason"`
+	Accepted                        *bool      `db:"accepted"`
+	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
 }
 
-// FetchPossiblyAwardedShipments runs the SQL query to fetch possibly awarded shipments from db
-func FetchPossiblyAwardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
-	shipments := []PossiblyAwardedShipment{}
+// FetchShipments looks up all shipments joined with their offer information in a
+// ShipmentWithOffer struct. Optionally, you can only query for unassigned
+// shipments with the `onlyUnassigned` parameter.
+func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
+	shipments := []ShipmentWithOffer{}
 
-	sql := `SELECT
+	var unassignedSQL string
+
+	if onlyUnassigned {
+		unassignedSQL = "WHERE shipment_offers.id IS NULL"
+	}
+
+	sql := fmt.Sprintf(`SELECT
 				shipments.id,
 				shipments.created_at,
 				shipments.updated_at,
 				shipments.pickup_date,
-				shipments.award_date,
+				shipments.requested_pickup_date,
+				shipments.book_date,
 				shipments.traffic_distribution_list_id,
-				shipment_awards.transportation_service_provider_id,
-				shipment_awards.administrative_shipment
+				shipment_offers.transportation_service_provider_id,
+				shipment_offers.administrative_shipment
 			FROM shipments
-			LEFT JOIN shipment_awards ON
-				shipment_awards.shipment_id=shipments.id
-			ORDER BY
-				shipments.created_at ASC`
-
-	err := dbConnection.RawQuery(sql).All(&shipments)
-
-	return shipments, err
-}
-
-// FetchUnawardedShipments looks up all unawarded shipments and returns them in the PossiblyAwardedShipment struct
-// TODO: This is virtually identical to the function above, except it returns shipments that
-//       are specifically awarded. Consolidate.
-func FetchUnawardedShipments(dbConnection *pop.Connection) ([]PossiblyAwardedShipment, error) {
-	shipments := []PossiblyAwardedShipment{}
-
-	sql := `SELECT
-				shipments.id,
-				shipments.created_at,
-				shipments.updated_at,
-				shipments.pickup_date,
-				shipments.award_date,
-				shipments.traffic_distribution_list_id,
-				shipment_awards.transportation_service_provider_id
-			FROM shipments
-			LEFT JOIN shipment_awards ON
-				shipment_awards.shipment_id=shipments.id
-			WHERE shipment_awards.id IS NULL`
+			LEFT JOIN shipment_offers ON
+				shipment_offers.shipment_id=shipments.id
+			%s`,
+		unassignedSQL)
 
 	err := dbConnection.RawQuery(sql).All(&shipments)
 

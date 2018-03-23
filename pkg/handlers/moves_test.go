@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http/httptest"
 
+	"github.com/go-openapi/strfmt"
 	"github.com/satori/go.uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
@@ -16,9 +17,8 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	t := suite.T()
 
 	// Given: a logged in user
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  userUUID,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
@@ -93,9 +93,8 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	t := suite.T()
 
 	// Given: A move and a user
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  userUUID,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
@@ -141,9 +140,8 @@ func (suite *HandlerSuite) TestIndexMovesHandlerNoUser() {
 	t := suite.T()
 
 	// Given: A move with a user that isn't logged in
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  userUUID,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
@@ -173,16 +171,14 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	t := suite.T()
 
 	// Given: A move with a user and a separate logged in user
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  userUUID,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
 
-	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
 	user2 := models.User{
-		LoginGovUUID:  userUUID2,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
@@ -212,5 +208,182 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	// And: No moves should be returned
 	if len(moves) != 0 {
 		t.Errorf("Expected no moves to be found, but found %v", len(moves))
+	}
+}
+
+func (suite *HandlerSuite) TestPatchMoveHandler() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	var origType = internalmessages.SelectedMoveTypeHHG
+	var newType = internalmessages.SelectedMoveTypeCOMBO
+	newMove := models.Move{
+		UserID:           user.ID,
+		SelectedMoveType: origType,
+	}
+	suite.mustSave(&newMove)
+
+	patchPayload := internalmessages.PatchMovePayload{
+		SelectedMoveType: newType,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := moveop.PatchMoveParams{
+		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(newMove.ID.String()),
+		PatchMovePayload: &patchPayload,
+	}
+
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*moveop.PatchMoveCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	patchPPMPayload := okResponse.Payload
+
+	if patchPPMPayload.SelectedMoveType != newType {
+		t.Fatalf("SelectedMoveType should have been updated.")
+	}
+}
+
+func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	user2 := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email2@example.com",
+	}
+	suite.mustSave(&user2)
+
+	var origType = internalmessages.SelectedMoveTypeHHG
+	var newType = internalmessages.SelectedMoveTypeCOMBO
+	newMove := models.Move{
+		UserID:           user.ID,
+		SelectedMoveType: origType,
+	}
+	suite.mustSave(&newMove)
+
+	patchPayload := internalmessages.PatchMovePayload{
+		SelectedMoveType: newType,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := moveop.PatchMoveParams{
+		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(newMove.ID.String()),
+		PatchMovePayload: &patchPayload,
+	}
+
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*moveop.PatchMoveForbidden)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+}
+
+func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	moveUUID := uuid.Must(uuid.NewV4())
+
+	var newType = internalmessages.SelectedMoveTypeCOMBO
+
+	patchPayload := internalmessages.PatchMovePayload{
+		SelectedMoveType: newType,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := moveop.PatchMoveParams{
+		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(moveUUID.String()),
+		PatchMovePayload: &patchPayload,
+	}
+
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*moveop.PatchMoveNotFound)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+}
+
+func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	var origType = internalmessages.SelectedMoveTypeHHG
+	newMove := models.Move{
+		UserID:           user.ID,
+		SelectedMoveType: origType,
+	}
+	suite.mustSave(&newMove)
+
+	patchPayload := internalmessages.PatchMovePayload{}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := moveop.PatchMoveParams{
+		HTTPRequest:      req,
+		MoveID:           strfmt.UUID(newMove.ID.String()),
+		PatchMovePayload: &patchPayload,
+	}
+
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*moveop.PatchMoveBadRequest)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
 	}
 }
