@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { createOrUpdateMove } from './ducks';
+import { updateMove } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import MoveType from './MoveType';
 
@@ -12,12 +12,12 @@ export class MoveTypeWizardPage extends Component {
     // this.props.loadMove(this.props.match.params.moveId);
   }
   handleSubmit = () => {
-    const { pendingMoveType, createOrUpdateMove } = this.props;
+    const { pendingMoveType, updateMove } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
     if (pendingMoveType) {
       //don't update a move unless the type is selected
-      createOrUpdateMove(moveId, pendingMoveType);
+      updateMove(moveId, pendingMoveType);
     }
   };
   render() {
@@ -37,7 +37,7 @@ export class MoveTypeWizardPage extends Component {
   }
 }
 MoveTypeWizardPage.propTypes = {
-  createOrUpdateMove: PropTypes.func.isRequired,
+  updateMove: PropTypes.func.isRequired,
   pendingMoveType: PropTypes.string,
   currentMove: PropTypes.shape({
     selected_move_type: PropTypes.string,
@@ -46,7 +46,7 @@ MoveTypeWizardPage.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdateMove }, dispatch);
+  return bindActionCreators({ updateMove }, dispatch);
 }
 function mapStateToProps(state) {
   return state.submittedMoves;

@@ -5,7 +5,7 @@ import LoginButton from 'shared/User/LoginButton';
 import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
-import { createOrUpdateMove } from 'scenes/Moves/ducks';
+import { createMove } from 'scenes/Moves/ducks';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -17,7 +17,7 @@ export class Landing extends Component {
       this.props.push(`moves/${this.props.currentMove.id}`);
   }
   startMove = values => {
-    this.props.createOrUpdateMove({ selected_move_type: 'COMBO' });
+    this.props.createMove({ selected_move_type: 'COMBO' });
   };
   render() {
     return (
@@ -43,10 +43,7 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, loadUserAndToken, createOrUpdateMove },
-    dispatch,
-  );
+  return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

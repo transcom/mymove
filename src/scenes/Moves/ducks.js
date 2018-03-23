@@ -2,13 +2,17 @@ import { CreateMove, UpdateMove } from './api.js';
 
 // Types
 export const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
-export const CREATE_OR_UPDATE_MOVE = 'CREATE_OR_UPDATE_MOVE';
+export const CREATE_MOVE = 'CREATE_MOVE';
+export const UPDATE_MOVE = 'UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE_SUCCESS = 'CREATE_OR_UPDATE_MOVE_SUCCESS';
 export const CREATE_OR_UPDATE_MOVE_FAILURE = 'CREATE_OR_UPDATE_MOVE_FAILURE';
 
-// creating move
-export const createOrUpdateMoveRequest = () => ({
-  type: CREATE_OR_UPDATE_MOVE,
+export const createMoveRequest = () => ({
+  type: CREATE_MOVE,
+});
+
+export const updateMoveRequest = () => ({
+  type: UPDATE_MOVE,
 });
 
 export const createOrUpdateMoveSuccess = item => ({
@@ -27,21 +31,21 @@ export function setPendingMoveType(value) {
 }
 
 // TODO : add loadMove
-export function createOrUpdateMove(moveId, moveType) {
+export function createMove(moveType) {
   return function(dispatch, getState) {
-    dispatch(createOrUpdateMoveRequest());
-    const state = getState();
-    const currentMove = state.submittedMoves.currentMove;
-    if (currentMove) {
-      console.log('update', currentMove);
-      UpdateMove(moveId, { selected_move_type: moveType })
-        .then(item => dispatch(createOrUpdateMoveSuccess(item)))
-        .catch(error => dispatch(createOrUpdateMoveFailure(error)));
-    } else {
-      CreateMove(moveId, { moveType })
-        .then(item => dispatch(createOrUpdateMoveSuccess(item)))
-        .catch(error => dispatch(createOrUpdateMoveFailure(error)));
-    }
+    dispatch(createMoveRequest());
+    CreateMove(moveType)
+      .then(item => dispatch(createOrUpdateMoveSuccess(item)))
+      .catch(error => dispatch(createOrUpdateMoveFailure(error)));
+  };
+}
+
+export function updateMove(moveId, moveType) {
+  return function(dispatch, getState) {
+    dispatch(updateMoveRequest());
+    UpdateMove(moveId, { selected_move_type: moveType })
+      .then(item => dispatch(createOrUpdateMoveSuccess(item)))
+      .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };
 }
 
