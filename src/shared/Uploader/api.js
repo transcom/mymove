@@ -13,6 +13,7 @@ export async function CreateUpload(fileUpload, moveID, documentID) {
     documentId: documentID,
   });
   checkResponse(response, 'failed to upload file due to server error');
+  return response.body;
 }
 
 export async function CreateDocument(fileUpload, moveID) {
@@ -22,7 +23,7 @@ export async function CreateDocument(fileUpload, moveID) {
     moveId: moveID,
   });
   checkResponse(response, 'failed to create document due to server error');
-  CreateUpload(fileUpload, moveID, response.body.id);
+  return CreateUpload(fileUpload, moveID, response.body.id);
 }
 
 export default CreateDocument;

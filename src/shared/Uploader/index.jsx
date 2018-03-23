@@ -45,7 +45,8 @@ export class Uploader extends Component {
         )}
         {hasSucceeded && (
           <Alert type="success" heading="Submission Successful">
-            Your document was successfully uploaded.
+            Your document was successfully uploaded. View on S3:{' '}
+            {this.props.uploadedFile.url}
           </Alert>
         )}
       </div>
@@ -57,6 +58,7 @@ Uploader.propTypes = {
   createDocument: PropTypes.func.isRequired,
   hasErrored: PropTypes.bool.isRequired,
   hasSucceeded: PropTypes.bool.isRequired,
+  uploadedFile: PropTypes.object,
 };
 
 function mapStateToProps(state) {
