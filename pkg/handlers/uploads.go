@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"path"
 
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-openapi/runtime/middleware"
@@ -89,7 +90,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	} else {
 		fmt.Printf("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
 
-		key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", moveID, documentID, newUpload.ID)
+		namespace := os.Getenv("AWS_S3_KEY_NAMESPACE")
+		key := path.Join(namespace, "moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
 
 		input := &s3.PutObjectInput{
 			Bucket: &bucket,
