@@ -1,23 +1,23 @@
-import { CreateMove } from './api.js';
+import { CreateMove, UpdateMove } from './api.js';
 
 // Types
 export const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
-export const CREATE_MOVE = 'CREATE_MOVE';
-export const CREATE_MOVE_SUCCESS = 'CREATE_MOVE_SUCCESS';
-export const CREATE_MOVE_FAILURE = 'CREATE_MOVE_FAILURE';
+export const CREATE_OR_UPDATE_MOVE = 'CREATE_OR_UPDATE_MOVE';
+export const CREATE_OR_UPDATE_MOVE_SUCCESS = 'CREATE_OR_UPDATE_MOVE_SUCCESS';
+export const CREATE_OR_UPDATE_MOVE_FAILURE = 'CREATE_OR_UPDATE_MOVE_FAILURE';
 
 // creating move
-export const createMoveRequest = () => ({
-  type: CREATE_MOVE,
+export const createOrUpdateMoveRequest = () => ({
+  type: CREATE_OR_UPDATE_MOVE,
 });
 
-export const createMoveSuccess = item => ({
-  type: CREATE_MOVE_SUCCESS,
+export const createOrUpdateMoveSuccess = item => ({
+  type: CREATE_OR_UPDATE_MOVE_SUCCESS,
   item,
 });
 
-export const createMoveFailure = error => ({
-  type: CREATE_MOVE_FAILURE,
+export const createOrUpdateMoveFailure = error => ({
+  type: CREATE_OR_UPDATE_MOVE_FAILURE,
   error,
 });
 
@@ -27,12 +27,21 @@ export function setPendingMoveType(value) {
 }
 
 // TODO : add loadMove
-export function createMove(value) {
+export function createOrUpdateMove(moveId, moveType) {
   return function(dispatch, getState) {
-    dispatch(createMoveRequest());
-    CreateMove(value)
-      .then(item => dispatch(createMoveSuccess(item)))
-      .catch(error => dispatch(createMoveFailure(error)));
+    dispatch(createOrUpdateMoveRequest());
+    const state = getState();
+    const currentMove = state.submittedMoves.currentMove;
+    if (currentMove) {
+      console.log('update', currentMove);
+      UpdateMove(moveId, { selected_move_type: moveType })
+        .then(item => dispatch(createOrUpdateMoveSuccess(item)))
+        .catch(error => dispatch(createOrUpdateMoveFailure(error)));
+    } else {
+      CreateMove(moveId, { moveType })
+        .then(item => dispatch(createOrUpdateMoveSuccess(item)))
+        .catch(error => dispatch(createOrUpdateMoveFailure(error)));
+    }
   };
 }
 
@@ -49,14 +58,14 @@ export function moveReducer(state = initialState, action) {
       return Object.assign({}, state, {
         pendingMoveType: action.payload,
       });
-    case CREATE_MOVE_SUCCESS:
+    case CREATE_OR_UPDATE_MOVE_SUCCESS:
       return Object.assign({}, state, {
         currentMove: action.item,
         pendingMoveType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
-    case CREATE_MOVE_FAILURE:
+    case CREATE_OR_UPDATE_MOVE_FAILURE:
       return Object.assign({}, state, {
         currentMove: {},
         hasSubmitSuccess: false,

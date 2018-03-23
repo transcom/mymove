@@ -18,6 +18,7 @@ export async function CreatePpm(
   payload /*shape: {size, weightEstimate}*/,
 ) {
   const client = await getClient();
+  console.log('******', moveId, payload);
   const response = await client.apis.ppm.createPersonallyProcuredMove({
     moveId,
     createPersonallyProcuredMovePayload: payload,
@@ -32,7 +33,7 @@ export async function UpdatePpm(
   payload /*shape: {size, weightEstimate}*/,
 ) {
   const client = await getClient();
-  console.log('******', personallyProcuredMoveId);
+  console.log('******', personallyProcuredMoveId, payload);
   //todo: this is failing due to "Unhandled Rejection (Error): Required parameter personallyProcuredMovePayload is not provided"
   const response = await client.apis.ppm.patchPersonallyProcuredMove({
     moveId,

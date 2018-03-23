@@ -5,6 +5,7 @@ import PropTypes from 'prop-types';
 import { createOrUpdatePpm, loadPpm } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import PpmSize from './size';
+
 export class PpmSizeWizardPage extends Component {
   componentDidMount() {
     this.props.loadPpm(this.props.match.params.moveId);
