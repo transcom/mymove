@@ -12,6 +12,47 @@ import (
 
 var mps = 10
 
+func (suite *ModelSuite) Test_DateIsPeakRateCycle() {
+	t := suite.T()
+
+	nonPeakDates := []time.Time{
+		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC),
+		// The last second of the non-peak rate cycle
+		time.Date(2000, time.May, 14, 23, 59, 59, 0, time.UTC),
+		// The first second of the non-peak rate cycle
+		time.Date(2000, time.October, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.December, 15, 20, 0, 0, 0, time.UTC),
+	}
+
+	for _, d := range nonPeakDates {
+		if DateIsPeakRateCycle(d) {
+			t.Errorf("Expected that date %s is not in peak rate window.", d)
+		}
+	}
+
+	peakDates := []time.Time{
+		// The first second of the peak rate cycle
+		time.Date(2000, time.May, 15, 0, 0, 0, 0, time.UTC),
+		time.Date(3000, time.May, 15, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.May, 15, 23, 59, 59, 0, time.UTC),
+		time.Date(2000, time.June, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.July, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.August, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.September, 1, 0, 0, 0, 0, time.UTC),
+		// The last second of the peak rate cycle
+		time.Date(2000, time.September, 30, 23, 59, 59, 0, time.UTC),
+	}
+
+	for _, d := range peakDates {
+		if !DateIsPeakRateCycle(d) {
+			t.Errorf("Expected that date %s is in peak rate window.", d)
+		}
+	}
+
+}
+
 func (suite *ModelSuite) Test_PerformancePeriodValidations() {
 	now := time.Now()
 	earlier := now.AddDate(0, 0, -1)
@@ -24,23 +65,6 @@ func (suite *ModelSuite) Test_PerformancePeriodValidations() {
 
 	var expErrors = map[string][]string{
 		"performance_period_start": []string{"PerformancePeriodStart must be before PerformancePeriodEnd."},
-	}
-
-	suite.verifyValidationErrors(tspPerformance, expErrors)
-}
-
-func (suite *ModelSuite) Test_RateCycleValidations() {
-	now := time.Now()
-	earlier := now.AddDate(0, 0, -1)
-	later := now.AddDate(0, 0, 1)
-
-	tspPerformance := &TransportationServiceProviderPerformance{
-		RateCycleStart: later,
-		RateCycleEnd:   earlier,
-	}
-
-	var expErrors = map[string][]string{
-		"rate_cycle_start": []string{"RateCycleStart must be before RateCycleEnd."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)

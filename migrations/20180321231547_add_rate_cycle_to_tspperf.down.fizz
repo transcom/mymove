@@ -1,2 +1,1 @@
-drop_column("transportation_service_provider_performances", "rate_cycle_start
-drop_column("transportation_service_provider_performances", "rate_cycle_end")
+drop_column("transportation_service_provider_performances", "peak_rate_cycle")

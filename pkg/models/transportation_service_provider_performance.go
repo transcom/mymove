@@ -12,7 +12,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	//"go.uber.org/zap"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -33,8 +32,7 @@ type TransportationServiceProviderPerformance struct {
 	UpdatedAt                       time.Time `db:"updated_at"`
 	PerformancePeriodStart          time.Time `db:"performance_period_start"`
 	PerformancePeriodEnd            time.Time `db:"performance_period_end"`
-	RateCycleStart                  time.Time `db:"rate_cycle_start"`
-	RateCycleEnd                    time.Time `db:"rate_cycle_end"`
+	PeakRateCycle                   bool      `db:"peak_rate_cycle"`
 	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
 	QualityBand                     *int      `db:"quality_band"`
@@ -70,8 +68,6 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 		// Start times should be before End times
 		&validators.TimeIsBeforeTime{FirstTime: t.PerformancePeriodStart, FirstName: "PerformancePeriodStart",
 			SecondTime: t.PerformancePeriodEnd, SecondName: "PerformancePeriodEnd"},
-		&validators.TimeIsBeforeTime{FirstTime: t.RateCycleStart, FirstName: "RateCycleStart",
-			SecondTime: t.RateCycleEnd, SecondName: "RateCycleEnd"},
 
 		// Quality Bands can have a range from 1 - 4 as defined in DTR 402. See page 67 of
 		// https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-402.pdf
@@ -224,4 +220,24 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 		return fmt.Errorf("Validation failure: %s", validationErr)
 	}
 	return nil
+}
+
+// DateIsPeakRateCycle determines if a given date is within the a peak rate
+// cycle or not. This is the authoritative source on rate cycles.
+// Peak rate cycles are: May 15th - September 30th, inclusive.
+func DateIsPeakRateCycle(t time.Time) bool {
+	year, _, _ := t.Date()
+
+	peakStartInc := time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
+	peakEndExcl := time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+
+	fmt.Printf("Comparing: %s >= %s > %s ", peakStartInc, t, peakEndExcl)
+
+	if (t.After(peakStartInc) || t.Equal(peakStartInc)) && t.Before(peakEndExcl) {
+		fmt.Println(" true")
+		return true
+	}
+
+	fmt.Println(" false")
+	return false
 }
