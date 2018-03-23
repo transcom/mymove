@@ -6,6 +6,7 @@ import PropTypes from 'prop-types';
 import { setPendingMoveType } from './ducks';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
+import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
 export class BigButton extends Component {
@@ -14,13 +15,13 @@ export class BigButton extends Component {
     if (this.props.selected) {
       className += ' selected';
     }
-    const imgs = this.props.icons.map(icon => (
-      <img src={icon} alt={this.props.altTag} key={icon} />
-    ));
+    // const imgs = this.props.icons.map(icon => (
+    //   <img src={icon} alt={this.props.altTag} key={icon} />
+    // ));
     return (
       <div className={className} onClick={this.props.onButtonClick}>
         <p className="restrict-left">{this.props.description}</p>
-        {imgs}
+        <img src={this.props.icon} alt={this.props.altTag} />
         <p className="font-2">{this.props.title}</p>
         {Object.keys(this.props.pros || {}).map(function(key) {
           var pros = this.props.pros[key];
@@ -44,7 +45,7 @@ export class BigButton extends Component {
 BigButton.propTypes = {
   description: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
-  icons: PropTypes.arrayOf(PropTypes.string).isRequired,
+  icon: PropTypes.string.isRequired,
   altTag: PropTypes.string.isRequired,
   pros: PropTypes.object.isRequired,
   selected: PropTypes.bool,
@@ -53,7 +54,7 @@ BigButton.propTypes = {
 
 export class BigButtonGroup extends Component {
   render() {
-    var createButton = (value, description, title, icons, pros, altTag) => {
+    var createButton = (value, description, title, icon, pros, altTag) => {
       var onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
@@ -62,7 +63,7 @@ export class BigButtonGroup extends Component {
           value={value}
           description={description}
           title={title}
-          icons={icons}
+          icon={icon}
           pros={pros}
           altTag={altTag}
           selected={this.props.selectedOption === value}
@@ -70,11 +71,11 @@ export class BigButtonGroup extends Component {
         />
       );
     };
-    var hhg = createButton(
-      'HHG',
+    var combo = createButton(
+      'COMBO',
       'Government moves the big stuff and you move the rest',
       'HHG Move with Partial PPM',
-      [truckGray, trailerGray],
+      hhgPpmCombo,
       {
         'Pros:': [
           'The government can arrange a mover to handle big stuff.',
@@ -87,13 +88,13 @@ export class BigButtonGroup extends Component {
           'Have the overhead work of PPM for potentially minimal incentive.',
         ],
       },
-      'trailer-gray',
+      'hhg-ppm-combo',
     );
     var ppm = createButton(
       'PPM',
       'You move 100% of your household goods',
       'Personally Procured Move (PPM)',
-      [trailerGray],
+      trailerGray,
       {
         'Pros:': [
           'You choose how your stuff is transported.',
@@ -109,11 +110,11 @@ export class BigButtonGroup extends Component {
       },
       'trailer-gray',
     );
-    var combo = createButton(
-      'COMBO',
+    var hhg = createButton(
+      'HHG',
       'Government handles 100% of your move',
       'Household Goods Move (HHG)',
-      [truckGray],
+      truckGray,
       {
         'Pros:': [
           'The government arranges moving companies to pack & transport your stuff.',
@@ -132,9 +133,9 @@ export class BigButtonGroup extends Component {
 
     return (
       <div className="move-type-content">
-        <div className="usa-width-one-third">{hhg}</div>
-        <div className="usa-width-one-third">{ppm}</div>
         <div className="usa-width-one-third">{combo}</div>
+        <div className="usa-width-one-third">{ppm}</div>
+        <div className="usa-width-one-third">{hhg}</div>
       </div>
     );
   }
@@ -154,8 +155,7 @@ export class MoveType extends Component {
   };
   render() {
     const { pendingMoveType, currentMove } = this.props;
-    const selectedOption =
-      pendingMoveType || (currentMove && currentMove.selected_move_type);
+    const selectedOption = pendingMoveType;
     return (
       <div className="usa-grid-full">
         <h2> Select a Move Type</h2>

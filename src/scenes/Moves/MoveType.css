@@ -13,6 +13,7 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  min-height: 629px;
 }
 
 .restrict-left {
