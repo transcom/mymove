@@ -126,6 +126,23 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 	return result, err
 }
 
+// ValidateMoveOwnership validates that a user owns a move that exists
+func ValidateMoveOwnership(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (bool, bool) {
+	exists := false
+	userOwns := false
+	var move Move
+	err := db.Find(&move, id)
+	if err == nil {
+		exists = true
+		// TODO: Handle case where more than one user is authorized to modify move
+		if uuid.Equal(move.UserID, userID) {
+			userOwns = true
+		}
+	}
+
+	return exists, userOwns
+}
+
 // GetMovesForUserID gets all move models for a given user ID
 func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
 	var moves Moves
