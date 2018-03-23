@@ -26,6 +26,7 @@ export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }
 
+// TODO : add loadMove
 export function createMove(value) {
   return function(dispatch, getState) {
     dispatch(createMoveRequest());

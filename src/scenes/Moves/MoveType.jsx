@@ -17,68 +17,78 @@ export class BigButton extends Component {
     }
     return (
       <div className={className} onClick={this.props.onButtonClick}>
-        <p>{this.props.firstLine}</p>
-        <p>{this.props.secondLine}</p>
+        <p>{this.props.description}</p>
         <img className="icon" src={this.props.icon} alt={this.props.altTag} />
+        <p>{this.props.title}</p>
+        // <div>{this.props.pros}</div>
+        <div>
+          <p> Pros </p>
+          <p>1 sldfkjsl</p>
+        </div>
       </div>
     );
   }
 }
 
 BigButton.propTypes = {
-  firstLine: PropTypes.string.isRequired,
-  secondLine: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
+  title: PropTypes.string.isRequired,
   icon: PropTypes.string.isRequired,
   altTag: PropTypes.string.isRequired,
+  pros: PropTypes.string.isRequired,
   selected: PropTypes.bool,
   onButtonClick: PropTypes.func,
 };
 
 export class BigButtonGroup extends Component {
   render() {
-    var createButton = (value, firstLine, secondLine, icon, altTag) => {
+    var createButton = (value, description, title, icon, pros, altTag) => {
       var onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
       return (
         <BigButton
           value={value}
-          firstLine={firstLine}
-          secondLine={secondLine}
+          description={description}
+          title={title}
           icon={icon}
+          pros={pros}
           altTag={altTag}
           selected={this.props.selectedOption === value}
           onButtonClick={onButtonClick}
         />
       );
     };
-    var small = createButton(
-      'S',
-      'A few items in your car?',
-      '(approx 100 - 800 lbs)',
-      carGray,
-      'car-gray',
+    var hhg = createButton(
+      'HHG',
+      'Government moves the big stuff and you move the rest',
+      'HHG Move with Partial PPM',
+      trailerGray,
+      'Pros: The government can arrange a mover to handle big stuff. Potential for you to earn a little $ by moving some items yourself. Protect valuable or sentimental items by moving them with you.',
+      'trailer-gray',
     );
-    var medium = createButton(
-      'M',
+    var ppm = createButton(
+      'PPM',
       'A trailer full of household goods?',
       '(approx 400 - 1,200 lbs)',
       trailerGray,
+      'pros: ppm',
       'trailer-gray',
     );
-    var large = createButton(
-      'L',
+    var combo = createButton(
+      'COMBO',
       'A moving truck that you rent yourself?',
       '(approx 1,000 - 5,000 lbs)',
       truckGray,
+      'pros: hhg',
       'truck-gray',
     );
 
     return (
       <div>
-        <div className="usa-width-one-third">{small}</div>
-        <div className="usa-width-one-third">{medium}</div>
-        <div className="usa-width-one-third">{large}</div>
+        <div className="usa-width-one-third">{hhg}</div>
+        <div className="usa-width-one-third">{ppm}</div>
+        <div className="usa-width-one-third">{combo}</div>
       </div>
     );
   }
@@ -102,6 +112,7 @@ export class MoveType extends Component {
       pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full">
+        <h3> Select a Move Type</h3>
         <BigButtonGroup
           selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}

@@ -4,7 +4,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
-import MoveType from 'scenes/Moves/MoveType';
+import MoveType from 'scenes/Moves/MoveTypeWizard';
 
 const Placeholder = props => {
   return (
