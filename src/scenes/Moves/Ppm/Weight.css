@@ -1,0 +1,29 @@
+div.info {
+  background-color: #aeb0b5;
+  padding: 2rem;
+  margin-top: 1em;
+}
+
+.info > h3 {
+  margin-top: 0;
+}
+
+div.slider-container {
+  margin: 4em;
+}
+
+span.incentive {
+  outline: solid black 1px;
+  padding: 5px;
+  margin-left: 3em;
+}
+
+.slider-container .rangeslider__fill {
+  background-color: #0071bc;
+}
+
+@media only screen and (max-width: 481px) {
+  span.incentive {
+    margin-left: 0em;
+  }
+}

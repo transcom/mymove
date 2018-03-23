@@ -78,7 +78,7 @@ export class WizardPage extends Component {
             )}
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-secondary"
+                className="usa-button-primary"
                 onClick={handleSubmit}
                 disabled={!pageIsValid}
               >

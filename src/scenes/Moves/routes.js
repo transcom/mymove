@@ -5,6 +5,7 @@ import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import PpmWeight from 'scenes/Moves/Ppm/Weight';
 
 const Placeholder = props => {
   return (
@@ -50,13 +51,16 @@ export default () => {
         <PpmSize pages={pages} pageKey={key} match={match} />
       ),
     },
-    '/moves/:moveId/ppm-incentive': { render: stub },
+    '/moves/:moveId/ppm-incentive': {
+      render: (key, pages) => ({ match }) => (
+        <PpmWeight pages={pages} pageKey={key} match={match} />
+      ),
+    },
     '/moves/:moveId/agreement': { render: stub },
   };
   const pageList = Object.keys(pages);
   const componentMap = {
     agreement: Agreement,
-    'ppm-size': PpmSize,
   };
   return pageList.map(key => {
     const step = key.split('/').pop();
