@@ -154,7 +154,7 @@ export class MoveType extends Component {
     this.props.setPendingMoveType(value);
   };
   render() {
-    const { pendingMoveType, currentMove } = this.props;
+    const { pendingMoveType } = this.props;
     const selectedOption = pendingMoveType;
     return (
       <div className="usa-grid-full">
