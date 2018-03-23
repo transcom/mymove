@@ -1,1 +1,0 @@
-rename_column("blackout_dates", "source_gbloc", "gbloc")
