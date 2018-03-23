@@ -1,0 +1,2 @@
+drop_column("blackout_dates", "code_of_service")
+drop_column("blackout_dates", "channel")
