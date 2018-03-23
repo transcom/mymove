@@ -147,6 +147,9 @@ func main() {
 	root := goji.NewMux()
 	root.Use(tokenMiddleware)
 
+	// Stub health check
+	root.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
