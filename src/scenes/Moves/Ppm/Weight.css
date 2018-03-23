@@ -1,7 +1,11 @@
 div.info {
-  background-color: lightgray;
-  padding: 1em;
-  border: solid black 1px;
+  background-color: #aeb0b5;
+  padding: 2rem;
+  margin-top: 1em;
+}
+
+.info > h3 {
+  margin-top: 0;
 }
 
 div.slider-container {
@@ -16,4 +20,10 @@ span.incentive {
 
 .slider-container .rangeslider__fill {
   background-color: #0071bc;
+}
+
+@media only screen and (max-width: 481px) {
+  span.incentive {
+    margin-left: 0em;
+  }
 }

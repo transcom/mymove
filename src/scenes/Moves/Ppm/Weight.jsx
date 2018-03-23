@@ -90,7 +90,7 @@ export class PpmWeight extends Component {
         pageKey={pageKey}
         pageIsValid={setOrPendingWeight != null}
       >
-        <h3>
+        <h2>
           <img
             className="icon"
             src={currentInfo.icon}
@@ -98,7 +98,7 @@ export class PpmWeight extends Component {
           />{' '}
           You selected {currentInfo.min} - {currentInfo.max} pounds in{' '}
           {currentInfo.vehicle}.
-        </h3>
+        </h2>
         <p>
           Use this slider to customize how much weight you think you’ll carry.
         </p>
@@ -121,7 +121,7 @@ export class PpmWeight extends Component {
           Your PPM Incentive: <span className="incentive">{incentive}</span>
         </h4>
         <div className="info">
-          <h4> How is my PPM Incentive calculated?</h4>
+          <h3> How is my PPM Incentive calculated?</h3>
           <p>
             The government gives you 95% of what they would pay a mover when you
             move your own belongings, based on weight and distance. You pay
