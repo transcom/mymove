@@ -24,7 +24,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
 
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
@@ -63,7 +63,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 	blackoutStartDate := time.Now().AddDate(1, 0, 0)
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
 	pickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	deliverDate := blackoutStartDate.AddDate(0, 0, 5)
 
@@ -101,7 +101,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testTDL, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	testStartDate := time.Now()
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil)
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
 	testPickupDateBetween := testStartDate.Add(time.Hour * 24)
@@ -110,22 +110,35 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
 	testShipmentBetween, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testStartDate, testEndDate, testTDL)
 	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL)
-// MakeShipmentOffer(db *pop.Connection, shipment models.Shipment,
-// 	tsp models.TransportationServiceProvider, admin bool, accepted *bool,
-// 	rejectionReason *string)
-
-	trueBool := true
-	falseBool := false
-	reason := "Just not feeling it"
-	// Two shipments with offers, using the shipments above
-	testShipmentWithOfferBetween, _ := testdatagen.MakeShipmentOffer(suite.db, testShipmentBetween, testTSP1, false, &trueBool, &reason)
-	testShipmentWithOfferAfter, _ := testdatagen.MakeShipmentOffer(suite.db, testShipmentAfter, testTSP2, false, &falseBool, &reason)
 
 	// One TSP with no blackout dates
 	testTSP2, _ := testdatagen.MakeTSP(suite.db, "A Spotless TSP", "PORK")
 
+	// Two shipments with offers, using the shipments above
+	shipmentWithOfferBetween := models.ShipmentWithOffer{
+		ID: 														 testShipmentBetween.ID,
+		TrafficDistributionListID:       testTDL.ID,
+		PickupDate:                      testPickupDateBetween,
+		TransportationServiceProviderID: nil,
+		Accepted:                        nil,
+		RejectionReason:                 nil,
+		AdministrativeShipment:          swag.Bool(false),
+		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+	}
+
+	shipmentWithOfferAfter := models.ShipmentWithOffer{
+		ID: 														 testShipmentAfter.ID,
+		TrafficDistributionListID:       testTDL.ID,
+		PickupDate:                      testPickupDateAfter,
+		TransportationServiceProviderID: nil,
+		Accepted:                        nil,
+		RejectionReason:                 nil,
+		AdministrativeShipment:          swag.Bool(false),
+		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+	}
+
 	// Checks a date that falls within the blackout date range; returns true.
-	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentWithOfferBetween)
+	test1, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferBetween)
 
 	if err != nil {
 		t.Fatal(err)
@@ -134,7 +147,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a date that falls after the blackout date range; returns false.
-	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, testShipmentWithOfferAfter)
+	test2, err := queue.ShipmentWithinBlackoutDates(testTSP1.ID, shipmentWithOfferAfter)
 
 	if err != nil {
 		t.Fatal(err)
@@ -143,7 +156,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	}
 
 	// Checks a TSP with no blackout dates and returns false.
-	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, testShipmentAfter)
+	test3, err := queue.ShipmentWithinBlackoutDates(testTSP2.ID, shipmentWithOfferAfter)
 
 	if err != nil {
 		t.Fatal(err)
