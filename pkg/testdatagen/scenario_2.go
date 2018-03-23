@@ -38,16 +38,16 @@ func RunScenarioTwo(db *pop.Connection) {
 	tsp9, _ := MakeTSP(db, "Going out of business TSP", "TSP9")
 
 	// Put TSPs in 2 TDLs to handle these shipments
-	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
-	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0)
-	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0)
-	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0)
-	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0)
+	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, true)
+	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, true)
+	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, true)
+	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, true)
+	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, true)
 
-	MakeTSPPerformance(db, tsp6, tdl2, swag.Int(1), 5, 0)
-	MakeTSPPerformance(db, tsp7, tdl2, swag.Int(2), 4, 0)
-	MakeTSPPerformance(db, tsp8, tdl2, swag.Int(3), 2, 0)
-	MakeTSPPerformance(db, tsp9, tdl2, swag.Int(4), 1, 0)
+	MakeTSPPerformance(db, tsp6, tdl2, swag.Int(1), 5, 0, true)
+	MakeTSPPerformance(db, tsp7, tdl2, swag.Int(2), 4, 0, true)
+	MakeTSPPerformance(db, tsp8, tdl2, swag.Int(3), 2, 0, true)
+	MakeTSPPerformance(db, tsp9, tdl2, swag.Int(4), 1, 0, true)
 	// Add blackout dates
 	blackoutStart := shipmentDate.AddDate(0, 0, -3)
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)

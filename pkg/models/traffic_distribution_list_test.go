@@ -24,11 +24,11 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 
 	foundTDL, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	foundTSP, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, mps+1, 0, true)
 
 	notFoundTDL, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	notFoundTSP, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), mps+1, 0, true)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
 	if err != nil {

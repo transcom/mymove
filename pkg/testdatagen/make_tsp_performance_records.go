@@ -11,12 +11,13 @@ import (
 
 // MakeTSPPerformance makes a single best_value_score record
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int) (models.TransportationServiceProviderPerformance, error) {
+	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int,
+	peakRateCycle bool) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
 		PerformancePeriodEnd:            PerformancePeriodEnd,
-		PeakRateCycle:                   false,
+		PeakRateCycle:                   peakRateCycle,
 		TransportationServiceProviderID: tsp.ID,
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
@@ -78,6 +79,7 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 			&qualityBand,
 			bvs,
 			offers,
+			true,
 		)
 	}
 }
