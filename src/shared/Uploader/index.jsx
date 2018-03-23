@@ -17,13 +17,20 @@ export class Uploader extends Component {
   }
 
   uploadFile() {
-    this.props.createDocument(this.fileInput.files[0]);
+    this.props.createDocument(this.fileInput.files[0], this.moveIdInput.value);
   }
 
   render() {
     const { hasErrored, hasSucceeded } = this.props;
     return (
       <div className="usa-grid">
+        Enter Move ID:{' '}
+        <input
+          type="text"
+          ref={input => {
+            this.moveIdInput = input;
+          }}
+        />
         <input
           type="file"
           ref={input => {
@@ -38,7 +45,7 @@ export class Uploader extends Component {
         )}
         {hasSucceeded && (
           <Alert type="success" heading="Submission Successful">
-            Your document was successfully uploaded.
+            Your document was successfully uploaded. View on S3.
           </Alert>
         )}
       </div>
