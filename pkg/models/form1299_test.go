@@ -135,39 +135,6 @@ func (suite *ModelSuite) TestFetchForm1299ByIDReturnsError() {
 	}
 }
 
-func (suite *ModelSuite) TestPopulateAddressesMethod() {
-	t := suite.T()
-
-	// Given: A form that should have an address but doesn't
-	address := Address{
-		StreetAddress1: "123 My Way",
-		City:           "Seattle",
-		State:          "NY",
-		Zip:            "12345",
-	}
-	suite.db.Create(&address)
-
-	sentForm := Form1299{
-		OriginOfficeAddress:   &address,
-		OriginOfficeAddressID: &address.ID,
-	}
-	suite.db.Create(&sentForm)
-	returnedForm := Form1299{}
-	suite.db.Find(&returnedForm, sentForm.ID)
-
-	if returnedForm.OriginOfficeAddress != nil {
-		t.Fatal("Form should not have an address yet")
-	}
-
-	// When: populateAddresses is called
-	returnedForm.PopulateAddresses(suite.db)
-
-	// Then: Addresses are populated as expected
-	if returnedForm.OriginOfficeAddress == nil {
-		t.Fatal("Form should have an address populated")
-	}
-}
-
 func (suite *ModelSuite) TestCreateForm1299WithAddressesSavesAddresses() {
 	t := suite.T()
 
