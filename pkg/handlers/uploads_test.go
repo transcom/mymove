@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
 	}
 
-	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.S3ID)
+	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
 	if *fakeS3.putFiles[0].Key != key {
 		t.Errorf("Wrong key name: expected %s, got %s", key, *fakeS3.putFiles[0].Key)
 	}

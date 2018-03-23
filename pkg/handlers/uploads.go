@@ -75,9 +75,9 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error(verrs.Error())
 		return uploadop.NewCreateUploadBadRequest()
 	} else {
-		fmt.Printf("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.S3ID)
+		fmt.Printf("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
 
-		key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", moveID, documentID, newUpload.S3ID)
+		key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", moveID, documentID, newUpload.ID)
 
 		input := &s3.PutObjectInput{
 			Bucket: &bucket,
