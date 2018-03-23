@@ -111,6 +111,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		default:
 			h.logger.Fatal("This case statement is no longer exhaustive!")
 		}
+		return response
 	} else { // The given move does belong to the current user.
 		move := moveResult.Move()
 		payload := params.PatchMovePayload
