@@ -134,6 +134,7 @@ func main() {
 	s3Client := s3.New(aws)
 	s3HandlerContext := handlers.NewS3HandlerContext(handlerContext, s3Client)
 	internalAPI.UploadsCreateUploadHandler = handlers.CreateUploadHandler(s3HandlerContext)
+	internalAPI.DocumentsCreateDocumentHandler = handlers.CreateDocumentHandler(handlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
