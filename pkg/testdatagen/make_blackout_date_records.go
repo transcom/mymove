@@ -50,8 +50,8 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		fmt.Println("TDL ID import failed.")
 	}
 
-	sourceGBLOC := "BKAS"
 	market := "dHHG"
+	gbloc := "PORK"
 
 	// Make a blackout date with market.
 	MakeBlackoutDate(db,
@@ -63,13 +63,33 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		&market,
 	)
 
+	// Make a blackout date with a channel.
+	MakeBlackoutDate(db,
+		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
+		&tdlList[rand.Intn(len(tdlList))],
+		nil,
+		nil,
+	)
+
+	// Make a blackout date with market, gbloc, and channel.
+	MakeBlackoutDate(db,
+		tspList[rand.Intn(len(tspList))],
+		time.Now(),
+		time.Now(),
+		&tdlList[rand.Intn(len(tdlList))],
+		&market,
+    &gbloc,
+	)
+
 	// Make a blackout date with market and source gbloc.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
 		time.Now(),
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
-		&sourceGBLOC,
 		&market,
+		&gbloc,
 	)
 }

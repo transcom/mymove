@@ -25,10 +25,12 @@ export class WizardPage extends Component {
   }
 
   nextPage() {
-    const { pageList, pageKey, push, match: { params } } = this.props;
-    const path = getNextPagePath(pageList, pageKey);
-    // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
-    push(generatePath(path, params));
+    Promise.resolve(this.props.handleSubmit()).then(() => {
+      const { pageList, pageKey, push, match: { params } } = this.props;
+      const path = getNextPagePath(pageList, pageKey);
+      // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
+      push(generatePath(path, params));
+    });
   }
 
   previousPage() {
@@ -67,7 +69,7 @@ export class WizardPage extends Component {
           <div className="usa-width-one-third right-align">
             {!isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-secondary"
+                className="usa-button-primary"
                 onClick={this.nextPage}
                 disabled={!pageIsValid}
               >
@@ -76,7 +78,7 @@ export class WizardPage extends Component {
             )}
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-secondary"
+                className="usa-button-primary"
                 onClick={handleSubmit}
                 disabled={!pageIsValid}
               >
@@ -101,6 +103,7 @@ WizardPage.propTypes = {
 
 WizardPage.defaultProps = {
   pageIsValid: true,
+  handleSubmit: () => null,
 };
 
 function mapDispatchToProps(dispatch) {
