@@ -17,8 +17,8 @@ import (
 
 var qualityBands = []int{1, 2, 3, 4}
 
-// AwardsPerQualityBand is a map of the number of shipments to be awarded per round to each quality band
-var AwardsPerQualityBand = map[int]int{
+// OffersPerQualityBand is a map of the number of shipments to be offered per round to each quality band
+var OffersPerQualityBand = map[int]int{
 	1: 5,
 	2: 3,
 	3: 2,
@@ -37,7 +37,7 @@ type TransportationServiceProviderPerformance struct {
 	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
 	QualityBand                     *int      `json:"quality_band" db:"quality_band"`
 	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	AwardCount                      int       `json:"award_count" db:"award_count"`
+	OfferCount                      int       `json:"offer_count" db:"offer_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -78,8 +78,8 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 }
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
-// and Quality Band that will next be awarded a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, awardDate time.Time) (
+// and Quality Band that will next be offered a shipment.
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, bookDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -93,21 +93,21 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 			AND
 			$3 BETWEEN performance_period_start AND performance_period_end
 		ORDER BY
-			award_count ASC,
+			offer_count ASC,
 			best_value_score DESC
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, awardDate).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, awardDate)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -122,9 +122,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, awar
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, awardDate time.Time) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, awardDate)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, bookDate)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
@@ -135,13 +135,13 @@ func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, awardDate t
 func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
 	bands := sortedMapIntKeys(tspPerformances)
 	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
-	// Since the TSPs in quality band 1 will always have been awarded the greatest number of shipments, we use that to calculate max.
-	maxRounds := float64(tspPerformances[bands[0]].AwardCount) / float64(AwardsPerQualityBand[bands[0]])
+	// Since the TSPs in quality band 1 will always have been offered the greatest number of shipments, we use that to calculate max.
+	maxRounds := float64(tspPerformances[bands[0]].OfferCount) / float64(OffersPerQualityBand[bands[0]])
 	previousRounds := math.Ceil(maxRounds)
 
 	for _, band := range bands {
 		tspPerformance := tspPerformances[band]
-		rounds := float64(tspPerformance.AwardCount) / float64(AwardsPerQualityBand[band])
+		rounds := float64(tspPerformance.OfferCount) / float64(OffersPerQualityBand[band])
 
 		if rounds < previousRounds {
 			return tspPerformance
@@ -150,7 +150,7 @@ func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProvi
 	}
 
 	// If we get all the way through, it means all of the TSPPerformances have had the
-	// same number of awards and we should wrap around and assign the next award to
+	// same number of offers and we should wrap around and assign the next offer to
 	// the first quality band.
 	return tspPerformances[bands[0]]
 }
@@ -202,13 +202,13 @@ func AssignQualityBandToTSPPerformance(db *pop.Connection, band int, id uuid.UUI
 	return nil
 }
 
-// IncrementTSPPerformanceAwardCount increments the award_count column by 1 and validates.
-func IncrementTSPPerformanceAwardCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
+// IncrementTSPPerformanceOfferCount increments the offer_count column by 1 and validates.
+func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid.UUID) error {
 	var tspPerformance TransportationServiceProviderPerformance
 	if err := db.Find(&tspPerformance, tspPerformanceID); err != nil {
 		return err
 	}
-	tspPerformance.AwardCount++
+	tspPerformance.OfferCount++
 	validationErr, databaseErr := db.ValidateAndSave(&tspPerformance)
 	if databaseErr != nil {
 		return databaseErr

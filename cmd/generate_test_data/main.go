@@ -34,7 +34,7 @@ func main() {
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)
-		testdatagen.MakeShipmentAwardData(db)
+		testdatagen.MakeShipmentOfferData(db)
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
