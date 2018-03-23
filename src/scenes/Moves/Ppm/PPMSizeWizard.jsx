@@ -15,7 +15,7 @@ export class PpmSizeWizardPage extends Component {
     const moveId = this.props.match.params.moveId;
     if (pendingPpmSize) {
       //don't update a ppm unless the size has changed
-      createOrUpdatePpm(moveId, pendingPpmSize);
+      createOrUpdatePpm(moveId, { size: pendingPpmSize });
     }
   };
   render() {

@@ -1,0 +1,19 @@
+div.info {
+  background-color: lightgray;
+  padding: 1em;
+  border: solid black 1px;
+}
+
+div.slider-container {
+  margin: 4em;
+}
+
+span.incentive {
+  outline: solid black 1px;
+  padding: 5px;
+  margin-left: 3em;
+}
+
+.slider-container .rangeslider__fill {
+  background-color: #0071bc;
+}
