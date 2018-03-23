@@ -45,7 +45,7 @@ export class Uploader extends Component {
         )}
         {hasSucceeded && (
           <Alert type="success" heading="Submission Successful">
-            Your document was successfully uploaded. View on S3.
+            Your document was successfully uploaded.
           </Alert>
         )}
       </div>

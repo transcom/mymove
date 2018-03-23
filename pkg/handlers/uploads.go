@@ -28,7 +28,7 @@ func payloadForUploadModel(upload models.Upload) internalmessages.UploadPayload 
 	}
 }
 
-// CreateUploadHandler creates a new upload via POST /issue
+// CreateUploadHandler creates a new upload via POST /upload
 type CreateUploadHandler S3HandlerContext
 
 // Handle creates a new Upload from a request payload
