@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/satori/go.uuid"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -75,6 +76,59 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 			movePayloads[i] = &movePayload
 		}
 		response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
+	}
+	return response
+}
+
+// PatchMoveHandler patches a move via PATCH /moves/{moveId}
+type PatchMoveHandler HandlerContext
+
+// Handle ... patches a new Move from a request payload
+func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
+	var response middleware.Responder
+	// Get user id from context
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewPatchMoveUnauthorized()
+		return response
+	}
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		h.logger.Fatal("Invalid MoveID, this should never happen.")
+	}
+
+	// Validate that this move belongs to the current user
+	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
+	if err != nil {
+		h.logger.Error("DB Error checking on move validity", zap.Error(err))
+		response = moveop.NewPatchMoveInternalServerError()
+	} else if !moveResult.IsValid() {
+		switch errCode := moveResult.ErrorCode(); errCode {
+		case models.FetchErrorNotFound:
+			response = moveop.NewPatchMoveNotFound()
+		case models.FetchErrorForbidden:
+			response = moveop.NewPatchMoveForbidden()
+		default:
+			h.logger.Fatal("This case statement is no longer exhaustive!")
+		}
+	} else { // The given move does belong to the current user.
+		move := moveResult.Move()
+		payload := params.PatchMovePayload
+		newSelectedMoveType := payload.SelectedMoveType
+
+		move.SelectedMoveType = newSelectedMoveType
+
+		if verrs, err := h.db.ValidateAndUpdate(&move); verrs.HasAny() || err != nil {
+			if verrs.HasAny() {
+				h.logger.Error("DB Validation", zap.Error(verrs))
+			} else {
+				h.logger.Error("DB Update", zap.Error(err))
+			}
+			response = moveop.NewPatchMoveBadRequest()
+		} else {
+			movePayload := payloadForMoveModel(user, move)
+			response = moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+		}
 	}
 	return response
 }

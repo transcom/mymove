@@ -34,10 +34,10 @@ export async function UpdatePpm(
   const client = await getClient();
   console.log('******', personallyProcuredMoveId);
   //todo: this is failing due to "Unhandled Rejection (Error): Required parameter personallyProcuredMovePayload is not provided"
-  const response = await client.apis.ppm.updatePersonallyProcuredMove({
+  const response = await client.apis.ppm.patchPersonallyProcuredMove({
     moveId,
     personallyProcuredMoveId,
-    updatePersonallyProcuredMovePayload: payload,
+    patchPersonallyProcuredMovePayload: payload,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;

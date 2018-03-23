@@ -119,11 +119,11 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	return response
 }
 
-// UpdatePersonallyProcuredMoveHandler updates a PPM
-type UpdatePersonallyProcuredMoveHandler HandlerContext
+// PatchPersonallyProcuredMoveHandler Patchs a PPM
+type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
-func (h UpdatePersonallyProcuredMoveHandler) Handle(params ppmop.UpdatePersonallyProcuredMoveParams) middleware.Responder {
+func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
 	var response middleware.Responder
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
@@ -141,21 +141,26 @@ func (h UpdatePersonallyProcuredMoveHandler) Handle(params ppmop.UpdatePersonall
 	// Make sure the move exists and is owned by the user
 	exists, userOwns := models.ValidateMoveOwnership(h.db, userID, moveID)
 	if !exists {
-		response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
+		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
+		return response
 	} else if !userOwns {
-		response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
+		response = ppmop.NewPatchPersonallyProcuredMoveForbidden()
+		return response
 	}
 
 	ppm, err := models.GetPersonallyProcuredMovesForID(h.db, ppmID)
 	if err != nil {
-		response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
+		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
+		return response
 	} else if ppm.MoveID != moveID {
 		// Saved move ID should match request move ID
-		response = ppmop.NewUpdatePersonallyProcuredMoveBadRequest()
+		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
+		return response
 	}
 
-	size := params.UpdatePersonallyProcuredMovePayload.Size
-	weightEstimate := params.UpdatePersonallyProcuredMovePayload.WeightEstimate
+	// TODO: Is there a pattern for updating that doesn't require hardcoding fields?
+	size := params.PatchPersonallyProcuredMovePayload.Size
+	weightEstimate := params.PatchPersonallyProcuredMovePayload.WeightEstimate
 
 	if size != nil {
 		ppm.Size = size
@@ -165,14 +170,14 @@ func (h UpdatePersonallyProcuredMoveHandler) Handle(params ppmop.UpdatePersonall
 	}
 
 	if verrs, err := h.db.ValidateAndUpdate(&ppm); err != nil {
-		h.logger.Error("DB Update", zap.Error(err))
-		response = ppmop.NewUpdatePersonallyProcuredMoveInternalServerError()
+		h.logger.Error("DB Patch", zap.Error(err))
+		response = ppmop.NewPatchPersonallyProcuredMoveInternalServerError()
 	} else if verrs.HasAny() {
 		h.logger.Error("We got verrs!", zap.String("verrs", verrs.String()))
-		response = ppmop.NewCreatePersonallyProcuredMoveBadRequest()
+		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	} else {
 		ppmPayload := payloadForPPMModel(ppm)
-		response = ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
+		response = ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 	}
 
 	return response

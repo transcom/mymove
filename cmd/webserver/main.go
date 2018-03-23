@@ -120,12 +120,13 @@ func main() {
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = handlers.CreatePersonallyProcuredMoveHandler(handlerContext)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = handlers.IndexPersonallyProcuredMovesHandler(handlerContext)
-	internalAPI.PpmUpdatePersonallyProcuredMoveHandler = handlers.UpdatePersonallyProcuredMoveHandler(handlerContext)
+	internalAPI.PpmPatchPersonallyProcuredMoveHandler = handlers.PatchPersonallyProcuredMoveHandler(handlerContext)
 
 	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
 
 	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
 	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
+	internalAPI.MovesPatchMoveHandler = handlers.PatchMoveHandler(handlerContext)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
