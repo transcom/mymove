@@ -4,13 +4,9 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path"
 
 	"github.com/aws/aws-sdk-go/service/s3"
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/strfmt"
 
 	authcontext "github.com/transcom/mymove/pkg/auth/context"
@@ -31,34 +27,6 @@ func (fake *FakeS3) PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, er
 		panic(err)
 	}
 	return nil, nil
-}
-
-func (suite *HandlerSuite) fixture(name string) *runtime.File {
-	fixtureDir := "fixtures"
-	cwd, err := os.Getwd()
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-
-	fixturePath := path.Join(cwd, fixtureDir, name)
-
-	info, err := os.Stat(fixturePath)
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-	header := multipart.FileHeader{
-		Filename: name,
-		Size:     info.Size(),
-	}
-	data, err := os.Open(fixturePath)
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-	return &runtime.File{
-		Header: &header,
-		Data:   data,
-	}
-	// TODO close file when tests complete
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandler() {
