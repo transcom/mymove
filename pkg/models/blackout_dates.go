@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -29,21 +30,23 @@ type BlackoutDate struct {
 func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
 
-	// var err error
-	// if shipment.Market != nil {
-	// 	sql := `SELECT
-	// 		*
-	// 	FROM
-	// 		blackout_dates
-	// 	WHERE
-	// 		transportation_service_provider_id = $1
-	// 	AND
-	// 		$2 BETWEEN start_blackout_date and end_blackout_date
-	// 	AND
-	// 		market = $3`
-	// 	err = tx.RawQuery(sql, tspID, shipment.PickupDate, *shipment.Market).All(&blackoutDates)
+	var err error
+	if shipment.Market != nil {
+		fmt.Println("shipment.Market was not nil!", *shipment.Market)
+		sql := `SELECT
+			*
+		FROM
+			blackout_dates
+		WHERE
+			transportation_service_provider_id = $1
+		AND
+			$2 BETWEEN start_blackout_date and end_blackout_date
+		AND
+			market = $3`
+		err = tx.RawQuery(sql, tspID, shipment.PickupDate, *shipment.Market).All(&blackoutDates)
 
-	// } else {
+	} else {
+		fmt.Println("shipment.Market WAS nil!")
 		sql := `SELECT
 			*
 		FROM
@@ -53,9 +56,9 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 		AND
 			$2 BETWEEN start_blackout_date and end_blackout_date`
 
-		err := tx.RawQuery(sql, tspID, shipment.PickupDate).All(&blackoutDates)
-	// }
-
+		err = tx.RawQuery(sql, tspID, shipment.PickupDate).All(&blackoutDates)
+	}
+	fmt.Println(blackoutDates)
 	return blackoutDates, err
 }
 
