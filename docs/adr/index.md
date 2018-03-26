@@ -7,7 +7,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 <!-- adrlog -->
 
 - [ADR-0000](0000-server-framework.md) - Use Truss' [Golang](https://golang.org/) web server skeleton to build API for DP3
-- [ADR-0001](0001-go-orm.md) - Use [Pop](https://github.com/markbates/pop) as the ORM for 3M
+- [ADR-0001](0001-go-orm.md) - Use [Pop](https://github.com/gobuffalo/pop) as the ORM for 3M
 - [ADR-0002](0002-go-package-management.md) - Use dep to manage go dependencies
 - [ADR-0003](0003-go-path-and-project-layout.md) - Put mymove into the standard GOPATH, eliminate server and client directories
 - [ADR-0004](0004-path-imports.md) - Use Both Absolute and Relative Paths for Imports

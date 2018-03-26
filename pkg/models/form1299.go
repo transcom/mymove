@@ -7,9 +7,9 @@ import (
 
 	"github.com/go-openapi/strfmt"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"

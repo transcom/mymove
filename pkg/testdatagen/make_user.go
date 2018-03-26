@@ -3,8 +3,8 @@ package testdatagen
 import (
 	"log"
 
-	"github.com/markbates/pop"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/models"
 )
