@@ -8,7 +8,6 @@ import (
 	"path"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
@@ -16,10 +15,6 @@ import (
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalapi"
-	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	"github.com/transcom/mymove/pkg/gen/restapi"
-	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 )
 
@@ -90,44 +85,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-
-	// Wire up the handlers to the publicAPIMux
-	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = handlers.TSPIndexHandler(handlerContext)
-	publicAPI.TspShipmentsHandler = handlers.TSPShipmentsHandler(handlerContext)
-
-	// Wire up the handlers to the internalSwaggerMux
-	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	internalAPI := internalops.NewMymoveAPI(internalSpec)
-
-	internalAPI.IssuesCreateIssueHandler = handlers.CreateIssueHandler(handlerContext)
-	internalAPI.IssuesIndexIssuesHandler = handlers.IndexIssuesHandler(handlerContext)
-
-	internalAPI.Form1299sCreateForm1299Handler = handlers.CreateForm1299Handler(handlerContext)
-	internalAPI.Form1299sIndexForm1299sHandler = handlers.IndexForm1299sHandler(handlerContext)
-	internalAPI.Form1299sShowForm1299Handler = handlers.ShowForm1299Handler(handlerContext)
-
-	internalAPI.CertificationCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
-
-	internalAPI.PpmCreatePersonallyProcuredMoveHandler = handlers.CreatePersonallyProcuredMoveHandler(handlerContext)
-	internalAPI.PpmIndexPersonallyProcuredMovesHandler = handlers.IndexPersonallyProcuredMovesHandler(handlerContext)
-	internalAPI.PpmPatchPersonallyProcuredMoveHandler = handlers.PatchPersonallyProcuredMoveHandler(handlerContext)
-
-	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
-
-	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
-	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
-	internalAPI.MovesPatchMoveHandler = handlers.PatchMoveHandler(handlerContext)
-
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
@@ -143,6 +100,8 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+
 	// Base routes
 	root := goji.NewMux()
 	root.Use(tokenMiddleware)
@@ -154,14 +113,14 @@ func main() {
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-	apiMux.Handle(pat.New("/*"), publicAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	apiMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
 	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()
