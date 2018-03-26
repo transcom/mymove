@@ -1,1 +1,2 @@
-add_column("transportation_service_provider_performances", "peak_rate_cycle", "bool", {})
+add_column("transportation_service_provider_performances", "rate_cycle_start", "datetime", {})
+add_column("transportation_service_provider_performances", "rate_cycle_end", "datetime", {})
