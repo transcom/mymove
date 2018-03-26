@@ -36,6 +36,7 @@ const initialState = {
   hasErrored: false,
   hasSucceeded: false,
   confirmationText: '',
+  upload: null,
 };
 
 export function documentReducer(state = initialState, action) {
@@ -44,13 +45,13 @@ export function documentReducer(state = initialState, action) {
       return Object.assign({}, state, {
         hasSucceeded: true,
         hasErrored: false,
-        confirmationText: 'Document uploaded!',
+        upload: action.item,
       });
     case CREATE_DOCUMENT_FAILURE:
       return Object.assign({}, state, {
         hasSucceeded: false,
         hasErrored: true,
-        confirmationText: 'Upload error.',
+        upload: {},
       });
     default:
       return state;
