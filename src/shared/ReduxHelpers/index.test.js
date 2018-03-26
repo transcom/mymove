@@ -1,6 +1,6 @@
 import * as helpers from '.';
 
-describe('reduxHelperss', () => {
+describe('reduxHelpers', () => {
   describe('when generateAsyncActionTypes is called', () => {
     describe('error conditions', () => {
       describe('if there is no resource provided', () => {
