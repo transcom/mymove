@@ -18,12 +18,11 @@ it('renders without crashing', () => {
     <Provider store={store}>
       <Feedback
         hasSchemaError={hasSchemaError}
-        hasSubmitSuccess={hasSubmitSuccess}
-        hasSubmitError={hasSubmitError}
+        hasSucceeded={hasSubmitSuccess}
+        hasErrored={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
         loadSchema={dummyFunc}
-        confirmationText=""
         createIssue={dummyFunc}
       />
     </Provider>,

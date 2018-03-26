@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 )
 
 // RunScenarioOne creates 17 shipments and 5 TSPs in 1 TDL. This allows testing against

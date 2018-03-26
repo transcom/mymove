@@ -28,7 +28,7 @@ Our priorities are, in order:
 
 * This strategy requires the ability to run code before or after each test, which will be addressed in a future ADR.
 
-* [Pop uses `TRUNCATE`](https://github.com/markbates/pop/blob/9f77e19c929eda4c13f525296fe751a90de86619/postgresql.go#L232-L248) to implement [`TruncateAll()`](https://godoc.org/github.com/markbates/pop#Connection.TruncateAll).
+* [Pop uses `TRUNCATE`](https://github.com/gobuffalo/pop/blob/9f77e19c929eda4c13f525296fe751a90de86619/postgresql.go#L232-L248) to implement [`TruncateAll()`](https://godoc.org/github.com/gobuffalo/pop#Connection.TruncateAll).
 
 ## Pros and Cons of the Alternatives
 
