@@ -28,10 +28,7 @@ func (suite *ModelSuite) TestBasicForm1299Instantiation() {
 	}
 
 	// When: A Form entry is created in the db
-	err := suite.db.Create(&newForm)
-	if err != nil {
-		t.Fatal("Didn't write to the db.")
-	}
+	suite.mustSave(&newForm)
 
 	// Then: assert that the ID has a value of type uuid
 	if newForm.ID == uuid.Nil {
@@ -79,11 +76,8 @@ func (suite *ModelSuite) TestFetchAllForm1299s() {
 		ServiceMemberFirstName: &serviceMemberFirstName2,
 	}
 
-	err1 := suite.db.Create(&form1)
-	err2 := suite.db.Create(&form2)
-	if err1 != nil || err2 != nil {
-		t.Fatal("Didn't write to the db.")
-	}
+	suite.mustSave(&form1)
+	suite.mustSave(&form2)
 
 	// When: Fetch all Form1299s is called
 	form1299s, _ := FetchAllForm1299s(suite.db)
@@ -101,10 +95,7 @@ func (suite *ModelSuite) TestFetchForm1299ByID() {
 	form := Form1299{
 		ServiceMemberFirstName: &serviceMemberFirstName1,
 	}
-
-	if err := suite.db.Create(&form); err != nil {
-		t.Fatal("Didn't write to the db.")
-	}
+	suite.mustSave(&form)
 
 	// When: Fetch form 1299 by ID is called
 	id := strfmt.UUID(form.ID.String())
@@ -118,6 +109,35 @@ func (suite *ModelSuite) TestFetchForm1299ByID() {
 	if *form.ServiceMemberFirstName != *returnedForm.ServiceMemberFirstName {
 		t.Fatal(fmt.Sprintf("The returned form's contents don't match expected: %s vs %s",
 			*form.ServiceMemberFirstName, *returnedForm.ServiceMemberFirstName))
+	}
+}
+
+func (suite *ModelSuite) TestFetchForm1299ByIDEagerLoads() {
+	t := suite.T()
+	// Given: A 1299 form
+	address := Address{
+		StreetAddress1: "123 My Way",
+		City:           "Seattle",
+		State:          "NY",
+		Zip:            "12345",
+	}
+	suite.mustSave(&address)
+	form := Form1299{
+		OriginOfficeAddressID: &address.ID,
+	}
+	suite.mustSave(&form)
+
+	// When: Fetch form 1299 by ID is called
+	id := strfmt.UUID(form.ID.String())
+	returnedForm, err := FetchForm1299ByID(suite.db, id)
+
+	// Then: The specified record is returned and the address model is populated
+	if err != nil {
+		t.Fatal("No record found for that ID")
+	}
+
+	if returnedForm.OriginOfficeAddress == nil || returnedForm.OriginOfficeAddress.ID != *returnedForm.OriginOfficeAddressID {
+		t.Fatal("Address model wasn't populated onto form 1299")
 	}
 }
 
