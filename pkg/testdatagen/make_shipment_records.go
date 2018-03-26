@@ -5,22 +5,24 @@ import (
 	"log"
 	"time"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeShipment creates a single shipment record.
-func MakeShipment(db *pop.Connection, pickup time.Time, delivery time.Time,
+func MakeShipment(db *pop.Connection, requestedPickup time.Time,
+	pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
 	market := "dHHG"
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		PickupDate:                pickup,
+		RequestedPickupDate:       requestedPickup,
 		DeliveryDate:              delivery,
+		BookDate:                  DateInsidePerformancePeriod,
 		GBLOC:                     "AGFM",
 		Market:                    &market,
-		AwardDate:                 DateInsidePerformancePeriod,
 	}
 
 	_, err := db.ValidateAndSave(&shipment)
@@ -47,7 +49,7 @@ func MakeShipmentData(db *pop.Connection) {
 	thirtyMin, _ := time.ParseDuration("30m")
 	oneWeek, _ := time.ParseDuration("7d")
 
-	MakeShipment(db, now, now.Add(thirtyMin), tdlList[0])
-	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1])
-	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2])
+	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0])
+	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1])
+	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2])
 }

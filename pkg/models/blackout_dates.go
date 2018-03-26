@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
@@ -19,9 +19,7 @@ type BlackoutDate struct {
 	StartBlackoutDate               time.Time  `json:"start_blackout_date" db:"start_blackout_date"`
 	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
-	Channel                         *string    `json:"channel" db:"channel"`
-	GBLOC                           *string    `json:"gbloc" db:"gbloc"`
+	SourceGBLOC                     *string    `json:"source_gbloc" db:"source_gbloc"`
 	Market                          *string    `json:"market" db:"market"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`

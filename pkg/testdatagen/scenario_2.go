@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 )
 
 // RunScenarioTwo creates 9 shipments to be divided between 5 TSPs in 1 TDL and 10 shipments to be divided among 4 TSPs in TDL 2.
@@ -19,11 +19,11 @@ func RunScenarioTwo(db *pop.Connection) {
 
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, tdl)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl)
 	}
 	// Make shipments in second TDL
 	for i := 0; i <= shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, tdl2)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2)
 	}
 
 	// Make TSPs
@@ -51,8 +51,7 @@ func RunScenarioTwo(db *pop.Connection) {
 	// Add blackout dates
 	blackoutStart := shipmentDate.AddDate(0, 0, -3)
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)
-	cos := "2"
-	channel := "CONUS_CONUS"
+
 	gbloc := "BKAS"
 	market := "dHHG"
 	MakeBlackoutDate(db,
@@ -60,8 +59,6 @@ func RunScenarioTwo(db *pop.Connection) {
 		blackoutStart,
 		blackoutEnd,
 		&tdl,
-		&cos,
-		&channel,
 		&gbloc,
 		&market)
 	MakeBlackoutDate(db,
@@ -69,8 +66,6 @@ func RunScenarioTwo(db *pop.Connection) {
 		blackoutStart,
 		blackoutEnd,
 		&tdl,
-		&cos,
-		&channel,
 		&gbloc,
 		&market)
 	MakeBlackoutDate(db,
@@ -78,8 +73,6 @@ func RunScenarioTwo(db *pop.Connection) {
 		blackoutStart,
 		blackoutEnd,
 		&tdl,
-		&cos,
-		&channel,
 		&gbloc,
 		&market)
 }

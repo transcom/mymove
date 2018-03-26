@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"

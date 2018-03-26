@@ -3,7 +3,7 @@ package models_test
 import (
 	"fmt"
 
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
@@ -13,8 +13,8 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	move := &Move{}
 
 	expErrors := map[string][]string{
-		"selected_move_type": []string{"SelectedMoveType can not be blank."},
-		"user_id":            []string{"UserID can not be blank."},
+		"selected_move_type": {"SelectedMoveType can not be blank."},
+		"user_id":            {"UserID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)

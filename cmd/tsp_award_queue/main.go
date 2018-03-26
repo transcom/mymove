@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
 	"go.uber.org/zap"
 
@@ -38,5 +38,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	awardqueue.Run(dbConnection)
+	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
+	awardQueue.Run()
 }

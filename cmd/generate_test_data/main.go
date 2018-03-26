@@ -3,7 +3,7 @@ package main
 import (
 	"log"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -34,7 +34,7 @@ func main() {
 		testdatagen.MakeTDLData(db)
 		testdatagen.MakeTSPs(db, *numTSP)
 		testdatagen.MakeShipmentData(db)
-		testdatagen.MakeShipmentAwardData(db)
+		testdatagen.MakeShipmentOfferData(db)
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)

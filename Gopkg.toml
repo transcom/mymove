@@ -1,15 +1,8 @@
 required = [
-	"github.com/markbates/pop/soda",
+	"github.com/gobuffalo/pop/soda",
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
 	"github.com/codegangsta/gin",
 	"github.com/segmentio/chamber",
 	"github.com/docker/go-units"
 	]
-
-# This override is due to this delightful cluster:
-# https://github.com/satori/go.uuid/issues/66
-# It should be removable once uuid adds a new tag for the latest version.
-[[override]]
-	name = "github.com/satori/go.uuid"
-	branch = "master"

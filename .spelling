@@ -207,6 +207,14 @@ direnv
 golang
 license.md
 TrussWorks
+react-rangeslider
+rc-slider
+rea11y-sliders
+react-html5-slider
+airbnb
+uswds
+styleable
+OAuth
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
  - docs/adr/0007-swagger-client.md

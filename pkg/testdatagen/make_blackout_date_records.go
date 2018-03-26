@@ -6,7 +6,7 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -16,17 +16,14 @@ import (
 
 // MakeBlackoutDate creates a test blackoutDate object to add to the database.
 func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
-	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, cos *string,
-	channel *string, gbloc *string, market *string) (models.BlackoutDate, error) {
+	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, sourceGBLOC *string, market *string) (models.BlackoutDate, error) {
 
 	blackoutDates := models.BlackoutDate{
 		TransportationServiceProviderID: tsp.ID,
 		StartBlackoutDate:               startDate,
 		EndBlackoutDate:                 endDate,
 		TrafficDistributionListID:       &tdl.ID,
-		CodeOfService:                   cos,
-		Channel:                         channel,
-		GBLOC:                           gbloc,
+		SourceGBLOC:                     sourceGBLOC,
 		Market:                          market,
 	}
 
@@ -53,10 +50,8 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		fmt.Println("TDL ID import failed.")
 	}
 
-	cos := "2"
-	channel := "CONUS_CONUS"
-	gbloc := "BKAS"
 	market := "dHHG"
+	gbloc := "PORK"
 
 	// Make a blackout date with market and channel.
 	MakeBlackoutDate(db,
@@ -64,8 +59,6 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		time.Now(),
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
-		nil,
-		&channel,
 		nil,
 		&market,
 	)
@@ -77,8 +70,6 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
 		nil,
-		&channel,
-		nil,
 		nil,
 	)
 
@@ -88,8 +79,6 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		time.Now(),
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
-		nil,
-		&channel,
 		&gbloc,
 		&market,
 	)
@@ -100,8 +89,6 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		time.Now(),
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
-		&cos,
-		&channel,
 		&gbloc,
 		&market,
 	)
