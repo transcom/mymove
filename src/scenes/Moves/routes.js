@@ -4,6 +4,8 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
+import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import PpmWeight from 'scenes/Moves/Ppm/Weight';
 
 const Placeholder = props => {
   return (
@@ -17,9 +19,18 @@ const Placeholder = props => {
   );
 };
 
-const stub = (key, pages) => () => (
-  <Placeholder pageList={pages} pageKey={key} title={key} />
-);
+const stub = (key, pages, component) => ({ match }) => {
+  if (component) {
+    const pageComponent = React.createElement(component, { match }, null);
+    return (
+      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
+        {pageComponent}
+      </WizardPage>
+    );
+  } else {
+    return <Placeholder pageList={pages} pageKey={key} title={key} />;
+  }
+};
 
 export default () => {
   const pages = {
@@ -35,23 +46,26 @@ export default () => {
         </WizardPage>
       ),
     },
-    '/moves/:moveId/ppm-size': { render: stub },
-    '/moves/:moveId/ppm-incentive': { render: stub },
-    '/moves/:moveId/agreement': {
+    '/moves/:moveId/ppm-size': {
       render: (key, pages) => ({ match }) => (
-        <WizardPage
-          handleSubmit={() => undefined}
-          pageList={pages}
-          pageKey={key}
-        >
-          <Agreement match={match} />
-        </WizardPage>
+        <PpmSize pages={pages} pageKey={key} match={match} />
       ),
     },
+    '/moves/:moveId/ppm-incentive': {
+      render: (key, pages) => ({ match }) => (
+        <PpmWeight pages={pages} pageKey={key} match={match} />
+      ),
+    },
+    '/moves/:moveId/agreement': { render: stub },
   };
   const pageList = Object.keys(pages);
+  const componentMap = {
+    agreement: Agreement,
+  };
   return pageList.map(key => {
-    const render = pages[key].render(key, pageList);
+    const step = key.split('/').pop();
+    var component = componentMap[step];
+    const render = pages[key].render(key, pageList, component);
     return <PrivateRoute exact path={key} key={key} render={render} />;
   });
 };

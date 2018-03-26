@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
-import truckGrayCheckGray from './truck-gray-check-gray.svg';
-import ppmBlack from './ppm-black.svg';
+import truckGrayCheckGray from 'shared/icon/truck-gray-check-gray.svg';
+import ppmBlack from 'shared/icon/ppm-black.svg';
 import './Transition.css';
 
 export class Transition extends Component {
