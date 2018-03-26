@@ -497,7 +497,6 @@ definitions:
    required:
     - id
     - user_id
-    - selected_move_type
     - created_at
     - updated_at
   PatchMovePayload:
@@ -514,7 +513,7 @@ definitions:
       - COMBO
     x-display-value:
       HHG: Household Goods Move
-      PPM: Personal Property Move
+      PPM: Personal Procured Move
       COMBO: Both HHG and PPM
   IndexMovesPayload:
     type: array
