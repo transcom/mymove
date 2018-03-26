@@ -18,7 +18,6 @@ export async function CreatePpm(
   payload /*shape: {size, weightEstimate}*/,
 ) {
   const client = await getClient();
-  console.log('******', moveId, payload);
   const response = await client.apis.ppm.createPersonallyProcuredMove({
     moveId,
     createPersonallyProcuredMovePayload: payload,
