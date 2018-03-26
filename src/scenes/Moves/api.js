@@ -15,6 +15,15 @@ export async function CreateMove(selectedMoveType) {
   return response.body;
 }
 
+export async function GetMove(moveId) {
+  const client = await getClient();
+  const response = await client.apis.moves.showMove({
+    moveId,
+  });
+  checkResponse(response, 'failed to get move due to server error');
+  return response.body;
+}
+
 export async function UpdateMove(
   moveId,
   payload /*shape: { selected_move_type }*/,

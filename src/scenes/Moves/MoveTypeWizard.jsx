@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { updateMove } from './ducks';
+import { updateMove, loadMove } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import MoveType from './MoveType';
 
 export class MoveTypeWizardPage extends Component {
   componentDidMount() {
-    // this.props.loadMove(this.props.match.params.moveId);
+    this.props.loadMove(this.props.match.params.moveId);
   }
   handleSubmit = () => {
     const { pendingMoveType, updateMove } = this.props;
@@ -46,7 +46,7 @@ MoveTypeWizardPage.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateMove }, dispatch);
+  return bindActionCreators({ updateMove, loadMove }, dispatch);
 }
 function mapStateToProps(state) {
   return state.submittedMoves;

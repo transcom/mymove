@@ -80,6 +80,36 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	return response
 }
 
+// ShowMoveHandler returns a move for a user and move ID
+type ShowMoveHandler HandlerContext
+
+// Handle retrieves a move in the system belonging to the logged in user given move ID
+func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
+	var response middleware.Responder
+
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewShowMoveUnauthorized()
+		return response
+	}
+
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		response = moveop.NewShowMoveUnauthorized()
+		return response
+	}
+
+	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = moveop.NewShowMoveBadRequest()
+	} else {
+		movePayload := payloadForMoveModel(user, moveResult.Move())
+		response = moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+	}
+	return response
+}
+
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler HandlerContext
 

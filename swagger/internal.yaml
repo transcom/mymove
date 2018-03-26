@@ -191,6 +191,31 @@ paths:
           description: move is not found
         500:
           description: internal server error
+    get:
+      summary: Returns the given move
+      description: Returns the given move
+      operationId: showMove
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the instance of the move
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
@@ -273,7 +298,7 @@ paths:
           description: UUID of the move these PPMs are associated with
       responses:
         200:
-          description: created instance of personally_procured_move
+          description: returns list of personally_procured_move
           schema:
             $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
         400:

@@ -1,4 +1,4 @@
-import { CreateMove, UpdateMove } from './api.js';
+import { CreateMove, UpdateMove, GetMove } from './api.js';
 
 // Types
 export const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
@@ -6,6 +6,9 @@ export const CREATE_MOVE = 'CREATE_MOVE';
 export const UPDATE_MOVE = 'UPDATE_MOVE';
 export const CREATE_OR_UPDATE_MOVE_SUCCESS = 'CREATE_OR_UPDATE_MOVE_SUCCESS';
 export const CREATE_OR_UPDATE_MOVE_FAILURE = 'CREATE_OR_UPDATE_MOVE_FAILURE';
+export const GET_MOVE = 'GET_MOVE';
+export const GET_MOVE_SUCCESS = 'GET_MOVE_SUCCESS';
+export const GET_MOVE_FAILURE = 'GET_MOVE_FAILURE';
 
 export const createMoveRequest = () => ({
   type: CREATE_MOVE,
@@ -22,6 +25,21 @@ export const createOrUpdateMoveSuccess = item => ({
 
 export const createOrUpdateMoveFailure = error => ({
   type: CREATE_OR_UPDATE_MOVE_FAILURE,
+  error,
+});
+
+const getMoveRequest = () => ({
+  type: GET_MOVE,
+});
+
+export const getMoveSuccess = item => ({
+  type: GET_MOVE_SUCCESS,
+  item,
+  // item: items.length > 0 ? items[0] : null,
+});
+
+export const getMoveFailure = error => ({
+  type: GET_MOVE_FAILURE,
   error,
 });
 
@@ -46,6 +64,19 @@ export function updateMove(moveId, moveType) {
     UpdateMove(moveId, { selected_move_type: moveType })
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
+  };
+}
+
+export function loadMove(moveId) {
+  return function(dispatch, getState) {
+    dispatch(getMoveRequest());
+    const state = getState();
+    const currentMove = state.submittedMoves.currentMove;
+    if (!currentMove) {
+      GetMove(moveId)
+        .then(item => dispatch(getMoveSuccess(item)))
+        .catch(error => dispatch(getMoveFailure(error)));
+    }
   };
 }
 
@@ -74,6 +105,12 @@ export function moveReducer(state = initialState, action) {
         currentMove: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
+      });
+    case GET_MOVE_SUCCESS:
+      return Object.assign({}, state, {
+        currentMove: action.item,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
       });
     default:
       return state;

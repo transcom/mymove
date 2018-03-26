@@ -148,7 +148,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return response
 	}
 
-	ppm, err := models.GetPersonallyProcuredMovesForID(h.db, ppmID)
+	ppm, err := models.GetPersonallyProcuredMoveForID(h.db, ppmID)
 	if err != nil {
 		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
 		return response
