@@ -13,7 +13,7 @@ RUN dep ensure -vendor-only
 
 # Install tools required to build the project
 # These linker flags create a standalone binary that will run in scratch.
-RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/markbates/pop/soda
+RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
 RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
 
 # We don't need any of the Go mechanics, just the binaries. Copy into a single

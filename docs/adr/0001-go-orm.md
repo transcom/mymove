@@ -1,4 +1,4 @@
-# Use [Pop](https://github.com/markbates/pop) as the ORM for 3M
+# Use [Pop](https://github.com/gobuffalo/pop) as the ORM for 3M
 
 3M will have include evolving data structures that we anticipate will change significantly throughout development.
 We'd like to have a way to handle such changes with as little pain as possible. One of the things ORMs do well is to help with all the boilerplate when the data model changes..
@@ -8,12 +8,12 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 ## Considered Alternatives
 
 * No ORM
-* [Pop](https://github.com/markbates/pop)
+* [Pop](https://github.com/gobuffalo/pop)
 * Other Go ORMs
 
 ## Decision Outcome
 
-* Chosen Alternative: *[Pop](https://github.com/markbates/pop)*
+* Chosen Alternative: *[Pop](https://github.com/gobuffalo/pop)*
 * Pop is one of the more mature Go ORMs around
 * Written by the same author as [Buffalo](https://gobuffalo.io/) framework and used in Buffalo
 * Don't have to write our own SQL migrations and models; instead, we can check in the generated Fizz migrations that come with Pop
@@ -32,5 +32,5 @@ Prior to the start of the contract, other Go ORMs had been explored. Pop is cons
 ### Other Go ORM
 
 * `+` Don't have to write SQL for migrations etc
-* `-` Not as mature as [Pop](https://github.com/markbates/pop)
+* `-` Not as mature as [Pop](https://github.com/gobuffalo/pop)
 * `-` Not used in [Buffalo](https://gobuffalo.io/) framework

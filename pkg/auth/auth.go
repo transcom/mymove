@@ -8,11 +8,11 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
-	"github.com/markbates/pop"
 	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/context"

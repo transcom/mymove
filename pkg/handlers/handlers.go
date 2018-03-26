@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/go-openapi/loads"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"

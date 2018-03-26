@@ -5,7 +5,7 @@ import (
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
