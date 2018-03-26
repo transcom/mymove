@@ -31,11 +31,14 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	}
 }
 
+// FileHandlerContext wraps a HandlerContext with an additional value: a fileStorer
 type FileHandlerContext struct {
 	*HandlerContext
 	storage fileStorer
 }
 
+// NewFileHandlerContext contains dependencies used by handlers that are manipulating
+// files.
 func NewFileHandlerContext(db *pop.Connection, logger *zap.Logger, storer fileStorer) FileHandlerContext {
 	hc := NewHandlerContext(db, logger)
 	return FileHandlerContext{
