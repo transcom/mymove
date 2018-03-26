@@ -4,6 +4,7 @@ import (
 	"io"
 	"os"
 	"path"
+	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
@@ -43,5 +44,13 @@ func (s *S3) Key(args ...string) string {
 }
 
 func (s *S3) PresignedURL(key string) (string, error) {
-	return "", nil
+	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	})
+	url, err := req.Presign(15 * time.Minute)
+	if err != nil {
+		return "", errors.Wrap(err, "could not generate presigned URL")
+	}
+	return url, nil
 }

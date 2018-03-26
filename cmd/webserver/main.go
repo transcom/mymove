@@ -95,8 +95,12 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
-	aws := awssession.Must(awssession.NewSession())
 	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
+	if len(bucket) == 0 {
+		log.Fatalln("AWS_S3_BUCKET_NAME not configured")
+	}
+
+	aws := awssession.Must(awssession.NewSession())
 	storer := storage.NewS3(bucket, logger, aws)
 	fileHandlerContext := handlers.NewFileHandlerContext(dbConnection, logger, storer)
 

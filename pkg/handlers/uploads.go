@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"fmt"
 	"io"
-	"os"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -18,11 +17,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUploadModel(upload models.Upload) internalmessages.UploadPayload {
+func payloadForUploadModel(upload models.Upload, url string) internalmessages.UploadPayload {
 	return internalmessages.UploadPayload{
 		ID:       fmtUUID(upload.ID),
 		Filename: swag.String(upload.Filename),
-		URL:      fmtURI("https://domain.text/file.ext"),
+		URL:      fmtURI(url),
 	}
 }
 
@@ -52,12 +51,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		h.logger.Panic("Invalid DocumentID, this should never happen.")
-	}
-
-	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
-	if len(bucket) == 0 {
-		h.logger.Error("AWS_S3_BUCKET_NAME not configured")
-		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	hash := md5.New()
@@ -98,7 +91,12 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 			return uploadop.NewCreateUploadInternalServerError()
 		}
 
-		uploadPayload := payloadForUploadModel(newUpload)
+		url, err := h.storage.PresignedURL(key)
+		if err != nil {
+			h.logger.Error("failed to get presigned url", zap.Error(err))
+			return uploadop.NewCreateUploadInternalServerError()
+		}
+		uploadPayload := payloadForUploadModel(newUpload, url)
 		return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
 	}
 }

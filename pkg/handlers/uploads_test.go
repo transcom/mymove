@@ -45,6 +45,11 @@ func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 	return &storage.StoreResult{}, nil
 }
 
+func (fake *fakeS3Storage) PresignedURL(key string) (string, error) {
+	url := fmt.Sprintf("https://example.test/dir/%s", key)
+	return url, nil
+}
+
 func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	t := suite.T()
 

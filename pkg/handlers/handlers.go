@@ -20,6 +20,7 @@ type HandlerContext struct {
 type fileStorer interface {
 	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
 	Key(...string) string
+	PresignedURL(string) (string, error)
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.

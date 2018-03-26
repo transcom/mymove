@@ -45,8 +45,8 @@ export class Uploader extends Component {
         )}
         {hasSucceeded && (
           <Alert type="success" heading="Submission Successful">
-            Your document was successfully uploaded. View on S3:{' '}
-            {this.props.upload.url}
+            Your document was successfully uploaded.{' '}
+            <a href={this.props.upload.url}>View on S3</a>.
           </Alert>
         )}
       </div>
