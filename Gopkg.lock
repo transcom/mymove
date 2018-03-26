@@ -58,8 +58,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "f0872da8a448f8cb10f4f0c95c2100e4f7356448"
-  version = "v1.13.16"
+  revision = "c8c4e0c0514d87f930c1342fef390db5329928b7"
+  version = "v1.13.20"
 
 [[projects]]
   branch = "master"
@@ -146,13 +146,13 @@
   branch = "master"
   name = "github.com/go-openapi/jsonpointer"
   packages = ["."]
-  revision = "779f45308c19820f1a69e9a4cd965f496e0da10f"
+  revision = "3a0015ad55fa9873f41605d3e8f28cd279c32ab2"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/jsonreference"
   packages = ["."]
-  revision = "36d33bfe519efae5632669801b180bf1a245da3b"
+  revision = "3fb327e6747da3043567ee86abd02bb6376b6be2"
 
 [[projects]]
   branch = "master"
@@ -176,13 +176,13 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "b1db76181cbf53cf97a98980762a2bbf7cca8a0f"
+  revision = "62281b694b396a17fe3e4313ee8b0ca2c3cca719"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "d8000b5bfbd1147255710505a27c735b6b2ae2ac"
+  revision = "a3092263d8b39f66ff6fe87b0109668eca1e24ff"
 
 [[projects]]
   branch = "master"
@@ -224,8 +224,8 @@
 [[projects]]
   name = "github.com/gobuffalo/envy"
   packages = ["."]
-  revision = "c823918c9f8da35fa1ff645fc9b82a3611c86c8e"
-  version = "v1.6.0"
+  revision = "ef60bfc50c8f92d1ee64674d8ce7a48f1f67625e"
+  version = "v1.6.2"
 
 [[projects]]
   name = "github.com/gobuffalo/makr"
@@ -236,14 +236,14 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "3b045e91f1107684685627303665f7e02b1be016"
-  version = "v1.10.6"
+  revision = "3402a167bccf1bdd5c93ca820be9f27bba46261e"
+  version = "v1.10.7"
 
 [[projects]]
   branch = "master"
   name = "github.com/golang/lint"
   packages = ["golint"]
-  revision = "46530068cce6db92aaafde350b5059841861d5be"
+  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -272,7 +272,7 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
+  revision = "f40e974e75af4e271d97ce0fc917af5898ae7bda"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -325,7 +325,7 @@
     ".",
     "oid"
   ]
-  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
+  revision = "a96442e255fce502751c604916b0e14e81be6bf9"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -341,7 +341,7 @@
     "jlexer",
     "jwriter"
   ]
-  revision = "f594efddfa171111dc4349cd6e78e8f61dc7936f"
+  revision = "8b799c424f57fa123fc63a99d6383bc6e4c02578"
 
 [[projects]]
   branch = "master"
@@ -394,7 +394,7 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "fix-76"
+  branch = "struct"
   name = "github.com/mattn/anko"
   packages = [
     "ast",
@@ -425,7 +425,7 @@
     "parser",
     "vm"
   ]
-  revision = "a1b6218ebacde65c2018a069b3b822aff12761a9"
+  revision = "158d91ccdd07c67e99204497290ec9e687b7a0cd"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -494,8 +494,8 @@
     "cmd",
     "store"
   ]
-  revision = "46acc29e53d2e6da404654dff4f5d30fdd4f7e30"
-  version = "v1.17.0"
+  revision = "77c61e07b53557e67a0f1d23cf8aca4064b69133"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -537,10 +537,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5"
+  revision = "b5e8006cbee93ec955a89ab31e0e3ce3204f3736"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -604,7 +604,7 @@
   branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
-  revision = "46530068cce6db92aaafde350b5059841861d5be"
+  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
 
 [[projects]]
   branch = "master"
@@ -614,7 +614,7 @@
     "context/ctxhttp",
     "idna"
   ]
-  revision = "24dd3780ca4f75fed9f321890729414a4b5d3f13"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
@@ -635,7 +635,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "01acb38716e021ed1fc03a602bdb5838e1358c5e"
+  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -671,7 +671,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "96caea41033df6f8c3974c845ab094f8ec3bd345"
+  revision = "77106db15f689a60e7d4e085d967ac557b918fb2"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -703,10 +703,10 @@
   version = "v1.20.0"
 
 [[projects]]
+  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "4fc5987536ef307a24ca299aee7ae301cde3d221"
 
 [solve-meta]
   analyzer-name = "dep"
