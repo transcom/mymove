@@ -24,6 +24,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
   * [Setup: Client](#setup-client)
+  * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
   * [API / Swagger](#api--swagger)
@@ -149,6 +150,19 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
+
+### Setup: S3
+
+If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
+
+```text
+AWS_S3_BUCKET_NAME
+AWS_S3_KEY_NAMESPACE
+AWS_REGION
+AWS_PROFILE
+```
+
+AWS credentials should *not* be added to `.envrc` and should instead be setup using [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup).
 
 ### TSP Award Queue
 
