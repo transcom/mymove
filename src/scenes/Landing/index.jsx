@@ -17,7 +17,7 @@ export class Landing extends Component {
       this.props.push(`moves/${this.props.currentMove.id}`);
   }
   startMove = values => {
-    this.props.createMove({ selected_move_type: 'COMBO' });
+    this.props.createMove({});
   };
   render() {
     return (

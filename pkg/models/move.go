@@ -16,11 +16,11 @@ import (
 
 // Move is an object representing a move
 type Move struct {
-	ID               uuid.UUID                         `json:"id" db:"id"`
-	CreatedAt        time.Time                         `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time                         `json:"updated_at" db:"updated_at"`
-	UserID           uuid.UUID                         `json:"user_id" db:"user_id"`
-	SelectedMoveType internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
+	ID               uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt        time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time                          `json:"updated_at" db:"updated_at"`
+	UserID           uuid.UUID                          `json:"user_id" db:"user_id"`
+	SelectedMoveType *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 }
 
 // String is not required by pop and may be deleted
@@ -43,7 +43,6 @@ func (m Moves) String() string {
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.UserID, Name: "UserID"},
-		&validators.StringIsPresent{Field: string(m.SelectedMoveType), Name: "SelectedMoveType"},
 	), nil
 }
 

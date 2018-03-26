@@ -147,7 +147,9 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		payload := params.PatchMovePayload
 		newSelectedMoveType := payload.SelectedMoveType
 
-		move.SelectedMoveType = newSelectedMoveType
+		if newSelectedMoveType != nil {
+			move.SelectedMoveType = newSelectedMoveType
+		}
 
 		if verrs, err := h.db.ValidateAndUpdate(&move); verrs.HasAny() || err != nil {
 			if verrs.HasAny() {

@@ -23,13 +23,13 @@ export class MoveTypeWizardPage extends Component {
   render() {
     const { pages, pageKey, pendingMoveType, currentMove } = this.props;
     const moveType =
-      pendingMoveType || (currentMove && currentMove.selected_move_type);
+      pendingMoveType || (currentMove && 'selected_move_type' in currentMove);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={moveType !== null}
+        pageIsValid={moveType !== false}
       >
         <MoveType />
       </WizardPage>
@@ -40,7 +40,6 @@ MoveTypeWizardPage.propTypes = {
   updateMove: PropTypes.func.isRequired,
   pendingMoveType: PropTypes.string,
   currentMove: PropTypes.shape({
-    selected_move_type: PropTypes.string,
     id: PropTypes.string,
   }),
 };

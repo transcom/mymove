@@ -15,9 +15,6 @@ export class BigButton extends Component {
     if (this.props.selected) {
       className += ' selected';
     }
-    // const imgs = this.props.icons.map(icon => (
-    //   <img src={icon} alt={this.props.altTag} key={icon} />
-    // ));
     return (
       <div className={className} onClick={this.props.onButtonClick}>
         <p className="restrict-left">{this.props.description}</p>
@@ -154,8 +151,9 @@ export class MoveType extends Component {
     this.props.setPendingMoveType(value);
   };
   render() {
-    const { pendingMoveType } = this.props;
-    const selectedOption = pendingMoveType;
+    const { pendingMoveType, currentMove } = this.props;
+    const selectedOption =
+      pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full">
         <h2> Select a Move Type</h2>
@@ -172,7 +170,7 @@ MoveType.propTypes = {
   pendingMoveType: PropTypes.string,
   currentMove: PropTypes.shape({
     id: PropTypes.string,
-    size: PropTypes.string,
+    selected_move_type: PropTypes.string,
   }),
   setPendingMoveType: PropTypes.func.isRequired,
 };

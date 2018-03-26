@@ -421,7 +421,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -430,7 +430,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -439,7 +439,7 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -452,7 +452,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -511,6 +511,7 @@ definitions:
       - HHG
       - PPM
       - COMBO
+    x-nullable: true
     x-display-value:
       HHG: Household Goods Move
       PPM: Personal Procured Move
