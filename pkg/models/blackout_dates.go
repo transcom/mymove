@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/markbates/pop"
@@ -32,7 +31,6 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 
 	var err error
 	if shipment.Market != nil {
-		fmt.Println("shipment.Market was not nil!", *shipment.Market)
 		sql := `SELECT
 			*
 		FROM
@@ -46,7 +44,6 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 		err = tx.RawQuery(sql, tspID, shipment.PickupDate, *shipment.Market).All(&blackoutDates)
 
 	} else {
-		fmt.Println("shipment.Market WAS nil!")
 		sql := `SELECT
 			*
 		FROM
@@ -58,7 +55,7 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 
 		err = tx.RawQuery(sql, tspID, shipment.PickupDate).All(&blackoutDates)
 	}
-	fmt.Println(blackoutDates)
+
 	return blackoutDates, err
 }
 

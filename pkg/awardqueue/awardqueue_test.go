@@ -57,13 +57,16 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-
+	pop.Debug = true
 	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
+	// Sets a blackout period that starts 12 months from today and ends 13 months from today
 	blackoutStartDate := time.Now().AddDate(1, 0, 0)
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
+
 	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
+
 	pickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	deliverDate := blackoutStartDate.AddDate(0, 0, 5)
 
@@ -86,8 +89,12 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 		t.Errorf("Couldn't find shipment offer: %v", blackoutShipment.ID)
 	}
 
-	if shipmentOffer.AdministrativeShipment != false || blackoutShipmentOffer.AdministrativeShipment != true {
+	if shipmentOffer.AdministrativeShipment != false {
 		t.Errorf("Shipment Awards erroneously assigned administrative status.")
+	}
+
+	if blackoutShipmentOffer.AdministrativeShipment != true {
+		t.Errorf("Shipment Awards erroneously not assigned administrative status.")
 	}
 
 	suite.verifyOfferCount(tsp, 2)

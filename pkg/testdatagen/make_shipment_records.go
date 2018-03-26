@@ -14,7 +14,6 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList) (models.Shipment, error) {
 
-	market := "dHHG"
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		PickupDate:                pickup,
@@ -22,7 +21,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		DeliveryDate:              delivery,
 		BookDate:                  DateInsidePerformancePeriod,
 		SourceGBLOC:               "AGFM",
-		Market:                    &market,
+		Market:                    nil,
 	}
 
 	_, err := db.ValidateAndSave(&shipment)
