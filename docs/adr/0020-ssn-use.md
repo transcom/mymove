@@ -1,4 +1,4 @@
-# _Temporary use and plan for expunging Social Security Numbers in the prototype_
+# Temporary use and plan for expunging Social Security Numbers in the prototype
 
 **User Stories:**
 
