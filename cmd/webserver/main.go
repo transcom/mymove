@@ -10,18 +10,13 @@ import (
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-openapi/loads"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
 	"goji.io"
 	"goji.io/pat"
 
 	"github.com/transcom/mymove/pkg/auth"
-	"github.com/transcom/mymove/pkg/gen/internalapi"
-	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
-	"github.com/transcom/mymove/pkg/gen/restapi"
-	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -93,56 +88,6 @@ func main() {
 		log.Panic(err)
 	}
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
-
-	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
-	if len(bucket) == 0 {
-		log.Fatalln("AWS_S3_BUCKET_NAME not configured")
-	}
-
-	aws := awssession.Must(awssession.NewSession())
-	storer := storage.NewS3(bucket, logger, aws)
-	fileHandlerContext := handlers.NewFileHandlerContext(dbConnection, logger, storer)
-
-	// Wire up the handlers to the publicAPIMux
-	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
-	if err != nil {
-		log.Fatalln(err)
-	}
-
-	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = handlers.TSPIndexHandler(handlerContext)
-	publicAPI.TspShipmentsHandler = handlers.TSPShipmentsHandler(handlerContext)
-
-	// Wire up the handlers to the internalSwaggerMux
-	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
-	if err != nil {
-		log.Fatalln(err)
-	}
-	internalAPI := internalops.NewMymoveAPI(internalSpec)
-
-	internalAPI.IssuesCreateIssueHandler = handlers.CreateIssueHandler(handlerContext)
-	internalAPI.IssuesIndexIssuesHandler = handlers.IndexIssuesHandler(handlerContext)
-
-	internalAPI.Form1299sCreateForm1299Handler = handlers.CreateForm1299Handler(handlerContext)
-	internalAPI.Form1299sIndexForm1299sHandler = handlers.IndexForm1299sHandler(handlerContext)
-	internalAPI.Form1299sShowForm1299Handler = handlers.ShowForm1299Handler(handlerContext)
-
-	internalAPI.CertificationCreateSignedCertificationHandler = handlers.CreateSignedCertificationHandler(handlerContext)
-
-	internalAPI.PpmCreatePersonallyProcuredMoveHandler = handlers.CreatePersonallyProcuredMoveHandler(handlerContext)
-	internalAPI.PpmIndexPersonallyProcuredMovesHandler = handlers.IndexPersonallyProcuredMovesHandler(handlerContext)
-	internalAPI.PpmPatchPersonallyProcuredMoveHandler = handlers.PatchPersonallyProcuredMoveHandler(handlerContext)
-
-	internalAPI.ShipmentsIndexShipmentsHandler = handlers.IndexShipmentsHandler(handlerContext)
-
-	internalAPI.MovesCreateMoveHandler = handlers.CreateMoveHandler(handlerContext)
-	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
-	internalAPI.MovesPatchMoveHandler = handlers.PatchMoveHandler(handlerContext)
-
-	internalAPI.UploadsCreateUploadHandler = handlers.CreateUploadHandler(fileHandlerContext)
-	internalAPI.DocumentsCreateDocumentHandler = handlers.CreateDocumentHandler(handlerContext)
-
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
@@ -158,22 +103,35 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
+	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
+	if len(bucket) == 0 {
+		log.Fatalln("AWS_S3_BUCKET_NAME not configured")
+	}
+
+	aws := awssession.Must(awssession.NewSession())
+	storer := storage.NewS3(bucket, logger, aws)
+
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger, storer)
+
 	// Base routes
 	root := goji.NewMux()
 	root.Use(tokenMiddleware)
+
+	// Stub health check
+	root.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-	apiMux.Handle(pat.New("/*"), publicAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	apiMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
 	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), internalAPI.Serve(nil)) // Serve(nil) returns an http.Handler for the swagger api
+	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()

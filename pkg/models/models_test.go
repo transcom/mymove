@@ -4,8 +4,8 @@ import (
 	"log"
 	"testing"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
 )
 

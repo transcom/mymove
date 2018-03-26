@@ -60,8 +60,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "f0872da8a448f8cb10f4f0c95c2100e4f7356448"
-  version = "v1.13.16"
+  revision = "c8c4e0c0514d87f930c1342fef390db5329928b7"
+  version = "v1.13.20"
 
 [[projects]]
   branch = "master"
@@ -89,12 +89,6 @@
   packages = ["spew"]
   revision = "346938d642f2ec3594ed81d874461961cd0faa76"
   version = "v1.1.0"
-
-[[projects]]
-  name = "github.com/daviddengcn/go-colortext"
-  packages = ["."]
-  revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
-  version = "1.0.0"
 
 [[projects]]
   name = "github.com/dgrijalva/jwt-go"
@@ -148,13 +142,13 @@
   branch = "master"
   name = "github.com/go-openapi/jsonpointer"
   packages = ["."]
-  revision = "779f45308c19820f1a69e9a4cd965f496e0da10f"
+  revision = "3a0015ad55fa9873f41605d3e8f28cd279c32ab2"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/jsonreference"
   packages = ["."]
-  revision = "36d33bfe519efae5632669801b180bf1a245da3b"
+  revision = "3fb327e6747da3043567ee86abd02bb6376b6be2"
 
 [[projects]]
   branch = "master"
@@ -184,7 +178,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "d8000b5bfbd1147255710505a27c735b6b2ae2ac"
+  revision = "a3092263d8b39f66ff6fe87b0109668eca1e24ff"
 
 [[projects]]
   branch = "master"
@@ -226,8 +220,8 @@
 [[projects]]
   name = "github.com/gobuffalo/envy"
   packages = ["."]
-  revision = "c823918c9f8da35fa1ff645fc9b82a3611c86c8e"
-  version = "v1.6.0"
+  revision = "1da02dbc651746580b648821369e93d6da80b5e0"
+  version = "v1.6.1"
 
 [[projects]]
   name = "github.com/gobuffalo/makr"
@@ -242,10 +236,41 @@
   version = "v1.10.6"
 
 [[projects]]
+  name = "github.com/gobuffalo/pop"
+  packages = [
+    ".",
+    "associations",
+    "columns",
+    "fizz",
+    "fizz/translators",
+    "soda",
+    "soda/cmd",
+    "soda/cmd/generate",
+    "soda/cmd/schema"
+  ]
+  revision = "d11f9179130af452f496f91138d120566ae40bed"
+  version = "v4.3.0"
+
+[[projects]]
+  name = "github.com/gobuffalo/uuid"
+  packages = ["."]
+  revision = "3a9fb6c5c481d4886f1e9323c61ad743fb955860"
+  version = "v2.0.0"
+
+[[projects]]
+  name = "github.com/gobuffalo/validate"
+  packages = [
+    ".",
+    "validators"
+  ]
+  revision = "42d8db6e06e617cdedcc7a849d6690a2cb5a8d28"
+  version = "v2.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/golang/lint"
   packages = ["golint"]
-  revision = "46530068cce6db92aaafde350b5059841861d5be"
+  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -274,7 +299,7 @@
     "json/scanner",
     "json/token"
   ]
-  revision = "23c074d0eceb2b8a5bfdbb271ab780cde70f05a8"
+  revision = "f40e974e75af4e271d97ce0fc917af5898ae7bda"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -327,7 +352,7 @@
     ".",
     "oid"
   ]
-  revision = "88edab0803230a3898347e77b474f8c1820a1f20"
+  revision = "b2004221932bd6b13167ef654c81cffac36f7537"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -343,7 +368,7 @@
     "jlexer",
     "jwriter"
   ]
-  revision = "f594efddfa171111dc4349cd6e78e8f61dc7936f"
+  revision = "8b799c424f57fa123fc63a99d6383bc6e4c02578"
 
 [[projects]]
   branch = "master"
@@ -371,63 +396,15 @@
   revision = "b5c853d089b86134926274bc7a98496fee5e1d6b"
 
 [[projects]]
-  name = "github.com/markbates/pop"
-  packages = [
-    ".",
-    "associations",
-    "columns",
-    "fizz",
-    "fizz/translators",
-    "soda",
-    "soda/cmd",
-    "soda/cmd/generate",
-    "soda/cmd/schema"
-  ]
-  revision = "f230643ae0f8fa01e9444c2fb857ba1f1a78eb1f"
-  version = "v4.0.0"
-
-[[projects]]
-  name = "github.com/markbates/validate"
-  packages = [
-    ".",
-    "validators"
-  ]
-  revision = "cd8cc34c703420d6b084fbbfd5085e8e71c5b830"
-  version = "v1.0.0"
-
-[[projects]]
-  branch = "fix-76"
   name = "github.com/mattn/anko"
   packages = [
     "ast",
-    "builtins",
-    "builtins/encoding/json",
-    "builtins/errors",
-    "builtins/flag",
-    "builtins/fmt",
-    "builtins/github.com/daviddengcn/go-colortext",
-    "builtins/io",
-    "builtins/io/ioutil",
-    "builtins/math",
-    "builtins/math/big",
-    "builtins/math/rand",
-    "builtins/net",
-    "builtins/net/http",
-    "builtins/net/url",
-    "builtins/os",
-    "builtins/os/exec",
-    "builtins/os/signal",
-    "builtins/path",
-    "builtins/path/filepath",
-    "builtins/regexp",
-    "builtins/runtime",
-    "builtins/sort",
-    "builtins/strings",
-    "builtins/time",
+    "core",
     "parser",
     "vm"
   ]
-  revision = "a1b6218ebacde65c2018a069b3b822aff12761a9"
+  revision = "f4b54922efdd844c58a93f8faca1fe0c62ca44c3"
+  version = "v0.0.2"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -484,10 +461,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/satori/go.uuid"
   packages = ["."]
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
 
 [[projects]]
   name = "github.com/segmentio/chamber"
@@ -496,8 +473,8 @@
     "cmd",
     "store"
   ]
-  revision = "46acc29e53d2e6da404654dff4f5d30fdd4f7e30"
-  version = "v1.17.0"
+  revision = "77c61e07b53557e67a0f1d23cf8aca4064b69133"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -539,10 +516,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "aafc9e6bc7b7bb53ddaa75a5ef49a17d6e654be5"
+  revision = "b5e8006cbee93ec955a89ab31e0e3ce3204f3736"
+  version = "v1.0.2"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -606,7 +583,7 @@
   branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
-  revision = "46530068cce6db92aaafde350b5059841861d5be"
+  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
 
 [[projects]]
   branch = "master"
@@ -616,7 +593,7 @@
     "context/ctxhttp",
     "idna"
   ]
-  revision = "24dd3780ca4f75fed9f321890729414a4b5d3f13"
+  revision = "6078986fec03a1dcc236c34816c71b0e05018fda"
 
 [[projects]]
   branch = "master"
@@ -637,7 +614,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "01acb38716e021ed1fc03a602bdb5838e1358c5e"
+  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -673,7 +650,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "96caea41033df6f8c3974c845ab094f8ec3bd345"
+  revision = "4c0f0e48a635ba08a80fbebdb19258a0f675a910"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -705,14 +682,14 @@
   version = "v1.20.0"
 
 [[projects]]
+  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "4fc5987536ef307a24ca299aee7ae301cde3d221"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ac57e8385b633c585a971bb4a604ef67ff0fb5d16d6ba912dfbbb50d2ca3e3a8"
+  inputs-digest = "8b9eeeb9bfb4905edd5320f56de65b296d5954e6d5a98c1b2766c7ce04a10b52"
   solver-name = "gps-cdcl"
   solver-version = 1

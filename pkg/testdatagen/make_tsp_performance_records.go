@@ -5,7 +5,7 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 )
 

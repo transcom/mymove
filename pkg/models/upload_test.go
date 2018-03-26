@@ -43,12 +43,12 @@ func (suite *ModelSuite) Test_UploadValidations() {
 	upload := &models.Upload{}
 
 	var expErrors = map[string][]string{
-		"document_id":  []string{"DocumentID can not be blank."},
-		"uploader_id":  []string{"UploaderID can not be blank."},
-		"checksum":     []string{"Checksum can not be blank."},
-		"bytes":        []string{"Bytes can not be blank."},
-		"filename":     []string{"Filename can not be blank."},
-		"content_type": []string{"ContentType can not be blank."},
+		"document_id":  {"DocumentID can not be blank."},
+		"uploader_id":  {"UploaderID can not be blank."},
+		"checksum":     {"Checksum can not be blank."},
+		"bytes":        {"Bytes can not be blank."},
+		"filename":     {"Filename can not be blank."},
+		"content_type": {"ContentType can not be blank."},
 	}
 
 	suite.verifyValidationErrors(upload, expErrors)

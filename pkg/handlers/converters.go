@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 )
 
 // These functions facilitate converting from the go types the db uses

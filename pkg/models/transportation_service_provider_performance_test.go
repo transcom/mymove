@@ -2,7 +2,7 @@ package models_test
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,7 +14,7 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance := &TransportationServiceProviderPerformance{BestValueScore: 101}
 
 	var expErrors = map[string][]string{
-		"best_value_score": []string{"101 is not less than 101."},
+		"best_value_score": {"101 is not less than 101."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)
@@ -22,7 +22,7 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance = &TransportationServiceProviderPerformance{BestValueScore: -1}
 
 	expErrors = map[string][]string{
-		"best_value_score": []string{"-1 is not greater than -1."},
+		"best_value_score": {"-1 is not greater than -1."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)

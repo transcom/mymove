@@ -205,6 +205,8 @@ EnsureLoggedInContainer
 jwt
 direnv
 golang
+license.md
+TrussWorks
 react-rangeslider
 rc-slider
 rea11y-sliders

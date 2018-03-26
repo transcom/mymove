@@ -8,7 +8,7 @@ import (
 	"testing"
 
 	"github.com/go-openapi/runtime"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 )
