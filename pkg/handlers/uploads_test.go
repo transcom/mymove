@@ -5,28 +5,44 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path"
 
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-openapi/strfmt"
 
 	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-type FakeS3 struct {
-	putFiles []*s3.PutObjectInput
+type putFile struct {
+	key      string
+	body     io.ReadSeeker
+	checksum string
 }
 
-func (fake *FakeS3) PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error) {
-	fake.putFiles = append(fake.putFiles, input)
-	buf := []byte{}
-	_, err := input.Body.Read(buf)
-	if err != nil {
-		panic(err)
+type fakeS3Storage struct {
+	putFiles []putFile
+}
+
+func (fake *fakeS3Storage) Key(args ...string) string {
+	return path.Join(args...)
+}
+
+func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
+	file := putFile{
+		key:      key,
+		body:     data,
+		checksum: md5,
 	}
-	return nil, nil
+	fake.putFiles = append(fake.putFiles, file)
+	buf := []byte{}
+	_, err := data.Read(buf)
+	if err != nil {
+		return nil, err
+	}
+	return &storage.StoreResult{}, nil
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandler() {
@@ -41,7 +57,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	if err != nil {
 		t.Fatalf("could not create document: %s", err)
 	}
-	fakeS3 := &FakeS3{}
+	fakeS3 := &fakeS3Storage{}
 
 	userID := move.UserID
 
@@ -53,8 +69,8 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	context := NewHandlerContext(suite.db, suite.logger)
-	handler := CreateUploadHandler(NewS3HandlerContext(context, fakeS3))
+	context := NewFileHandlerContext(suite.db, suite.logger, fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
@@ -78,12 +94,12 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
 	}
 
-	key := fmt.Sprintf("dev/moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
-	if *fakeS3.putFiles[0].Key != key {
-		t.Errorf("Wrong key name: expected %s, got %s", key, *fakeS3.putFiles[0].Key)
+	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
+	if fakeS3.putFiles[0].key != key {
+		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.putFiles[0].key)
 	}
 
-	pos, err := (*fakeS3.putFiles[0]).Body.Seek(0, io.SeekCurrent)
+	pos, err := fakeS3.putFiles[0].body.Seek(0, io.SeekCurrent)
 	if err != nil {
 		t.Fatalf("Could't check position in uploaded file: %s", err)
 	}

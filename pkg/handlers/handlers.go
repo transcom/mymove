@@ -1,9 +1,12 @@
 package handlers
 
 import (
-	"github.com/aws/aws-sdk-go/service/s3"
+	"io"
+
 	"github.com/markbates/pop"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // HandlerContext contains dependencies that are shared between all handlers.
@@ -14,6 +17,11 @@ type HandlerContext struct {
 	logger *zap.Logger
 }
 
+type fileStorer interface {
+	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
+	Key(...string) string
+}
+
 // NewHandlerContext returns a new HandlerContext with its private fields set.
 func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return HandlerContext{
@@ -22,18 +30,15 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	}
 }
 
-type S3Puter interface {
-	PutObject(input *s3.PutObjectInput) (*s3.PutObjectOutput, error)
+type FileHandlerContext struct {
+	*HandlerContext
+	storage fileStorer
 }
 
-type S3HandlerContext struct {
-	HandlerContext
-	s3 S3Puter
-}
-
-func NewS3HandlerContext(handlerContext HandlerContext, s3Client S3Puter) S3HandlerContext {
-	return S3HandlerContext{
-		HandlerContext: handlerContext,
-		s3:             s3Client,
+func NewFileHandlerContext(db *pop.Connection, logger *zap.Logger, storer fileStorer) FileHandlerContext {
+	hc := NewHandlerContext(db, logger)
+	return FileHandlerContext{
+		HandlerContext: &hc,
+		storage:        storer,
 	}
 }

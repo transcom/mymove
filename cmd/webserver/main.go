@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"path"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-openapi/loads"
 	"github.com/markbates/pop"
@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 var logger *zap.Logger
@@ -94,6 +95,11 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
+	aws := awssession.Must(awssession.NewSession())
+	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
+	storer := storage.NewS3(bucket, logger, aws)
+	fileHandlerContext := handlers.NewFileHandlerContext(dbConnection, logger, storer)
+
 	// Wire up the handlers to the publicAPIMux
 	apiSpec, err := loads.Analyzed(restapi.SwaggerJSON, "")
 	if err != nil {
@@ -130,10 +136,7 @@ func main() {
 	internalAPI.MovesIndexMovesHandler = handlers.IndexMovesHandler(handlerContext)
 	internalAPI.MovesPatchMoveHandler = handlers.PatchMoveHandler(handlerContext)
 
-	aws := awssession.Must(awssession.NewSession())
-	s3Client := s3.New(aws)
-	s3HandlerContext := handlers.NewS3HandlerContext(handlerContext, s3Client)
-	internalAPI.UploadsCreateUploadHandler = handlers.CreateUploadHandler(s3HandlerContext)
+	internalAPI.UploadsCreateUploadHandler = handlers.CreateUploadHandler(fileHandlerContext)
 	internalAPI.DocumentsCreateDocumentHandler = handlers.CreateDocumentHandler(handlerContext)
 
 	// Serves files out of build folder

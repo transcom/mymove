@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"path"
 
-	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/satori/go.uuid"
@@ -29,7 +27,7 @@ func payloadForUploadModel(upload models.Upload) internalmessages.UploadPayload 
 }
 
 // CreateUploadHandler creates a new upload via POST /issue
-type CreateUploadHandler S3HandlerContext
+type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
@@ -71,13 +69,15 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
 	}
 
+	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+
 	newUpload := models.Upload{
 		DocumentID:  documentID,
 		UploaderID:  userID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: "application/pdf",
-		Checksum:    base64.StdEncoding.EncodeToString(hash.Sum(nil)),
+		Checksum:    checksum,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newUpload)
@@ -90,21 +90,13 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	} else {
 		fmt.Printf("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
 
-		namespace := os.Getenv("AWS_S3_KEY_NAMESPACE")
-		key := path.Join(namespace, "moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
+		key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
 
-		input := &s3.PutObjectInput{
-			Bucket: &bucket,
-			Key:    &key,
-			Body:   file.Data,
-		}
-		_, err = h.s3.PutObject(input)
+		_, err := h.storage.Store(key, file.Data, checksum)
 		if err != nil {
-			h.logger.Error("PutObject failed")
+			h.logger.Error("failed to store", zap.Error(err))
 			return uploadop.NewCreateUploadInternalServerError()
 		}
-
-		// TODO verify checksum
 
 		uploadPayload := payloadForUploadModel(newUpload)
 		return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
