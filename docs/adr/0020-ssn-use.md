@@ -9,7 +9,7 @@
 ## Considered Alternatives
 
 * Generating a unique move ID
-* Relying on DODID
+* Relying on EDIPI
 * Using SSNs temporarily
 * Using SSNs permanently
 
@@ -17,9 +17,9 @@
 
 Chosen Alternative: _Using SSNs temporarily_
 
-* Will use DODIDs wherever possible
+* Will use EDIPIs wherever possible
 * Will use SSNs where not possible so Finance can still have access to the information they need to do their work
-* Once DODIDs are present in Orders across all branches, we would like to switch to this method and delete all SSNs from our infrastructure.
+* Once EDIPIs are present in Orders across all branches, we would like to switch to this method and delete all SSNs from our infrastructure.
 * SSN is not to be used as a key field for any data object so it can be masked and ultimately purged without breaking anything
 
 ## Pros and Cons of the Alternatives
@@ -30,22 +30,22 @@ Chosen Alternative: _Using SSNs temporarily_
 * `+` _Easily referenced by all stakeholders (pro)_ : just like airline codes!
 * `-` _Creates a number which needs to be referenced by additional government databases (con)_ : we would need to link to government databases (specifically, to Orders and Accounting), and integration is hard + time consuming.
 
-### _Relying on DODID_
+### _Relying on EDIPI_
 
-Linking DODID and SSN to each other through a different gov database
+Linking EDIPI and SSN to each other through a different gov database
 
 * `+` _Diminishes attack surface for identity theft (pro)_ : not using SSNs prevents movers from seeing the number, as well as lessening the impact if the database ever experiences a breach.
-* `+` _DODIDs are already present in most DOD databases (pro)_ : easy to reference and cross-reference, including with finance, so long as the service member has a DODID.
-* `-` _DODIDs are not printed on every branch's orders (con)_ : we cannot consistently use them across the branches of service as of yet, as they do not appear on all orders.
+* `+` _EDIPIs are already present in most DOD databases (pro)_ : easy to reference and cross-reference, including with finance, so long as the service member has a DODID.
+* `-` _EDIPIs are not printed on every branch's orders (con)_ : we cannot consistently use them across the branches of service as of yet, as they do not appear on all orders.
 
 ### _Using SSNs temporarily_
 
-Use DODIDs where possible and as rolled out, but use SSNs where they don't appear.
+Use EDIPIs where possible and as rolled out, but use SSNs where they don't appear.
 
 * `+` _Diminishes attack surface for identity theft (pro)_ : not using SSNs when possible prevents all movers from seeing the number, as well as lessening the impact if the database ever experiences a breach.
 * `+` _Still allows some attack surface for identity theft (con)_ : some service members will still be at risk
-* `+` _DODIDs are already present in most DOD databases (pro)_ : easy to reference and cross-reference, including with finance, so long as the service member has a DODID.
-* `+` _Finance can access accounts of members who do not have a DODID associated with their orders (pro)_ : and not everyone has a DODID on their Orders.
+* `+` _EDIPIs are already present in most DOD databases (pro)_ : easy to reference and cross-reference, including with finance, so long as the service member has a DODID.
+* `+` _Finance can access accounts of members who do not have a EDIPI associated with their orders (pro)_ : and not everyone has a DODID on their Orders.
 
 ### _Using SSNs permanently_
 
