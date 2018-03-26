@@ -8,7 +8,6 @@ import (
 	"path"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
