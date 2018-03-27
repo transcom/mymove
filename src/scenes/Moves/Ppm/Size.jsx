@@ -2,35 +2,15 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import classnames from 'classnames';
 import { setPendingPpmSize } from './ducks';
 
+import BigButton from 'shared/BigButton';
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import './Size.css';
 
-export class BigButton extends Component {
-  render() {
-    const { selected, children } = this.props;
-    return (
-      <button
-        className={classnames('ppm-size-button', { selected })}
-        onClick={this.props.onButtonClick}
-      >
-        {children}
-      </button>
-    );
-  }
-}
-
-BigButton.propTypes = {
-  children: PropTypes.node,
-  selected: PropTypes.bool,
-  onButtonClick: PropTypes.func,
-};
-
-export class BigButtonGroup extends Component {
+class BigButtonGroup extends Component {
   render() {
     var createButton = (value, firstLine, secondLine, icon, altTag) => {
       var onButtonClick = () => {
@@ -40,7 +20,7 @@ export class BigButtonGroup extends Component {
         <BigButton
           value={value}
           selected={this.props.selectedOption === value}
-          onButtonClick={onButtonClick}
+          onClick={onButtonClick}
         >
           <p>{firstLine}</p>
           <p>{secondLine}</p>
@@ -81,7 +61,7 @@ export class BigButtonGroup extends Component {
 }
 BigButtonGroup.propTypes = {
   selectedOption: PropTypes.string,
-  onClick: PropTypes.func,
+  onClick: PropTypes.func.isRequired,
 };
 
 export class PpmSize extends Component {
@@ -100,7 +80,7 @@ export class PpmSize extends Component {
         <h3>How much of your stuff do you intend to move yourself?</h3>
         <BigButtonGroup
           selectedOption={selectedOption}
-          onMoveTypeSelected={this.onMoveTypeSelected}
+          onClick={this.onMoveTypeSelected}
         />
       </div>
     );
