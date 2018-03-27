@@ -4,68 +4,50 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { setPendingMoveType } from './ducks';
+import BigButton from 'shared/BigButton';
 import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
-export class BigButton extends Component {
-  render() {
-    let className = 'move-type-button';
-    if (this.props.selected) {
-      className += ' selected';
-    }
-    return (
-      <div className={className} onClick={this.props.onButtonClick}>
-        <p className="restrict-left">{this.props.description}</p>
-        <img src={this.props.icon} alt={this.props.altTag} />
-        <p className="font-2">{this.props.title}</p>
-        {Object.keys(this.props.pros || {}).map(function(key) {
-          var pros = this.props.pros[key];
-          return (
-            <div key={key.toString()}>
-              <p>{key}</p>
-              <ul className="font-3">
-                {pros.map(item => <li key={item}>{item}</li>)}
-              </ul>
-            </div>
-          );
-        }, this)}
-        <p className="move-type-button-more-info">
-          <a href="about:blank">more information</a>
-        </p>
-      </div>
-    );
-  }
-}
-
-BigButton.propTypes = {
-  description: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
-  altTag: PropTypes.string.isRequired,
-  pros: PropTypes.object.isRequired,
-  selected: PropTypes.bool,
-  onButtonClick: PropTypes.func,
-};
-
 export class BigButtonGroup extends Component {
   render() {
-    var createButton = (value, description, title, icon, pros, altTag) => {
-      var onButtonClick = () => {
+    const createButton = (
+      value,
+      description,
+      title,
+      icon,
+      prosList,
+      altTag,
+    ) => {
+      const onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
       return (
         <BigButton
           value={value}
-          description={description}
-          title={title}
-          icon={icon}
-          pros={pros}
-          altTag={altTag}
           selected={this.props.selectedOption === value}
-          onButtonClick={onButtonClick}
-        />
+          onClick={onButtonClick}
+          className="move-type-button"
+        >
+          <p className="restrict-left">{description}</p>
+          <img src={icon} alt={altTag} />
+          <p className="font-2">{title}</p>
+          {Object.keys(prosList || {}).map(function(key) {
+            const pros = prosList[key];
+            return (
+              <div key={key.toString()}>
+                <p>{key}</p>
+                <ul className="font-3">
+                  {pros.map(item => <li key={item}>{item}</li>)}
+                </ul>
+              </div>
+            );
+          }, this)}
+          <p className="move-type-button-more-info">
+            <a href="about:blank">more information</a>
+          </p>
+        </BigButton>
       );
     };
     var combo = createButton(
