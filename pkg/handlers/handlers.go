@@ -69,7 +69,7 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 }
 
 // NewInternalAPIHandler returns a handler for the public API
-func NewInternalAPIHandler(context HandlerContext) http.Handler {
+func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContext) http.Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -95,5 +95,9 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
 	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
+
+	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
+	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)
+
 	return internalAPI.Serve(nil)
 }

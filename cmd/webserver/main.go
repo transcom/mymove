@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"path"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
@@ -53,6 +52,8 @@ func main() {
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
+
+	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 
 	flag.Parse()
 
@@ -103,15 +104,14 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
-	bucket := os.Getenv("AWS_S3_BUCKET_NAME")
-	if len(bucket) == 0 {
-		log.Fatalln("AWS_S3_BUCKET_NAME not configured")
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+
+	if len(*s3Bucket) == 0 {
+		log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
 	}
-
 	aws := awssession.Must(awssession.NewSession())
-	storer := storage.NewS3(bucket, logger, aws)
-
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger, storer)
+	storer := storage.NewS3(*s3Bucket, logger, aws)
+	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
 
 	// Base routes
 	root := goji.NewMux()
@@ -131,7 +131,7 @@ func main() {
 	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
+	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()
