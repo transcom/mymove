@@ -57,7 +57,6 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-	pop.Debug = true
 	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
