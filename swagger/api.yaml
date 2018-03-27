@@ -14,6 +14,187 @@ consumes:
 produces:
   - application/json
 paths:
+  /blackouts:
+    get:
+      summary: retrieve a list of blacked out dates (for accessible TSPs)
+      description: gets a list of blackout periods which the current user can see
+      operationId: indexBlackouts
+      parameters:
+        - in: query
+          name: start_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods for which the endDate is after this date
+        - in: query
+          name: end_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods which startDate is before this date
+        - in: query
+          name: gbloc
+          type: string
+          description: restricts the search to return blackout periods which originate from this GBLOC
+          pattern: '^[A-Z]{4}$'
+        - in: query
+          name: source_service_area
+          type: string
+          description: restricts the search to blackout periods with an explicit source rate area (zip3)
+      responses:
+        200:
+          description: list of associated blackouts
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of Blackouts
+  /shipments:
+    get:
+      summary: Gets visible shipments
+      description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
+      operationId: indexShipments
+      parameters:
+        - name: status
+          in: query
+          type: string
+          description: Restrict the list to shipments with matching ShipmentStatus
+        - name: order_by
+          in: query
+          type: string
+          description: Sort the returned list according to this ordering
+          enum:
+            - PICKUP_DATE_ASC
+            - PICKUP_DATE_DESC
+            - DELIVERY_DATE_ASC
+            - DELIVERY_DATE_DESC
+        - name: limit
+          in: query
+          type: integer
+          description: maximum number of records to return
+          default: 25
+        - name: offset
+          in: query
+          type: integer
+          description: offset into records to begin selection from.
+          default: 0
+      responses:
+        200:
+          description: returns an array of Shipments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+  /shipments/{shipment_UUID}:
+    get:
+      summary: Gets a particular shipment
+      description: Allows a user to retrieve the details of a particular shipment
+      operationId: getShipment
+      parameters:
+        - name: shipment_UUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns the details of the shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: shipment UUID not found in system
+  /shipments/{shipment_UUID}/accept:
+    post:
+      summary: Accepts an awarded shipment
+      description: Accepts a shipment awarded to a TSP
+      operationId: acceptShipment
+      parameters:
+        - name: shipment_UUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the tsp
+        - name: payload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/AcceptShipmentPayload'
+      responses:
+        200:
+          description: returns updated (accepted) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+  /shipments/{shipment_UUID}/contact_details:
+    get:
+      summary: Gets the detailed contact information for a move
+      description: Accepts a shipment awarded to a TSP
+      operationId: shipmentContactDetails
+      parameters:
+        - name: shipment_UUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment for which contact details are requested
+      responses:
+        200:
+          description: returns contact details for the shipment
+          schema:
+            $ref: '#/definitions/ShipmentContactDetails'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+  /shipments/{shipment_UUID}/refuse:
+    post:
+      summary: Rejects an awarded shipment
+      description: Allows a TSP to reject an awarded shipment
+      operationId: refuseShipment
+      parameters:
+        - name: shipment_UUID
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the tsp
+        - in: body
+          name: payload
+          description: reason for refusing award
+          required: true
+          schema:
+            $ref: '#/definitions/RefuseShipmentPayload'
+      responses:
+        200:
+          description: returns updated (refused) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
   /tsp:
     get:
       summary: List all TSPs
@@ -31,7 +212,7 @@ paths:
           description: invalid request
         403:
           description: not authorized to get list of TSPs
-  /tsp/{tspUUID}/shipments:
+  /tsp/{tsp_UUID}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
@@ -39,7 +220,7 @@ paths:
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
-          name: tspUUID
+          name: tsp_UUID
           type: string
           format: uuid
           required: true
@@ -49,7 +230,7 @@ paths:
           type: string
           required: false
           description: Status of shipments to load, e.g. AWARDED
-        - name: orderBy
+        - name: order_by
           in: query
           type: string
           description: Sort the returned list according to this ordering
@@ -81,424 +262,52 @@ paths:
           description: not authorized to get list of shipments for this TSP
         404:
           description: TSP UUID not found in system
-  /shipments:
+  /tsp/{tsp_UUID}/blackouts:
     get:
-      summary: Gets visible shipments
-      description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
-      operationId: indexShipments
+      summary: Retrieve a list of the blackouts associated with a TSP
+      description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
+      operationId: tspBlackouts
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
-        - name: status
-          in: query
+        - in: path
+          name: tsp_UUID
           type: string
-          description: Restrict the list to shipments with matching ShipmentStatus
-        - name: orderBy
-          in: query
+          format: uuid
+          required: true
+          description: UUID of the TSP
+        - in: query
+          name: start_date
           type: string
-          description: Sort the returned list according to this ordering
-          enum:
-            - PICKUP_DATE_ASC
-            - PICKUP_DATE_DESC
-            - DELIVERY_DATE_ASC
-            - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to begin selection from.
-          default: 0
+          format: date
+          description: restricts the search to blackout periods for which the endDate is after this date
+        - in: query
+          name: end_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods which startDate is before this date
+        - in: query
+          name: gbloc
+          description: restricts the search to return blackout periods which originate from this GBLOC
+          type: string
+          pattern: '^[A-Z]{4}$'
+        - in: query
+          name: source_service_area
+          type: string
+          description: restricts the search to blackout periods with and explicit source service area
       responses:
         200:
-          description: returns an array of Shipments
+          description: list of associated blackouts
           schema:
             type: array
             items:
-              $ref: '#/definitions/Shipment'
+              $ref: '#/definitions/Blackout'
         400:
           description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-  /shipments/{shipmentUUID}:
-    get:
-      summary: Gets a particular shipment
-      description: Allows a user to retrieve the details of a particular shipment
-      operationId: getShipment
-      parameters:
-        - name: shipmentUUID
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns the details of the shipment
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
         403:
-          description: not authorized to see the details of this shipment
+          description: not authorized to get list of blackouts for this TSP
         404:
-          description: shipment UUID not found in system
-  /shipments/{shipmentUUID}/accept:
-    post:
-      summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP
-      operationId: acceptShipment
-      parameters:
-        - name: shipmentUUID
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the tsp
-        - name: payload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/AcceptShipmentPayload'
-      responses:
-        200:
-          description: returns updated (accepted) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
-  /shipments/{shipmentUUID}/contact_details:
-    get:
-      summary: Gets the detailed contact information for a move
-      description: Accepts a shipment awarded to a TSP
-      operationId: shipmentContactDetails
-      parameters:
-        - name: shipmentUUID
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment for which contact details are requested
-      responses:
-        200:
-          description: returns contact details for the shipment
-          schema:
-            $ref: '#/definitions/ShipmentContactDetails'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access this shipment
-  /shipments/{shipmentUUID}/refuse:
-    post:
-      summary: Rejects an awarded shipment
-      description: Allows a TSP to reject an awarded shipment
-      operationId: refuseShipment
-      parameters:
-        - name: shipmentUUID
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the tsp
-        - in: body
-          name: payload
-          description: reason for refusing award
-          required: true
-          schema:
-            $ref: '#/definitions/RefuseShipmentPayload'
-      responses:
-        200:
-          description: returns updated (refused) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
-  /blackouts:
-    get:
-      summary: retrieve a list of blacked out dates for accessible TSPs
-      description: gets a list of blackout periods which the current user can see (restricted to current TSPs)
-      operationId: indexBlackouts
-      responses:
-        200:
-          description: returns updated (rejected) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
+          description: TSP UUID not found in system
 definitions:
-  TSP:
-    type: object
-    description: The primary definition of a Transport Service Provider
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Moving Company, Inc.
-        minLength: 1
-        maxLength: 1024
-      contact_email:
-        type: string
-        format: email
-  Shipment:
-    type: object
-    description: A shipment which may be awarded to a TSP
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-      customer:
-        $ref: '#/definitions/Customer'
-      dates:
-        $ref: '#/definitions/ShipmentDates'
-      estimated_weight:
-        type: integer
-        description: Estimated weight of the shipment in lbs
-        example: 500
-      type:
-        $ref: '#/definitions/ShipmentType'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-      channel:
-        $ref: '#/definitions/Channel'
-      origin_gbloc:
-        $ref: '#/definitions/GBLOC'
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      primary_pickup:
-        $ref: '#/definitions/Address'
-      secondary_pickup:
-        $ref: '#/definitions/Address'
-      primary_delivery:
-        $ref: '#/definitions/Address'
-      secondary_delivery:
-        $ref: '#/definitions/Address'
-      bill_of_lading_number:
-        type: string
-        description: B/L Number once a GBL has been printed for the shipment
-        example: AGFM0001021
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      contact_url:
-        type: string
-        format: URL
-        description: URL to use to load the contact details for this shipment
-      accept_url:
-        type: string
-        format: URL
-        description: URL to use to accept the shipment
-      reject_url:
-        type: string
-        format: URL
-        description: URL to use to reject the shipment
-  Customer:
-    type: object
-    description: The person moving
-    properties:
-      given_name:
-        type: string
-        example: Mary
-      family_name:
-        type: string
-        example: Johnson
-  ShipmentStatus:
-    type: string
-    description: The stages in the lifecycle of a Shipment
-    enum:
-      - IN_PROGRESS
-      - COMPLETE
-      - AWARDED
-      - ACCEPTED
-      - REJECTED
-      - IN_TRANSIT
-      - SIT_ORIGIN
-      - SIT_DEST
-      - DELIVERED
-      - COMPLETED
-      - CLAIMS
-  ShipmentDates:
-    type: object
-    description: The various dates associated with a shipment
-    properties:
-      requested_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      scheduled_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      required_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-  ShipmentType:
-    type: string
-    description: The type of a shipment
-    example: HHG
-    enum: # Todo(Nick) - There may be more of these
-      - HHG
-      - PPM
-  ShipmentMarket:
-    type: string
-    description: One of the possible 'Markets' for a shipment (see ?????)
-    example: dHHG
-    enum: # Todo(nick) - There may be more of these
-      - dHHG
-      - iHHG
-      - iUB
-  GBLOC:
-    type: string
-    description: Office Codes for Transcom offices originating GBLs
-    example: LHNQ
-    pattern: '^[A-Z]{4}$'
-  Channel:
-    type: object
-    description: The channel (pickup location & destination region)
-    properties:
-      origin:
-        type: string
-        enum: # Add other values
-          - US49
-        example: US49
-      destination:
-        type: string
-        enum: # Add other values
-          - REGION_6
-        example: REGION_6
-  PreMoveSurvey:
-    type: object
-    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-  Claim:
-    type: object
-    description: A claim resulting from an earlier shipment
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      claim_date:
-        type: string
-        format: date
-        example: 2018-03-15
-      description:
-        type: string
-        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
-  ShipmentContactDetails:
-    type: object
-    description: Contact details for customer for Shipment
-    properties:
-      primary_name:
-        type: string
-        description: Name of the primary contact person
-        example: Mike Jackson
-      primary_title:
-        type: string
-        example: Lt. Colonel
-        description: title of primary contact
-      primary_phone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1212
-      primary_email:
-        type: string
-        format: email
-        description: Email of primary contact person
-        example: mjackson@gmail.com
-      secondary_name:
-        type: string
-        example: Mary Jackson
-      secondary_title:
-        type: string
-        example: Wing Commander
-      secondary_phone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
-      secondary_email:
-        type: string
-        format: email
-        description: Email of secondary contact person
-        example: jackson_flies@gmail.com
   AcceptShipmentPayload:
     type: object
     properties:
@@ -506,28 +315,6 @@ definitions:
         $ref: '#/definitions/ShippingAgentContact'
       destination_shipping_agent:
         $ref: '#/definitions/ShippingAgentContact'
-  RefuseShipmentPayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
-  ShippingAgentContact:
-    type: object
-    properties:
-      name:
-        type: string
-        example: Speedy Moving and Storage
-      phone_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
-      email:
-        type: string
-        format: email
-        description: Email used to contact shipping agent
-        example: jackson_flies@gmail.com
   Address:
     type: object
     properties:
@@ -540,6 +327,11 @@ definitions:
         example: Apartment 9000
         x-nullable: true
         title: Address Line 2
+      street_address_3:
+        type: string
+        example: Montmâtre
+        x-nullable: true
+        title: Address Line 3
       city:
         type: string
         example: Anytown
@@ -661,3 +453,352 @@ definitions:
     - city
     - state
     - zip
+  Blackout:
+    type: object
+    properties:
+      tsp_id:
+        type: string
+        description: ID of the TSP filing this blackout
+        format: uuid
+      start_date:
+        type: string
+        description: the first day to blackout
+        format: date
+        example: 2018-10-21
+      end_date:
+        type: string
+        description: the first day after the blackout ends
+        format: date
+        example: 2018-10-29
+      gbloc:
+        $ref: '#/definitions/GBLOC'
+      zip3:
+        type: string
+        description: restricts the search to blackout periods with an explicit source rate area (zip3)
+        example: 941
+        pattern: '^[0-9]{3}$'
+      channel:
+        $ref: '#/definitions/Channel'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      code_of_service:
+        $ref: '#/definitions/CodeOfService'
+    required:
+      - start_date
+      - end_date
+  Channel:
+    type: object
+    description: The channel (pickup location & destination region)
+    properties:
+      origin:
+        type: string
+        enum: # Add other values
+          - US49
+        example: US49
+      destination:
+        type: string
+        enum: # Add other values
+          - REGION_6
+        example: REGION_6
+#  Claim:
+#    type: object
+#    description: A claim resulting from an earlier shipment
+#    properties:
+#      id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      shipment_id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      claim_date:
+#        type: string
+#        format: date
+#        example: 2018-03-15
+#      description:
+#        type: string
+#        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+  CodeOfService:
+    type: string
+    description: Code for service provided by a TSP
+    enum:
+      - COS_D
+      - COS_2
+      - COS_4
+      - COS_5
+      - COS_6
+      - COS_T
+      - COS_7
+      - COS_8
+      - COS_J
+      - COS_B
+      - COS_H
+      - COS_S
+    x-display-value:
+      COS_D: Loose or containerized household goods CONUS
+      COS_2: Moving household goods in containers CONUS
+      COS_4: International Door to Door
+      COS_5: International Door to Door Container Government Ocean Transport
+      COS_6: International Door to Door Air Container
+      COS_T: International Door to Door; Air Mobility Command (AMC)
+      COS_7: International Land-Water-Land Baggage
+      COS_8: International Land-Air-Land Baggage
+      COS_J: International Land-Air (AMC)-Land Baggage
+      COS_B: Tow-away boat
+      COS_H: Haul-away boat
+      COS_S: Mobile Home (CONUS)
+  Customer:
+    type: object
+    description: The person moving
+    properties:
+      given_name:
+        type: string
+        example: Mary
+      family_name:
+        type: string
+        example: Johnson
+  GBLOC:
+    type: string
+    description: Office Codes for Transcom offices originating GBLs
+    example: LHNQ
+    pattern: '^[A-Z]{4}$' # Should we make this an enum?
+#  PreMoveSurvey:
+#    type: object
+#    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
+#    properties:
+#      id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+#      shipment_id:
+#        type: string
+#        format: uuid
+#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+  RefuseShipmentPayload:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
+  Shipment:
+    type: object
+    description: A shipment which may be awarded to a TSP
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+      customer:
+        $ref: '#/definitions/Customer'
+      dates:
+        $ref: '#/definitions/ShipmentDates'
+      estimated_weight:
+        type: integer
+        description: Estimated weight of the shipment in lbs
+        example: 500
+      type:
+        $ref: '#/definitions/ShipmentType'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      channel:
+        $ref: '#/definitions/Channel'
+      origin_gbloc:
+        $ref: '#/definitions/GBLOC'
+      destination_gbloc:
+        $ref: '#/definitions/GBLOC'
+      primary_pickup:
+        $ref: '#/definitions/Address'
+      secondary_pickup:
+        $ref: '#/definitions/Address'
+      primary_delivery:
+        $ref: '#/definitions/Address'
+      secondary_delivery:
+        $ref: '#/definitions/Address'
+      bill_of_lading_number:
+        type: string
+        description: B/L Number once a GBL has been printed for the shipment
+        example: AGFM0001021
+      origin_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+      destination_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+      contact_url:
+        type: string
+        format: URL
+        description: URL to use to load the contact details for this shipment
+      accept_url:
+        type: string
+        format: URL
+        description: URL to use to accept the shipment
+      reject_url:
+        type: string
+        format: URL
+        description: URL to use to reject the shipment
+  ShippingAgentContact:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Speedy Moving and Storage
+      phone_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+      email:
+        type: string
+        format: email
+        description: Email used to contact shipping agent
+        example: jackson_flies@gmail.com
+  ShipmentContactDetails:
+    type: object
+    description: Contact details for customer for Shipment
+    properties:
+      primary_name:
+        type: string
+        description: Name of the primary contact person
+        example: Mike Jackson
+      primary_title:
+        type: string
+        example: Lt. Colonel
+        description: title of primary contact
+      primary_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1212
+      primary_email:
+        type: string
+        format: email
+        description: Email of primary contact person
+        example: mjackson@gmail.com
+      secondary_name:
+        type: string
+        example: Mary Jackson
+      secondary_title:
+        type: string
+        example: Wing Commander
+      secondary_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+      secondary_email:
+        type: string
+        format: email
+        description: Email of secondary contact person
+        example: jackson_flies@gmail.com
+  ShipmentDates:
+    type: object
+    description: The various dates associated with a shipment
+    properties:
+      requested_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_latest_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_latest_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      scheduled_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      required_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+  ShipmentMarket:
+    type: string
+    description: One of the possible 'Markets' for a shipment (see ?????)
+    example: dHHG
+    enum:
+      - dHHG
+      - iHHG
+      - iUB
+    x-display-value:
+      dHHG: Domestic HHG
+      iHHG: International HHG
+      iUB: International unaccompanied baggage
+  ShipmentStatus:
+    type: string
+    description: The stages in the lifecycle of a Shipment
+    enum:
+      - IN_PROGRESS
+      - COMPLETE
+      - AWARDED
+      - ACCEPTED
+      - REJECTED
+      - IN_TRANSIT
+      - SIT_ORIGIN
+      - SIT_DEST
+      - DELIVERED
+      - COMPLETED
+      - CLAIMS
+  ShipmentType:
+    type: string
+    description: The type of a shipment
+    example: HHG
+    enum: # Todo(Nick) - There may be more of these
+      - HHG
+      - PPM
+  TSP:
+    type: object
+    description: The primary definition of a Transport Service Provider
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Moving Company, Inc.
+        minLength: 1
+        maxLength: 1024
+      scac:
+        type: string
+        description: The SCAC associated with the TSP
+        format: '^[A-Z]{2,4}$'
+        example: USPS
+      contact_email:
+        type: string
+        format: email
