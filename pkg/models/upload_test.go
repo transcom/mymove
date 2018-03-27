@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"github.com/gobuffalo/uuid"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -38,10 +36,6 @@ func (suite *ModelSuite) Test_UploadCreate() {
 
 	if verrs.Count() != 0 {
 		t.Errorf("did not expect validation errors: %v", verrs)
-	}
-
-	if upload.S3ID.String() == uuid.Nil.String() {
-		t.Errorf("expected an S3ID to be set, instead it was %v", upload.S3ID)
 	}
 }
 
