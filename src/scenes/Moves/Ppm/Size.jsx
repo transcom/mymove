@@ -17,11 +17,11 @@ export class BigButton extends Component {
       className += ' selected';
     }
     return (
-      <div className={className} onClick={this.props.onButtonClick}>
+      <button className={className} onClick={this.props.onButtonClick}>
         <p>{this.props.firstLine}</p>
         <p>{this.props.secondLine}</p>
         <img className="icon" src={this.props.icon} alt={this.props.altTag} />
-      </div>
+      </button>
     );
   }
 }

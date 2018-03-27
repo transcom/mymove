@@ -13,6 +13,12 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  color: black;
+  background-color: white;
+  width: 100%;
+  border-radius: 0%;
+  font-weight: 400;
+  height: 100%;
 }
 
 .ppm-size-button p:first-child {
@@ -20,7 +26,7 @@
 }
 
 .ppm-size-button p {
-  font-size: .9em;
+  font-size: 0.9em;
   margin-top: 0rem;
   margin-bottom: 0rem;
 }
@@ -34,9 +40,11 @@
 /* On mouse-over, add a grey background color */
 .ppm-size-button:hover {
   background-color: #f0f6fb;
+  color: black;
 }
 
 .selected {
-  background-color:  #f0f6fb;
-  border: 2px solid #949494
+  background-color: #f0f6fb;
+  border: 2px solid #949494;
+  color: black;
 }
