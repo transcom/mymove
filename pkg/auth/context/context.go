@@ -3,7 +3,7 @@ package context
 import (
 	"context"
 
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 )
 
 // Keys for values stored in the context are supposed to be of a custom type, not string

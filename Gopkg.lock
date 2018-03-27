@@ -89,12 +89,6 @@
   version = "v1.1.0"
 
 [[projects]]
-  name = "github.com/daviddengcn/go-colortext"
-  packages = ["."]
-  revision = "17e75f6184bc9e727756cd0d82e0af58b1fc7191"
-  version = "1.0.0"
-
-[[projects]]
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
   revision = "06ea1031745cb8b3dab3f6a236daf2b0aa468b7e"
@@ -238,6 +232,37 @@
   packages = ["."]
   revision = "3402a167bccf1bdd5c93ca820be9f27bba46261e"
   version = "v1.10.7"
+
+[[projects]]
+  name = "github.com/gobuffalo/pop"
+  packages = [
+    ".",
+    "associations",
+    "columns",
+    "fizz",
+    "fizz/translators",
+    "soda",
+    "soda/cmd",
+    "soda/cmd/generate",
+    "soda/cmd/schema"
+  ]
+  revision = "d11f9179130af452f496f91138d120566ae40bed"
+  version = "v4.3.0"
+
+[[projects]]
+  name = "github.com/gobuffalo/uuid"
+  packages = ["."]
+  revision = "3a9fb6c5c481d4886f1e9323c61ad743fb955860"
+  version = "v2.0.0"
+
+[[projects]]
+  name = "github.com/gobuffalo/validate"
+  packages = [
+    ".",
+    "validators"
+  ]
+  revision = "42d8db6e06e617cdedcc7a849d6690a2cb5a8d28"
+  version = "v2.0.0"
 
 [[projects]]
   branch = "master"
@@ -398,30 +423,7 @@
   name = "github.com/mattn/anko"
   packages = [
     "ast",
-    "builtins",
-    "builtins/encoding/json",
-    "builtins/errors",
-    "builtins/flag",
-    "builtins/fmt",
-    "builtins/github.com/daviddengcn/go-colortext",
-    "builtins/io",
-    "builtins/io/ioutil",
-    "builtins/math",
-    "builtins/math/big",
-    "builtins/math/rand",
-    "builtins/net",
-    "builtins/net/http",
-    "builtins/net/url",
-    "builtins/os",
-    "builtins/os/exec",
-    "builtins/os/signal",
-    "builtins/path",
-    "builtins/path/filepath",
-    "builtins/regexp",
-    "builtins/runtime",
-    "builtins/sort",
-    "builtins/strings",
-    "builtins/time",
+    "core",
     "parser",
     "vm"
   ]
@@ -480,12 +482,6 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
-
-[[projects]]
-  branch = "master"
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "36e9d2ebbde5e3f13ab2e25625fd453271d6522e"
 
 [[projects]]
   name = "github.com/segmentio/chamber"
@@ -672,7 +668,7 @@
     "imports"
   ]
   revision = "77106db15f689a60e7d4e085d967ac557b918fb2"
-
+  
 [[projects]]
   name = "google.golang.org/appengine"
   packages = [
@@ -711,6 +707,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ad7b257f757b75b68c7ccfbad270576916858815683fa6ad5b8773e48ec7e664"
+  inputs-digest = "45e81ec3ec8d310f9d7ece59c0180f67682caf614dc04982f9b8525685ac7497"
   solver-name = "gps-cdcl"
   solver-version = 1
