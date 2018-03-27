@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
 import { createMove } from 'scenes/Moves/ducks';
+
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
@@ -16,7 +17,7 @@ export class Landing extends Component {
       this.props.push(`moves/${this.props.currentMove.id}`);
   }
   startMove = values => {
-    this.props.createMove({ selected_move_type: 'COMBO' });
+    this.props.createMove({});
   };
   render() {
     return (
