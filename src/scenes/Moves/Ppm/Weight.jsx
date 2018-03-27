@@ -59,7 +59,7 @@ export class PpmWeight extends Component {
     const moveId = this.props.match.params.moveId;
     if (pendingPpmWeight) {
       //don't update a ppm unless the weight has changed?
-      createOrUpdatePpm(moveId, { weightEstimate: pendingPpmWeight });
+      createOrUpdatePpm(moveId, { weight_estimate: pendingPpmWeight });
     }
   };
   onWeightSelecting = value => {
