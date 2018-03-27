@@ -1,1 +1,0 @@
-add_column("uploads", "s3_id", "uuid", {})

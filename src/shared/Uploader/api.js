@@ -5,25 +5,12 @@ export async function GetSpec() {
   return client.spec;
 }
 
-export async function CreateUpload(fileUpload, moveID, documentID) {
-  const client = await getClient();
-  const response = await client.apis.uploads.createUpload({
-    file: fileUpload,
-    moveId: moveID,
-    documentId: documentID,
-  });
-  checkResponse(response, 'failed to upload file due to server error');
-  return response.body;
-}
-
-export async function CreateDocument(fileUpload, moveID) {
+export async function CreateDocument(fileUpload) {
   const client = await getClient();
   const response = await client.apis.documents.createDocument({
-    documentPayload: { name: 'document' },
-    moveId: moveID,
+    file: fileUpload,
   });
-  checkResponse(response, 'failed to create document due to server error');
-  return CreateUpload(fileUpload, moveID, response.body.id);
+  checkResponse(response, 'failed to upload file due to server error');
 }
 
 export default CreateDocument;

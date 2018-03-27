@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -19,6 +20,7 @@ type Upload struct {
 	Bytes       int64     `db:"bytes"`
 	ContentType string    `db:"content_type"`
 	Checksum    string    `db:"checksum"`
+	S3ID        uuid.UUID `db:"s3_id"`
 	CreatedAt   time.Time `db:"created_at"`
 	UpdatedAt   time.Time `db:"updated_at"`
 }
@@ -48,4 +50,14 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: u.ContentType, Name: "ContentType"},
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
+}
+
+// BeforeCreate sets an Upload's S3ID before it is saved the first time
+func (u *Upload) BeforeCreate(tx *pop.Connection) error {
+	id, err := uuid.NewV4()
+	if err != nil {
+		return errors.WithStack(err)
+	}
+	u.S3ID = id
+	return nil
 }

@@ -9,16 +9,16 @@ describe('Document Reducer', () => {
     const initialState = {
       hasErrored: false,
       hasSucceeded: false,
-      upload: null,
+      confirmationText: '',
     };
 
     const newState = documentReducer(initialState, {
       type: CREATE_DOCUMENT_SUCCESS,
-      item: { url: 'nino.com', filename: 'nino', type: 'image' },
+      item: 'Successful item!',
     });
 
     expect(newState).toEqual({
-      upload: { url: 'nino.com', filename: 'nino', type: 'image' },
+      confirmationText: 'Document uploaded!',
       hasErrored: false,
       hasSucceeded: true,
     });
@@ -28,7 +28,7 @@ describe('Document Reducer', () => {
     const initialState = {
       hasErrored: false,
       hasSucceeded: false,
-      upload: null,
+      confirmationText: '',
     };
 
     const newState = documentReducer(initialState, {
@@ -37,7 +37,7 @@ describe('Document Reducer', () => {
     });
 
     expect(newState).toEqual({
-      upload: {},
+      confirmationText: 'Upload error.',
       hasErrored: true,
       hasSucceeded: false,
     });
