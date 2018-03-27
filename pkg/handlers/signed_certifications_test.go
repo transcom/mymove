@@ -25,9 +25,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -76,9 +77,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -127,10 +129,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
-
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -178,10 +180,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
-
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 

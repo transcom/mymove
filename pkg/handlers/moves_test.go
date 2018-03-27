@@ -24,10 +24,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	suite.mustSave(&user)
 
 	// When: a new Move is posted
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	newMovePayload := internalmessages.CreateMovePayload{
-		SelectedMoveType: selectedType,
-	}
+	newMovePayload := internalmessages.CreateMovePayload{}
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	params := moveop.CreateMoveParams{
@@ -49,7 +46,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	}
 
 	// Then: we expect a move to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID)).Where(fmt.Sprintf("selected_move_type='%v'", selectedType))
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
 	moves := []models.Move{}
 	query.All(&moves)
 
@@ -65,7 +62,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
 	// When: a new Move is posted
 	var selectedType = internalmessages.SelectedMoveTypeHHG
 	movePayload := internalmessages.CreateMovePayload{
-		SelectedMoveType: selectedType,
+		SelectedMoveType: &selectedType,
 	}
 	req := httptest.NewRequest("GET", "/moves", nil)
 	params := moveop.CreateMoveParams{
@@ -99,9 +96,10 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -146,9 +144,10 @@ func (suite *HandlerSuite) TestIndexMovesHandlerNoUser() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -183,9 +182,10 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	}
 	suite.mustSave(&user2)
 
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -225,12 +225,12 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	newMove := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: origType,
+		SelectedMoveType: &origType,
 	}
 	suite.mustSave(&newMove)
 
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: newType,
+		SelectedMoveType: &newType,
 	}
 
 	// And: the context contains the auth values
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 	patchPPMPayload := okResponse.Payload
 
-	if patchPPMPayload.SelectedMoveType != newType {
+	if *patchPPMPayload.SelectedMoveType != newType {
 		t.Fatalf("SelectedMoveType should have been updated.")
 	}
 }
@@ -280,12 +280,12 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	newMove := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: origType,
+		SelectedMoveType: &origType,
 	}
 	suite.mustSave(&newMove)
 
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: newType,
+		SelectedMoveType: &newType,
 	}
 
 	// And: the context contains the auth values
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 
 	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: newType,
+		SelectedMoveType: &newType,
 	}
 
 	// And: the context contains the auth values
@@ -351,7 +351,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	t := suite.T()
 
-	// Given: a logged in user
+	// Given: a logged in user with a move
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
@@ -361,7 +361,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	var origType = internalmessages.SelectedMoveTypeHHG
 	newMove := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: origType,
+		SelectedMoveType: &origType,
 	}
 	suite.mustSave(&newMove)
 
@@ -382,7 +382,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*moveop.PatchMoveBadRequest)
+	_, ok := response.(*moveop.PatchMoveCreated)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
