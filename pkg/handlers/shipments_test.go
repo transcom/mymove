@@ -23,13 +23,13 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 
 	avs := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
-		GBLOC: "AGFM",
+		SourceGBLOC:               "AGFM",
 	}
 	suite.mustSave(&avs)
 
 	aws := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
-		GBLOC: "AGFM",
+		SourceGBLOC:               "AGFM",
 	}
 	suite.mustSave(&aws)
 

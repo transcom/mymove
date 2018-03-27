@@ -11,7 +11,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.7.1
+    rev: v0.8.1
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -59,7 +59,7 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.3
+    rev: v0.3.2
     hooks:
     -   id: go-fmt
     -   id: go-vet
