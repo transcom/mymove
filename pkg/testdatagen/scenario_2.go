@@ -17,13 +17,16 @@ func RunScenarioTwo(db *pop.Connection) {
 	tdl, _ := MakeTDL(db, "california", "90210", "2")
 	tdl2, _ := MakeTDL(db, "New York", "10024", "2")
 
+	// Make a market
+	market := "dHHG"
+
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl, market)
 	}
 	// Make shipments in second TDL
 	for i := 0; i <= shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2, market)
 	}
 
 	// Make TSPs
@@ -53,7 +56,6 @@ func RunScenarioTwo(db *pop.Connection) {
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)
 
 	gbloc := "BKAS"
-	market := "dHHG"
 	MakeBlackoutDate(db,
 		tsp1,
 		blackoutStart,

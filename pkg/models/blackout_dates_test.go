@@ -15,8 +15,8 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
-	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
-	tdl, err := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
+	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
@@ -25,9 +25,9 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, &market)
 
 	// Create two shipments, one with market and one without.
-	shipmentWithMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl)
+	shipmentWithMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market)
 	shipmentWithMarket.Market = &market
-	shipmentWithoutMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl)
+	shipmentWithoutMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market)
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferWithMarket := models.ShipmentWithOffer{
