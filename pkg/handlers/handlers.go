@@ -16,19 +16,12 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-type fileStorer interface {
-	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
-	Key(...string) string
-	PresignedURL(string) (string, error)
-}
-
 // HandlerContext contains dependencies that are shared between all handlers.
 // Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	storage fileStorer
+	db     *pop.Connection
+	logger *zap.Logger
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
@@ -36,6 +29,27 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return HandlerContext{
 		db:     db,
 		logger: logger,
+	}
+}
+
+type fileStorer interface {
+	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
+	Key(...string) string
+	PresignedURL(string) (string, error)
+}
+
+// FileHandlerContext wraps a HandlerContext with an additional dependency for file
+// manipulation
+type FileHandlerContext struct {
+	HandlerContext
+	storage fileStorer
+}
+
+// NewFileHandlerContext returns a new FileHandlerContext with its private fields set.
+func NewFileHandlerContext(context HandlerContext, storage fileStorer) FileHandlerContext {
+	return FileHandlerContext{
+		HandlerContext: context,
+		storage:        storage,
 	}
 }
 

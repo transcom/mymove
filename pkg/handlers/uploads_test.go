@@ -74,8 +74,9 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	context := NewFileHandlerContext(suite.db, suite.logger, fakeS3)
-	handler := CreateUploadHandler(context)
+	context := NewHandlerContext(suite.db, suite.logger)
+	fileContext := NewFileHandlerContext(context, fakeS3)
+	handler := CreateUploadHandler(fileContext)
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)

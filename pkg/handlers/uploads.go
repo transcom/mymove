@@ -8,7 +8,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	authctx "github.com/transcom/mymove/pkg/auth/context"
@@ -26,7 +26,7 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 }
 
 // CreateUploadHandler creates a new upload via POST /upload
-type CreateUploadHandler HandlerContext
+type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
