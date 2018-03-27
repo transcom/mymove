@@ -12,5 +12,8 @@ export LOGIN_GOV_CLIENT_ID=<login_gov_client_id_value>
 
 export LOGIN_GOV_HOSTNAME="idp.int.identitysandbox.gov"
 
+export HTTPS_CERT=$(cat config/devlocal-https.pem)
+export HTTPS_KEY=$(cat config/devlocal-https.key)
+
 # Prevents user sessions from timing out
 export NO_SESSION_TIMEOUT=true

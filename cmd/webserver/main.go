@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"errors"
 	"fmt"
 	"log"
@@ -39,13 +40,17 @@ func main() {
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
 	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
-	port := flag.String("port", "8080", "the `port` to listen on.")
+	httpPort := flag.String("http_port", "8080", "the `port` to listen on.")
 	callbackPort := flag.String("callback_port", "443", "The port for callback urls.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
+
+	httpsPort := flag.String("https_port", "8443", "the `port` to listen on.")
+	httpsCert := flag.String("https_cert", "", "TLS certificate.")
+	httpsKey := flag.String("https_key", "", "TLS private key.")
 
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
@@ -137,9 +142,19 @@ func main() {
 	// And request logging
 	root.Use(requestLogger)
 
-	address := fmt.Sprintf("%s:%s", *listenInterface, *port)
-	zap.L().Info("Starting the server listening", zap.String("address", address))
-	log.Fatal(http.ListenAndServe(address, root))
+	// Start http/https listener(s)
+	errChan := make(chan error)
+	go func() { // start http listener
+		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpPort)
+		zap.L().Info("Starting http server listening", zap.String("address", addr))
+		errChan <- http.ListenAndServe(addr, root)
+	}()
+	go func() { // start https listener
+		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
+		zap.L().Info("Starting https server listening", zap.String("address", addr))
+		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), root)
+	}()
+	log.Fatal(<-errChan)
 }
 
 // fileHandler serves up a single file
@@ -147,4 +162,27 @@ func fileHandler(entrypoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, entrypoint)
 	}
+}
+
+func listenAndServeTLS(addr string, certPEMBlock, keyPEMBlock []byte, handler http.Handler) error {
+	// Configure TLS
+	cert, err := tls.X509KeyPair(certPEMBlock, keyPEMBlock)
+	if err != nil {
+		return err
+	}
+	config := &tls.Config{
+		Certificates: []tls.Certificate{cert},
+		NextProtos:   []string{"h2"}, // enable HTTP/2
+	}
+
+	// Create listener
+	ln, err := tls.Listen("tcp", addr, config)
+	if err != nil {
+		return err
+	}
+	defer ln.Close()
+
+	// Start server
+	srv := &http.Server{Addr: addr, Handler: handler}
+	return srv.Serve(ln)
 }
