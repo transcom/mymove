@@ -1,6 +1,4 @@
 import dd1299Reducer, {
-  createLoadSchemaSuccess,
-  createLoadSchemaFailure,
   createSubmitFailure,
   createSubmitSuccess,
   createSubmitReset,
@@ -9,39 +7,9 @@ import { getUiSchema } from './uiSchema';
 
 const uiSchema = getUiSchema();
 describe('Reducer', () => {
-  it('Should handle LOAD_SCHEMA_SUCCESS', () => {
-    const newSchema = {
-      definitions: { CreateForm1299Payload: 'FOO' },
-    };
-    const expectedState = {
-      schema: newSchema.definitions.CreateForm1299Payload,
-      uiSchema,
-      hasSchemaError: false,
-      hasSubmitError: false,
-      hasSubmitSuccess: false,
-    };
-    const newState = dd1299Reducer(
-      undefined,
-      createLoadSchemaSuccess(newSchema),
-    );
-    expect(newState).toEqual(expectedState);
-  });
-  it('Should handle LOAD_SCHEMA_FAILURE', () => {
-    const err = 'OH NO';
-    const expectedState = {
-      schema: {},
-      uiSchema,
-      hasSchemaError: true,
-      hasSubmitError: false,
-      hasSubmitSuccess: false,
-    };
-    const newState = dd1299Reducer(undefined, createLoadSchemaFailure(err));
-    expect(newState).toEqual(expectedState);
-  });
   it('Should handle SUBMIT_SUCCESS', () => {
     const err = 'OH NO';
     const expectedState = {
-      schema: {},
       uiSchema,
       hasSchemaError: false,
       hasSubmitError: false,
@@ -53,7 +21,6 @@ describe('Reducer', () => {
   it('Should handle SUBMIT_FAILURE', () => {
     const err = 'OH NO';
     const expectedState = {
-      schema: {},
       uiSchema,
       hasSchemaError: false,
       hasSubmitError: true,
@@ -65,7 +32,6 @@ describe('Reducer', () => {
   it('Should handle SUBMIT_RESET', () => {
     const err = 'OH NO';
     const expectedState = {
-      schema: {},
       uiSchema,
       hasSchemaError: false,
       hasSubmitError: false,

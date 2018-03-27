@@ -39,7 +39,7 @@ const AppWrapper = () => (
           <Route exact path="/" component={Landing} />
           <Route path="/submitted" component={SubmittedFeedback} />
           <Route path="/shipments/:shipmentsStatus" component={Shipments} />
-          <PrivateRoute path="/DD1299" component={DD1299} />
+          <Route path="/DD1299" component={DD1299} />
           <PrivateRoute path="/moves/:moveId/legalese" component={Legalese} />
           <Route path="/feedback" component={Feedback} />
           <Route path="/upload" component={Uploader} />
