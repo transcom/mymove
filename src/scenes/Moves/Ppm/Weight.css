@@ -1,7 +1,9 @@
 div.info {
-  background-color: #aeb0b5;
+  background-color: rgb(250,250,250);
   padding: 2rem;
   margin-top: 1em;
+  border: 1px solid #808080;
+  border-radius: 7px;
 }
 
 .info > h3 {

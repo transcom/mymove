@@ -9,7 +9,7 @@ export async function GetPpm(moveId) {
   const response = await client.apis.ppm.indexPersonallyProcuredMoves({
     moveId,
   });
-  checkResponse(response, 'failed to create ppm due to server error');
+  checkResponse(response, 'failed to get ppm due to server error');
   return response.body;
 }
 

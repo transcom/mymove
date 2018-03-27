@@ -35,10 +35,10 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	verrs, err = suite.db.ValidateAndCreate(&move)
 	if verrs.HasAny() || err != nil {
@@ -102,10 +102,10 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	verrs, err = suite.db.ValidateAndCreate(&move)
 	if verrs.HasAny() || err != nil {
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	move2 := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	verrs, err = suite.db.ValidateAndCreate(&move2)
 	if verrs.HasAny() || err != nil {
@@ -190,10 +190,10 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		LoginGovEmail: "whoever@example.com",
 	}
 	suite.mustSave(&user1)
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -256,10 +256,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		LoginGovEmail: "whoever@example.com",
 	}
 	suite.mustSave(&user2)
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -315,16 +315,16 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		LoginGovEmail: "whoever@example.com",
 	}
 	suite.mustSave(&user2)
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
 	move2 := models.Move{
 		UserID:           user2.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move2)
 
@@ -381,9 +381,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	}
 	suite.mustSave(&user2)
 
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user1.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 

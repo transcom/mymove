@@ -41,7 +41,7 @@ func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCerti
 		case models.FetchErrorForbidden:
 			response = certop.NewCreateSignedCertificationForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 		return response
 	}
