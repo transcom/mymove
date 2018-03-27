@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-
+import classnames from 'classnames';
 import { setPendingPpmSize } from './ducks';
 
 import carGray from 'shared/icon/car-gray.svg';
@@ -12,25 +12,20 @@ import './Size.css';
 
 export class BigButton extends Component {
   render() {
-    let className = 'ppm-size-button';
-    if (this.props.selected) {
-      className += ' selected';
-    }
+    const { selected, children } = this.props;
     return (
-      <button className={className} onClick={this.props.onButtonClick}>
-        <p>{this.props.firstLine}</p>
-        <p>{this.props.secondLine}</p>
-        <img className="icon" src={this.props.icon} alt={this.props.altTag} />
+      <button
+        className={classnames('ppm-size-button', { selected })}
+        onClick={this.props.onButtonClick}
+      >
+        {children}
       </button>
     );
   }
 }
 
 BigButton.propTypes = {
-  firstLine: PropTypes.string.isRequired,
-  secondLine: PropTypes.string.isRequired,
-  icon: PropTypes.string.isRequired,
-  altTag: PropTypes.string.isRequired,
+  children: PropTypes.node,
   selected: PropTypes.bool,
   onButtonClick: PropTypes.func,
 };
@@ -39,18 +34,18 @@ export class BigButtonGroup extends Component {
   render() {
     var createButton = (value, firstLine, secondLine, icon, altTag) => {
       var onButtonClick = () => {
-        this.props.onMoveTypeSelected(value);
+        this.props.onClick(value);
       };
       return (
         <BigButton
           value={value}
-          firstLine={firstLine}
-          secondLine={secondLine}
-          icon={icon}
-          altTag={altTag}
           selected={this.props.selectedOption === value}
           onButtonClick={onButtonClick}
-        />
+        >
+          <p>{firstLine}</p>
+          <p>{secondLine}</p>
+          <img className="icon" src={icon} alt={altTag} />
+        </BigButton>
       );
     };
     var small = createButton(
@@ -86,7 +81,7 @@ export class BigButtonGroup extends Component {
 }
 BigButtonGroup.propTypes = {
   selectedOption: PropTypes.string,
-  onMoveTypeSelected: PropTypes.func,
+  onClick: PropTypes.func,
 };
 
 export class PpmSize extends Component {
