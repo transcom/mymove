@@ -4,6 +4,9 @@ import (
 	"time"
 )
 
+var RateCycleStart = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
+var RateCycleEnd = time.Date(2019, time.October, 1, 0, 0, 0, 0, time.UTC)
+
 // PerformancePeriodStart is the first day of the first performance period in 2019.
 var PerformancePeriodStart = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
 

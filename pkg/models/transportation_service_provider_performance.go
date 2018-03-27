@@ -25,6 +25,11 @@ var OffersPerQualityBand = map[int]int{
 	4: 1,
 }
 
+// Peak rate cycle start and end times.
+// See https://realtimeboard.com/app/board/o9J_kzn4n7k=/?moveToWidget=3074457346035830078
+var PeakRateStartInc = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
+var PeakRateEndExcl = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
@@ -224,4 +229,22 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 		return fmt.Errorf("Validation failure: %s", validationErr)
 	}
 	return nil
+}
+
+// DateIsPeakRateCycle determines if a given date is within the a peak rate
+// cycle or not. This is the authoritative source on rate cycles.
+// Peak rate cycles are: May 15th - September 30th, inclusive.
+func DateIsPeakRateCycle(t time.Time) bool {
+	year, _, _ := t.Date()
+
+	peakStartInc := time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
+	peakEndExcl := time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+
+	if (t.After(peakStartInc) || t.Equal(peakStartInc)) && t.Before(peakEndExcl) {
+		fmt.Println(" true")
+		return true
+	}
+
+	fmt.Println(" false")
+	return false
 }

@@ -17,6 +17,8 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
 		PerformancePeriodEnd:            PerformancePeriodEnd,
+		RateCycleStart:                  RateCycleStart,
+		RateCycleEnd:                    RateCycleEnd,
 		TransportationServiceProviderID: tsp.ID,
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
