@@ -59,11 +59,12 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 
 	newUpload := models.Upload{
-		DocumentID:  documentID,
-		UploaderID:  userID,
-		Filename:    file.Header.Filename,
-		Bytes:       int64(file.Header.Size),
-		ContentType: "application/pdf",
+		DocumentID: documentID,
+		UploaderID: userID,
+		Filename:   file.Header.Filename,
+		Bytes:      int64(file.Header.Size),
+		// TODO replace this with a real content type by examining file content.
+		ContentType: "text/plain",
 		Checksum:    checksum,
 	}
 

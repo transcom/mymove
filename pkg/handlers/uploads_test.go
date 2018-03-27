@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	params := uploadop.NewCreateUploadParams()
 	params.MoveID = strfmt.UUID(move.ID.String())
 	params.DocumentID = strfmt.UUID(document.ID.String())
-	params.File = suite.fixture("test.pdf")
+	params.File = *suite.fixture("test.pdf")
 
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
