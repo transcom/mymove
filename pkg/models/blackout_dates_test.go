@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -21,17 +20,18 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
-	market := "dHHG"
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, &market)
+	market1 := "dHHG"
+	// market2 := "iHHG"
+	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, &market1)
 
 	// Create two shipments, one with market and one without.
-	shipmentWithMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market)
-	shipmentWithMarket.Market = &market
-	shipmentWithoutMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market)
+	shipmentWithDomesticMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market1)
+	shipmentWithDomesticMarket.Market = &market1
+	shipmentWithInternationalMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market1)
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
-	shipmentWithOfferWithMarket := models.ShipmentWithOffer{
-		ID: shipmentWithMarket.ID,
+	shipmentWithOfferWithDomesticMarket := models.ShipmentWithOffer{
+		ID: shipmentWithDomesticMarket.ID,
 		TrafficDistributionListID:       tdl.ID,
 		PickupDate:                      pickupDate,
 		TransportationServiceProviderID: nil,
@@ -41,8 +41,8 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		BookDate:                        testdatagen.DateInsidePerformancePeriod,
 	}
 
-	shipmentWithOfferWithoutMarket := models.ShipmentWithOffer{
-		ID: shipmentWithoutMarket.ID,
+	shipmentWithOfferWithInternationalMarket := models.ShipmentWithOffer{
+		ID: shipmentWithInternationalMarket.ID,
 		TrafficDistributionListID:       tdl.ID,
 		PickupDate:                      pickupDate,
 		TransportationServiceProviderID: nil,
@@ -52,19 +52,17 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		BookDate:                        testdatagen.DateInsidePerformancePeriod,
 	}
 
-	fetchWithMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithMarket)
-	fmt.Println("fetchWithMarket: ", fetchWithMarket)
+	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithDomesticMarket)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
-	} else if len(fetchWithMarket) == 0 {
-		t.Errorf("Blackout dates query erroneously returned false.")
+	} else if len(fetchWithDomesticMarket) == 0 {
+		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
 	}
 
-	fetchWithoutMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithoutMarket)
-	fmt.Println("fetchWithoutMarket: ", fetchWithoutMarket)
+	fetchWithInternationalMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithInternationalMarket)
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
-	} else if len(fetchWithoutMarket) == 0 {
-		t.Errorf("Blackout dates query erroneously returned false.")
+	} else if len(fetchWithInternationalMarket) == 0 {
+		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
 	}
 }
