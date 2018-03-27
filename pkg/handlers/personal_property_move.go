@@ -49,7 +49,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		case models.FetchErrorForbidden:
 			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 	} else { // The given move does belong to the current user.
 		newPersonallyProcuredMove := models.PersonallyProcuredMove{
@@ -99,7 +99,7 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 		case models.FetchErrorForbidden:
 			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 	} else { // The given move does belong to the current user.
 		ppms, err := models.GetPersonallyProcuredMovesForMoveID(h.db, moveID)

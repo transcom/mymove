@@ -95,17 +95,28 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		response = moveop.NewShowMoveUnauthorized()
+		response = moveop.NewShowMoveBadRequest()
 		return response
 	}
 
 	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
-		response = moveop.NewShowMoveBadRequest()
+		response = moveop.NewPatchMoveInternalServerError()
+	} else if !moveResult.IsValid() {
+		switch errCode := moveResult.ErrorCode(); errCode {
+		case models.FetchErrorNotFound:
+			response = moveop.NewShowMoveNotFound()
+		case models.FetchErrorForbidden:
+			response = moveop.NewShowMoveForbidden()
+		default:
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+		}
+		return response
+
 	} else {
 		movePayload := payloadForMoveModel(user, moveResult.Move())
-		response = moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+		response = moveop.NewShowMoveOK().WithPayload(&movePayload)
 	}
 	return response
 }
@@ -139,7 +150,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		case models.FetchErrorForbidden:
 			response = moveop.NewPatchMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 		return response
 	} else { // The given move does belong to the current user.

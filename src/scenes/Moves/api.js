@@ -28,7 +28,6 @@ export async function UpdateMove(
   payload /*shape: { selected_move_type }*/,
 ) {
   const client = await getClient();
-  //todo: this is failing due to "Unhandled Rejection (Error): Required parameter personallyProcuredMovePayload is not provided"
   const response = await client.apis.moves.patchMove({
     moveId,
     patchMovePayload: payload,

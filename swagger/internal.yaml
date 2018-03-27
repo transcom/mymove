@@ -215,6 +215,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: move is not found
+        500:
+          description: internal server error
 
   /moves/{moveId}/signed_certification:
     post:

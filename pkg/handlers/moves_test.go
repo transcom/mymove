@@ -387,3 +387,118 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 }
+
+// LSDJLKSDJF
+
+func (suite *HandlerSuite) TestShowMoveHandler() {
+	t := suite.T()
+
+	// Given: A move and a user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	newMove := models.Move{
+		UserID: user.ID,
+	}
+	suite.mustSave(&newMove)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := moveop.ShowMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(newMove.ID.String()),
+	}
+	// And: show Move is queried
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect a 200 status code
+	okResponse := showResponse.(*moveop.ShowMoveOK)
+	move := okResponse.Payload
+
+	// And: Returned query to include our added move
+	if move.UserID.String() != user.ID.String() {
+		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
+	}
+
+}
+
+func (suite *HandlerSuite) TestShowMoveHandlerNoUser() {
+	t := suite.T()
+
+	// Given: A move with a user that isn't logged in
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	move := models.Move{
+		UserID: user.ID,
+	}
+	suite.mustSave(&move)
+
+	req := httptest.NewRequest("GET", "/moves/some_id", nil)
+	showMoveParams := moveop.NewShowMoveParams()
+	showMoveParams.HTTPRequest = req
+
+	// And: Show move is queried
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(showMoveParams)
+
+	// Then: Expect a 401 unauthorized
+	_, ok := showResponse.(*moveop.ShowMoveUnauthorized)
+	if !ok {
+		t.Errorf("Expected to get an unauthorized response, but got something else.")
+	}
+}
+
+func (suite *HandlerSuite) TestShowMoveWrongUser() {
+	t := suite.T()
+
+	// Given: A move with a not-logged-in user and a separate logged-in user
+	notLoggedInUser := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&notLoggedInUser)
+
+	loggedInUser := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email2@example.com",
+	}
+	suite.mustSave(&loggedInUser)
+
+	// When: A move is created for not-logged-in-user
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+	newMove := models.Move{
+		UserID:           notLoggedInUser.ID,
+		SelectedMoveType: &selectedType,
+	}
+	suite.mustSave(&newMove)
+
+	// And: the context contains the auth values for logged-in user
+	req := httptest.NewRequest("GET", "/moves/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
+	req = req.WithContext(ctx)
+	showMoveParams := moveop.ShowMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(newMove.ID.String()),
+	}
+	// And: Show move is queried
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(showMoveParams)
+
+	_, ok := showResponse.(*moveop.ShowMoveForbidden)
+	if !ok {
+		t.Fatalf("Request failed: %#v", showResponse)
+	}
+}
