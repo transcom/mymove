@@ -58,8 +58,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "c8c4e0c0514d87f930c1342fef390db5329928b7"
-  version = "v1.13.20"
+  revision = "fb28e64a158b01377883badcc176216ac0fde3dd"
+  version = "v1.13.21"
 
 [[projects]]
   branch = "master"
@@ -176,7 +176,7 @@
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "a3092263d8b39f66ff6fe87b0109668eca1e24ff"
+  revision = "9acd88844bc186c3ec7f318cd3d56f1114b4ab99"
 
 [[projects]]
   branch = "master"
@@ -350,7 +350,7 @@
     ".",
     "oid"
   ]
-  revision = "a96442e255fce502751c604916b0e14e81be6bf9"
+  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -394,32 +394,6 @@
   revision = "b5c853d089b86134926274bc7a98496fee5e1d6b"
 
 [[projects]]
-  name = "github.com/markbates/pop"
-  packages = [
-    ".",
-    "associations",
-    "columns",
-    "fizz",
-    "fizz/translators",
-    "soda",
-    "soda/cmd",
-    "soda/cmd/generate",
-    "soda/cmd/schema"
-  ]
-  revision = "f230643ae0f8fa01e9444c2fb857ba1f1a78eb1f"
-  version = "v4.0.0"
-
-[[projects]]
-  name = "github.com/markbates/validate"
-  packages = [
-    ".",
-    "validators"
-  ]
-  revision = "cd8cc34c703420d6b084fbbfd5085e8e71c5b830"
-  version = "v1.0.0"
-
-[[projects]]
-  branch = "struct"
   name = "github.com/mattn/anko"
   packages = [
     "ast",
@@ -427,7 +401,8 @@
     "parser",
     "vm"
   ]
-  revision = "158d91ccdd07c67e99204497290ec9e687b7a0cd"
+  revision = "f4b54922efdd844c58a93f8faca1fe0c62ca44c3"
+  version = "v0.0.2"
 
 [[projects]]
   name = "github.com/mattn/go-colorable"
@@ -631,7 +606,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
+  revision = "13d03a9a82fba647c21a0ef8fba44a795d0f0835"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -668,7 +643,7 @@
     "imports"
   ]
   revision = "77106db15f689a60e7d4e085d967ac557b918fb2"
-  
+
 [[projects]]
   name = "google.golang.org/appengine"
   packages = [
