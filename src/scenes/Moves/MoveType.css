@@ -2,40 +2,28 @@
   background-color: red;
 }
 
-.move-type-button {
-  border: 1px solid #808080;
-  text-align: left;
-  padding: 2rem;
-  padding-top: 0rem;
-  box-shadow: 5px 5px 5px #e2e2e2;
-  cursor: pointer;
-  -webkit-user-select: none;
-  -moz-user-select: none;
-  -ms-user-select: none;
-  user-select: none;
-  min-height: 629px;
-}
-
 .restrict-left {
   margin-right: 3rem;
 }
 
-.move-type-button p:first-child {
-  margin-top: 3rem;
-}
 .font-3 {
-  font-size: .8em;
+  font-size: 0.8em;
 }
 
 .font-2 {
-  font-size: .8em;
+  font-size: 0.8em;
   color: rgb(142, 142, 142);
 }
-.move-type-button p, ul{
+.move-type-button {
+  text-align: left;
+}
+.move-type-button p,
+ul {
   margin-top: 0rem;
   margin-bottom: 0rem;
+  font-size: 1.7rem;
 }
-.move-type-button ul{
+.move-type-button ul {
   padding-left: 0;
 }
 
@@ -44,7 +32,7 @@
   list-style-type: none;
 }
 .move-type-button li:before {
-  content: " - ";
+  content: ' - ';
 }
 
 .move-type-button img {
@@ -53,20 +41,10 @@
   margin-bottom: 3rem;
 }
 
-/* On mouse-over, add a grey background color */
-.move-type-button:hover {
-  background-color: #f0f6fb;
-}
-
 .move-type-button-more-info {
   text-align: center;
   color: rgb(55, 155, 252);
 }
 .move-type-button-more-info a:visited {
   color: rgb(55, 155, 252);
-}
-
-.selected {
-  background-color:  #f0f6fb;
-  border: 2px solid #949494
 }
