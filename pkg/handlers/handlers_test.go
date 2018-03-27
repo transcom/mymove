@@ -16,7 +16,7 @@ import (
 type HandlerSuite struct {
 	suite.Suite
 	db           *pop.Connection
-	logger       *zap.Logger
+	logger       *zap.SugaredLogger
 	filesToClose []*os.File
 }
 
@@ -81,9 +81,10 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	logger, err := zap.NewDevelopment()
+	sugar := logger.Sugar()
 	if err != nil {
 		log.Panic(err)
 	}
-	hs := &HandlerSuite{db: db, logger: logger}
+	hs := &HandlerSuite{db: db, logger: sugar}
 	suite.Run(t, hs)
 }

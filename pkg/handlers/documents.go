@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
@@ -23,7 +21,7 @@ func payloadForDocumentModel(document models.Document) internalmessages.Document
 	return documentPayload
 }
 
-// CreateDocumentHandler creates a new document via POST /issue
+// CreateDocumentHandler creates a new document via POST /moves/{moveID}/documents/
 type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
@@ -32,7 +30,6 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	if !ok {
 		h.logger.Fatal("No User ID, this should never happen.")
 	}
-	// userID := uuid.Must(uuid.FromString(params.MoveID.String()))
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -54,7 +51,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	fmt.Printf("created a document with id %s\n", newDocument.ID)
+	h.logger.Info("created a document with id %s\n", newDocument.ID)
 	documentPayload := payloadForDocumentModel(newDocument)
 	return documentop.NewCreateDocumentCreated().WithPayload(&documentPayload)
 }

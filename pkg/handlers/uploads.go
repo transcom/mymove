@@ -3,7 +3,6 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/base64"
-	"fmt"
 	"io"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -25,7 +24,7 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 	}
 }
 
-// CreateUploadHandler creates a new upload via POST /upload
+// CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
 type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
@@ -36,7 +35,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	fmt.Printf("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
+	h.logger.Infof("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
@@ -81,7 +80,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error(verrs.Error())
 		return uploadop.NewCreateUploadBadRequest()
 	} else {
-		fmt.Printf("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
+		h.logger.Infof("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
 
 		key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
 
