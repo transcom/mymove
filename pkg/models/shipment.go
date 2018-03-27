@@ -39,7 +39,7 @@ type ShipmentWithOffer struct {
 	RequestedPickupDate             time.Time  `db:"requested_pickup_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
-	Market 													*string 	 `db:"market"`
+	Market                          *string    `db:"market"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
