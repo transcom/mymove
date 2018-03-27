@@ -17,7 +17,6 @@ type Document struct {
 	ID         uuid.UUID `db:"id"`
 	UploaderID uuid.UUID `db:"uploader_id"`
 	MoveID     uuid.UUID `db:"move_id"`
-	Name       string    `db:"name"`
 	CreatedAt  time.Time `db:"created_at"`
 	UpdatedAt  time.Time `db:"updated_at"`
 }

@@ -22,10 +22,10 @@ export const createDocumentFailure = error => ({
 });
 
 // Action creator
-export function createDocument(fileUpload, moveID) {
+export function createDocument(fileUpload) {
   return function(dispatch, getState) {
     dispatch(createDocumentRequest());
-    CreateDocument(fileUpload, moveID)
+    CreateDocument(fileUpload)
       .then(item => dispatch(createDocumentSuccess(item)))
       .catch(error => dispatch(createDocumentFailure(error)));
   };
@@ -36,7 +36,6 @@ const initialState = {
   hasErrored: false,
   hasSucceeded: false,
   confirmationText: '',
-  upload: null,
 };
 
 export function documentReducer(state = initialState, action) {
@@ -45,13 +44,13 @@ export function documentReducer(state = initialState, action) {
       return Object.assign({}, state, {
         hasSucceeded: true,
         hasErrored: false,
-        upload: action.item,
+        confirmationText: 'Document uploaded!',
       });
     case CREATE_DOCUMENT_FAILURE:
       return Object.assign({}, state, {
         hasSucceeded: false,
         hasErrored: true,
-        upload: {},
+        confirmationText: 'Upload error.',
       });
     default:
       return state;
