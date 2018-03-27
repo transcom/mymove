@@ -73,16 +73,6 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		nil,
 	)
 
-	// Make a blackout date with market, gbloc, and channel.
-	MakeBlackoutDate(db,
-		tspList[rand.Intn(len(tspList))],
-		time.Now(),
-		time.Now(),
-		&tdlList[rand.Intn(len(tdlList))],
-		&market,
-		&gbloc,
-	)
-
 	// Make a blackout date with market and source gbloc.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],

@@ -28,8 +28,8 @@ type BlackoutDate struct {
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
 func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
-
 	var err error
+
 	if shipment.Market != nil {
 		sql := `SELECT
 			*
