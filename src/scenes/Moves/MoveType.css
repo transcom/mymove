@@ -16,6 +16,7 @@
 }
 .move-type-button {
   text-align: left;
+  min-height: 630px;
 }
 .move-type-button p,
 ul {
