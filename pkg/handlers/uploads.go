@@ -30,11 +30,6 @@ type CreateUploadHandler FileHandlerContext
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 	file := params.File
-	if params.File == nil {
-		// TODO Can swagger handle this check?
-		return uploadop.NewCreateUploadBadRequest()
-	}
-
 	h.logger.Infof("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())

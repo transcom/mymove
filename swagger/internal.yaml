@@ -443,6 +443,7 @@ paths:
           name: file
           type: file
           description: The file to upload.
+          required: true
       responses:
         201:
           description: created upload
