@@ -104,7 +104,7 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
 
 	if len(*s3Bucket) == 0 {
 		log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
