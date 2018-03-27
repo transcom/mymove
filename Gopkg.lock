@@ -58,8 +58,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "c8c4e0c0514d87f930c1342fef390db5329928b7"
-  version = "v1.13.20"
+  revision = "fb28e64a158b01377883badcc176216ac0fde3dd"
+  version = "v1.13.21"
 
 [[projects]]
   branch = "master"
@@ -170,13 +170,13 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "b1db76181cbf53cf97a98980762a2bbf7cca8a0f"
+  revision = "62281b694b396a17fe3e4313ee8b0ca2c3cca719"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/spec"
   packages = ["."]
-  revision = "a3092263d8b39f66ff6fe87b0109668eca1e24ff"
+  revision = "9acd88844bc186c3ec7f318cd3d56f1114b4ab99"
 
 [[projects]]
   branch = "master"
@@ -218,8 +218,8 @@
 [[projects]]
   name = "github.com/gobuffalo/envy"
   packages = ["."]
-  revision = "1da02dbc651746580b648821369e93d6da80b5e0"
-  version = "v1.6.1"
+  revision = "ef60bfc50c8f92d1ee64674d8ce7a48f1f67625e"
+  version = "v1.6.2"
 
 [[projects]]
   name = "github.com/gobuffalo/makr"
@@ -230,8 +230,8 @@
 [[projects]]
   name = "github.com/gobuffalo/packr"
   packages = ["."]
-  revision = "3b045e91f1107684685627303665f7e02b1be016"
-  version = "v1.10.6"
+  revision = "3402a167bccf1bdd5c93ca820be9f27bba46261e"
+  version = "v1.10.7"
 
 [[projects]]
   name = "github.com/gobuffalo/pop"
@@ -350,7 +350,7 @@
     ".",
     "oid"
   ]
-  revision = "b2004221932bd6b13167ef654c81cffac36f7537"
+  revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
   name = "github.com/magiconair/properties"
@@ -606,7 +606,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "91ee8cde435411ca3f1cd365e8f20131aed4d0a1"
+  revision = "13d03a9a82fba647c21a0ef8fba44a795d0f0835"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -642,7 +642,7 @@
     "go/types/typeutil",
     "imports"
   ]
-  revision = "4c0f0e48a635ba08a80fbebdb19258a0f675a910"
+  revision = "77106db15f689a60e7d4e085d967ac557b918fb2"
 
 [[projects]]
   name = "google.golang.org/appengine"
@@ -674,10 +674,10 @@
   version = "v1.20.0"
 
 [[projects]]
+  branch = "v2"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "7f97868eec74b32b0982dd158a51a446d1da7eb5"
-  version = "v2.1.1"
+  revision = "4fc5987536ef307a24ca299aee7ae301cde3d221"
 
 [solve-meta]
   analyzer-name = "dep"

@@ -21,7 +21,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		RequestedPickupDate:       requestedPickup,
 		DeliveryDate:              delivery,
 		BookDate:                  DateInsidePerformancePeriod,
-		GBLOC:                     "AGFM",
+		SourceGBLOC:               "AGFM",
 		Market:                    &market,
 	}
 

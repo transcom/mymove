@@ -53,7 +53,7 @@ func MakeBlackoutDateData(db *pop.Connection) {
 	market := "dHHG"
 	gbloc := "PORK"
 
-	// Make a blackout date with market and channel.
+	// Make a blackout date with market.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
 		time.Now(),
@@ -73,23 +73,13 @@ func MakeBlackoutDateData(db *pop.Connection) {
 		nil,
 	)
 
-	// Make a blackout date with market, gbloc, and channel.
+	// Make a blackout date with market and source gbloc.
 	MakeBlackoutDate(db,
 		tspList[rand.Intn(len(tspList))],
 		time.Now(),
 		time.Now(),
 		&tdlList[rand.Intn(len(tdlList))],
-		&gbloc,
 		&market,
-	)
-
-	// Make a blackout date with cos, market, gbloc, and channel.
-	MakeBlackoutDate(db,
-		tspList[rand.Intn(len(tspList))],
-		time.Now(),
-		time.Now(),
-		&tdlList[rand.Intn(len(tdlList))],
 		&gbloc,
-		&market,
 	)
 }
