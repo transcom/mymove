@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/swag"
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 )
 
 // RunScenarioTwo creates 9 shipments to be divided between 5 TSPs in 1 TDL and 10 shipments to be divided among 4 TSPs in TDL 2.
