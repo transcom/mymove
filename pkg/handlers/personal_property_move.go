@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	authctx "github.com/transcom/mymove/pkg/auth/context"
@@ -49,7 +49,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		case models.FetchErrorForbidden:
 			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 	} else { // The given move does belong to the current user.
 		newPersonallyProcuredMove := models.PersonallyProcuredMove{
@@ -99,7 +99,7 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 		case models.FetchErrorForbidden:
 			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 	} else { // The given move does belong to the current user.
 		ppms, err := models.GetPersonallyProcuredMovesForMoveID(h.db, moveID)
@@ -114,6 +114,70 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 			}
 			response = ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 		}
+	}
+
+	return response
+}
+
+// PatchPersonallyProcuredMoveHandler Patchs a PPM
+type PatchPersonallyProcuredMoveHandler HandlerContext
+
+// Handle is the handler
+func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
+	var response middleware.Responder
+	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
+	if !ok {
+		h.logger.Fatal("No User ID, this should never happen.")
+	}
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		h.logger.Fatal("Invalid MoveID, this should never happen.")
+	}
+	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	if err != nil {
+		h.logger.Fatal("Invalid PersonallyProcuredMoveID, this should never happen.")
+	}
+
+	// Make sure the move exists and is owned by the user
+	exists, userOwns := models.ValidateMoveOwnership(h.db, userID, moveID)
+	if !exists {
+		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
+		return response
+	} else if !userOwns {
+		response = ppmop.NewPatchPersonallyProcuredMoveForbidden()
+		return response
+	}
+
+	ppm, err := models.GetPersonallyProcuredMoveForID(h.db, ppmID)
+	if err != nil {
+		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
+		return response
+	} else if ppm.MoveID != moveID {
+		// Saved move ID should match request move ID
+		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
+		return response
+	}
+
+	// TODO: Is there a pattern for updating that doesn't require hardcoding fields?
+	size := params.PatchPersonallyProcuredMovePayload.Size
+	weightEstimate := params.PatchPersonallyProcuredMovePayload.WeightEstimate
+
+	if size != nil {
+		ppm.Size = size
+	}
+	if weightEstimate != nil {
+		ppm.WeightEstimate = weightEstimate
+	}
+
+	if verrs, err := h.db.ValidateAndUpdate(&ppm); err != nil {
+		h.logger.Error("DB Patch", zap.Error(err))
+		response = ppmop.NewPatchPersonallyProcuredMoveInternalServerError()
+	} else if verrs.HasAny() {
+		h.logger.Error("We got verrs!", zap.String("verrs", verrs.String()))
+		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
+	} else {
+		ppmPayload := payloadForPPMModel(ppm)
+		response = ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 	}
 
 	return response

@@ -4,11 +4,11 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -16,11 +16,12 @@ import (
 
 // Move is an object representing a move
 type Move struct {
-	ID               uuid.UUID                         `json:"id" db:"id"`
-	CreatedAt        time.Time                         `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time                         `json:"updated_at" db:"updated_at"`
-	UserID           uuid.UUID                         `json:"user_id" db:"user_id"`
-	SelectedMoveType internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
+	ID               uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt        time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time                          `json:"updated_at" db:"updated_at"`
+	UserID           uuid.UUID                          `json:"user_id" db:"user_id"`
+	User             User                               `belongs_to:"user"`
+	SelectedMoveType *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 }
 
 // String is not required by pop and may be deleted
@@ -43,7 +44,6 @@ func (m Moves) String() string {
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.UserID, Name: "UserID"},
-		&validators.StringIsPresent{Field: string(m.SelectedMoveType), Name: "SelectedMoveType"},
 	), nil
 }
 
@@ -124,6 +124,23 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 	}
 
 	return result, err
+}
+
+// ValidateMoveOwnership validates that a user owns a move that exists
+func ValidateMoveOwnership(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (bool, bool) {
+	exists := false
+	userOwns := false
+	var move Move
+	err := db.Find(&move, id)
+	if err == nil {
+		exists = true
+		// TODO: Handle case where more than one user is authorized to modify move
+		if uuid.Equal(move.UserID, userID) {
+			userOwns = true
+		}
+	}
+
+	return exists, userOwns
 }
 
 // GetMovesForUserID gets all move models for a given user ID

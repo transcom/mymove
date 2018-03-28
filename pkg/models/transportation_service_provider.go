@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 // TransportationServiceProvider models moving companies used to move
@@ -20,14 +20,14 @@ type TransportationServiceProvider struct {
 	Name                     string    `json:"name" db:"name"`
 }
 
-// TSPWithBVSAndAwardCount represents a list of TSPs along with their BVS
-// and awarded shipment counts.
-type TSPWithBVSAndAwardCount struct {
+// TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS
+// and offered shipment counts.
+type TSPWithBVSAndOfferCount struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
 	Name                      string    `json:"name" db:"name"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
-	AwardCount                int       `json:"award_count" db:"award_count"`
+	OfferCount                int       `json:"offer_count" db:"offer_count"`
 }
 
 // TSPWithBVSCount represents a list of TSPs along with their BVS counts.

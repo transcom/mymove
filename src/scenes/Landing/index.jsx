@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
 import { createMove } from 'scenes/Moves/ducks';
+
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
@@ -16,7 +17,7 @@ export class Landing extends Component {
       this.props.push(`moves/${this.props.currentMove.id}`);
   }
   startMove = values => {
-    this.props.createMove({ selected_move_type: 'COMBO' });
+    this.props.createMove({});
   };
   render() {
     return (
@@ -24,6 +25,7 @@ export class Landing extends Component {
         <h1>Welcome!</h1>
         <div>
           <LoginButton />
+          <div />
         </div>
         {this.props.isLoggedIn && (
           <button onClick={this.startMove}>Start a move</button>
@@ -39,6 +41,7 @@ const mapStateToProps = state => ({
   hasSubmitError: state.submittedMoves.hasSubmitError,
   hasSubmitSuccess: state.submittedMoves.hasSubmitSuccess,
 });
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
 }

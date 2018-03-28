@@ -5,13 +5,13 @@ import (
 	"log"
 	"math/rand"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeTSPPerformance makes a single best_value_score record
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score int, awardCount int) (models.TransportationServiceProviderPerformance, error) {
+	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
@@ -20,7 +20,7 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
 		BestValueScore:                  score,
-		AwardCount:                      awardCount,
+		OfferCount:                      offerCount,
 	}
 
 	_, err := db.ValidateAndSave(&tspPerformance)
@@ -32,8 +32,8 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 }
 
 // MakeTSPPerformanceData creates three best value score records
-// Variable rounds describes how many rounds should have already been awarded
-// `none` indicates no rounds have been awarded, `half` indicates half a round, and `full` a full round.
+// Variable rounds describes how many rounds should have already been offered
+// `none` indicates no rounds have been offered, `half` indicates half a round, and `full` a full round.
 func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 	// These two queries duplicate ones in other testdatagen files; not optimal
 	tspList := []models.TransportationServiceProvider{}
@@ -52,22 +52,22 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 	for qualityBand := 1; qualityBand < 5; qualityBand++ {
 		// For quality band 1, generate a random number between 75 - 100,
 		// for quality band 2 between 50-75, etc.
-		var awards int
+		var offers int
 		minBvs := (qualityBand - 1) * 25
 		bvs := 100 - (rand.Intn(25) + minBvs)
 		// Set rounds according to the flag passed in
 
 		if rounds == "half" {
 			if qualityBand == 1 || qualityBand == 2 {
-				awards = models.AwardsPerQualityBand[qualityBand]
+				offers = models.OffersPerQualityBand[qualityBand]
 			} else {
-				awards = 0
+				offers = 0
 			}
 		} else if rounds == "full" {
-			awards = models.AwardsPerQualityBand[qualityBand]
+			offers = models.OffersPerQualityBand[qualityBand]
 		} else {
-			// default case, no awards
-			awards = 0
+			// default case, no offers
+			offers = 0
 		}
 
 		MakeTSPPerformance(
@@ -76,7 +76,7 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 			tdlList[rand.Intn(len(tdlList))],
 			&qualityBand,
 			bvs,
-			awards,
+			offers,
 		)
 	}
 }

@@ -4,7 +4,8 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { loadSchema, submitForm, resetSuccess } from './ducks';
+import { submitForm, resetSuccess } from './ducks';
+import { loadSchema } from 'shared/Swagger/ducks';
 
 import Alert from 'shared/Alert';
 
@@ -76,7 +77,11 @@ DD1299.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.DD1299;
+  const props = { ...state.DD1299, schema: {} };
+  if (state.swagger.spec) {
+    props.schema = state.swagger.spec.definitions.CreateForm1299Payload;
+  }
+  return props;
 }
 
 function mapDispatchToProps(dispatch) {

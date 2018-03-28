@@ -45,7 +45,7 @@ Because of 2. above the API will need to be fully documented, secured and readil
 * `+` Truss has already done most of the preparatory work for this in our Prototype Web Application
 * `+` We have control of a known codebase
 * `-` It is not clear how best to integrate OpenAPI code generation tools into our current workflow.
-* `-` We need to manage the evaluation, selection and integration of all the parts of the system, e.g. [authentication](https://github.com/markbates/goth), [database management](https://github.com/markbates/pop) etc
+* `-` We need to manage the evaluation, selection and integration of all the parts of the system, e.g. [authentication](https://github.com/markbates/goth), [database management](https://github.com/gobuffalo/pop) etc
 
 ### [AWS Lambda](https://aws.amazon.com/lambda/)
 

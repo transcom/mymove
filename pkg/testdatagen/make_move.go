@@ -3,7 +3,7 @@ package testdatagen
 import (
 	"log"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -17,10 +17,10 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	if err != nil {
 		return move, err
 	}
-
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move = models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: internalmessages.SelectedMoveTypeCOMBO,
+		SelectedMoveType: &selectedType,
 	}
 
 	verrs, err := db.ValidateAndSave(&move)

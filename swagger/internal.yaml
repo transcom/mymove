@@ -157,6 +157,69 @@ paths:
           description: invalid request
         401:
           description: request requires user authentication
+  /moves/{moveId}:
+    patch:
+      summary: Patches the move
+      description: Any fields sent in this request will be set on the move referenced
+      operationId: patchMove
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: patchMovePayload
+          required: true
+          schema:
+            $ref: '#/definitions/PatchMovePayload'
+      responses:
+        201:
+          description: updated instance of move
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move is not found
+        500:
+          description: internal server error
+    get:
+      summary: Returns the given move
+      description: Returns the given move
+      operationId: showMove
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the instance of the move
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move is not found
+        500:
+          description: internal server error
+
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
@@ -239,7 +302,7 @@ paths:
           description: UUID of the move these PPMs are associated with
       responses:
         200:
-          description: created instance of personally_procured_move
+          description: returns list of personally_procured_move
           schema:
             $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
         400:
@@ -248,7 +311,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move{personallyProcuredMoveId}:
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
     post:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
@@ -269,7 +332,7 @@ paths:
           required: true
           description: UUID of the PPM being updated
         - in: body
-          name: personallyProcuredMovePayload
+          name: updatePersonallyProcuredMovePayload
           required: true
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
@@ -284,6 +347,8 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        500:
+          description: internal server error
     patch:
       summary: Patches the PPM
       description: Any fields sent in this request will be set on the PPM referenced
@@ -304,7 +369,7 @@ paths:
           required: true
           description: UUID of the PPM being patched
         - in: body
-          name: personallyProcuredMovePayload
+          name: patchPersonallyProcuredMovePayload
           required: true
           schema:
             $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
@@ -319,6 +384,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+        404:
+          description: ppm is not found
+        500:
+          description: internal server error
     get:
       summary: Returns the given PPM
       description: Returns the given PPM
@@ -349,6 +418,70 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/documents:
+    post:
+      summary: Create a new document
+      description: Documents represent a physical artifact such as a scanned document or a PDF file
+      operationId: createDocument
+      tags:
+        - documents
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: documentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/PostDocumentPayload'
+      responses:
+        201:
+          description: created document
+          schema:
+            $ref: '#/definitions/DocumentPayload'
+        400:
+          description: invalid request
+        500:
+          description: server error
+  /moves/{moveId}/documents/{documentId}/uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+        500:
+          description: server error
 
 definitions:
   CreatePersonallyProcuredMovePayload:
@@ -356,38 +489,25 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-        x-nullable: true
-      updated_at:
-        type: string
-        format: date-time
         x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -400,7 +520,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
-      weightEstimate:
+      weight_estimate:
         type: integer
         title: Weight Estimate
         x-nullable: true
@@ -445,9 +565,13 @@ definitions:
    required:
     - id
     - user_id
-    - selected_move_type
     - created_at
     - updated_at
+  PatchMovePayload:
+   type: object
+   properties:
+     selected_move_type:
+       $ref: '#/definitions/SelectedMoveType'
   SelectedMoveType:
     type: string
     title: Selected Move Type
@@ -455,9 +579,10 @@ definitions:
       - HHG
       - PPM
       - COMBO
+    x-nullable: true
     x-display-value:
       HHG: Household Goods Move
-      PPM: Personal Property Move
+      PPM: Personal Procured Move
       COMBO: Both HHG and PPM
   IndexMovesPayload:
     type: array
@@ -479,6 +604,49 @@ definitions:
       - date
       - signature
       - certification_text
+  DocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        title: Human-understandable name for this document
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/UploadPayload'
+    required:
+      - id
+      - name
+      - uploads
+  PostDocumentPayload:
+    type: object
+    properties:
+      name:
+        type: string
+        title: Human-understandable name for this document
+  UploadPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      url:
+        type: string
+        format: uri
+        example: https://uploads.domain.test/dir/c56a4180-65aa-42ec-a945-5fd21dec0538
+      filename:
+        type: string
+        format: string
+        example: filename.pdf
+    required:
+      - id
+      - url
+      - filename
   CreateIssuePayload:
     type: object
     properties:

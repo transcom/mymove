@@ -1,11 +1,6 @@
 import { getClient, checkResponse } from 'shared/api';
 import { legaleseSample } from './legaleseSample';
 
-export async function GetSpec() {
-  const client = await getClient();
-  return client.spec;
-}
-
 function timeout(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
