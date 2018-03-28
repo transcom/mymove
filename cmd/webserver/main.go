@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"path"
 
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
@@ -17,6 +18,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 var logger *zap.Logger
@@ -55,6 +57,8 @@ func main() {
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
+
+	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 
 	flag.Parse()
 
@@ -105,7 +109,14 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
+
+	if len(*s3Bucket) == 0 {
+		log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+	}
+	aws := awssession.Must(awssession.NewSession())
+	storer := storage.NewS3(*s3Bucket, logger, aws)
+	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
 
 	// Base routes
 	root := goji.NewMux()
@@ -125,7 +136,7 @@ func main() {
 	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
+	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()
