@@ -6,8 +6,8 @@ import PropTypes from 'prop-types';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
 import WizardPage from 'shared/WizardPage';
-import { loadSchema, submitForm, resetSuccess } from 'scenes/DD1299/ducks';
-
+import { submitForm, resetSuccess } from 'scenes/DD1299/ducks';
+import { loadSchema } from 'shared/Swagger/ducks';
 import Alert from 'shared/Alert';
 
 export class DemoWorkflow extends Component {
@@ -91,7 +91,11 @@ DemoWorkflow.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.DD1299;
+  const props = { ...state.DD1299, schema: {} };
+  if (state.swagger.spec) {
+    props.schema = state.swagger.spec.definitions.CreateForm1299Payload;
+  }
+  return props;
 }
 
 function mapDispatchToProps(dispatch) {

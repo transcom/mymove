@@ -7,11 +7,12 @@ repos:
       - id: check-yaml
         exclude: config/database.yml # database.yml is not a valid yaml file, it contains go templating
       - id: detect-private-key
+        exclude: config/devlocal-https.key
       - id: trailing-whitespace
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.7.1
+    rev: v0.8.1
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -59,7 +60,7 @@ repos:
         files: \.md$
 
   - repo: git://github.com/dnephin/pre-commit-golang
-    rev: v0.3
+    rev: v0.3.2
     hooks:
     -   id: go-fmt
     -   id: go-vet

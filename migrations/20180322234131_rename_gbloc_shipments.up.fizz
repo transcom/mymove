@@ -1,0 +1,1 @@
+rename_column("shipments", "gbloc", "source_gbloc")

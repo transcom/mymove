@@ -147,6 +147,11 @@ function Header() {
                     <span>Submitted Feedback</span>
                   </NavLink>
                 </li>
+                <li>
+                  <NavLink to="/upload" className="usa-nav-link">
+                    <span>Upload a Document</span>
+                  </NavLink>
+                </li>
               </ul>
             </li>
           </ul>

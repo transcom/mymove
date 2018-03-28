@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -47,4 +47,11 @@ func GetPersonallyProcuredMovesForMoveID(db *pop.Connection, moveID uuid.UUID) (
 	query := db.Where("move_id = $1", moveID)
 	err := query.All(&ppms)
 	return ppms, err
+}
+
+// GetPersonallyProcuredMoveForID returns a PersonallyProcuredMove model for a given ID
+func GetPersonallyProcuredMoveForID(db *pop.Connection, id uuid.UUID) (PersonallyProcuredMove, error) {
+	var ppm PersonallyProcuredMove
+	err := db.Find(&ppm, id)
+	return ppm, err
 }

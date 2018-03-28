@@ -1,0 +1,51 @@
+.move-type-content h3 {
+  background-color: red;
+}
+
+.restrict-left {
+  margin-right: 3rem;
+}
+
+.font-3 {
+  font-size: 0.8em;
+}
+
+.font-2 {
+  font-size: 0.8em;
+  color: rgb(142, 142, 142);
+}
+.move-type-button {
+  text-align: left;
+  min-height: 630px;
+}
+.move-type-button p,
+ul {
+  margin-top: 0rem;
+  margin-bottom: 0rem;
+  font-size: 1.7rem;
+}
+.move-type-button ul {
+  padding-left: 0;
+}
+
+.move-type-button li {
+  /*clear:both;*/
+  list-style-type: none;
+}
+.move-type-button li:before {
+  content: ' - ';
+}
+
+.move-type-button img {
+  margin-top: 3rem;
+  height: 35px;
+  margin-bottom: 3rem;
+}
+
+.move-type-button-more-info {
+  text-align: center;
+  color: rgb(55, 155, 252);
+}
+.move-type-button-more-info a:visited {
+  color: rgb(55, 155, 252);
+}

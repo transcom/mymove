@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -58,6 +58,10 @@ func TestAuthSuite(t *testing.T) {
 	}
 	hs := &AuthSuite{db: db, logger: logger}
 	suite.Run(t, hs)
+}
+
+func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
+	return NewLoginGovProvider("fakeHostname", "secret_key", "client_id", logger)
 }
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
@@ -114,7 +118,8 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := AuthorizationLogoutHandler(NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger))
+	authContext := NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger, fakeLoginGovProvider(suite.logger))
+	handler := AuthorizationLogoutHandler(authContext)
 
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, fakeUUID, fakeToken)

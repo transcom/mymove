@@ -1,17 +1,8 @@
-import configureStore from 'redux-mock-store';
-// import thunk from 'redux-thunk';
-import {
-  feedbackReducer,
-  createIssueRequest,
-  createIssueSuccess,
-  createIssueFailure,
-  updateIssueValue,
-  createIssue,
-} from './ducks';
+import { feedbackReducer } from './ducks';
 
 describe('Feedback Reducer', () => {
   it('Should handle CREATE_ISSUE_SUCCESS', () => {
-    const initialState = { pendingValue: '', confirmationText: '' };
+    const initialState = null;
 
     const newState = feedbackReducer(initialState, {
       type: 'CREATE_ISSUE_SUCCESS',
@@ -19,15 +10,14 @@ describe('Feedback Reducer', () => {
     });
 
     expect(newState).toEqual({
-      pendingValue: '',
-      confirmationText: 'Feedback submitted!',
-      hasSubmitError: false,
-      hasSubmitSuccess: true,
+      hasErrored: false,
+      hasSucceeded: true,
+      isLoading: false,
     });
   });
 
   it('Should handle CREATE_ISSUE_FAILURE', () => {
-    const initialState = { pendingValue: '', confirmationText: '' };
+    const initialState = null;
 
     const newState = feedbackReducer(initialState, {
       type: 'CREATE_ISSUE_FAILURE',
@@ -35,10 +25,10 @@ describe('Feedback Reducer', () => {
     });
 
     expect(newState).toEqual({
-      pendingValue: '',
-      confirmationText: 'Submission error.',
-      hasSubmitError: true,
-      hasSubmitSuccess: false,
+      error: 'No bueno.',
+      hasErrored: true,
+      hasSucceeded: false,
+      isLoading: false,
     });
   });
 });

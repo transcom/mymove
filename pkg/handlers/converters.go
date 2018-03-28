@@ -4,7 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/strfmt"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 )
 
 // These functions facilitate converting from the go types the db uses
@@ -32,6 +32,11 @@ func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
 func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
+}
+
+func fmtURI(uri string) *strfmt.URI {
+	fmtURI := strfmt.URI(uri)
+	return &fmtURI
 }
 
 func fmtInt64(i int) *int64 {

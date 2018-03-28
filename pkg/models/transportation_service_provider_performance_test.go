@@ -2,7 +2,7 @@ package models_test
 
 import (
 	"github.com/go-openapi/swag"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,7 +14,7 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance := &TransportationServiceProviderPerformance{BestValueScore: 101}
 
 	var expErrors = map[string][]string{
-		"best_value_score": []string{"101 is not less than 101."},
+		"best_value_score": {"101 is not less than 101."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)
@@ -22,22 +22,22 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance = &TransportationServiceProviderPerformance{BestValueScore: -1}
 
 	expErrors = map[string][]string{
-		"best_value_score": []string{"-1 is not greater than -1."},
+		"best_value_score": {"-1 is not greater than -1."},
 	}
 
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
-func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
+func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 
-	err := IncrementTSPPerformanceAwardCount(suite.db, perf.ID)
+	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
-		t.Fatalf("Could not increment award_count: %v", err)
+		t.Fatalf("Could not increment offer_count: %v", err)
 	}
 
 	performance := TransportationServiceProviderPerformance{}
@@ -45,8 +45,8 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceAwardCount() {
 		t.Fatalf("could not find perf: %v", err)
 	}
 
-	if performance.AwardCount != 1 {
-		t.Errorf("Wrong AwardCount: expected %d, got %d", 1, performance.AwardCount)
+	if performance.OfferCount != 1 {
+		t.Errorf("Wrong OfferCount: expected %d, got %d", 1, performance.OfferCount)
 	}
 }
 
@@ -115,7 +115,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
 
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
@@ -132,10 +132,10 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceAllZeros() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -152,10 +152,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceAllZeros() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -172,10 +172,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneAssigned() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -192,10 +192,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceOneFullRound() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 6, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 4, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 10, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 6, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 4, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -212,10 +212,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceTwoFullRounds() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -232,9 +232,9 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceFirstBandFilled() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 10, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 2, QualityBand: swag.Int(3)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 10, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 2, QualityBand: swag.Int(3)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -248,12 +248,12 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceThreeBands() {
 	}
 }
 
-func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
+func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfOffered() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -270,10 +270,10 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformanceHalfAwarded() {
 
 func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 	t := suite.T()
-	tspp1 := TransportationServiceProviderPerformance{AwardCount: 5, QualityBand: swag.Int(1)}
-	tspp2 := TransportationServiceProviderPerformance{AwardCount: 3, QualityBand: swag.Int(2)}
-	tspp3 := TransportationServiceProviderPerformance{AwardCount: 1, QualityBand: swag.Int(3)}
-	tspp4 := TransportationServiceProviderPerformance{AwardCount: 0, QualityBand: swag.Int(4)}
+	tspp1 := TransportationServiceProviderPerformance{OfferCount: 5, QualityBand: swag.Int(1)}
+	tspp2 := TransportationServiceProviderPerformance{OfferCount: 3, QualityBand: swag.Int(2)}
+	tspp3 := TransportationServiceProviderPerformance{OfferCount: 1, QualityBand: swag.Int(3)}
+	tspp4 := TransportationServiceProviderPerformance{OfferCount: 0, QualityBand: swag.Int(4)}
 
 	choices := map[int]TransportationServiceProviderPerformance{
 		1: tspp1,
@@ -298,7 +298,7 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
 	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
 	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
-	// TSPs should be orderd by award_count first, then BVS.
+	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0)
@@ -336,7 +336,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
-	// What matter is the BVS score order; award_count has no influence.
+	// What matter is the BVS score order; offer count has no influence.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1)
