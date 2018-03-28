@@ -57,8 +57,10 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
+		ID:         id,
 		DocumentID: documentID,
 		UploaderID: userID,
 		Filename:   file.Header.Filename,
@@ -68,30 +70,38 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		Checksum:    checksum,
 	}
 
-	verrs, err := h.db.ValidateAndCreate(&newUpload)
+	// validate upload before pushing file to S3
+	verrs, err := newUpload.Validate(h.db)
+	if err != nil {
+		h.logger.Error("Failed to validate", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	} else if verrs.HasAny() {
+		// TODO return validation errors
+		h.logger.Error(verrs.Error())
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	// Push file to S3
+	key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", id.String())
+	_, err = h.storage.Store(key, file.Data, checksum)
+	if err != nil {
+		h.logger.Error("failed to store", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	// Already validated upload, so just save
+	err = h.db.Create(&newUpload)
 	if err != nil {
 		h.logger.Error("DB Insertion", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
-	} else if verrs.HasAny() {
-		h.logger.Error(verrs.Error())
-		return uploadop.NewCreateUploadBadRequest()
-	} else {
-		h.logger.Infof("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
-
-		key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
-
-		_, err := h.storage.Store(key, file.Data, checksum)
-		if err != nil {
-			h.logger.Error("failed to store", zap.Error(err))
-			return uploadop.NewCreateUploadInternalServerError()
-		}
-
-		url, err := h.storage.PresignedURL(key)
-		if err != nil {
-			h.logger.Error("failed to get presigned url", zap.Error(err))
-			return uploadop.NewCreateUploadInternalServerError()
-		}
-		uploadPayload := payloadForUploadModel(newUpload, url)
-		return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
 	}
+	h.logger.Infof("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
+
+	url, err := h.storage.PresignedURL(key)
+	if err != nil {
+		h.logger.Error("failed to get presigned url", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+	uploadPayload := payloadForUploadModel(newUpload, url)
+	return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
 }
