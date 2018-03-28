@@ -15,9 +15,12 @@ func RunScenarioOne(db *pop.Connection) {
 	// Make a TDL to contain our tests
 	tdl, _ := MakeTDL(db, "california", "90210", "2")
 
+	// Make a market
+	market := "dHHG"
+
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, time.Now(), time.Now(), time.Now(), tdl)
+		MakeShipment(db, time.Now(), time.Now(), time.Now(), tdl, market)
 	}
 
 	// Make TSPs in the same TDL to handle these shipments

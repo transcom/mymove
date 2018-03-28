@@ -34,6 +34,11 @@ func fmtDate(date time.Time) *strfmt.Date {
 	return &fmtDate
 }
 
+func fmtURI(uri string) *strfmt.URI {
+	fmtURI := strfmt.URI(uri)
+	return &fmtURI
+}
+
 func fmtInt64(i int) *int64 {
 	fmtInt := int64(i)
 	return &fmtInt

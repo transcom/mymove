@@ -2,8 +2,12 @@ package handlers
 
 import (
 	"log"
+	"mime/multipart"
+	"os"
+	"path"
 	"testing"
 
+	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
@@ -11,8 +15,9 @@ import (
 
 type HandlerSuite struct {
 	suite.Suite
-	db     *pop.Connection
-	logger *zap.Logger
+	db           *pop.Connection
+	logger       *zap.SugaredLogger
+	filesToClose []*os.File
 }
 
 func (suite *HandlerSuite) SetupTest() {
@@ -29,6 +34,44 @@ func (suite *HandlerSuite) mustSave(model interface{}) {
 	}
 }
 
+func (suite *HandlerSuite) fixture(name string) *runtime.File {
+	fixtureDir := "fixtures"
+	cwd, err := os.Getwd()
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+
+	fixturePath := path.Join(cwd, fixtureDir, name)
+
+	info, err := os.Stat(fixturePath)
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+	header := multipart.FileHeader{
+		Filename: name,
+		Size:     info.Size(),
+	}
+	data, err := os.Open(fixturePath)
+	if err != nil {
+		suite.T().Fatal(err)
+	}
+	suite.closeFile(data)
+	return &runtime.File{
+		Header: &header,
+		Data:   data,
+	}
+}
+
+func (suite *HandlerSuite) AfterTest() {
+	for _, file := range suite.filesToClose {
+		file.Close()
+	}
+}
+
+func (suite *HandlerSuite) closeFile(file *os.File) {
+	suite.filesToClose = append(suite.filesToClose, file)
+}
+
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -38,9 +81,10 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	logger, err := zap.NewDevelopment()
+	sugar := logger.Sugar()
 	if err != nil {
 		log.Panic(err)
 	}
-	hs := &HandlerSuite{db: db, logger: logger}
+	hs := &HandlerSuite{db: db, logger: sugar}
 	suite.Run(t, hs)
 }

@@ -53,7 +53,9 @@
     "private/protocol/query",
     "private/protocol/query/queryutil",
     "private/protocol/rest",
+    "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
+    "service/s3",
     "service/ssm",
     "service/ssm/ssmiface",
     "service/sts"
@@ -459,6 +461,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "github.com/satori/go.uuid"
+  packages = ["."]
+  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
+  version = "v1.2.0"
+
+[[projects]]
   name = "github.com/segmentio/chamber"
   packages = [
     ".",
@@ -682,6 +690,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "45e81ec3ec8d310f9d7ece59c0180f67682caf614dc04982f9b8525685ac7497"
+  inputs-digest = "8b9eeeb9bfb4905edd5320f56de65b296d5954e6d5a98c1b2766c7ce04a10b52"
   solver-name = "gps-cdcl"
   solver-version = 1
