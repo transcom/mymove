@@ -22,20 +22,23 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, err := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
-	blackoutStartDate := time.Now()
+
+	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
 
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+
 	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
+		RequestedPickupDate:             pickupDate,
 		PickupDate:                      pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
@@ -61,21 +64,23 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
-	// Sets a blackout period that starts 12 months from today and ends 13 months from today
-	blackoutStartDate := time.Now().AddDate(1, 0, 0)
-	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
 
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+
+	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
+
+	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
+	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
 	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, &sourceGBLOC, &market)
 
-	pickupDate := blackoutStartDate.AddDate(0, 0, 1)
-	deliverDate := blackoutStartDate.AddDate(0, 0, 5)
+	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
+	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
+	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, blackoutPickupDate, blackoutPickupDate, blackoutDeliverDate, tdl, sourceGBLOC, &market)
 
-	// Create a shipment within blackout dates and one not within blackout dates
-	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now().AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	pickupDate := blackoutEndDate.AddDate(0, 0, 1)
+	deliverDate := blackoutEndDate.AddDate(0, 0, 2)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -109,10 +114,12 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Creates a TSP and TDL with a blackout date connected to both.
 	testTSP1, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
 	testTDL, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
+
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
 	testStartDate := time.Now()
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
+
 	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil)
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
@@ -195,9 +202,12 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a shipment
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	pickupDate := testdatagen.DateInsidePeakRateCycle
+	deliverDate := testdatagen.DateInsidePeakRateCycle
+
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
@@ -207,7 +217,8 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      time.Now(),
+		PickupDate:                      pickupDate,
+		RequestedPickupDate:             pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
@@ -268,15 +279,15 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	// Make a TDL to contain our tests
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 
-	// Make a market
-	market := "dHHG"
-
-	// Make a source GBLOC
-	sourceGBLOC := "OHAI"
+	// Shipment details
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	pickupDate := testdatagen.DateInsidePeakRateCycle
+	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
 	// Make a few shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
+		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market)
 	}
 
 	// Make a TSP in the same TDL to handle these shipments
@@ -311,15 +322,15 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	// Make a TDL to contain our tests
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 
-	// Make a market
-	market := "dHHG"
-
-	// Make a source GBLOC
-	sourceGBLOC := "OHAI"
+	// Shipment details
+	market := testdatagen.DefaultMarket
+	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	pickupDate := testdatagen.DateInsidePeakRateCycle
+	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
+		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market)
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
