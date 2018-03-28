@@ -554,9 +554,6 @@ definitions:
         $ref: '#/definitions/Address'
       use_destination_storage:
         type: boolean
-    # TODO: uncomment below once we start populating pickup address
-    # required:
-    #   - pickup_address
   MovePayload:
     type: object
     properties:
