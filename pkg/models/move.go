@@ -20,6 +20,7 @@ type Move struct {
 	CreatedAt        time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time                          `json:"updated_at" db:"updated_at"`
 	UserID           uuid.UUID                          `json:"user_id" db:"user_id"`
+	User             User                               `belongs_to:"user"`
 	SelectedMoveType *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 }
 
