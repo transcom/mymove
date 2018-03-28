@@ -14,6 +14,7 @@ import (
 type PersonallyProcuredMove struct {
 	ID             uuid.UUID                    `json:"id" db:"id"`
 	MoveID         uuid.UUID                    `json:"move_id" db:"move_id"`
+	Move           Move                         `belongs_to:"move"`
 	CreatedAt      time.Time                    `json:"created_at" db:"created_at"`
 	UpdatedAt      time.Time                    `json:"updated_at" db:"updated_at"`
 	Size           *internalmessages.TShirtSize `json:"size" db:"size"`
