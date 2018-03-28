@@ -23,8 +23,9 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	market := "dHHG"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, market)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, market)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, false)
@@ -43,8 +44,9 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	market := "dHHG"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, market)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, market)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)
