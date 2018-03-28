@@ -380,59 +380,61 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 // Test_AwardTSPsInDifferentRateCycles ensures that TSPs that service different
 // rate cycles get awarded shipments appropriately
-func (suite *ModelSuite) Test_AwardTSPsInDifferentRateCycles() {
+func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
 
-	now := PerformancePeriodStart
-	oneMonthLater := now.Add(time.ParseDuration("1 month"))
-	twoMonthsLater := now.Add(time.ParseDuration("2 months"))
+	now := testdatagen.PerformancePeriodStart
+	twoMonths, _ := time.ParseDuration("2 months")
+	twoMonthsLater := now.Add(twoMonths)
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tspPeak, _ := testdatagen.MakeTSP(suite.db, "Peak Shipper", "PEAK")
 	tspNonPeak, _ := testdatagen.MakeTSP(suite.db, "NonPeak Shipper", "NPEK")
 
 	tspPerfPeak := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          PerformancePeriodStart,
-		PerformancePeriodEnd:            PerformancePeriodEnd,
-		RateCycleStart:                  PeakRateCycleStart,
-		RateCycleEnd:                    PeakRateCycleEnd,
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TransportationServiceProviderID: tspPeak.ID,
 		TrafficDistributionListID:       tdl.ID,
-		QualityBand:                     1,
+		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
 	}
 
-	_, err := suite.db.ValidateAndSave(&tspPeakPerf)
+	_, err := suite.db.ValidateAndSave(&tspPerfPeak)
 
 	shipmentPeak := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
-		PickupDate:                PerformancePeriodStart,
-		RequestedPickupDate:       PerformancePeriodStart,
+		PickupDate:                testdatagen.PerformancePeriodStart,
+		RequestedPickupDate:       testdatagen.PerformancePeriodStart,
 		DeliveryDate:              twoMonthsLater,
-		BookDate:                  DateInsidePeakRateCycle,
+		BookDate:                  testdatagen.DateInsidePeakRateCycle,
 		SourceGBLOC:               "AGFM",
-		Market:                    &market,
+		Market:                    swag.String("dHHG"),
 	}
 
-	_, err := db.ValidateAndSave(&shipmentPeak)
+	_, err = suite.db.ValidateAndSave(&shipmentPeak)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	tspPerfNonPeak := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          PerformancePeriodStart,
-		PerformancePeriodEnd:            PerformancePeriodEnd,
-		RateCycleStart:                  NonPeakRateCycleStart,
-		RateCycleEnd:                    NonPeakRateCycleEnd,
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.NonPeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.NonPeakRateCycleEnd,
 		TransportationServiceProviderID: tspNonPeak.ID,
 		TrafficDistributionListID:       tdl.ID,
-		QualityBand:                     1,
+		QualityBand:                     swag.Int(1),
 		BestValueScore:                  100,
 		OfferCount:                      0,
 	}
 
-	_, err := suite.db.ValidateAndSave(&tspNonPeakPerf)
+	_, err = suite.db.ValidateAndSave(&tspPerfNonPeak)
+
+	t.Errorf("Not implemented.")
 
 }
 

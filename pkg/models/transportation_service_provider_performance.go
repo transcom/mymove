@@ -87,7 +87,8 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be offered a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, shipment Shipment) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
+	qualityBand int, bookDate time.Time, requestedPickupDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -108,16 +109,16 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, shipment.BookDate, shipment.RequestedPickupDate).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate, requestedPickupDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, shipment Shipment) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time, requestedPickupDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, shipment)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate, requestedPickupDate)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -132,9 +133,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, ship
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, shipment Shipment) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate time.Time, requestedPickupDate time.Time) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, shipment)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, bookDate, requestedPickupDate)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
@@ -178,6 +179,8 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 // order that they should be assigned quality bands.
 func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
 
+	// TODO: Should bookDate and requsetedPickupDate also be qualifiers here? I think so: they
+	// create unique markets
 	sql := `SELECT
 			*
 		FROM
