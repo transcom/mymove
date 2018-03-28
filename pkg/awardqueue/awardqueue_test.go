@@ -66,7 +66,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	blackoutStartDate := time.Now().AddDate(1, 0, 0)
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
 
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, &market)
 
 	pickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	deliverDate := blackoutStartDate.AddDate(0, 0, 5)

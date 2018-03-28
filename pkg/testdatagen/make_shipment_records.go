@@ -21,7 +21,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		DeliveryDate:              delivery,
 		BookDate:                  DateInsidePerformancePeriod,
 		SourceGBLOC:               "AGFM",
-		Market:                    nil,
+		Market:                    &market,
 	}
 
 	_, err := db.ValidateAndSave(&shipment)
