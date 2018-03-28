@@ -50,6 +50,73 @@ paths:
           description: invalid request
         403:
           description: not authorized to get list of Blackouts
+  /blackouts/{blackout_uuid}:
+    get:
+      summary: retrieve the details of a blackout period
+      operationId: getBlackout
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+      responses:
+        200:
+          description: the details of the requested blackout period
+          schema:
+              $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+    delete:
+      summary: delete the associated blackout period
+      operationId: deleteBlackout
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+      responses:
+        200:
+          description: the blackout was successfully deleted
+        400:
+          description: invalid request
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+    patch:
+      summary: update the associated blackout
+      operationId: updateBlackout
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+        - in: body
+          name: update
+          required: true
+          schema:
+            $ref: '#/definitions/Blackout'
+      responses:
+        200:
+          description: the blackout was successfully updated
+          schema:
+              $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
   /shipments:
     get:
       summary: Gets visible shipments
@@ -102,6 +169,35 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
+      responses:
+        200:
+          description: returns the details of the shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: shipment UUID not found in system
+    patch:
+      summary: Updates a particular shuip,ed
+      description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
+      operationId: updateShipment
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: update
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Shipment'
       responses:
         200:
           description: returns the details of the shipment
@@ -456,6 +552,11 @@ definitions:
   Blackout:
     type: object
     properties:
+      id:
+        type: string
+        description: unique id of the blackout in the system
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       tsp_id:
         type: string
         description: ID of the TSP filing this blackout
