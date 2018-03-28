@@ -95,7 +95,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("DB Insertion", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	h.logger.Infof("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
 
 	url, err := h.storage.PresignedURL(key)
 	if err != nil {
