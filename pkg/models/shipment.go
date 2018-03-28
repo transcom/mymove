@@ -39,6 +39,8 @@ type ShipmentWithOffer struct {
 	RequestedPickupDate             time.Time  `db:"requested_pickup_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
+	SourceGBLOC                     *string    `db:"source_gbloc"`
+	Market                          *string    `db:"market"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
@@ -64,6 +66,8 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.requested_pickup_date,
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
+				shipments.source_gbloc,
+				shipments.market,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments

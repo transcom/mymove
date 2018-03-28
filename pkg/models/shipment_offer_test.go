@@ -24,7 +24,8 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	market := "dHHG"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "OHAI", &market)
 	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 
 	if err != nil {

@@ -5,8 +5,8 @@
   "memoryReservation": 256,
   "portMappings": [
     {
-      "containerPort": 8080,
-      "hostPort": 8080,
+      "containerPort": 8443,
+      "hostPort": 8443,
       "protocol": "tcp"
     }
   ],
@@ -51,6 +51,14 @@
     {
       "name": "HTTP_SERVER_NAME",
       "value": "app.{{environment}}.dp3.us"
+    },
+    {
+      "name": "AWS_S3_BUCKET_NAME",
+      "value": "transcom-ppp-app-{{environment}}-us-west-2"
+    },
+    {
+      "name": "AWS_S3_KEY_NAMESPACE",
+      "value": "app"
     }
   ],
   "logConfiguration": {
