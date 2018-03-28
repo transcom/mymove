@@ -12,7 +12,7 @@ import (
 // MakeShipment creates a single shipment record.
 func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	pickup time.Time, delivery time.Time,
-	tdl models.TrafficDistributionList, market string) (models.Shipment, error) {
+	tdl models.TrafficDistributionList, sourceGBLOC string, market string) (models.Shipment, error) {
 
 	shipment := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
@@ -20,7 +20,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		RequestedPickupDate:       requestedPickup,
 		DeliveryDate:              delivery,
 		BookDate:                  DateInsidePerformancePeriod,
-		SourceGBLOC:               "AGFM",
+		SourceGBLOC:               sourceGBLOC,
 		Market:                    &market,
 	}
 
@@ -48,8 +48,9 @@ func MakeShipmentData(db *pop.Connection) {
 	thirtyMin, _ := time.ParseDuration("30m")
 	oneWeek, _ := time.ParseDuration("7d")
 	market := "dHHG"
+	sourceGBLOC := "OHAI"
 
-	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0], market)
-	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1], market)
-	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2], market)
+	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0], sourceGBLOC, market)
+	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1], sourceGBLOC, market)
+	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2], sourceGBLOC, market)
 }

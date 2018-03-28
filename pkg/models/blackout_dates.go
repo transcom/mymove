@@ -32,22 +32,15 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 
 	query := tx.Where("transportation_service_provider_id = $1", tspID).Where("$2 BETWEEN start_blackout_date and end_blackout_date", shipment.PickupDate)
 
-	// if shipment.Market != nil {
-	// 	sql := `SELECT
-	// 		*
-	// 	FROM
-	// 		blackout_dates
-	// 	WHERE
-	// 		transportation_service_provider_id = $1
-	// 	AND
-	// 		$2 BETWEEN start_blackout_date and end_blackout_date
-	// 	AND
-	// 		market = $3`
-	// 	err = tx.RawQuery(sql, tspID, shipment.PickupDate, *shipment.Market).All(&blackoutDates)
+	if shipment.Market != nil {
+		query = query.Where("market = $3", *shipment.Market)
+	}
 
-	// } else {
+	if shipment.SourceGBLOC != nil {
+		query = query.Where("source_gbloc = $4", *shipment.SourceGBLOC)
+	}
+
 	err = query.All(&blackoutDates)
-	// }
 
 	return blackoutDates, err
 }
