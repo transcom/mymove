@@ -29,46 +29,6 @@ func (suite *ModelSuite) Test_PerformancePeriodValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
-func (suite *ModelSuite) Test_DateIsPeakRateCycle() {
-	t := suite.T()
-
-	nonPeakDates := []time.Time{
-		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC),
-		// The last second of the non-peak rate cycle
-		time.Date(2000, time.May, 14, 23, 59, 59, 0, time.UTC),
-		// The first second of the non-peak rate cycle
-		time.Date(2000, time.October, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.December, 15, 20, 0, 0, 0, time.UTC),
-	}
-
-	for _, d := range nonPeakDates {
-		if DateIsPeakRateCycle(d) {
-			t.Errorf("Expected that date %s is not in peak rate window.", d)
-		}
-	}
-
-	peakDates := []time.Time{
-		// The first second of the peak rate cycle
-		time.Date(2000, time.May, 15, 0, 0, 0, 0, time.UTC),
-		time.Date(3000, time.May, 15, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.May, 15, 23, 59, 59, 0, time.UTC),
-		time.Date(2000, time.June, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.July, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.August, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.September, 1, 0, 0, 0, 0, time.UTC),
-		// The last second of the peak rate cycle
-		time.Date(2000, time.September, 30, 23, 59, 59, 0, time.UTC),
-	}
-
-	for _, d := range peakDates {
-		if !DateIsPeakRateCycle(d) {
-			t.Errorf("Expected that date %s is in peak rate window.", d)
-		}
-	}
-}
-
 func (suite *ModelSuite) Test_RateCycleValidations() {
 	now := time.Now()
 	earlier := now.AddDate(0, 0, -1)
@@ -104,12 +64,56 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
+func (suite *ModelSuite) Test_DateIsPeakRateCycle() {
+	t := suite.T()
+
+	nonPeakDates := []time.Time{
+		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC),
+		// The last second of the non-peak rate cycle
+		time.Date(2000, time.May, 14, 23, 59, 59, 0, time.UTC),
+		// The first second of the non-peak rate cycle
+		time.Date(2000, time.October, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.December, 15, 20, 0, 0, 0, time.UTC),
+		testdatagen.DateInsideNonPeakRateCycle,
+		testdatagen.DateOutsidePeakRateCycle,
+	}
+
+	for _, d := range nonPeakDates {
+		if DateIsPeakRateCycle(d) {
+			t.Errorf("Expected that date %s is not in peak rate window.", d)
+		}
+	}
+
+	peakDates := []time.Time{
+		// The first second of the peak rate cycle
+		time.Date(2000, time.May, 15, 0, 0, 0, 0, time.UTC),
+		time.Date(3000, time.May, 15, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.May, 15, 23, 59, 59, 0, time.UTC),
+		time.Date(2000, time.June, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.July, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.August, 1, 0, 0, 0, 0, time.UTC),
+		time.Date(2000, time.September, 1, 0, 0, 0, 0, time.UTC),
+		// The last second of the peak rate cycle
+		time.Date(2000, time.September, 30, 23, 59, 59, 0, time.UTC),
+		testdatagen.DateInsidePeakRateCycle,
+		testdatagen.DateOutsideNonPeakRateCycle,
+	}
+
+	for _, d := range peakDates {
+		if !DateIsPeakRateCycle(d) {
+			t.Errorf("Expected that date %s is in peak rate window.", d)
+		}
+	}
+}
+
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, true)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 
 	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
@@ -131,7 +135,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, true)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 	band := 1
 
 	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
@@ -161,11 +165,11 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, true)
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
 	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, true)
+	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0)
 
 	// Fetch TSPs in TDL
 	tspsbb, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
@@ -192,9 +196,9 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0, true)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
 	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod)
 
@@ -375,11 +379,11 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
 	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, true)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
 	date := testdatagen.DateInsidePerformancePeriod
 	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, date)
@@ -413,9 +417,9 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, true)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
@@ -445,8 +449,8 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, true)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, true)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 

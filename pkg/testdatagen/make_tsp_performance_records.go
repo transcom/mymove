@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"math/rand"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
@@ -11,14 +12,13 @@ import (
 
 // MakeTSPPerformance makes a single best_value_score record
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int,
-	peakRateCycle bool) (models.TransportationServiceProviderPerformance, error) {
+	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
 		PerformancePeriodEnd:            PerformancePeriodEnd,
-		RateCycleStart:                  RateCycleStart,
-		RateCycleEnd:                    RateCycleEnd,
+		RateCycleStart:                  PeakRateCycleStart,
+		RateCycleEnd:                    PeakRateCycleEnd,
 		TransportationServiceProviderID: tsp.ID,
 		TrafficDistributionListID:       tdl.ID,
 		QualityBand:                     qualityBand,
@@ -32,6 +32,16 @@ func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProv
 	}
 
 	return tspPerformance, err
+}
+
+// GetDateInRateCycle returns a date that is guaranteed to be in the requested
+// year and Peak/NonPeak season.
+func GetDateInRateCycle(year int, peak bool) time.Time {
+	start, end := models.GetRateCycle(year, peak)
+
+	center := end.Sub(start) / 2
+
+	return start.Add(center)
 }
 
 // MakeTSPPerformanceData creates three best value score records
@@ -80,7 +90,6 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 			&qualityBand,
 			bvs,
 			offers,
-			true,
 		)
 	}
 }

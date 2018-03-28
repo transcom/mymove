@@ -25,11 +25,6 @@ var OffersPerQualityBand = map[int]int{
 	4: 1,
 }
 
-// Peak rate cycle start and end times.
-// See https://realtimeboard.com/app/board/o9J_kzn4n7k=/?moveToWidget=3074457346035830078
-var PeakRateStartInc = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
-var PeakRateEndExcl = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
-
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
@@ -92,7 +87,7 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be offered a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, bookDate time.Time) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, shipment Shipment) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -105,22 +100,24 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 			quality_band = $2
 			AND
 			$3 BETWEEN performance_period_start AND performance_period_end
+			AND
+			$4 BETWEEN rate_cycle_start AND rate_cycle_end
 		ORDER BY
 			offer_count ASC,
 			best_value_score DESC
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, shipment.BookDate, shipment.RequestedPickupDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, shipment Shipment) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, shipment)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -135,9 +132,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, book
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, shipment Shipment) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, bookDate)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, shipment)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
@@ -231,14 +228,27 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 	return nil
 }
 
+// GetRateCycle returns the start date and end dates for a rate cycle of the
+// given year and season (peak/non-peak).
+func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
+	if peak {
+		start = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+	} else {
+		start = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year+1, time.May, 15, 0, 0, 0, 0, time.UTC)
+	}
+
+	return start, end
+}
+
 // DateIsPeakRateCycle determines if a given date is within the a peak rate
 // cycle or not. This is the authoritative source on rate cycles.
 // Peak rate cycles are: May 15th - September 30th, inclusive.
 func DateIsPeakRateCycle(t time.Time) bool {
 	year, _, _ := t.Date()
 
-	peakStartInc := time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
-	peakEndExcl := time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+	peakStartInc, peakEndExcl := GetRateCycle(year, true)
 
 	if (t.After(peakStartInc) || t.Equal(peakStartInc)) && t.Before(peakEndExcl) {
 		fmt.Println(" true")
