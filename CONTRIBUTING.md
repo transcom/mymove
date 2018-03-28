@@ -33,19 +33,13 @@ See our [Development Setup](https://github.com/transcom/mymove#development)
 
 ### Verifying Changes
 
-We use a number of tools to evaluate the quality and security of this project's code:
-
-- The test suite uses [RSpec](http://rspec.info) (`bin/rspec`).
-- Static code analysis uses [RuboCop](https://github.com/bbatsov/rubocop) (`bin/rubocop`).
-- Static vulnerability scans use [Brakeman](http://brakemanscanner.org) (`bin/brakeman`).
-
-Before submitting a [pull request][pulls], use the above tools to verify your changes.
+We use a number of tools to evaluate the quality and security of this project's code. Before submitting a pull request, be sure that `make test` runs without error or test failure. Additionally, be sure that all of the `pre-commit checks pass`.
 
 ## Code Style
 
-Code formatting conventions are defined in the `.editorconfig` file which uses the [EditorConfig](http://editorconfig.org) syntax. There are [plugins for a variety of editors](http://editorconfig.org/#download) that utilize the settings in the `.editorconfig` file. It is recommended that you install the EditorConfig plugin for your editor of choice.
+Please review our [front end](https://github.com/transcom/mymove/blob/master/docs/frontend.md) and [back e end](https://github.com/transcom/mymove/blob/master/docs/backend.md) coding guidelines and do your best to follow the conventions and choices described therein.
 
-Your bug fix or feature addition won't be rejected if it runs afoul of any (or all) of these guidelines, but following the guidelines will definitely make everyone's lives a little easier.
+Code formatting conventions are defined in the `.editorconfig` file which uses the [EditorConfig](http://editorconfig.org) syntax. There are [plugins for a variety of editors](http://editorconfig.org/#download) that utilize the settings in the `.editorconfig` file. It is recommended that you install the EditorConfig plugin for your editor of choice.
 
 ## Legalese
 
@@ -53,8 +47,7 @@ Before submitting a pull request to this repository for the first time, you'll n
 
 You may submit contributions anonymously or under a pseudonym if you'd like, but we need to be able to reach you at the email address you provide when agreeing to the DCO. Contributions you make to this public Department of Defense repository are completely voluntary. When you submit a pull request, you're offering your contribution without expectation of payment and you expressly waive any future pay claims against the U.S. Federal Government related to your contribution.
 
-[contributors]: https://github.com/deptofdefense/move.mil/blob/master/CONTRIBUTORS.md
-[gemfile]: https://github.com/deptofdefense/move.mil/blob/master/Gemfile
-[issues]: https://github.com/deptofdefense/move.mil/issues
-[license]: https://github.com/deptofdefense/move.mil/blob/master/LICENSE.md
-[pulls]: https://github.com/deptofdefense/move.mil/pulls
+[contributors]: https://github.com/transcom/move.mil/blob/master/CONTRIBUTORS.md
+[issues]: https://github.com/transcom/move.mil/issues
+[license]: https://github.com/transcom/move.mil/blob/master/LICENSE.md
+[pulls]: https://github.com/transcom/move.mil/pulls
