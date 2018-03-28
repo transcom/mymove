@@ -21,12 +21,10 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliveryDate := blackoutStartDate.Add(time.Hour * 24 * 60)
 	market1 := "dHHG"
-	// market2 := "iHHG"
 	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, &market1)
 
 	// Create two shipments, one with market and one without.
 	shipmentWithDomesticMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market1)
-	shipmentWithDomesticMarket.Market = &market1
 	shipmentWithInternationalMarket, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, market1)
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
