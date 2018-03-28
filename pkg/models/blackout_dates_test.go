@@ -102,7 +102,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	if err != nil {
 		t.Errorf("Error fetching blackout dates.")
 	} else if len(fetchWithMatchingGBLOC) != 1 {
-		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
+		t.Errorf("Blackout dates query should have returned one result but returned zero  instead.")
 	}
 
 	fetchWithMismatchedGBLOC, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferInGBLOC2)
