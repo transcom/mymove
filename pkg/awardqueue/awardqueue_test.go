@@ -30,7 +30,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
@@ -74,8 +74,8 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	deliverDate := blackoutStartDate.AddDate(0, 0, 5)
 
 	// Create a shipment within blackout dates and one not within blackout dates
-	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, market)
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now().AddDate(0, 0, 1), tdl, sourceGBLOC, market)
+	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now().AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -120,8 +120,8 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
 
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
-	testShipmentBetween, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testStartDate, testEndDate, testTDL, sourceGBLOC, market)
-	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL, sourceGBLOC, market)
+	testShipmentBetween, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testStartDate, testEndDate, testTDL, sourceGBLOC, &market)
+	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL, sourceGBLOC, &market)
 
 	// One TSP with no blackout dates
 	testTSP2, _ := testdatagen.MakeTSP(suite.db, "A Spotless TSP", "PORK")
@@ -197,7 +197,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
@@ -236,7 +236,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
@@ -276,7 +276,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 
 	// Make a few shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, market)
+		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
 	}
 
 	// Make a TSP in the same TDL to handle these shipments
@@ -319,7 +319,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, market)
+		testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
