@@ -11,6 +11,6 @@ for var in $vars; do
 done
 
 if [[ $missing_var == "true" ]]; then
-  echo "Your environment is missing some variables, aborting."
+  echo "Your environment is missing some variables; aborting."
   exit 1
 fi
