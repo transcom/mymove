@@ -4,6 +4,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import Agreement from 'scenes/Legalese';
 import Transition from 'scenes/Moves/Transition';
+import MoveType from 'scenes/Moves/MoveTypeWizard';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 
@@ -34,7 +35,11 @@ const stub = (key, pages, component) => ({ match }) => {
 
 export default () => {
   const pages = {
-    '/moves/:moveId': { render: stub },
+    '/moves/:moveId': {
+      render: (key, pages) => ({ match }) => (
+        <MoveType pages={pages} pageKey={key} match={match} />
+      ),
+    },
     '/moves/:moveId/ppm-transition': {
       render: (key, pages) => ({ match }) => (
         <WizardPage

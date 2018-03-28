@@ -1,17 +1,19 @@
 package handlers
 
 import (
+	"io"
 	"log"
-
 	"net/http"
 
 	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
+	"go.uber.org/zap"
+
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
-	"go.uber.org/zap"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
 // HandlerContext contains dependencies that are shared between all handlers.
@@ -19,14 +21,35 @@ import (
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
 	db     *pop.Connection
-	logger *zap.Logger
+	logger *zap.SugaredLogger
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.SugaredLogger) HandlerContext {
 	return HandlerContext{
 		db:     db,
 		logger: logger,
+	}
+}
+
+type fileStorer interface {
+	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
+	Key(...string) string
+	PresignedURL(string) (string, error)
+}
+
+// FileHandlerContext wraps a HandlerContext with an additional dependency for file
+// manipulation
+type FileHandlerContext struct {
+	HandlerContext
+	storage fileStorer
+}
+
+// NewFileHandlerContext returns a new FileHandlerContext with its private fields set.
+func NewFileHandlerContext(context HandlerContext, storage fileStorer) FileHandlerContext {
+	return FileHandlerContext{
+		HandlerContext: context,
+		storage:        storage,
 	}
 }
 
@@ -46,7 +69,7 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 }
 
 // NewInternalAPIHandler returns a handler for the public API
-func NewInternalAPIHandler(context HandlerContext) http.Handler {
+func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContext) http.Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -72,5 +95,11 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
 	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
+	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
+
+	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
+
+	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)
+
 	return internalAPI.Serve(nil)
 }

@@ -49,8 +49,8 @@ func GetPersonallyProcuredMovesForMoveID(db *pop.Connection, moveID uuid.UUID) (
 	return ppms, err
 }
 
-// GetPersonallyProcuredMovesForID returns a PersonallyProcuredMove model for a given ID
-func GetPersonallyProcuredMovesForID(db *pop.Connection, id uuid.UUID) (PersonallyProcuredMove, error) {
+// GetPersonallyProcuredMoveForID returns a PersonallyProcuredMove model for a given ID
+func GetPersonallyProcuredMoveForID(db *pop.Connection, id uuid.UUID) (PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
 	err := db.Find(&ppm, id)
 	return ppm, err

@@ -1,10 +1,4 @@
-.ppm-size-content h3 {
-  margin-bottom: 5rem;
-  font-weight: bold;
-  font-size: 2.5rem;
-}
-
-.ppm-size-button {
+.big-button {
   border: 1px solid #808080;
   text-align: center;
   box-shadow: 5px 5px 5px #e2e2e2;
@@ -13,30 +7,39 @@
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
+  color: black;
+  background-color: white;
+  width: 100%;
+  border-radius: 0%;
+  font-weight: 400;
+  height: 100%;
 }
 
-.ppm-size-button p:first-child {
+.big-button p:first-child {
   margin-top: 3rem;
 }
 
-.ppm-size-button p {
-  font-size: .9em;
+.big-button p {
+  font-size: 0.9em;
   margin-top: 0rem;
   margin-bottom: 0rem;
 }
 
-.ppm-size-button img {
+.big-button img {
   margin-top: 3rem;
   height: 50px;
   margin-bottom: 3rem;
 }
 
 /* On mouse-over, add a grey background color */
-.ppm-size-button:hover {
+.big-button:hover {
   background-color: #f0f6fb;
+  color: black;
+  border: 1px solid #808080;
 }
 
-.selected {
-  background-color:  #f0f6fb;
-  border: 2px solid #949494
+.big-button.selected {
+  background-color: #f0f6fb;
+  border: 2px solid #949494;
+  color: black;
 }

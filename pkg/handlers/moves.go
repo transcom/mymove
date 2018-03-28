@@ -80,6 +80,47 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	return response
 }
 
+// ShowMoveHandler returns a move for a user and move ID
+type ShowMoveHandler HandlerContext
+
+// Handle retrieves a move in the system belonging to the logged in user given move ID
+func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
+	var response middleware.Responder
+
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = moveop.NewShowMoveUnauthorized()
+		return response
+	}
+
+	moveID, err := uuid.FromString(params.MoveID.String())
+	if err != nil {
+		response = moveop.NewShowMoveBadRequest()
+		return response
+	}
+
+	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = moveop.NewPatchMoveInternalServerError()
+	} else if !moveResult.IsValid() {
+		switch errCode := moveResult.ErrorCode(); errCode {
+		case models.FetchErrorNotFound:
+			response = moveop.NewShowMoveNotFound()
+		case models.FetchErrorForbidden:
+			response = moveop.NewShowMoveForbidden()
+		default:
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+		}
+		return response
+
+	} else {
+		movePayload := payloadForMoveModel(user, moveResult.Move())
+		response = moveop.NewShowMoveOK().WithPayload(&movePayload)
+	}
+	return response
+}
+
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler HandlerContext
 
@@ -109,7 +150,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		case models.FetchErrorForbidden:
 			response = moveop.NewPatchMoveForbidden()
 		default:
-			h.logger.Fatal("This case statement is no longer exhaustive!")
+			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
 		}
 		return response
 	} else { // The given move does belong to the current user.
@@ -117,7 +158,9 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		payload := params.PatchMovePayload
 		newSelectedMoveType := payload.SelectedMoveType
 
-		move.SelectedMoveType = newSelectedMoveType
+		if newSelectedMoveType != nil {
+			move.SelectedMoveType = newSelectedMoveType
+		}
 
 		if verrs, err := h.db.ValidateAndUpdate(&move); verrs.HasAny() || err != nil {
 			if verrs.HasAny() {

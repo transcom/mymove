@@ -1,7 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import PpmSize from './size';
+import PpmSize from './Size';
 import store from 'shared/store';
 
 const dummyFunc = () => {};
