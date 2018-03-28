@@ -1,8 +1,8 @@
 #! /bin/bash
 
 vars=$(grep -Eo "export [A-Z0-9_]+" example_envrc | grep -Eo "[A-Z0-9_]+")
-
 missing_var=false
+
 for var in $vars; do
   if [[ -z "${!var}" ]]; then
     echo "$var is not set"
@@ -11,5 +11,6 @@ for var in $vars; do
 done
 
 if [[ $missing_var == "true" ]]; then
+  echo "Your environment is missing some variables, aborting."
   exit 1
 fi
