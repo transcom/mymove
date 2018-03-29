@@ -93,7 +93,7 @@ func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, mode
 	return move, document, response
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandler() {
+func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
 	move, document, response := createUpload(suite, fakeS3)
@@ -134,4 +134,25 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	}
 
 	// TODO verify Body
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailuer() {
+	t := suite.T()
+	fakeS3 := newFakeS3Storage(false)
+	_, _, response := createUpload(suite, fakeS3)
+
+	_, ok := response.(*uploadop.CreateUploadInternalServerError)
+	if !ok {
+		t.Fatalf("Request was success, expected failure")
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wroung number of uploads in database: expected 0, got %d", count)
+	}
 }
