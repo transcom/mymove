@@ -183,7 +183,7 @@ paths:
         404:
           description: shipment UUID not found in system
     patch:
-      summary: Updates a particular shuip,ed
+      summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
       operationId: updateShipment
       parameters:
