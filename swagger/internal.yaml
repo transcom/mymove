@@ -548,12 +548,14 @@ definitions:
         $ref: '#/definitions/Address'
       delivery_address_known:
         type: boolean
+        x-nullable: true
       delivery_address:
         $ref: '#/definitions/Address'
       secondary_delivery_address:
         $ref: '#/definitions/Address'
       use_destination_storage:
         type: boolean
+        x-nullable: true
   MovePayload:
     type: object
     properties:
@@ -573,12 +575,14 @@ definitions:
         $ref: '#/definitions/Address'
       delivery_address_known:
         type: boolean
+        x-nullable: true
       delivery_address:
         $ref: '#/definitions/Address'
       secondary_delivery_address:
         $ref: '#/definitions/Address'
       use_destination_storage:
         type: boolean
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -588,13 +592,6 @@ definitions:
     required:
       - id
       - user_id
-      - selected_move_type
-      - pickup_address
-      - secondary_pickup_address
-      - delivery_address_known
-      - delivery_address
-      - secondary_delivery_address
-      - use_destination_storage
       - created_at
       - updated_at
   PatchMovePayload:
@@ -608,12 +605,14 @@ definitions:
         $ref: '#/definitions/Address'
       delivery_address_known:
         type: boolean
+        x-nullable: true
       delivery_address:
         $ref: '#/definitions/Address'
       secondary_delivery_address:
         $ref: '#/definitions/Address'
       use_destination_storage:
         type: boolean
+        x-nullable: true
   SelectedMoveType:
     type: string
     title: Selected Move Type
