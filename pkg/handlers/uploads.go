@@ -96,6 +96,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
+	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
+
 	url, err := h.storage.PresignedURL(key)
 	if err != nil {
 		h.logger.Error("failed to get presigned url", zap.Error(err))
