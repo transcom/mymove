@@ -20,13 +20,16 @@ func RunScenarioTwo(db *pop.Connection) {
 	// Make a market
 	market := "dHHG"
 
+	// Make a source GBLOC
+	sourceGBLOC := "OHAI"
+
 	// Make shipments in first TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl, market)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl, sourceGBLOC, &market)
 	}
 	// Make shipments in second TDL
 	for i := 0; i <= shipmentsToMake; i++ {
-		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2, market)
+		MakeShipment(db, shipmentDate, shipmentDate, shipmentDate, tdl2, sourceGBLOC, &market)
 	}
 
 	// Make TSPs
