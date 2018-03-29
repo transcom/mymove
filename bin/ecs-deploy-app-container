@@ -4,6 +4,8 @@
 #   and environment.
 #
 set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
 
 usage() {
     echo "$0 <template> <image> <environment>"
@@ -70,6 +72,11 @@ if update_service "$green_task_def_arn"; then
     exit 0
 fi
 echo "Service failed to stabilize!"
+
+echo
+echo "Showing logs from recently stopped tasks:"
+"$DIR"/ecs-show-app-stopped-logs || true
+echo
 
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then
