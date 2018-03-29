@@ -117,7 +117,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSourceGBLOC
-	testStartDate := time.Now()
+	testStartDate := testdatagen.DateInsidePeakRateCycle
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
 
 	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil)
@@ -247,13 +247,17 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, time.Now(), time.Now(), time.Now(), tdl, sourceGBLOC, &market)
+	pickupDate := testdatagen.DateInsidePeakRateCycle
+	deliverDate := testdatagen.DateInsidePeakRateCycle
+
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
 		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      time.Now(),
+		PickupDate:                      pickupDate,
+		RequestedPickupDate:             pickupDate,
 		TransportationServiceProviderID: nil,
 		AdministrativeShipment:          swag.Bool(false),
 	}
@@ -421,14 +425,15 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 // rate cycles get awarded shipments appropriately
 func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
+	queue := NewAwardQueue(suite.db, suite.logger)
 
-	now := testdatagen.PerformancePeriodStart
 	twoMonths, _ := time.ParseDuration("2 months")
-	twoMonthsLater := now.Add(twoMonths)
+	twoMonthsLater := testdatagen.PerformancePeriodStart.Add(twoMonths)
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+
+	// Make Peak TSP and Shipment
 	tspPeak, _ := testdatagen.MakeTSP(suite.db, "Peak Shipper", "PEAK")
-	tspNonPeak, _ := testdatagen.MakeTSP(suite.db, "NonPeak Shipper", "NPEK")
 
 	tspPerfPeak := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
@@ -441,24 +446,27 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		BestValueScore:                  100,
 		OfferCount:                      0,
 	}
-
 	_, err := suite.db.ValidateAndSave(&tspPerfPeak)
+	if err != nil {
+		t.Error(err)
+	}
 
 	shipmentPeak := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
-		PickupDate:                testdatagen.PerformancePeriodStart,
-		RequestedPickupDate:       testdatagen.PerformancePeriodStart,
+		PickupDate:                testdatagen.DateInsidePeakRateCycle,
+		RequestedPickupDate:       testdatagen.DateInsidePeakRateCycle,
 		DeliveryDate:              twoMonthsLater,
-		BookDate:                  testdatagen.DateInsidePeakRateCycle,
-		SourceGBLOC:               "AGFM",
-		Market:                    swag.String("dHHG"),
+		BookDate:                  testdatagen.PerformancePeriodStart,
+		SourceGBLOC:               testdatagen.DefaultSourceGBLOC,
+		Market:                    &testdatagen.DefaultMarket,
 	}
-
 	_, err = suite.db.ValidateAndSave(&shipmentPeak)
 	if err != nil {
-		log.Panic(err)
+		t.Error(err)
 	}
 
+	// Make Non-Peak TSP and Shipment
+	tspNonPeak, _ := testdatagen.MakeTSP(suite.db, "NonPeak Shipper", "NPEK")
 	tspPerfNonPeak := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
 		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
@@ -470,18 +478,35 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		BestValueScore:                  100,
 		OfferCount:                      0,
 	}
-
 	_, err = suite.db.ValidateAndSave(&tspPerfNonPeak)
+	if err != nil {
+		t.Error(err)
+	}
 
-	t.Errorf("Not implemented.")
+	shipmentNonPeak := models.Shipment{
+		TrafficDistributionListID: tdl.ID,
+		PickupDate:                testdatagen.DateInsideNonPeakRateCycle,
+		RequestedPickupDate:       testdatagen.DateInsideNonPeakRateCycle,
+		DeliveryDate:              twoMonthsLater,
+		BookDate:                  testdatagen.PerformancePeriodStart,
+		SourceGBLOC:               testdatagen.DefaultSourceGBLOC,
+		Market:                    &testdatagen.DefaultMarket,
+	}
+	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)
+	if err != nil {
+		t.Error(err)
+	}
 
+	queue.assignShipments()
+
+	suite.verifyOfferCount(tspPeak, 1)
+	suite.verifyOfferCount(tspNonPeak, 1)
 }
 
 func (suite *AwardQueueSuite) verifyOfferCount(tsp models.TransportationServiceProvider, expectedCount int) {
 	t := suite.T()
 	t.Helper()
 
-	// TODO is there a more concise way to do this?
 	query := suite.db.Where("transportation_service_provider_id = $1", tsp.ID)
 	offers := []models.ShipmentOffer{}
 	count, err := query.Count(&offers)
