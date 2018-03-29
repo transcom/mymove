@@ -28,9 +28,10 @@ func NewS3(bucket string, logger *zap.Logger, session *session.Session) *S3 {
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (s *S3) Store(key string, data io.ReadSeeker, md5 string) (*StoreResult, error) {
 	input := &s3.PutObjectInput{
-		Bucket: &s.bucket,
-		Key:    &key,
-		Body:   data,
+		Bucket:     &s.bucket,
+		Key:        &key,
+		Body:       data,
+		ContentMD5: &md5,
 	}
 
 	_, err := s.client.PutObject(input)
