@@ -9,7 +9,10 @@ Is there anything you would like reviewers to give additional scrutiny?
 ## Verification Steps
 
 * [ ] All tests pass.
-* [ ] The requirements listed in [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely) have been satisfied.
+* [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/blob/master/docs/backend.md#logging)
+* [ ] The requirements listed in
+ [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely)
+ have been satisfied.
 * [ ] There are no [aXe](https://www.deque.com/products/aXe/) warnings for UI.
 * [ ] This works in IE.
 
