@@ -18,11 +18,11 @@ class BigButtonGroup extends Component {
       isHidden: true,
     };
   }
-  toggleHidden() {
+  toggleHidden = () => {
     this.setState({
       isHidden: !this.state.isHidden,
     });
-  }
+  };
   render() {
     const isMobile = this.props.windowWidth < 481;
     const createButton = (
@@ -37,10 +37,11 @@ class BigButtonGroup extends Component {
       const onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
       };
+      const isSelected = this.props.selectedOption === value;
       return (
         <BigButton
           value={value}
-          selected={this.props.selectedOption === value}
+          selected={isSelected}
           onClick={onButtonClick}
           className="move-type-button"
         >
@@ -49,14 +50,11 @@ class BigButtonGroup extends Component {
             <img src={icon} alt={altTag} />
             {!isMobile && <p className="font-2">{title}</p>}
             {isMobile && (
-              <div
-                className="collapse-btn"
-                onClick={this.toggleHidden.bind(this)}
-              >
+              <div className="collapse-btn" onClick={this.toggleHidden}>
                 &gt; &nbsp; Pros and Cons:
               </div>
             )}
-            {(!isMobile || !this.state.isHidden) && (
+            {(!isMobile || (isSelected && !this.state.isHidden)) && (
               <div>
                 {Object.keys(prosList || {}).map(function(key) {
                   const pros = prosList[key];
