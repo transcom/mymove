@@ -179,8 +179,8 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 // order that they should be assigned quality bands.
 func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
 
-	// TODO: Should bookDate and requsetedPickupDate also be qualifiers here? I think so: they
-	// create unique markets
+	// TODO: bookDate and requsetedPickupDate should also be qualifiers here. BVSs from different
+	// performance periods and rate areas should be broken up into separate quality bandsquality bands.
 	sql := `SELECT
 			*
 		FROM
