@@ -24,7 +24,8 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0015](0015-session-storage.md) - Session storage/handling
 - [ADR-0016](0016-Browser-Support.md) - Browser Support for Prototype
 - [ADR-0017](0017-react-router-redux-authentication.md) - Client side route restriction based on authentication
-- [ADR-0018](0018-optional-field-interop.md) - Optional Field Interop
+- [ADR-0019](0019-swagger-auth.md) - Using Swagger to manage server route authentication
+- [ADR-0020](0020-ssn-use.md) - Temporary use and plan for expunging Social Security Numbers in the prototype
 - [ADR-0019](0019-client-rangeslider.md) - _Range Slider React Component_
 
 <!-- adrlogstop -->

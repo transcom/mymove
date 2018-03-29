@@ -29,32 +29,18 @@ type BlackoutDate struct {
 func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
 	var err error
+	pop.Debug = true
+	query := tx.Where("transportation_service_provider_id = ?", tspID).Where("? BETWEEN start_blackout_date and end_blackout_date", shipment.PickupDate)
 
 	if shipment.Market != nil {
-		sql := `SELECT
-			*
-		FROM
-			blackout_dates
-		WHERE
-			transportation_service_provider_id = $1
-		AND
-			$2 BETWEEN start_blackout_date and end_blackout_date
-		AND
-			market = $3`
-		err = tx.RawQuery(sql, tspID, shipment.PickupDate, *shipment.Market).All(&blackoutDates)
-
-	} else {
-		sql := `SELECT
-			*
-		FROM
-			blackout_dates
-		WHERE
-			transportation_service_provider_id = $1
-		AND
-			$2 BETWEEN start_blackout_date and end_blackout_date`
-
-		err = tx.RawQuery(sql, tspID, shipment.PickupDate).All(&blackoutDates)
+		query = query.Where("market = ?", *shipment.Market)
 	}
+
+	if shipment.SourceGBLOC != nil {
+		query = query.Where("source_gbloc = ?", *shipment.SourceGBLOC)
+	}
+
+	err = query.All(&blackoutDates)
 
 	return blackoutDates, err
 }
