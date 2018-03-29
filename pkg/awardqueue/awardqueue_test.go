@@ -20,7 +20,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
-	tdl, err := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	tdl, err := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
@@ -30,7 +30,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
 	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
@@ -63,10 +63,10 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
-	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
@@ -113,10 +113,10 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 	// Creates a TSP and TDL with a blackout date connected to both.
 	testTSP1, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
-	testTDL, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	testTDL, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	testStartDate := testdatagen.DateInsidePeakRateCycle
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
 
@@ -201,9 +201,9 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliverDate := testdatagen.DateInsidePeakRateCycle
 
@@ -244,7 +244,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 
 	// Make a shipment in a new TDL, which inherently has no TSPs
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	pickupDate := testdatagen.DateInsidePeakRateCycle
@@ -281,11 +281,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	shipmentsToMake := 10
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
@@ -324,11 +324,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	shipmentsToMake := 17
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Shipment details
 	market := testdatagen.DefaultMarket
-	sourceGBLOC := testdatagen.DefaultSourceGBLOC
+	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliveryDate := testdatagen.DateInsidePeakRateCycle.Add(time.Hour)
 
@@ -387,7 +387,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	queue := NewAwardQueue(suite.db, suite.logger)
 	tspsToMake := 5
 
-	tdl, err := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, err := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	if err != nil {
 		t.Errorf("Failed to create TDL: %v", err)
 	}
@@ -430,7 +430,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	twoMonths, _ := time.ParseDuration("2 months")
 	twoMonthsLater := testdatagen.PerformancePeriodStart.Add(twoMonths)
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Make Peak TSP and Shipment
 	tspPeak, _ := testdatagen.MakeTSP(suite.db, "Peak Shipper", "PEAK")
@@ -457,7 +457,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		RequestedPickupDate:       testdatagen.DateInsidePeakRateCycle,
 		DeliveryDate:              twoMonthsLater,
 		BookDate:                  testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               testdatagen.DefaultSourceGBLOC,
+		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentPeak)
@@ -489,7 +489,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		RequestedPickupDate:       testdatagen.DateInsideNonPeakRateCycle,
 		DeliveryDate:              twoMonthsLater,
 		BookDate:                  testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               testdatagen.DefaultSourceGBLOC,
+		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)

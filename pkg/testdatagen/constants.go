@@ -4,14 +4,20 @@ import (
 	"time"
 )
 
-// TestYear is the default year in which we want to create test data in.
+// TestYear is the default year for testing.
 var TestYear = 2019
 
-// DefaultSourceGBLOC is the default GBLOC to create test data in.
-var DefaultSourceGBLOC = "OHAI"
+// DefaultSrcGBLOC is the default GBLOC for testing.
+var DefaultSrcGBLOC = "OHAI"
 
-// DefaultMarket is the default market to create test data in.
+// DefaultMarket is the default market for testing.
 var DefaultMarket = "dHHG"
+
+// DefaultSrcRateArea is a default rate area (California) for testing.
+var DefaultSrcRateArea = "US87"
+
+// DefaultDstRegion is a default region (US South West) for testing.
+var DefaultDstRegion = "6"
 
 // PeakRateCycleStart is the first instant that the peak rate cycle starts
 var PeakRateCycleStart = time.Date(TestYear, time.May, 15, 0, 0, 0, 0, time.UTC)

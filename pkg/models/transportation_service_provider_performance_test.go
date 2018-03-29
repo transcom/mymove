@@ -111,7 +111,7 @@ func (suite *ModelSuite) Test_DateIsPeakRateCycle() {
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 
@@ -133,7 +133,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 	band := 1
@@ -160,7 +160,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	tspsToMake := 5
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
