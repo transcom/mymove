@@ -35,7 +35,7 @@ func requestLogger(h http.Handler) http.Handler {
 }
 
 // max request body size is 20 mb
-const maxBodySize int64 = 20 * 1000 * 1000
+const maxBodySize int64 = 200 * 1000 * 1000
 
 // max request headers size is 1 mb
 const maxHeaderSize int = 1 * 1000 * 1000
