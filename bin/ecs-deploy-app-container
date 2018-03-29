@@ -75,7 +75,7 @@ echo "Service failed to stabilize!"
 
 echo
 echo "Showing logs from recently stopped tasks:"
-"$DIR"/ecs-show-app-stopped-logs || true
+"$DIR"/ecs-show-app-stopped-logs "$environment" || true
 echo
 
 echo "* Rolling back to $blue_task_def_arn"
