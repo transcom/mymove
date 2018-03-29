@@ -24,6 +24,16 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 	}
 }
 
+// User uploading the file should be the same as the user who 'owns' a move
+func (h CreateUploadHandler) userOwnsMove(currentMoveID uuid.UUID, moves models.Moves) bool {
+	for move := range moves {
+		if move.id == currentMoveID {
+			return true
+		}
+	}
+	return false
+}
+
 // CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
 type CreateUploadHandler FileHandlerContext
 
@@ -40,6 +50,16 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
 		h.logger.Panic("Invalid MoveID, this should never happen.")
+	}
+
+	moves, err := models.GetMovesForUserID(h.db, userID)
+	h.logger.Infof("This user's moves: %v", moves)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
+	}
+	if !h.userOwnsMove(moveID, moves) {
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())

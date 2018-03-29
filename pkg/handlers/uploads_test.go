@@ -8,6 +8,7 @@ import (
 	"path"
 
 	"github.com/go-openapi/strfmt"
+	// "github.com/gobuffalo/uuid"
 
 	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
@@ -116,3 +117,50 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 
 	// TODO verify Body
 }
+
+// func (suite *HandlerSuite) TestCreateUploadsHandlerWrongUser() {
+// 	t := suite.T()
+
+// 	move, err := testdatagen.MakeMove(suite.db)
+// 	if err != nil {
+// 		t.Fatalf("could not create move: %s", err)
+// 	}
+
+// 	document, err := testdatagen.MakeDocument(suite.db, &move)
+// 	if err != nil {
+// 		t.Fatalf("could not create document: %s", err)
+// 	}
+// 	fakeS3 := &fakeS3Storage{}
+
+// 	user := models.User{
+// 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+// 		LoginGovEmail: "email@example.com",
+// 	}
+// 	suite.mustSave(&user)
+
+// 	params := uploadop.NewCreateUploadParams()
+// 	params.MoveID = strfmt.UUID(move.ID.String())
+// 	params.DocumentID = strfmt.UUID(document.ID.String())
+// 	params.File = *suite.fixture("test.pdf")
+
+// 	ctx := authcontext.PopulateAuthContext(context.Background(), user.ID, "fake token")
+// 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+
+// 	context := NewHandlerContext(suite.db, suite.logger)
+// 	fileContext := NewFileHandlerContext(context, fakeS3)
+// 	handler := CreateUploadHandler(fileContext)
+// 	response := handler.Handle(params)
+
+// 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
+// 	if !ok {
+// 		t.Fatalf("Request failed: %#v", response)
+// 	}
+
+// 	uploadPayload := createdResponse.Payload
+// 	upload := models.Upload{}
+// 	err = suite.db.Find(&upload, uploadPayload.ID)
+// 	if err != nil {
+// 		t.Fatalf("Couldn't find expected upload.")
+// 	}
+
+// }
