@@ -1,0 +1,2 @@
+drop_index("table_name", "traffic_distribution_lists_index")
+add_index("traffic_distribution_lists", "id", {"name": "traffic_distribution_lists_index"})

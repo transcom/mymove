@@ -1,0 +1,2 @@
+drop_index("shipments", "shipments_index")
+add_index("shipments", ["id", "traffic_distribution_list_id", "created_at", "updated_at", "pickup_date", "requested_pickup_date", "book_date", "traffic_distribution_list_id", "source_gbloc", "market"], {"name": "shipments_index"})

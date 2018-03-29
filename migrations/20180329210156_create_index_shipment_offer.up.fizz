@@ -1,0 +1,1 @@
+add_index("shipment_offers", ["id", "transportation_service_provider_id", "administrative_shipment"], {"name": "shipment_offers_index"})
