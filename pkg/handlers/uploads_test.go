@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	// TODO verify Body
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandlerFailuer() {
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(false)
 	_, _, response := createUpload(suite, fakeS3)
@@ -153,6 +153,6 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailuer() {
 	}
 
 	if count != 0 {
-		t.Fatalf("Wroung number of uploads in database: expected 0, got %d", count)
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
