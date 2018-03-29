@@ -84,6 +84,14 @@ func (h RefuseShipmentHandler) Handle(p apioperations.RefuseShipmentParams) midd
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
+// UpdateShipmentHandler allows a TSP to refuse a particular shipment
+type UpdateShipmentHandler HandlerContext
+
+// Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
+func (h UpdateShipmentHandler) Handle(p apioperations.UpdateShipmentParams) middleware.Responder {
+	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
+}
+
 // ShipmentContactDetailsHandler allows a TSP to accept a particular shipment
 type ShipmentContactDetailsHandler HandlerContext
 
