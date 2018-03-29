@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
@@ -10,8 +11,20 @@ import truckGray from 'shared/icon/truck-gray.svg';
 import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
-export class BigButtonGroup extends Component {
+class BigButtonGroup extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isHidden: true,
+    };
+  }
+  toggleHidden() {
+    this.setState({
+      isHidden: !this.state.isHidden,
+    });
+  }
   render() {
+    const isMobile = this.props.windowWidth < 481;
     const createButton = (
       value,
       description,
@@ -19,6 +32,7 @@ export class BigButtonGroup extends Component {
       icon,
       prosList,
       altTag,
+      isMobile,
     ) => {
       const onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
@@ -30,23 +44,37 @@ export class BigButtonGroup extends Component {
           onClick={onButtonClick}
           className="move-type-button"
         >
-          <p className="restrict-left">{description}</p>
-          <img src={icon} alt={altTag} />
-          <p className="font-2">{title}</p>
-          {Object.keys(prosList || {}).map(function(key) {
-            const pros = prosList[key];
-            return (
-              <div key={key.toString()}>
-                <p>{key}</p>
-                <ul className="font-3">
-                  {pros.map(item => <li key={item}>{item}</li>)}
-                </ul>
+          <div>
+            <p className="restrict-left">{description}</p>
+            <img src={icon} alt={altTag} />
+            {!isMobile && <p className="font-2">{title}</p>}
+            {isMobile && (
+              <div
+                className="collapse-btn"
+                onClick={this.toggleHidden.bind(this)}
+              >
+                &gt; &nbsp; Pros and Cons:
               </div>
-            );
-          }, this)}
-          <p className="move-type-button-more-info">
-            <a href="about:blank">more information</a>
-          </p>
+            )}
+            {(!isMobile || !this.state.isHidden) && (
+              <div>
+                {Object.keys(prosList || {}).map(function(key) {
+                  const pros = prosList[key];
+                  return (
+                    <div key={key.toString()}>
+                      <p>{key}</p>
+                      <ul className="font-3">
+                        {pros.map(item => <li key={item}>{item}</li>)}
+                      </ul>
+                    </div>
+                  );
+                }, this)}
+                <p className="move-type-button-more-info">
+                  <a href="about:blank">more information</a>
+                </p>
+              </div>
+            )}
+          </div>
         </BigButton>
       );
     };
@@ -68,6 +96,7 @@ export class BigButtonGroup extends Component {
         ],
       },
       'hhg-ppm-combo',
+      isMobile,
     );
     var ppm = createButton(
       'PPM',
@@ -88,6 +117,7 @@ export class BigButtonGroup extends Component {
         ],
       },
       'trailer-gray',
+      isMobile,
     );
     var hhg = createButton(
       'HHG',
@@ -108,6 +138,7 @@ export class BigButtonGroup extends Component {
         ],
       },
       'truck-gray',
+      isMobile,
     );
 
     return (
@@ -120,9 +151,12 @@ export class BigButtonGroup extends Component {
   }
 }
 BigButtonGroup.propTypes = {
+  windowWidth: PropTypes.number,
   selectedOption: PropTypes.string,
   onMoveTypeSelected: PropTypes.func,
 };
+
+const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 
 export class MoveType extends Component {
   componentDidMount() {
@@ -139,7 +173,7 @@ export class MoveType extends Component {
     return (
       <div className="usa-grid-full">
         <h2> Select a Move Type</h2>
-        <BigButtonGroup
+        <BigButtonGroupWithSize
           selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
