@@ -25,6 +25,6 @@ for task_id in $(aws ecs describe-services --cluster app-staging --services app 
     log_stream_name=app/app-$environment/$task_id
     echo "Task $task_id"
     echo "-----------------------------------------"
-    aws logs get-log-events --limit "$LIMIT" --log-group-name "$log_group_name" --log-stream-name "$log_stream_name" --query 'events[].message' | jq -r '.[]'
+    aws logs get-log-events --limit "$LIMIT" --log-group-name "$log_group_name" --log-stream-name "$log_stream_name" --query 'events[].message' | jq -r '.[]' || true
     echo
 done
