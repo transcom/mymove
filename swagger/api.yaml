@@ -403,6 +403,34 @@ paths:
           description: not authorized to get list of blackouts for this TSP
         404:
           description: TSP UUID not found in system
+    post:
+      summary: Adds a new Blackout period to the list of blackouts associated with his TSP
+      operationId: createBlackout
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: path
+          name: tsp_uuid
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the TSP
+        - in: body
+          description: The blackout period to add
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/Blackout'
+      responses:
+        200:
+          description: The blackout as added to the database including DB ID
+          schema:
+             $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to create blackouts for this TSP
+        404:
+          description: TSP UUID not found in system
 definitions:
   AcceptShipmentPayload:
     type: object
