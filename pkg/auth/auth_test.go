@@ -14,9 +14,9 @@ import (
 	"testing"
 	"time"
 
-	"github.com/markbates/pop"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
-	"github.com/satori/go.uuid"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 

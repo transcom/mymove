@@ -1,7 +1,7 @@
 package models_test
 
 import (
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	. "github.com/transcom/mymove/pkg/models"
 )
@@ -45,7 +45,7 @@ func (suite *ModelSuite) TestIssueValidations() {
 	issue := &Issue{}
 
 	expErrors := map[string][]string{
-		"description": []string{"Description can not be blank."},
+		"description": {"Description can not be blank."},
 	}
 
 	suite.verifyValidationErrors(issue, expErrors)
@@ -53,15 +53,15 @@ func (suite *ModelSuite) TestIssueValidations() {
 	empty := ""
 	issue.ReporterName = &empty
 	expErrors = map[string][]string{
-		"description":   []string{"Description can not be blank."},
-		"reporter_name": []string{"ReporterName can not be blank."},
+		"description":   {"Description can not be blank."},
+		"reporter_name": {"ReporterName can not be blank."},
 	}
 	suite.verifyValidationErrors(issue, expErrors)
 
 	phebe := "Phebe"
 	issue.ReporterName = &phebe
 	expErrors = map[string][]string{
-		"description": []string{"Description can not be blank."},
+		"description": {"Description can not be blank."},
 	}
 
 	suite.verifyValidationErrors(issue, expErrors)

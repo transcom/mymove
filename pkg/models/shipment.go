@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 // Shipment represents a single shipment within a Service Member's move.
@@ -25,7 +25,7 @@ type Shipment struct {
 	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
 	BookDate                  time.Time `json:"book_date" db:"book_date"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	GBLOC                     string    `json:"gbloc" db:"gbloc"`
+	SourceGBLOC               string    `json:"source_gbloc" db:"source_gbloc"`
 	Market                    *string   `json:"market" db:"market"`
 }
 
@@ -39,6 +39,8 @@ type ShipmentWithOffer struct {
 	RequestedPickupDate             time.Time  `db:"requested_pickup_date"`
 	TrafficDistributionListID       uuid.UUID  `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
+	SourceGBLOC                     *string    `db:"source_gbloc"`
+	Market                          *string    `db:"market"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`
@@ -64,6 +66,8 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.requested_pickup_date,
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
+				shipments.source_gbloc,
+				shipments.market,
 				shipment_offers.transportation_service_provider_id,
 				shipment_offers.administrative_shipment
 			FROM shipments
@@ -96,6 +100,6 @@ func (s Shipments) String() string {
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
-		&validators.StringIsPresent{Field: s.GBLOC, Name: "gbloc"},
+		&validators.StringIsPresent{Field: s.SourceGBLOC, Name: "source_gbloc"},
 	), nil
 }

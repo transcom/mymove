@@ -12,7 +12,7 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 
 	expErrors := map[string][]string{
 		"traffic_distribution_list_id": []string{"traffic_distribution_list_id can not be blank."},
-		"gbloc": []string{"gbloc can not be blank."},
+		"source_gbloc":                 []string{"source_gbloc can not be blank."},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
@@ -23,8 +23,10 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, false)
@@ -43,8 +45,10 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	now := time.Now()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)

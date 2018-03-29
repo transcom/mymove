@@ -211,6 +211,10 @@ describe('given a WizardPage', () => {
       );
       buttons = wrapper.find('button');
     });
+    afterEach(() => {
+      submit.mockClear();
+    });
+
     it('it shows its child', () => {
       const childContainer = wrapper.find('div.usa-width-one-whole');
       expect(childContainer.length).toBe(2);

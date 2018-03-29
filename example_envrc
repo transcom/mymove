@@ -12,5 +12,16 @@ export LOGIN_GOV_CLIENT_ID=<login_gov_client_id_value>
 
 export LOGIN_GOV_HOSTNAME="idp.int.identitysandbox.gov"
 
+export HTTPS_CERT=$(cat config/devlocal-https.pem)
+export HTTPS_KEY=$(cat config/devlocal-https.key)
+
 # Prevents user sessions from timing out
 export NO_SESSION_TIMEOUT=true
+
+# Set these values for S3 access in development
+export AWS_S3_BUCKET_NAME="transcom-ppp-app-devlocal-us-west-2"
+export AWS_S3_KEY_NAMESPACE=your-username
+export AWS_REGION="us-west-2"
+export AWS_PROFILE=transcom-ppp
+# Your AWS credentials should be setup in the transcom-ppp profile. They will be
+# detected and used by the app automatically.

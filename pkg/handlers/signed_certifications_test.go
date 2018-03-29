@@ -7,7 +7,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
@@ -25,9 +25,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -76,9 +77,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 	}
 	suite.mustSave(&user)
 
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -127,10 +129,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
-
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
@@ -178,10 +180,10 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
-
+	var selectedType = internalmessages.SelectedMoveTypeHHG
 	move := models.Move{
 		UserID:           user.ID,
-		SelectedMoveType: "HHG",
+		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 

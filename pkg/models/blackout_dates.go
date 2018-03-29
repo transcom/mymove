@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/markbates/pop"
-	"github.com/markbates/validate"
-	"github.com/markbates/validate/validators"
-	"github.com/satori/go.uuid"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
@@ -19,27 +19,28 @@ type BlackoutDate struct {
 	StartBlackoutDate               time.Time  `json:"start_blackout_date" db:"start_blackout_date"`
 	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
 	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
-	Channel                         *string    `json:"channel" db:"channel"`
-	GBLOC                           *string    `json:"gbloc" db:"gbloc"`
 	Market                          *string    `json:"market" db:"market"`
+	SourceGBLOC                     *string    `json:"source_gbloc" db:"source_gbloc"`
 	Zip3                            *int       `json:"zip3" db:"zip3"`
 	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
 }
 
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.
-func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID) ([]BlackoutDate, error) {
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
 	blackoutDates := []BlackoutDate{}
-	// TODO: update query to do the work of seeing if the proposed pickup date being checked
-	// against in awardqueue.go is within the window created by the dates in this record.
-	sql := `SELECT
-			*
-		FROM
-			blackout_dates
-		WHERE
-			transportation_service_provider_id = $1`
+	var err error
+	pop.Debug = true
+	query := tx.Where("transportation_service_provider_id = ?", tspID).Where("? BETWEEN start_blackout_date and end_blackout_date", shipment.PickupDate)
 
-	err := tx.RawQuery(sql, tspID).All(&blackoutDates)
+	if shipment.Market != nil {
+		query = query.Where("market = ?", *shipment.Market)
+	}
+
+	if shipment.SourceGBLOC != nil {
+		query = query.Where("source_gbloc = ?", *shipment.SourceGBLOC)
+	}
+
+	err = query.All(&blackoutDates)
 
 	return blackoutDates, err
 }
