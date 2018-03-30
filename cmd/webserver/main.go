@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"path/filepath"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
@@ -73,6 +74,7 @@ func main() {
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
+	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 
 	flag.Parse()
@@ -126,11 +128,23 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
 
-	if len(*s3Bucket) == 0 {
-		log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+	var storer handlers.FileStorer
+	if *storageBackend == "s3" {
+		if len(*s3Bucket) == 0 {
+			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+		}
+		aws := awssession.Must(awssession.NewSession())
+		storer = storage.NewS3(*s3Bucket, logger, aws)
+	} else {
+		absTmpPath, err := filepath.Abs("tmp")
+		if err != nil {
+			log.Fatalln(errors.New("Could not get absolute path for tmp"))
+		}
+		storagePath := path.Join(absTmpPath, "storage")
+		webRoot := fullHostname + "/" + "storage"
+		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
-	aws := awssession.Must(awssession.NewSession())
-	storer := storage.NewS3(*s3Bucket, logger, aws)
+
 	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
 
 	// Base routes
@@ -160,6 +174,11 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(authContext))
 	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *noSessionTimeout, fullHostname, logger, loginGovProvider))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
+
+	if *storageBackend == "filesystem" {
+		fs := storage.NewFilesystemHandler("tmp")
+		root.Handle(pat.Get("/storage/*"), fs)
+	}
 
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
