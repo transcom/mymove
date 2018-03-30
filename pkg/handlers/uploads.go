@@ -46,7 +46,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	if err != nil {
 		h.logger.Panic("Invalid DocumentID, this should never happen.")
 	}
-
+	// Validate that the document and move exists in the db, and that they belong to user
 	docExists, moveExists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
 	if !docExists || !moveExists {
 		return uploadop.NewCreateUploadNotFound()

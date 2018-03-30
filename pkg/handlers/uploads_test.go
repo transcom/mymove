@@ -131,7 +131,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 		t.Fatalf("could not create document: %s", err)
 	}
 	fakeS3 := &fakeS3Storage{}
-
+	// Create a user that is not associated with the move
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 
 	_, ok := response.(*uploadop.CreateUploadForbidden)
 	if !ok {
-		t.Fatalf("Request was success, expected failure")
+		t.Fatalf("Request was success, expected failure. User should not have access.")
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
@@ -174,12 +174,14 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	if err != nil {
 		t.Fatalf("could not create move: %s", err)
 	}
+	// Make a document ID that is not actually associated with a document
 	documentID := uuid.Must(uuid.NewV4())
 	fakeS3 := &fakeS3Storage{}
 	userID := move.UserID
 
 	params := uploadop.NewCreateUploadParams()
 	params.MoveID = strfmt.UUID(move.ID.String())
+	// Include non existent document ID in params
 	params.DocumentID = strfmt.UUID(documentID.String())
 	params.File = *suite.fixture("test.pdf")
 
@@ -193,7 +195,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 
 	_, ok := response.(*uploadop.CreateUploadNotFound)
 	if !ok {
-		t.Fatalf("Request was success, expected failure")
+		t.Fatalf("Request was success, expected failure. Document doesn't exist.")
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
