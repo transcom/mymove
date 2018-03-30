@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
 	"path"
 
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
@@ -24,7 +26,8 @@ type putFile struct {
 }
 
 type fakeS3Storage struct {
-	putFiles []putFile
+	putFiles    []putFile
+	willSucceed bool
 }
 
 func (fake *fakeS3Storage) Key(args ...string) string {
@@ -43,7 +46,10 @@ func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 	if err != nil {
 		return nil, err
 	}
-	return &storage.StoreResult{}, nil
+	if fake.willSucceed {
+		return &storage.StoreResult{}, nil
+	}
+	return nil, errors.New("failed to push")
 }
 
 func (fake *fakeS3Storage) PresignedURL(key string) (string, error) {
@@ -51,7 +57,13 @@ func (fake *fakeS3Storage) PresignedURL(key string) (string, error) {
 	return url, nil
 }
 
-func (suite *HandlerSuite) TestCreateUploadsHandler() {
+func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
+	return &fakeS3Storage{
+		willSucceed: willSucceed,
+	}
+}
+
+func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, models.Document, middleware.Responder) {
 	t := suite.T()
 
 	move, err := testdatagen.MakeMove(suite.db)
@@ -63,7 +75,6 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	if err != nil {
 		t.Fatalf("could not create document: %s", err)
 	}
-	fakeS3 := &fakeS3Storage{}
 
 	userID := move.UserID
 
@@ -80,6 +91,14 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 	handler := CreateUploadHandler(fileContext)
 	response := handler.Handle(params)
 
+	return move, document, response
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
+	t := suite.T()
+	fakeS3 := newFakeS3Storage(true)
+	move, document, response := createUpload(suite, fakeS3)
+
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
@@ -87,7 +106,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandler() {
 
 	uploadPayload := createdResponse.Payload
 	upload := models.Upload{}
-	err = suite.db.Find(&upload, uploadPayload.ID)
+	err := suite.db.Find(&upload, uploadPayload.ID)
 	if err != nil {
 		t.Fatalf("Couldn't find expected upload.")
 	}
@@ -196,6 +215,27 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	_, ok := response.(*uploadop.CreateUploadNotFound)
 	if !ok {
 		t.Fatalf("Request was success, expected failure. Document doesn't exist.")
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
+	t := suite.T()
+	fakeS3 := newFakeS3Storage(false)
+	_, _, response := createUpload(suite, fakeS3)
+
+	_, ok := response.(*uploadop.CreateUploadInternalServerError)
+	if !ok {
+		t.Fatalf("Request was success, expected failure")
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
