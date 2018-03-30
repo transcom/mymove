@@ -130,12 +130,14 @@ func main() {
 
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
+		zap.L().Info("Using s3 storage backend")
 		if len(*s3Bucket) == 0 {
 			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
 		}
 		aws := awssession.Must(awssession.NewSession())
 		storer = storage.NewS3(*s3Bucket, logger, aws)
 	} else {
+		zap.L().Info("Using filesystem storage backend")
 		absTmpPath, err := filepath.Abs("tmp")
 		if err != nil {
 			log.Fatalln(errors.New("Could not get absolute path for tmp"))
