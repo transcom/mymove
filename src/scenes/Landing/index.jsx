@@ -23,10 +23,6 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         <h1>Welcome!</h1>
-        <div>
-          <LoginButton />
-          <div />
-        </div>
         {this.props.isLoggedIn && (
           <button onClick={this.startMove}>Start a move</button>
         )}
