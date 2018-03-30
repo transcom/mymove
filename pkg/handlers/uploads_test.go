@@ -151,7 +151,47 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	handler := CreateUploadHandler(fileContext)
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.CreateUploadBadRequest)
+	_, ok := response.(*uploadop.CreateUploadForbidden)
+	if !ok {
+		t.Fatalf("Request was success, expected failure")
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
+	t := suite.T()
+
+	move, err := testdatagen.MakeMove(suite.db)
+	if err != nil {
+		t.Fatalf("could not create move: %s", err)
+	}
+	documentID := uuid.Must(uuid.NewV4())
+	fakeS3 := &fakeS3Storage{}
+	userID := move.UserID
+
+	params := uploadop.NewCreateUploadParams()
+	params.MoveID = strfmt.UUID(move.ID.String())
+	params.DocumentID = strfmt.UUID(documentID.String())
+	params.File = *suite.fixture("test.pdf")
+
+	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
+	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	fileContext := NewFileHandlerContext(context, fakeS3)
+	handler := CreateUploadHandler(fileContext)
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.CreateUploadNotFound)
 	if !ok {
 		t.Fatalf("Request was success, expected failure")
 	}

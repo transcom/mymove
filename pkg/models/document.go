@@ -44,3 +44,25 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: d.MoveID, Name: "MoveID"},
 	), nil
 }
+
+// ValidateDocumentOwnership validates that a user owns the move that contains a document and that move and document both exist
+func ValidateDocumentOwnership(db *pop.Connection, userID uuid.UUID, moveID uuid.UUID, documentID uuid.UUID) (bool, bool, bool) {
+	docExists := false
+	moveExists := false
+	userOwns := false
+	var move Move
+	var document Document
+	err := db.Find(&document, documentID)
+	if err == nil {
+		docExists = true
+	}
+	err = db.Find(&move, moveID)
+	if err == nil {
+		moveExists = true
+		// TODO: Handle case where more than one user is authorized to modify move
+		if uuid.Equal(move.UserID, userID) && uuid.Equal(document.MoveID, moveID) {
+			userOwns = true
+		}
+	}
+	return docExists, moveExists, userOwns
+}

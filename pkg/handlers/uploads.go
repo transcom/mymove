@@ -24,21 +24,6 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 	}
 }
 
-// User uploading the file should be the same as the user who 'owns' a move
-func (h CreateUploadHandler) userOwnsMove(currentMoveID uuid.UUID, currentUserID uuid.UUID) bool {
-	moves, err := models.GetMovesForUserID(h.db, currentUserID)
-	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		return false
-	}
-	for _, move := range moves {
-		if move.ID == currentMoveID {
-			return true
-		}
-	}
-	return false
-}
-
 // CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
 type CreateUploadHandler FileHandlerContext
 
@@ -57,13 +42,17 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Panic("Invalid MoveID, this should never happen.")
 	}
 
-	if !h.userOwnsMove(moveID, userID) {
-		return uploadop.NewCreateUploadBadRequest()
-	}
-
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		h.logger.Panic("Invalid DocumentID, this should never happen.")
+	}
+
+	docExists, moveExists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
+	if !docExists || !moveExists {
+		return uploadop.NewCreateUploadNotFound()
+	}
+	if !userOwns {
+		return uploadop.NewCreateUploadForbidden()
 	}
 
 	hash := md5.New()
