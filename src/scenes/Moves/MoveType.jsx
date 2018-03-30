@@ -11,6 +11,8 @@ import truckGray from 'shared/icon/truck-gray.svg';
 import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
+const { mobileSize } = require('shared/constants');
+
 class BigButtonGroup extends Component {
   constructor() {
     super();
@@ -24,7 +26,7 @@ class BigButtonGroup extends Component {
     });
   };
   render() {
-    const isMobile = this.props.windowWidth < 481;
+    const isMobile = this.props.windowWidth < mobileSize;
     const createButton = (
       value,
       description,
