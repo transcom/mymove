@@ -27,7 +27,7 @@ func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem 
 
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (fs *Filesystem) Store(key string, data io.ReadSeeker, md5 string) (*StoreResult, error) {
-	joined := path.Join(fs.root, key)
+	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
 	err := os.MkdirAll(dir, 0755)

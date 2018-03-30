@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"io"
+	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -56,17 +57,28 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
 	}
 
+	buffer := make([]byte, 512)
+	_, err = file.Data.Read(buffer)
+	if err != nil {
+		h.logger.Panic("unable to read first 512 bytes of file", zap.Error(err))
+	}
+
+	contentType := http.DetectContentType(buffer)
+	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
+	if err != nil {
+		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
+	}
+
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
-		ID:         id,
-		DocumentID: documentID,
-		UploaderID: userID,
-		Filename:   file.Header.Filename,
-		Bytes:      int64(file.Header.Size),
-		// TODO replace this with a real content type by examining file content.
-		ContentType: "text/plain",
+		ID:          id,
+		DocumentID:  documentID,
+		UploaderID:  userID,
+		Filename:    file.Header.Filename,
+		Bytes:       int64(file.Header.Size),
+		ContentType: contentType,
 		Checksum:    checksum,
 	}
 
