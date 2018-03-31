@@ -480,6 +480,10 @@ paths:
             $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
+        403:
+          description: not authorized
+        404:
+          description: not found
         500:
           description: server error
 
