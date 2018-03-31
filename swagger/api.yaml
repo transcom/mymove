@@ -258,7 +258,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
         - name: payload
           in: body
           required: true
@@ -332,7 +332,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
       responses:
         200:
           description: returns the documents associated with the shipment
@@ -354,7 +354,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
         - name: payload
           in: body
           required: true
@@ -371,7 +371,7 @@ paths:
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized add documents to this shipment
+          description: not authorized to add documents to this shipment
   /shipments/{shipment_uuid}/refuse:
     post:
       summary: Rejects an awarded shipment
@@ -383,7 +383,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
         - in: body
           name: payload
           description: reason for refusing award
