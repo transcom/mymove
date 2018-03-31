@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import LoginButton from 'shared/User/LoginButton';
 import { bindActionCreators } from 'redux';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
