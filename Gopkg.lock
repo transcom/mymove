@@ -205,6 +205,7 @@
   version = "v1.3"
 
 [[projects]]
+  branch = "master"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     "cmd/swagger",
@@ -214,8 +215,7 @@
     "generator",
     "scan"
   ]
-  revision = "b015bda48dfc648fdd95e7bc81dbb5cefc17c975"
-  version = "0.13.0"
+  revision = "2d443fa7eea569af9f20dd6f0302aef6c3b10651"
 
 [[projects]]
   name = "github.com/gobuffalo/envy"
@@ -690,6 +690,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8b9eeeb9bfb4905edd5320f56de65b296d5954e6d5a98c1b2766c7ce04a10b52"
+  inputs-digest = "5bd87b0fe43467acec6f46ac49bfc9ecfba4bfbe924b58604cecc95eb101a2c8"
   solver-name = "gps-cdcl"
   solver-version = 1
