@@ -53,7 +53,7 @@ func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 }
 
 func (fake *fakeS3Storage) PresignedURL(key string, contentType string) (string, error) {
-	url := fmt.Sprintf("https://example.test/dir/%s?contentType=%%2F%s", key, contentType)
+	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%%2F%s", key, contentType)
 	return url, nil
 }
 

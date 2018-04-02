@@ -74,13 +74,15 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	buffer := make([]byte, 512)
 	_, err = file.Data.Read(buffer)
 	if err != nil {
-		h.logger.Panic("unable to read first 512 bytes of file", zap.Error(err))
+		h.logger.Error("unable to read first 512 bytes of file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	contentType := http.DetectContentType(buffer)
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
-		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
+		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))

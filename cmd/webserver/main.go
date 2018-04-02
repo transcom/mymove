@@ -178,6 +178,7 @@ func main() {
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
 
 	if *storageBackend == "filesystem" {
+		// Add a file handler to provide access to files uploaded in development
 		fs := storage.NewFilesystemHandler("tmp")
 		root.Handle(pat.Get("/storage/*"), fs)
 	}
