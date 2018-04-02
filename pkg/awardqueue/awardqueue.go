@@ -128,7 +128,7 @@ func (aq *AwardQueue) assignShipments() {
 				count++
 			}
 		}
-		aq.logger.Info("Awarded some shipments.", zap.Int("count", count))
+		aq.logger.Info("Awarded some shipments.", zap.Int("total_count", count))
 	} else {
 		aq.logger.Error("Failed to query for shipments", zap.Error(err))
 	}
@@ -176,7 +176,7 @@ func (aq *AwardQueue) assignPerformanceBands() error {
 // This assumes that all TransportationServiceProviderPerformances have been properly
 // created and have a valid BestValueScore.
 func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributionList) error {
-	aq.logger.Info("Assigning performance bands", zap.Object("TDL", tdl))
+	aq.logger.Info("Assigning performance bands", zap.Object("tdl", tdl))
 
 	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(aq.db, tdl.ID, mps)
 	if err != nil {
@@ -189,7 +189,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributio
 	for band, count := range bands {
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
-			aq.logger.Info("Assigning tsp to band", zap.Any("tdp_id", performance.ID), zap.Int("band", band+1))
+			aq.logger.Info("Assigning tspPerformance to band", zap.Any("tdp_id", performance.ID), zap.Int("band", band+1))
 			err := models.AssignQualityBandToTSPPerformance(aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
