@@ -1,2 +1,0 @@
-drop_index("transportation_service_providers", "transportation_service_providers_index")
-add_index("transportation_service_providers", "name", {"name": "transportation_service_providers_index"})
