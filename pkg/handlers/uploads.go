@@ -34,31 +34,47 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Panic("No User ID, this should never happen.")
+		h.logger.Error("Missing User ID in context")
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Panic("Invalid MoveID, this should never happen.")
+		h.logger.Error("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		h.logger.Panic("Invalid DocumentID, this should never happen.")
+		h.logger.Error("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	// Validate that the document and move exists in the db, and that they belong to user
+	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
+	if !exists {
+		return uploadop.NewCreateUploadNotFound()
+	}
+	if !userOwns {
+		return uploadop.NewCreateUploadForbidden()
 	}
 
 	hash := md5.New()
 	if _, err := io.Copy(hash, file.Data); err != nil {
-		h.logger.Panic("failed to hash uploaded file", zap.Error(err))
+		h.logger.Error("failed to hash uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
-		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
+		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
+	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
+		ID:         id,
 		DocumentID: documentID,
 		UploaderID: userID,
 		Filename:   file.Header.Filename,
@@ -68,30 +84,39 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		Checksum:    checksum,
 	}
 
-	verrs, err := h.db.ValidateAndCreate(&newUpload)
+	// validate upload before pushing file to S3
+	verrs, err := newUpload.Validate(h.db)
+	if err != nil {
+		h.logger.Error("Failed to validate", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	} else if verrs.HasAny() {
+		// TODO return validation errors
+		h.logger.Error(verrs.Error())
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	// Push file to S3
+	key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", id.String())
+	_, err = h.storage.Store(key, file.Data, checksum)
+	if err != nil {
+		h.logger.Error("failed to store", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	// Already validated upload, so just save
+	err = h.db.Create(&newUpload)
 	if err != nil {
 		h.logger.Error("DB Insertion", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
-	} else if verrs.HasAny() {
-		h.logger.Error(verrs.Error())
-		return uploadop.NewCreateUploadBadRequest()
-	} else {
-		h.logger.Infof("created an upload with id %s, s3 id %s\n", newUpload.ID, newUpload.ID)
-
-		key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", newUpload.ID.String())
-
-		_, err := h.storage.Store(key, file.Data, checksum)
-		if err != nil {
-			h.logger.Error("failed to store", zap.Error(err))
-			return uploadop.NewCreateUploadInternalServerError()
-		}
-
-		url, err := h.storage.PresignedURL(key)
-		if err != nil {
-			h.logger.Error("failed to get presigned url", zap.Error(err))
-			return uploadop.NewCreateUploadInternalServerError()
-		}
-		uploadPayload := payloadForUploadModel(newUpload, url)
-		return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
 	}
+
+	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
+
+	url, err := h.storage.PresignedURL(key)
+	if err != nil {
+		h.logger.Error("failed to get presigned url", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+	uploadPayload := payloadForUploadModel(newUpload, url)
+	return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
 }
