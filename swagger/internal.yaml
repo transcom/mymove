@@ -1397,7 +1397,7 @@ definitions:
         title: Address Line 2
       street_address_3:
         type: string
-        example: Apartment 9000
+        example: Montmâtre
         x-nullable: true
         title: Address Line 3
       city:
