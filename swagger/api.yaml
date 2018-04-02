@@ -50,6 +50,9 @@ paths:
           description: invalid request
         403:
           description: not authorized to get list of Blackouts
+        500:
+          description: server error
+
   /blackouts/{blackout_uuid}:
     get:
       summary: retrieve the details of a blackout period
@@ -72,6 +75,8 @@ paths:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
     delete:
       summary: delete the associated blackout period
       operationId: deleteBlackout
@@ -91,6 +96,8 @@ paths:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
     patch:
       summary: update the associated blackout
       operationId: updateBlackout
@@ -117,6 +124,8 @@ paths:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
   /documents/{document_uuid}/uploads:
     post:
       summary: Adds a new upload to a document
@@ -153,6 +162,8 @@ paths:
           description: not authorized to see the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
   /shipments:
     get:
       summary: Gets visible shipments
@@ -193,6 +204,8 @@ paths:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
+        500:
+          description: server error
   /shipments/{shipment_uuid}:
     get:
       summary: Gets a particular shipment
@@ -218,6 +231,8 @@ paths:
           description: not authorized to see the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
     patch:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
@@ -247,6 +262,8 @@ paths:
           description: not authorized to see the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
   /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
@@ -275,6 +292,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to accept this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/claims:
     get:
       summary: Gets the list of claims associated with a shipment
@@ -299,6 +318,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to access this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
@@ -322,6 +343,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to access this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/documents:
     get:
       summary: Gets the list of documents associated with a Shipment
@@ -344,6 +367,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to access this shipment
+        500:
+          description: server error
     post:
       summary: Creates a new document associated with a shipment
       description: Creates the storage for the new document and sets the UUID
@@ -372,6 +397,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to add documents to this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/refuse:
     post:
       summary: Rejects an awarded shipment
@@ -401,6 +428,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to accept this shipment
+        500:
+          description: server error
   /tsp:
     get:
       summary: List all TSPs
@@ -418,6 +447,8 @@ paths:
           description: invalid request
         403:
           description: not authorized to get list of TSPs
+        500:
+          description: server error
   /tsp/{tsp_uuid}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
@@ -468,6 +499,8 @@ paths:
           description: not authorized to get list of shipments for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
   /tsp/{tsp_uuid}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
@@ -513,6 +546,8 @@ paths:
           description: not authorized to get list of blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts associated with his TSP
       operationId: createBlackout
@@ -541,6 +576,8 @@ paths:
           description: not authorized to create blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
 definitions:
   AcceptShipmentPayload:
     type: object
