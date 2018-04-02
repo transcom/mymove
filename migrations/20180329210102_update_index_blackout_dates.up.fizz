@@ -1,0 +1,1 @@
+add_index("blackout_dates", ["transportation_service_provider_id", "start_blackout_date", "end_blackout_date", "market", "source_gbloc"], {"name": "blackout_dates_index"})

@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"go.uber.org/zap/zapcore"
 )
 
 // TrafficDistributionList items are essentially different markets, based on
@@ -68,4 +69,12 @@ func FetchTDLsAwaitingBandAssignment(db *pop.Connection) (TrafficDistributionLis
 	err := db.RawQuery(sql).All(&tdls)
 
 	return tdls, err
+}
+
+// MarshalLogObject is required to be able to zap.Object log TDLs
+func (t TrafficDistributionList) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("src", t.SourceRateArea)
+	encoder.AddString("dest", t.DestinationRegion)
+	encoder.AddString("cos", t.CodeOfService)
+	return nil
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"go.uber.org/zap/zapcore"
 )
 
 // TransportationServiceProvider models moving companies used to move
@@ -59,4 +60,11 @@ func (t *TransportationServiceProvider) Validate(tx *pop.Connection) (*validate.
 		&validators.StringIsPresent{Field: t.StandardCarrierAlphaCode, Name: "StandardCarrierAlphaCode"},
 		&validators.StringIsPresent{Field: t.Name, Name: "Name"},
 	), nil
+}
+
+// MarshalLogObject is required to control the logging of this
+func (t TransportationServiceProvider) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("id", t.ID.String())
+	encoder.AddString("name", t.Name)
+	return nil
 }
