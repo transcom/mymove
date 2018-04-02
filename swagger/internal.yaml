@@ -252,7 +252,6 @@ paths:
           description: move not found
         500:
           description: internal server error
-
   /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
@@ -547,35 +546,77 @@ definitions:
     properties:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
+      pickup_address:
+        $ref: '#/definitions/Address'
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+      delivery_address_known:
+        type: boolean
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+      secondary_delivery_address:
+        $ref: '#/definitions/Address'
+      use_destination_storage:
+        type: boolean
+        x-nullable: true
   MovePayload:
-   type: object
-   properties:
-     id:
-       type: string
-       format: uuid
-       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-     user_id:
-       type: string
-       format: uuid
-       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-     selected_move_type:
-       $ref: '#/definitions/SelectedMoveType'
-     created_at:
-       type: string
-       format: date-time
-     updated_at:
-       type: string
-       format: date-time
-   required:
-    - id
-    - user_id
-    - created_at
-    - updated_at
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+      pickup_address:
+        $ref: '#/definitions/Address'
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+      delivery_address_known:
+        type: boolean
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+      secondary_delivery_address:
+        $ref: '#/definitions/Address'
+      use_destination_storage:
+        type: boolean
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - user_id
+      - created_at
+      - updated_at
   PatchMovePayload:
-   type: object
-   properties:
-     selected_move_type:
-       $ref: '#/definitions/SelectedMoveType'
+    type: object
+    properties:
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+      pickup_address:
+        $ref: '#/definitions/Address'
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+      delivery_address_known:
+        type: boolean
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+      secondary_delivery_address:
+        $ref: '#/definitions/Address'
+      use_destination_storage:
+        type: boolean
+        x-nullable: true
   SelectedMoveType:
     type: string
     title: Selected Move Type
