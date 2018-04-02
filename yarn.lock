@@ -1023,7 +1023,7 @@ babel-register@^6.26.0:
     mkdirp "^0.5.1"
     source-map-support "^0.4.15"
 
-babel-runtime@6.26.0, babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.23.0, babel-runtime@^6.26.0:
+babel-runtime@6.26.0, babel-runtime@^6.18.0, babel-runtime@^6.22.0, babel-runtime@^6.23.0, babel-runtime@^6.26.0, babel-runtime@^6.6.1:
   version "6.26.0"
   resolved "https://registry.yarnpkg.com/babel-runtime/-/babel-runtime-6.26.0.tgz#965c7058668e82b55d7bfe04ff2337bc8b5647fe"
   dependencies:
@@ -6484,6 +6484,12 @@ react-test-renderer@^16.0.0-0:
     fbjs "^0.8.16"
     object-assign "^4.1.1"
     prop-types "^15.6.0"
+
+react-window-size@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/react-window-size/-/react-window-size-1.0.1.tgz#c5e0e52602049ae9fb2c230626a8d1ce9ed8e3e4"
+  dependencies:
+    babel-runtime "^6.6.1"
 
 react@^16.2.0:
   version "16.2.0"
