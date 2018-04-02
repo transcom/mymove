@@ -164,7 +164,6 @@ func (suite *ModelSuite) TestCreateForm1299WithAddressesSavesAddresses() {
 		City:           "Seattle",
 		State:          "NY",
 		PostalCode:     "12345",
-		Country:        "United States",
 	}
 	form := Form1299{
 		OriginOfficeAddress: &address,
