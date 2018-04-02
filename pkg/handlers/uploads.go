@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"io"
+	"net/http"
 
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -75,17 +76,30 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
+	buffer := make([]byte, 512)
+	_, err = file.Data.Read(buffer)
+	if err != nil {
+		h.logger.Error("unable to read first 512 bytes of file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	contentType := http.DetectContentType(buffer)
+	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
+	if err != nil {
+		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
-		ID:         id,
-		DocumentID: documentID,
-		UploaderID: userID,
-		Filename:   file.Header.Filename,
-		Bytes:      int64(file.Header.Size),
-		// TODO replace this with a real content type by examining file content.
-		ContentType: "text/plain",
+		ID:          id,
+		DocumentID:  documentID,
+		UploaderID:  userID,
+		Filename:    file.Header.Filename,
+		Bytes:       int64(file.Header.Size),
+		ContentType: contentType,
 		Checksum:    checksum,
 	}
 
@@ -117,7 +131,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
 
-	url, err := h.storage.PresignedURL(key)
+	url, err := h.storage.PresignedURL(key, contentType)
 	if err != nil {
 		h.logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()

@@ -22,7 +22,7 @@ export class Landing extends Component {
   render() {
     return (
       <div className="usa-grid">
-        <h1>Welcome!</h1>
+        <h1>Welcome! </h1>
         <div>
           <LoginButton />
           <div />
