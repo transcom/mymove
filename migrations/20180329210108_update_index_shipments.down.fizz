@@ -1,2 +1,0 @@
-drop_index("shipments", "shipments_index")
-add_index("shipments", ["traffic_distribution_list_id", "pickup_date", "delivery_date"], {"name": "shipments_index"})
