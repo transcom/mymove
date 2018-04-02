@@ -49,10 +49,11 @@ func (s *S3) Key(args ...string) string {
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
-func (s *S3) PresignedURL(key string) (string, error) {
+func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
-		Bucket: &s.bucket,
-		Key:    &key,
+		Bucket:              &s.bucket,
+		Key:                 &key,
+		ResponseContentType: &contentType,
 	})
 	url, err := req.Presign(15 * time.Minute)
 	if err != nil {
