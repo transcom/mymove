@@ -32,21 +32,22 @@ func NewHandlerContext(db *pop.Connection, logger *zap.SugaredLogger) HandlerCon
 	}
 }
 
-type fileStorer interface {
+// FileStorer is the set of methods needed to store and retrieve objects.
+type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
 	Key(...string) string
-	PresignedURL(string) (string, error)
+	PresignedURL(string, string) (string, error)
 }
 
 // FileHandlerContext wraps a HandlerContext with an additional dependency for file
 // manipulation
 type FileHandlerContext struct {
 	HandlerContext
-	storage fileStorer
+	storage FileStorer
 }
 
 // NewFileHandlerContext returns a new FileHandlerContext with its private fields set.
-func NewFileHandlerContext(context HandlerContext, storage fileStorer) FileHandlerContext {
+func NewFileHandlerContext(context HandlerContext, storage FileStorer) FileHandlerContext {
 	return FileHandlerContext{
 		HandlerContext: context,
 		storage:        storage,
