@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/uuid"
 
 	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
@@ -134,6 +135,97 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	}
 
 	// TODO verify Body
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
+	t := suite.T()
+
+	move, err := testdatagen.MakeMove(suite.db)
+	if err != nil {
+		t.Fatalf("could not create move: %s", err)
+	}
+
+	document, err := testdatagen.MakeDocument(suite.db, &move)
+	if err != nil {
+		t.Fatalf("could not create document: %s", err)
+	}
+	fakeS3 := &fakeS3Storage{}
+	// Create a user that is not associated with the move
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	params := uploadop.NewCreateUploadParams()
+	params.MoveID = strfmt.UUID(move.ID.String())
+	params.DocumentID = strfmt.UUID(document.ID.String())
+	params.File = *suite.fixture("test.pdf")
+
+	ctx := authcontext.PopulateAuthContext(context.Background(), user.ID, "fake token")
+	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	fileContext := NewFileHandlerContext(context, fakeS3)
+	handler := CreateUploadHandler(fileContext)
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.CreateUploadForbidden)
+	if !ok {
+		t.Fatalf("Request was success, expected failure. User should not have access.")
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
+	t := suite.T()
+
+	move, err := testdatagen.MakeMove(suite.db)
+	if err != nil {
+		t.Fatalf("could not create move: %s", err)
+	}
+	// Make a document ID that is not actually associated with a document
+	documentID := uuid.Must(uuid.NewV4())
+	fakeS3 := &fakeS3Storage{}
+	userID := move.UserID
+
+	params := uploadop.NewCreateUploadParams()
+	params.MoveID = strfmt.UUID(move.ID.String())
+	// Include non existent document ID in params
+	params.DocumentID = strfmt.UUID(documentID.String())
+	params.File = *suite.fixture("test.pdf")
+
+	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
+	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	fileContext := NewFileHandlerContext(context, fakeS3)
+	handler := CreateUploadHandler(fileContext)
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.CreateUploadNotFound)
+	if !ok {
+		t.Fatalf("Request was success, expected failure. Document doesn't exist.")
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
