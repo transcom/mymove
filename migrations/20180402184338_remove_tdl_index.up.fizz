@@ -1,0 +1,1 @@
+drop_index("traffic_distribution_lists", "traffic_distribution_lists_index")

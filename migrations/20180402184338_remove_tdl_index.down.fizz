@@ -1,2 +1,1 @@
-drop_index("table_name", "traffic_distribution_lists_index")
 add_index("traffic_distribution_lists", ["source_rate_area", "destination_region", "code_of_service"], {"name": "traffic_distribution_lists_index"})
