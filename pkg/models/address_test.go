@@ -11,9 +11,10 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 	newAddress := Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: swag.String("street 2"),
+		StreetAddress3: swag.String("street 3"),
 		City:           "city",
 		State:          "state",
-		Zip:            "90210",
+		PostalCode:     "90210",
 	}
 
 	verrs, err := suite.db.ValidateAndCreate(&newAddress)
