@@ -1,0 +1,3 @@
+drop_column("addresses", "street_address_3")
+drop_column("addresses", "country")
+rename_column("addresses", "postal_code", "zip")
