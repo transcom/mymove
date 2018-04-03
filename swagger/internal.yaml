@@ -219,7 +219,6 @@ paths:
           description: move is not found
         500:
           description: internal server error
-
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
@@ -252,7 +251,6 @@ paths:
           description: move not found
         500:
           description: internal server error
-
   /moves/{moveId}/personally_procured_move:
     post:
       summary: Creates a new PPM for the given move
@@ -584,7 +582,7 @@ paths:
           description: invalid request
         401:
           description: request requires user authentication
-  /profiles/service_member_profile/{profileId}:
+  /profiles/service_member_profile/{userId}:
     get:
       summary: Returns the given service member profile
       description: Returns the given service member profile
@@ -593,11 +591,11 @@ paths:
         - profiles
       parameters:
         - in: path
-          name: profileId
+          name: userId
           type: string
           format: uuid
           required: true
-          description: UUID of the service member profile
+          description: UUID of the service member
       responses:
         200:
           description: the instance of the service member profile
@@ -621,11 +619,11 @@ paths:
         - profiles
       parameters:
         - in: path
-          name: profileId
+          name: userId
           type: string
           format: uuid
           required: true
-          description: UUID of the profile
+          description: UUID of the service member
         - in: body
           name: patchServiceMemberProfilePayload
           required: true
@@ -644,6 +642,132 @@ paths:
           description: user is not authorized
         404:
           description: profile not found
+        500:
+          description: internal server error
+  /profiles/service_member_profile/{userId}/backup_contact:
+    post:
+      summary: Submits backup contact for a logged-in user
+      description: Creates an instance of a backup contact tied to a service member user
+      operationId: createServiceMemberBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: body
+          name: createBackupContactPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateServiceMemberBackupContactPayload'
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        201:
+          description: created instance of service member backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to create this backup contact
+    get:
+      summary: List all service member backup contacts
+      description: List all service member backup contacts
+      operationId: indexServiceMemberBackupContacts
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        200:
+          description: list of service member backup contacts
+          schema:
+            $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+  /profiles/service_member_profile/{userId}/backup_contact/{backupContactId}:
+    get:
+      summary: Returns the given service member backup contact
+      description: Returns the given service member backup contact
+      operationId: showServiceMemberBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+        - in: path
+          name: backupContactId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        200:
+          description: the instance of the service member backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
+    patch:
+      summary: Patches the service member backup contact
+      description: Any fields sent in this request will be set on the backup contact referenced
+      operationId: patchServiceMemberBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: body
+          name: patchServiceMemberBackupContactPayload
+          required: true
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        - in: path
+          name: backupContactId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        201:
+          description: updated instance of backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
         500:
           description: internal server error
 
@@ -777,10 +901,6 @@ definitions:
       - address
       - created_at
       - updated_at
-  IndexStationsBySubstringPayload:
-    type: array
-    items:
-      $ref: '#/definitions/Station'
   ServiceMemberProfilePayload:
     type: object
     properties:
@@ -795,7 +915,8 @@ definitions:
       edipi_text:
         type: string
         format: string
-        example: alsdkjflksjdf
+        example: 57893457897
+        pattern: /^[0-9]{10}$/
         x-nullable: true
       ssn:
         type: string
@@ -803,8 +924,6 @@ definitions:
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
-      human_title:
-        $ref: '#/definitions/HumanTitle'
       first_name:
         type: string
         example: John
@@ -871,10 +990,6 @@ definitions:
   CreateServiceMemberProfilePayload:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       user_id:
         type: string
         format: uuid
@@ -882,18 +997,17 @@ definitions:
       edipi_text:
         type: string
         format: string
-        example: alsdkjflksjdf
+        pattern: /^[0-9]{10}$/
+        example: 57893457897
         x-nullable: true
-        title: EDIPI ID
+        title: 'DoD ID #'
       ssn:
         type: string
         format: ssn
         pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
-        title: Social Security Number
-      human_title:
-        $ref: '#/definitions/HumanTitle'
+        title: 'ssn #'
       first_name:
         type: string
         example: John
@@ -947,21 +1061,101 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email is Preferred
-      # current_station:
-      #   ref: '$/definitions/Station'
+      current_station:
+        $ref: '#/definitions/Station'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
       profile_complete:
         type: boolean
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
   PatchServiceMemberProfilePayload:
+    type: object
+    properties:
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      edipi_text:
+        type: string
+        format: string
+        pattern: /^[0-9]{10}$/
+        example: 57893457897
+        x-nullable: true
+        title: 'EDIPI ID'
+      ssn:
+        type: string
+        format: ssn
+        pattern: '^\d{3}-\d{2}-\d{4}$'
+        example: 555-55-5555
+        x-nullable: true
+        title: 'ssn #'
+      first_name:
+        type: string
+        example: John
+        x-nullable: true
+        title: First Name
+      middle_initial:
+        type: string
+        example: L.
+        x-nullable: true
+        title: Middle Initial
+      last_name:
+        type: string
+        example: Donut
+        x-nullable: true
+        title: Last Name
+      suffix:
+        type: string
+        example: Jr.
+        x-nullable: true
+        title: Suffix
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: telephone
+      secondary_telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Secondary Telephone
+      personal_email:
+        type: string
+        format: telephone
+        pattern: '^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
+        example: john_bob.joe@foo.edu
+        x-nullable: true
+        title: personal email address
+      phone_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Phone is Preferred
+      secondary_phone_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Secondary Phone is Preferred
+      email_is_preferred:
+        type: boolean
+        x-nullable: true
+        title: Email is Preferred
+      current_station:
+        $ref: '#/definitions/Station'
+      residential_address:
+        $ref: '#/definitions/Address'
+      backup_mailing_address:
+        $ref: '#/definitions/Address'
+      profile_complete:
+        type: boolean
+  IndexServiceMemberProfilesPayload:
+    type: array
+    items:
+      $ref: '#/definitions/ServiceMemberProfilePayload'
+  ServiceMemberBackupContactPayload:
     type: object
     properties:
       id:
@@ -972,92 +1166,92 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      edipi_text:
+      name:
         type: string
-        format: string
-        example: alsdkjflksjdf
+        example: Susan Smith
         x-nullable: true
-        title: EDIPI ID
-      ssn:
-        type: string
-        format: ssn
-        pattern: '^\d{3}-\d{2}-\d{4}$'
-        example: 555-55-5555
-        x-nullable: true
-        title: Social Security Number
-      human_title:
-        $ref: '#/definitions/HumanTitle'
-      first_name:
-        type: string
-        example: John
-        x-nullable: true
-        title: First Name
-      middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Initial
-      last_name:
-        type: string
-        example: Donut
-        x-nullable: true
-        title: Last Name
-      suffix:
-        type: string
-        example: Jr.
-        x-nullable: true
-        title: Suffix
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: telephone
-      secondary_telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Secondary Telephone
-      personal_email:
+      email:
         type: string
         format: telephone
         pattern: '^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
         example: john_bob.joe@foo.edu
         x-nullable: true
-        title: personal email address
-      phone_is_preferred:
+      authorized_to_meet_mover:
         type: boolean
         x-nullable: true
-        title: Phone is Preferred
-      secondary_phone_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Secondary Phone is Preferred
-      email_is_preferred:
-        type: boolean
-        x-nullable: true
-        title: Email is Preferred
-      # current_station:
-      #   ref: '$/definitions/Station'
-      residential_address:
-        $ref: '#/definitions/Address'
-      backup_mailing_address:
-        $ref: '#/definitions/Address'
-      profile_complete:
-        type: boolean
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
-  IndexServiceMemberProfilesPayload:
+    required:
+      - id
+      - user_id
+      - created_at
+      - updated_at
+  CreateServiceMemberBackupContactPayload:
+    type: object
+    properties:
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+      email:
+        type: string
+        format: telephone
+        pattern: '^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
+        example: john_bob.joe@foo.edu
+        x-nullable: true
+      authorized_to_meet_mover:
+        type: boolean
+        x-nullable: true
+  PatchServiceMemberBackupContactPayload:
+    type: object
+    properties:
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+      email:
+        type: string
+        format: telephone
+        pattern: '^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$'
+        example: john_bob.joe@foo.edu
+        x-nullable: true
+      authorized_to_meet_mover:
+        type: boolean
+        x-nullable: true
+  IndexServiceMemberBackupContactsPayload:
     type: array
     items:
-      $ref: '#/definitions/ServiceMemberProfilePayload'
+      $ref: '#/definitions/ServiceMemberBackupContactPayload'
   CreateSignedCertificationPayload:
     type: object
     properties:
@@ -1983,16 +2177,3 @@ definitions:
       - city
       - state
       - zip
-  HumanTitle:
-    type: string
-    title: Title
-    enum:
-      - MS
-      - MX
-      - MR
-      - DR
-    x-display-value:
-      MS: Ms.
-      MX: Mx.
-      MR: Mr.
-      DR: Dr.
