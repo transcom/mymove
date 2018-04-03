@@ -59,9 +59,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	// Validate that the document and move exists in the db, and that they belong to user
 	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
 	if !exists {
+		h.logger.Error("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadNotFound()
 	}
 	if !userOwns {
+		h.logger.Error("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadForbidden()
 	}
 
