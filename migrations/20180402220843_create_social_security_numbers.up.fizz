@@ -1,0 +1,6 @@
+create_table("social_security_numbers", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("user_id", "uuid", {})
+	t.Column("encrypted_hash", "string", {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {})
+})
