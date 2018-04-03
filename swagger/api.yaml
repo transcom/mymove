@@ -17,7 +17,7 @@ paths:
   /blackouts:
     get:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
-      description: gets a list of blackout periods which the current user can see
+      description: Gets a list of blackout periods which the current user can see
       operationId: indexBlackouts
       parameters:
         - in: query
@@ -48,11 +48,10 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of Blackouts
+        401:
+          description: must be authenticated to use this endpoint
         500:
           description: server error
-
   /blackouts/{blackout_uuid}:
     get:
       summary: retrieve the details of a blackout period
@@ -71,6 +70,8 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
@@ -92,6 +93,8 @@ paths:
           description: the blackout was successfully deleted
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
@@ -120,6 +123,8 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
@@ -161,7 +166,7 @@ paths:
         403:
           description: not authorized to see the details of this shipment
         404:
-          description: shipment UUID not found in system
+          description: dcoument UUID not found in system
         500:
           description: server error
   /shipments:
@@ -267,7 +272,7 @@ paths:
   /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP
+      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
       operationId: acceptShipment
       parameters:
         - name: shipment_uuid
@@ -292,6 +297,10 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /shipments/{shipment_uuid}/claims:
@@ -360,7 +369,7 @@ paths:
         200:
           description: returns the documents associated with the shipment
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/Document'
         400:
           description: invalid request
         401:
@@ -430,10 +439,10 @@ paths:
           description: not authorized to accept this shipment
         500:
           description: server error
-  /tsp:
+  /tsps:
     get:
       summary: List all TSPs
-      description: Gets a list of all TSPs registered.
+      description: Gets a list of all the TSPs which the logged in user has access to.
       operationId: indexTSPs
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
       responses:
@@ -445,11 +454,11 @@ paths:
               $ref: '#/definitions/TSP'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of TSPs
+        401:
+          description: must be authenticated to access this endpoint
         500:
           description: server error
-  /tsp/{tsp_uuid}/shipments:
+  /tsps/{tsp_uuid}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
@@ -501,7 +510,7 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-  /tsp/{tsp_uuid}/blackouts:
+  /tsps/{tsp_uuid}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
@@ -550,6 +559,14 @@ paths:
           description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts associated with his TSP
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
+       contain an ID as this will be created when it is added to the DB. Simillarly, the tsp_id field should be
+       ommitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
+       400 bad request.
+
+       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+       originate in the given GBLOC.
       operationId: createBlackout
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
@@ -566,7 +583,7 @@ paths:
           schema:
             $ref: '#/definitions/Blackout'
       responses:
-        200:
+        201:
           description: The blackout as added to the database including DB ID
           schema:
              $ref: '#/definitions/Blackout'
@@ -586,6 +603,9 @@ definitions:
         $ref: '#/definitions/ShippingAgentContact'
       destination_shipping_agent:
         $ref: '#/definitions/ShippingAgentContact'
+    required:
+      - origin_shipping_agent
+      - destination_shipping_agent
   Address:
     type: object
     properties:
@@ -921,6 +941,11 @@ definitions:
         $ref: '#/definitions/ShipmentStatus'
       customer:
         $ref: '#/definitions/Customer'
+      tsp_id:
+        type: string
+        format: uuid
+        description: The ID of the TSP to whom the shipment has been offered/accepted
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       dates:
         $ref: '#/definitions/ShipmentDates'
       estimated_weight:
@@ -981,6 +1006,10 @@ definitions:
         format: email
         description: Email used to contact shipping agent
         example: jackson_flies@gmail.com
+    required:
+      - name
+      - phone_number
+      - email
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
