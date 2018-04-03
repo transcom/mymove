@@ -73,3 +73,38 @@ func (suite *ModelSuite) TestSSNSalt() {
 		t.Error("Even though the hash is different, it should still match our source SSN.")
 	}
 }
+
+func (suite *ModelSuite) TestRawSSNNotAllowed() {
+	t := suite.T()
+
+	user, err := testdatagen.MakeUser(suite.db)
+	if err != nil {
+		t.Error("creating a user should have worked")
+	}
+
+	sneakySSNs := []string{
+		"123-12-1234",
+		"123-121234",
+		"123121234",
+		"123 12 1234",
+		"123-1  21234",
+		"123.12.1234",
+		"123-1 2-1234",
+	}
+
+	for _, sneakySSN := range sneakySSNs {
+		mySSN := SocialSecurityNumber{
+			UserID:        user.ID,
+			EncryptedHash: sneakySSN,
+		}
+
+		verrs, err := suite.db.ValidateAndCreate(&mySSN)
+		if !verrs.HasAny() {
+			t.Error("It should not be possible to save an SSN to the db.")
+		}
+		if err != nil {
+			t.Error("It shouldn't error here though, it's a validation issue")
+		}
+	}
+
+}

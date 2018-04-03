@@ -26,6 +26,7 @@ type SocialSecurityNumbers []SocialSecurityNumber
 func (s *SocialSecurityNumber) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: s.EncryptedHash, Name: "EncryptedHash"},
+		&StringDoesNotContainSSN{Field: s.EncryptedHash, Name: "EncryptedHash"},
 	), nil
 }
 

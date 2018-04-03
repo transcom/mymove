@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"regexp"
 	"strings"
 
 	"github.com/gobuffalo/validate"
@@ -21,6 +22,23 @@ func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 	}
 	if strings.TrimSpace(*v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// StringDoesNotContainSSN adds an error if the Field contains an SSN.
+type StringDoesNotContainSSN struct {
+	Name  string
+	Field string
+}
+
+var ignoredCharactersRegex = regexp.MustCompile(`(\s|-|\.)`)
+var nineDigitsRegex = regexp.MustCompile(`^\d{9}$`)
+
+// IsValid adds an error if the Field contains an SSN.
+func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
+	cleanSSN := ignoredCharactersRegex.ReplaceAll([]byte(v.Field), []byte(""))
+	if nineDigitsRegex.Match(cleanSSN) {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
 	}
 }
 
