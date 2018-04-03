@@ -18,9 +18,11 @@ type Address struct {
 	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
 	StreetAddress1 string    `json:"street_address_1" db:"street_address_1"`
 	StreetAddress2 *string   `json:"street_address_2" db:"street_address_2"`
+	StreetAddress3 *string   `json:"street_address_3" db:"street_address_3"`
 	City           string    `json:"city" db:"city"`
 	State          string    `json:"state" db:"state"`
-	Zip            string    `json:"zip" db:"zip"`
+	PostalCode     string    `json:"postal_code" db:"postal_code"`
+	Country        *string   `json:"country" db:"country"`
 }
 
 // String is not required by pop and may be deleted
@@ -75,7 +77,7 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		"StreetAddress1": a.StreetAddress1,
 		"City":           a.City,
 		"State":          a.State,
-		"Zip":            a.Zip,
+		"PostalCode":     a.PostalCode,
 	}
 
 	for key, field := range stringFields {
