@@ -81,7 +81,6 @@ func TestHandlerSuite(t *testing.T) {
 	}
 
 	logger, err := zap.NewDevelopment()
-	// sugar := logger.Sugar()
 	if err != nil {
 		log.Panic(err)
 	}

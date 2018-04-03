@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 	. "github.com/transcom/mymove/pkg/models"
@@ -48,10 +47,9 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 		BookDate:                        testdatagen.DateInsidePerformancePeriod,
 	}
 
-	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.dp, tsp.ID, shipmentWithOfferWithDomesticMarket)
+	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithDomesticMarket)
 	if err != nil {
-		// t.Errorf("Error fetching blackout dates.")
-		return errors.Wrap(err, "Error fetching blackout dates.")
+		t.Errorf("Error fetching blackout dates.")
 	} else if len(fetchWithDomesticMarket) == 0 {
 		t.Errorf("Blackout dates query should have returned one result but returned zero instead.")
 	}
