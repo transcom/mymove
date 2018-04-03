@@ -12,17 +12,17 @@ import (
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
 type BlackoutDate struct {
-	ID                              uuid.UUID  `json:"id" db:"id"`
-	CreatedAt                       time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt                       time.Time  `json:"updated_at" db:"updated_at"`
-	TransportationServiceProviderID uuid.UUID  `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	StartBlackoutDate               time.Time  `json:"start_blackout_date" db:"start_blackout_date"`
-	EndBlackoutDate                 time.Time  `json:"end_blackout_date" db:"end_blackout_date"`
-	TrafficDistributionListID       *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	Market                          *string    `json:"market" db:"market"`
-	SourceGBLOC                     *string    `json:"source_gbloc" db:"source_gbloc"`
-	Zip3                            *int       `json:"zip3" db:"zip3"`
-	VolumeMove                      *bool      `json:"volume_move" db:"volume_move"`
+	ID                              uuid.UUID  `db:"id"`
+	CreatedAt                       time.Time  `db:"created_at"`
+	UpdatedAt                       time.Time  `db:"updated_at"`
+	TransportationServiceProviderID uuid.UUID  `db:"transportation_service_provider_id"`
+	StartBlackoutDate               time.Time  `db:"start_blackout_date"`
+	EndBlackoutDate                 time.Time  `db:"end_blackout_date"`
+	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
+	Market                          *string    `db:"market"`
+	SourceGBLOC                     *string    `db:"source_gbloc"`
+	Zip3                            *int       `db:"zip3"`
+	VolumeMove                      *bool      `db:"volume_move"`
 }
 
 // FetchTSPBlackoutDates runs a SQL query to find all blackout_date records connected to a TSP ID.

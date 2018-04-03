@@ -12,12 +12,12 @@ import (
 
 // Issue is a problem with the product, submitted by any user.
 type Issue struct {
-	ID           uuid.UUID  `json:"id" db:"id"`
-	CreatedAt    time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt    time.Time  `json:"updated_at" db:"updated_at"`
-	Description  string     `json:"description" db:"description"`
-	ReporterName *string    `json:"reporter_name" db:"reporter_name"`
-	DueDate      *time.Time `json:"due_date" db:"due_date"`
+	ID           uuid.UUID  `db:"id"`
+	CreatedAt    time.Time  `db:"created_at"`
+	UpdatedAt    time.Time  `db:"updated_at"`
+	Description  string     `db:"description"`
+	ReporterName *string    `db:"reporter_name"`
+	DueDate      *time.Time `db:"due_date"`
 }
 
 // String is not required by pop and may be deleted

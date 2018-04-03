@@ -13,14 +13,14 @@ import (
 
 // Address is an address
 type Address struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string    `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string   `json:"street_address_2" db:"street_address_2"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	Zip            string    `json:"zip" db:"zip"`
+	ID             uuid.UUID `db:"id"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+	StreetAddress1 string    `db:"street_address_1"`
+	StreetAddress2 *string   `db:"street_address_2"`
+	City           string    `db:"city"`
+	State          string    `db:"state"`
+	Zip            string    `db:"zip"`
 }
 
 // String is not required by pop and may be deleted

@@ -12,13 +12,13 @@ import (
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
 type PersonallyProcuredMove struct {
-	ID             uuid.UUID                    `json:"id" db:"id"`
-	MoveID         uuid.UUID                    `json:"move_id" db:"move_id"`
+	ID             uuid.UUID                    `db:"id"`
+	MoveID         uuid.UUID                    `db:"move_id"`
 	Move           Move                         `belongs_to:"move"`
-	CreatedAt      time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time                    `json:"updated_at" db:"updated_at"`
-	Size           *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate *int64                       `json:"weight_estimate" db:"weight_estimate"`
+	CreatedAt      time.Time                    `db:"created_at"`
+	UpdatedAt      time.Time                    `db:"updated_at"`
+	Size           *internalmessages.TShirtSize `db:"size"`
+	WeightEstimate *int64                       `db:"weight_estimate"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs

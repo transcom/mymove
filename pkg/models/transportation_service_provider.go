@@ -14,29 +14,29 @@ import (
 // TransportationServiceProvider models moving companies used to move
 // Shipments.
 type TransportationServiceProvider struct {
-	ID                       uuid.UUID `json:"id" db:"id"`
-	CreatedAt                time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
-	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
-	Name                     string    `json:"name" db:"name"`
+	ID                       uuid.UUID `db:"id"`
+	CreatedAt                time.Time `db:"created_at"`
+	UpdatedAt                time.Time `db:"updated_at"`
+	StandardCarrierAlphaCode string    `db:"standard_carrier_alpha_code"`
+	Name                     string    `db:"name"`
 }
 
 // TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS
 // and offered shipment counts.
 type TSPWithBVSAndOfferCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	Name                      string    `json:"name" db:"name"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                int       `json:"offer_count" db:"offer_count"`
+	ID                        uuid.UUID `db:"id"`
+	Name                      string    `db:"name"`
+	TrafficDistributionListID uuid.UUID `db:"traffic_distribution_list_id"`
+	BestValueScore            int       `db:"best_value_score"`
+	OfferCount                int       `db:"offer_count"`
 }
 
 // TSPWithBVSCount represents a list of TSPs along with their BVS counts.
 type TSPWithBVSCount struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	Name                      string    `json:"name" db:"name"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
+	ID                        uuid.UUID `db:"id"`
+	Name                      string    `db:"name"`
+	TrafficDistributionListID uuid.UUID `db:"traffic_distribution_list_id"`
+	BestValueScore            int       `db:"best_value_score"`
 }
 
 // String is not required by pop and may be deleted

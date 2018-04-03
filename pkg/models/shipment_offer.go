@@ -13,14 +13,14 @@ import (
 // ShipmentOffer maps a Transportation Service Provider to a shipment,
 // indicating that the shipment has been offered to that TSP.
 type ShipmentOffer struct {
-	ID                              uuid.UUID `json:"id" db:"id"`
-	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	ShipmentID                      uuid.UUID `json:"shipment_id" db:"shipment_id"`
-	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	AdministrativeShipment          bool      `json:"administrative_shipment" db:"administrative_shipment"`
-	Accepted                        *bool     `json:"accepted" db:"accepted"`
-	RejectionReason                 *string   `json:"rejection_reason" db:"rejection_reason"`
+	ID                              uuid.UUID `db:"id"`
+	CreatedAt                       time.Time `db:"created_at"`
+	UpdatedAt                       time.Time `db:"updated_at"`
+	ShipmentID                      uuid.UUID `db:"shipment_id"`
+	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
+	AdministrativeShipment          bool      `db:"administrative_shipment"`
+	Accepted                        *bool     `db:"accepted"`
+	RejectionReason                 *string   `db:"rejection_reason"`
 }
 
 // String is not required by pop and may be deleted

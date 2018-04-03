@@ -17,11 +17,11 @@ import (
 
 // User is an entity with a registered uuid and email at login.gov
 type User struct {
-	ID            uuid.UUID `json:"id" db:"id"`
-	CreatedAt     time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
-	LoginGovUUID  uuid.UUID `json:"login_gov_uuid" db:"login_gov_uuid"`
-	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
+	ID            uuid.UUID `db:"id"`
+	CreatedAt     time.Time `db:"created_at"`
+	UpdatedAt     time.Time `db:"updated_at"`
+	LoginGovUUID  uuid.UUID `db:"login_gov_uuid"`
+	LoginGovEmail string    `db:"login_gov_email"`
 }
 
 // String is not required by pop and may be deleted
