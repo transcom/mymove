@@ -1,6 +1,8 @@
 package models
 
 import (
+	"errors"
+	"regexp"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -40,8 +42,16 @@ func (s *SocialSecurityNumber) ValidateUpdate(tx *pop.Connection) (*validate.Err
 	return validate.NewErrors(), nil
 }
 
+// ErrSSNBadFormat is returned if you attempted to hash an SSN not in the format '123-12-1234'
+var ErrSSNBadFormat = errors.New("SSNs must be in the format '123-12-1234'")
+var ssnFormatValidator = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
+
 // BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
 func BuildSocialSecurityNumber(userID uuid.UUID, unencryptedSSN string) (SocialSecurityNumber, error) {
+	if !ssnFormatValidator.Match([]byte(unencryptedSSN)) {
+		return SocialSecurityNumber{}, ErrSSNBadFormat
+	}
+
 	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), -1) // -1 chooses the default cost
 	if err != nil {
 		return SocialSecurityNumber{}, err
@@ -54,8 +64,8 @@ func BuildSocialSecurityNumber(userID uuid.UUID, unencryptedSSN string) (SocialS
 	return ssn, nil
 }
 
-// MatchesRawSSN returns true if the encrypted_hahs matches the unencryptedSSN
-func (s SocialSecurityNumber) MatchesRawSSN(unencryptedSSN string) bool {
+// Matches returns true if the encrypted_hahs matches the unencryptedSSN
+func (s SocialSecurityNumber) Matches(unencryptedSSN string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(s.EncryptedHash), []byte(unencryptedSSN))
 	return err == nil
 }

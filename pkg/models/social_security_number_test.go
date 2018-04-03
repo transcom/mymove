@@ -22,18 +22,44 @@ func (suite *ModelSuite) TestSSNEncryption() {
 		t.Error("The encrypted hash should *not* be the same as the SSN")
 	}
 
-	shouldMatch := mySSN.MatchesRawSSN(fakeSSN)
+	shouldMatch := mySSN.Matches(fakeSSN)
 
 	if !shouldMatch {
 		t.Error("the source SSN should match the hash")
 	}
 
-	shouldNotMatch := mySSN.MatchesRawSSN("321-21-4321")
+	shouldNotMatch := mySSN.Matches("321-21-4321")
 	if shouldNotMatch {
 		t.Error("A different SSN should not match the hash")
 	}
 
 	suite.mustSave(&mySSN)
+}
+
+func (suite *ModelSuite) TestSSNFormat() {
+	t := suite.T()
+
+	user, err := testdatagen.MakeUser(suite.db)
+	if err != nil {
+		t.Error("creating a user should have worked")
+	}
+
+	sneakySSNs := []string{
+		"123-121234",
+		"123121234",
+		"123 12 1234",
+		"123-1  21234",
+		"123.12.1234",
+		"123-1 2-1234",
+	}
+
+	for _, sneakySSN := range sneakySSNs {
+		_, err = BuildSocialSecurityNumber(user.ID, sneakySSN)
+		if err != ErrSSNBadFormat {
+			t.Error("Expected the bad formatter error.")
+		}
+	}
+
 }
 
 func (suite *ModelSuite) TestSSNSalt() {
@@ -53,7 +79,7 @@ func (suite *ModelSuite) TestSSNSalt() {
 		t.Error("The encrypted hash should *not* be the same as the SSN")
 	}
 
-	shouldMatch := mySSN.MatchesRawSSN(fakeSSN)
+	shouldMatch := mySSN.Matches(fakeSSN)
 
 	if !shouldMatch {
 		t.Error("the source SSN should match the hash")
@@ -68,7 +94,7 @@ func (suite *ModelSuite) TestSSNSalt() {
 		t.Error("These hashes should be salted, every one should be different.")
 	}
 
-	shouldMatch = secondSSN.MatchesRawSSN(fakeSSN)
+	shouldMatch = secondSSN.Matches(fakeSSN)
 	if !shouldMatch {
 		t.Error("Even though the hash is different, it should still match our source SSN.")
 	}
@@ -89,7 +115,7 @@ func (suite *ModelSuite) TestRawSSNNotAllowed() {
 		"123 12 1234",
 		"123-1  21234",
 		"123.12.1234",
-		"123-1 2-1234",
+		"123_12-1234",
 	}
 
 	for _, sneakySSN := range sneakySSNs {

@@ -31,7 +31,7 @@ type StringDoesNotContainSSN struct {
 	Field string
 }
 
-var ignoredCharactersRegex = regexp.MustCompile(`(\s|-|\.)`)
+var ignoredCharactersRegex = regexp.MustCompile(`(\s|-|\.|_)`)
 var nineDigitsRegex = regexp.MustCompile(`^\d{9}$`)
 
 // IsValid adds an error if the Field contains an SSN.
