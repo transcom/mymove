@@ -18,9 +18,11 @@ func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 		return &internalmessages.Address{
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
+			StreetAddress3: a.StreetAddress3,
 			City:           swag.String(a.City),
 			State:          swag.String(a.State),
-			Zip:            swag.String(a.Zip),
+			PostalCode:     swag.String(a.PostalCode),
+			Country:        a.Country,
 		}
 	}
 	return nil
@@ -33,9 +35,11 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 	address := models.Address{
 		StreetAddress1: *rawAddress.StreetAddress1,
 		StreetAddress2: rawAddress.StreetAddress2,
+		StreetAddress3: rawAddress.StreetAddress3,
 		City:           *rawAddress.City,
 		State:          *rawAddress.State,
-		Zip:            *rawAddress.Zip,
+		PostalCode:     *rawAddress.PostalCode,
+		Country:        rawAddress.Country,
 	}
 	return &address
 }
