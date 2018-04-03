@@ -47,7 +47,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	// Run the Award Queue
 	offer, err := queue.attemptShipmentOffer(shipmentWithOffer)
 
-	expectedError := "Could not find a TSP without blackout dates"
+	expectedError := "could not find a TSP without blackout dates"
 	// See if shipment was offered
 	if err == nil || offer != nil {
 		t.Errorf("Shipment was offered to a blacked out TSP!")
