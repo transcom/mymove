@@ -21,11 +21,11 @@ import (
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
 	db     *pop.Connection
-	logger *zap.SugaredLogger
+	logger *zap.Logger
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.SugaredLogger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return HandlerContext{
 		db:     db,
 		logger: logger,
