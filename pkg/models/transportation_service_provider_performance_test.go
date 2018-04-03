@@ -64,47 +64,27 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
-func (suite *ModelSuite) Test_DateIsPeakRateCycle() {
+func (suite *ModelSuite) Test_GetRateCycle() {
 	t := suite.T()
 
-	nonPeakDates := []time.Time{
-		time.Date(2000, time.January, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(1900, time.January, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2100, time.January, 1, 0, 0, 0, 0, time.UTC),
-		// The last second of the non-peak rate cycle
-		time.Date(2000, time.May, 14, 23, 59, 59, 0, time.UTC),
-		// The first second of the non-peak rate cycle
-		time.Date(2000, time.October, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.December, 15, 20, 0, 0, 0, time.UTC),
-		testdatagen.DateInsideNonPeakRateCycle,
-		testdatagen.DateOutsidePeakRateCycle,
-	}
+	peakRateCycleStart, peakRateCycleEnd := GetRateCycle(testdatagen.TestYear, true)
+	nonPeakRateCycleStart, nonPeakRateCycleEnd := GetRateCycle(testdatagen.TestYear, false)
 
-	for _, d := range nonPeakDates {
-		if DateIsPeakRateCycle(d) {
-			t.Errorf("Expected that date %s is not in peak rate window.", d)
-		}
+	if peakRateCycleStart != testdatagen.PeakRateCycleStart {
+		t.Errorf("PeakRateCycleStart not calculated correctly. Expected %s, got %s",
+			testdatagen.PeakRateCycleStart, peakRateCycleStart)
 	}
-
-	peakDates := []time.Time{
-		// The first second of the peak rate cycle
-		time.Date(2000, time.May, 15, 0, 0, 0, 0, time.UTC),
-		time.Date(3000, time.May, 15, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.May, 15, 23, 59, 59, 0, time.UTC),
-		time.Date(2000, time.June, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.July, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.August, 1, 0, 0, 0, 0, time.UTC),
-		time.Date(2000, time.September, 1, 0, 0, 0, 0, time.UTC),
-		// The last second of the peak rate cycle
-		time.Date(2000, time.September, 30, 23, 59, 59, 0, time.UTC),
-		testdatagen.DateInsidePeakRateCycle,
-		testdatagen.DateOutsideNonPeakRateCycle,
+	if peakRateCycleEnd != testdatagen.PeakRateCycleEnd {
+		t.Errorf("PeakRateCycleEnd not calculated correctly. Expected %s, got %s",
+			testdatagen.PeakRateCycleEnd, peakRateCycleEnd)
 	}
-
-	for _, d := range peakDates {
-		if !DateIsPeakRateCycle(d) {
-			t.Errorf("Expected that date %s is in peak rate window.", d)
-		}
+	if nonPeakRateCycleStart != testdatagen.NonPeakRateCycleStart {
+		t.Errorf("NonPeakRateCycleStart not calculated correctly. Expected %s, got %s",
+			testdatagen.NonPeakRateCycleStart, nonPeakRateCycleStart)
+	}
+	if nonPeakRateCycleEnd != testdatagen.NonPeakRateCycleEnd {
+		t.Errorf("NonPeakRateCycleEnd not calculated correctly. Expected %s, got %s",
+			testdatagen.NonPeakRateCycleEnd, nonPeakRateCycleStart)
 	}
 }
 

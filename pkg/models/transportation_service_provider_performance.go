@@ -244,18 +244,3 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 
 	return start, end
 }
-
-// DateIsPeakRateCycle determines if a given date is within the a peak rate
-// cycle or not. This is the authoritative source on rate cycles.
-// Peak rate cycles are: May 15th - September 30th, inclusive.
-func DateIsPeakRateCycle(t time.Time) bool {
-	year, _, _ := t.Date()
-
-	peakStartInc, peakEndExcl := GetRateCycle(year, true)
-
-	if (t.After(peakStartInc) || t.Equal(peakStartInc)) && t.Before(peakEndExcl) {
-		return true
-	}
-
-	return false
-}
