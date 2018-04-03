@@ -23,12 +23,6 @@ type Address struct {
 	Zip            string    `db:"zip"`
 }
 
-// String is not required by pop and may be deleted
-func (a Address) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
-}
-
 // GetAddressID facilitates grabbing the ID from an address that may be nil
 func GetAddressID(address *Address) *uuid.UUID {
 	var response *uuid.UUID
@@ -59,12 +53,6 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 
 // Addresses is not required by pop and may be deleted
 type Addresses []Address
-
-// String is not required by pop and may be deleted
-func (a Addresses) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

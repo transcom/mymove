@@ -81,20 +81,8 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 	return shipments, err
 }
 
-// String is not required by pop and may be deleted
-func (s Shipment) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
-
-// String is not required by pop and may be deleted
-func (s Shipments) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {

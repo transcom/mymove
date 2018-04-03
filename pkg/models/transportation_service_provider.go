@@ -39,20 +39,8 @@ type TSPWithBVSCount struct {
 	BestValueScore            int       `db:"best_value_score"`
 }
 
-// String is not required by pop and may be deleted
-func (t TransportationServiceProvider) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // TransportationServiceProviders is not required by pop and may be deleted
 type TransportationServiceProviders []TransportationServiceProvider
-
-// String is not required by pop and may be deleted
-func (t TransportationServiceProviders) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TransportationServiceProvider) Validate(tx *pop.Connection) (*validate.Errors, error) {

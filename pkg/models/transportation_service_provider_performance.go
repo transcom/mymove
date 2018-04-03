@@ -40,20 +40,8 @@ type TransportationServiceProviderPerformance struct {
 	OfferCount                      int       `db:"offer_count"`
 }
 
-// String is not required by pop and may be deleted
-func (t TransportationServiceProviderPerformance) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
 type TransportationServiceProviderPerformances []TransportationServiceProviderPerformance
-
-// String is not required by pop and may be deleted
-func (t TransportationServiceProviderPerformances) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) (*validate.Errors, error) {

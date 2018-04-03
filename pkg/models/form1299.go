@@ -163,20 +163,8 @@ func FetchForm1299ByID(dbConnection *pop.Connection, id strfmt.UUID) (Form1299, 
 	return form1299, err
 }
 
-// String is not required by pop and may be deleted
-func (f Form1299) String() string {
-	jf, _ := json.Marshal(f)
-	return string(jf)
-}
-
 // Form1299s is not required by pop and may be deleted
 type Form1299s []Form1299
-
-// String is not required by pop and may be deleted
-func (f Form1299s) String() string {
-	jf, _ := json.Marshal(f)
-	return string(jf)
-}
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.

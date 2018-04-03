@@ -20,20 +20,8 @@ type Issue struct {
 	DueDate      *time.Time `db:"due_date"`
 }
 
-// String is not required by pop and may be deleted
-func (i Issue) String() string {
-	ji, _ := json.Marshal(i)
-	return string(ji)
-}
-
 // Issues is not required by pop and may be deleted
 type Issues []Issue
-
-// String is not required by pop and may be deleted
-func (i Issues) String() string {
-	ji, _ := json.Marshal(i)
-	return string(ji)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
