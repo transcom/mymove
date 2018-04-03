@@ -119,7 +119,6 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	testStartDate := testdatagen.DateInsidePeakRateCycle
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
-
 	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil)
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates

@@ -179,8 +179,8 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 // order that they should be assigned quality bands.
 func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
 
-	// TODO: bookDate and requsetedPickupDate should also be qualifiers here. BVSs from different
-	// performance periods and rate areas should be broken up into separate quality bandsquality bands.
+	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
+	// performance periods and rate areas should be broken up into separate quality bands.
 	sql := `SELECT
 			*
 		FROM
@@ -254,10 +254,8 @@ func DateIsPeakRateCycle(t time.Time) bool {
 	peakStartInc, peakEndExcl := GetRateCycle(year, true)
 
 	if (t.After(peakStartInc) || t.Equal(peakStartInc)) && t.Before(peakEndExcl) {
-		fmt.Println(" true")
 		return true
 	}
 
-	fmt.Println(" false")
 	return false
 }
