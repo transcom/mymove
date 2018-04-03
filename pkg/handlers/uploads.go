@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
@@ -30,7 +31,11 @@ type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	file := params.File
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return uploadop.NewCreateUploadInternalServerError()
+	}
 	h.logger.Infof("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
