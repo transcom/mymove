@@ -12,7 +12,7 @@
 
 .font-2 {
   font-size: 0.8em;
-  color: rgb(142, 142, 142);
+  color: #525252;
 }
 .move-type-button {
   text-align: left;
@@ -37,9 +37,9 @@ ul {
 }
 
 .move-type-button img {
-  margin-top: 3rem;
+  margin-top: 2.5rem;
   height: 35px;
-  margin-bottom: 3rem;
+  margin-bottom: 2.5rem;
 }
 
 .move-type-button-more-info {
@@ -48,4 +48,16 @@ ul {
 }
 .move-type-button-more-info a:visited {
   color: rgb(55, 155, 252);
+}
+
+/* This matches the width at which submit buttons go full-width for mobile devices */
+@media only screen and (max-width: 481px) {
+    .move-type-button {
+        min-height: 100%;
+    }
+    .collapse-btn {
+      border-top: 2px solid #e2e2e2;
+      padding: 1em 0rem 1em 0em;
+
+    }
 }

@@ -4,6 +4,7 @@ import (
 	"crypto/md5"
 	"encoding/base64"
 	"io"
+	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -34,39 +35,66 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Panic("No User ID, this should never happen.")
+		h.logger.Error("Missing User ID in context")
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Panic("Invalid MoveID, this should never happen.")
+		h.logger.Error("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		h.logger.Panic("Invalid DocumentID, this should never happen.")
+		h.logger.Error("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	// Validate that the document and move exists in the db, and that they belong to user
+	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
+	if !exists {
+		return uploadop.NewCreateUploadNotFound()
+	}
+	if !userOwns {
+		return uploadop.NewCreateUploadForbidden()
 	}
 
 	hash := md5.New()
 	if _, err := io.Copy(hash, file.Data); err != nil {
-		h.logger.Panic("failed to hash uploaded file", zap.Error(err))
+		h.logger.Error("failed to hash uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
-		h.logger.Panic("failed to seek to beginning of uploaded file", zap.Error(err))
+		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	buffer := make([]byte, 512)
+	_, err = file.Data.Read(buffer)
+	if err != nil {
+		h.logger.Error("unable to read first 512 bytes of file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	contentType := http.DetectContentType(buffer)
+	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
+	if err != nil {
+		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
 	}
 
 	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
-		ID:         id,
-		DocumentID: documentID,
-		UploaderID: userID,
-		Filename:   file.Header.Filename,
-		Bytes:      int64(file.Header.Size),
-		// TODO replace this with a real content type by examining file content.
-		ContentType: "text/plain",
+		ID:          id,
+		DocumentID:  documentID,
+		UploaderID:  userID,
+		Filename:    file.Header.Filename,
+		Bytes:       int64(file.Header.Size),
+		ContentType: contentType,
 		Checksum:    checksum,
 	}
 
@@ -98,7 +126,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
 
-	url, err := h.storage.PresignedURL(key)
+	url, err := h.storage.PresignedURL(key, contentType)
 	if err != nil {
 		h.logger.Error("failed to get presigned url", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()

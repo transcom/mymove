@@ -28,7 +28,7 @@ const mps = 10
 // AwardQueue encapsulates the TSP award queue process
 type AwardQueue struct {
 	db     *pop.Connection
-	logger *zap.SugaredLogger
+	logger *zap.Logger
 }
 
 func (aq *AwardQueue) findAllUnassignedShipments() ([]models.ShipmentWithOffer, error) {
@@ -40,7 +40,7 @@ func (aq *AwardQueue) findAllUnassignedShipments() ([]models.ShipmentWithOffer, 
 // a TSP.
 // TODO: refactor this method to ensure the transaction is wrapping what it needs to
 func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
-	aq.logger.Infof("Attempting to offer shipment: %s", shipment.ID)
+	aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
 
 	// Query the shipment's TDL
 	tdl := models.TrafficDistributionList{}
@@ -66,7 +66,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 		tspPerformance, err := models.NextEligibleTSPPerformance(aq.db, tdl.ID, shipment.BookDate)
 
 		if loopCount != 0 && tspPerformance.ID == firstTSPid {
-			return nil, fmt.Errorf("Could not find a TSP without blackout dates in %d tries", loopCount)
+			return nil, fmt.Errorf("could not find a TSP without blackout dates in %d tries", loopCount)
 		}
 		loopCount++
 		if err != nil {
@@ -76,7 +76,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 		err = aq.db.Transaction(func(tx *pop.Connection) error {
 			tsp := models.TransportationServiceProvider{}
 			if err := aq.db.Find(&tsp, tspPerformance.TransportationServiceProviderID); err == nil {
-				aq.logger.Infof("Attempting to offer to TSP: %s", tsp.Name)
+				aq.logger.Info("Attempting to offer to TSP", zap.Object("tsp", tsp))
 
 				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
 				if err != nil {
@@ -90,17 +90,17 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 							aq.logger.Info("Shipment pickup date is during a blackout period. Awarding Administrative Shipment to TSP.")
 						} else {
 							// TODO: OfferCount is off by 1
-							aq.logger.Infof("Shipment offered to TSP! TSP now has %d shipment offers.", tspPerformance.OfferCount+1)
+							aq.logger.Info("Shipment offered to TSP!", zap.Int("current_count", tspPerformance.OfferCount+1))
 							foundAvailableTSP = true
 						}
 						return nil
 					}
 				} else {
-					aq.logger.Errorf("Failed to offer to TSP: %s", err)
+					aq.logger.Error("Failed to offer to TSP", zap.Error(err))
 				}
 			}
 
-			aq.logger.Errorf("Failed to offer to TSP: %s", err)
+			aq.logger.Error("Failed to offer to TSP", zap.Error(err))
 			return err
 		})
 
@@ -123,14 +123,14 @@ func (aq *AwardQueue) assignShipments() {
 		for _, shipment := range shipments {
 			_, err = aq.attemptShipmentOffer(shipment)
 			if err != nil {
-				aq.logger.Errorf("Failed to offer shipment: %s", err)
+				aq.logger.Error("Failed to offer shipment", zap.Error(err))
 			} else {
 				count++
 			}
 		}
-		aq.logger.Infof("Awarded %d shipments.", count)
+		aq.logger.Info("Awarded some shipments.", zap.Int("total_count", count))
 	} else {
-		aq.logger.Errorf("Failed to query for shipments %s", err)
+		aq.logger.Error("Failed to query for shipments", zap.Error(err))
 	}
 }
 
@@ -176,7 +176,7 @@ func (aq *AwardQueue) assignPerformanceBands() error {
 // This assumes that all TransportationServiceProviderPerformances have been properly
 // created and have a valid BestValueScore.
 func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributionList) error {
-	aq.logger.Infof("Assigning performance bands for TDL %s", tdl.ID)
+	aq.logger.Info("Assigning performance bands", zap.Object("tdl", tdl))
 
 	perfs, err := models.FetchTSPPerformanceForQualityBandAssignment(aq.db, tdl.ID, mps)
 	if err != nil {
@@ -189,7 +189,7 @@ func (aq *AwardQueue) assignPerformanceBandsForTDL(tdl models.TrafficDistributio
 	for band, count := range bands {
 		for i := 0; i < count; i++ {
 			performance := perfs[perfsIndex]
-			aq.logger.Infof("Assigning tspp %s to band %d", performance.ID, band+1)
+			aq.logger.Info("Assigning tspPerformance to band", zap.Any("tsp_performance_id", performance.ID), zap.Int("band", band+1))
 			err := models.AssignQualityBandToTSPPerformance(aq.db, band+1, performance.ID)
 			if err != nil {
 				return err
@@ -226,5 +226,5 @@ func (aq *AwardQueue) ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment mode
 
 // NewAwardQueue creates a new AwardQueue
 func NewAwardQueue(db *pop.Connection, logger *zap.Logger) *AwardQueue {
-	return &AwardQueue{db: db, logger: logger.Sugar()}
+	return &AwardQueue{db: db, logger: logger}
 }

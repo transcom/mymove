@@ -59,6 +59,10 @@
     {
       "name": "AWS_S3_KEY_NAMESPACE",
       "value": "app"
+    },
+    {
+      "name": "STORAGE_BACKEND",
+      "value": "s3"
     }
   ],
   "logConfiguration": {
