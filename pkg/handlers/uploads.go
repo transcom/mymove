@@ -37,7 +37,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	h.logger.Info("%s has a length of %d bytes.\n", zap.Any("file_header_name", file.Header.Filename), zap.Any("file_header_size", file.Header.Size))
+	h.logger.Info("%s has a length of %d bytes.\n", zap.Any("name", file.Header.Filename), zap.Any("size", file.Header.Size))
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
@@ -132,7 +132,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	h.logger.Info("created an upload with id %s, s3 key %s\n", zap.Any("new_upload_id", newUpload.ID), zap.Any("key", key))
+	h.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.Any("key", key))
 
 	url, err := h.storage.PresignedURL(key, contentType)
 	if err != nil {
