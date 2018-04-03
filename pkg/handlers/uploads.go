@@ -37,7 +37,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	h.logger.Info("%s has a length of %d bytes.\n", zap.Any("name", file.Header.Filename), zap.Any("size", file.Header.Size))
+	h.logger.Info("File name and size: ", zap.Any("name", file.Header.Filename), zap.Any("size", file.Header.Size))
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
