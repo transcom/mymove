@@ -6,11 +6,7 @@ Explain a little about the changes at a high level.
 
 Is there anything you would like reviewers to give additional scrutiny?
 
-## Acceptance Criteria
-
-What are the Pivotal acceptance criteria for this change?
-
-## Verification Steps
+## Code Review Verification Steps
 
 * [ ] All tests pass.
 * [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/blob/master/docs/backend.md#logging)
@@ -21,6 +17,7 @@ What are the Pivotal acceptance criteria for this change?
 * [ ] This works in IE.
 * [ ] Any new third party client side dependencies (e.g., login.gov, google analytics, CDN libraries, etc.) have been communicated to @willowbl00.
 * [ ] Request review from a member of a different team.
+* [ ] (TRIAL) Have the Pivotal acceptance criteria been met for this change?
 
 ## References
 
