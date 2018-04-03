@@ -4,6 +4,8 @@
 #   and environment.
 #
 set -eo pipefail
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+readonly DIR
 
 usage() {
     echo "$0 <template> <image> <environment>"
@@ -31,8 +33,10 @@ check_arn() {
 update_service() {
     local arn="$1"
 
+    local network_config=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
+
     echo "* Updating app service to use $arn"
-    aws ecs update-service --cluster "$cluster" --service app --task-definition "$arn" --query 'service.deployments' || return 1
+    aws ecs update-service --cluster "$cluster" --service app --task-definition "$arn" --query 'service.deployments' --network-configuration "$network_config" || return 1
     echo "* Waiting for service to stabilize (this takes a while)"
     time aws ecs wait services-stable --services app --cluster "$cluster"
     local exit_code=$?
@@ -70,6 +74,11 @@ if update_service "$green_task_def_arn"; then
     exit 0
 fi
 echo "Service failed to stabilize!"
+
+echo
+echo "Showing logs from recently stopped tasks:"
+"$DIR"/ecs-show-app-stopped-logs "$environment" || true
+echo
 
 echo "* Rolling back to $blue_task_def_arn"
 if update_service "$blue_task_def_arn"; then

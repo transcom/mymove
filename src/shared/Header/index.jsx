@@ -1,6 +1,9 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 
+import LoginButton from 'shared/User/LoginButton';
+import Email from 'shared/User/Email';
+
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
@@ -153,6 +156,12 @@ function Header() {
                   </NavLink>
                 </li>
               </ul>
+            </li>
+            <li>
+              <LoginButton />
+            </li>
+            <li>
+              <Email />
             </li>
           </ul>
           <form className="usa-search usa-search-small">

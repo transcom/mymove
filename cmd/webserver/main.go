@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"path"
+	"path/filepath"
 
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
@@ -34,6 +35,21 @@ func requestLogger(h http.Handler) http.Handler {
 	return http.HandlerFunc(wrapper)
 }
 
+// max request body size is 20 mb
+const maxBodySize int64 = 200 * 1000 * 1000
+
+// max request headers size is 1 mb
+const maxHeaderSize int = 1 * 1000 * 1000
+
+func limitBodySizeMiddleware(next http.Handler) http.Handler {
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
+		next.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -58,6 +74,7 @@ func main() {
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
+	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 
 	flag.Parse()
@@ -111,15 +128,30 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
 
-	if len(*s3Bucket) == 0 {
-		log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+	var storer handlers.FileStorer
+	if *storageBackend == "s3" {
+		zap.L().Info("Using s3 storage backend")
+		if len(*s3Bucket) == 0 {
+			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+		}
+		aws := awssession.Must(awssession.NewSession())
+		storer = storage.NewS3(*s3Bucket, logger, aws)
+	} else {
+		zap.L().Info("Using filesystem storage backend")
+		absTmpPath, err := filepath.Abs("tmp")
+		if err != nil {
+			log.Fatalln(errors.New("Could not get absolute path for tmp"))
+		}
+		storagePath := path.Join(absTmpPath, "storage")
+		webRoot := fullHostname + "/" + "storage"
+		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
-	aws := awssession.Must(awssession.NewSession())
-	storer := storage.NewS3(*s3Bucket, logger, aws)
+
 	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
 
 	// Base routes
 	root := goji.NewMux()
+	root.Use(limitBodySizeMiddleware)
 	root.Use(tokenMiddleware)
 
 	// Stub health check
@@ -145,6 +177,12 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *noSessionTimeout, fullHostname, logger, loginGovProvider))
 	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
 
+	if *storageBackend == "filesystem" {
+		// Add a file handler to provide access to files uploaded in development
+		fs := storage.NewFilesystemHandler("tmp")
+		root.Handle(pat.Get("/storage/*"), fs)
+	}
+
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
@@ -158,7 +196,12 @@ func main() {
 	go func() { // start http listener
 		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpPort)
 		zap.L().Info("Starting http server listening", zap.String("address", addr))
-		errChan <- http.ListenAndServe(addr, root)
+		s := &http.Server{
+			Addr:           addr,
+			Handler:        root,
+			MaxHeaderBytes: maxHeaderSize,
+		}
+		errChan <- s.ListenAndServe()
 	}()
 	go func() { // start https listener
 		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
@@ -194,6 +237,6 @@ func listenAndServeTLS(addr string, certPEMBlock, keyPEMBlock []byte, handler ht
 	defer ln.Close()
 
 	// Start server
-	srv := &http.Server{Addr: addr, Handler: handler}
+	srv := &http.Server{Addr: addr, Handler: handler, MaxHeaderBytes: maxHeaderSize}
 	return srv.Serve(ln)
 }
