@@ -33,8 +33,10 @@ check_arn() {
 update_service() {
     local arn="$1"
 
+    local network_config=$(aws ecs describe-services --services app --cluster "$cluster" --query 'services[0].networkConfiguration')
+
     echo "* Updating app service to use $arn"
-    aws ecs update-service --cluster "$cluster" --service app --task-definition "$arn" --query 'service.deployments' || return 1
+    aws ecs update-service --cluster "$cluster" --service app --task-definition "$arn" --query 'service.deployments' --network-configuration "$network_config" || return 1
     echo "* Waiting for service to stabilize (this takes a while)"
     time aws ecs wait services-stable --services app --cluster "$cluster"
     local exit_code=$?
