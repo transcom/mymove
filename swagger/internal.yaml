@@ -484,6 +484,7 @@ paths:
           description: not found
         500:
           description: server error
+
   /stations/search/{searchString}:
     get:
       summary: Returns a list of stations based on search string
@@ -543,6 +544,7 @@ paths:
           description: station is not found
         500:
           description: internal server error
+
   /profiles/service_member_profile:
     post:
       summary: Submits profile for a logged-in user
@@ -567,6 +569,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to create this profile
+        404:
+          description: profile not found
+        500:
+          description: internal server error
     get:
       summary: List all service member profiles
       description: List all service member profiles
@@ -582,6 +588,12 @@ paths:
           description: invalid request
         401:
           description: request requires user authentication
+        403:
+          description: user is not authorized to create this profile
+        404:
+          description: no profiles found
+        500:
+          description: internal server error
   /profiles/service_member_profile/{userId}:
     get:
       summary: Returns the given service member profile
@@ -644,6 +656,7 @@ paths:
           description: profile not found
         500:
           description: internal server error
+
   /profiles/service_member_profile/{userId}/backup_contact:
     post:
       summary: Submits backup contact for a logged-in user
@@ -674,6 +687,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to create this backup contact
+        404:
+          description: contact not found
+        500:
+          description: internal server error
     get:
       summary: List all service member backup contacts
       description: List all service member backup contacts
@@ -696,6 +713,12 @@ paths:
           description: invalid request
         401:
           description: request requires user authentication
+        403:
+          description: user is not authorized to see this backup contact
+        404:
+          description: contact not found
+        500:
+          description: internal server error
   /profiles/service_member_profile/{userId}/backup_contact/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
@@ -876,6 +899,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
+
   Station:
     type: object
     properties:
@@ -901,6 +925,7 @@ definitions:
       - address
       - created_at
       - updated_at
+
   ServiceMemberProfilePayload:
     type: object
     properties:
@@ -1155,6 +1180,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberProfilePayload'
+
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1252,6 +1278,7 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberBackupContactPayload'
+
   CreateSignedCertificationPayload:
     type: object
     properties:
