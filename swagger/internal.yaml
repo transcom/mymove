@@ -485,7 +485,7 @@ paths:
         500:
           description: server error
 
-  /stations/search/{searchString}:
+  /stations:
     get:
       summary: Returns a list of stations based on search string
       description: List all stations based on search string
@@ -493,11 +493,11 @@ paths:
       tags:
         - stations
       parameters:
-        - in: path
+        - in: query
           name: searchString
           type: string
           required: true
-          description: string to search
+          description: string to search with
       responses:
         200:
           description: list of stations matching search string
@@ -545,62 +545,68 @@ paths:
         500:
           description: internal server error
 
-  /profiles/service_member_profile:
-    post:
-      summary: Submits profile for a logged-in user
-      description: Creates an instance of a profile tied to a service member user
-      operationId: createServiceMemberProfile
-      tags:
-        - profiles
-      parameters:
-        - in: body
-          name: createProfilePayload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateServiceMemberProfilePayload'
-      responses:
-        201:
-          description: created instance of service member profile
-          schema:
-            $ref: '#/definitions/ServiceMemberProfilePayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized to create this profile
-        404:
-          description: profile not found
-        500:
-          description: internal server error
+  /service_members:
     get:
-      summary: List all service member profiles
-      description: List all service member profiles
-      operationId: indexServiceMemberProfiles
+      summary: List all service members
+      description: List all service members
+      operationId: indexServiceMembers
       tags:
-        - profiles
+        - service_members
       responses:
         200:
-          description: list of service member profiles
+          description: list of service members
           schema:
-            $ref: '#/definitions/IndexServiceMemberProfilesPayload'
+            $ref: '#/definitions/IndexServiceMembersPayload'
         400:
           description: invalid request
         401:
           description: request requires user authentication
         403:
-          description: user is not authorized to create this profile
+          description: user is not authorized
         404:
-          description: no profiles found
+          description: no service members found
         500:
           description: internal server error
-  /profiles/service_member_profile/{userId}:
-    get:
-      summary: Returns the given service member profile
-      description: Returns the given service member profile
-      operationId: showServiceMemberProfile
+  /service_members/{userId}:
+    post:
+      summary: Creates service member for a logged-in user
+      description: Creates an instance of a service member tied to a user
+      operationId: createServiceMember
       tags:
-        - profiles
+        - service_members
+      parameters:
+        - in: body
+          name: createServiceMemberPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateServiceMemberPayload'
+        - in: path
+          name: userId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        201:
+          description: created instance of service member
+          schema:
+            $ref: '#/definitions/ServiceMemberPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: service member not found
+        500:
+          description: internal server error
+    get:
+      summary: Returns the given service member
+      description: Returns the given service member
+      operationId: showServiceMember
+      tags:
+        - service_members
       parameters:
         - in: path
           name: userId
@@ -610,9 +616,9 @@ paths:
           description: UUID of the service member
       responses:
         200:
-          description: the instance of the service member profile
+          description: the instance of the service member
           schema:
-            $ref: '#/definitions/ServiceMemberProfilePayload'
+            $ref: '#/definitions/ServiceMemberPayload'
         400:
           description: invalid request
         401:
@@ -620,15 +626,15 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: profile not found
+          description: service member not found
         500:
           description: internal server error
     patch:
-      summary: Patches the service member profile
-      description: Any fields sent in this request will be set on the profile referenced
-      operationId: patchServiceMemberProfile
+      summary: Patches the service member
+      description: Any fields sent in this request will be set on the service member referenced
+      operationId: patchServiceMember
       tags:
-        - profiles
+        - service_members
       parameters:
         - in: path
           name: userId
@@ -637,15 +643,15 @@ paths:
           required: true
           description: UUID of the service member
         - in: body
-          name: patchServiceMemberProfilePayload
+          name: patchServiceMemberPayload
           required: true
           schema:
-            $ref: '#/definitions/ServiceMemberProfilePayload'
+            $ref: '#/definitions/ServiceMemberPayload'
       responses:
         201:
-          description: updated instance of profile
+          description: updated instance of service member
           schema:
-            $ref: '#/definitions/ServiceMemberProfilePayload'
+            $ref: '#/definitions/ServiceMemberPayload'
         400:
           description: invalid request
         401:
@@ -653,11 +659,11 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: profile not found
+          description: service member not found
         500:
           description: internal server error
 
-  /profiles/service_member_profile/{userId}/backup_contact:
+  /service_members/{serviceMemberId}/backup_contact:
     post:
       summary: Submits backup contact for a logged-in user
       description: Creates an instance of a backup contact tied to a service member user
@@ -671,7 +677,7 @@ paths:
           schema:
             $ref: '#/definitions/CreateServiceMemberBackupContactPayload'
         - in: path
-          name: userId
+          name: serviceMemberId
           type: string
           format: uuid
           required: true
@@ -699,7 +705,7 @@ paths:
         - backup_contacts
       parameters:
         - in: path
-          name: userId
+          name: serviceMemberId
           type: string
           format: uuid
           required: true
@@ -719,7 +725,7 @@ paths:
           description: contact not found
         500:
           description: internal server error
-  /profiles/service_member_profile/{userId}/backup_contact/{backupContactId}:
+  /service_members/{serviceMemberId}/backup_contact/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
@@ -728,7 +734,7 @@ paths:
         - backup_contacts
       parameters:
         - in: path
-          name: userId
+          name: serviceMemberId
           type: string
           format: uuid
           required: true
@@ -773,7 +779,7 @@ paths:
           required: true
           description: UUID of the service member backup contact
         - in: path
-          name: userId
+          name: serviceMemberId
           type: string
           format: uuid
           required: true
@@ -926,7 +932,7 @@ definitions:
       - created_at
       - updated_at
 
-  ServiceMemberProfilePayload:
+  ServiceMemberPayload:
     type: object
     properties:
       id:
@@ -1012,7 +1018,7 @@ definitions:
       - profile_complete
       - created_at
       - updated_at
-  CreateServiceMemberProfilePayload:
+  CreateServiceMemberPayload:
     type: object
     properties:
       user_id:
@@ -1094,7 +1100,7 @@ definitions:
         $ref: '#/definitions/Address'
       profile_complete:
         type: boolean
-  PatchServiceMemberProfilePayload:
+  PatchServiceMemberPayload:
     type: object
     properties:
       user_id:
@@ -1176,10 +1182,10 @@ definitions:
         $ref: '#/definitions/Address'
       profile_complete:
         type: boolean
-  IndexServiceMemberProfilesPayload:
+  IndexServiceMembersPayload:
     type: array
     items:
-      $ref: '#/definitions/ServiceMemberProfilePayload'
+      $ref: '#/definitions/ServiceMemberPayload'
 
   ServiceMemberBackupContactPayload:
     type: object
