@@ -77,9 +77,10 @@ func fakeAddress() *internalmessages.Address {
 	return &internalmessages.Address{
 		StreetAddress1: swag.String("An address"),
 		StreetAddress2: swag.String("Apt. 2"),
+		StreetAddress3: swag.String("address line 3"),
 		City:           swag.String("Happytown"),
 		State:          swag.String("AL"),
-		Zip:            swag.String("01234"),
+		PostalCode:     swag.String("01234"),
 	}
 }
 
