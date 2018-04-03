@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -15,28 +14,16 @@ import (
 // source and destination, in which Transportation Service Providers (TSPs)
 // bid on shipments.
 type TrafficDistributionList struct {
-	ID                uuid.UUID `json:"id" db:"id"`
-	CreatedAt         time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at" db:"updated_at"`
-	SourceRateArea    string    `json:"source_rate_area" db:"source_rate_area"`
-	DestinationRegion string    `json:"destination_region" db:"destination_region"`
-	CodeOfService     string    `json:"code_of_service" db:"code_of_service"`
-}
-
-// String is not required by pop and may be deleted
-func (t TrafficDistributionList) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
+	ID                uuid.UUID `db:"id"`
+	CreatedAt         time.Time `db:"created_at"`
+	UpdatedAt         time.Time `db:"updated_at"`
+	SourceRateArea    string    `db:"source_rate_area"`
+	DestinationRegion string    `db:"destination_region"`
+	CodeOfService     string    `db:"code_of_service"`
 }
 
 // TrafficDistributionLists is not required by pop and may be deleted
 type TrafficDistributionLists []TrafficDistributionList
-
-// String is not required by pop and may be deleted
-func (t TrafficDistributionLists) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TrafficDistributionList) Validate(tx *pop.Connection) (*validate.Errors, error) {

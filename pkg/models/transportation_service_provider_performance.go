@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
@@ -28,32 +27,20 @@ var OffersPerQualityBand = map[int]int{
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
-	ID                              uuid.UUID `json:"id" db:"id"`
-	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	PerformancePeriodStart          time.Time `json:"performance_period_start" db:"performance_period_start"`
-	PerformancePeriodEnd            time.Time `json:"performance_period_end" db:"performance_period_end"`
-	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	QualityBand                     *int      `json:"quality_band" db:"quality_band"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                      int       `json:"offer_count" db:"offer_count"`
-}
-
-// String is not required by pop and may be deleted
-func (t TransportationServiceProviderPerformance) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
+	ID                              uuid.UUID `db:"id"`
+	CreatedAt                       time.Time `db:"created_at"`
+	UpdatedAt                       time.Time `db:"updated_at"`
+	PerformancePeriodStart          time.Time `db:"performance_period_start"`
+	PerformancePeriodEnd            time.Time `db:"performance_period_end"`
+	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
+	QualityBand                     *int      `db:"quality_band"`
+	BestValueScore                  int       `db:"best_value_score"`
+	OfferCount                      int       `db:"offer_count"`
 }
 
 // TransportationServiceProviderPerformances is a handy type for multiple TransportationServiceProviderPerformance structs
 type TransportationServiceProviderPerformances []TransportationServiceProviderPerformance
-
-// String is not required by pop and may be deleted
-func (t TransportationServiceProviderPerformances) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) (*validate.Errors, error) {

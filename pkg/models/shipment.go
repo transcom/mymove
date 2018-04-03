@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -17,16 +16,16 @@ import (
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                        uuid.UUID `json:"id" db:"id"`
-	CreatedAt                 time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time `json:"updated_at" db:"updated_at"`
-	PickupDate                time.Time `json:"pickup_date" db:"pickup_date"`
-	RequestedPickupDate       time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
-	DeliveryDate              time.Time `json:"delivery_date" db:"delivery_date"`
-	BookDate                  time.Time `json:"book_date" db:"book_date"`
-	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	SourceGBLOC               string    `json:"source_gbloc" db:"source_gbloc"`
-	Market                    *string   `json:"market" db:"market"`
+	ID                        uuid.UUID `db:"id"`
+	CreatedAt                 time.Time `db:"created_at"`
+	UpdatedAt                 time.Time `db:"updated_at"`
+	PickupDate                time.Time `db:"pickup_date"`
+	RequestedPickupDate       time.Time `db:"requested_pickup_date"`
+	DeliveryDate              time.Time `db:"delivery_date"`
+	BookDate                  time.Time `db:"book_date"`
+	TrafficDistributionListID uuid.UUID `db:"traffic_distribution_list_id"`
+	SourceGBLOC               string    `db:"source_gbloc"`
+	Market                    *string   `db:"market"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
@@ -81,20 +80,8 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 	return shipments, err
 }
 
-// String is not required by pop and may be deleted
-func (s Shipment) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
-
-// String is not required by pop and may be deleted
-func (s Shipments) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {

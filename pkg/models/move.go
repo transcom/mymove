@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -16,28 +15,16 @@ import (
 
 // Move is an object representing a move
 type Move struct {
-	ID               uuid.UUID                          `json:"id" db:"id"`
-	CreatedAt        time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time                          `json:"updated_at" db:"updated_at"`
-	UserID           uuid.UUID                          `json:"user_id" db:"user_id"`
+	ID               uuid.UUID                          `db:"id"`
+	CreatedAt        time.Time                          `db:"created_at"`
+	UpdatedAt        time.Time                          `db:"updated_at"`
+	UserID           uuid.UUID                          `db:"user_id"`
 	User             User                               `belongs_to:"user"`
-	SelectedMoveType *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
-}
-
-// String is not required by pop and may be deleted
-func (m Move) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
+	SelectedMoveType *internalmessages.SelectedMoveType `db:"selected_move_type"`
 }
 
 // Moves is not required by pop and may be deleted
 type Moves []Move
-
-// String is not required by pop and may be deleted
-func (m Moves) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

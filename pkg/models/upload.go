@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -23,20 +22,8 @@ type Upload struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-// String is not required by pop and may be deleted
-func (u Upload) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
-
 // Uploads is not required by pop and may be deleted
 type Uploads []Upload
-
-// String is not required by pop and may be deleted
-func (u Uploads) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {

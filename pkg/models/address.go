@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -13,20 +12,14 @@ import (
 
 // Address is an address
 type Address struct {
-	ID             uuid.UUID `json:"id" db:"id"`
-	CreatedAt      time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at" db:"updated_at"`
-	StreetAddress1 string    `json:"street_address_1" db:"street_address_1"`
-	StreetAddress2 *string   `json:"street_address_2" db:"street_address_2"`
-	City           string    `json:"city" db:"city"`
-	State          string    `json:"state" db:"state"`
-	Zip            string    `json:"zip" db:"zip"`
-}
-
-// String is not required by pop and may be deleted
-func (a Address) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
+	ID             uuid.UUID `db:"id"`
+	CreatedAt      time.Time `db:"created_at"`
+	UpdatedAt      time.Time `db:"updated_at"`
+	StreetAddress1 string    `db:"street_address_1"`
+	StreetAddress2 *string   `db:"street_address_2"`
+	City           string    `db:"city"`
+	State          string    `db:"state"`
+	Zip            string    `db:"zip"`
 }
 
 // GetAddressID facilitates grabbing the ID from an address that may be nil
@@ -59,12 +52,6 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 
 // Addresses is not required by pop and may be deleted
 type Addresses []Address
-
-// String is not required by pop and may be deleted
-func (a Addresses) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
