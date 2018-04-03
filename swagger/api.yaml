@@ -714,16 +714,23 @@ definitions:
           - WV
           - WI
           - WY
-      zip:
+      postal_code:
         type: string
+        format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: "United States"
+        default: United States
     required:
-    - street_address_1
-    - city
-    - state
-    - zip
+      - street_address_1
+      - city
+      - state
+      - postal_code
   Blackout:
     type: object
     properties:
