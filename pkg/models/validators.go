@@ -36,8 +36,8 @@ var nineDigitsRegex = regexp.MustCompile(`^\d{9}$`)
 
 // IsValid adds an error if the Field contains an SSN.
 func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
-	cleanSSN := ignoredCharactersRegex.ReplaceAll([]byte(v.Field), []byte(""))
-	if nineDigitsRegex.Match(cleanSSN) {
+	cleanSSN := ignoredCharactersRegex.ReplaceAllString(v.Field, "")
+	if nineDigitsRegex.MatchString(cleanSSN) {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
 	}
 }

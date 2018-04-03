@@ -44,11 +44,11 @@ func (s *SocialSecurityNumber) ValidateUpdate(tx *pop.Connection) (*validate.Err
 
 // ErrSSNBadFormat is returned if you attempted to hash an SSN not in the format '123-12-1234'
 var ErrSSNBadFormat = errors.New("SSNs must be in the format '123-12-1234'")
-var ssnFormatValidator = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
+var ssnFormatRegex = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
 
 // BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
 func BuildSocialSecurityNumber(userID uuid.UUID, unencryptedSSN string) (SocialSecurityNumber, error) {
-	if !ssnFormatValidator.Match([]byte(unencryptedSSN)) {
+	if !ssnFormatRegex.MatchString(unencryptedSSN) {
 		return SocialSecurityNumber{}, ErrSSNBadFormat
 	}
 
