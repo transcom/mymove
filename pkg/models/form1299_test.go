@@ -119,7 +119,7 @@ func (suite *ModelSuite) TestFetchForm1299ByIDEagerLoads() {
 		StreetAddress1: "123 My Way",
 		City:           "Seattle",
 		State:          "NY",
-		Zip:            "12345",
+		PostalCode:     "12345",
 	}
 	suite.mustSave(&address)
 	form := Form1299{
@@ -163,7 +163,7 @@ func (suite *ModelSuite) TestCreateForm1299WithAddressesSavesAddresses() {
 		StreetAddress1: "123 My Way",
 		City:           "Seattle",
 		State:          "NY",
-		Zip:            "12345",
+		PostalCode:     "12345",
 	}
 	form := Form1299{
 		OriginOfficeAddress: &address,
@@ -189,9 +189,9 @@ func (suite *ModelSuite) TestCreateForm1299WithAddressesReturnsErrors() {
 
 	// Given: A form1299 model with a blank StreetAddress1 field
 	address := Address{
-		City:  "Seattle",
-		State: "NY",
-		Zip:   "12345",
+		City:       "Seattle",
+		State:      "NY",
+		PostalCode: "12345",
 	}
 	form := Form1299{
 		OriginOfficeAddress: &address,
