@@ -22,7 +22,7 @@ func (re *RateEngine) determineMileage(originZip string, destinationZip string) 
 	// TODO (Rebecca): Lookup originZip to destinationZip mileage
 	mileage = 1000
 	if mileage != 1000 {
-		err = errors.New("Oops")
+		err = errors.New("Oops determineMileage")
 	} else {
 		err = nil
 	}
@@ -38,7 +38,11 @@ func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (baseLineha
 	// TODO (Rebecca): This will come from a fetch
 	baseLinehaulCharge = mileage * weight
 	// TODO (Rebecca): make a proper error
-	err = errors.New("Oops")
+	if baseLinehaulCharge == 0 {
+		err = errors.New("Oops determineBaseLinehaul")
+	} else {
+		err = nil
+	}
 	return baseLinehaulCharge, err
 }
 
@@ -51,7 +55,12 @@ func (re *RateEngine) determineLinehaulFactors(weight int, zip string) (linehaul
 	fmt.Print(serviceArea)
 	linehaulFactor = 0.51
 	// Calculate linehaulFactor for the trip distance
-	err = errors.New("Oops")
+	if linehaulFactor == 0 {
+		err = errors.New("Oops determineLinehaulFactors")
+	} else {
+		err = nil
+	}
+
 	return float64(weight/100) * linehaulFactor, err
 }
 
@@ -60,7 +69,11 @@ func (re *RateEngine) determineShorthaulCharge(mileage int, cwt int) (shorthaulC
 	cwtMiles := mileage * cwt
 	// TODO: shorthaulCharge will be a lookup
 	shorthaulCharge = float64(cwtMiles)
-	err = errors.New("Oops")
+	if shorthaulCharge == 0 {
+		err = errors.New("Oops determineShorthaulCharge")
+	} else {
+		err = nil
+	}
 	return shorthaulCharge, err
 }
 
@@ -79,7 +92,11 @@ func (re *RateEngine) determineLinehaulChargeTotal(originZip string, destination
 	discount := 0.41
 	inverseDiscount := 1.0 - discount
 	// TODO: Make real error
-	err = errors.New("Oops determineLinehaulChargeTotal")
+	if err != nil {
+		err = errors.New("Oops determineLinehaulChargeTotal")
+	} else {
+		err = nil
+	}
 	return ((float64(baseLinehaulCharge) + originLinehaulFactor + destinationLinehaulFactor + shorthaulCharge) * inverseDiscount), err
 }
 
