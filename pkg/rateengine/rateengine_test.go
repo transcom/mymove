@@ -74,12 +74,12 @@ func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
 func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage := 3200
+	mileage := 799
 	cwt := 40
 
 	shc, _ := engine.determineShorthaulCharge(mileage, cwt)
 
-	if shc != 128000 {
+	if shc != 31960 {
 		t.Errorf("Shorthaul charge should have been 128000 but is %f.", shc)
 	}
 }
