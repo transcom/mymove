@@ -584,7 +584,7 @@ paths:
         201:
           description: The blackout as added to the database including DB ID
           schema:
-             $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/Blackout'
         400:
           description: invalid request
         403:
@@ -631,6 +631,7 @@ definitions:
         example: CA
       postal_code:
         type: string
+        format: zip
         title: ZIP/Postal Code
         example: "'90210' or 'N15 3NL'"
       country:
