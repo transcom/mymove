@@ -23,7 +23,7 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	}
 
 	expErrors = map[string][]string{
-		"EffectiveDateLower must be after EffectiveDateUpper": {""},
+		"effective_date_upper": []string{"EffectiveDateUpper must be after EffectiveDateLower."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
