@@ -58,15 +58,6 @@ func (suite *RateEngineSuite) Test_determineCWT() {
 	}
 }
 
-// // Determine the Base Linehaul (BLH)
-// func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (base_linehaul_charge int, error) {
-//  // TODO (Rebecca): This will come from a fetch
-//  base_linehaul_charge := mileage * weight
-//  // TODO (Rebecca): make a proper error
-//  err := "whoops"
-//  return base_linehaul_charge, err
-// }
-
 func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
