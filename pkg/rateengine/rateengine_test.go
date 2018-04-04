@@ -80,6 +80,6 @@ func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
 	shc, _ := engine.determineShorthaulCharge(mileage, cwt)
 
 	if shc != 31960 {
-		t.Errorf("Shorthaul charge should have been 128000 but is %f.", shc)
+		t.Errorf("Shorthaul charge should have been 31960 but is %f.", shc)
 	}
 }
