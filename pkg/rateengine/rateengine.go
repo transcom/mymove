@@ -66,6 +66,10 @@ func (re *RateEngine) determineLinehaulFactors(weight int, zip string) (linehaul
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
 func (re *RateEngine) determineShorthaulCharge(mileage int, cwt int) (shorthaulCharge float64, err error) {
+	if mileage >= 800 {
+		return 0, nil
+	}
+
 	cwtMiles := mileage * cwt
 	// TODO: shorthaulCharge will be a lookup
 	shorthaulCharge = float64(cwtMiles)

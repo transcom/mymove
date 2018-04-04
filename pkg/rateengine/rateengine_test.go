@@ -57,6 +57,19 @@ func (suite *RateEngineSuite) Test_determineLinehaulFactors() {
 	}
 }
 
+func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	mileage := 799
+	cwt := 40
+
+	shc, _ := engine.determineShorthaulCharge(mileage, cwt)
+
+	if shc != 31960 {
+		t.Errorf("Shorthaul charge should have been 31960 but is %f.", shc)
+	}
+}
+
 type RateEngineSuite struct {
 	suite.Suite
 	db     *pop.Connection
