@@ -2,9 +2,8 @@ package rateengine
 
 import (
 	"fmt"
-	"math"
 
-	"github.com/pkg/errors"
+	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 )
 
@@ -40,11 +39,11 @@ func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (baseLineha
 // Determine the Linehaul Factors (OLF and DLF)
 func (re *RateEngine) determineLinehaulFactors(weight int, zip string) (linehaulFactor float64) {
 	// TODO: Fetch origin service area code via originZip
-	fmt.print(zip)
+	fmt.Print(zip)
 	serviceArea := 101
 	// TODO: Fetch linehaul factor for origin
-	fmt.print(serviceArea)
-	linehaulFactor := 0.51
+	fmt.Print(serviceArea)
+	linehaulFactor = 0.51
 	// Calculate linehaulFactor for the trip distance
 	return (weight / 100) * linehaulFactor
 }
