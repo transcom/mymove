@@ -1,44 +1,14 @@
 import { CreatePpm, UpdatePpm, GetPpm } from './api.js';
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
-export const CREATE_OR_UPDATE_PPM = 'CREATE_OR_UPDATE_PPM';
-export const CREATE_OR_UPDATE_PPM_SUCCESS = 'CREATE_OR_UPDATE_PPM_SUCCESS';
-export const CREATE_OR_UPDATE_PPM_FAILURE = 'CREATE_OR_UPDATE_PPM_FAILURE';
-export const GET_PPM = 'GET_PPM';
+export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
+  'CREATE_OR_UPDATE_PPM',
+);
 export const GET_INCENTIVE = 'GET_INCENTIVE'; //TOOD: this should be async when rate engine is available
-export const GET_PPM_SUCCESS = 'GET_PPM_SUCCESS';
-export const GET_PPM_FAILURE = 'GET_PPM_FAILURE';
-
-// Creating ppm
-export const createOrUpdatePpmRequest = () => ({
-  type: CREATE_OR_UPDATE_PPM,
-});
-
-export const createOrUpdatePpmSuccess = item => ({
-  type: CREATE_OR_UPDATE_PPM_SUCCESS,
-  item,
-});
-
-export const createOrUpdatePpmFailure = error => ({
-  type: CREATE_OR_UPDATE_PPM_FAILURE,
-  error,
-});
-
-export const getPpmRequest = () => ({
-  type: GET_PPM,
-});
-
-export const getPpmSuccess = items => ({
-  type: GET_PPM_SUCCESS,
-  item: items.length > 0 ? items[0] : null,
-});
-
-export const getPpmFailure = error => ({
-  type: GET_PPM_FAILURE,
-  error,
-});
+export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 
 // Action creation
 export function setPendingPpmSize(value) {
@@ -57,35 +27,35 @@ export function getIncentive(weight) {
   };
 }
 export function createOrUpdatePpm(moveId, ppm) {
+  const action = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
   return function(dispatch, getState) {
-    dispatch(createOrUpdatePpmRequest());
+    dispatch(action.start());
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (currentPpm) {
       UpdatePpm(moveId, currentPpm.id, ppm)
         .then(item =>
-          dispatch(
-            createOrUpdatePpmSuccess(Object.assign({}, currentPpm, item)),
-          ),
+          dispatch(action.success(Object.assign({}, currentPpm, item))),
         )
-        .catch(error => dispatch(createOrUpdatePpmFailure(error)));
+        .catch(error => dispatch(action.error(error)));
     } else {
       CreatePpm(moveId, ppm)
-        .then(item => dispatch(createOrUpdatePpmSuccess(item)))
-        .catch(error => dispatch(createOrUpdatePpmFailure(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     }
   };
 }
 
 export function loadPpm(moveId) {
+  const action = ReduxHelpers.generateAsyncActions('GET_PPM');
   return function(dispatch, getState) {
-    dispatch(getPpmRequest());
+    dispatch(action.start);
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (!currentPpm) {
       GetPpm(moveId)
-        .then(item => dispatch(getPpmSuccess(item)))
-        .catch(error => dispatch(getPpmFailure(error)));
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     }
   };
 }
@@ -112,24 +82,32 @@ export function ppmReducer(state = initialState, action) {
       return Object.assign({}, state, {
         incentive: action.payload,
       });
-    case CREATE_OR_UPDATE_PPM_SUCCESS:
+    case CREATE_OR_UPDATE_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.item,
         pendingPpmSize: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
-    case CREATE_OR_UPDATE_PPM_FAILURE:
+    case CREATE_OR_UPDATE_PPM.failure:
       return Object.assign({}, state, {
         currentPpm: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
+        error: action.error,
       });
-    case GET_PPM_SUCCESS:
+    case GET_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.item,
         hasSubmitSuccess: true,
         hasSubmitError: false,
+      });
+    case GET_PPM.failure:
+      return Object.assign({}, state, {
+        currentPpm: null,
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
       });
     default:
       return state;
