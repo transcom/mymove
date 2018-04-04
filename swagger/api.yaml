@@ -1,13 +1,11 @@
 swagger: '2.0'
 info:
-  description: The public API for my.move.mil
+  description: The public API for my.move.mil. This is a work in-progress, and is not a final product. We will be continuously updating this site based on feedback.
   version: 0.0.1
   title: my.move.mil
-  contact:
-    email: ppp@truss.works
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 basePath: /api/v1
 consumes:
   - application/json
