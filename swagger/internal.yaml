@@ -2062,6 +2062,11 @@ definitions:
         example: Apartment 9000
         x-nullable: true
         title: Address Line 2
+      street_address_3:
+        type: string
+        example: Montmâtre
+        x-nullable: true
+        title: Address Line 3
       city:
         type: string
         example: Anytown
@@ -2173,17 +2178,23 @@ definitions:
           - WV
           - WI
           - WY
-      zip:
+      postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: "United States"
+        default: United States
     required:
       - street_address_1
       - city
       - state
-      - zip
+      - postal_code
   SocialSecurityNumber:
     type: object
     properties:

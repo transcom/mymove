@@ -6,3 +6,7 @@ required = [
 	"github.com/segmentio/chamber",
 	"github.com/docker/go-units"
 	]
+
+[[constraint]]
+  name = "github.com/go-swagger/go-swagger"
+  branch = "master"

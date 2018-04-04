@@ -18,9 +18,11 @@ func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 		return &internalmessages.Address{
 			StreetAddress1: swag.String(a.StreetAddress1),
 			StreetAddress2: a.StreetAddress2,
+			StreetAddress3: a.StreetAddress3,
 			City:           swag.String(a.City),
 			State:          swag.String(a.State),
-			Zip:            swag.String(a.Zip),
+			PostalCode:     swag.String(a.PostalCode),
+			Country:        a.Country,
 		}
 	}
 	return nil
@@ -33,9 +35,11 @@ func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Addre
 	address := models.Address{
 		StreetAddress1: *rawAddress.StreetAddress1,
 		StreetAddress2: rawAddress.StreetAddress2,
+		StreetAddress3: rawAddress.StreetAddress3,
 		City:           *rawAddress.City,
 		State:          *rawAddress.State,
-		Zip:            *rawAddress.Zip,
+		PostalCode:     *rawAddress.PostalCode,
+		Country:        rawAddress.Country,
 	}
 	return &address
 }
@@ -118,22 +122,18 @@ func (h ShowForm1299Handler) Handle(params form1299op.ShowForm1299Params) middle
 
 	var response middleware.Responder
 	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
-	if strfmt.IsUUID(string(formID)) {
-		form, err := models.FetchForm1299ByID(h.db, formID)
-		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				response = form1299op.NewShowForm1299NotFound()
-			} else {
-				// This is an unknown error from the db, nothing to do but log and 500
-				h.logger.Error("DB Insertion error", zap.Error(err))
-				response = form1299op.NewShowForm1299InternalServerError()
-			}
+	form, err := models.FetchForm1299ByID(h.db, formID)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			response = form1299op.NewShowForm1299NotFound()
 		} else {
-			formPayload := payloadForForm1299Model(form)
-			response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
+			// This is an unknown error from the db, nothing to do but log and 500
+			h.logger.Error("DB Insertion error", zap.Error(err))
+			response = form1299op.NewShowForm1299InternalServerError()
 		}
 	} else {
-		return form1299op.NewShowForm1299BadRequest()
+		formPayload := payloadForForm1299Model(form)
+		response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
 	}
 
 	return response

@@ -28,7 +28,7 @@ definitions:
       - street_address_2
       - city
       - state
-      - zip
+      - postal_code
 groups:
   origin_office:
     title: To (Responsible Origin Personal Property Shipping Office)
