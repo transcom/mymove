@@ -57,3 +57,25 @@ func (suite *RateEngineSuite) Test_determineCWT() {
 		t.Errorf("CWT should have been 25 but is %d.", cwt)
 	}
 }
+
+// // Determine the Base Linehaul (BLH)
+// func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (base_linehaul_charge int, error) {
+//  // TODO (Rebecca): This will come from a fetch
+//  base_linehaul_charge := mileage * weight
+//  // TODO (Rebecca): make a proper error
+//  err := "whoops"
+//  return base_linehaul_charge, err
+// }
+
+func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	mileage := 3200
+	weight := 4000
+
+	blh, _ := engine.determineBaseLinehaul(mileage, weight)
+
+	if blh != 12800000 {
+		t.Errorf("CWT should have been 12800000 but is %d.", blh)
+	}
+}
