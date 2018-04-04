@@ -852,34 +852,34 @@ definitions:
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
   MovePayload:
-   type: object
-   properties:
-     id:
-       type: string
-       format: uuid
-       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-     user_id:
-       type: string
-       format: uuid
-       example: c56a4180-65aa-42ec-a945-5fd21dec0538
-     selected_move_type:
-       $ref: '#/definitions/SelectedMoveType'
-     created_at:
-       type: string
-       format: date-time
-     updated_at:
-       type: string
-       format: date-time
-   required:
-    - id
-    - user_id
-    - created_at
-    - updated_at
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      user_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - user_id
+      - created_at
+      - updated_at
   PatchMovePayload:
-   type: object
-   properties:
-     selected_move_type:
-       $ref: '#/definitions/SelectedMoveType'
+    type: object
+    properties:
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
   SelectedMoveType:
     type: string
     title: Selected Move Type

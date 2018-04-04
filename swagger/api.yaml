@@ -569,7 +569,7 @@ paths:
         200:
           description: The blackout as added to the database including DB ID
           schema:
-             $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/Blackout'
         400:
           description: invalid request
         403:
