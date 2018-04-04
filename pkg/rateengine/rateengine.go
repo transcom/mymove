@@ -98,8 +98,6 @@ func (re *RateEngine) determineLinehaulChargeTotal(originZip string, destination
 	// TODO: Make real error
 	if err != nil {
 		err = errors.New("Oops determineLinehaulChargeTotal")
-	} else {
-		err = nil
 	}
 	return ((float64(baseLinehaulCharge) + originLinehaulFactor + destinationLinehaulFactor + shorthaulCharge) * inverseDiscount), err
 }

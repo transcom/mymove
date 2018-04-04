@@ -9,7 +9,7 @@ import (
 	"go.uber.org/zap"
 )
 
-func (suite *RateEngineSuite) Test_determineCWT() {
+func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2500
@@ -33,7 +33,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
 	}
 }
 
-func (suite *RateEngineSuite) Test_determineMileage() {
+func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage, err := engine.determineMileage("10024", "18209")
@@ -41,11 +41,11 @@ func (suite *RateEngineSuite) Test_determineMileage() {
 		t.Error("Unable to determine mileage: ", err)
 	}
 	if mileage != 1000 {
-		t.Errorf("Determined mileage incorrectly. Expected 1000 got %v", mileage)
+		t.Errorf("Determined mileage incorrectly. Expected 1000 got %d", mileage)
 	}
 }
 
-func (suite *RateEngineSuite) Test_determineLinehaulFactors() {
+func (suite *RateEngineSuite) Test_CheckDetermineLinehaulFactors() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	linehaulFactor, err := engine.determineLinehaulFactors(6000, "18209")
@@ -53,7 +53,7 @@ func (suite *RateEngineSuite) Test_determineLinehaulFactors() {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
 	if linehaulFactor != 30.6 {
-		t.Errorf("Determined linehaul factor incorrectly. Expected 30.6 got %v", linehaulFactor)
+		t.Errorf("Determined linehaul factor incorrectly. Expected 30.6 got %f", linehaulFactor)
 	}
 }
 
@@ -67,6 +67,18 @@ func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
 
 	if shc != 31960 {
 		t.Errorf("Shorthaul charge should have been 31960 but is %f.", shc)
+	}
+}
+
+func (suite *RateEngineSuite) Test_CheckDetermineLinehaulChargeTotal() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	linehaulChargeTotal, err := engine.determineLinehaulChargeTotal("10024", "94103")
+	if err != nil {
+		t.Error("Unable to determine linehaulChargeTotal: ", err)
+	}
+	if linehaulChargeTotal != 1180012.036 {
+		t.Errorf("Determined linehaul factor incorrectly. Expected 1180012.036 got %f", linehaulChargeTotal)
 	}
 }
 
