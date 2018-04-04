@@ -7,8 +7,31 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-	// . "github.com/transcom/mymove/pkg/rateengine"
 )
+
+func (suite *RateEngineSuite) Test_determineCWT() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	weight := 2500
+	cwt := engine.determineCWT(weight)
+
+	if cwt != 25 {
+		t.Errorf("CWT should have been 25 but is %d.", cwt)
+	}
+}
+
+func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	mileage := 3200
+	weight := 4000
+
+	blh, _ := engine.determineBaseLinehaul(mileage, weight)
+
+	if blh != 12800000 {
+		t.Errorf("CWT should have been 12800000 but is %d.", blh)
+	}
+}
 
 func (suite *RateEngineSuite) Test_determineMileage() {
 	t := suite.T()
@@ -19,6 +42,18 @@ func (suite *RateEngineSuite) Test_determineMileage() {
 	}
 	if mileage != 1000 {
 		t.Errorf("Determined mileage incorrectly. Expected 1000 got %v", mileage)
+	}
+}
+
+func (suite *RateEngineSuite) Test_determineLinehaulFactors() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	linehaulFactor, err := engine.determineLinehaulFactors(6000, "18209")
+	if err != nil {
+		t.Error("Unable to determine linehaulFactor: ", err)
+	}
+	if linehaulFactor != 30.6 {
+		t.Errorf("Determined linehaul factor incorrectly. Expected 30.6 got %v", linehaulFactor)
 	}
 }
 
@@ -45,37 +80,4 @@ func TestRateEngineSuite(t *testing.T) {
 
 	hs := &RateEngineSuite{db: db, logger: logger}
 	suite.Run(t, hs)
-}
-
-func (suite *RateEngineSuite) Test_determineCWT() {
-	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	weight := 2500
-	cwt := engine.determineCWT(weight)
-
-	if cwt != 25 {
-		t.Errorf("CWT should have been 25 but is %d.", cwt)
-	}
-}
-
-// // Determine the Base Linehaul (BLH)
-// func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (base_linehaul_charge int, error) {
-//  // TODO (Rebecca): This will come from a fetch
-//  base_linehaul_charge := mileage * weight
-//  // TODO (Rebecca): make a proper error
-//  err := "whoops"
-//  return base_linehaul_charge, err
-// }
-
-func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
-	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	mileage := 3200
-	weight := 4000
-
-	blh, _ := engine.determineBaseLinehaul(mileage, weight)
-
-	if blh != 12800000 {
-		t.Errorf("CWT should have been 12800000 but is %d.", blh)
-	}
 }
