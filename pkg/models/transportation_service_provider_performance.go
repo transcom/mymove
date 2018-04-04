@@ -28,16 +28,18 @@ var OffersPerQualityBand = map[int]int{
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
-	ID                              uuid.UUID `json:"id" db:"id"`
-	CreatedAt                       time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt                       time.Time `json:"updated_at" db:"updated_at"`
-	PerformancePeriodStart          time.Time `json:"performance_period_start" db:"performance_period_start"`
-	PerformancePeriodEnd            time.Time `json:"performance_period_end" db:"performance_period_end"`
-	TrafficDistributionListID       uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID uuid.UUID `json:"transportation_service_provider_id" db:"transportation_service_provider_id"`
-	QualityBand                     *int      `json:"quality_band" db:"quality_band"`
-	BestValueScore                  int       `json:"best_value_score" db:"best_value_score"`
-	OfferCount                      int       `json:"offer_count" db:"offer_count"`
+	ID                              uuid.UUID `db:"id"`
+	CreatedAt                       time.Time `db:"created_at"`
+	UpdatedAt                       time.Time `db:"updated_at"`
+	PerformancePeriodStart          time.Time `db:"performance_period_start"`
+	PerformancePeriodEnd            time.Time `db:"performance_period_end"`
+	RateCycleStart                  time.Time `db:"rate_cycle_start"`
+	RateCycleEnd                    time.Time `db:"rate_cycle_end"`
+	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
+	QualityBand                     *int      `db:"quality_band"`
+	BestValueScore                  int       `db:"best_value_score"`
+	OfferCount                      int       `db:"offer_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -65,6 +67,12 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 	}
 
 	return validate.Validate(
+		// Start times should be before End times
+		&validators.TimeIsBeforeTime{FirstTime: t.PerformancePeriodStart, FirstName: "PerformancePeriodStart",
+			SecondTime: t.PerformancePeriodEnd, SecondName: "PerformancePeriodEnd"},
+		&validators.TimeIsBeforeTime{FirstTime: t.RateCycleStart, FirstName: "RateCycleStart",
+			SecondTime: t.RateCycleEnd, SecondName: "RateCycleEnd"},
+
 		// Quality Bands can have a range from 1 - 4 as defined in DTR 402. See page 67 of
 		// https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-402.pdf
 		&validators.IntIsGreaterThan{Field: qualityBand, Name: "QualityBand", Compared: 0},
@@ -79,7 +87,8 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 
 // NextTSPPerformanceInQualityBand returns the TSP performance record in a given TDL
 // and Quality Band that will next be offered a shipment.
-func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualityBand int, bookDate time.Time) (
+func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID,
+	qualityBand int, bookDate time.Time, requestedPickupDate time.Time) (
 	TransportationServiceProviderPerformance, error) {
 
 	sql := `SELECT
@@ -92,22 +101,24 @@ func NextTSPPerformanceInQualityBand(tx *pop.Connection, tdlID uuid.UUID, qualit
 			quality_band = $2
 			AND
 			$3 BETWEEN performance_period_start AND performance_period_end
+			AND
+			$4 BETWEEN rate_cycle_start AND rate_cycle_end
 		ORDER BY
 			offer_count ASC,
 			best_value_score DESC
 		`
 
 	tspp := TransportationServiceProviderPerformance{}
-	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate).First(&tspp)
+	err := tx.RawQuery(sql, tdlID, qualityBand, bookDate, requestedPickupDate).First(&tspp)
 
 	return tspp, err
 }
 
 // GatherNextEligibleTSPPerformances returns a map of QualityBands to their next eligible TSPPerformance.
-func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
+func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, bookDate time.Time, requestedPickupDate time.Time) (map[int]TransportationServiceProviderPerformance, error) {
 	tspPerformances := make(map[int]TransportationServiceProviderPerformance)
 	for _, qualityBand := range qualityBands {
-		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate)
+		tspPerformance, err := NextTSPPerformanceInQualityBand(tx, tdlID, qualityBand, bookDate, requestedPickupDate)
 		if err != nil {
 			// We don't want the program to error out if Quality Bands don't have a TSPPerformance.
 			//zap.S().Errorf("\tNo TSP returned for Quality Band: %d\n; See error: %s", qualityBand, err)
@@ -122,9 +133,9 @@ func GatherNextEligibleTSPPerformances(tx *pop.Connection, tdlID uuid.UUID, book
 }
 
 // NextEligibleTSPPerformance wraps GatherNextEligibleTSPPerformances and DetermineNextTSPPerformance.
-func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate time.Time) (TransportationServiceProviderPerformance, error) {
+func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate time.Time, requestedPickupDate time.Time) (TransportationServiceProviderPerformance, error) {
 	var tspPerformance TransportationServiceProviderPerformance
-	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, bookDate)
+	tspPerformances, err := GatherNextEligibleTSPPerformances(db, tdlID, bookDate, requestedPickupDate)
 	if err == nil {
 		return SelectNextTSPPerformance(tspPerformances), nil
 	}
@@ -168,6 +179,8 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 // order that they should be assigned quality bands.
 func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
 
+	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
+	// performance periods and rate areas should be broken up into separate quality bands.
 	sql := `SELECT
 			*
 		FROM
@@ -216,4 +229,18 @@ func IncrementTSPPerformanceOfferCount(db *pop.Connection, tspPerformanceID uuid
 		return fmt.Errorf("Validation failure: %s", validationErr)
 	}
 	return nil
+}
+
+// GetRateCycle returns the start date and end dates for a rate cycle of the
+// given year and season (peak/non-peak).
+func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
+	if peak {
+		start = time.Date(year, time.May, 15, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+	} else {
+		start = time.Date(year, time.October, 1, 0, 0, 0, 0, time.UTC)
+		end = time.Date(year+1, time.May, 15, 0, 0, 0, 0, time.UTC)
+	}
+
+	return start, end
 }

@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
@@ -9,6 +11,40 @@ import (
 )
 
 var mps = 10
+
+func (suite *ModelSuite) Test_PerformancePeriodValidations() {
+	now := time.Now()
+	earlier := now.AddDate(0, 0, -1)
+	later := now.AddDate(0, 0, 1)
+
+	tspPerformance := &TransportationServiceProviderPerformance{
+		PerformancePeriodStart: later,
+		PerformancePeriodEnd:   earlier,
+	}
+
+	var expErrors = map[string][]string{
+		"performance_period_start": []string{"PerformancePeriodStart must be before PerformancePeriodEnd."},
+	}
+
+	suite.verifyValidationErrors(tspPerformance, expErrors)
+}
+
+func (suite *ModelSuite) Test_RateCycleValidations() {
+	now := time.Now()
+	earlier := now.AddDate(0, 0, -1)
+	later := now.AddDate(0, 0, 1)
+
+	tspPerformance := &TransportationServiceProviderPerformance{
+		RateCycleStart: later,
+		RateCycleEnd:   earlier,
+	}
+
+	var expErrors = map[string][]string{
+		"rate_cycle_start": []string{"RateCycleStart must be before RateCycleEnd."},
+	}
+
+	suite.verifyValidationErrors(tspPerformance, expErrors)
+}
 
 func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	tspPerformance := &TransportationServiceProviderPerformance{BestValueScore: 101}
@@ -28,10 +64,34 @@ func (suite *ModelSuite) Test_BestValueScoreValidations() {
 	suite.verifyValidationErrors(tspPerformance, expErrors)
 }
 
+func (suite *ModelSuite) Test_GetRateCycle() {
+	t := suite.T()
+
+	peakRateCycleStart, peakRateCycleEnd := GetRateCycle(testdatagen.TestYear, true)
+	nonPeakRateCycleStart, nonPeakRateCycleEnd := GetRateCycle(testdatagen.TestYear, false)
+
+	if peakRateCycleStart != testdatagen.PeakRateCycleStart {
+		t.Errorf("PeakRateCycleStart not calculated correctly. Expected %s, got %s",
+			testdatagen.PeakRateCycleStart, peakRateCycleStart)
+	}
+	if peakRateCycleEnd != testdatagen.PeakRateCycleEnd {
+		t.Errorf("PeakRateCycleEnd not calculated correctly. Expected %s, got %s",
+			testdatagen.PeakRateCycleEnd, peakRateCycleEnd)
+	}
+	if nonPeakRateCycleStart != testdatagen.NonPeakRateCycleStart {
+		t.Errorf("NonPeakRateCycleStart not calculated correctly. Expected %s, got %s",
+			testdatagen.NonPeakRateCycleStart, nonPeakRateCycleStart)
+	}
+	if nonPeakRateCycleEnd != testdatagen.NonPeakRateCycleEnd {
+		t.Errorf("NonPeakRateCycleEnd not calculated correctly. Expected %s, got %s",
+			testdatagen.NonPeakRateCycleEnd, nonPeakRateCycleStart)
+	}
+}
+
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 
@@ -53,7 +113,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
 	band := 1
@@ -80,7 +140,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	tspsToMake := 5
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
@@ -120,7 +180,8 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
 
-	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod)
+	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
+		testdatagen.DateInsidePeakRateCycle)
 
 	if err != nil {
 		t.Errorf("Failed to find TSPPerformance: %v", err)
@@ -305,8 +366,8 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
 
-	date := testdatagen.DateInsidePerformancePeriod
-	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, date)
+	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, testdatagen.DateInsidePerformancePeriod,
+		testdatagen.DateInsidePeakRateCycle)
 	expectedTSPorder := []uuid.UUID{tsp1.ID, tsp3.ID, tsp4.ID, tsp5.ID}
 
 	actualTSPorder := []uuid.UUID{
