@@ -1097,7 +1097,7 @@ definitions:
         pattern: /^[0-9]{10}$/
         example: 57893457897
         x-nullable: true
-        title: 'EDIPI ID'
+        title: 'DoD ID #'
       social_security_number:
         type: string
         format: ssn
@@ -1169,7 +1169,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberPayload'
-
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1267,7 +1266,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberBackupContactPayload'
-
   CreateSignedCertificationPayload:
     type: object
     properties:
