@@ -1082,8 +1082,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
-        type: boolean
   PatchServiceMemberPayload:
     type: object
     properties:
@@ -1163,8 +1161,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
-        type: boolean
   IndexServiceMembersPayload:
     type: array
     items:
