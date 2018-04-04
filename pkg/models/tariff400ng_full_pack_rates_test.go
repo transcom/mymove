@@ -27,3 +27,41 @@ func (suite *ModelSuite) Test_EffectiveDateValidation() {
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
 }
+
+func (suite *ModelSuite) Test_WeightValidation() {
+	validPackRate := Tariff400ngFullPackRate{
+		WeightLbsLower: 100,
+		WeightLbsUpper: 200,
+	}
+
+	expErrors := map[string][]string{}
+	suite.verifyValidationErrors(&validPackRate, expErrors)
+
+	invalidPackRate := Tariff400ngFullPackRate{
+		WeightLbsLower: 200,
+		WeightLbsUpper: 100,
+	}
+
+	expErrors = map[string][]string{
+		"weight_lbs_lower": []string{"200 is not less than 101."},
+	}
+	suite.verifyValidationErrors(&invalidPackRate, expErrors)
+}
+
+func (suite *ModelSuite) Test_RateValidation() {
+	validPackRate := Tariff400ngFullPackRate{
+		RateCents: 100,
+	}
+
+	expErrors := map[string][]string{}
+	suite.verifyValidationErrors(&validPackRate, expErrors)
+
+	invalidPackRate := Tariff400ngFullPackRate{
+		RateCents: -1,
+	}
+
+	expErrors = map[string][]string{
+		"rate_cents": []string{"-1 is not greater than -1."},
+	}
+	suite.verifyValidationErrors(&invalidPackRate, expErrors)
+}
