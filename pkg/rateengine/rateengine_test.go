@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+	// . "github.com/transcom/mymove/pkg/rateengine"
 )
 
 func (suite *RateEngineSuite) Test_determineMileage() {
@@ -44,4 +45,15 @@ func TestRateEngineSuite(t *testing.T) {
 
 	hs := &RateEngineSuite{db: db, logger: logger}
 	suite.Run(t, hs)
+}
+
+func (suite *RateEngineSuite) Test_determineCWT() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	weight := 2500
+	cwt := engine.determineCWT(weight)
+
+	if cwt != 25 {
+		t.Errorf("CWT should have been 25 but is %d.", cwt)
+	}
 }
