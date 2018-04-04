@@ -20,19 +20,6 @@ func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 	}
 }
 
-func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
-	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	mileage := 3200
-	weight := 4000
-
-	blh, _ := engine.determineBaseLinehaul(mileage, weight)
-
-	if blh != 12800000 {
-		t.Errorf("CWT should have been 12800000 but is %d.", blh)
-	}
-}
-
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
@@ -45,10 +32,23 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	}
 }
 
-func (suite *RateEngineSuite) Test_CheckDetermineLinehaulFactors() {
+func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	linehaulFactor, err := engine.determineLinehaulFactors(6000, "18209")
+	mileage := 3200
+	weight := 4000
+
+	blh, _ := engine.baseLinehaul(mileage, weight)
+
+	if blh != 12800000 {
+		t.Errorf("CWT should have been 12800000 but is %d.", blh)
+	}
+}
+
+func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	linehaulFactor, err := engine.linehaulFactors(6000, "18209")
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -57,23 +57,23 @@ func (suite *RateEngineSuite) Test_CheckDetermineLinehaulFactors() {
 	}
 }
 
-func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
+func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 799
 	cwt := 40
 
-	shc, _ := engine.determineShorthaulCharge(mileage, cwt)
+	shc, _ := engine.shorthaulCharge(mileage, cwt)
 
 	if shc != 31960 {
 		t.Errorf("Shorthaul charge should have been 31960 but is %f.", shc)
 	}
 }
 
-func (suite *RateEngineSuite) Test_CheckDetermineLinehaulChargeTotal() {
+func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	linehaulChargeTotal, err := engine.determineLinehaulChargeTotal("10024", "94103")
+	linehaulChargeTotal, err := engine.linehaulChargeTotal("10024", "94103")
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
