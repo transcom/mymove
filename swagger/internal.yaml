@@ -938,8 +938,9 @@ definitions:
         example: 57893457897
         pattern: /^[0-9]{10}$/
         x-nullable: true
-      ssn:
-        $ref: '#/definitions/SocialSecurityNumber'
+      has_social_security_number:
+        type: boolean
+        x-nullable: true
       first_name:
         type: string
         example: John
@@ -1017,8 +1018,12 @@ definitions:
         example: 57893457897
         x-nullable: true
         title: 'DoD ID #'
-      ssn:
-        $ref: '#/definitions/SocialSecurityNumber'
+      social_security_number:
+        type: string
+        format: ssn
+        x-nullable: true
+        title: 'Social Security Number'
+        example: '555-55-5555'
       first_name:
         type: string
         example: John
@@ -1093,8 +1098,12 @@ definitions:
         example: 57893457897
         x-nullable: true
         title: 'EDIPI ID'
-      ssn:
-        $ref: '#/definitions/SocialSecurityNumber'
+      social_security_number:
+        type: string
+        format: ssn
+        x-nullable: true
+        title: 'Social Security Number'
+        example: '555-55-5555'
       first_name:
         type: string
         example: John
@@ -2195,12 +2204,3 @@ definitions:
       - city
       - state
       - postal_code
-  SocialSecurityNumber:
-    type: object
-    properties:
-      encrypted_hash:
-        type: string
-        title: Social Security Number
-        x-nullable: true
-    required:
-      - encrypted_hash
