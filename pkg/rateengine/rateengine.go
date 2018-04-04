@@ -14,67 +14,66 @@ type RateEngine struct {
 	logger *zap.Logger
 }
 
-
-func (re *RateEngine) determineMileage(origin_zip string, destination_zip string) (mileage int, error) {
+func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
 	// TODO (Rebecca): make a proper error
-	err := "whoops"
-	fmt.Print(origin_zip)
-	fmt.Print(destination_zip)
-	// TODO (Rebecca): Lookup origin_zip to destination_zip mileage
-	mileage := 1000
+	err = "whoops"
+	fmt.Print(originZip)
+	fmt.Print(destinationZip)
+	// TODO (Rebecca): Lookup originZip to destinationZip mileage
+	mileage = 1000
 	return mileage, err
 }
 
 func (re *RateEngine) determineCWT(weight int) (cwt int) {
-	return weight/100
+	return weight / 100
 }
 
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (base_linehaul_charge int, error) {
+func (re *RateEngine) determineBaseLinehaul(mileage int, weight int) (baseLinehaulCharge int, err error) {
 	// TODO (Rebecca): This will come from a fetch
-	base_linehaul_charge := mileage * weight
+	baseLinehaulCharge = mileage * weight
 	// TODO (Rebecca): make a proper error
-	err := "whoops"
-	return base_linehaul_charge, err
+	err = "whoops"
+	return baseLinehaulCharge, err
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) determineLinehaulFactors(weight int, zip string) (linehaul_factor float64) {
-	// TODO: Fetch origin service area code via origin_zip
+func (re *RateEngine) determineLinehaulFactors(weight int, zip string) (linehaulFactor float64) {
+	// TODO: Fetch origin service area code via originZip
 	fmt.print(zip)
-	service_area := 101
+	serviceArea := 101
 	// TODO: Fetch linehaul factor for origin
-	fmt.print(service_area)
-	linehaul_factor := 0.51
-	// Calculate linehaul_factor for the trip distance
-	return (weight/100) * linehaul_factor
+	fmt.print(serviceArea)
+	linehaulFactor := 0.51
+	// Calculate linehaulFactor for the trip distance
+	return (weight / 100) * linehaulFactor
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
-func (re *RateEngine) determineShorthaulCharge(mileage int, cwt int) (shorthaul_charge float64, error) {
-	cwt_miles := mileage * cwt
-	// TODO: shorthaul_charge will be a lookup
-	shorthaul_charge := cwt_miles
-	return shorthaul_charge
+func (re *RateEngine) determineShorthaulCharge(mileage int, cwt int) (shorthaulCharge float64, err error) {
+	cwtMiles := mileage * cwt
+	// TODO: shorthaulCharge will be a lookup
+	shorthaulCharge = cwtMiles
+	return shorthaulCharge
 }
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + SH] x InvdLH
-func (re *RateEngine) determineLinehaulChargeTotal(origin_zip string, destination_zip string) (linehaul_charge float64, error) {
-	mileage := determineMileage(origin_zip, destination_zip)
+func (re *RateEngine) determineLinehaulChargeTotal(originZip string, destinationZip string) (linehaulCharge float64, err error) {
+	mileage := determineMileage(originZip, destinationZip)
 	// TODO: Where is weight coming from?
 	weight := 2000
 	cwt := determineCWT(weight)
-	base_linehaul_charge := determineBaseLinehaul(mileage, weight)
-	origin_linehaul_factor := determineLinehaulFactors(weight, origin_zip)
-	destination_linehaul_factor := determineLinehaulFactors(weight, destination_zip)
-	shorthaul_charge := determineShorthaulCharge(mileage, cwt)
+	baseLinehaulCharge := determineBaseLinehaul(mileage, weight)
+	originLinehaulFactor := determineLinehaulFactors(weight, originZip)
+	destinationLinehaulFactor := determineLinehaulFactors(weight, destinationZip)
+	shorthaulCharge := determineShorthaulCharge(mileage, cwt)
 	// TODO: Where is our discount coming from?
 	discount := 0.41
-	inverse_discount := 1.0-discount
+	inverseDiscount := 1.0 - discount
 	// TODO: Make real error
-	err := 'Whoops'
-	return ((base_linehaul_charge + origin_linehaul_factor + destination_linehaul_factor + shorthaul_charge) * inverse_discount, err)
+	err = "Whoops"
+	return ((baseLinehaulCharge + originLinehaulFactor + destinationLinehaulFactor + shorthaulCharge) * inverseDiscount), err
 }
 
 // NewRateEngine creates a new RateEngine
