@@ -1,6 +1,7 @@
 package rateengine
 
 import (
+	"log"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -16,7 +17,7 @@ func (suite *RateEngineSuite) Test_determineMileage() {
 		t.Error("Unable to determine mileage: ", err)
 	}
 	if mileage != 1000 {
-		t.Error("Determined mileage incorrectly. Expected 1000 got %d", mileage)
+		t.Errorf("Determined mileage incorrectly. Expected 1000 got %v", mileage)
 	}
 }
 
