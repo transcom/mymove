@@ -70,3 +70,16 @@ func (suite *RateEngineSuite) Test_CheckDetermineBaseLinehaul() {
 		t.Errorf("CWT should have been 12800000 but is %d.", blh)
 	}
 }
+
+func (suite *RateEngineSuite) Test_CheckDetermineShorthaulCharge() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger)
+	mileage := 3200
+	cwt := 40
+
+	shc, _ := engine.determineShorthaulCharge(mileage, cwt)
+
+	if shc != 128000 {
+		t.Errorf("Shorthaul charge should have been 128000 but is %f.", shc)
+	}
+}
