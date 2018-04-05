@@ -6,10 +6,12 @@ import (
 	"testing"
 
 	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth/context"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -125,5 +127,62 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
 	if !ok {
 		t.Fatalf("Request failed: %#v", showResponse)
+	}
+}
+
+func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
+	t := suite.T()
+
+	// Given: A logged-in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// When: a new ServiceMember is posted
+	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
+		UserID:                    strfmt.UUID(user.ID.String()),
+		Edipi:                     swag.String("random string bla"),
+		FirstName:                 swag.String("random string bla"),
+		MiddleInitial:             swag.String("random string bla"),
+		LastName:                  swag.String("random string bla"),
+		Suffix:                    swag.String("random string bla"),
+		Telephone:                 swag.String("random string bla"),
+		SecondaryTelephone:        swag.String("random string bla"),
+		PersonalEmail:             swag.String("random string bla"),
+		PhoneIsPreferred:          swag.Bool(false),
+		SecondaryPhoneIsPreferred: swag.Bool(false),
+		EmailIsPreferred:          swag.Bool(true),
+		ResidentialAddress:        fakeAddress(),
+		BackupMailingAddress:      fakeAddress(),
+	}
+
+	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	params := servicememberop.CreateServiceMemberParams{
+		CreateServiceMemberPayload: &newServiceMemberPayload,
+		HTTPRequest:                req,
+	}
+
+	// And: the context contains the auth values for logged-in user
+	ctx := params.HTTPRequest.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+
+	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*servicememberop.CreateServiceMemberCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	// Then: we expect a servicemember to have been created for the user
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
+	servicemembers := []models.ServiceMember{}
+	query.All(&servicemembers)
+
+	if len(servicemembers) != 1 {
+		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
 	}
 }
