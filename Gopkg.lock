@@ -374,6 +374,7 @@
   branch = "master"
   name = "github.com/markbates/going"
   packages = [
+    "clam",
     "defaults",
     "randx",
     "wait"
@@ -394,6 +395,34 @@
   name = "github.com/markbates/inflect"
   packages = ["."]
   revision = "b5c853d089b86134926274bc7a98496fee5e1d6b"
+
+[[projects]]
+  branch = "cobra"
+  name = "github.com/markbates/pop"
+  packages = [
+    ".",
+    "columns"
+  ]
+  revision = "bb35c49da55bc73c51dedfe007c860db7693cac6"
+
+[[projects]]
+  name = "github.com/markbates/validate"
+  packages = [
+    ".",
+    "validators"
+  ]
+  revision = "cd8cc34c703420d6b084fbbfd5085e8e71c5b830"
+  version = "v1.0.0"
+
+[[projects]]
+  name = "github.com/mattes/migrate"
+  packages = [
+    "driver/mysql",
+    "driver/postgres",
+    "driver/sqlite3"
+  ]
+  revision = "afc973c4e5a6b746217c2d3950fcd110ed1ba349"
+  version = "v1.3.2"
 
 [[projects]]
   name = "github.com/mattn/anko"
@@ -516,10 +545,10 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/spf13/viper"
   packages = ["."]
-  revision = "b5e8006cbee93ec955a89ab31e0e3ce3204f3736"
-  version = "v1.0.2"
+  revision = "8dc2790b029dc41e2b8ff772c63c26adbb1db70d"
 
 [[projects]]
   name = "github.com/stretchr/testify"
@@ -667,6 +696,16 @@
   version = "v1.0.0"
 
 [[projects]]
+  name = "gopkg.in/mattes/migrate.v1"
+  packages = [
+    "driver",
+    "file",
+    "migrate/direction"
+  ]
+  revision = "afc973c4e5a6b746217c2d3950fcd110ed1ba349"
+  version = "v1.3.2"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
   packages = [
@@ -690,6 +729,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "c13f663df436e43b0277e75f9785515406def320a95b15a651b11548da974976"
+  inputs-digest = "9806a15b28f7adac925cdc93d4c70443b5c9a1b489102112d85b5de3494174d3"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -30,6 +30,16 @@ func (suite *RateEngineSuite) SetupTest() {
 	suite.db.TruncateAll()
 }
 
+func (suite *RateEngineSuite) mustSave(model interface{}) {
+	verrs, err := suite.db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(err)
+	}
+	if verrs.Count() > 0 {
+		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
+	}
+}
+
 func TestRateEngineSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
