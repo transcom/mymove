@@ -23,6 +23,9 @@ SAUCE_ACCESS_KEY
 1Password
 configs
 e.g.
+csv
+xlsx
+GoDocs
 created_at
 updated_at
 CircleCI
@@ -187,6 +190,7 @@ ADR-0022
 ADR-0023
 ADR-0024
 ADR-0025
+Excelize
 interop
 runtime
 NullString
