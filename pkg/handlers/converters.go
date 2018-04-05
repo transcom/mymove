@@ -52,3 +52,7 @@ func stringFromSSN(ssn *strfmt.SSN) *string {
 	}
 	return stringPointer
 }
+
+func fmtBool(b bool) *bool {
+	return &b
+}
