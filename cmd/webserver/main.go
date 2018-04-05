@@ -126,7 +126,7 @@ func main() {
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
