@@ -34,8 +34,8 @@ DROP TABLE full_unpacks;
 -- Linehaul
 SELECT
 	uuid_generate_v4() as id,
-    LOWER(dist_mi) as dist_mi_lower,
-    UPPER(dist_mi) as dist_mi_upper,
+    LOWER(dist_mi) as distance_miles_lower,
+    UPPER(dist_mi) as distance_miles_upper,
     LOWER(weight_lbs) as weight_lbs_lower,
     UPPER(weight_lbs) as weight_lbs_upper,
     CAST((rate * 100) as INTEGER) as rate_cents,
