@@ -3,23 +3,30 @@ package rateengine
 import (
 	"errors"
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
-func (re *RateEngine) serviceFee(cwt int, zip string) (float64, error) {
-	fmt.Print(zip)
-	// TODO: Fetch service area from zip
-	serviceArea := 3
-	fmt.Print(serviceArea)
-	// TODO: Fetch 135A or 135B Rate
-	rate := 3.88
+func (re *RateEngine) serviceFee(cwt int, zip3 string) (float64, error) {
+	serviceArea, err := models.ServiceAreaForZip3(re.db, zip3)
+	if err != nil {
+		return 0.0, err
+	}
+	// TODO: Fetch 135A or 135B (serviceArea)
+	rate, err := models.Rate135A(re.db, serviceArea)
+	if err != nil {
+		return 0.0, err
+	}
 	return float64(cwt) * rate, nil
 }
 
-func (re *RateEngine) fullPack(cwt int, zip string) (float64, error) {
-	fmt.Print(zip)
-	// TODO: Fetch service area from zip
-	serviceArea := 3
-	fmt.Print(serviceArea)
+func (re *RateEngine) fullPack(cwt int, zip3 string) (float64, error) {
+	serviceArea, err := models.ServiceAreaForZip3(re.db, zip3)
+	if err != nil {
+		return 0.0, err
+	}
+	fmt.Println(serviceArea)
+
 	// TODO: Fetch service schedule from service area
 	serviceSchedule := 1
 	fmt.Print(serviceSchedule)
