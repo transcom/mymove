@@ -1,16 +1,5 @@
 package rateengine
 
-func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
-	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	weight := 2500
-	cwt := engine.determineCWT(weight)
-
-	if cwt != 25 {
-		t.Errorf("CWT should have been 25 but is %d.", cwt)
-	}
-}
-
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
@@ -27,11 +16,11 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 3200
-	weight := 4000
+	cwt := 40
 
-	blh, _ := engine.baseLinehaul(mileage, weight)
+	blh, _ := engine.baseLinehaul(mileage, cwt)
 
-	if blh != 12800000 {
+	if blh != 128000 {
 		t.Errorf("CWT should have been 12800000 but is %d.", blh)
 	}
 }
@@ -39,7 +28,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	linehaulFactor, err := engine.linehaulFactors(6000, "18209")
+	linehaulFactor, err := engine.linehaulFactors(60, "18209")
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -68,7 +57,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	if linehaulChargeTotal != 1180012.036 {
-		t.Errorf("Determined linehaul factor incorrectly. Expected 1180012.036 got %f", linehaulChargeTotal)
+	if linehaulChargeTotal != 11812.036000 {
+		t.Errorf("Determined linehaul factor incorrectly. Expected 11812.036000 got %f", linehaulChargeTotal)
 	}
 }

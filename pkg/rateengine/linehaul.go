@@ -7,7 +7,6 @@ import (
 
 func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
 	// TODO (Rebecca): make a proper error
-
 	fmt.Print(originZip)
 	fmt.Print(destinationZip)
 	// TODO (Rebecca): Lookup originZip to destinationZip mileage
@@ -20,14 +19,10 @@ func (re *RateEngine) determineMileage(originZip string, destinationZip string) 
 	return mileage, err
 }
 
-func (re *RateEngine) determineCWT(weight int) (cwt int) {
-	return weight / 100
-}
-
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) baseLinehaul(mileage int, weight int) (baseLinehaulCharge int, err error) {
+func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulCharge int, err error) {
 	// TODO (Rebecca): This will come from a fetch
-	baseLinehaulCharge = mileage * weight
+	baseLinehaulCharge = mileage * cwt
 	// TODO (Rebecca): make a proper error
 	if baseLinehaulCharge == 0 {
 		err = errors.New("Oops determineBaseLinehaul")
@@ -38,7 +33,7 @@ func (re *RateEngine) baseLinehaul(mileage int, weight int) (baseLinehaulCharge 
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(weight int, zip string) (linehaulFactor float64, err error) {
+func (re *RateEngine) linehaulFactors(cwt int, zip string) (linehaulFactor float64, err error) {
 	// TODO: Fetch origin service area code via originZip
 	fmt.Print(zip)
 	serviceArea := 101
@@ -52,7 +47,7 @@ func (re *RateEngine) linehaulFactors(weight int, zip string) (linehaulFactor fl
 		err = nil
 	}
 
-	return float64(weight/100) * linehaulFactor, err
+	return float64(cwt) * linehaulFactor, err
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
@@ -79,9 +74,9 @@ func (re *RateEngine) linehaulChargeTotal(originZip string, destinationZip strin
 	// TODO: Where is weight coming from?
 	weight := 2000
 	cwt := re.determineCWT(weight)
-	baseLinehaulCharge, err := re.baseLinehaul(mileage, weight)
-	originLinehaulFactor, err := re.linehaulFactors(weight, originZip)
-	destinationLinehaulFactor, err := re.linehaulFactors(weight, destinationZip)
+	baseLinehaulCharge, err := re.baseLinehaul(mileage, cwt)
+	originLinehaulFactor, err := re.linehaulFactors(cwt, originZip)
+	destinationLinehaulFactor, err := re.linehaulFactors(cwt, destinationZip)
 	shorthaulCharge, err := re.shorthaulCharge(mileage, cwt)
 	// TODO: Where is our discount coming from?
 	discount := 0.41

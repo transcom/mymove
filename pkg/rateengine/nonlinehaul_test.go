@@ -4,7 +4,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	fee, err := engine.serviceFee(2500, "18209")
+	fee, err := engine.serviceFee(25, "18209")
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -19,7 +19,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	fee, err := engine.fullPack(2500, "18209")
+	fee, err := engine.fullPack(25, "18209")
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
@@ -34,7 +34,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	fee, err := engine.fullUnpack(2500, "18209")
+	fee, err := engine.fullUnpack(25, "18209")
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
