@@ -7,6 +7,7 @@ import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Legalese from 'scenes/Legalese';
 import MoveRoutes from 'scenes/Moves/routes';
+import ServiceMemberRoutes from 'scenes/ServiceMembers/routes';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import WizardDemo from 'scenes/WizardDemo';
@@ -48,6 +49,7 @@ const AppWrapper = () => (
           <Route exact path="/demo" render={redirect('/demo/sm')} />
           {DemoWorkflowRoutes()}
           {MoveRoutes()}
+          {ServiceMemberRoutes()}
           <Route component={NoMatch} />
         </Switch>
       </main>
