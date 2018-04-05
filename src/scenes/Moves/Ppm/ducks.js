@@ -86,19 +86,19 @@ export function ppmReducer(state = initialState, action) {
       return Object.assign({}, state, {
         currentPpm: action.payload,
         pendingPpmSize: null,
+        pendingPpmWeight: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
     case CREATE_OR_UPDATE_PPM.failure:
       return Object.assign({}, state, {
-        currentPpm: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
       });
     case GET_PPM.success:
       return Object.assign({}, state, {
-        currentPpm: action.payload,
+        currentPpm: action.payload.length > 0 ? action.payload[0] : null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
