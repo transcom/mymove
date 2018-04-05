@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // Tariff400ngFullUnpackRate describes the rates paid to unpack various weights of goods
@@ -57,4 +58,15 @@ func (t *Tariff400ngFullUnpackRate) ValidateCreate(tx *pop.Connection) (*validat
 // This method is not required and may be deleted.
 func (t *Tariff400ngFullUnpackRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchTariff400ngFullUnpackRateMillicents returns the full unpack rate for a service
+// schedule.
+func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedule int) (int, error) {
+	rate := Tariff400ngFullUnpackRate{}
+	err := tx.Where("schedule = ?", serviceSchedule).First(&rate)
+	if err != nil {
+		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullUnpackRate")
+	}
+	return rate.RateMillicents, nil
 }

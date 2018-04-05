@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // Tariff400ngFullPackRate describes the rates paid to pack various weights of goods
@@ -61,4 +62,15 @@ func (t *Tariff400ngFullPackRate) ValidateCreate(tx *pop.Connection) (*validate.
 // This method is not required and may be deleted.
 func (t *Tariff400ngFullPackRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchTariff400ngFullPackRateCents returns the full unpack rate for a service
+// schedule and weight in CWT.
+func FetchTariff400ngFullPackRateCents(tx *pop.Connection, weightCWT int, schedule int) (int, error) {
+	rate := Tariff400ngFullPackRate{}
+	err := tx.Where("schedule = ? AND ? BETWEEN weight_lbs_lower AND weight_lbs_upper", schedule, weightCWT).First(&rate)
+	if err != nil {
+		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullPackRate")
+	}
+	return rate.RateCents, nil
 }

@@ -1,62 +1,55 @@
 package rateengine
 
 import (
-	"errors"
-	"fmt"
-
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (re *RateEngine) serviceFee(cwt int, zip3 string) (float64, error) {
-	serviceArea, err := models.ServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) serviceFeeCents(cwt int, zip3 string) (int, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
-		return 0.0, err
+		return 0, err
 	}
-	// TODO: Fetch 135A or 135B (serviceArea)
-	rate, err := models.Rate135A(re.db, serviceArea)
-	if err != nil {
-		return 0.0, err
-	}
-	return float64(cwt) * rate, nil
+	return cwt * serviceArea.ServiceChargeCents, nil
 }
 
-func (re *RateEngine) fullPack(cwt int, zip3 string) (float64, error) {
-	serviceArea, err := models.ServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) fullPackCents(cwt int, zip3 string) (int, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
-		return 0.0, err
+		return 0, err
 	}
-	fmt.Println(serviceArea)
 
-	// TODO: Fetch service schedule from service area
-	serviceSchedule := 1
-	fmt.Print(serviceSchedule)
-	// TODO: Fetch fullpack rate
-	rate := 55.00
-	return float64(cwt) * rate, nil
+	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(re.db, cwt, serviceArea.ServicesSchedule)
+	if err != nil {
+		return 0, err
+	}
+
+	return cwt * fullPackRate, nil
 }
 
-func (re *RateEngine) fullUnpack(cwt int, zip string) (float64, error) {
-	fmt.Print(zip)
-	// TODO: Fetch service area from zip
-	serviceArea := 3
-	fmt.Print(serviceArea)
-	// TODO: Fetch service schedule from service area
-	serviceSchedule := 1
-	fmt.Print(serviceSchedule)
-	// TODO: Fetch full unpack rate
-	rate := 5.00
-	return float64(cwt) * rate, nil
+func (re *RateEngine) fullUnpackCents(cwt int, zip3 string) (int, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	if err != nil {
+		return 0, err
+	}
+
+	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(re.db, serviceArea.ServicesSchedule)
+	if err != nil {
+		return 0, err
+	}
+
+	return cwt * fullUnpackRate / 1000, nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotal(originZip string, destinationZip string, inverseDiscount float64) (float64, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(originZip string, destinationZip string, inverseDiscount float64) (int, error) {
 	weight := 4000
 	cwt := re.determineCWT(weight)
-	originServiceFee, err := re.serviceFee(cwt, originZip)
-	destinationServiceFee, err := re.serviceFee(cwt, destinationZip)
-	pack, err := re.fullPack(cwt, originZip)
-	unpack, err := re.fullUnpack(cwt, destinationZip)
+	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
+	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip)
+	pack, err := re.fullPackCents(cwt, originZip)
+	unpack, err := re.fullUnpackCents(cwt, destinationZip)
 	if err != nil {
-		err = errors.New("Oops nonlinehaulChargeTotal")
+		return 0, err
 	}
-	return (originServiceFee + destinationServiceFee + pack + unpack) * inverseDiscount, err
+	subTotal := originServiceFee + destinationServiceFee + pack + unpack
+	return int(float64(subTotal) * inverseDiscount), nil
 }

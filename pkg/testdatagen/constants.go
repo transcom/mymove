@@ -56,3 +56,6 @@ var DateInsidePerformancePeriod = time.Date(TestYear, time.May, 16, 0, 0, 0, 0, 
 // DateOutsidePerformancePeriod is after the performance period defined by
 // PerformancePeriodStart and PerformancePeriodEnd.
 var DateOutsidePerformancePeriod = time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC)
+
+// RateEngineDate is a date for the rate engine to use on generation for tests.
+var RateEngineDate = time.Date(TestYear-1, time.May, 10, 0, 0, 0, 0, time.UTC)

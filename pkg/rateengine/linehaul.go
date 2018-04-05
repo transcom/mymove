@@ -3,6 +3,8 @@ package rateengine
 import (
 	"errors"
 	"fmt"
+
+	"github.com/transcom/mymove/pkg/models"
 )
 
 func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
@@ -33,22 +35,18 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulChargeCent
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(cwt int, zip string) (linehaulFactorCents int, err error) {
-	// TODO: Fetch origin service area code via originZip
-	fmt.Print(zip)
-	serviceArea := 101
-	// TODO: Fetch linehaul factor for origin
-	fmt.Print(serviceArea)
-	// TODO: linehaul factors are in CENTS
-	linehaulFactorCents = 51
-	// Calculate linehaulFactorCents for the trip distance
-	if linehaulFactorCents == 0 {
-		err = errors.New("Oops determineLinehaulFactors")
-	} else {
-		err = nil
+func (re *RateEngine) linehaulFactors(cwt int, zip3 string) (linehaulFactorCents int, err error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	fmt.Printf("service area %d\n", serviceArea.ServiceArea)
+	if err != nil {
+		return 0.0, err
 	}
-
-	return cwt * linehaulFactorCents, err
+	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, re.date)
+	fmt.Printf("linehaulFactorCents %d\n", linehaulFactorCents)
+	if err != nil {
+		return 0.0, err
+	}
+	return cwt * linehaulFactorCents, nil
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
