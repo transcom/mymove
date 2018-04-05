@@ -10,8 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
-// Tariff400ngFullPackRate describes the rate paid for a certain weight range for a certain
-// schedule
+// Tariff400ngFullPackRate describes the rates paid to pack various weights of goods
 type Tariff400ngFullPackRate struct {
 	ID                 uuid.UUID `json:"id" db:"id"`
 	CreatedAt          time.Time `json:"created_at" db:"created_at"`

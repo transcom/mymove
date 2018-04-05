@@ -10,8 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
-// Tariff400ngShorthaulRate describes the rate paid for a certain weight range for a certain
-// schedule
+// Tariff400ngShorthaulRate describes the rates paid for shorthaul shipments
 type Tariff400ngShorthaulRate struct {
 	ID                 uuid.UUID `json:"id" db:"id"`
 	CreatedAt          time.Time `json:"created_at" db:"created_at"`

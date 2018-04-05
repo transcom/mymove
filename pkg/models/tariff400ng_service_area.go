@@ -10,8 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
-// Tariff400ngServiceArea describes the rate paid for a certain weight range for a certain
-// schedule
+// Tariff400ngServiceArea describes the service charges for various service areas
 type Tariff400ngServiceArea struct {
 	ID                 uuid.UUID `json:"id" db:"id"`
 	CreatedAt          time.Time `json:"created_at" db:"created_at"`
