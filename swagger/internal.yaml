@@ -544,27 +544,6 @@ paths:
         500:
           description: internal server error
   /service_members:
-    get:
-      summary: List all service members
-      description: List all service members
-      operationId: indexServiceMembers
-      tags:
-        - service_members
-      responses:
-        200:
-          description: list of service members
-          schema:
-            $ref: '#/definitions/IndexServiceMembersPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: no service members found
-        500:
-          description: internal server error
     post:
       summary: Creates service member for a logged-in user
       description: Creates an instance of a service member tied to a user

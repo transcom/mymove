@@ -57,75 +57,73 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 }
 
-// func (suite *HandlerSuite) TestShowServiceMemberHandlerNoUser() {
-// 	t := suite.T()
+func (suite *HandlerSuite) TestShowServiceMemberHandlerNoUser() {
+	t := suite.T()
 
-// 	// Given: A servicemember with a user that isn't logged in
-// 	user := models.User{
-// 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-// 		LoginGovEmail: "email@example.com",
-// 	}
-// 	suite.mustSave(&user)
+	// Given: A servicemember with a user that isn't logged in
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
 
-// 	servicemember := models.ServiceMember{
-// 		UserID: user.ID,
-// 	}
-// 	suite.mustSave(&servicemember)
+	servicemember := models.ServiceMember{
+		UserID: user.ID,
+	}
+	suite.mustSave(&servicemember)
 
-// 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-// 	showServiceMemberParams := servicememberop.NewShowServiceMemberParams()
-// 	showServiceMemberParams.HTTPRequest = req
+	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	showServiceMemberParams := servicememberop.NewShowServiceMemberParams()
+	showServiceMemberParams.HTTPRequest = req
 
-// 	// And: Show servicemember is queried
-// 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-// 	showResponse := showHandler.Handle(showServiceMemberParams)
+	// And: Show servicemember is queried
+	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(showServiceMemberParams)
 
-// 	// Then: Expect a 401 unauthorized
-// 	_, ok := showResponse.(*servicememberop.ShowServiceMemberUnauthorized)
-// 	if !ok {
-// 		t.Errorf("Expected to get an unauthorized response, but got something else.")
-// 	}
-// }
+	// Then: Expect a 401 unauthorized
+	_, ok := showResponse.(*servicememberop.ShowServiceMemberUnauthorized)
+	if !ok {
+		t.Errorf("Expected to get an unauthorized response, but got something else.")
+	}
+}
 
-// func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
-// 	t := suite.T()
+func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
+	t := suite.T()
 
-// 	// Given: A servicemember with a not-logged-in user and a separate logged-in user
-// 	notLoggedInUser := models.User{
-// 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-// 		LoginGovEmail: "email@example.com",
-// 	}
-// 	suite.mustSave(&notLoggedInUser)
+	// Given: A servicemember with a not-logged-in user and a separate logged-in user
+	notLoggedInUser := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&notLoggedInUser)
 
-// 	loggedInUser := models.User{
-// 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-// 		LoginGovEmail: "email2@example.com",
-// 	}
-// 	suite.mustSave(&loggedInUser)
+	loggedInUser := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email2@example.com",
+	}
+	suite.mustSave(&loggedInUser)
 
-// 	// When: A servicemember is created for not-logged-in-user
-// 	var selectedType = internalmessages.SelectedServiceMemberTypeCOMBO
-// 	newServiceMember := models.ServiceMember{
-// 		UserID:           notLoggedInUser.ID,
-// 		SelectedServiceMemberType: &selectedType,
-// 	}
-// 	suite.mustSave(&newServiceMember)
+	// When: A servicemember is created for not-logged-in-user
+	newServiceMember := models.ServiceMember{
+		UserID: notLoggedInUser.ID,
+	}
+	suite.mustSave(&newServiceMember)
 
-// 	// And: the context contains the auth values for logged-in user
-// 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-// 	ctx := req.Context()
-// 	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
-// 	req = req.WithContext(ctx)
-// 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
-// 		HTTPRequest: req,
-// 		ServiceMemberID:      strfmt.UUID(newServiceMember.ID.String()),
-// 	}
-// 	// And: Show servicemember is queried
-// 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-// 	showResponse := showHandler.Handle(showServiceMemberParams)
+	// And: the context contains the auth values for logged-in user
+	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
+	req = req.WithContext(ctx)
+	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
+		HTTPRequest:     req,
+		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
+	}
+	// And: Show servicemember is queried
+	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(showServiceMemberParams)
 
-// 	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
-// 	if !ok {
-// 		t.Fatalf("Request failed: %#v", showResponse)
-// 	}
-// }
+	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
+	if !ok {
+		t.Fatalf("Request failed: %#v", showResponse)
+	}
+}

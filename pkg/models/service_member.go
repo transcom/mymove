@@ -157,6 +157,53 @@ func ValidateServiceMemberOwnership(db *pop.Connection, userID uuid.UUID, id uui
 	return exists, userOwns
 }
 
+// CreateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
+func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	// If the passed in function returns an error, the transaction is rolled back
+	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+
+		var transactionError error
+		addressModels := []*Address{
+			serviceMember.ResidentialAddress,
+			serviceMember.BackupMailingAddress,
+		}
+
+		for _, model := range addressModels {
+			if model == nil {
+				continue
+			} else if verrs, err := dbConnection.ValidateAndCreate(model); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				transactionError = errors.New("Rollback The transaction")
+				// Halt what we're doing if we get a database error
+				if err != nil {
+					responseError = err
+					break
+				}
+			}
+		}
+
+		if transactionError == nil {
+			serviceMember.ResidentialAddressID = GetAddressID(serviceMember.ResidentialAddress)
+			serviceMember.BackupMailingAddressID = GetAddressID(serviceMember.BackupMailingAddress)
+
+			if verrs, err := dbConnection.ValidateAndCreate(serviceMember); verrs.HasAny() || err != nil {
+				transactionError = errors.New("Rollback The transaction")
+				responseVErrors = verrs
+				responseError = err
+			}
+		}
+
+		return transactionError
+
+	})
+
+	return responseVErrors, responseError
+
+}
+
 // ProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) ProfileComplete() bool {
 	fmt.Println("profile complete hit")

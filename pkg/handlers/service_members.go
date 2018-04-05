@@ -33,67 +33,51 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	return serviceMemberPayload
 }
 
-// // CreateServiceMemberHandler creates a new service member via POST /serviceMember
-// type CreateServiceMemberHandler HandlerContext
+// CreateServiceMemberHandler creates a new service member via POST /serviceMember
+type CreateServiceMemberHandler HandlerContext
 
-// // Handle ... creates a new ServiceMember from a request payload
-// func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
-// 	var response middleware.Responder
-// 	// Get user id from context
-// 	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-// 	if err != nil {
-// 		response = servicememberop.NewCreateServiceMemberUnauthorized()
-// 		return response
-// 	}
+// Handle ... creates a new ServiceMember from a request payload
+func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
+	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
+	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
+	// Get user id from context
+	var response middleware.Responder
+	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
+	if err != nil {
+		response = servicememberop.NewCreateServiceMemberUnauthorized()
+		return response
+	}
 
-// 	// Create a new serviceMember for an authenticated user
-// 	newServiceMember := models.ServiceMember{
-// 		UserID:           user.ID,
-// 		Edipi: params.CreateServiceMemberPayload.Edipi,
-// 		//TODO: Add rest of params
-// 	}
-// 	if verrs, err := h.db.ValidateAndCreate(&newServiceMember); verrs.HasAny() || err != nil {
-// 		if verrs.HasAny() {
-// 			h.logger.Error("DB Validation", zap.Error(verrs))
-// 		} else {
-// 			h.logger.Error("DB Insertion", zap.Error(err))
-// 		}
-// 		response = servicememberop.NewCreateServiceMemberBadRequest()
-// 	} else {
-// 		serviceMemberPayload := payloadForServiceMemberModel(user, newServiceMember)
-// 		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(&serviceMemberPayload)
-// 	}
-// 	return response
-// }
-
-// IndexServiceMembersHandler returns a list of all service members
-// type IndexServiceMembersHandler HandlerContext
-
-// Handle retrieves a list of all service members in the system
-// TODO: Ask if we need an index right now. this would be for backoffice members? Any other use?
-// func (h IndexServiceMemberHandler) Handle(params servicememberop.IndexServiceMemberParams) middleware.Responder {
-// 	var response middleware.Responder
-
-// 	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-// 	if err != nil {
-// 		response = servicememberop.NewIndexServiceMemberUnauthorized()
-// 		return response
-// 	}
-
-// 	serviceMembers, err := models.GetServiceMemberForUserID(h.db, user.ID)
-// 	if err != nil {
-// 		h.logger.Error("DB Query", zap.Error(err))
-// 		response = servicememberop.NewIndexServiceMemberBadRequest()
-// 	} else {
-// 		serviceMemberPayloads := make(internalmessages.IndexServiceMemberPayload, len(serviceMembers))
-// 		for i, serviceMember := range serviceMembers {
-// 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
-// 			serviceMemberPayloads[i] = &serviceMemberPayload
-// 		}
-// 		response = servicememberop.NewIndexServiceMemberOK().WithPayload(serviceMemberPayloads)
-// 	}
-// 	return response
-// }
+	// Create a new serviceMember for an authenticated user
+	newServiceMember := models.ServiceMember{
+		UserID:                    user.ID,
+		Edipi:                     params.CreateServiceMemberPayload.Edipi,
+		FirstName:                 params.CreateServiceMemberPayload.FirstName,
+		MiddleInitial:             params.CreateServiceMemberPayload.MiddleInitial,
+		LastName:                  params.CreateServiceMemberPayload.LastName,
+		Suffix:                    params.CreateServiceMemberPayload.Suffix,
+		Telephone:                 params.CreateServiceMemberPayload.Telephone,
+		SecondaryTelephone:        params.CreateServiceMemberPayload.SecondaryTelephone,
+		PersonalEmail:             params.CreateServiceMemberPayload.PersonalEmail,
+		PhoneIsPreferred:          params.CreateServiceMemberPayload.PhoneIsPreferred,
+		SecondaryPhoneIsPreferred: params.CreateServiceMemberPayload.SecondaryPhoneIsPreferred,
+		EmailIsPreferred:          params.CreateServiceMemberPayload.EmailIsPreferred,
+		ResidentialAddress:        residentialAddress,
+		BackupMailingAddress:      backupMailingAddress,
+	}
+	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
+	if verrs.HasAny() {
+		h.logger.Error("DB Validation", zap.Error(verrs))
+		response = servicememberop.NewCreateServiceMemberBadRequest()
+	} else if err != nil {
+		h.logger.Error("DB Insertion", zap.Error(err))
+		response = servicememberop.NewCreateServiceMemberBadRequest()
+	} else {
+		servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
+		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(&servicememberPayload)
+	}
+	return response
+}
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
 type ShowServiceMemberHandler HandlerContext
