@@ -558,8 +558,8 @@ paths:
     post:
       summary: Adds a new Blackout period to the list of blackouts associated with his TSP
       description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB. Simillarly, the tsp_id field should be
-       ommitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
+       contain an ID as this will be created when it is added to the DB. Similarly, the tsp_id field should be
+       omitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
        400 bad request.
 
        At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
