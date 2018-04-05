@@ -3,6 +3,7 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/base64"
+	// "fmt"
 	"io"
 	"net/http"
 
@@ -86,6 +87,17 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	contentType := http.DetectContentType(buffer)
+	// switch contentType {
+	// 	case "image/jpeg":
+	// 		fmt.Println("It's a jpg.")
+	// 	case "image/png":
+	// 		fmt.Println("It's a png file.")
+	// 	case "application/pdf":
+	// 		fmt.Println("Looks like a PDF.")
+	// 	default:
+	// 		h.logger.Error("Upload isn't a png, jpg, or PDF file.")
+	// }
+
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
 		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
