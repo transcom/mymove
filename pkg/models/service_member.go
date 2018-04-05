@@ -19,7 +19,7 @@ type ServiceMember struct {
 	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
 	UserID                    uuid.UUID  `json:"user_id" db:"user_id"`
-	User                      User       `json:"user" db:"user"`
+	User                      User       `belongs_to:"user"`
 	Edipi                     *string    `json:"edipi" db:"edipi"`
 	FirstName                 *string    `json:"first_name" db:"first_name"`
 	MiddleInitial             *string    `json:"middle_initial" db:"middle_initial"`
@@ -32,9 +32,9 @@ type ServiceMember struct {
 	SecondaryPhoneIsPreferred *bool      `json:"secondary_phone_is_preferred" db:"secondary_phone_is_preferred"`
 	EmailIsPreferred          *bool      `json:"email_is_preferred" db:"email_is_preferred"`
 	ResidentialAddressID      *uuid.UUID `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress        *Address   `json:"residential_address" db:"residential_address"`
+	ResidentialAddress        *Address   `belongs_to:"address"`
 	BackupMailingAddressID    *uuid.UUID `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress      *Address   `json:"backup_mailing_address" db:"backup_mailing_address"`
+	BackupMailingAddress      *Address   `belongs_to:"address"`
 }
 
 // TODO add func to evaluate whether profile is complete - add call to payload struct in handler
@@ -130,7 +130,6 @@ func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID)
 		}
 		// Otherwise, it's an unexpected err so we return that.
 	} else {
-		// TODO: Handle case where more than one user is authorized to modify serviceMember
 		if serviceMember.UserID != userID {
 			result = NewInvalidServiceMemberResult(FetchErrorForbidden)
 		} else {
@@ -160,7 +159,7 @@ func ValidateServiceMemberOwnership(db *pop.Connection, userID uuid.UUID, id uui
 
 // ProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) ProfileComplete() bool {
-	fmt.Println("profile coplete hit")
+	fmt.Println("profile complete hit")
 	// TODO: check if every field is not 0 value and return true if so
-	return true
+	return false
 }
