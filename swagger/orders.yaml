@@ -1,0 +1,532 @@
+swagger: '2.0'
+info:
+  description: API to submit, amend, and cancel orders for my.move.mil.
+  version: 0.0.2
+  title: my.move.mil Orders Gateway
+  contact:
+    email: ppp@truss.works
+  license:
+    name: MIT
+    url: https://opensource.org/licenses/MIT
+basePath: "/v0"
+schemes:
+- "http"
+paths:
+  /orders:
+    get:
+      tags:
+      - "orders"
+      summary: Retrieve orders that match a particular search
+      description: |
+        Returns all orders that match all of the supplied parameters. At least one query parameter must be provided.
+      operationId: getOrders
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the orders to return
+        type: string
+        format: uuid
+      - name: ordersNum
+        in: query
+        description: The Orders number as it appears on the Orders
+        type: string
+      - name: edipi
+        in: query
+        description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
+        type: string
+        pattern: '^\d{10}$'
+      - name: latestOnly
+        in: query
+        description: If true, look only at the latest Revision (by seqNum) of any set of Orders when applying the other Revision-specific parameters. If false, search all Revisions.
+        type: boolean
+      - name: status
+        in: query
+        description: Indicates whether these Orders are authorized or canceled.
+        type: string
+        enum:
+        - "authorized"
+        - "canceled"
+      - name: dateIssuedMin
+        in: query
+        description: Return only Orders with at least one Revision cut on or after this date.
+        type: string
+        format: date-time
+      - name: dateIssuedMax
+        in: query
+        description: Return only Orders with at least one Revision cut on or before this date.
+        type: string
+        format: date-time
+      - name: issuingAuthority
+        in: query
+        description: Name of the Issuing Authority of the Orders.
+        type: string
+      - name: losingUic
+        in: query
+        description: Unit Identification Code of the losing Unit.
+        type: string
+        minLength: 6
+        maxLength: 6
+      - name: gainingUic
+        in: query
+        description: Unit Identification Code of the gaining Unit.
+        type: string
+        minLength: 6
+        maxLength: 6
+      - name: reportNoLaterThanMin
+        in: query
+        description: Return only orders with an RNLT on or after this date.
+        type: string
+        format: date-time
+      - name: reportNoLaterThanMax
+        in: query
+        description: Return only orders with an RNLT on or before this date.
+        type: string
+        format: date-time
+      - name: pcsSdn
+        in: query
+        description: Standard Document Number to be used for PCS expenses associated with these Orders.
+        type: string
+      - name: ntsSdn
+        in: query
+        description: Standard Document Number to be used for NTS expenses associated with these Orders.
+        type: string
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Orders'
+        400:
+          description: "Bad request"
+        403:
+          description: "Forbidden"
+        404:
+          description: "No orders found"
+    post:
+      tags:
+      - "orders"
+      summary: Submit a new set of orders, make an amendment to an existing set of orders, or cancel a set of orders.
+      description: |
+        Creates a Revision of a set of orders.
+
+        ## New Orders
+        The supplied Revision is considered part of a new set of Orders if the supplied ordersNum has never been seen before for the supplied issuingAuthority. A new UUID is created and associated with a new Orders, which is returned along with the supplied Revision.
+
+        ## Amended Orders
+        If the system determines that the supplied Revision is an amendment to an existing set of Orders, usually because the ordersNum already exists and the seqNum is unique, then the supplied Revision is added to the existing Orders.
+
+        Specifying the existing Orders' UUID is optional; clients are not required to remember the UUIDs returned with the Orders by previous calls to this API. If it is omitted, the system will attempt to locate the correct Orders using the ordersNum and issuingAuthority fields.
+
+        ## Canceled, Rescinded, or Revoked Orders
+        To cancel, rescind, or revoke Orders, POST a new Revision with the status set to "canceled".
+
+        ## Errors
+        It is an error to specify a non-existent UUID. If these are new Orders, or if you don't know the UUID of the Orders to amend but you do know the other parameters, just omit the uuid parameter.
+
+        It is an error to specify an existing UUID with either an ordersNum or an edipi that disagree with the values stored with the existing set of Orders.
+      operationId: postOrders
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: id
+        in: query
+        description: UUID of the orders to amend. If these
+        type: string
+        format: uuid
+      - name: ordersNum
+        in: query
+        description: The Orders number as it appears on the Orders
+        required: true
+        type: string
+      - name: edipi
+        in: query
+        description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
+        required: true
+        type: string
+        pattern: '^\d{10}$'
+      - name: issuingAuthority
+        in: query
+        description: Name of the Issuing Authority of the Orders.
+        type: string
+        required: true
+      - in: "body"
+        name: "body"
+        required: true
+        schema:
+          $ref: "#/definitions/Revision"
+      responses:
+        201:
+          description: "Succesful"
+          schema:
+            $ref: "#/definitions/Orders"
+        400:
+          description: "Invalid"
+        403:
+          description: "Forbidden"
+        404:
+          description: "Orders not found"
+  /orders/uuid/{uuid}:
+    get:
+      tags:
+      - "orders"
+      summary: Retrieve a set of Orders and all of its Revisions by UUID
+      operationId: getOrdersByUuid
+      produces:
+      - "application/json"
+      parameters:
+      - name: "uuid"
+        in: path
+        description: UUID of the orders to return
+        required: true
+        type: string
+        format: uuid
+      responses:
+        200:
+          description: "Successful operation"
+          schema:
+            $ref: '#/definitions/Orders'
+        404:
+          description: "Orders not found"
+definitions:
+  Orders:
+    type: "object"
+    properties:
+      uuid:
+        type: string
+        description: Universally Unique IDentifier. Generated internally.
+        format: uuid
+        example: "80200fa9-4ee2-49c5-b4fd-88b3ef4bd5eb"
+      ordersNum:
+        type: string
+        description: |
+          Orders number. Supposed to be unique, but in practice uniqueness is not guaranteed for all branches of service.
+
+          ## Army
+
+          Typically found in the upper-left hand corner of printed orders.
+
+          ## Navy
+
+          Corresponds to a transformation (see below) of the BUPERS Orders number, which is originally formatted as "{Julian Day of the year (from 1 to 366)}{last digit of the year} {xxx-xx-xxxx SSN}". It would be unique (because of the SSN), except that it's possible for a set of orders to be cut on the same day 10 years later for the same sailor, resulting in a collision.
+
+          On printed orders, this is typically the first line after "RMKS/".
+
+          ### Transformation
+
+          Because the BUPERS Orders Number contains PII (the SSN) and could potentially not be unique (because it only allows a single digit for the year), this API expects the Orders number to be reformatted as "{Julian day}{4 digit year} {EDIPI}". The full 4 digit year can be found in the dateIssued field of the first revision, while the EDIPI can be copied from the edipi field.
+
+          Transforming this back to the BUPERS format can be achieved by removing the first three digits of the year field and replacing the EDIPI with the member's SSN. The SSN can be fetched using DMDC's Identity Web Services Real-time Broker Service.
+
+          ## Marines
+
+          Corresponds to the CT (Commercial Travel) SDN. On Web Orders, the CT SDN is found in the table at the bottom, in the last column of the row that begins with "Travel".
+
+          ## Air Force
+
+          Corresponds to the Special Order number. On AF Form 899, the "SPECIAL ORDERS NO" is found in box 27.
+
+          ## Coast Guard
+
+          Corresponds to the Travel Order No.
+
+          ## Civilian Agencies
+        example: "030-00362 (Army), 0308 987-65-4320 (Navy), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard)"
+      edipi:
+        type: string
+        description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
+        pattern: '^\d{10}$'
+      issuingAuthority:
+        type: string
+        description: Military Department or Civilian Agency that authorized these orders; e.g., Department of the Army, Department of the Navy, Defense Information Systems Agency (DISA), etc.
+      revisions:
+        type: array
+        items:
+          $ref: '#/definitions/Revision'
+    required:
+      - ordersNum
+      - edipi
+      - issuingAuthority
+      - revisions
+  Revision:
+    type: object
+    properties:
+      seqNum:
+        type: integer
+        minimum: 0
+        description: |
+          Sequence number. When an order is amended, it should get a higher sequence number than all previous revisions of the same orders. The orders with the highest sequence number is considered the current, authoritative version, even if its dateIssued is earlier.
+          The sequence number is NOT required to increase monotonically; in other words, if a set of orders is modified twice, the sequence numbers could be 1, 30, and 5858300."
+      member:
+        $ref: '#/definitions/Member'
+      status:
+        type: string
+        description: Indicates whether these Orders are authorized or canceled.
+        enum:
+        - "authorized"
+        - "canceled"
+      dateIssued:
+        type: string
+        description: The date and time that these orders were cut.
+        format: "date-time"
+      pcaWithoutPcs:
+        type: boolean
+        description: |
+          Permanent Change of Assignment without Permanent Change of Address. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
+          If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and do authorize move expenses.
+          It is not unheard of for the initial revision of orders to have this set to false and then later to be amended to true and vice-versa.
+      tdyEnRoute:
+        type: boolean
+        description: |
+          TDY (Temporary Duty Yonder) en-route.
+          If omitted, assume false.
+      tourType:
+        type: string
+        description: |
+          Accompanied or Unaccompanied; i.e., are dependents authorized to accompany the service member on the move. For certain OCONUS destinations, the tour type affects the member's entitlement. Otherwise, it doesn't matter.
+          If omitted, assume accompanied.
+        enum:
+        - 'accompanied'
+        - 'unaccompanied'
+        - 'unaccompanied-dependents-restricted'
+        x-display-value:
+          accompanied: Accompanied
+          unaccompanied: Unaccompanied
+          unaccompanied-dependents-restricted: Unaccompanied, Dependents Restricted
+      ordersType:
+        type: string
+        description: |
+          The common types fit into the acronym ASTRO-UB.
+            * **A**ccession - Joining the military
+            * **S**eparation / Retirement - Leaving the military
+            * **T**raining
+            * **R**otational -
+            * **O**perational - Used for Permanent Change of Station. (PCS)
+            * **U**nit Move - When an entire unit is reassigned to another installation, often as a deployment
+            * **B**RAC - Base Realignment and Closure. As of this writing, the most recent iteration of BRAC has ended, but Congress may start another one in the future.
+
+          Consequences of this field include
+            * Separation and retirement moves currently require the member to go through in-person counseling at the TMO / PPPO.
+        enum:
+        - 'accession'
+        - 'brac'
+        - 'operational'
+        - 'rotational'
+        - 'separation'
+        - 'training'
+        - 'unit-move'
+      hasDependents:
+        type: boolean
+        description: |
+          True if the service member has dependents (e.g., spouse, children, caring for an elderly parent, etc.), False otherwise.
+          When the member has dependents, it usually raises their weight entitlement.
+      losingUnit:
+        $ref: '#/definitions/Unit'
+      gainingUnit:
+        $ref: '#/definitions/Unit'
+      reportNoEarlierThan:
+        type: string
+        description: Earliest date that the service member is allowed to report for duty at the new duty station.
+        format: date
+      reportNoLaterThan:
+        type: string
+        description: Latest date that the service member is allowed to report for duty at the new duty station.
+        format: date
+      pcsAccounting:
+        $ref: '#/definitions/Accounting'
+      ntsAccounting:
+        $ref: '#/definitions/Accounting'
+      povShipmentAccounting:
+        $ref: '#/definitions/Accounting'
+      povStorageAccounting:
+        $ref: '#/definitions/Accounting'
+      ubAccounting:
+        $ref: '#/definitions/Accounting'
+      comments:
+        type: string
+        description: Free-form text that may or may not contain information relevant to moving
+    required:
+      - seqNum
+      - member
+      - status
+      - ordersType
+      - hasDependents
+      - losingUnit
+      - gainingUnit
+      - reportNoLaterThan
+  Affiliation:
+    type: string
+    description: Military branch of service
+    enum:
+    - "air-force"
+    - "army"
+    - "civilian"
+    - "coast-guard"
+    - "marine-corps"
+    - "navy"
+    x-display-value:
+      air-force: Air Force
+      army: Army
+      civilian: Civilian
+      coast-guard: Coast Guard
+      marine-corps: Marine Corps
+      navy: Navy
+  Member:
+    type: object
+    properties:
+      given-name:
+        type: string
+        description: 'In English, the first name'
+      family-name:
+        type: string
+        description: 'In English, the last name / surname. NOTE: some services lump suffixes (like Jr. or Sr.) in with the family name!'
+      middle-name:
+        type: string
+        description: Middle name or middle initial
+      affiliation:
+        $ref: '#/definitions/Affiliation'
+      rank:
+        $ref: '#/definitions/Rank'
+      title:
+        type: string
+        description: |
+          If supplied, this is the preferred form of address or preferred human-readable rank. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
+
+          If omitted, use the default name for the rank for the provided affiliation.
+    required:
+      - edipi
+      - given-name
+      - family-name
+      - affiliation
+      - rank
+  Rank:
+    type: string
+    description: Rank of the service member. Some of these ranks will have identical entitlements
+    enum:
+    # AF cadets get a different entitlement from West Point cadets
+    - "aviation-cadet"
+    - "cadet"
+    # Regardless of their payscale, all civilians have the same entitlement. There are a lot of civilian payscales (GS, SL, ST, SES, NH, NJ, NK, WG, and more), yet they have no impact on the moving process.
+    - "civilian"
+    - "e-1"
+    - "e-2"
+    - "e-3"
+    - "e-4"
+    - "e-5"
+    - "e-6"
+    - "e-7"
+    - "e-8"
+    - "e-9"
+    - "midshipman"
+    # Officers; Service academy graduates are O-1s
+    - "o-1"
+    - "o-2"
+    - "o-3"
+    - "o-4"
+    - "o-5"
+    - "o-6"
+    - "o-7"
+    - "o-8"
+    - "o-9"
+    - "o-10"
+    # Warrant Officers
+    - "w-1"
+    - "w-2"
+    - "w-3"
+    - "w-4"
+    - "w-5"
+    x-display-value:
+      aviation-cadet: Aviation Cadet
+      cadet: Cadet
+      civilian: Civilian
+      e-1: "E-1"
+      e-2: "E-2"
+      e-3: "E-3"
+      e-4: "E-4"
+      e-5: "E-5"
+      e-6: "E-6"
+      e-7: "E-7"
+      e-8: "E-8"
+      e-9: "E-9"
+      midshipman: Midshipman
+      o-1: "O-1"
+      o-2: "O-2"
+      o-3: "O-3"
+      o-4: "O-4"
+      o-5: "O-5"
+      o-6: "O-6"
+      o-7: "O-7"
+      o-8: "O-8"
+      o-9: "O-9"
+      o-10: "O-10"
+      w-1: "W-1"
+      w-2: "W-2"
+      w-3: "W-3"
+      w-4: "W-4"
+      w-5: "W-5"
+  Accounting:
+    type: object
+    properties:
+      tac:
+        type: string
+        description: |
+          Transportation Account Code - a reference to a line of accounting in the Transportation Global Edit Tables (TGET). This is the most common way to charge a move expense to the correct pool of money.
+
+          > TGET is a centralized repository that contains established transportation LOAs formatted in accordance with Service/Agency LOA requirements and associated TACs.
+
+          ## Army
+
+          Army orders do not include a TAC. Instead, they provide an MDC.
+
+          > A movement designator code (MDC) provides the office of the Deputy Chief of Staff for Personnel with a record of the type of PCS travel performed by Active Army personnel. This record is used to centrally manage PCS funds.
+
+          The correct TAC can be located by looking up the MDC, move type, and Fiscal Year (corresponding to the orders issuance date) in the CROSSWALK Excel spreadsheet.
+
+          ## Navy
+
+          Navy orders include TACs for PCS expenses (if moving expenses are authorized) and (sometimes) for NTS expenses. If present, the NTS TAC will have an underscore in the last column, which would ordinarily be populated with the last digit of the current FY. The Navy always wants to use the current Fiscal Year's TAC to pay NTS invoices, which can appear years after the Orders are cut. In other words, when it comes time to pay an NTS invoice, the underscore in the NTS TAC is replaced with the last digit of the current FY, and then that reconstructed TAC is used to look up the correct LOA in TGET.
+      sdn:
+        type: string
+        description: |
+          Standard Document Number. The SDN is one way to connect money that was obligated for a specific member's move at order issuance time to expenses incurred by that member's move at invoicing time. This obviously only works if the SDN is unique to the member and to the specific set of orders.
+
+          ## Marine Corps
+          The last four characters of the SDN should be same as the TAC.
+
+          At the time of this writing, the Marines have separate SDNs for each category of moving expenses (HHG, POV Storage, NTS, etc.), but only one of them is unique to a specific Marine - the Commercial Travel (CT) SDN. The CT SDN **is** the Orders # for the Marines. In the future, the Marines would like to include the first 15 characters of the CT SDN in any transactions with the Third Party Payment System, and for the TPPS to include this unique value with every expense in the resulting report.
+      loa:
+        type: string
+        description: 'The full Line Of Accounting. Use this if no TAC is supplied.'
+  Unit:
+    type: object
+    properties:
+      name:
+        type: string
+        description: Human-readable name of the Unit.
+      uic:
+        type: string
+        description: |
+          Unit Identification Code - a six character alphanumeric code that uniquely identifies each United States Department of Defense entity. Used in Army, Air Force, and Navy orders.
+          Note that the Navy has the habit of omitting the leading character, which is always "N" for them.
+        minLength: 6
+        maxLength: 6
+      city:
+        type: string
+        description: May be FPO or APO for OCONUS commands.
+      locality:
+        type: string
+        description: State (US). OCONUS units may not have the equivalent information available.
+      country:
+        type: string
+        description: ISO 3166-1 alpha-2 country code. If blank, assume US
+        pattern: '^[A-Z]{2}$'
+      postal-code:
+        type: string
+        description: In the USA, this is the ZIP Code.
+    required:
+      - city
+      - postal-code
