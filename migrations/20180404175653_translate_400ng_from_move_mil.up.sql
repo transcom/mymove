@@ -56,7 +56,7 @@ SELECT
 	name,
 	services_schedule,
     CAST((linehaul_factor * 100) as INTEGER) as linehaul_factor,
-    CAST((orig_dest_service_charge * 100) as INTEGER) as orig_dest_service_charge,
+    CAST((orig_dest_service_charge * 100) as INTEGER) as service_charge_cents,
     LOWER(effective) as effective_date_lower,
     UPPER(effective) as effective_date_upper,
     created_at,
@@ -69,8 +69,8 @@ DROP TABLE service_areas;
 -- Shorthauls
 SELECT
 	uuid_generate_v4() as id,
-    LOWER(cwt_mi) as cwt_mi_lower,
-    UPPER(cwt_mi) as cwt_mi_upper,
+    LOWER(cwt_mi) as cwt_miles_lower,
+    UPPER(cwt_mi) as cwt_miles_upper,
     CAST((rate * 100) as INTEGER) as rate_cents,
     LOWER(effective) as effective_date_lower,
     UPPER(effective) as effective_date_upper,
