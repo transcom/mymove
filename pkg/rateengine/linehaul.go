@@ -3,13 +3,24 @@ package rateengine
 import (
 	"errors"
 	"fmt"
+
+	"github.com/gobuffalo/pop"
+	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
 )
+
+// AwardQueue encapsulates the TSP award queue process
+type RateEngine struct {
+	db     *pop.Connection
+	logger *zap.Logger
+}
 
 func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
 	// TODO (Rebecca): make a proper error
 	fmt.Print(originZip)
 	fmt.Print(destinationZip)
-	// TODO (Rebecca): Lookup originZip to destinationZip mileage
+	// TODO (Rebecca): Lookup originZip to destinationZip mileage using API of choice
 	mileage = 1000
 	if mileage != 1000 {
 		err = errors.New("Oops determineMileage")
@@ -22,9 +33,9 @@ func (re *RateEngine) determineMileage(originZip string, destinationZip string) 
 // Determine the Base Linehaul (BLH)
 func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulCharge int, err error) {
 	// TODO (Rebecca): This will come from a fetch
-	baseLinehaulCharge = mileage * cwt
+	baseLinehaulCharge = models.FetchBaseLinehaulRate(re.db, mileage, cwt).rate_cents
 	// TODO (Rebecca): make a proper error
-	if baseLinehaulCharge == 0 {
+	if baseLinehaulCharge.rate_cents == 0 {
 		err = errors.New("Oops determineBaseLinehaul")
 	} else {
 		err = nil

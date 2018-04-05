@@ -67,3 +67,15 @@ func (t *Tariff400ngLinehaulRate) ValidateCreate(tx *pop.Connection) (*validate.
 func (t *Tariff400ngLinehaulRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// FetchBaseLinehaulRate takes a move's distance and weight and queries the tariff400ng_linehaul_rates table to find a move's base linehaul rate.
+func (t *Tariff400ngLinehaulRate) FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int) ([]Tariff400ngLinehaulRate, error) {
+	linehaulRates := []Tariff400ngLinehaulRate{}
+	moveType := "ConusLinehaul" // TODO: change to a parameter once we're serving a greater
+
+	query := tx.Where("distance_miles_lower <= ?", mileage).Where("distance_miles_upper >= ?", mileage).Where("? BETWEEN weight_lbs_lower AND weight_lbs_upper > ?", (cwt * 100)).Where("type = ?", moveType).Where("effective_date_lower = '2018-05-15'")
+	err := query.All(&linehaulRates)
+
+	return linehaulRates, err
+
+}
