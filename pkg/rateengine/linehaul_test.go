@@ -7,8 +7,9 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
-	if mileage != 1000 {
-		t.Errorf("Determined mileage incorrectly. Expected 1000 got %d", mileage)
+	expected := 1000
+	if mileage != expected {
+		t.Errorf("Determined mileage incorrectly. Expected %d, got %d", expected, mileage)
 	}
 }
 
@@ -19,9 +20,9 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	cwt := 40
 
 	blh, _ := engine.baseLinehaul(mileage, cwt)
-
+	expected := 128000
 	if blh != 128000 {
-		t.Errorf("CWT should have been 12800000 but is %d.", blh)
+		t.Errorf("CWT should have been %d but is %d.", expected, blh)
 	}
 }
 
@@ -32,8 +33,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
-	if linehaulFactor != 30.6 {
-		t.Errorf("Determined linehaul factor incorrectly. Expected 30.6 got %f", linehaulFactor)
+	expected := 3060
+	if linehaulFactor != expected {
+		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulFactor)
 	}
 }
 
@@ -44,9 +46,9 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	cwt := 40
 
 	shc, _ := engine.shorthaulCharge(mileage, cwt)
-
-	if shc != 31960 {
-		t.Errorf("Shorthaul charge should have been 31960 but is %f.", shc)
+	expected := 31960
+	if shc != expected {
+		t.Errorf("Shorthaul charge should have been %d, but is %d.", expected, shc)
 	}
 }
 
@@ -57,7 +59,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	if linehaulChargeTotal != 11812.036000 {
-		t.Errorf("Determined linehaul factor incorrectly. Expected 11812.036000 got %f", linehaulChargeTotal)
+	expected := 13003
+	if linehaulChargeTotal != expected {
+		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
 	}
 }
