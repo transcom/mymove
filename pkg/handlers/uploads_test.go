@@ -81,7 +81,7 @@ func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, mode
 	params := uploadop.NewCreateUploadParams()
 	params.MoveID = strfmt.UUID(move.ID.String())
 	params.DocumentID = strfmt.UUID(document.ID.String())
-	params.File = *suite.fixture("test.pdf")
+	params.File = suite.fixture("test.pdf")
 
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
@@ -160,7 +160,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	params := uploadop.NewCreateUploadParams()
 	params.MoveID = strfmt.UUID(move.ID.String())
 	params.DocumentID = strfmt.UUID(document.ID.String())
-	params.File = *suite.fixture("test.pdf")
+	params.File = suite.fixture("test.pdf")
 
 	ctx := authcontext.PopulateAuthContext(context.Background(), user.ID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
@@ -202,7 +202,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	params.MoveID = strfmt.UUID(move.ID.String())
 	// Include non existent document ID in params
 	params.DocumentID = strfmt.UUID(documentID.String())
-	params.File = *suite.fixture("test.pdf")
+	params.File = suite.fixture("test.pdf")
 
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)

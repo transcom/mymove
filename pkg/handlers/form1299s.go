@@ -5,40 +5,12 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-func payloadForAddressModel(a *models.Address) *internalmessages.Address {
-	if a != nil {
-		return &internalmessages.Address{
-			StreetAddress1: swag.String(a.StreetAddress1),
-			StreetAddress2: a.StreetAddress2,
-			City:           swag.String(a.City),
-			State:          swag.String(a.State),
-			Zip:            swag.String(a.Zip),
-		}
-	}
-	return nil
-}
-
-func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
-	if rawAddress == nil {
-		return nil
-	}
-	address := models.Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		Zip:            *rawAddress.Zip,
-	}
-	return &address
-}
 
 func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299Payload {
 	form1299Payload := internalmessages.Form1299Payload{
@@ -118,22 +90,18 @@ func (h ShowForm1299Handler) Handle(params form1299op.ShowForm1299Params) middle
 
 	var response middleware.Responder
 	// remove this validation when https://github.com/go-swagger/go-swagger/pull/1394 is merged.
-	if strfmt.IsUUID(string(formID)) {
-		form, err := models.FetchForm1299ByID(h.db, formID)
-		if err != nil {
-			if err.Error() == "sql: no rows in result set" {
-				response = form1299op.NewShowForm1299NotFound()
-			} else {
-				// This is an unknown error from the db, nothing to do but log and 500
-				h.logger.Error("DB Insertion error", zap.Error(err))
-				response = form1299op.NewShowForm1299InternalServerError()
-			}
+	form, err := models.FetchForm1299ByID(h.db, formID)
+	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			response = form1299op.NewShowForm1299NotFound()
 		} else {
-			formPayload := payloadForForm1299Model(form)
-			response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
+			// This is an unknown error from the db, nothing to do but log and 500
+			h.logger.Error("DB Insertion error", zap.Error(err))
+			response = form1299op.NewShowForm1299InternalServerError()
 		}
 	} else {
-		return form1299op.NewShowForm1299BadRequest()
+		formPayload := payloadForForm1299Model(form)
+		response = form1299op.NewShowForm1299OK().WithPayload(&formPayload)
 	}
 
 	return response

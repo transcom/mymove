@@ -388,8 +388,6 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	}
 }
 
-// LSDJLKSDJF
-
 func (suite *HandlerSuite) TestShowMoveHandler() {
 	t := suite.T()
 
