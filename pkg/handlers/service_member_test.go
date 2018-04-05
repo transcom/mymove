@@ -186,3 +186,208 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
 	}
 }
+
+func (suite *HandlerSuite) TestCreateServiceMemberHandlerNoUserID() {
+	t := suite.T()
+	// Given: no authentication values in context
+	// When: a new ServiceMember is posted
+	servicememberPayload := internalmessages.CreateServiceMemberPayload{}
+	req := httptest.NewRequest("GET", "/service_members", nil)
+	params := servicememberop.CreateServiceMemberParams{
+		CreateServiceMemberPayload: &servicememberPayload,
+		HTTPRequest:                req,
+	}
+
+	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*servicememberop.CreateServiceMemberUnauthorized)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+	// Then: we expect no servicemembers to have been created
+	servicemembers := []models.ServiceMember{}
+	suite.db.All(&servicemembers)
+
+	if len(servicemembers) > 0 {
+		t.Errorf("Expected to find no servicemembers but found %v", len(servicemembers))
+	}
+}
+
+func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// TODO: add more fields to change
+	var origEdipi = "2342342344"
+	var newEdipi = "9999999999"
+	newServiceMember := models.ServiceMember{
+		UserID: user.ID,
+		Edipi:  &origEdipi,
+	}
+	suite.mustSave(&newServiceMember)
+
+	patchPayload := internalmessages.PatchServiceMemberPayload{
+		Edipi: &newEdipi,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := servicememberop.PatchServiceMemberParams{
+		HTTPRequest:               req,
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
+		PatchServiceMemberPayload: &patchPayload,
+	}
+
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	okResponse, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	patchServiceMemberPayload := okResponse.Payload
+
+	if *patchServiceMemberPayload.Edipi != newEdipi {
+		t.Fatalf("Edipi should have been updated.")
+	}
+}
+
+func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	user2 := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email2@example.com",
+	}
+	suite.mustSave(&user2)
+
+	var origEdipi = "2342342344"
+	var newEdipi = "9999999999"
+	newServiceMember := models.ServiceMember{
+		UserID: user.ID,
+		Edipi:  &origEdipi,
+	}
+	suite.mustSave(&newServiceMember)
+
+	patchPayload := internalmessages.PatchServiceMemberPayload{
+		Edipi: &newEdipi,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := servicememberop.PatchServiceMemberParams{
+		HTTPRequest:               req,
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
+		PatchServiceMemberPayload: &patchPayload,
+	}
+
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*servicememberop.PatchServiceMemberForbidden)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+}
+
+func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
+	t := suite.T()
+
+	// Given: a logged in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	servicememberUUID := uuid.Must(uuid.NewV4())
+
+	var newEdipi = "9999999999"
+
+	patchPayload := internalmessages.PatchServiceMemberPayload{
+		Edipi: &newEdipi,
+	}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := servicememberop.PatchServiceMemberParams{
+		HTTPRequest:               req,
+		ServiceMemberID:           strfmt.UUID(servicememberUUID.String()),
+		PatchServiceMemberPayload: &patchPayload,
+	}
+
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*servicememberop.PatchServiceMemberNotFound)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+}
+
+func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
+	t := suite.T()
+
+	// Given: a logged in user with a servicemember
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	var origEdipi = "4444444444"
+	newServiceMember := models.ServiceMember{
+		UserID: user.ID,
+		Edipi:  &origEdipi,
+	}
+	suite.mustSave(&newServiceMember)
+
+	patchPayload := internalmessages.PatchServiceMemberPayload{}
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	req = req.WithContext(ctx)
+
+	params := servicememberop.PatchServiceMemberParams{
+		HTTPRequest:               req,
+		ServiceMemberID:           strfmt.UUID(newServiceMember.ID.String()),
+		PatchServiceMemberPayload: &patchPayload,
+	}
+
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	_, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+}
