@@ -82,7 +82,7 @@ export class WizardPage extends Component {
     return (
       <div className="usa-grid">
         {error && (
-          <div className="usa-width-one-whole">
+          <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
               {error.message}
             </Alert>
