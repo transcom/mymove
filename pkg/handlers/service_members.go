@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -28,7 +29,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		EmailIsPreferred:          serviceMember.EmailIsPreferred,
 		ResidentialAddress:        payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
-		ProfileComplete:           fmtBool(serviceMember.ProfileComplete()),
+		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
 	}
 	return serviceMemberPayload
 }
@@ -155,7 +156,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	} else { // The given serviceMember does belong to the current user.
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
-
+		fmt.Println("Patch Payload in handler", &payload)
 		// TODO: optimize this
 		if payload.Edipi != nil {
 			serviceMember.Edipi = payload.Edipi

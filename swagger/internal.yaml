@@ -969,7 +969,7 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
+      is_profile_complete:
         type: boolean
       created_at:
         type: string
@@ -980,7 +980,7 @@ definitions:
     required:
       - id
       - user_id
-      - profile_complete
+      - is_profile_complete
       - created_at
       - updated_at
   CreateServiceMemberPayload:

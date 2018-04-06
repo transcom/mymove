@@ -204,8 +204,8 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMembe
 
 }
 
-// ProfileComplete checks if the profile has been completely filled out
-func (s *ServiceMember) ProfileComplete() bool {
+// IsProfileComplete checks if the profile has been completely filled out
+func (s *ServiceMember) IsProfileComplete() bool {
 	fmt.Println("profile complete hit")
 	// TODO: check if every field is not 0 value and return true if so
 	return false
