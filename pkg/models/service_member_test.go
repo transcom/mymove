@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
@@ -17,6 +15,10 @@ func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
 	}
 
 	suite.verifyValidationErrors(servicemember, expErrors)
+}
+
+func (suite *ModelSuite) TestIsProfileComplete() {
+	t := suite.T()
 }
 
 func (suite *ModelSuite) TestGetServiceMemberForUser() {
