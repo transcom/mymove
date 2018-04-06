@@ -10,7 +10,7 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 		BasepointCity: "Dogtown",
 		State:         "NY",
 		ServiceArea:   11,
-		RateArea:      14,
+		RateArea:      "14",
 		Region:        8,
 	}
 
@@ -22,7 +22,7 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 		BasepointCity: "",
 		State:         "NY",
 		ServiceArea:   11,
-		RateArea:      14,
+		RateArea:      "14",
 		Region:        8,
 	}
 
@@ -39,7 +39,7 @@ func (suite *ModelSuite) Test_Zip3CreateAndSave() {
 		BasepointCity: "Dogtown",
 		State:         "NY",
 		ServiceArea:   384,
-		RateArea:      13,
+		RateArea:      "13",
 		Region:        4,
 	}
 

@@ -18,7 +18,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
-		RateArea:      48,
+		RateArea:      "48",
 		Region:        11,
 	}
 	suite.mustSave(&originZip3)
@@ -58,7 +58,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
-		RateArea:      48,
+		RateArea:      "48",
 		Region:        11,
 	}
 	suite.mustSave(&originZip3)

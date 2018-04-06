@@ -18,7 +18,7 @@ type Tariff400ngZip3 struct {
 	BasepointCity string    `json:"basepoint_city" db:"basepoint_city"`
 	State         string    `json:"state" db:"state"`
 	ServiceArea   int       `json:"service_area" db:"service_area"`
-	RateArea      int       `json:"rate_area" db:"rate_area"`
+	RateArea      string    `json:"rate_area" db:"rate_area"`
 	Region        int       `json:"region" db:"region"`
 }
 
@@ -45,7 +45,7 @@ func (t *Tariff400ngZip3) Validate(tx *pop.Connection) (*validate.Errors, error)
 		&validators.StringIsPresent{Field: t.BasepointCity, Name: "BasepointCity"},
 		&validators.StringIsPresent{Field: t.State, Name: "State"},
 		&validators.IntIsPresent{Field: t.ServiceArea, Name: "ServiceArea"},
-		&validators.IntIsPresent{Field: t.RateArea, Name: "RateArea"},
+		&validators.StringIsPresent{Field: t.RateArea, Name: "RateArea"},
 		&validators.IntIsPresent{Field: t.Region, Name: "Region"},
 	), nil
 }
