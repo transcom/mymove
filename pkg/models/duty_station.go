@@ -45,6 +45,7 @@ func (d DutyStations) String() string {
 func (d *DutyStation) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.Name, Name: "Name"},
+		&BranchIsPresent{Field: d.Branch, Name: "Branch"},
 		&validators.UUIDIsPresent{Field: d.AddressID, Name: "AddressID"},
 	), nil
 }
