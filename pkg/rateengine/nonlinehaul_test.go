@@ -18,7 +18,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
-		RateArea:      48,
+		RateArea:      "48",
 		Region:        11,
 	}
 	suite.mustSave(&originZip3)
@@ -49,7 +49,6 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t.Skip("Not yet implemented")
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
-
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
@@ -58,7 +57,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
-		RateArea:      48,
+		RateArea:      "48",
 		Region:        11,
 	}
 	suite.mustSave(&originZip3)
@@ -119,6 +118,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
 
 	fee, err := engine.nonLinehaulChargeTotalCents(10024, 18209, 0.5)
+
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}

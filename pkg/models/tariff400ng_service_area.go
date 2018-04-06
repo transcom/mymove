@@ -43,7 +43,6 @@ func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 int) (Tariff400
 	serviceArea := Tariff400ngServiceArea{}
 	err := db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
 		Where(`tariff400ng_zip3s.zip3 = ?`, zip3).First(&serviceArea)
-
 	if err != nil {
 		return serviceArea, errors.Wrap(err, "could not find a matching Tariff400ngServiceArea")
 	}
