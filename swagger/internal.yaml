@@ -32,6 +32,7 @@ definitions:
       name:
         type: string
         format: string
+        example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
       branch:
@@ -46,6 +47,7 @@ definitions:
       - id
       - name
       - address
+      - branch
       - created_at
       - updated_at
   DutyStationsPayload:
@@ -156,31 +158,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
-  Station:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        format: string
-        example: Fort Bragg North Station
-      address:
-        $ref: '#/definitions/Address'
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-    required:
-      - id
-      - name
-      - address
-      - created_at
-      - updated_at
   ServiceMemberPayload:
     type: object
     properties:
@@ -245,7 +222,7 @@ definitions:
         type: boolean
         x-nullable: true
       current_station:
-        $ref: '#/definitions/Station'
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -337,7 +314,7 @@ definitions:
         x-nullable: true
         title: Email is Preferred
       current_station:
-        $ref: '#/definitions/Station'
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -417,7 +394,7 @@ definitions:
         x-nullable: true
         title: Email is Preferred
       current_station:
-        $ref: '#/definitions/Station'
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -1932,65 +1909,6 @@ paths:
           description: not found
         500:
           description: server error
-  /stations:
-    get:
-      summary: Returns a list of stations based on search string
-      description: List all stations based on search string
-      operationId: showStations
-      tags:
-        - stations
-      parameters:
-        - in: query
-          name: searchString
-          type: string
-          required: true
-          description: string to search with
-      responses:
-        200:
-          description: list of stations matching search string
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Station'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: no stations found
-        500:
-          description: internal server error
-  /stations/{stationId}:
-    get:
-      summary: Returns the given station
-      description: Returns the given station
-      operationId: showStation
-      tags:
-        - stations
-      parameters:
-        - in: path
-          name: stationId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of station
-      responses:
-        200:
-          description: the instance of the station
-          schema:
-            $ref: '#/definitions/Station'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: station is not found
-        500:
-          description: internal server error
   /service_members:
     get:
       summary: List all service members
