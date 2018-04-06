@@ -113,20 +113,20 @@ describe('given a WizardPage', () => {
         it('it renders button for prev, save, next', () => {
           expect(buttons.length).toBe(3);
         });
-        it('the previous button is first and is disabled', () => {
+        it('the previous button is first and is enabled', () => {
           const prevButton = buttons.first();
           expect(prevButton.text()).toBe('Prev');
-          expect(prevButton.prop('disabled')).toBe(true);
+          expect(prevButton.prop('disabled')).toBe(false);
         });
         it('the save for later button is second and is disabled', () => {
           const prevButton = buttons.at(1);
           expect(prevButton.text()).toBe('Save for later');
           expect(prevButton.prop('disabled')).toBe(true);
         });
-        it('the next button is last and is disabled', () => {
+        it('the next button is last and is enabled', () => {
           const nextButton = buttons.last();
           expect(nextButton.text()).toBe('Next');
-          expect(nextButton.prop('disabled')).toBe(true);
+          expect(nextButton.prop('disabled')).toBe(false);
         });
       });
     });
@@ -485,20 +485,20 @@ describe('given a WizardPage', () => {
         it('it renders button for prev, save, next', () => {
           expect(buttons.length).toBe(3);
         });
-        it('the previous button is first and is disabled', () => {
+        it('the previous button is first and is enabled', () => {
           const prevButton = buttons.first();
           expect(prevButton.text()).toBe('Prev');
-          expect(prevButton.prop('disabled')).toBe(true);
+          expect(prevButton.prop('disabled')).toBe(false);
         });
         it('the save for later button is second and is disabled', () => {
           const prevButton = buttons.at(1);
           expect(prevButton.text()).toBe('Save for later');
           expect(prevButton.prop('disabled')).toBe(true);
         });
-        it('the next button is last and is disabled', () => {
+        it('the next button is last and is enabled', () => {
           const nextButton = buttons.last();
           expect(nextButton.text()).toBe('Next');
-          expect(nextButton.prop('disabled')).toBe(true);
+          expect(nextButton.prop('disabled')).toBe(false);
         });
       });
     });

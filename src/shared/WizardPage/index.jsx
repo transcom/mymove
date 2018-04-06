@@ -74,11 +74,9 @@ export class WizardPage extends Component {
       pageIsValid,
       pageIsDirty,
     } = this.props;
-    const canMoveForward = !error && pageIsValid;
+    const canMoveForward = pageIsValid;
     const canMoveBackward =
-      !error &&
-      (pageIsValid || !pageIsDirty) &&
-      !isFirstPage(pageList, pageKey);
+      (pageIsValid || !pageIsDirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
         {error && (
