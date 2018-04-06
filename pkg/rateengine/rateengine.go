@@ -66,8 +66,10 @@ func (re *RateEngine) computePPM(weight int, originZip int, destinationZip int, 
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err
 	}
-	ppmCost := int(float64(baseLinehaulChargeCents+originLinehaulFactorCents+destinationLinehaulFactorCents+shorthaulChargeCents+originServiceFee+destinationServiceFee+pack+unpack) * inverseDiscount)
-	return ppmCost, nil
+	ppmBestValue := int(float64(baseLinehaulChargeCents+originLinehaulFactorCents+destinationLinehaulFactorCents+shorthaulChargeCents+originServiceFee+destinationServiceFee+pack+unpack) * inverseDiscount)
+	// PPMs only pay 95% of the best value
+	ppmPayback := int(float64(ppmBestValue) * .95)
+	return ppmPayback, nil
 }
 
 // NewRateEngine creates a new RateEngine
