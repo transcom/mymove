@@ -52,7 +52,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	h.logger.Info("created a document with id %s\n", newDocument.ID)
+	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload := payloadForDocumentModel(newDocument)
 	return documentop.NewCreateDocumentCreated().WithPayload(&documentPayload)
 }

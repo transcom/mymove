@@ -31,12 +31,13 @@ type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
+
 	file, ok := params.File.(*runtime.File)
 	if !ok {
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	h.logger.Infof("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
+	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
@@ -131,7 +132,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
+	h.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", key))
 
 	url, err := h.storage.PresignedURL(key, contentType)
 	if err != nil {
