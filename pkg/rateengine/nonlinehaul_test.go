@@ -152,12 +152,11 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	t.Skip("Not yet implemented")
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
-	zip3 := models.Tariff400ngZip3{
+	originZip3 := models.Tariff400ngZip3{
 		Zip3:          395,
 		BasepointCity: "Saucier",
 		State:         "MS",
@@ -165,9 +164,9 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		RateArea:      "48",
 		Region:        11,
 	}
-	suite.mustSave(&zip3)
+	suite.mustSave(&originZip3)
 
-	serviceArea := models.Tariff400ngServiceArea{
+	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
 		ServiceArea:        428,
 		LinehaulFactor:     57,
@@ -176,7 +175,38 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		EffectiveDateLower: defaultRateDateLower,
 		EffectiveDateUpper: defaultRateDateUpper,
 	}
-	suite.mustSave(&serviceArea)
+	suite.mustSave(&originServiceArea)
+
+	destinationZip3 := models.Tariff400ngZip3{
+		Zip3:          336,
+		BasepointCity: "Tampa",
+		State:         "FL",
+		ServiceArea:   197,
+		RateArea:      "4964400",
+		Region:        13,
+	}
+	suite.mustSave(&destinationZip3)
+
+	destinationServiceArea := models.Tariff400ngServiceArea{
+		Name:               "Tampa, FL",
+		ServiceArea:        197,
+		LinehaulFactor:     69,
+		ServiceChargeCents: 663,
+		ServicesSchedule:   1,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&destinationServiceArea)
+
+	fullPackRate := models.Tariff400ngFullPackRate{
+		Schedule:           1,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     16001,
+		RateCents:          5429,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
@@ -186,13 +216,13 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(395, 395, 0.5)
+	fee, err := engine.nonLinehaulChargeTotalCents(395, 336, 0.5)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
-	// (14000 + 14000 + 217160 + 21716) * .5
-	expected := 133438
+	// (14000 + 26520 + 217160 + 21716) * .5
+	expected := 139698
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}
