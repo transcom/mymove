@@ -6,7 +6,7 @@ import (
 
 func (suite *ModelSuite) Test_Zip3Validation() {
 	validZip3 := Tariff400ngZip3{
-		Zip3:          "139",
+		Zip3:          139,
 		BasepointCity: "Dogtown",
 		State:         "NY",
 		ServiceArea:   11,
@@ -18,7 +18,7 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 	suite.verifyValidationErrors(&validZip3, expErrors)
 
 	invalidZip3 := Tariff400ngZip3{
-		Zip3:          "291",
+		Zip3:          291,
 		BasepointCity: "",
 		State:         "NY",
 		ServiceArea:   11,
@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 func (suite *ModelSuite) Test_Zip3CreateAndSave() {
 
 	validZip3 := Tariff400ngZip3{
-		Zip3:          "720",
+		Zip3:          720,
 		BasepointCity: "Dogtown",
 		State:         "NY",
 		ServiceArea:   384,
