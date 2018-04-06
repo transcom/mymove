@@ -2,11 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
+	"time"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"time"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -56,4 +59,21 @@ func (d *DutyStation) ValidateCreate(tx *pop.Connection) (*validate.Errors, erro
 // This method is not required and may be deleted.
 func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FindDutyStations returns all duty stations matching a search query and military branch
+func FindDutyStations(tx *pop.Connection, search string, branch string) (DutyStations, error) {
+	var stations DutyStations
+
+	// ILIKE does case-insensitive pattern matching, "%" matches any string
+	searchQuery := fmt.Sprintf("%%%s%%", search)
+	query := tx.Where("branch = $1 AND name ILIKE $2", branch, searchQuery)
+
+	if err := query.Eager().All(&stations); err != nil {
+		if errors.Cause(err).Error() != RecordNotFoundErrorString {
+			return stations, err
+		}
+	}
+
+	return stations, nil
 }

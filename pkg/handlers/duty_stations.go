@@ -1,13 +1,10 @@
 package handlers
 
 import (
-	"fmt"
-
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
-	"github.com/pkg/errors"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -40,24 +37,18 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 		return response
 	}
 
-	// ILIKE does case-insensitive pattern matching, "%" matches any string
-	searchQuery := fmt.Sprintf("%%%s%%", params.Search)
-	query := h.db.Where("branch = ? AND name ILIKE ?", params.Branch, searchQuery)
-
-	if err := query.Eager().All(&stations); err != nil {
-		if errors.Cause(err).Error() == models.RecordNotFoundErrorString {
-			response = stationop.NewSearchDutyStationsNotFound()
-		} else {
-			h.logger.Error("DB Query", zap.Error(err))
-			response = stationop.NewSearchDutyStationsInternalServerError()
-		}
-	} else {
-		stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
-		for i, station := range stations {
-			stationPayload := payloadForDutyStationModel(station)
-			stationPayloads[i] = &stationPayload
-		}
-		response = stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
+	stations, err = models.FindDutyStations(h.db, params.Search, params.Branch)
+	if err != nil {
+		h.logger.Error("Finding duty stations", zap.Error(err))
+		response = stationop.NewSearchDutyStationsInternalServerError()
 	}
+
+	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
+	for i, station := range stations {
+		stationPayload := payloadForDutyStationModel(station)
+		stationPayloads[i] = &stationPayload
+	}
+	response = stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
+
 	return response
 }
