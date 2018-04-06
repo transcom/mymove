@@ -1121,7 +1121,6 @@ definitions:
         example: john_bob@foo.edu
         x-nullable: true
         title: personal email address
-        title: personal email address
       phone_is_preferred:
         type: boolean
         x-nullable: true

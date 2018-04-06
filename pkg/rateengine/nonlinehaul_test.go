@@ -33,7 +33,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(50, "395")
+	fee, err := engine.serviceFeeCents(50, 395)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -49,7 +49,6 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t.Skip("Not yet implemented")
 
 	engine := NewRateEngine(suite.db, suite.logger)
-
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
@@ -84,7 +83,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.mustSave(&fullPackRate)
 
-	fee, err := engine.fullPackCents(50, "395")
+	fee, err := engine.fullPackCents(50, 395)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
@@ -101,7 +100,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	fee, err := engine.fullUnpackCents(25, "18209")
+	fee, err := engine.fullUnpackCents(25, 18209)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
@@ -118,7 +117,8 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	fee, err := engine.nonLinehaulChargeTotalCents("10024", "18209", 0.5)
+	fee, err := engine.nonLinehaulChargeTotalCents(10024, 18209, 0.5)
+
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
