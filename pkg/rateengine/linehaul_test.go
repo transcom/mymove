@@ -91,7 +91,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	expected := 11800
+	expected := 20000
 	if linehaulChargeTotal != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
 	}

@@ -40,7 +40,7 @@ func (re *RateEngine) fullUnpackCents(cwt int, zip3 int) (int, error) {
 	return cwt * fullUnpackRate / 1000, nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotalCents(originZip int, destinationZip int, inverseDiscount float64) (int, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(originZip int, destinationZip int) (int, error) {
 	weight := 4000
 	cwt := re.determineCWT(weight)
 	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
@@ -51,5 +51,5 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(originZip int, destinationZip 
 		return 0, err
 	}
 	subTotal := originServiceFee + destinationServiceFee + pack + unpack
-	return int(float64(subTotal) * inverseDiscount), nil
+	return subTotal, nil
 }

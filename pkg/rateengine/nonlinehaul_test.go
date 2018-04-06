@@ -216,13 +216,13 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(395, 336, 0.5)
+	fee, err := engine.nonLinehaulChargeTotalCents(395, 336)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
-	// (14000 + 26520 + 217160 + 21716) * .5
-	expected := 139698
+	// (14000 + 26520 + 217160 + 21716)
+	expected := 279396
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}
