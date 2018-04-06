@@ -45,14 +45,3 @@ func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedul
 	}
 	return rate.RateMillicents, nil
 }
-
-// FetchTariff400ngFullUnpackRateMillicents returns the full unpack rate for a service
-// schedule.
-func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedule int) (int, error) {
-	rate := Tariff400ngFullUnpackRate{}
-	err := tx.Where("schedule = ?", serviceSchedule).First(&rate)
-	if err != nil {
-		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullUnpackRate")
-	}
-	return rate.RateMillicents, nil
-}
