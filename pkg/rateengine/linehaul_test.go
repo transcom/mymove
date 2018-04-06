@@ -10,7 +10,7 @@ import (
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
-	mileage, err := engine.determineMileage("10024", "18209")
+	mileage, err := engine.determineMileage(10024, 18209)
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
@@ -67,7 +67,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
-	expected := 3060
+	expected := 3420
 	if linehaulFactor != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulFactor)
 	}
@@ -89,11 +89,11 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
-	linehaulChargeTotal, err := engine.linehaulChargeTotal("10024", "94103")
+	linehaulChargeTotal, err := engine.linehaulChargeTotal(10024, 94103)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	expected := 13003
+	expected := 11800
 	if linehaulChargeTotal != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
 	}

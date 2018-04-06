@@ -7,7 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
+func (re *RateEngine) determineMileage(originZip int, destinationZip int) (mileage int, err error) {
 	// TODO (Rebecca): make a proper error
 	fmt.Print(originZip)
 	fmt.Print(destinationZip)
@@ -35,7 +35,7 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulChargeCent
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(cwt int, zip3 string) (linehaulFactorCents int, err error) {
+func (re *RateEngine) linehaulFactors(cwt int, zip3 int) (linehaulFactorCents int, err error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	fmt.Printf("service area %d\n", serviceArea.ServiceArea)
 	if err != nil {
@@ -68,7 +68,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCent
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + {SH}] x InvdLH
-func (re *RateEngine) linehaulChargeTotal(originZip string, destinationZip string) (linehaulChargeCents int, err error) {
+func (re *RateEngine) linehaulChargeTotal(originZip int, destinationZip int) (linehaulChargeCents int, err error) {
 	mileage, err := re.determineMileage(originZip, destinationZip)
 	// TODO: Where is weight coming from?
 	weight := 2000
