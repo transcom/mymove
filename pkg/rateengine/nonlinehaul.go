@@ -4,7 +4,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func (re *RateEngine) serviceFeeCents(cwt int, zip3 string) (int, error) {
+func (re *RateEngine) serviceFeeCents(cwt int, zip3 int) (int, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
@@ -12,7 +12,7 @@ func (re *RateEngine) serviceFeeCents(cwt int, zip3 string) (int, error) {
 	return cwt * serviceArea.ServiceChargeCents, nil
 }
 
-func (re *RateEngine) fullPackCents(cwt int, zip3 string) (int, error) {
+func (re *RateEngine) fullPackCents(cwt int, zip3 int) (int, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
@@ -26,7 +26,7 @@ func (re *RateEngine) fullPackCents(cwt int, zip3 string) (int, error) {
 	return cwt * fullPackRate, nil
 }
 
-func (re *RateEngine) fullUnpackCents(cwt int, zip3 string) (int, error) {
+func (re *RateEngine) fullUnpackCents(cwt int, zip3 int) (int, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
@@ -40,7 +40,7 @@ func (re *RateEngine) fullUnpackCents(cwt int, zip3 string) (int, error) {
 	return cwt * fullUnpackRate / 1000, nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotalCents(originZip string, destinationZip string, inverseDiscount float64) (int, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(originZip int, destinationZip int, inverseDiscount float64) (int, error) {
 	weight := 4000
 	cwt := re.determineCWT(weight)
 	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
