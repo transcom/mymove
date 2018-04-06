@@ -3,18 +3,15 @@ package rateengine
 import (
 	"log"
 	"testing"
-	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2500
 	cwt := engine.determineCWT(weight)
 
@@ -27,7 +24,6 @@ type RateEngineSuite struct {
 	suite.Suite
 	db     *pop.Connection
 	logger *zap.Logger
-	date   time.Time
 }
 
 func (suite *RateEngineSuite) SetupTest() {
@@ -55,8 +51,6 @@ func TestRateEngineSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	// Create a date
-	date := testdatagen.RateEngineDate
-	hs := &RateEngineSuite{db: db, logger: logger, date: date}
+	hs := &RateEngineSuite{db: db, logger: logger}
 	suite.Run(t, hs)
 }

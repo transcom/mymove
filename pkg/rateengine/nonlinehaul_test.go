@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
@@ -47,7 +47,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
@@ -96,9 +96,9 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          395,
