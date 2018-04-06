@@ -1,7 +1,6 @@
 package models
 
 import (
-	"strconv"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -40,18 +39,29 @@ func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors,
 }
 
 // FetchTariff400ngServiceAreaForZip3 returns the service area for a specified Zip3.
-func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 string) (Tariff400ngServiceArea, error) {
+func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 int) (Tariff400ngServiceArea, error) {
 	serviceArea := Tariff400ngServiceArea{}
-	zip3AsInt, err := strconv.ParseInt(zip3, 10, 0)
-	if err != nil {
-		return serviceArea, errors.Wrap(err, "could not convert zip3 to int")
-	}
-
-	err = db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
-		Where(`tariff400ng_zip3s.zip3 = ?`, zip3AsInt).First(&serviceArea)
-
+	err := db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
+		Where(`tariff400ng_zip3s.zip3 = ?`, zip3).First(&serviceArea)
 	if err != nil {
 		return serviceArea, errors.Wrap(err, "could not find a matching Tariff400ngServiceArea")
 	}
 	return serviceArea, nil
+}
+
+// FetchTariff400ngLinehaulFactor returns linehaul_factor for an origin or destination based on service area.
+func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEngineDate time.Time) (linehaulFactor int, err error) {
+	sql := `SELECT
+			linehaul_factor
+		FROM
+			tariff400ng_service_areas
+		WHERE
+			service_area = $1
+		AND
+			$2 BETWEEN effective_date_lower AND effective_date_upper;
+
+		`
+	err = tx.RawQuery(sql, serviceArea, rateEngineDate).First(&linehaulFactor)
+
+	return linehaulFactor, err
 }
