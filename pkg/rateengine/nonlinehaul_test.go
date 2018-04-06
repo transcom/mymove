@@ -46,7 +46,6 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
-	t.Skip("Not yet implemented")
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
@@ -88,7 +87,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
 
-	expected := 1375
+	expected := 271450
 	if fee != expected {
 		t.Errorf("wrong full pack fee: expected %d, got %d", expected, fee)
 	}
@@ -96,18 +95,48 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
-	t.Skip("Not yet implemented")
 
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
+	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
-	fee, err := engine.fullUnpackCents(25, 18209)
+	originZip3 := models.Tariff400ngZip3{
+		Zip3:          395,
+		BasepointCity: "Saucier",
+		State:         "MS",
+		ServiceArea:   428,
+		RateArea:      "48",
+		Region:        11,
+	}
+	suite.mustSave(&originZip3)
+
+	serviceArea := models.Tariff400ngServiceArea{
+		Name:               "Gulfport, MS",
+		ServiceArea:        428,
+		LinehaulFactor:     57,
+		ServiceChargeCents: 350,
+		ServicesSchedule:   1,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&serviceArea)
+
+	fullUnpackRate := models.Tariff400ngFullUnpackRate{
+		Schedule:           1,
+		RateMillicents:     542900,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&fullUnpackRate)
+
+	fee, err := engine.fullUnpackCents(50, 395)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
 
-	expected := 125
+	expected := 27145
 	if fee != expected {
-		t.Errorf("wrong full pack fee: expected %d, got %d", expected, fee)
+		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, fee)
 	}
 }
 
