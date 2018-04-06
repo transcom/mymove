@@ -121,6 +121,16 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.mustSave(&serviceArea)
 
+	fullPackRate := models.Tariff400ngFullPackRate{
+		Schedule:           1,
+		WeightLbsLower:     0,
+		WeightLbsUpper:     16001,
+		RateCents:          5429,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&fullPackRate)
+
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
 		RateMillicents:     542900,
@@ -143,16 +153,46 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
 	t.Skip("Not yet implemented")
-
 	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
+	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(10024, 18209, 0.5)
+	zip3 := models.Tariff400ngZip3{
+		Zip3:          395,
+		BasepointCity: "Saucier",
+		State:         "MS",
+		ServiceArea:   428,
+		RateArea:      "48",
+		Region:        11,
+	}
+	suite.mustSave(&zip3)
+
+	serviceArea := models.Tariff400ngServiceArea{
+		Name:               "Gulfport, MS",
+		ServiceArea:        428,
+		LinehaulFactor:     57,
+		ServiceChargeCents: 350,
+		ServicesSchedule:   1,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&serviceArea)
+
+	fullUnpackRate := models.Tariff400ngFullUnpackRate{
+		Schedule:           1,
+		RateMillicents:     542900,
+		EffectiveDateLower: defaultRateDateLower,
+		EffectiveDateUpper: defaultRateDateUpper,
+	}
+	suite.mustSave(&fullUnpackRate)
+
+	fee, err := engine.nonLinehaulChargeTotalCents(395, 395, 0.5)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
-	// (155.2 + 155.2 + 2200 + 200) * .5
-	expected := 1355
+	// (14000 + 14000 + 217160 + 21716) * .5
+	expected := 133438
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}
