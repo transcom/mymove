@@ -35,12 +35,14 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+
 	// Load fake data
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          "395",
+		Zip3:          395,
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -61,8 +63,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	fmt.Print(serviceArea)
 	fmt.Print(originZip3)
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
-	linehaulFactor, err := engine.linehaulFactors(60, "395")
+	linehaulFactor, err := engine.linehaulFactors(60, 395)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}

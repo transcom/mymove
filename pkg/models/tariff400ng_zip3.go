@@ -14,7 +14,7 @@ type Tariff400ngZip3 struct {
 	ID            uuid.UUID `json:"id" db:"id"`
 	CreatedAt     time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at" db:"updated_at"`
-	Zip3          string    `json:"zip3" db:"zip3"`
+	Zip3          int       `json:"zip3" db:"zip3"`
 	BasepointCity string    `json:"basepoint_city" db:"basepoint_city"`
 	State         string    `json:"state" db:"state"`
 	ServiceArea   int       `json:"service_area" db:"service_area"`
@@ -41,7 +41,7 @@ func (t Tariff400ngZip3s) String() string {
 // This method is not required and may be deleted.
 func (t *Tariff400ngZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: t.Zip3, Name: "Zip3"},
+		&validators.IntIsPresent{Field: t.Zip3, Name: "Zip3"},
 		&validators.StringIsPresent{Field: t.BasepointCity, Name: "BasepointCity"},
 		&validators.StringIsPresent{Field: t.State, Name: "State"},
 		&validators.IntIsPresent{Field: t.ServiceArea, Name: "ServiceArea"},
