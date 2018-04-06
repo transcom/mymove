@@ -3,6 +3,7 @@ package rateengine
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -35,12 +36,12 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulChargeCent
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(cwt int, zip3 int) (linehaulFactorCents int, err error) {
+func (re *RateEngine) linehaulFactors(cwt int, zip3 int, date time.Time) (linehaulFactorCents int, err error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0.0, err
 	}
-	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, re.date)
+	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, date)
 	if err != nil {
 		return 0.0, err
 	}
@@ -66,14 +67,14 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCent
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + {SH}] x InvdLH
-func (re *RateEngine) linehaulChargeTotal(originZip int, destinationZip int) (linehaulChargeCents int, err error) {
+func (re *RateEngine) linehaulChargeTotal(originZip int, destinationZip int, date time.Time) (linehaulChargeCents int, err error) {
 	mileage, err := re.determineMileage(originZip, destinationZip)
 	// TODO: Where is weight coming from?
 	weight := 2000
 	cwt := re.determineCWT(weight)
 	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt)
-	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip)
-	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip)
+	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
+	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
 	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt)
 	// TODO: Where is our discount coming from?
 	discount := 0.41

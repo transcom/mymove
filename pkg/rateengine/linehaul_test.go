@@ -4,11 +4,12 @@ import (
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	mileage, err := engine.determineMileage(10024, 18209)
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
@@ -21,7 +22,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 3200
 	cwt := 40
 
@@ -34,7 +35,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	// Load fake data
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
@@ -60,7 +61,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	}
 	suite.mustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, 395)
+	linehaulFactor, err := engine.linehaulFactors(60, 395, testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -72,7 +73,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 799
 	cwt := 40
 
@@ -85,8 +86,8 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(10024, 94103)
+	engine := NewRateEngine(suite.db, suite.logger)
+	linehaulChargeTotal, err := engine.linehaulChargeTotal(10024, 94103, testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}

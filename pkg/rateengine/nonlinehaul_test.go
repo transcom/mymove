@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
@@ -48,7 +48,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 	t.Skip("Not yet implemented")
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
@@ -98,7 +98,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
 	t.Skip("Not yet implemented")
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	fee, err := engine.fullUnpackCents(25, 18209)
 	if err != nil {
@@ -115,7 +115,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
 	t.Skip("Not yet implemented")
 
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 
 	fee, err := engine.nonLinehaulChargeTotalCents(10024, 18209, 0.5)
 
