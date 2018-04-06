@@ -85,6 +85,7 @@ const initialState = {
   pendingMoveType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  error: null,
 };
 export function moveReducer(state = initialState, action) {
   switch (action.type) {
@@ -98,18 +99,28 @@ export function moveReducer(state = initialState, action) {
         pendingMoveType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
+        error: null,
       });
     case CREATE_OR_UPDATE_MOVE_FAILURE:
       return Object.assign({}, state, {
         currentMove: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
+        error: action.error,
       });
     case GET_MOVE_SUCCESS:
       return Object.assign({}, state, {
         currentMove: action.item,
         hasSubmitSuccess: true,
         hasSubmitError: false,
+        error: null,
+      });
+    case GET_MOVE_FAILURE:
+      return Object.assign({}, state, {
+        currentMove: {},
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
       });
     default:
       return state;
