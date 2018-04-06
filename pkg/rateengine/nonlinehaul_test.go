@@ -152,7 +152,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.date)
+	engine := NewRateEngine(suite.db, suite.logger)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
