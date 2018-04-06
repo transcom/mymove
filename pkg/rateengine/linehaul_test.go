@@ -1,7 +1,6 @@
 package rateengine
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -60,8 +59,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		EffectiveDateUpper: defaultRateDateUpper,
 	}
 	suite.mustSave(&serviceArea)
-	fmt.Print(serviceArea)
-	fmt.Print(originZip3)
 
 	linehaulFactor, err := engine.linehaulFactors(60, 395)
 	if err != nil {

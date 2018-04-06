@@ -37,12 +37,10 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulChargeCent
 // Determine the Linehaul Factors (OLF and DLF)
 func (re *RateEngine) linehaulFactors(cwt int, zip3 int) (linehaulFactorCents int, err error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
-	fmt.Printf("service area %d\n", serviceArea.ServiceArea)
 	if err != nil {
 		return 0.0, err
 	}
 	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, re.date)
-	fmt.Printf("linehaulFactorCents %d\n", linehaulFactorCents)
 	if err != nil {
 		return 0.0, err
 	}
