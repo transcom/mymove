@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth/context"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -17,10 +18,9 @@ type CreateSignedCertificationHandler HandlerContext
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
 	var response middleware.Responder
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = certop.NewCreateSignedCertificationUnauthorized()
-		return response
+	user, ok := context.GetUser(params.HTTPRequest.Context())
+	if !ok {
+		h.logger.Error("No User, this should never happen.")
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
