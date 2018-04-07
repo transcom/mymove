@@ -49,7 +49,7 @@ func (re *RateEngine) linehaulFactors(cwt int, zip3 int, date time.Time) (lineha
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
-func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCents int, err error) {
+func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date Time.time) (shorthaulChargeCents int, err error) {
 	if mileage >= 800 {
 		return 0, nil
 	}
@@ -73,7 +73,7 @@ func (re *RateEngine) linehaulChargeTotal(weight int, originZip int, destination
 	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt)
 	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
 	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
-	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt)
+	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt, date)
 	if err != nil {
 		return 0, err
 	}
