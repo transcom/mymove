@@ -56,7 +56,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCent
 
 	cwtMiles := mileage * cwt
 	// TODO: shorthaulChargeCents will be a lookup
-	shorthaulChargeCents = cwtMiles
+	shorthaulChargeCents = models.Tariff400ngShorthaulRate(re.db, cwtMiles, date)
 	if shorthaulChargeCents == 0 {
 		err = errors.New("Oops determineShorthaulCharge")
 	} else {

@@ -61,3 +61,19 @@ func (t *Tariff400ngShorthaulRate) ValidateCreate(tx *pop.Connection) (*validate
 func (t *Tariff400ngShorthaulRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
+
+// FetchShorthaulRateCents returns the shorthaul rate for a given Centumweight-Miles
+// (cwtMiles is a unit capturing the movement of 100lbs by 1 mile.) The value returned
+// is in cents of 1 USD.
+func FetchShorthaulRateCents(tx *pop.Connection, cwtMiles int, date Time.time) (rateCents int, err error) {
+	sql = `SELECT rate_cents FROM tariff400ng_shorthaul_rates WHERE
+		cwt_mi_lower <= $2 AND $2 < cwt_mi_upper AND
+		effective_date_lower <= $3 AND $3 < effective_date_upper`
+
+	err := tx.RawQuery(sql, cwtMiles, date).First(&rateCents)
+	if err != nil {
+		return 0, errors.Wrap(err, "error fetching shorthaul rate")
+	}
+
+	return rateCents
+}
