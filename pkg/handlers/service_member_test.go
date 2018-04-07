@@ -3,7 +3,6 @@ package handlers
 import (
 	"fmt"
 	"net/http/httptest"
-	"testing"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -14,10 +13,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-func Test_ServiceMember(t *testing.T) {
-	fmt.Println("testing233")
-}
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	t := suite.T()
@@ -56,7 +51,6 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	if servicemember.UserID.String() != user.ID.String() {
 		t.Errorf("Expected an servicemember to have user ID '%v'. None do.", user.ID)
 	}
-
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberHandlerNoUser() {

@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -36,8 +35,6 @@ type ServiceMember struct {
 	BackupMailingAddressID    *uuid.UUID `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress      *Address   `belongs_to:"address"`
 }
-
-// TODO add func to evaluate whether profile is complete - add call to payload struct in handler
 
 // String is not required by pop and may be deleted
 func (s ServiceMember) String() string {
@@ -206,7 +203,28 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMembe
 
 // IsProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) IsProfileComplete() bool {
-	fmt.Println("profile complete hit")
-	// TODO: check if every field is not 0 value and return true if so
-	return false
+
+	// The following fields are required to be set for a profile to be complete
+	if s.Edipi == nil {
+		return false
+	}
+	if s.FirstName == nil {
+		return false
+	}
+	// Do we required a middle initial?
+	if s.LastName == nil {
+		return false
+	}
+	if s.Telephone == nil {
+		return false
+	}
+	if s.PhoneIsPreferred == nil && s.SecondaryPhoneIsPreferred == nil && s.EmailIsPreferred == nil {
+		return false
+	}
+	if s.ResidentialAddress == nil {
+		return false
+	}
+	// TODO: add check for station and SSN
+	// All required fields have a set value
+	return true
 }
