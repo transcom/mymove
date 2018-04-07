@@ -87,7 +87,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(10024, 94103, testdatagen.RateEngineDate)
+	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 395, 336, testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}

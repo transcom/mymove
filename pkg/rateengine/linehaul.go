@@ -66,11 +66,9 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCent
 }
 
 // Determine Linehaul Charge (LC) TOTAL
-// Formula: LC= [BLH + OLF + DLF + {SH}] x InvdLH
-func (re *RateEngine) linehaulChargeTotal(originZip int, destinationZip int, date time.Time) (linehaulChargeCents int, err error) {
+// Formula: LC= [BLH + OLF + DLF + [SH]
+func (re *RateEngine) linehaulChargeTotal(weight int, originZip int, destinationZip int, date time.Time) (linehaulChargeCents int, err error) {
 	mileage, err := re.determineMileage(originZip, destinationZip)
-	// TODO: Where is weight coming from?
-	weight := 2000
 	cwt := re.determineCWT(weight)
 	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt)
 	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)

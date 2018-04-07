@@ -26,7 +26,6 @@ func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
-	t.Skip("Waiting on linehaul implementation")
 	engine := NewRateEngine(suite.db, suite.logger)
 	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
@@ -91,14 +90,14 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	// 27145 +20000
-	fee, err := engine.computePPM(4000, 395, 336, testdatagen.RateEngineDate, .40)
+	// 139698 +20000
+	fee, err := engine.computePPM(2000, 395, 336, testdatagen.RateEngineDate, .40)
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := 17915
+	expected := 61642
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}
