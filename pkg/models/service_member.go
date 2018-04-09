@@ -141,8 +141,8 @@ func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID)
 	return result, err
 }
 
-// CreateOrUpdateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func CreateOrUpdateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+// CreateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
+func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
