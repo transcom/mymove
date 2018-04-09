@@ -24,6 +24,7 @@ export class WizardPage extends Component {
   }
   componentDidUpdate() {
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
+    if (this.props.error) window.scrollTo(0, 0);
   }
   componentDidMount() {
     window.scrollTo(0, 0);
