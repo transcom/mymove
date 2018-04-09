@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
@@ -30,8 +31,13 @@ type CreateUploadHandler FileHandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
-	file := params.File
-	h.logger.Infof("%s has a length of %d bytes.\n", file.Header.Filename, file.Header.Size)
+
+	file, ok := params.File.(*runtime.File)
+	if !ok {
+		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
@@ -54,9 +60,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	// Validate that the document and move exists in the db, and that they belong to user
 	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
 	if !exists {
+		h.logger.Error("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadNotFound()
 	}
 	if !userOwns {
+		h.logger.Error("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadForbidden()
 	}
 
@@ -124,7 +132,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	h.logger.Infof("created an upload with id %s, s3 key %s\n", newUpload.ID, key)
+	h.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", key))
 
 	url, err := h.storage.PresignedURL(key, contentType)
 	if err != nil {

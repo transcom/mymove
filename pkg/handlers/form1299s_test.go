@@ -77,9 +77,10 @@ func fakeAddress() *internalmessages.Address {
 	return &internalmessages.Address{
 		StreetAddress1: swag.String("An address"),
 		StreetAddress2: swag.String("Apt. 2"),
+		StreetAddress3: swag.String("address line 3"),
 		City:           swag.String("Happytown"),
 		State:          swag.String("AL"),
-		Zip:            swag.String("01234"),
+		PostalCode:     swag.String("01234"),
 	}
 }
 
@@ -182,17 +183,6 @@ func (suite *HandlerSuite) TestShowUnknown() {
 
 	// assert we got back the 404 response
 	_ = response.(*form1299op.ShowForm1299NotFound)
-}
-
-func (suite *HandlerSuite) TestShowBadID() {
-	badID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297xxx")
-	showFormParams := form1299op.ShowForm1299Params{Form1299ID: badID}
-
-	handler := ShowForm1299Handler(NewHandlerContext(suite.db, suite.logger))
-	response := handler.Handle(showFormParams)
-
-	// assert we got back the 400 response
-	_ = response.(*form1299op.ShowForm1299BadRequest)
 }
 
 func (suite *HandlerSuite) TestSubmitForm1299HandlerNoRequiredValues() {

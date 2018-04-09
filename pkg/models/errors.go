@@ -12,3 +12,6 @@ const (
 	// FetchErrorForbidden means that the record exists but that the user does not have access to it
 	FetchErrorForbidden FetchError = "FORBIDDEN"
 )
+
+// RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
+const RecordNotFoundErrorString = "sql: no rows in result set"

@@ -9,6 +9,7 @@ import (
 	authctx "github.com/transcom/mymove/pkg/auth/context"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -51,7 +52,19 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	h.logger.Info("created a document with id %s\n", newDocument.ID)
+	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
 	documentPayload := payloadForDocumentModel(newDocument)
 	return documentop.NewCreateDocumentCreated().WithPayload(&documentPayload)
+}
+
+/* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,
+need to be reconciled. This will be done when the NotImplemented code below is Implemented
+*/
+
+// CreateDocumentUploadHandler creates a new document upload via POST /document/{document_uuid}/uploads
+type CreateDocumentUploadHandler HandlerContext
+
+// Handle creates a new DocumentUpload from a request payload
+func (h CreateDocumentUploadHandler) Handle(params apioperations.CreateDocumentUploadParams) middleware.Responder {
+	return middleware.NotImplemented("operation .createDocumentUpload has not yet been implemented")
 }
