@@ -349,6 +349,8 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
+      profile_complete:
+        type: boolean
   PatchServiceMemberPayload:
     type: object
     properties:
@@ -427,6 +429,8 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
+      profile_complete:
+        type: boolean
   IndexServiceMembersPayload:
     type: array
     items:
@@ -1954,6 +1958,27 @@ paths:
         500:
           description: server error
   /service_members:
+    get:
+      summary: List all service members
+      description: List all service members
+      operationId: indexServiceMembers
+      tags:
+        - service_members
+      responses:
+        200:
+          description: list of service members
+          schema:
+            $ref: '#/definitions/IndexServiceMembersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: no service members found
+        500:
+          description: internal server error
     post:
       summary: Creates service member for a logged-in user
       description: Creates an instance of a service member tied to a user
@@ -2211,34 +2236,5 @@ paths:
           description: user is not authorized
         404:
           description: matching duty station not found
-        500:
-          description: internal server error
-  /duty_stations/{dutyStationId}:
-    get:
-      summary: Returns the given duty station
-      description: Returns the given duty station
-      operationId: showDutyStation
-      tags:
-        - duty_stations
-      parameters:
-        - in: path
-          name: dutyStationId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of station
-      responses:
-        200:
-          description: the instance of the duty station
-          schema:
-            $ref: '#/definitions/DutyStationPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: duty station is not found
         500:
           description: internal server error
