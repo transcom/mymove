@@ -11,7 +11,7 @@ import truckGray from 'shared/icon/truck-gray.svg';
 import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
-const { mobileSize } = require('shared/constants');
+import { mobileSize } from 'shared/constants';
 
 class BigButtonGroup extends Component {
   constructor() {
