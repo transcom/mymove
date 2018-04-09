@@ -3,11 +3,9 @@ info:
   description: API to submit, amend, and cancel orders for my.move.mil.
   version: 0.0.2
   title: my.move.mil Orders Gateway
-  contact:
-    email: ppp@truss.works
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 basePath: "/v0"
 schemes:
 - "http"
@@ -19,15 +17,10 @@ paths:
       summary: Retrieve orders that match a particular search
       description: |
         Returns all orders that match all of the supplied parameters. At least one query parameter must be provided.
-      operationId: getOrders
+      operationId: indexOrders
       produces:
       - application/json
       parameters:
-      - name: id
-        in: query
-        description: UUID of the orders to return
-        type: string
-        format: uuid
       - name: ordersNum
         in: query
         description: The Orders number as it appears on the Orders
@@ -39,72 +32,42 @@ paths:
         pattern: '^\d{10}$'
       - name: latestOnly
         in: query
-        description: If true, look only at the latest Revision (by seqNum) of any set of Orders when applying the other Revision-specific parameters. If false, search all Revisions.
+        description: |
+          If true, look only at the latest Revision (by seqNum) of any set of Orders when applying the other Revision-specific parameters. If false, search all Revisions.
+          Defaults to false if omitted.
         type: boolean
       - name: status
         in: query
-        description: Indicates whether these Orders are authorized or canceled.
+        description: Return only Orders where the status of the latest Revision of the Orders matches the supplied status.
         type: string
         enum:
         - "authorized"
         - "canceled"
-      - name: dateIssuedMin
-        in: query
-        description: Return only Orders with at least one Revision cut on or after this date.
-        type: string
-        format: date-time
-      - name: dateIssuedMax
-        in: query
-        description: Return only Orders with at least one Revision cut on or before this date.
-        type: string
-        format: date-time
       - name: issuingAuthority
         in: query
         description: Name of the Issuing Authority of the Orders.
         type: string
-      - name: losingUic
-        in: query
-        description: Unit Identification Code of the losing Unit.
-        type: string
-        minLength: 6
-        maxLength: 6
-      - name: gainingUic
-        in: query
-        description: Unit Identification Code of the gaining Unit.
-        type: string
-        minLength: 6
-        maxLength: 6
-      - name: reportNoLaterThanMin
-        in: query
-        description: Return only orders with an RNLT on or after this date.
-        type: string
-        format: date-time
-      - name: reportNoLaterThanMax
-        in: query
-        description: Return only orders with an RNLT on or before this date.
-        type: string
-        format: date-time
       - name: pcsSdn
         in: query
         description: Standard Document Number to be used for PCS expenses associated with these Orders.
         type: string
-      - name: ntsSdn
-        in: query
-        description: Standard Document Number to be used for NTS expenses associated with these Orders.
-        type: string
       responses:
         200:
-          description: "Successful operation"
+          description: Successful
           schema:
             type: array
             items:
               $ref: '#/definitions/Orders'
         400:
-          description: "Bad request"
+          description: Bad request
+        401:
+          description: must be authenticated to use this endpoint
         403:
-          description: "Forbidden"
+          description: Forbidden
         404:
-          description: "No orders found"
+          description: No orders found
+        500:
+          description: Server error
     post:
       tags:
       - "orders"
@@ -127,17 +90,12 @@ paths:
         It is an error to specify a non-existent UUID. If these are new Orders, or if you don't know the UUID of the Orders to amend but you do know the other parameters, just omit the uuid parameter.
 
         It is an error to specify an existing UUID with either an ordersNum or an edipi that disagree with the values stored with the existing set of Orders.
-      operationId: postOrders
+      operationId: postRevision
       consumes:
       - application/json
       produces:
       - application/json
       parameters:
-      - name: id
-        in: query
-        description: UUID of the orders to amend. If these
-        type: string
-        format: uuid
       - name: ordersNum
         in: query
         description: The Orders number as it appears on the Orders
@@ -151,31 +109,35 @@ paths:
         pattern: '^\d{10}$'
       - name: issuingAuthority
         in: query
+        required: true
         description: Name of the Issuing Authority of the Orders.
         type: string
-        required: true
       - in: "body"
-        name: "body"
+        name: revision
         required: true
         schema:
           $ref: "#/definitions/Revision"
       responses:
         201:
-          description: "Succesful"
+          description: Succesful
           schema:
             $ref: "#/definitions/Orders"
         400:
-          description: "Invalid"
+          description: Invalid
+        401:
+          description: must be authenticated to use this endpoint
         403:
-          description: "Forbidden"
+          description: Forbidden
         404:
-          description: "Orders not found"
-  /orders/uuid/{uuid}:
+          description: Orders not found
+        500:
+          description: Server error
+  /orders/{uuid}:
     get:
       tags:
       - "orders"
       summary: Retrieve a set of Orders and all of its Revisions by UUID
-      operationId: getOrdersByUuid
+      operationId: getOrders
       produces:
       - "application/json"
       parameters:
@@ -187,14 +149,60 @@ paths:
         format: uuid
       responses:
         200:
-          description: "Successful operation"
+          description: Successful
           schema:
             $ref: '#/definitions/Orders'
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: Forbidden
         404:
-          description: "Orders not found"
+          description: Orders not found
+        500:
+          description: Server error
+    post:
+      tags:
+      - "orders"
+      summary: Nake an amendment to or cancel an existing set of orders by UUID
+      description: |
+        Creates a Revision of a set of orders. The Orders to be amended or canceled must already exist with the supplied UUID.
+
+        The seqNum in the supplied Revision must be unique, and not already present in the Orders. Nothing else is required to change in the Revision compared to any other Revision in the Orders.
+      operationId: postRevisionToOrders
+      consumes:
+      - application/json
+      produces:
+      - application/json
+      parameters:
+      - name: "uuid"
+        in: path
+        description: UUID of the orders to return
+        required: true
+        type: string
+        format: uuid
+      - in: "body"
+        name: revision
+        required: true
+        schema:
+          $ref: "#/definitions/Revision"
+      responses:
+        201:
+          description: "Succesful"
+          schema:
+            $ref: "#/definitions/Orders"
+        400:
+          description: Invalid
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: Forbidden
+        404:
+          description: Orders not found
+        500:
+          description: Server error
 definitions:
   Orders:
-    type: "object"
+    type: object
     properties:
       uuid:
         type: string
@@ -233,9 +241,7 @@ definitions:
           ## Coast Guard
 
           Corresponds to the Travel Order No.
-
-          ## Civilian Agencies
-        example: "030-00362 (Army), 0308 987-65-4320 (Navy), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard)"
+        example: "030-00362 (Army), 03018 9876543210 (Navy, after transformation), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard)"
       edipi:
         type: string
         description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
@@ -260,7 +266,7 @@ definitions:
         minimum: 0
         description: |
           Sequence number. When an order is amended, it should get a higher sequence number than all previous revisions of the same orders. The orders with the highest sequence number is considered the current, authoritative version, even if its dateIssued is earlier.
-          The sequence number is NOT required to increase monotonically; in other words, if a set of orders is modified twice, the sequence numbers could be 1, 30, and 5858300."
+          The sequence number is NOT required to increase monotonically or sequentially; in other words, if a set of orders is modified twice, the sequence numbers could be 1, 5858300, and 30.
       member:
         $ref: '#/definitions/Member'
       status:
@@ -380,13 +386,16 @@ definitions:
     properties:
       given-name:
         type: string
-        description: 'In English, the first name'
+        description: In languages that use Western order, like English, this is the first name.
       family-name:
         type: string
-        description: 'In English, the last name / surname. NOTE: some services lump suffixes (like Jr. or Sr.) in with the family name!'
+        description: 'In languages that use Western order, like English, this is the last name. NOTE: some services lump suffixes (like Jr. or Sr.) in with the family name!'
       middle-name:
         type: string
         description: Middle name or middle initial
+      suffix:
+        type: string
+        description: Jr., Sr., III, etc.
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
