@@ -11,17 +11,17 @@ import (
 )
 
 // DiscountRate describes how great a discount a TSP will provide for SIT and Linehaul
-// for a given TDL/rate cycle.
+// for a given TDL/rate cycle. DiscountRates are tied to TSPs via unique SCACs.
 type DiscountRate struct {
 	ID                       uuid.UUID `json:"id" db:"id"`
 	CreatedAt                time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
-	RateCycle                bool      `json:"rate_cycle" db:"rate_cycle"`
+	PeakRateCycle            bool      `json:"peak_rate_cycle" db:"peak_rate_cycle"`
 	Origin                   string    `json:"origin" db:"origin"`
 	Destination              string    `json:"destination" db:"destination"`
 	CodeOfService            string    `json:"code_of_service" db:"code_of_service"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
-	LHRateCents              int       `json:"lh_rate" db:"lh_rate"`
+	LinehaulRateCents        int       `json:"linehaul_rate" db:"linehaul_rate"`
 	SITRateCents             int       `json:"sit_rate" db:"sit_rate"`
 	EffectiveDateLower       time.Time `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper       time.Time `json:"effective_date_upper" db:"effective_date_upper"`
@@ -47,7 +47,6 @@ func (d DiscountRates) String() string {
 func (d *DiscountRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.StandardCarrierAlphaCode, Name: "StandardCarrierAlphaCode"},
-		&validators.TimeIsPresent{Field: d.EffectiveDateUpper, Name: "EffectiveDateUpper"},
 		&validators.TimeAfterTime{
 			FirstTime: d.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: d.EffectiveDateLower, SecondName: "EffectiveDateLower"},
