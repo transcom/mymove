@@ -88,16 +88,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	contentType := http.DetectContentType(buffer)
-	// switch contentType {
-	// 	case "image/jpeg":
-	// 		fmt.Println("It's a jpg.")
-	// 	case "image/png":
-	// 		fmt.Println("It's a png file.")
-	// 	case "application/pdf":
-	// 		fmt.Println("Looks like a PDF.")
-	// 	default:
-	// 		h.logger.Error("Upload isn't a png, jpg, or PDF file.")
-	// }
 
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
@@ -124,7 +114,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("Failed to validate", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
-		// TODO return validation errors
 		h.logger.Error(verrs.Error())
 		return uploadop.NewCreateUploadBadRequest()
 	}
