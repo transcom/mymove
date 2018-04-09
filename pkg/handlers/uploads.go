@@ -3,7 +3,6 @@ package handlers
 import (
 	"crypto/md5"
 	"encoding/base64"
-	// "fmt"
 	"io"
 	"net/http"
 
