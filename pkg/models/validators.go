@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/gobuffalo/validate"
@@ -65,6 +66,7 @@ func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
 	for name := range AllowedFiletypes {
 		filetypes = append(filetypes, name)
 	}
+	sort.Strings(filetypes)
 	list := strings.Join(filetypes, ", ")
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
 }
