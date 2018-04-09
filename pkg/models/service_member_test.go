@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 )
 
@@ -29,11 +30,14 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		t.Error(verrs, err)
 	}
 
-	// And: a service member is incompletely initialized with an address
+	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
+	branch := internalmessages.MilitaryBranchARMY
+	rank := internalmessages.ServiceMemberRankE5
 	firstName := "bob"
 	lastName := "sally"
 	telephone := "510 555-5555"
+	email := "bobsally@gmail.com"
 	fakeAddress := Address{
 		StreetAddress1: "123 main st.",
 		StreetAddress2: swag.String("Apt.1"),
@@ -45,9 +49,12 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	servicemember := ServiceMember{
 		UserID:             user1.ID,
 		Edipi:              &edipi,
+		Branch:             &branch,
+		Rank:               &rank,
 		FirstName:          &firstName,
 		LastName:           &lastName,
 		Telephone:          &telephone,
+		PersonalEmail:      &email,
 		ResidentialAddress: &fakeAddress,
 	}
 
@@ -58,6 +65,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// When: all required fields are set
 	emailPreferred := true
 	servicemember.EmailIsPreferred = &emailPreferred
+
 	// Then: IsProfileComplete should return true
 	if servicemember.IsProfileComplete() != true {
 		t.Error("Expected profile to be complete.")

@@ -16,6 +16,7 @@ produces:
 definitions:
   MilitaryBranch:
     type: string
+    x-nullable: true
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
@@ -174,6 +175,10 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
         type: boolean
         x-nullable: true
@@ -253,6 +258,10 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn
@@ -330,6 +339,10 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn

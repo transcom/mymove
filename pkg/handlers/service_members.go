@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
@@ -17,6 +16,8 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		UpdatedAt:                 fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                    fmtUUID(user.ID),
 		Edipi:                     serviceMember.Edipi,
+		Branch:                    serviceMember.Branch,
+		Rank:                      serviceMember.Rank,
 		FirstName:                 serviceMember.FirstName,
 		MiddleInitial:             serviceMember.MiddleInitial,
 		LastName:                  serviceMember.LastName,
@@ -53,6 +54,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	newServiceMember := models.ServiceMember{
 		UserID:                    user.ID,
 		Edipi:                     params.CreateServiceMemberPayload.Edipi,
+		Branch:                    params.CreateServiceMemberPayload.Branch,
+		Rank:                      params.CreateServiceMemberPayload.Rank,
 		FirstName:                 params.CreateServiceMemberPayload.FirstName,
 		MiddleInitial:             params.CreateServiceMemberPayload.MiddleInitial,
 		LastName:                  params.CreateServiceMemberPayload.LastName,
@@ -156,10 +159,15 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	} else { // The given serviceMember does belong to the current user.
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
-		fmt.Println("Patch Payload in handler", &payload)
-		// TODO: optimize this
+
 		if payload.Edipi != nil {
 			serviceMember.Edipi = payload.Edipi
+		}
+		if payload.Branch != nil {
+			serviceMember.Branch = payload.Branch
+		}
+		if payload.Rank != nil {
+			serviceMember.Rank = payload.Rank
 		}
 		if payload.FirstName != nil {
 			serviceMember.FirstName = payload.FirstName
