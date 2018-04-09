@@ -113,7 +113,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		case models.FetchErrorForbidden:
 			response = servicememberop.NewShowServiceMemberForbidden()
 		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+			response = servicememberop.NewShowServiceMemberInternalServerError()
 		}
 		return response
 
@@ -138,7 +138,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	}
 	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
 	if err != nil {
-		h.logger.Fatal("Invalid ServiceMemberID, this should never happen.")
+		reponse = servicememberop.NewPatchServiceMemberBadRequest()
 	}
 
 	// Validate that this serviceMember belongs to the current user
@@ -153,7 +153,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		case models.FetchErrorForbidden:
 			response = servicememberop.NewPatchServiceMemberForbidden()
 		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		}
 		return response
 	} else { // The given serviceMember does belong to the current user.
@@ -165,7 +165,6 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		if verrs.HasAny() {
 			response = servicememberop.NewPatchServiceMemberBadRequest()
 		} else if err != nil {
-			h.logger.Error("DB doingi things", zap.Error(err))
 			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		} else {
 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
