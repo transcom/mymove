@@ -24,8 +24,8 @@ func MakeDiscountRate(db *pop.Connection, tsp *models.TransportationServiceProvi
 		Destination:              "REGION 4",
 		CodeOfService:            "D",
 		StandardCarrierAlphaCode: tsp.StandardCarrierAlphaCode,
-		LinehaulPermyriad:        4010,
-		SITPermyriad:             6000,
+		LinehaulRate:             40.10,
+		SITRate:                  60,
 		EffectiveDateLower:       RateEngineEffectiveDateStart,
 		EffectiveDateUpper:       RateEngineEffectiveDateEnd,
 	}

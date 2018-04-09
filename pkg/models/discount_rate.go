@@ -21,8 +21,8 @@ type DiscountRate struct {
 	Destination              string    `json:"destination" db:"destination"`
 	CodeOfService            string    `json:"code_of_service" db:"code_of_service"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
-	LinehaulPermyriad        int       `json:"linehaul_permyriad" db:"linehaul_permyriad"`
-	SITPermyriad             int       `json:"sit_permyriad" db:"sit_permyriad"`
+	LinehaulRate             float64   `json:"linehaul_rate" db:"linehaul_rate"`
+	SITRate                  float64   `json:"sit_rate" db:"sit_rate"`
 	EffectiveDateLower       time.Time `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper       time.Time `json:"effective_date_upper" db:"effective_date_upper"`
 }
