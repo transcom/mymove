@@ -1,6 +1,7 @@
 package awardqueue
 
 import (
+	"fmt"
 	"log"
 	"strings"
 	"testing"
@@ -392,7 +393,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	}
 
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", fmt.Sprintf("TST%d", i))
 		score := mps + i + 1
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0)
 	}

@@ -1,6 +1,7 @@
 package models_test
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/swag"
@@ -144,7 +145,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", fmt.Sprintf("TST%d", i))
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
@@ -173,7 +174,7 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
 
 	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
@@ -396,7 +397,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
 	// What matter is the BVS score order; offer count has no influence.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
