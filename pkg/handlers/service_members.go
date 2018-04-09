@@ -17,6 +17,8 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		UpdatedAt:                 fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                    fmtUUID(user.ID),
 		Edipi:                     serviceMember.Edipi,
+		Branch:                    serviceMember.Branch,
+		Rank:                      serviceMember.Rank,
 		FirstName:                 serviceMember.FirstName,
 		MiddleInitial:             serviceMember.MiddleInitial,
 		LastName:                  serviceMember.LastName,
@@ -29,7 +31,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		EmailIsPreferred:          serviceMember.EmailIsPreferred,
 		ResidentialAddress:        payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
-		ProfileComplete:           fmtBool(serviceMember.ProfileComplete()),
+		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
 	}
 	return serviceMemberPayload
 }
@@ -53,6 +55,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	newServiceMember := models.ServiceMember{
 		UserID:                    user.ID,
 		Edipi:                     params.CreateServiceMemberPayload.Edipi,
+		Branch:                    params.CreateServiceMemberPayload.Branch,
+		Rank:                      params.CreateServiceMemberPayload.Rank,
 		FirstName:                 params.CreateServiceMemberPayload.FirstName,
 		MiddleInitial:             params.CreateServiceMemberPayload.MiddleInitial,
 		LastName:                  params.CreateServiceMemberPayload.LastName,
@@ -157,9 +161,14 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
 
-		// TODO: optimize this
 		if payload.Edipi != nil {
 			serviceMember.Edipi = payload.Edipi
+		}
+		if payload.Branch != nil {
+			serviceMember.Branch = payload.Branch
+		}
+		if payload.Rank != nil {
+			serviceMember.Rank = payload.Rank
 		}
 		if payload.FirstName != nil {
 			serviceMember.FirstName = payload.FirstName

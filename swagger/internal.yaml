@@ -46,6 +46,7 @@ definitions:
       - TRUSTED_AGENT
   MilitaryBranch:
     type: string
+    x-nullable: true
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
@@ -201,10 +202,13 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        example: 57893457897
-        pattern: /^[0-9]{10}$/
+        example: '5789345789'
+        pattern: '^[0-9]{10}$'
         x-nullable: true
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
         type: boolean
         x-nullable: true
@@ -257,7 +261,7 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
+      is_profile_complete:
         type: boolean
       created_at:
         type: string
@@ -268,7 +272,7 @@ definitions:
     required:
       - id
       - user_id
-      - profile_complete
+      - is_profile_complete
       - created_at
       - updated_at
   CreateServiceMemberPayload:
@@ -280,11 +284,14 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        pattern: /^[0-9]{10}$/
-        example: 57893457897
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn
@@ -358,11 +365,14 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        pattern: /^[0-9]{10}$/
-        example: 57893457897
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn
@@ -1333,7 +1343,7 @@ definitions:
         title: Address Line 2
       street_address_3:
         type: string
-        example: Montmâtre
+        example: Montmârtre
         x-nullable: true
         title: Address Line 3
       city:

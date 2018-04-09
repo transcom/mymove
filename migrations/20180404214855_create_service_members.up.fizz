@@ -2,6 +2,8 @@ create_table("service_members", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("user_id", "uuid", {})
 	t.Column("edipi", "text", {"null": true})
+	t.Column("branch", "text", {"null": true})
+	t.Column("rank", "text", {"null": true})
 	t.Column("first_name", "text", {"null": true})
 	t.Column("middle_initial", "text", {"null": true})
 	t.Column("last_name", "text", {"null": true})

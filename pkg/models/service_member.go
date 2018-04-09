@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -17,29 +16,29 @@ import (
 
 // ServiceMember is a user of type service member
 type ServiceMember struct {
-	ID                        uuid.UUID  `json:"id" db:"id"`
-	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
-	UserID                    uuid.UUID  `json:"user_id" db:"user_id"`
-	User                      User       `belongs_to:"user"`
-	Edipi                     *string    `json:"edipi" db:"edipi"`
-	FirstName                 *string    `json:"first_name" db:"first_name"`
-	MiddleInitial             *string    `json:"middle_initial" db:"middle_initial"`
-	LastName                  *string    `json:"last_name" db:"last_name"`
-	Suffix                    *string    `json:"suffix" db:"suffix"`
-	Telephone                 *string    `json:"telephone" db:"telephone"`
-	SecondaryTelephone        *string    `json:"secondary_telephone" db:"secondary_telephone"`
-	PersonalEmail             *string    `json:"personal_email" db:"personal_email"`
-	PhoneIsPreferred          *bool      `json:"phone_is_preferred" db:"phone_is_preferred"`
-	SecondaryPhoneIsPreferred *bool      `json:"secondary_phone_is_preferred" db:"secondary_phone_is_preferred"`
-	EmailIsPreferred          *bool      `json:"email_is_preferred" db:"email_is_preferred"`
-	ResidentialAddressID      *uuid.UUID `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress        *Address   `belongs_to:"address"`
-	BackupMailingAddressID    *uuid.UUID `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress      *Address   `belongs_to:"address"`
+	ID                        uuid.UUID                           `json:"id" db:"id"`
+	CreatedAt                 time.Time                           `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time                           `json:"updated_at" db:"updated_at"`
+	UserID                    uuid.UUID                           `json:"user_id" db:"user_id"`
+	User                      User                                `belongs_to:"user"`
+	Edipi                     *string                             `json:"edipi" db:"edipi"`
+	Branch                    *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
+	Rank                      *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
+	FirstName                 *string                             `json:"first_name" db:"first_name"`
+	MiddleInitial             *string                             `json:"middle_initial" db:"middle_initial"`
+	LastName                  *string                             `json:"last_name" db:"last_name"`
+	Suffix                    *string                             `json:"suffix" db:"suffix"`
+	Telephone                 *string                             `json:"telephone" db:"telephone"`
+	SecondaryTelephone        *string                             `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail             *string                             `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred          *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
+	SecondaryPhoneIsPreferred *bool                               `json:"secondary_phone_is_preferred" db:"secondary_phone_is_preferred"`
+	EmailIsPreferred          *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID      *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress        *Address                            `belongs_to:"address"`
+	BackupMailingAddressID    *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress      *Address                            `belongs_to:"address"`
 }
-
-// TODO add func to evaluate whether profile is complete - add call to payload struct in handler
 
 // String is not required by pop and may be deleted
 func (s ServiceMember) String() string {
@@ -124,7 +123,7 @@ func NewValidServiceMemberResult(serviceMember ServiceMember) ServiceMemberResul
 func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (ServiceMemberResult, error) {
 	var result ServiceMemberResult
 	var serviceMember ServiceMember
-	err := db.Find(&serviceMember, id)
+	err := db.Eager().Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == "sql: no rows in result set" {
 			result = NewInvalidServiceMemberResult(FetchErrorNotFound)
@@ -140,23 +139,6 @@ func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID)
 	}
 
 	return result, err
-}
-
-// ValidateServiceMemberOwnership validates that a user has a serviceMember that exists
-func ValidateServiceMemberOwnership(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (bool, bool) {
-	exists := false
-	userOwns := false
-	var serviceMember ServiceMember
-	err := db.Find(&serviceMember, id)
-	if err == nil {
-		exists = true
-		// TODO: Handle case where more than one user is authorized to modify serviceMember
-		if uuid.Equal(serviceMember.UserID, userID) {
-			userOwns = true
-		}
-	}
-
-	return exists, userOwns
 }
 
 // CreateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
@@ -218,9 +200,38 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, user *User, 
 
 }
 
-// ProfileComplete checks if the profile has been completely filled out
-func (s *ServiceMember) ProfileComplete() bool {
-	fmt.Println("profile complete hit")
-	// TODO: check if every field is not 0 value and return true if so
-	return false
+// IsProfileComplete checks if the profile has been completely filled out
+func (s *ServiceMember) IsProfileComplete() bool {
+
+	// The following fields are required to be set for a profile to be complete
+	if s.Edipi == nil {
+		return false
+	}
+	if s.Branch == nil {
+		return false
+	}
+	if s.Rank == nil {
+		return false
+	}
+	if s.FirstName == nil {
+		return false
+	}
+	if s.LastName == nil {
+		return false
+	}
+	if s.Telephone == nil {
+		return false
+	}
+	if s.PersonalEmail == nil {
+		return false
+	}
+	if s.PhoneIsPreferred == nil && s.SecondaryPhoneIsPreferred == nil && s.EmailIsPreferred == nil {
+		return false
+	}
+	if s.ResidentialAddress == nil {
+		return false
+	}
+	// TODO: add check for station, SSN, and backup contacts
+	// All required fields have a set value
+	return true
 }
