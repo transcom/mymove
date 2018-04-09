@@ -6,6 +6,8 @@ import (
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
@@ -65,4 +67,17 @@ func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
 	}
 	list := strings.Join(filetypes, ", ")
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
+}
+
+// BranchIsPresent validates that a branch is present
+type BranchIsPresent struct {
+	Name  string
+	Field internalmessages.MilitaryBranch
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *BranchIsPresent) IsValid(errors *validate.Errors) {
+	if string(v.Field) == "" {
+		errors.Add(strings.ToLower(string(v.Field)), fmt.Sprintf("%s must not be blank!", v.Name))
+	}
 }
