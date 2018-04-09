@@ -4,13 +4,14 @@ import (
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_DiscountRateEffectiveDateValidation() {
 	now := time.Now()
 
 	validDiscountRate := DiscountRate{
-		StandardCarrierAlphaCode: "ABCD",
+		StandardCarrierAlphaCode: testdatagen.RandomSCAC(),
 		EffectiveDateLower:       now,
 		EffectiveDateUpper:       now.AddDate(1, 0, 0),
 	}
@@ -19,7 +20,7 @@ func (suite *ModelSuite) Test_DiscountRateEffectiveDateValidation() {
 	suite.verifyValidationErrors(&validDiscountRate, expErrors)
 
 	invalidDiscountRate := DiscountRate{
-		StandardCarrierAlphaCode: "ABCD",
+		StandardCarrierAlphaCode: testdatagen.RandomSCAC(),
 		EffectiveDateLower:       now,
 		EffectiveDateUpper:       now.AddDate(-1, 0, 0),
 	}
@@ -34,7 +35,7 @@ func (suite *ModelSuite) Test_DiscountRateSCACValidation() {
 	now := time.Now()
 
 	validDiscountRate := DiscountRate{
-		StandardCarrierAlphaCode: "ABCD",
+		StandardCarrierAlphaCode: testdatagen.RandomSCAC(),
 		EffectiveDateLower:       now,
 		EffectiveDateUpper:       now.AddDate(1, 0, 0),
 	}

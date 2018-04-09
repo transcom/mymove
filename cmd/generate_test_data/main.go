@@ -39,5 +39,6 @@ func main() {
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
 		testdatagen.MakeDocumentData(db)
+		testdatagen.MakeDiscountRate(db, nil)
 	}
 }
