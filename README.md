@@ -32,8 +32,8 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Logging](#logging)
   * [Database](#database)
     * [Dev Commands](#dev-commands)
-  * [Environment Variables](#environment-variables)
     * [Migrations](#migrations)
+  * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
@@ -210,23 +210,6 @@ There are a few handy targets in the Makefile to help you interact with the dev 
 * `make db_dev_migrate`: Applies database migrations against your running database container.
 * `make db_dev_migrate_down`: reverts the most recently applied migration by running the down migration
 
-### Environment Variables
-
-In development, we use [direnv](https://direnv.net/) to setup environment variables required by the application.
-
-* If you want to add a new environment variable to affect only your development machine, export it in `.envrc.local`. Variables exported in this file take precedence over those in `.envrc`.
-* If you want to add a new environment variable that is required by new development, it can be added to `.envrc` using one of the following:
-
-    ```bash
-    # Add a default value for all devs that can be overridden in their .envrc.local
-    export NEW_ENV_VAR="default value"
-
-    # or
-
-    # Specify that an environment variable must be defined in .envrc.local
-    require NEW_ENV_VAR "Look for info on this value in Google Drive"
-    ```
-
 #### Migrations
 
 If you need to change the database schema, you'll need to write a migration.
@@ -253,6 +236,24 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 1. Migrations run inside the container against the environment's database.
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
+
+
+### Environment Variables
+
+In development, we use [direnv](https://direnv.net/) to setup environment variables required by the application.
+
+* If you want to add a new environment variable to affect only your development machine, export it in `.envrc.local`. Variables exported in this file take precedence over those in `.envrc`.
+* If you want to add a new environment variable that is required by new development, it can be added to `.envrc` using one of the following:
+
+    ```bash
+    # Add a default value for all devs that can be overridden in their .envrc.local
+    export NEW_ENV_VAR="default value"
+
+    # or
+
+    # Specify that an environment variable must be defined in .envrc.local
+    require NEW_ENV_VAR "Look for info on this value in Google Drive"
+    ```
 
 ### Documentation
 
