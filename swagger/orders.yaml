@@ -230,7 +230,7 @@ definitions:
 
           Transforming this back to the BUPERS format can be achieved by removing the first three digits of the year field and replacing the EDIPI with the member's SSN. The SSN can be fetched using DMDC's Identity Web Services Real-time Broker Service.
 
-          ## Marines
+          ## Marine Corps
 
           Corresponds to the CT (Commercial Travel) SDN. On Web Orders, the CT SDN is found in the table at the bottom, in the last column of the row that begins with "Travel".
 
@@ -241,7 +241,11 @@ definitions:
           ## Coast Guard
 
           Corresponds to the Travel Order No.
-        example: "030-00362 (Army), 03018 9876543210 (Navy, after transformation), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard)"
+
+          ## Civilian
+
+          Corresponds to the Travel Authorization Number.
+        example: "030-00362 (Army), 0302018 9876543210 (Navy, after transformation), M7000213CTB28DZ (Marines), AJ-063322 (Air Force), 1214G85PRAAGK000 (Coast Guard), PS8D000025 (Civilian)"
       edipi:
         type: string
         description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
