@@ -6,6 +6,8 @@ import (
 	"github.com/markbates/goth"
 	. "github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 func (suite *ModelSuite) TestUserCreation() {
@@ -17,9 +19,10 @@ func (suite *ModelSuite) TestUserCreation() {
 	newUser := User{
 		LoginGovUUID:  fakeUUID,
 		LoginGovEmail: userEmail,
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 
-	if err := suite.db.Create(&newUser); err != nil {
+	if verrs, err := suite.db.ValidateAndCreate(&newUser); err != nil || verrs.HasAny() {
 		t.Fatal("Didn't create user in db.")
 	}
 
@@ -33,12 +36,31 @@ func (suite *ModelSuite) TestUserCreation() {
 	}
 }
 
+func (suite *ModelSuite) TestInvalidTypeEnum() {
+
+	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc1")
+	userEmail := "sally@government.gov"
+
+	newUser := User{
+		LoginGovUUID:  fakeUUID,
+		LoginGovEmail: userEmail,
+		Type:          "FOOBAR",
+	}
+
+	expErrors := map[string][]string{
+		"type": {"Type is not in the list [UNKNOWN, SERVICE_MEMBER, TRUSTED_AGENT]."},
+	}
+
+	suite.verifyValidationErrors(&newUser, expErrors)
+}
+
 func (suite *ModelSuite) TestUserCreationWithoutValues() {
 	newUser := &User{}
 
 	expErrors := map[string][]string{
 		"login_gov_email": {"LoginGovEmail can not be blank."},
 		"login_gov_uuid":  {"LoginGovUUID can not be blank."},
+		"type":            {"Type is not in the list [UNKNOWN, SERVICE_MEMBER, TRUSTED_AGENT]."},
 	}
 
 	suite.verifyValidationErrors(newUser, expErrors)

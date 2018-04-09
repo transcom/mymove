@@ -1,0 +1,3 @@
+add_column("users", "type", "string", {"default": "UNKNOWN"})
+change_column("users", "type", "string", {})
+add_index("service_members", "user_id", {"unique": true})

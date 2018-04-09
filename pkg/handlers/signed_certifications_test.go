@@ -22,6 +22,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	user := models.User{
 		LoginGovUUID:  userUUID,
 		LoginGovEmail: "email@example.com",
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -74,6 +75,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
 	user := models.User{
 		LoginGovUUID:  userUUID,
 		LoginGovEmail: "email@example.com",
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -120,6 +122,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	user := models.User{
 		LoginGovUUID:  userUUID,
 		LoginGovEmail: "email@example.com",
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -127,6 +130,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	user2 := models.User{
 		LoginGovUUID:  userUUID2,
 		LoginGovEmail: "email2@example.com",
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user2)
 	var selectedType = internalmessages.SelectedMoveTypeHHG
@@ -178,6 +182,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	user := models.User{
 		LoginGovUUID:  userUUID,
 		LoginGovEmail: "email@example.com",
+		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 	var selectedType = internalmessages.SelectedMoveTypeHHG

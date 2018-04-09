@@ -3,10 +3,11 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
+
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) internalmessages.ServiceMemberPayload {
@@ -65,7 +66,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		ResidentialAddress:        residentialAddress,
 		BackupMailingAddress:      backupMailingAddress,
 	}
-	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
+	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &user, &newServiceMember)
 	if verrs.HasAny() {
 		h.logger.Error("DB Validation", zap.Error(verrs))
 		response = servicememberop.NewCreateServiceMemberBadRequest()

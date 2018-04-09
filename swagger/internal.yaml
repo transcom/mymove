@@ -129,7 +129,7 @@ paths:
         200:
           description: Currently logged in user
           schema:
-            $ref: '#definitions/UserPayload'
+            $ref: '#/definitions/UserPayload'
         400:
           description: invalid request
         401:
@@ -796,17 +796,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member:
+        $ref: "#/definitions/ServiceMemberPayload"
         x-nullable: true
       type:
-        type: string
-        enum:
-          - UNKNOWN
-          - SERVICE_MEMBER
-          - DESIGNATED_BACKUP
+        $ref: "#/definitions/UserType"
       created_at:
         type: string
         format: date-time
@@ -818,6 +812,13 @@ definitions:
       - type
       - created_at
       - updated_at
+  UserType:
+    type: string
+    title: User Type
+    enum:
+      - UNKNOWN
+      - SERVICE_MEMBER
+      - TRUSTED_AGENT
   CreatePersonallyProcuredMovePayload:
     type: object
     properties:

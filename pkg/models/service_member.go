@@ -11,6 +11,8 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // ServiceMember is a user of type service member
@@ -158,7 +160,7 @@ func ValidateServiceMemberOwnership(db *pop.Connection, userID uuid.UUID, id uui
 }
 
 // CreateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, user *User, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -169,6 +171,18 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMembe
 		addressModels := []*Address{
 			serviceMember.ResidentialAddress,
 			serviceMember.BackupMailingAddress,
+		}
+
+		user.Type = internalmessages.UserTypeSERVICEMEMBER
+		verrs, err := dbConnection.ValidateAndSave(user)
+		if err != nil {
+			responseError = err
+			transactionError = errors.New("Rollback The transaction")
+			return transactionError
+		}
+		if verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			err = errors.New(fmt.Sprintf("Validation Error updating User, %v", verrs))
 		}
 
 		for _, model := range addressModels {
