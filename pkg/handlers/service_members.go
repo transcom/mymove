@@ -40,8 +40,8 @@ type CreateServiceMemberHandler HandlerContext
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
-	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
-	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
+	residentialAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
+	backupMailingAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 	// Get user id from context
 	var response middleware.Responder
 	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
@@ -69,7 +69,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		ResidentialAddress:        residentialAddress,
 		BackupMailingAddress:      backupMailingAddress,
 	}
-	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
+	verrs, err := models.CreateOrUpdateServiceMemberWithAddresses(h.db, &newServiceMember)
 	if verrs.HasAny() {
 		h.logger.Error("DB Validation", zap.Error(verrs))
 		response = servicememberop.NewCreateServiceMemberBadRequest()
@@ -160,61 +160,13 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
 
-		if payload.Edipi != nil {
-			serviceMember.Edipi = payload.Edipi
-		}
-		if payload.Branch != nil {
-			serviceMember.Branch = payload.Branch
-		}
-		if payload.Rank != nil {
-			serviceMember.Rank = payload.Rank
-		}
-		if payload.FirstName != nil {
-			serviceMember.FirstName = payload.FirstName
-		}
-		if payload.MiddleInitial != nil {
-			serviceMember.MiddleInitial = payload.MiddleInitial
-		}
-		if payload.LastName != nil {
-			serviceMember.LastName = payload.LastName
-		}
-		if payload.Suffix != nil {
-			serviceMember.Suffix = payload.Suffix
-		}
-		if payload.Telephone != nil {
-			serviceMember.Telephone = payload.Telephone
-		}
-		if payload.SecondaryTelephone != nil {
-			serviceMember.SecondaryTelephone = payload.SecondaryTelephone
-		}
-		if payload.PersonalEmail != nil {
-			serviceMember.PersonalEmail = payload.PersonalEmail
-		}
-		if payload.PhoneIsPreferred != nil {
-			serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
-		}
-		if payload.SecondaryPhoneIsPreferred != nil {
-			serviceMember.SecondaryPhoneIsPreferred = payload.SecondaryPhoneIsPreferred
-		}
-		if payload.EmailIsPreferred != nil {
-			serviceMember.EmailIsPreferred = payload.EmailIsPreferred
-		}
-		residentialAddress := addressModelFromPayload(payload.ResidentialAddress)
-		backupMailingAddress := addressModelFromPayload(payload.BackupMailingAddress)
-		if payload.ResidentialAddress != nil {
-			serviceMember.ResidentialAddress = residentialAddress
-		}
-		if payload.BackupMailingAddress != nil {
-			serviceMember.BackupMailingAddress = backupMailingAddress
-		}
+		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
 
-		if verrs, err := h.db.ValidateAndUpdate(&serviceMember); verrs.HasAny() || err != nil {
-			if verrs.HasAny() {
-				h.logger.Error("DB Validation", zap.Error(verrs))
-			} else {
-				h.logger.Error("DB Update", zap.Error(err))
-			}
+		if verrs.HasAny() {
 			response = servicememberop.NewPatchServiceMemberBadRequest()
+		} else if err != nil {
+			h.logger.Error("DB doingi things", zap.Error(err))
+			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		} else {
 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
 			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(&serviceMemberPayload)

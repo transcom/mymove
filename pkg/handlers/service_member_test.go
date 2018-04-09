@@ -228,7 +228,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.mustSave(&newServiceMember)
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi: &newEdipi,
+		Edipi:              &newEdipi,
+		ResidentialAddress: fakeAddress(),
 	}
 
 	// And: the context contains the auth values
@@ -255,6 +256,14 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	if *patchServiceMemberPayload.Edipi != newEdipi {
 		t.Fatalf("Edipi should have been updated.")
+	}
+
+	// Then: we expect an addresses to have been created
+	addresses := []models.Address{}
+	suite.db.All(&addresses)
+
+	if len(addresses) != 1 {
+		t.Errorf("Expected to find one address but found %v", len(addresses))
 	}
 }
 

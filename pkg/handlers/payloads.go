@@ -21,19 +21,3 @@ func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 	}
 	return nil
 }
-
-func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
-	if rawAddress == nil {
-		return nil
-	}
-	address := models.Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
-	}
-	return &address
-}
