@@ -29,6 +29,8 @@ func main() {
 		testdatagen.RunScenarioOne(db)
 	} else if *scenario == 2 {
 		testdatagen.RunScenarioTwo(db)
+	} else if *scenario == 3 {
+		testdatagen.RunScenarioThree(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)

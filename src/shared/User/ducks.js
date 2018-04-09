@@ -16,6 +16,8 @@ function getUserInfo() {
   return {
     jwt: cookie,
     email: jwt.email,
+    userId: jwt.user_id,
+    expires: Date(jwt.exp),
     isLoggedIn: true,
   };
 }
