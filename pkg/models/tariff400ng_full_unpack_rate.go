@@ -1,13 +1,13 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // Tariff400ngFullUnpackRate describes the rates paid to unpack various weights of goods
@@ -21,20 +21,8 @@ type Tariff400ngFullUnpackRate struct {
 	EffectiveDateUpper time.Time `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// String is not required by pop and may be deleted
-func (t Tariff400ngFullUnpackRate) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // Tariff400ngFullUnpackRates is not required by pop and may be deleted
 type Tariff400ngFullUnpackRates []Tariff400ngFullUnpackRate
-
-// String is not required by pop and may be deleted
-func (t Tariff400ngFullUnpackRates) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -47,14 +35,13 @@ func (t *Tariff400ngFullUnpackRate) Validate(tx *pop.Connection) (*validate.Erro
 	), nil
 }
 
-// ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngFullUnpackRate) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
-}
-
-// ValidateUpdate gets run every time you call "pop.ValidateAndUpdate" method.
-// This method is not required and may be deleted.
-func (t *Tariff400ngFullUnpackRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+// FetchTariff400ngFullUnpackRateMillicents returns the full unpack rate for a service
+// schedule.
+func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedule int) (int, error) {
+	rate := Tariff400ngFullUnpackRate{}
+	err := tx.Where("schedule = ?", serviceSchedule).First(&rate)
+	if err != nil {
+		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullUnpackRate")
+	}
+	return rate.RateMillicents, nil
 }
