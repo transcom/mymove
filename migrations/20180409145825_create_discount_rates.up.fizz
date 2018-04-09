@@ -1,0 +1,13 @@
+create_table("discount_rates", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("peak_rate_cycle", "bool", {})
+	t.Column("origin", "string", {})
+	t.Column("destination", "string", {})
+	t.Column("code_of_service", "string", {})
+	t.Column("standard_carrier_alpha_code", "string", {})
+	t.Column("linehaul_rate_cents", "integer", {})
+	t.Column("sit_rate_cents", "integer", {})
+	t.Column("effective_date_lower", "timestamp", {})
+	t.Column("effective_date_upper", "timestamp", {})
+	t.ForeignKey("standard_carrier_alpha_code", {"transportation_service_providers": ["standard_carrier_alpha_code"]}, {})
+})
