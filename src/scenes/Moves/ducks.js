@@ -93,6 +93,10 @@ export function moveReducer(state = initialState, action) {
       return Object.assign({}, state, {
         pendingMoveType: action.payload,
       });
+    case UPDATE_MOVE:
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+      });
     case CREATE_OR_UPDATE_MOVE_SUCCESS:
       return Object.assign({}, state, {
         currentMove: action.item,
