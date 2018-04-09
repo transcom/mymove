@@ -407,10 +407,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-  IndexServiceMembersPayload:
-    type: array
-    items:
-      $ref: '#/definitions/ServiceMemberPayload'
   ServiceMemberBackupContactPayload:
     type: object
     properties:
