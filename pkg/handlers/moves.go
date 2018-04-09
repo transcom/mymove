@@ -28,10 +28,8 @@ type CreateMoveHandler HandlerContext
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	var response middleware.Responder
-	user, ok := context.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No User, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	// Create a new move for an authenticated user
 	newMove := models.Move{
@@ -58,10 +56,8 @@ type IndexMovesHandler HandlerContext
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	var response middleware.Responder
-	user, ok := context.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No User, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moves, err := models.GetMovesForUserID(h.db, user.ID)
 	if err != nil {
@@ -84,10 +80,8 @@ type ShowMoveHandler HandlerContext
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	var response middleware.Responder
-	user, ok := context.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No User, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -123,10 +117,8 @@ type PatchMoveHandler HandlerContext
 // Handle ... patches a new Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	var response middleware.Responder
-	user, ok := context.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No User, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {

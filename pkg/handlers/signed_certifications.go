@@ -18,10 +18,8 @@ type CreateSignedCertificationHandler HandlerContext
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
 	var response middleware.Responder
-	user, ok := context.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No User, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
