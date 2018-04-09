@@ -237,7 +237,6 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
 
-
 ### Environment Variables
 
 In development, we use [direnv](https://direnv.net/) to setup environment variables required by the application.
