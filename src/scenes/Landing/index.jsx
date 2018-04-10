@@ -1,11 +1,12 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-import LoginButton from 'shared/User/LoginButton';
-import { bindActionCreators } from 'redux';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
+import { bindActionCreators } from 'redux';
+
 import { createMove } from 'scenes/Moves/ducks';
+import Alert from 'shared/Alert';
+import LoginButton from 'shared/User/LoginButton';
+import { loadUserAndToken } from 'shared/User/ducks';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -24,6 +25,11 @@ export class Landing extends Component {
       <div className="usa-grid">
         <h1>Welcome! </h1>
         <div>
+          {this.props.hasSubmitError && (
+            <Alert type="error" heading="An error occurred">
+              There was an error starting your move.
+            </Alert>
+          )}
           <LoginButton />
           <div />
         </div>
