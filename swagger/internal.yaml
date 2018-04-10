@@ -24,8 +24,6 @@ definitions:
       service_member:
         $ref: "#/definitions/ServiceMemberPayload"
         x-nullable: true
-      type:
-        $ref: "#/definitions/UserType"
       created_at:
         type: string
         format: date-time
@@ -34,16 +32,8 @@ definitions:
         format: date-time
     required:
       - id
-      - type
       - created_at
       - updated_at
-  UserType:
-    type: string
-    title: User Type
-    enum:
-      - UNKNOWN
-      - SERVICE_MEMBER
-      - TRUSTED_AGENT
   MilitaryBranch:
     type: string
     x-nullable: true
