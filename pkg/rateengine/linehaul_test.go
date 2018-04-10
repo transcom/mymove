@@ -111,11 +111,20 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 799
 	cwt := 40
+	rate := 5656
 
-	shc, _ := engine.shorthaulCharge(mileage, cwt)
-	expected := 31960
-	if shc != expected {
-		t.Errorf("Shorthaul charge should have been %d, but is %d.", expected, shc)
+	sh := models.Tariff400ngShorthaulRate{
+		CwtMilesLower:      1,
+		CwtMilesUpper:      50000,
+		RateCents:          rate,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&sh)
+
+	shc, _ := engine.shorthaulCharge(mileage, cwt, testdatagen.DateInsidePeakRateCycle)
+	if shc != rate {
+		t.Errorf("Shorthaul charge should have been %d, but is %d.", rate, shc)
 	}
 }
 
