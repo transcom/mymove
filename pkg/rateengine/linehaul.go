@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/gobuffalo/pop"
+	// "github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -26,15 +26,12 @@ func (re *RateEngine) determineMileage(originZip int, destinationZip int) (milea
 }
 
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) baseLinehaul(mileage int, cwt int) (baseLinehaulChargeCents int, err error) {
-	// TODO (Rebecca): This will come from a fetch
-	baseLinehaulCharge = models.FetchBaseLinehaulRate(re.db, mileage, cwt).rate_cents
-	// TODO (Rebecca): make a proper error
-	if baseLinehaulCharge.rate_cents == 0 {
-		err = errors.New("Oops determineBaseLinehaul")
-	} else {
-		err = nil
+func (re *RateEngine) baseLinehaul(mileage int, cwt int, date time.Time) (baseLinehaulChargeCents int, err error) {
+	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, cwt, date)
+	if err != nil {
+		re.logger.Error("Base Linehaul query didn't complete: ", zap.Error(err))
 	}
+
 	return baseLinehaulChargeCents, err
 }
 
@@ -73,7 +70,11 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int) (shorthaulChargeCent
 func (re *RateEngine) linehaulChargeTotal(weight int, originZip int, destinationZip int, date time.Time) (linehaulChargeCents int, err error) {
 	mileage, err := re.determineMileage(originZip, destinationZip)
 	cwt := re.determineCWT(weight)
-	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt)
+	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt, date)
+	if err != nil {
+		return 0, err
+	}
+
 	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
 	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
 	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt)
