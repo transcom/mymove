@@ -1,0 +1,1 @@
+add_index("service_members", "user_id", {"unique": true})
