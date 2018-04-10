@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"net/http"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -11,8 +10,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/markbates/goth"
 	"github.com/pkg/errors"
-
-	"github.com/transcom/mymove/pkg/auth/context"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -64,22 +61,6 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 	user := User{}
 	err := db.Find(&user, id)
-	return user, err
-}
-
-// GetUserFromRequest extracts the user model from the request context's user ID
-func GetUserFromRequest(db *pop.Connection, r *http.Request) (user User, err error) {
-	userID, ok := context.GetUserID(r.Context())
-	if !ok {
-		err = errors.New("Failed to fetch user_id from context")
-		return
-	}
-
-	user, err = GetUserByID(db, userID)
-	if err != nil {
-		return
-	}
-
 	return user, err
 }
 

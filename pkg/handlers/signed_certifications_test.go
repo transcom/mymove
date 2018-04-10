@@ -47,6 +47,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	ctx := params.HTTPRequest.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
@@ -64,52 +65,6 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	if len(certs) != 1 {
 		t.Errorf("Expected to find 1 signed certification but found %v", len(certs))
-	}
-}
-
-func (suite *HandlerSuite) TestCreateSignedCertificationHandlerNoUserID() {
-	t := suite.T()
-
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  userUUID,
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
-
-	date := time.Now()
-	certPayload := internalmessages.CreateSignedCertificationPayload{
-		CertificationText: swag.String("lorem ipsum"),
-		Date:              (*strfmt.Date)(&date),
-		Signature:         swag.String("Scruff McGruff"),
-	}
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	params := certop.CreateSignedCertificationParams{
-		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      *fmtUUID(move.ID),
-		HTTPRequest: req,
-	}
-
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
-	response := handler.Handle(params)
-
-	_, ok := response.(*certop.CreateSignedCertificationUnauthorized)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
-
-	certs := []models.SignedCertification{}
-	suite.db.All(&certs)
-
-	if len(certs) > 0 {
-		t.Errorf("Expected to find no signed certifications but found %v", len(certs))
 	}
 }
 
