@@ -7,6 +7,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth/context"
 )
 
 func payloadForMoveModel(user models.User, move models.Move) internalmessages.MovePayload {
@@ -26,12 +28,8 @@ type CreateMoveHandler HandlerContext
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	var response middleware.Responder
-	// Get user id from context
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = moveop.NewCreateMoveUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	// Create a new move for an authenticated user
 	newMove := models.Move{
@@ -58,12 +56,8 @@ type IndexMovesHandler HandlerContext
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	var response middleware.Responder
-
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = moveop.NewIndexMovesUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moves, err := models.GetMovesForUserID(h.db, user.ID)
 	if err != nil {
@@ -86,12 +80,8 @@ type ShowMoveHandler HandlerContext
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	var response middleware.Responder
-
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = moveop.NewShowMoveUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -127,12 +117,9 @@ type PatchMoveHandler HandlerContext
 // Handle ... patches a new Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	var response middleware.Responder
-	// Get user id from context
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = moveop.NewPatchMoveUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
+
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
 		h.logger.Fatal("Invalid MoveID, this should never happen.")

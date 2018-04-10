@@ -112,12 +112,12 @@ type CreateForm1299Handler HandlerContext
 
 // Handle creates a new form1299 via POST /form1299
 func (h CreateForm1299Handler) Handle(params form1299op.CreateForm1299Params) middleware.Responder {
-	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
-	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
-	pickupAddress := addressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
-	destAddress := addressModelFromPayload(params.CreateForm1299Payload.DestAddress)
-	extraAddress := addressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
-	contractorAddress := addressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
+	originOfficeAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
+	inTransitAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
+	pickupAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
+	destAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.DestAddress)
+	extraAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
+	contractorAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
 
 	newForm1299 := models.Form1299{
 		DatePrepared:                           (*time.Time)(params.CreateForm1299Payload.DatePrepared),

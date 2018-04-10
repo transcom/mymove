@@ -33,6 +33,7 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := servicememberop.ShowServiceMemberParams{
@@ -50,36 +51,6 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// And: Returned query to include our added servicemember
 	if servicemember.UserID.String() != user.ID.String() {
 		t.Errorf("Expected an servicemember to have user ID '%v'. None do.", user.ID)
-	}
-}
-
-func (suite *HandlerSuite) TestShowServiceMemberHandlerNoUser() {
-	t := suite.T()
-
-	// Given: A servicemember with a user that isn't logged in
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	servicemember := models.ServiceMember{
-		UserID: user.ID,
-	}
-	suite.mustSave(&servicemember)
-
-	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	showServiceMemberParams := servicememberop.NewShowServiceMemberParams()
-	showServiceMemberParams.HTTPRequest = req
-
-	// And: Show servicemember is queried
-	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-	showResponse := showHandler.Handle(showServiceMemberParams)
-
-	// Then: Expect a 401 unauthorized
-	_, ok := showResponse.(*servicememberop.ShowServiceMemberUnauthorized)
-	if !ok {
-		t.Errorf("Expected to get an unauthorized response, but got something else.")
 	}
 }
 
@@ -109,6 +80,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, loggedInUser)
 	req = req.WithContext(ctx)
 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
@@ -161,6 +133,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// And: the context contains the auth values for logged-in user
 	ctx := params.HTTPRequest.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
@@ -178,33 +151,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	if len(servicemembers) != 1 {
 		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
-	}
-}
-
-func (suite *HandlerSuite) TestCreateServiceMemberHandlerNoUserID() {
-	t := suite.T()
-	// Given: no authentication values in context
-	// When: a new ServiceMember is posted
-	servicememberPayload := internalmessages.CreateServiceMemberPayload{}
-	req := httptest.NewRequest("GET", "/service_members", nil)
-	params := servicememberop.CreateServiceMemberParams{
-		CreateServiceMemberPayload: &servicememberPayload,
-		HTTPRequest:                req,
-	}
-
-	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-	response := handler.Handle(params)
-
-	_, ok := response.(*servicememberop.CreateServiceMemberUnauthorized)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
-	// Then: we expect no servicemembers to have been created
-	servicemembers := []models.ServiceMember{}
-	suite.db.All(&servicemembers)
-
-	if len(servicemembers) > 0 {
-		t.Errorf("Expected to find no servicemembers but found %v", len(servicemembers))
 	}
 }
 
@@ -228,13 +174,15 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	suite.mustSave(&newServiceMember)
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi: &newEdipi,
+		Edipi:              &newEdipi,
+		ResidentialAddress: fakeAddress(),
 	}
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -255,6 +203,14 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	if *patchServiceMemberPayload.Edipi != newEdipi {
 		t.Fatalf("Edipi should have been updated.")
+	}
+
+	// Then: we expect an addresses to have been created
+	addresses := []models.Address{}
+	suite.db.All(&addresses)
+
+	if len(addresses) != 1 {
+		t.Errorf("Expected to find one address but found %v", len(addresses))
 	}
 }
 
@@ -290,6 +246,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user2)
 	req = req.WithContext(ctx)
 
 	params := servicememberop.PatchServiceMemberParams{
@@ -369,6 +326,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := servicememberop.PatchServiceMemberParams{

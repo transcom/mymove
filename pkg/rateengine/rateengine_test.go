@@ -90,6 +90,22 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
+	newBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1,
+		DistanceMilesUpper: 10000,
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     4000,
+		RateCents:          20000,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.RateEngineDate,
+		EffectiveDateUpper: testdatagen.RateEngineDate,
+	}
+
+	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
+	if err != nil {
+		t.Errorf("The newBaselineHaul didn't save.")
+	}
+
 	// 139698 +20000
 	fee, err := engine.computePPM(2000, 395, 336, testdatagen.RateEngineDate, .40)
 

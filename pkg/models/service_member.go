@@ -188,6 +188,93 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMembe
 
 }
 
+// PatchServiceMemberWithPayload patches service member with payload
+func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+	db.Transaction(func(dbConnection *pop.Connection) error {
+		var transactionError error
+
+		if payload.Edipi != nil {
+			s.Edipi = payload.Edipi
+		}
+		if payload.Branch != nil {
+			s.Branch = payload.Branch
+		}
+		if payload.Rank != nil {
+			s.Rank = payload.Rank
+		}
+		if payload.FirstName != nil {
+			s.FirstName = payload.FirstName
+		}
+		if payload.MiddleInitial != nil {
+			s.MiddleInitial = payload.MiddleInitial
+		}
+		if payload.LastName != nil {
+			s.LastName = payload.LastName
+		}
+		if payload.Suffix != nil {
+			s.Suffix = payload.Suffix
+		}
+		if payload.Telephone != nil {
+			s.Telephone = payload.Telephone
+		}
+		if payload.SecondaryTelephone != nil {
+			s.SecondaryTelephone = payload.SecondaryTelephone
+		}
+		if payload.PersonalEmail != nil {
+			s.PersonalEmail = payload.PersonalEmail
+		}
+		if payload.PhoneIsPreferred != nil {
+			s.PhoneIsPreferred = payload.PhoneIsPreferred
+		}
+		if payload.SecondaryPhoneIsPreferred != nil {
+			s.SecondaryPhoneIsPreferred = payload.SecondaryPhoneIsPreferred
+		}
+		if payload.EmailIsPreferred != nil {
+			s.EmailIsPreferred = payload.EmailIsPreferred
+		}
+		if payload.ResidentialAddress != nil {
+			residentialAddress := AddressModelFromPayload(payload.ResidentialAddress)
+			if verrs, err := dbConnection.ValidateAndCreate(residentialAddress); verrs.HasAny() || err != nil {
+				if verrs.HasAny() {
+					responseVErrors = verrs
+				} else {
+					responseError = err
+				}
+				transactionError = errors.New("Failed saving residential address model")
+				return transactionError
+			}
+			s.ResidentialAddressID = &residentialAddress.ID
+		}
+		if payload.BackupMailingAddress != nil {
+			backupMailingAddress := AddressModelFromPayload(payload.BackupMailingAddress)
+			if verrs, err := dbConnection.ValidateAndCreate(backupMailingAddress); verrs.HasAny() || err != nil {
+				if verrs.HasAny() {
+					responseVErrors = verrs
+				} else {
+					responseError = err
+				}
+				transactionError = errors.New("Failed saving backup mailing address model")
+				return transactionError
+			}
+			s.BackupMailingAddressID = &backupMailingAddress.ID
+		}
+
+		if verrs, err := dbConnection.ValidateAndUpdate(s); verrs.HasAny() || err != nil {
+			if verrs.HasAny() {
+				responseVErrors = verrs
+			} else {
+				responseError = err
+			}
+			transactionError = errors.New("Failed saving service member model")
+		}
+
+		return transactionError
+	})
+	return responseVErrors, responseError
+}
+
 // IsProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) IsProfileComplete() bool {
 

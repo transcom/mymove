@@ -69,7 +69,7 @@ class BigButtonGroup extends Component {
                     </div>
                   );
                 }, this)}
-                <p className="move-type-button-more-info">
+                <p className="move-type-button-more-info Todo">
                   <a href="about:blank">more information</a>
                 </p>
               </div>

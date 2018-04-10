@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth/context"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -31,10 +32,9 @@ type ShowLoggedInUserHandler HandlerContext
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response := userop.NewShowLoggedInUserUnauthorized()
-		return response
+	user, ok := context.GetUser(params.HTTPRequest.Context())
+	if !ok {
+		return userop.NewShowLoggedInUserInternalServerError()
 	}
 	serviceMember, err := user.GetServiceMemberProfile(h.db)
 	if err != nil {

@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth/context"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -41,15 +42,12 @@ type CreateServiceMemberHandler HandlerContext
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
-	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
-	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
-	// Get user id from context
 	var response middleware.Responder
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = servicememberop.NewCreateServiceMemberUnauthorized()
-		return response
-	}
+	residentialAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
+	backupMailingAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
+
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
@@ -90,12 +88,8 @@ type ShowServiceMemberHandler HandlerContext
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 	var response middleware.Responder
-
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = servicememberop.NewShowServiceMemberUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
 	if err != nil {
@@ -114,7 +108,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		case models.FetchErrorForbidden:
 			response = servicememberop.NewShowServiceMemberForbidden()
 		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+			response = servicememberop.NewShowServiceMemberInternalServerError()
 		}
 		return response
 
@@ -131,15 +125,12 @@ type PatchServiceMemberHandler HandlerContext
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 	var response middleware.Responder
-	// Get user id from context
-	user, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = servicememberop.NewPatchServiceMemberUnauthorized()
-		return response
-	}
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
+
 	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
 	if err != nil {
-		h.logger.Fatal("Invalid ServiceMemberID, this should never happen.")
+		response = servicememberop.NewPatchServiceMemberBadRequest()
 	}
 
 	// Validate that this serviceMember belongs to the current user
@@ -154,68 +145,19 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		case models.FetchErrorForbidden:
 			response = servicememberop.NewPatchServiceMemberForbidden()
 		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
+			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		}
 		return response
 	} else { // The given serviceMember does belong to the current user.
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
 
-		if payload.Edipi != nil {
-			serviceMember.Edipi = payload.Edipi
-		}
-		if payload.Branch != nil {
-			serviceMember.Branch = payload.Branch
-		}
-		if payload.Rank != nil {
-			serviceMember.Rank = payload.Rank
-		}
-		if payload.FirstName != nil {
-			serviceMember.FirstName = payload.FirstName
-		}
-		if payload.MiddleInitial != nil {
-			serviceMember.MiddleInitial = payload.MiddleInitial
-		}
-		if payload.LastName != nil {
-			serviceMember.LastName = payload.LastName
-		}
-		if payload.Suffix != nil {
-			serviceMember.Suffix = payload.Suffix
-		}
-		if payload.Telephone != nil {
-			serviceMember.Telephone = payload.Telephone
-		}
-		if payload.SecondaryTelephone != nil {
-			serviceMember.SecondaryTelephone = payload.SecondaryTelephone
-		}
-		if payload.PersonalEmail != nil {
-			serviceMember.PersonalEmail = payload.PersonalEmail
-		}
-		if payload.PhoneIsPreferred != nil {
-			serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
-		}
-		if payload.SecondaryPhoneIsPreferred != nil {
-			serviceMember.SecondaryPhoneIsPreferred = payload.SecondaryPhoneIsPreferred
-		}
-		if payload.EmailIsPreferred != nil {
-			serviceMember.EmailIsPreferred = payload.EmailIsPreferred
-		}
-		residentialAddress := addressModelFromPayload(payload.ResidentialAddress)
-		backupMailingAddress := addressModelFromPayload(payload.BackupMailingAddress)
-		if payload.ResidentialAddress != nil {
-			serviceMember.ResidentialAddress = residentialAddress
-		}
-		if payload.BackupMailingAddress != nil {
-			serviceMember.BackupMailingAddress = backupMailingAddress
-		}
+		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
 
-		if verrs, err := h.db.ValidateAndUpdate(&serviceMember); verrs.HasAny() || err != nil {
-			if verrs.HasAny() {
-				h.logger.Error("DB Validation", zap.Error(verrs))
-			} else {
-				h.logger.Error("DB Update", zap.Error(err))
-			}
+		if verrs.HasAny() {
 			response = servicememberop.NewPatchServiceMemberBadRequest()
+		} else if err != nil {
+			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		} else {
 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
 			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(&serviceMemberPayload)

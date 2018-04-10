@@ -119,7 +119,8 @@ export class PpmWeight extends Component {
         </div>
         <h4>
           {' '}
-          Your PPM Incentive: <span className="incentive">{incentive}</span>
+          Your PPM Incentive:{' '}
+          <span className="incentive Todo">{incentive}</span>
         </h4>
         <div className="info">
           <h3> How is my PPM Incentive calculated?</h3>
@@ -128,7 +129,7 @@ export class PpmWeight extends Component {
             move your own belongings, based on weight and distance. You pay
             taxes on this income.
           </p>
-          <p>Your move Distance: {moveDistance} miles </p>
+          <p className="Todo">Your move Distance: {moveDistance} miles </p>
           <p>
             This estimator just presents a range of possible incentives. You’ll
             need to inventory and weigh the stuff you’re carrying, and submit
