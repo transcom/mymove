@@ -1,6 +1,8 @@
 import React from 'react';
+
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
+import Name from 'scenes/ServiceMembers/Name';
 
 const Placeholder = props => {
   return (
@@ -30,7 +32,11 @@ const stub = (key, pages, component) => ({ match }) => {
 export default () => {
   const pages = {
     '/service-member/:id/create': { render: stub },
-    '/service-member/:id/name': { render: stub },
+    '/service-member/:id/name': {
+      render: (key, pages) => ({ match }) => (
+        <Name pages={pages} pageKey={key} match={match} />
+      ),
+    },
     '/service-member/:id/contact-info': { render: stub },
     '/service-member/:id/duty-station': { render: stub },
     '/service-member/:id/residence-address': { render: stub },
