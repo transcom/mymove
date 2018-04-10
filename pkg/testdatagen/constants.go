@@ -58,10 +58,10 @@ var DateInsidePerformancePeriod = time.Date(TestYear, time.May, 16, 0, 0, 0, 0, 
 var DateOutsidePerformancePeriod = time.Date(TestYear, time.August, 1, 0, 0, 0, 0, time.UTC)
 
 // RateEngineDate is a date for the rate engine to use on generation for tests.
-var RateEngineDate = time.Date(TestYear-1, time.May, 10, 0, 0, 0, 0, time.UTC)
+var RateEngineDate = time.Date(TestYear, time.May, 10, 0, 0, 0, 0, time.UTC)
 
 // RateEngineEffectiveDateStart is the beginning of a rate cycle.
-var RateEngineEffectiveDateStart = time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
+var RateEngineEffectiveDateStart = time.Date(TestYear-1, time.May, 15, 0, 0, 0, 0, time.UTC)
 
 // RateEngineEffectiveDateEnd is the end of a rate cycle.
-var RateEngineEffectiveDateEnd = time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
+var RateEngineEffectiveDateEnd = time.Date(TestYear+1, time.May, 15, 0, 0, 0, 0, time.UTC)

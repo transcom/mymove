@@ -11,7 +11,7 @@ import (
 // MakeDiscountRate creates a single DiscountRate.
 func MakeDiscountRate(db *pop.Connection, tsp *models.TransportationServiceProvider) (models.DiscountRate, error) {
 	if tsp == nil {
-		newTSP, err := MakeTSP(db, "Very Good TSP", "NINO")
+		newTSP, err := MakeTSP(db, "Very Good TSP", RandomSCAC())
 		if err != nil {
 			log.Panic(err)
 		}
