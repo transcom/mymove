@@ -91,12 +91,18 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
 
+	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
 	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
+
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
 
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 

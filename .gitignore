@@ -1,6 +1,6 @@
 *.swp
 
-.envrc
+.envrc.local
 
 # dependencies
 /vendor

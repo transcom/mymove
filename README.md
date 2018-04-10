@@ -33,6 +33,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Database](#database)
     * [Dev Commands](#dev-commands)
     * [Migrations](#migrations)
+  * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
@@ -108,15 +109,10 @@ The following commands will get mymove running on your machine for the first tim
 
 * Install Go with Homebrew. Make sure you do not have other installations.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time!_
+* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/).
+* Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
-* For managing local environment variables, we're using [direnv](https://direnv.net/). After installing it via brew install, which you should have been prompted to do by running `./bin/prereqs` above, add the code below to your `.bashrc`. Then, copy the `example_envrc` file to `.envrc`(for those working on the project, instructions for setting the values for local development can be found pinned to the engineering channel).  Note: You will need to run any debuggers (e.g. delve or golang) from the project directory.
-
-```bash
-if command -v direnv >/dev/null; then
-    eval "$(direnv hook bash)"
-fi
-```
 
 ### Setup: Database
 
@@ -240,6 +236,23 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 1. Migrations run inside the container against the environment's database.
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
+
+### Environment Variables
+
+In development, we use [direnv](https://direnv.net/) to setup environment variables required by the application.
+
+* If you want to add a new environment variable to affect only your development machine, export it in `.envrc.local`. Variables exported in this file take precedence over those in `.envrc`.
+* If you want to add a new environment variable that is required by new development, it can be added to `.envrc` using one of the following:
+
+    ```bash
+    # Add a default value for all devs that can be overridden in their .envrc.local
+    export NEW_ENV_VAR="default value"
+
+    # or
+
+    # Specify that an environment variable must be defined in .envrc.local
+    require NEW_ENV_VAR "Look for info on this value in Google Drive"
+    ```
 
 ### Documentation
 

@@ -9,6 +9,8 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // Address is an address
@@ -99,4 +101,21 @@ func (a *Address) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (a *Address) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// AddressModelFromPayload returns the model struct from payload
+func AddressModelFromPayload(rawAddress *internalmessages.Address) *Address {
+	if rawAddress == nil {
+		return nil
+	}
+	address := Address{
+		StreetAddress1: *rawAddress.StreetAddress1,
+		StreetAddress2: rawAddress.StreetAddress2,
+		StreetAddress3: rawAddress.StreetAddress3,
+		City:           *rawAddress.City,
+		State:          *rawAddress.State,
+		PostalCode:     *rawAddress.PostalCode,
+		Country:        rawAddress.Country,
+	}
+	return &address
 }
