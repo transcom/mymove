@@ -49,19 +49,14 @@ func (re *RateEngine) linehaulFactors(cwt int, zip3 int, date time.Time) (lineha
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
-func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date Time.time) (shorthaulChargeCents int, err error) {
+func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date time.Time) (shorthaulChargeCents int, err error) {
 	if mileage >= 800 {
 		return 0, nil
 	}
 
 	cwtMiles := mileage * cwt
-	// TODO: shorthaulChargeCents will be a lookup
-	shorthaulChargeCents = models.Tariff400ngShorthaulRate(re.db, cwtMiles, date)
-	if shorthaulChargeCents == 0 {
-		err = errors.New("Oops determineShorthaulCharge")
-	} else {
-		err = nil
-	}
+	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
+
 	return shorthaulChargeCents, err
 }
 

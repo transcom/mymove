@@ -136,7 +136,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	if err != nil {
 		t.Fatalf("Unable to query shorthaul rate: %s", err)
 	}
-	if rate != rate1 {
+	if rate != rate2 {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate2)
 	}
 
@@ -145,7 +145,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	if err != nil {
 		t.Fatalf("Unable to query shorthaul rate: %s", err)
 	}
-	if rate != rate1 {
+	if rate != rate3 {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate3)
 	}
 

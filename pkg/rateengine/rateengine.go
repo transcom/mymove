@@ -40,7 +40,7 @@ func (re *RateEngine) computePPM(weight int, originZip int, destinationZip int, 
 		re.logger.Error("Failed to determine destination linehaul factor", zap.Error(err))
 		return 0, err
 	}
-	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt)
+	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt, date)
 	if err != nil {
 		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
 		return 0, err
