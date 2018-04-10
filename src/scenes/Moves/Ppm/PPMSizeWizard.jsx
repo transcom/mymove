@@ -20,14 +20,25 @@ export class PpmSizeWizardPage extends Component {
     }
   };
   render() {
-    const { pages, pageKey, pendingPpmSize, currentPpm } = this.props;
+    const {
+      pages,
+      pageKey,
+      pendingPpmSize,
+      currentPpm,
+      hasSubmitSuccess,
+      error,
+    } = this.props;
     const ppmSize = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
+        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={ppmSize !== null}
+        pageIsValid={Boolean(ppmSize)}
+        pageIsDirty={Boolean(pendingPpmSize)}
+        hasSucceeded={hasSubmitSuccess}
+        error={error}
       >
         <PpmSize />
       </WizardPage>
@@ -38,6 +49,8 @@ PpmSizeWizardPage.propTypes = {
   createOrUpdatePpm: PropTypes.func.isRequired,
   pendingPpmSize: PropTypes.string,
   currentPpm: PropTypes.shape({ size: PropTypes.string, id: PropTypes.string }),
+  error: PropTypes.object,
+  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
