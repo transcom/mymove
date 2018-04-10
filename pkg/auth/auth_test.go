@@ -21,7 +21,6 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/context"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -317,7 +316,6 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	user := models.User{
 		LoginGovUUID:  userUUID,
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 

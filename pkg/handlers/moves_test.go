@@ -20,7 +20,6 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -94,7 +93,6 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -143,7 +141,6 @@ func (suite *HandlerSuite) TestIndexMovesHandlerNoUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -176,14 +173,12 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
 	user2 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user2)
 
@@ -223,7 +218,6 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -273,14 +267,12 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
 	user2 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user2)
 
@@ -324,7 +316,6 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -364,7 +355,6 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -405,7 +395,6 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -446,7 +435,6 @@ func (suite *HandlerSuite) TestShowMoveHandlerNoUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -477,14 +465,12 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	notLoggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&notLoggedInUser)
 
 	loggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&loggedInUser)
 

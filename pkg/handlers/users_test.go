@@ -36,7 +36,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	if *okResponse.Payload.ID != *fmtUUID(unknownUser.ID) || okResponse.Payload.Type != "UNKNOWN" {
+	if *okResponse.Payload.ID != *fmtUUID(unknownUser.ID) {
 		t.Fatalf("Didn't get back what we wanted. %#v", okResponse)
 	}
 
@@ -57,7 +57,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		FirstName: &firstName,
 	}
 
-	verrs, err := models.CreateServiceMemberWithAddresses(suite.db, &smUser, &serviceMember)
+	verrs, err := models.CreateServiceMemberWithAddresses(suite.db, &serviceMember)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 		t.Fatal("Couldnt create theSM")
@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	if *okResponse.Payload.ID != *fmtUUID(smUser.ID) || okResponse.Payload.Type != "SERVICE_MEMBER" {
+	if *okResponse.Payload.ID != *fmtUUID(smUser.ID) {
 		t.Fatalf("Didn't get back what we wanted. %#v", okResponse.Payload)
 	}
 

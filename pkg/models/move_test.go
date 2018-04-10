@@ -25,13 +25,11 @@ func (suite *ModelSuite) TestGetMoveForUser() {
 	user1 := User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "whoever@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 
 	user2 := User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "someoneelse@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 
 	verrs, err := suite.db.ValidateAndCreate(&user1)

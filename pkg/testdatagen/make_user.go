@@ -6,7 +6,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -20,7 +19,6 @@ func MakeUser(db *pop.Connection) (models.User, error) {
 	user := models.User{
 		LoginGovUUID:  id,
 		LoginGovEmail: "first.last@login.gov.test",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 
 	verrs, err := db.ValidateAndSave(&user)

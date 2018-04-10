@@ -21,7 +21,6 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -61,7 +60,6 @@ func (suite *HandlerSuite) TestShowServiceMemberHandlerNoUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -92,14 +90,12 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	notLoggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&notLoggedInUser)
 
 	loggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&loggedInUser)
 
@@ -135,7 +131,6 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -220,7 +215,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -271,14 +265,12 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
 	user2 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email2@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user2)
 
@@ -322,7 +314,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
@@ -362,7 +353,6 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 

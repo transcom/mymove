@@ -18,7 +18,6 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 

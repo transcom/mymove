@@ -14,7 +14,6 @@ import (
 
 	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -155,7 +154,6 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
-		Type:          internalmessages.UserTypeUNKNOWN,
 	}
 	suite.mustSave(&user)
 
