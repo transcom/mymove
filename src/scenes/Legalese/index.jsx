@@ -42,7 +42,7 @@ export class SignedCertification extends Component {
             Before officially booking your move, please carefully read and then
             sign the following.
           </p>
-          <a className="pdf">Printer Friendly PDF</a>
+          <a className="pdf Todo">Printer Friendly PDF</a>
         </span>
 
         <CertificationText certificationText={this.props.certificationText} />
