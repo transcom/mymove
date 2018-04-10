@@ -15,21 +15,29 @@ export class MoveTypeWizardPage extends Component {
     const { pendingMoveType, updateMove } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
-    if (pendingMoveType) {
-      //don't update a move unless the type is selected
-      updateMove(moveId, pendingMoveType);
-    }
+    updateMove(moveId, pendingMoveType);
   };
   render() {
-    const { pages, pageKey, pendingMoveType, currentMove } = this.props;
+    const {
+      pages,
+      pageKey,
+      pendingMoveType,
+      currentMove,
+      hasSubmitSuccess,
+      error,
+    } = this.props;
     const moveType =
       pendingMoveType || (currentMove && 'selected_move_type' in currentMove);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
+        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={moveType !== false}
+        pageIsValid={Boolean(moveType)}
+        pageIsDirty={Boolean(pendingMoveType)}
+        hasSucceeded={hasSubmitSuccess}
+        error={error}
       >
         <MoveType />
       </WizardPage>

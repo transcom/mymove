@@ -44,6 +44,10 @@ func fmtInt64(i int) *int64 {
 	return &fmtInt
 }
 
+func fmtBool(b bool) *bool {
+	return &b
+}
+
 func stringFromSSN(ssn *strfmt.SSN) *string {
 	var stringPointer *string
 	if ssn != nil {

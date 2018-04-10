@@ -57,10 +57,7 @@ export class PpmWeight extends Component {
     const { pendingPpmWeight, createOrUpdatePpm } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
-    if (pendingPpmWeight) {
-      //don't update a ppm unless the weight has changed?
-      createOrUpdatePpm(moveId, { weight_estimate: pendingPpmWeight });
-    }
+    createOrUpdatePpm(moveId, { weight_estimate: pendingPpmWeight });
   };
   onWeightSelecting = value => {
     this.props.setPendingPpmWeight(value);
@@ -76,6 +73,7 @@ export class PpmWeight extends Component {
       incentive,
       pages,
       pageKey,
+      hasSubmitSuccess,
     } = this.props;
     const currentInfo = getWeightInfo(currentPpm);
     const setOrPendingWeight =
@@ -86,9 +84,12 @@ export class PpmWeight extends Component {
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
+        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={setOrPendingWeight != null}
+        pageIsValid={Boolean(setOrPendingWeight)}
+        pageIsDirty={Boolean(pendingPpmWeight)}
+        hasSucceeded={hasSubmitSuccess}
       >
         <h2>
           <img
@@ -118,7 +119,8 @@ export class PpmWeight extends Component {
         </div>
         <h4>
           {' '}
-          Your PPM Incentive: <span className="incentive">{incentive}</span>
+          Your PPM Incentive:{' '}
+          <span className="incentive Todo">{incentive}</span>
         </h4>
         <div className="info">
           <h3> How is my PPM Incentive calculated?</h3>
@@ -127,7 +129,7 @@ export class PpmWeight extends Component {
             move your own belongings, based on weight and distance. You pay
             taxes on this income.
           </p>
-          <p>Your move Distance: {moveDistance} miles </p>
+          <p className="Todo">Your move Distance: {moveDistance} miles </p>
           <p>
             This estimator just presents a range of possible incentives. You’ll
             need to inventory and weigh the stuff you’re carrying, and submit
@@ -148,6 +150,7 @@ PpmWeight.propTypes = {
     size: PropTypes.string,
     weight: PropTypes.number,
   }),
+  hasSubmitSuccess: PropTypes.bool.isRequired,
   moveDistance: PropTypes.number,
   setPendingPpmWeight: PropTypes.func.isRequired,
 };

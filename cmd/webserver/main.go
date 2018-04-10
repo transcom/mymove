@@ -125,8 +125,9 @@ func main() {
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
+	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger.Sugar())
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
@@ -165,10 +166,14 @@ func main() {
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
-	internalMux.Use(auth.RequireAuthMiddleware)
 	internalMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*internalSwagger))
 	internalMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "internal.html")))
-	internalMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
+
+	// Mux for internal API that enforces auth
+	internalAPIMux := goji.SubMux()
+	internalAPIMux.Use(userAuthMiddleware)
+	internalMux.Handle(pat.New("/*"), internalAPIMux)
+	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()

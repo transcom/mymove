@@ -23,7 +23,7 @@ class BigButtonGroup extends Component {
           onClick={onButtonClick}
         >
           <p>{firstLine}</p>
-          <p>{secondLine}</p>
+          <p className="Todo">{secondLine}</p>
           <img className="icon" src={icon} alt={altTag} />
         </BigButton>
       );

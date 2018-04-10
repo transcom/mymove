@@ -35,6 +35,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	// And: the context contains the auth values
 	ctx := params.HTTPRequest.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -54,36 +55,6 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 		t.Errorf("Expected to find 1 move but found %v", len(moves))
 	}
 
-}
-
-func (suite *HandlerSuite) TestCreateMoveHandlerNoUserID() {
-	t := suite.T()
-	// Given: no authentication values in context
-	// When: a new Move is posted
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	movePayload := internalmessages.CreateMovePayload{
-		SelectedMoveType: &selectedType,
-	}
-	req := httptest.NewRequest("GET", "/moves", nil)
-	params := moveop.CreateMoveParams{
-		CreateMovePayload: &movePayload,
-		HTTPRequest:       req,
-	}
-
-	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
-	response := handler.Handle(params)
-
-	_, ok := response.(*moveop.CreateMoveUnauthorized)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
-	// Then: we expect no moves to have been created
-	moves := []models.Move{}
-	suite.db.All(&moves)
-
-	if len(moves) > 0 {
-		t.Errorf("Expected to find no moves but found %v", len(moves))
-	}
 }
 
 func (suite *HandlerSuite) TestIndexMovesHandler() {
@@ -110,6 +81,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	// And: the context contains the auth values
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
@@ -131,38 +103,6 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 
 	if !moveExists {
 		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
-	}
-}
-
-func (suite *HandlerSuite) TestIndexMovesHandlerNoUser() {
-	t := suite.T()
-
-	// Given: A move with a user that isn't logged in
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
-
-	req := httptest.NewRequest("GET", "/moves", nil)
-	indexMovesParams := moveop.NewIndexMovesParams()
-	indexMovesParams.HTTPRequest = req
-
-	// And: All moves are queried
-	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
-	indexResponse := indexHandler.Handle(indexMovesParams)
-
-	// Then: Expect a 401 unauthorized
-	_, ok := indexResponse.(*moveop.IndexMovesUnauthorized)
-	if !ok {
-		t.Errorf("Expected to get an unauthorized response, but got something else.")
 	}
 }
 
@@ -195,6 +135,7 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	// And: the context contains the auth values for user 2
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user2)
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
@@ -237,6 +178,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -292,6 +234,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user2)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -331,6 +274,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -371,6 +315,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -387,8 +332,6 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 }
-
-// LSDJLKSDJF
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
 	t := suite.T()
@@ -409,6 +352,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.ShowMoveParams{
@@ -428,36 +372,6 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
 	}
 
-}
-
-func (suite *HandlerSuite) TestShowMoveHandlerNoUser() {
-	t := suite.T()
-
-	// Given: A move with a user that isn't logged in
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	move := models.Move{
-		UserID: user.ID,
-	}
-	suite.mustSave(&move)
-
-	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	showMoveParams := moveop.NewShowMoveParams()
-	showMoveParams.HTTPRequest = req
-
-	// And: Show move is queried
-	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
-	showResponse := showHandler.Handle(showMoveParams)
-
-	// Then: Expect a 401 unauthorized
-	_, ok := showResponse.(*moveop.ShowMoveUnauthorized)
-	if !ok {
-		t.Errorf("Expected to get an unauthorized response, but got something else.")
-	}
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
@@ -488,6 +402,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
 	ctx := req.Context()
 	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, loggedInUser)
 	req = req.WithContext(ctx)
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,

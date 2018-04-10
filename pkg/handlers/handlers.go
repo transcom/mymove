@@ -4,13 +4,16 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/storage"
@@ -21,11 +24,11 @@ import (
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
 	db     *pop.Connection
-	logger *zap.SugaredLogger
+	logger *zap.Logger
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.SugaredLogger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 	return HandlerContext{
 		db:     db,
 		logger: logger,
@@ -91,6 +94,8 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
 
+	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
@@ -98,9 +103,26 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
+
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)
 
 	return internalAPI.Serve(nil)
+}
+
+// Converts the value returned by Pop's ValidateAnd* methods into a payload that can
+// be returned to clients. This payload contains an object with a key,  `errors`, the
+// value of which is a name -> validation error object.
+func createFailedValidationPayload(verrs *validate.Errors) *internalmessages.InvalidRequestResponsePayload {
+	errs := make(map[string]string)
+	for _, key := range verrs.Keys() {
+		errs[key] = strings.Join(verrs.Get(key), " ")
+	}
+	return &internalmessages.InvalidRequestResponsePayload{
+		Errors: errs,
+	}
 }

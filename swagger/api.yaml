@@ -1,13 +1,11 @@
 swagger: '2.0'
 info:
-  description: The public API for my.move.mil
+  description: The public API for my.move.mil. This is a work in-progress, and is not a final product. We will be continuously updating this site based on feedback.
   version: 0.0.1
   title: my.move.mil
-  contact:
-    email: ppp@truss.works
   license:
     name: MIT
-    url: https://opensource.org/licenses/MIT
+    url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 basePath: /api/v1
 consumes:
   - application/json
@@ -17,7 +15,7 @@ paths:
   /blackouts:
     get:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
-      description: gets a list of blackout periods which the current user can see
+      description: Gets a list of blackout periods which the current user can see
       operationId: indexBlackouts
       parameters:
         - in: query
@@ -48,8 +46,10 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of Blackouts
+        401:
+          description: must be authenticated to use this endpoint
+        500:
+          description: server error
   /blackouts/{blackout_uuid}:
     get:
       summary: retrieve the details of a blackout period
@@ -68,10 +68,14 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
     delete:
       summary: delete the associated blackout period
       operationId: deleteBlackout
@@ -87,10 +91,14 @@ paths:
           description: the blackout was successfully deleted
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
     patch:
       summary: update the associated blackout
       operationId: updateBlackout
@@ -113,10 +121,52 @@ paths:
               $ref: '#/definitions/Blackout'
         400:
           description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
         403:
           description: not authorized to access the associated blackout
         404:
           description: no blackout found with that UUID
+        500:
+          description: server error
+  /documents/{document_uuid}/uploads:
+    post:
+      summary: Adds a new upload to a document
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createDocumentUpload
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: document_uuid
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to which the Upload is added
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: formData
+          name: name
+          type: string
+          description: Human readable name for the upload
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/DocumentUpload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: dcoument UUID not found in system
+        500:
+          description: server error
   /shipments:
     get:
       summary: Gets visible shipments
@@ -157,6 +207,8 @@ paths:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
+        500:
+          description: server error
   /shipments/{shipment_uuid}:
     get:
       summary: Gets a particular shipment
@@ -182,6 +234,8 @@ paths:
           description: not authorized to see the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
     patch:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
@@ -211,10 +265,12 @@ paths:
           description: not authorized to see the details of this shipment
         404:
           description: shipment UUID not found in system
+        500:
+          description: server error
   /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP
+      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
       operationId: acceptShipment
       parameters:
         - name: shipment_uuid
@@ -222,7 +278,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
         - name: payload
           in: body
           required: true
@@ -239,6 +295,38 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/claims:
+    get:
+      summary: Gets the list of claims associated with a shipment
+      operationId: getShipmentClaims
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment for which contact details are requested
+      responses:
+        200:
+          description: returns contact details for the shipment
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Claim'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/contact_details:
     get:
       summary: Gets the detailed contact information for a move
@@ -262,6 +350,62 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to access this shipment
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/documents:
+    get:
+      summary: Gets the list of documents associated with a Shipment
+      operationId: getShipmentDocuments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns the documents associated with the shipment
+          schema:
+            $ref: '#/definitions/Document'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+        500:
+          description: server error
+    post:
+      summary: Creates a new document associated with a shipment
+      description: Creates the storage for the new document and sets the UUID
+      operationId: createShipmentDocument
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: payload
+          in: body
+          required: true
+          description: A bare bones Document object containing the name of the new document
+          schema:
+            $ref: '#/definitions/Document'
+      responses:
+        200:
+          description: returns updated document with UUID and create time set.
+          schema:
+            $ref: '#/definitions/Document'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add documents to this shipment
+        500:
+          description: server error
   /shipments/{shipment_uuid}/refuse:
     post:
       summary: Rejects an awarded shipment
@@ -273,7 +417,7 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the tsp
+          description: UUID of the shipment
         - in: body
           name: payload
           description: reason for refusing award
@@ -291,10 +435,12 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to accept this shipment
-  /tsp:
+        500:
+          description: server error
+  /tsps:
     get:
       summary: List all TSPs
-      description: Gets a list of all TSPs registered.
+      description: Gets a list of all the TSPs which the logged in user has access to.
       operationId: indexTSPs
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
       responses:
@@ -306,9 +452,11 @@ paths:
               $ref: '#/definitions/TSP'
         400:
           description: invalid request
-        403:
-          description: not authorized to get list of TSPs
-  /tsp/{tsp_uuid}/shipments:
+        401:
+          description: must be authenticated to access this endpoint
+        500:
+          description: server error
+  /tsps/{tsp_uuid}/shipments:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
@@ -358,7 +506,9 @@ paths:
           description: not authorized to get list of shipments for this TSP
         404:
           description: TSP UUID not found in system
-  /tsp/{tsp_uuid}/blackouts:
+        500:
+          description: server error
+  /tsps/{tsp_uuid}/blackouts:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
@@ -403,8 +553,18 @@ paths:
           description: not authorized to get list of blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
     post:
       summary: Adds a new Blackout period to the list of blackouts associated with his TSP
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
+       contain an ID as this will be created when it is added to the DB. Similarly, the tsp_id field should be
+       omitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
+       400 bad request.
+
+       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+       originate in the given GBLOC.
       operationId: createBlackout
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
@@ -421,16 +581,18 @@ paths:
           schema:
             $ref: '#/definitions/Blackout'
       responses:
-        200:
+        201:
           description: The blackout as added to the database including DB ID
           schema:
-             $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/Blackout'
         400:
           description: invalid request
         403:
           description: not authorized to create blackouts for this TSP
         404:
           description: TSP UUID not found in system
+        500:
+          description: server error
 definitions:
   AcceptShipmentPayload:
     type: object
@@ -439,6 +601,9 @@ definitions:
         $ref: '#/definitions/ShippingAgentContact'
       destination_shipping_agent:
         $ref: '#/definitions/ShippingAgentContact'
+    required:
+      - origin_shipping_agent
+      - destination_shipping_agent
   Address:
     type: object
     properties:
@@ -463,120 +628,20 @@ definitions:
       state:
         title: State
         type: string
-        x-display-value:
-          AL: AL
-          AK: AK
-          AZ: AZ
-          AR: AR
-          CA: CA
-          CO: CO
-          CT: CT
-          DE: DE
-          DC: DC
-          FL: FL
-          GA: GA
-          HI: HI
-          ID: ID
-          IL: IL
-          IN: IN
-          IA: IA
-          KS: KS
-          KY: KY
-          LA: LA
-          ME: ME
-          MD: MD
-          MA: MA
-          MI: MI
-          MN: MN
-          MS: MS
-          MO: MO
-          MT: MT
-          NE: NE
-          NV: NV
-          NH: NH
-          NJ: NJ
-          NM: NM
-          NY: NY
-          NC: NC
-          ND: ND
-          OH: OH
-          OK: OK
-          OR: OR
-          PA: PA
-          RI: RI
-          SC: SC
-          SD: SD
-          TN: TN
-          TX: TX
-          UT: UT
-          VT: VT
-          VA: VA
-          WA: WA
-          WV: WV
-          WI: WI
-          WY: WY
-        enum:
-          - AL
-          - AK
-          - AZ
-          - AR
-          - CA
-          - CO
-          - CT
-          - DE
-          - DC
-          - FL
-          - GA
-          - HI
-          - ID
-          - IL
-          - IN
-          - IA
-          - KS
-          - KY
-          - LA
-          - ME
-          - MD
-          - MA
-          - MI
-          - MN
-          - MS
-          - MO
-          - MT
-          - NE
-          - NV
-          - NH
-          - NJ
-          - NM
-          - NY
-          - NC
-          - ND
-          - OH
-          - OK
-          - OR
-          - PA
-          - RI
-          - SC
-          - SD
-          - TN
-          - TX
-          - UT
-          - VT
-          - VA
-          - WA
-          - WV
-          - WI
-          - WY
-      zip:
+        example: CA
+      postal_code:
         type: string
+        format: zip
         title: ZIP/Postal Code
-        example: "90210"
-        pattern: '^(\d{5}([\-]\d{4})?)$'
+        example: "'90210' or 'N15 3NL'"
+      country:
+        type: string
+        example: Luxembourg
+        title: Country
     required:
     - street_address_1
     - city
-    - state
-    - zip
+    - postal_code
   Blackout:
     type: object
     properties:
@@ -629,25 +694,89 @@ definitions:
         enum: # Add other values
           - REGION_6
         example: REGION_6
-#  Claim:
-#    type: object
-#    description: A claim resulting from an earlier shipment
-#    properties:
-#      id:
-#        type: string
-#        format: uuid
-#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-#      shipment_id:
-#        type: string
-#        format: uuid
-#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-#      claim_date:
-#        type: string
-#        format: date
-#        example: 2018-03-15
-#      description:
-#        type: string
-#        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+  Document:
+    type: object
+    description: A document is one or more uploaded files (usually images or PDFs) which can be associated with a shipment
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Unique ID for this document within the system
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        description: Human readable name for the document
+        example: Preload Weight Ticket 2017-10-21
+        maxLength: 1024
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/DocumentUpload'
+      created:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:20:50.52Z
+        description: When the document was created
+      last_modified:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:22:30.52Z
+        description: When the document was last added to
+      upload_url:
+        type: string
+        format: uri
+        example: https://test_api.move.mil/api/v1/documents/c56a4180-65aa-42ec-a945-5fd21dec0538/uploads
+        description: Location to which uploads should be posted.
+    required:
+      - name
+  DocumentUpload:
+    type: object
+    description: Details of a file uploaded as part of a Document. Usually, but not always, an image or PDF
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Unique ID for this object
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        description: Human readable name for the document
+        example: Page 3
+        maxLength: 1024
+      uploaded:
+        type: string
+        format: dateTime
+        description: When the Upload was created
+        example: 2018-04-12T23:22:30.52Z
+      mime_type:
+        type: string
+        description: The mime type for the file
+        example: 'application/pdf'
+        enum:
+          - application/pdf
+          - image/jpeg
+          - image/png
+    required:
+      - name
+  Claim:
+    type: object
+    description: A claim resulting from an earlier shipment
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      claim_date:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:20:50.52Z
+      description:
+        type: string
+        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
   CodeOfService:
     type: string
     description: Code for service provided by a TSP
@@ -692,18 +821,6 @@ definitions:
     description: Office Codes for Transcom offices originating GBLs
     example: LHNQ
     pattern: '^[A-Z]{4}$' # Should we make this an enum?
-#  PreMoveSurvey:
-#    type: object
-#    description: Placeholder for the details of the Survey done by TSP prior to packing/picking up shipment.
-#    properties:
-#      id:
-#        type: string
-#        format: uuid
-#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-#      shipment_id:
-#        type: string
-#        format: uuid
-#        example: c56a4180-65aa-42ec-a945-5fd21dec0538
   RefuseShipmentPayload:
     type: object
     properties:
@@ -722,6 +839,15 @@ definitions:
         $ref: '#/definitions/ShipmentStatus'
       customer:
         $ref: '#/definitions/Customer'
+      tsp_id:
+        type: string
+        format: uuid
+        description: The ID of the TSP to whom the shipment has been offered/accepted
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_locator:
+        type: string
+        pattern: '^[A-Z0-9]{6}$'
+        description: The 'record locator' used to refer back to the Move associated with this Shipment. This is the human readable identifier for the move which can be used to link back to the Service Member, orders etc.
       dates:
         $ref: '#/definitions/ShipmentDates'
       estimated_weight:
@@ -782,6 +908,10 @@ definitions:
         format: email
         description: Email used to contact shipping agent
         example: jackson_flies@gmail.com
+    required:
+      - name
+      - phone_number
+      - email
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
