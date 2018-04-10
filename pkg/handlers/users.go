@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"go.uber.org/zap"
 
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -20,7 +21,6 @@ func payloadForUserModel(user models.User, serviceMember *models.ServiceMember) 
 		ID:            fmtUUID(user.ID),
 		CreatedAt:     fmtDateTime(user.CreatedAt),
 		ServiceMember: smPayload,
-		Type:          user.Type,
 		UpdatedAt:     fmtDateTime(user.UpdatedAt),
 	}
 	return userPayload
@@ -38,6 +38,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 	serviceMember, err := user.GetServiceMemberProfile(h.db)
 	if err != nil {
+		h.logger.Error("Error retrieving service_member", zap.Error(err))
 		response := userop.NewShowLoggedInUserUnauthorized()
 		return response
 	}

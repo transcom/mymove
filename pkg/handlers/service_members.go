@@ -70,7 +70,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		ResidentialAddress:        residentialAddress,
 		BackupMailingAddress:      backupMailingAddress,
 	}
-	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &user, &newServiceMember)
+	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
 	if verrs.HasAny() {
 		h.logger.Error("DB Validation", zap.Error(verrs))
 		response = servicememberop.NewCreateServiceMemberBadRequest()
