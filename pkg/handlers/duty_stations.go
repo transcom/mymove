@@ -11,12 +11,13 @@ import (
 )
 
 func payloadForDutyStationModel(station models.DutyStation) internalmessages.DutyStationPayload {
+
 	stationPayload := internalmessages.DutyStationPayload{
 		ID:        fmtUUID(station.ID),
 		CreatedAt: fmtDateTime(station.CreatedAt),
 		UpdatedAt: fmtDateTime(station.UpdatedAt),
 		Name:      swag.String(station.Name),
-		Branch:    station.Branch,
+		Branch:    &station.Branch,
 		Address:   payloadForAddressModel(&station.Address),
 	}
 	return stationPayload
@@ -29,13 +30,7 @@ type SearchDutyStationsHandler HandlerContext
 func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsParams) middleware.Responder {
 	var stations models.DutyStations
 	var response middleware.Responder
-
-	// Verify user is logged in
-	_, err := models.GetUserFromRequest(h.db, params.HTTPRequest)
-	if err != nil {
-		response = stationop.NewSearchDutyStationsUnauthorized()
-		return response
-	}
+	var err error
 
 	stations, err = models.FindDutyStations(h.db, params.Search, params.Branch)
 	if err != nil {

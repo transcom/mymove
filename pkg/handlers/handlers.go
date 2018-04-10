@@ -103,6 +103,10 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
+
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)

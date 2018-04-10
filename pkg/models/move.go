@@ -59,7 +59,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// MoveResult is returned by GetMoveForUser and encapsulates weather the call succeeded and why it failed.
+// MoveResult is returned by GetMoveForUser and encapsulates whether the call succeeded and why it failed.
 type MoveResult struct {
 	valid     bool
 	errorCode FetchError
