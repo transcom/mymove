@@ -427,10 +427,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-  IndexServiceMembersPayload:
-    type: array
-    items:
-      $ref: '#/definitions/ServiceMemberPayload'
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1464,6 +1460,13 @@ definitions:
       - city
       - state
       - postal_code
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
   /issues:
     post:
@@ -1947,6 +1950,8 @@ paths:
             $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         403:
           description: not authorized
         404:
@@ -2211,34 +2216,5 @@ paths:
           description: user is not authorized
         404:
           description: matching duty station not found
-        500:
-          description: internal server error
-  /duty_stations/{dutyStationId}:
-    get:
-      summary: Returns the given duty station
-      description: Returns the given duty station
-      operationId: showDutyStation
-      tags:
-        - duty_stations
-      parameters:
-        - in: path
-          name: dutyStationId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of station
-      responses:
-        200:
-          description: the instance of the duty station
-          schema:
-            $ref: '#/definitions/DutyStationPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: duty station is not found
         500:
           description: internal server error
