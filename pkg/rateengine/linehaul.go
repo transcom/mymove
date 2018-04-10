@@ -2,16 +2,14 @@ package rateengine
 
 import (
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
 )
 
 func (re *RateEngine) determineMileage(originZip int, destinationZip int) (mileage int, err error) {
 	// TODO (Rebecca): make a proper error
-	fmt.Print(originZip)
-	fmt.Print(destinationZip)
 	// TODO (Rebecca): Lookup originZip to destinationZip mileage
 	mileage = 1000
 	if mileage != 1000 {
@@ -53,6 +51,8 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date time.Time) (sho
 	if mileage >= 800 {
 		return 0, nil
 	}
+	re.logger.Debug("Shipment qualifies for shorthaul fee",
+		zap.Int("miles", mileage))
 
 	cwtMiles := mileage * cwt
 	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
