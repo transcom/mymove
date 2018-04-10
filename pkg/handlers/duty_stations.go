@@ -11,12 +11,13 @@ import (
 )
 
 func payloadForDutyStationModel(station models.DutyStation) internalmessages.DutyStationPayload {
+
 	stationPayload := internalmessages.DutyStationPayload{
 		ID:        fmtUUID(station.ID),
 		CreatedAt: fmtDateTime(station.CreatedAt),
 		UpdatedAt: fmtDateTime(station.UpdatedAt),
 		Name:      swag.String(station.Name),
-		Branch:    station.Branch,
+		Branch:    &station.Branch,
 		Address:   payloadForAddressModel(&station.Address),
 	}
 	return stationPayload
