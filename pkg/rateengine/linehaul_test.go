@@ -146,7 +146,47 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 
 	suite.mustSave(&newBaseLinehaul)
 
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 395, 336, testdatagen.RateEngineDate)
+	zipAustin := models.Tariff400ngZip3{
+		Zip3:          787,
+		BasepointCity: "Austin",
+		State:         "TX",
+		ServiceArea:   1,
+		RateArea:      "1",
+		Region:        1,
+	}
+	suite.mustSave(&zipAustin)
+
+	zipSanFrancisco := models.Tariff400ngZip3{
+		Zip3:          941,
+		BasepointCity: "San Francisco",
+		State:         "CA",
+		ServiceArea:   2,
+		RateArea:      "2",
+		Region:        2,
+	}
+	suite.mustSave(&zipSanFrancisco)
+
+	sa1 := models.Tariff400ngServiceArea{
+		Name:               "Austin",
+		ServiceChargeCents: 100,
+		ServiceArea:        1,
+		LinehaulFactor:     1,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&sa1)
+
+	sa2 := models.Tariff400ngServiceArea{
+		Name:               "SF",
+		ServiceChargeCents: 200,
+		ServiceArea:        2,
+		LinehaulFactor:     1,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&sa2)
+
+	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 787, 941, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
