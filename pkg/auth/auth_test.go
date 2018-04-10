@@ -312,9 +312,9 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	t := suite.T()
 
 	// Given: a logged in user
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
+	loginGovUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
 	user := models.User{
-		LoginGovUUID:  userUUID,
+		LoginGovUUID:  loginGovUUID,
 		LoginGovEmail: "email@example.com",
 	}
 	suite.mustSave(&user)
@@ -327,14 +327,26 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
 	req = req.WithContext(ctx)
 
-	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := RequireAuthMiddleware(handler)
+	var contextUser models.User
+	var ok bool
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		contextUser, ok = context.GetUser(r.Context())
+	})
+	middleware := UserAuthMiddleware(suite.db)(handler)
 
 	middleware.ServeHTTP(rr, req)
+
+	if !ok {
+		t.Error("error while getting user from context")
+	}
 
 	// We should be not be redirected since we're logged in
 	if status := rr.Code; status != http.StatusOK {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusOK)
+	}
+
+	if !uuid.Equal(contextUser.ID, user.ID) {
+		t.Errorf("the context user is different from expected, expected %v got %v", user.ID, contextUser.ID)
 	}
 }
 
@@ -346,7 +358,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := RequireAuthMiddleware(handler)
+	middleware := UserAuthMiddleware(suite.db)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

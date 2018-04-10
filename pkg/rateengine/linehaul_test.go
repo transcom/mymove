@@ -23,13 +23,48 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage := 3200
-	cwt := 40
 
-	blh, _ := engine.baseLinehaul(mileage, cwt)
 	expected := 128000
-	if blh != 128000 {
-		t.Errorf("CWT should have been %d but is %d.", expected, blh)
+
+	newBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 3101,
+		DistanceMilesUpper: 3300,
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          expected,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+
+	otherBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 3401,
+		DistanceMilesUpper: 3500,
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          158000,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+
+	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
+	if err != nil {
+		t.Errorf("The object didn't save: %s", err)
+	}
+
+	_, otherErr := suite.db.ValidateAndSave(&otherBaseLinehaul)
+	if otherErr != nil {
+		t.Errorf("The object didn't save: %s", otherErr)
+	}
+
+	mileage := 3200
+	cwt := 39
+	date := testdatagen.DateInsidePeakRateCycle
+
+	blh, err := engine.baseLinehaul(mileage, cwt, date)
+	if blh != expected {
+		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
 	}
 }
 
@@ -87,11 +122,25 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
+	expected := 20000
+
+	newBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1,
+		DistanceMilesUpper: 10000,
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     4000,
+		RateCents:          expected,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.RateEngineDate,
+		EffectiveDateUpper: testdatagen.RateEngineDate,
+	}
+
+	suite.mustSave(&newBaseLinehaul)
+
 	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 395, 336, testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	expected := 20000
 	if linehaulChargeTotal != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
 	}

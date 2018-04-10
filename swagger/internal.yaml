@@ -36,6 +36,7 @@ definitions:
       - updated_at
   MilitaryBranch:
     type: string
+    x-nullable: true
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
@@ -191,10 +192,13 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        example: 57893457897
-        pattern: /^[0-9]{10}$/
+        example: '5789345789'
+        pattern: '^[0-9]{10}$'
         x-nullable: true
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
         type: boolean
         x-nullable: true
@@ -247,7 +251,7 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
+      is_profile_complete:
         type: boolean
       created_at:
         type: string
@@ -258,7 +262,7 @@ definitions:
     required:
       - id
       - user_id
-      - profile_complete
+      - is_profile_complete
       - created_at
       - updated_at
   CreateServiceMemberPayload:
@@ -270,11 +274,14 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        pattern: /^[0-9]{10}$/
-        example: 57893457897
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn
@@ -339,8 +346,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
-        type: boolean
   PatchServiceMemberPayload:
     type: object
     properties:
@@ -350,11 +355,14 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: string
-        pattern: /^[0-9]{10}$/
-        example: 57893457897
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
+      branch:
+        $ref: '#/definitions/MilitaryBranch'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
         type: string
         format: ssn
@@ -419,12 +427,6 @@ definitions:
         $ref: '#/definitions/Address'
       backup_mailing_address:
         $ref: '#/definitions/Address'
-      profile_complete:
-        type: boolean
-  IndexServiceMembersPayload:
-    type: array
-    items:
-      $ref: '#/definitions/ServiceMemberPayload'
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1327,7 +1329,7 @@ definitions:
         title: Address Line 2
       street_address_3:
         type: string
-        example: Montmâtre
+        example: Montmârtre
         x-nullable: true
         title: Address Line 3
       city:
@@ -1458,6 +1460,13 @@ definitions:
       - city
       - state
       - postal_code
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
   /issues:
     post:
@@ -1941,6 +1950,8 @@ paths:
             $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         403:
           description: not authorized
         404:
@@ -1948,27 +1959,6 @@ paths:
         500:
           description: server error
   /service_members:
-    get:
-      summary: List all service members
-      description: List all service members
-      operationId: indexServiceMembers
-      tags:
-        - service_members
-      responses:
-        200:
-          description: list of service members
-          schema:
-            $ref: '#/definitions/IndexServiceMembersPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: no service members found
-        500:
-          description: internal server error
     post:
       summary: Creates service member for a logged-in user
       description: Creates an instance of a service member tied to a user

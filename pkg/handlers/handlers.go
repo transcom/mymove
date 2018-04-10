@@ -4,13 +4,16 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/storage"
@@ -100,9 +103,26 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 
+	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
+	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
+
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)
 
 	return internalAPI.Serve(nil)
+}
+
+// Converts the value returned by Pop's ValidateAnd* methods into a payload that can
+// be returned to clients. This payload contains an object with a key,  `errors`, the
+// value of which is a name -> validation error object.
+func createFailedValidationPayload(verrs *validate.Errors) *internalmessages.InvalidRequestResponsePayload {
+	errs := make(map[string]string)
+	for _, key := range verrs.Keys() {
+		errs[key] = strings.Join(verrs.Get(key), " ")
+	}
+	return &internalmessages.InvalidRequestResponsePayload{
+		Errors: errs,
+	}
 }
