@@ -9,7 +9,7 @@ function CertificationText({ certificationText }) {
   }
 
   return (
-    <div className="certification_text_box">
+    <div className="certification_text_box Todo">
       {certificationMarkup ? (
         <div dangerouslySetInnerHTML={{ __html: certificationMarkup }} />
       ) : (

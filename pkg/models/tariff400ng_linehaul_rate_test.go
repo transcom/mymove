@@ -4,6 +4,7 @@ import (
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_LinehaulEffectiveDateValidation() {
@@ -108,4 +109,39 @@ func (suite *ModelSuite) Test_LinehaulDistanceValidation() {
 		"distance_miles_lower": []string{"200 is not less than 100."},
 	}
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
+}
+
+func (suite *ModelSuite) Test_LinehaulRateCreateAndSave() {
+	t := suite.T()
+	mySpecificRate := 474747
+
+	newBaseLinehaul := Tariff400ngLinehaulRate{
+		DistanceMilesLower: 3101,
+		DistanceMilesUpper: 3300,
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          mySpecificRate,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+
+	suite.mustSave(&newBaseLinehaul)
+
+	linehaulRate := 0
+
+	sql := `SELECT
+			rate_cents
+		FROM
+			tariff400ng_linehaul_rates
+		WHERE
+			rate_cents = $1;`
+
+	err := suite.db.RawQuery(sql, mySpecificRate).First(&linehaulRate)
+
+	if err != nil {
+		t.Errorf("Something went wrong with saving the test object: %s\n", err)
+	}
+	if linehaulRate != mySpecificRate {
+		t.Errorf("The record object didn't save!")
+	}
 }

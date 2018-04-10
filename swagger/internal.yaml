@@ -1440,6 +1440,13 @@ definitions:
       - city
       - state
       - postal_code
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
   /issues:
     post:
@@ -1905,6 +1912,8 @@ paths:
             $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         403:
           description: not authorized
         404:
