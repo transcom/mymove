@@ -4,8 +4,6 @@ import (
 	"errors"
 	"time"
 
-	"go.uber.org/zap"
-
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
 )
