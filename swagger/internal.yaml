@@ -14,6 +14,26 @@ consumes:
 produces:
   - application/json
 definitions:
+  UserPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member:
+        $ref: "#/definitions/ServiceMemberPayload"
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
   MilitaryBranch:
     type: string
     x-nullable: true
@@ -1440,6 +1460,13 @@ definitions:
       - city
       - state
       - postal_code
+  InvalidRequestResponsePayload:
+    type: object
+    properties:
+      errors:
+        type: object
+        additionalProperties:
+          type: string
 paths:
   /issues:
     post:
@@ -1543,6 +1570,24 @@ paths:
           description: invalid request
         404:
           description: unknown form1299Id
+        500:
+          description: server error
+  /users/logged_in:
+    get:
+      summary: Returns the user info for the currently logged in user
+      description: Returns the user info for the currently logged in user
+      operationId: showLoggedInUser
+      tags:
+        - users
+      responses:
+        200:
+          description: Currently logged in user
+          schema:
+            $ref: '#/definitions/UserPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
         500:
           description: server error
   /moves:
@@ -1905,6 +1950,8 @@ paths:
             $ref: '#/definitions/UploadPayload'
         400:
           description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
         403:
           description: not authorized
         404:
