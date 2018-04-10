@@ -1,10 +1,7 @@
 package rateengine
 
 import (
-	"fmt"
 	"time"
-
-	// "github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -32,18 +29,17 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
 		DistanceMilesUpper: 3300,
-		WeightLbsLower: 3000,
-		WeightLbsUpper: 4000,
-		RateCents: expected,
-		Type: "ConusLinehaul",
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          expected,
+		Type:               "ConusLinehaul",
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 
-	r, err := suite.db.ValidateAndSave(&newBaseLinehaul)
-	fmt.Printf("It's that object: %s\n", r)
+	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
 	if err != nil {
-		t.Errorf("Well, that didn't work: %s", err)
+		t.Errorf("The object didn't save: %s", err)
 	}
 
 	mileage := 3200
@@ -110,13 +106,28 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	// Need to make base linehaul charge object for search in this context.
+	expected := 20000
+
+	newBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1,
+		DistanceMilesUpper: 10000,
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     4000,
+		RateCents:          expected,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.RateEngineDate,
+		EffectiveDateUpper: testdatagen.RateEngineDate,
+	}
+
+	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
+	if err != nil {
+		t.Errorf("The newBaselineHaul didn't save.")
+	}
 
 	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 395, 336, testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	expected := 20000
 	if linehaulChargeTotal != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
 	}

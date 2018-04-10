@@ -118,9 +118,9 @@ func (suite *ModelSuite) Test_LinehaulRateCreateAndSave() {
 	newBaseLinehaul := Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
 		DistanceMilesUpper: 3300,
-		WeightLbsLower: 3000,
-		WeightLbsUpper: 4000,
-		RateCents: mySpecificRate,
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          mySpecificRate,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
@@ -139,7 +139,7 @@ func (suite *ModelSuite) Test_LinehaulRateCreateAndSave() {
 	err := suite.db.RawQuery(sql, mySpecificRate).First(&linehaulRate)
 
 	if err != nil {
-		t.Errorf("You got an error: %s\n", err)
+		t.Errorf("Something went wrong with saving the test object: %s\n", err)
 	}
 	if linehaulRate != mySpecificRate {
 		t.Errorf("The record object didn't save!")
