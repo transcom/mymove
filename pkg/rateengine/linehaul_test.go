@@ -37,9 +37,25 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 
+	otherBaseLinehaul := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 3401,
+		DistanceMilesUpper: 3500,
+		WeightLbsLower:     3000,
+		WeightLbsUpper:     4000,
+		RateCents:          158000,
+		Type:               "ConusLinehaul",
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+
 	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
 	if err != nil {
 		t.Errorf("The object didn't save: %s", err)
+	}
+
+	_, otherErr := suite.db.ValidateAndSave(&otherBaseLinehaul)
+	if otherErr != nil {
+		t.Errorf("The object didn't save: %s", otherErr)
 	}
 
 	mileage := 3200
@@ -119,10 +135,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		EffectiveDateUpper: testdatagen.RateEngineDate,
 	}
 
-	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
-	if err != nil {
-		t.Errorf("The newBaselineHaul didn't save.")
-	}
+	suite.mustSave(&newBaseLinehaul)
 
 	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 395, 336, testdatagen.RateEngineDate)
 	if err != nil {
