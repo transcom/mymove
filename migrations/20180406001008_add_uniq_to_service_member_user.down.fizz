@@ -1,1 +1,1 @@
-drop_index("service_members", "user_id")
+drop_index("service_members", "service_members_user_id_uniq_idx")
