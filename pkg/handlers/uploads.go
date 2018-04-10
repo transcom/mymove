@@ -113,8 +113,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("Failed to validate", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
-		h.logger.Error(verrs.Error())
-		return uploadop.NewCreateUploadBadRequest()
+		payload := createFailedValidationPayload(verrs)
+		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
 	}
 
 	// Push file to S3
