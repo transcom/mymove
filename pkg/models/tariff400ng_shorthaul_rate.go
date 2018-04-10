@@ -69,9 +69,14 @@ func (t *Tariff400ngShorthaulRate) ValidateUpdate(tx *pop.Connection) (*validate
 func FetchShorthaulRateCents(tx *pop.Connection, cwtMiles int, date time.Time) (rateCents int, err error) {
 	sh := Tariff400ngShorthaulRates{}
 
-	sql := `SELECT rate_cents FROM tariff400ng_shorthaul_rates WHERE
-		cwt_mi_lower <= $2 AND $2 < cwt_mi_upper AND
-		effective_date_lower <= $3 AND $3 < effective_date_upper`
+	sql := `SELECT
+		rate_cents
+	FROM
+		tariff400ng_shorthaul_rates
+	WHERE
+		cwt_miles_lower <= $1 AND $1 < cwt_miles_upper
+	AND
+		effective_date_lower <= $2 AND $2 < effective_date_upper`
 
 	err = tx.RawQuery(sql, cwtMiles, date).All(&sh)
 	if err != nil {
