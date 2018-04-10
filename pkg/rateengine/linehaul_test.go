@@ -78,9 +78,9 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	cwt := 40
 	rate := 5656
 
-	sh := Tariff400ngShorthaulRate{
+	sh := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
-		CwtMilesUpper:      800,
+		CwtMilesUpper:      50000,
 		RateCents:          rate,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
