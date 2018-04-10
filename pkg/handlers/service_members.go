@@ -138,7 +138,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	}
 	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
 	if err != nil {
-		reponse = servicememberop.NewPatchServiceMemberBadRequest()
+		response = servicememberop.NewPatchServiceMemberBadRequest()
 	}
 
 	// Validate that this serviceMember belongs to the current user
