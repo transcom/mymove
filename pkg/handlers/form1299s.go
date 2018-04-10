@@ -5,44 +5,12 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	form1299op "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/form1299s"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
-
-func payloadForAddressModel(a *models.Address) *internalmessages.Address {
-	if a != nil {
-		return &internalmessages.Address{
-			StreetAddress1: swag.String(a.StreetAddress1),
-			StreetAddress2: a.StreetAddress2,
-			StreetAddress3: a.StreetAddress3,
-			City:           swag.String(a.City),
-			State:          swag.String(a.State),
-			PostalCode:     swag.String(a.PostalCode),
-			Country:        a.Country,
-		}
-	}
-	return nil
-}
-
-func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
-	if rawAddress == nil {
-		return nil
-	}
-	address := models.Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
-	}
-	return &address
-}
 
 func payloadForForm1299Model(form1299 models.Form1299) internalmessages.Form1299Payload {
 	form1299Payload := internalmessages.Form1299Payload{
@@ -144,12 +112,12 @@ type CreateForm1299Handler HandlerContext
 
 // Handle creates a new form1299 via POST /form1299
 func (h CreateForm1299Handler) Handle(params form1299op.CreateForm1299Params) middleware.Responder {
-	originOfficeAddress := addressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
-	inTransitAddress := addressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
-	pickupAddress := addressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
-	destAddress := addressModelFromPayload(params.CreateForm1299Payload.DestAddress)
-	extraAddress := addressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
-	contractorAddress := addressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
+	originOfficeAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.OriginOfficeAddress)
+	inTransitAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.InTransitAddress)
+	pickupAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.PickupAddress)
+	destAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.DestAddress)
+	extraAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.ExtraAddress)
+	contractorAddress := models.AddressModelFromPayload(params.CreateForm1299Payload.ContractorAddress)
 
 	newForm1299 := models.Form1299{
 		DatePrepared:                           (*time.Time)(params.CreateForm1299Payload.DatePrepared),
