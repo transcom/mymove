@@ -2,6 +2,7 @@ package rateengine
 
 import (
 	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
 )
 
 func (re *RateEngine) serviceFeeCents(cwt int, zip3 int) (int, error) {
@@ -59,5 +60,12 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip int, des
 		return 0, err
 	}
 	subTotal := originServiceFee + destinationServiceFee + pack + unpack
+
+	re.logger.Info("Non-Linehaul charge total calculated",
+		zap.Int("origin service fee", originServiceFee),
+		zap.Int("destination service fee", destinationServiceFee),
+		zap.Int("pack fee", pack),
+		zap.Int("unpack fee", unpack))
+
 	return subTotal, nil
 }
