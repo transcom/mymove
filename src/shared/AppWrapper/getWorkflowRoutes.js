@@ -1,4 +1,6 @@
 import React from 'react';
+import { connect } from 'react-redux';
+
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 
@@ -25,19 +27,11 @@ const stub = (key, pages) => ({ match }) => (
   <Placeholder pageList={pages} pageKey={key} title={key} />
 );
 
-const always = () => true;
-const incompleteServiceMember = state => !state.user.hasCompleteProfile;
-const hasMove = state =>
-  state.submittedMoves && state.submittedMoves.currentMove !== null;
-const hasHHG = state =>
-  hasMove(state) &&
-  state.submittedMoves.currentMove.selected_move_type !== 'PPM';
-const hasPPM = state =>
-  hasMove(state) &&
-  state.submittedMoves.currentMove.selected_move_type !== 'HHG';
-const isCombo = state =>
-  hasMove(state) &&
-  state.submittedMoves.currentMove.selected_move_type === 'COMBO';
+const incompleteServiceMember = props => !props.hasCompleteProfile;
+const hasMove = props => props.hasMove;
+const hasHHG = props => props.selectedMoveType !== 'PPM';
+const hasPPM = props => props.selectedMoveType !== 'HHG';
+const isCombo = props => props.selectedMoveType === 'COMBO';
 const pages = {
   '/service-member/:id/create': {
     render: stub,
@@ -115,9 +109,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: state =>
-      hasMove(state) &&
-      state.submittedMoves.currentMove.selected_move_type === 'PPM',
+    isInFlow: state => state.selectedMoveType === 'PPM',
     render: (key, pages) => ({ match }) => (
       <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
         <form>
@@ -164,11 +156,21 @@ export const getPageList = state =>
     const page = pages[pageKey];
     return page.isInFlow(state);
   });
-export default state => {
-  const pageList = getPageList(state);
+
+const WorkflowRoutes = props => {
+  const pageList = getPageList(props);
   return pageList.map(key => {
     const currPage = pages[key];
     const render = currPage.render(key, pageList, currPage.description);
     return <PrivateRoute exact path={key} key={key} render={render} />;
   });
 };
+
+const mapStateToProps = state => ({
+  hasCompleteProfile: false,
+  selectedMoveType: state.submittedMoves.currentMove
+    ? state.submittedMoves.currentMove.selected_move_type
+    : null,
+  hasMove: Boolean(state.submittedMoves.currentMove),
+});
+export default connect(mapStateToProps)(WorkflowRoutes);

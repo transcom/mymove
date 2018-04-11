@@ -5,11 +5,12 @@ describe('when getting the routes for the current workflow', () => {
   describe('given a complete service member', () => {
     profileIsComplete = true;
     describe('given a PPM', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'PPM' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'PPM',
+        hasMove: true,
       };
-      const pages = getPageList(state);
+      const pages = getPageList(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -22,11 +23,12 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a complete service member with an HHG', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'HHG' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'HHG',
+        hasMove: true,
       };
-      const pages = getPageList(state);
+      const pages = getPageList(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -38,11 +40,12 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a complete service member with a COMBO', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'COMBO' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'COMBO',
+        hasMove: true,
       };
-      const pages = getPageList(state);
+      const pages = getPageList(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -60,11 +63,12 @@ describe('when getting the routes for the current workflow', () => {
   describe('given an incomplete service member', () => {
     profileIsComplete = false;
     describe('given a PPM', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'PPM' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'PPM',
+        hasMove: true,
       };
-      const pages = getPageList(state);
+      const pages = getPageList(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
@@ -87,11 +91,12 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a complete service member with an HHG', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'HHG' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'HHG',
+        hasMove: true,
       };
-      const pages = getPageList(state);
+      const pages = getPageList(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
@@ -113,12 +118,13 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a complete service member with a COMBO', () => {
-      const state = {
-        user: { hasCompleteProfile: profileIsComplete },
-        submittedMoves: { currentMove: { selected_move_type: 'COMBO' } },
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: 'COMBO',
+        hasMove: true,
       };
-      const pages = getPageList(state);
-      it('just returns move pages', () => {
+      const pages = getPageList(props);
+      it('returns the service member and move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
           '/service-member/:id/name',
