@@ -86,8 +86,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceArea:        428,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
-		EffectiveDateLower: testdatagen.RateEngineEffectiveDateStart,
-		EffectiveDateUpper: testdatagen.RateEngineEffectiveDateEnd,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&serviceArea)
 

@@ -42,8 +42,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.RateEngineEffectiveDateStart,
-		EffectiveDateUpper: testdatagen.RateEngineEffectiveDateEnd,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&originServiceArea)
 
@@ -63,8 +63,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		LinehaulFactor:     69,
 		ServiceChargeCents: 663,
 		ServicesSchedule:   1,
-		EffectiveDateLower: testdatagen.RateEngineEffectiveDateStart,
-		EffectiveDateUpper: testdatagen.RateEngineEffectiveDateEnd,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&destinationServiceArea)
 
@@ -73,16 +73,16 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		WeightLbsLower:     0,
 		WeightLbsUpper:     16001,
 		RateCents:          5429,
-		EffectiveDateLower: testdatagen.RateEngineEffectiveDateStart,
-		EffectiveDateUpper: testdatagen.RateEngineEffectiveDateEnd,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
 		RateMillicents:     542900,
-		EffectiveDateLower: testdatagen.RateEngineEffectiveDateStart,
-		EffectiveDateUpper: testdatagen.RateEngineEffectiveDateEnd,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullUnpackRate)
 
