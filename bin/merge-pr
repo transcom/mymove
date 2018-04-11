@@ -1,7 +1,7 @@
 #!/bin/bash
 # A script to automate the landing of your GitHub pull requests.
 
-set -eu
+set -eu -o pipefail
 
 readonly REPO="transcom/mymove"
 readonly SLEEP=10
