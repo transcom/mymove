@@ -1,7 +1,6 @@
 package models
 
 import (
-	"errors"
 	"regexp"
 	"time"
 
@@ -17,7 +16,6 @@ type SocialSecurityNumber struct {
 	ID            uuid.UUID `db:"id"`
 	CreatedAt     time.Time `db:"created_at"`
 	UpdatedAt     time.Time `db:"updated_at"`
-	UserID        uuid.UUID `db:"user_id"`
 	EncryptedHash string    `db:"encrypted_hash"`
 }
 
@@ -42,26 +40,25 @@ func (s *SocialSecurityNumber) ValidateUpdate(tx *pop.Connection) (*validate.Err
 	return validate.NewErrors(), nil
 }
 
-// ErrSSNBadFormat is returned if you attempted to hash an SSN not in the format '123-12-1234'
-var ErrSSNBadFormat = errors.New("SSNs must be in the format '123-12-1234'")
 var ssnFormatRegex = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
 
 // BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
-func BuildSocialSecurityNumber(userID uuid.UUID, unencryptedSSN string) (SocialSecurityNumber, error) {
+func BuildSocialSecurityNumber(unencryptedSSN string) (*SocialSecurityNumber, *validate.Errors, error) {
+	verrs := validate.NewErrors()
 	if !ssnFormatRegex.MatchString(unencryptedSSN) {
-		return SocialSecurityNumber{}, ErrSSNBadFormat
+		verrs.Add("social_secuirty_number", "SSN must be in 123-45-6789 format")
+		return nil, verrs, nil
 	}
 
 	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), -1) // -1 chooses the default cost
 	if err != nil {
-		return SocialSecurityNumber{}, err
+		return nil, verrs, err
 	}
 	hash := string(byteHash)
 	ssn := SocialSecurityNumber{
-		UserID:        userID,
 		EncryptedHash: hash,
 	}
-	return ssn, nil
+	return &ssn, verrs, nil
 }
 
 // Matches returns true if the encrypted_hahs matches the unencryptedSSN

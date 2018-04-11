@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
 	"github.com/transcom/mymove/pkg/auth/context"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -31,6 +32,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		EmailIsPreferred:          serviceMember.EmailIsPreferred,
 		ResidentialAddress:        payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
+		HasSocialSecurityNumber:   fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
 	}
 	return serviceMemberPayload
@@ -44,6 +46,19 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	var response middleware.Responder
 	residentialAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
+
+	ssnString := params.CreateServiceMemberPayload.SocialSecurityNumber
+	var ssn *models.SocialSecurityNumber
+	verrs := validate.NewErrors()
+	if ssnString != nil {
+		var err error
+		ssn, verrs, err = models.BuildSocialSecurityNumber(ssnString.String())
+		if err != nil {
+			h.logger.Error("Unexpected error building SSN model", zap.Error(err))
+			return servicememberop.NewCreateServiceMemberInternalServerError()
+		}
+		// if there are any validation errors, they will get rolled up with the rest of them.
+	}
 
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
@@ -66,14 +81,21 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		EmailIsPreferred:          params.CreateServiceMemberPayload.EmailIsPreferred,
 		ResidentialAddress:        residentialAddress,
 		BackupMailingAddress:      backupMailingAddress,
+		SocialSecurityNumber:      ssn,
 	}
-	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
+	smVerrs, err := models.CreateServiceMember(h.db, &newServiceMember)
+	verrs.Append(smVerrs)
 	if verrs.HasAny() {
-		h.logger.Error("DB Validation", zap.Error(verrs))
+		h.logger.Info("DB Validation", zap.Error(verrs))
 		response = servicememberop.NewCreateServiceMemberBadRequest()
 	} else if err != nil {
-		h.logger.Error("DB Insertion", zap.Error(err))
-		response = servicememberop.NewCreateServiceMemberBadRequest()
+		if err == models.ErrCreateViolatesUniqueConstraint {
+			h.logger.Info("Attempted to create a second SM when one already exists")
+			response = servicememberop.NewCreateServiceMemberBadRequest()
+		} else {
+			h.logger.Error("DB Insertion", zap.Error(err))
+			response = servicememberop.NewCreateServiceMemberInternalServerError()
+		}
 	} else {
 		servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
 		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(&servicememberPayload)

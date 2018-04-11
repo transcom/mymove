@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -38,6 +39,8 @@ type ServiceMember struct {
 	ResidentialAddress        *Address                            `belongs_to:"address"`
 	BackupMailingAddressID    *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
 	BackupMailingAddress      *Address                            `belongs_to:"address"`
+	SocialSecurityNumberID    *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
+	SocialSecurityNumber      *SocialSecurityNumber               `belongs_to:"address"`
 }
 
 // String is not required by pop and may be deleted
@@ -141,8 +144,8 @@ func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID)
 	return result, err
 }
 
-// CreateServiceMemberWithAddresses takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+// CreateServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
+func CreateServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -169,14 +172,35 @@ func CreateServiceMemberWithAddresses(dbConnection *pop.Connection, serviceMembe
 			}
 		}
 
+		if transactionError == nil && serviceMember.SocialSecurityNumber != nil {
+			verrs, err := dbConnection.ValidateAndCreate(serviceMember.SocialSecurityNumber)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				transactionError = errors.New("Rollback The Transaction")
+				if err != nil {
+					responseError = err
+				}
+			}
+		}
+
 		if transactionError == nil {
+			if serviceMember.SocialSecurityNumber != nil {
+				serviceMember.SocialSecurityNumberID = &serviceMember.SocialSecurityNumber.ID
+			}
 			serviceMember.ResidentialAddressID = GetAddressID(serviceMember.ResidentialAddress)
 			serviceMember.BackupMailingAddressID = GetAddressID(serviceMember.BackupMailingAddress)
 
 			if verrs, err := dbConnection.ValidateAndCreate(serviceMember); verrs.HasAny() || err != nil {
+				// Return a reasonable error if someone tries to create a second SM when one already exists for this user
+				if strings.HasPrefix(errors.Cause(err).Error(), UniqueConstraintViolationErrorPrefix) {
+					responseError = ErrCreateViolatesUniqueConstraint
+				} else {
+					responseError = err
+				}
+
 				transactionError = errors.New("Rollback The transaction")
 				responseVErrors = verrs
-				responseError = err
+
 			}
 		}
 
