@@ -29,12 +29,13 @@ type CreateDocumentHandler HandlerContext
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Fatal("No User ID, this should never happen.")
+		h.logger.Info("No User ID, this should never happen.")
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
+		h.logger.Info("Invalid MoveID.", zap.Error(err))
+		return documentop.NewCreateDocumentBadRequest()
 	}
 
 	newDocument := models.Document{
@@ -45,10 +46,10 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	verrs, err := h.db.ValidateAndCreate(&newDocument)
 	if err != nil {
-		h.logger.Error("DB Insertion", zap.Error(err))
+		h.logger.Info("DB Insertion", zap.Error(err))
 		return documentop.NewCreateDocumentInternalServerError()
 	} else if verrs.HasAny() {
-		h.logger.Error(verrs.Error())
+		h.logger.Error("Could not save document", zap.String("errors", verrs.Error()))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 

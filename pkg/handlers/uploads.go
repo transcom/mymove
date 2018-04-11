@@ -41,30 +41,30 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Error("Missing User ID in context")
+		h.logger.Info("Missing User ID in context")
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Error("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		h.logger.Error("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	// Validate that the document and move exists in the db, and that they belong to user
 	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
 	if !exists {
-		h.logger.Error("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadNotFound()
 	}
 	if !userOwns {
-		h.logger.Error("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadForbidden()
 	}
 
