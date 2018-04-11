@@ -14,7 +14,6 @@ class SMName extends Component {
     this.props.setPendingSMNameData(values);
   };
   render() {
-    // const { pendingSMNameData, currentServiceMember } = this.props;
     return (
       <div>
         <NameForm onSubmit={this.onNameDataEntry} />
@@ -27,6 +26,7 @@ SMName.propTypes = {
   currentServiceMember: PropTypes.object,
   pendingSMNameData: PropTypes.object,
   setPendingSMNameData: PropTypes.func.isRequired,
+  currentForm: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -37,7 +37,7 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  return { ...state.serviceMember };
+  return { ...state.serviceMember, currentForm: state.form };
 }
 
-export default connect(mapDispatchToProps, mapDispatchToProps)(SMName);
+export default connect(mapStateToProps, mapDispatchToProps)(SMName);

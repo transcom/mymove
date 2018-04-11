@@ -14,7 +14,6 @@ export class SMNameWizardPage extends Component {
   handleSubmit = () => {
     const pendingSMNameData = this.props.pendingSMNameData;
     if (pendingSMNameData) {
-      console.log('name wizard payload', pendingSMNameData);
       const serviceMember = {
         first_name: pendingSMNameData.first_name,
         middle_initial: pendingSMNameData.middle_initial,
@@ -30,12 +29,10 @@ export class SMNameWizardPage extends Component {
       pages,
       pageKey,
       pendingSMNameData,
-      currentServiceMember,
       hasSubmitSuccess,
       error,
     } = this.props;
-    const SMNameData =
-      pendingSMNameData || (currentServiceMember && currentServiceMember.size);
+    const SMNameData = pendingSMNameData;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}

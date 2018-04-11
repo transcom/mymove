@@ -20,10 +20,8 @@ export function updateServiceMember(serviceMember) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    console.log('ducks payload', serviceMember);
     const currentServiceMember = state.serviceMember.currentServiceMember;
     if (currentServiceMember) {
-      console.log('currentServiceMember', currentServiceMember);
       UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>
           dispatch(

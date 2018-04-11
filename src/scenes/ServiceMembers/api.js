@@ -18,9 +18,6 @@ export async function UpdateServiceMember(
   serviceMemberPayload,
 ) {
   const client = await getClient();
-  console.log('payload', serviceMemberPayload);
-  console.log('sm id', serviceMemberId);
-  console.log(client.apis.service_members.patchServiceMember);
   const response = await client.apis.service_members.patchServiceMember({
     serviceMemberId,
     patchServiceMemberPayload: serviceMemberPayload,
