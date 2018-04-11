@@ -17,17 +17,15 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 	expErrors := map[string][]string{}
 	suite.verifyValidationErrors(&validZip3, expErrors)
 
-	invalidZip3 := Tariff400ngZip3{
-		Zip3:          "291",
-		BasepointCity: "",
-		State:         "NY",
-		ServiceArea:   11,
-		RateArea:      "14",
-		Region:        8,
-	}
+	invalidZip3 := Tariff400ngZip3{}
 
 	expErrors = map[string][]string{
 		"basepoint_city": []string{"BasepointCity can not be blank."},
+		"rate_area":      []string{"RateArea can not be blank."},
+		"region":         []string{"Region can not be blank."},
+		"service_area":   []string{"ServiceArea can not be blank."},
+		"state":          []string{"State can not be blank."},
+		"zip3":           []string{"Zip3 not in range(3, 3)"},
 	}
 	suite.verifyValidationErrors(&invalidZip3, expErrors)
 }

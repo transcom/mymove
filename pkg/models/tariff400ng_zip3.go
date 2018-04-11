@@ -43,7 +43,7 @@ func (t Tariff400ngZip3s) String() string {
 // This method is not required and may be deleted.
 func (t *Tariff400ngZip3) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.StringIsPresent{Field: t.Zip3, Name: "Zip3"},
+		&validators.StringLengthInRange{Field: t.Zip3, Name: "Zip3", Min: 3, Max: 3},
 		&validators.StringIsPresent{Field: t.BasepointCity, Name: "BasepointCity"},
 		&validators.StringIsPresent{Field: t.State, Name: "State"},
 		&validators.IntIsPresent{Field: t.ServiceArea, Name: "ServiceArea"},

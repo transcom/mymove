@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 )
 
 // Tariff400ngZip5RateArea repersents the mapping from a full 5-digit zipcode to a
@@ -36,5 +37,8 @@ func (t Tariff400ngZip5RateAreas) String() string {
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *Tariff400ngZip5RateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.NewErrors(), nil
+	return validate.Validate(
+		&validators.StringIsPresent{Field: t.RateArea, Name: "RateArea"},
+		&validators.StringLengthInRange{Field: t.Zip5, Name: "Zip5", Min: 5, Max: 5},
+	), nil
 }
