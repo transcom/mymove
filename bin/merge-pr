@@ -3,7 +3,7 @@
 
 set -eu
 
-readonly REPO="transcom/mymove/"
+readonly REPO="transcom/mymove"
 readonly SLEEP=10
 readonly PR_NUMBER=${1:-}
 
