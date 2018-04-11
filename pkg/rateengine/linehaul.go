@@ -77,5 +77,14 @@ func (re *RateEngine) linehaulChargeTotal(weight int, originZip int, destination
 	if err != nil {
 		return 0, err
 	}
-	return int(baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents + shorthaulChargeCents), err
+
+	linehaulChargeCents = baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents + shorthaulChargeCents
+	re.logger.Info("Linehaul charge total calculated",
+		zap.Int("linehaul total", linehaulChargeCents),
+		zap.Int("linehaul", baseLinehaulChargeCents),
+		zap.Int("origin lh factor", originLinehaulFactorCents),
+		zap.Int("destination lh factor", destinationLinehaulFactorCents),
+		zap.Int("shorthaul", shorthaulChargeCents))
+
+	return linehaulChargeCents, err
 }

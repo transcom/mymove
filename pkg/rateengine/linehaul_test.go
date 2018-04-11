@@ -131,46 +131,51 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	expected := 20000
+	weight := 2000
+	expected := 8820
+	zip3Austin := 787
+	zip3SanFrancisco := 941
 
+	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1,
 		DistanceMilesUpper: 10000,
 		WeightLbsLower:     1000,
 		WeightLbsUpper:     4000,
-		RateCents:          expected,
+		RateCents:          4642,
 		Type:               "ConusLinehaul",
 		EffectiveDateLower: testdatagen.RateEngineDate,
 		EffectiveDateUpper: testdatagen.RateEngineDate,
 	}
-
 	suite.mustSave(&newBaseLinehaul)
 
+	// Create Service Area entries for Zip3s
 	zipAustin := models.Tariff400ngZip3{
-		Zip3:          787,
+		Zip3:          zip3Austin,
 		BasepointCity: "Austin",
 		State:         "TX",
-		ServiceArea:   1,
+		ServiceArea:   744,
 		RateArea:      "1",
 		Region:        1,
 	}
 	suite.mustSave(&zipAustin)
 
 	zipSanFrancisco := models.Tariff400ngZip3{
-		Zip3:          941,
+		Zip3:          zip3SanFrancisco,
 		BasepointCity: "San Francisco",
 		State:         "CA",
-		ServiceArea:   2,
+		ServiceArea:   81,
 		RateArea:      "2",
 		Region:        2,
 	}
 	suite.mustSave(&zipSanFrancisco)
 
+	// Create fees for service areas
 	sa1 := models.Tariff400ngServiceArea{
 		Name:               "Austin",
 		ServiceChargeCents: 100,
-		ServiceArea:        1,
-		LinehaulFactor:     1,
+		ServiceArea:        744,
+		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
@@ -179,14 +184,28 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	sa2 := models.Tariff400ngServiceArea{
 		Name:               "SF",
 		ServiceChargeCents: 200,
-		ServiceArea:        2,
-		LinehaulFactor:     1,
+		ServiceArea:        81,
+		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&sa2)
 
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(2000, 787, 941, testdatagen.DateInsidePeakRateCycle)
+	// Create base linehaul rate for something within our weight and mileage
+	linehaulRate := models.Tariff400ngLinehaulRate{
+		WeightLbsLower:     weight - 100,
+		WeightLbsUpper:     weight + 200,
+		DistanceMilesLower: 1,
+		DistanceMilesUpper: 6000,
+		Type:               "ConusLinehaul",
+		RateCents:          2000,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&linehaulRate)
+
+	linehaulChargeTotal, err := engine.linehaulChargeTotal(
+		weight, zip3Austin, zip3SanFrancisco, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
