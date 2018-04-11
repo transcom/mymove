@@ -1,0 +1,46 @@
+#!/bin/bash
+# A script to automate the landing of your GitHub pull requests.
+
+set -eu
+
+readonly REPO="transcom/mymove/"
+readonly SLEEP=10
+readonly PR_NUMBER=${1:-}
+
+if [[ -z "$PR_NUMBER" ]]; then
+  echo "usage: $0 PR_NUMBER"
+  exit 1
+fi
+
+if [[ -z "${GITHUB_MERGE_TOKEN:-}" ]]; then
+  echo "error: \$GITHUB_MERGE_TOKEN not found."
+  echo
+  echo "Fix with the following steps:"
+  echo "1. Visit https://github.com/settings/tokens/new"
+  echo "2. Create a personal access token with the 'repo' scope"
+  echo "3. Add it to your .envrc.local. The line should look something like:"
+  echo "   export GITHUB_MERGE_TOKEN='xxxxxxxxx'"
+  exit 1
+fi
+
+while :; do
+  result=$(curl \
+    -s \
+    -H "Authorization: token $GITHUB_MERGE_TOKEN" \
+    -X PUT \
+    "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER/merge")
+
+  if echo "$result" | grep -e 'status check.*pending' &> /dev/null; then
+    echo "...waiting on status checks to pass."
+  elif echo "$result" | grep "Not Found" &> /dev/null; then
+    echo "Pull Request #$PR_NUMBER was not found!"
+    exit 1
+  elif echo "$result" | grep "Pull Request successfully merged" &> /dev/null; then
+    echo "Merged!"
+    exit 0
+  else
+    echo "$result"
+  fi
+
+  sleep $SLEEP
+done
