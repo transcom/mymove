@@ -60,13 +60,13 @@ func FetchRateAreaForZip5(db *pop.Connection, zip5 string) (string, error) {
 	zip3 := zip5[0:3]
 
 	tariffZip3 := Tariff400ngZip3{}
-	if err := db.Where("zip3 = ?", zip3).First(&tariffZip3); err != nil {
+	if err := db.Where("zip3 = $1", zip3).First(&tariffZip3); err != nil {
 		return "", errors.Wrapf(err, "could not find zip3 for %s", zip3)
 	}
 
 	if tariffZip3.RateArea == "ZIP" {
 		zip5RateArea := Tariff400ngZip5RateArea{}
-		if err := db.Where("zip5 = ?", zip5).First(&zip5RateArea); err != nil {
+		if err := db.Where("zip5 = $1", zip5).First(&zip5RateArea); err != nil {
 			return "", errors.Wrapf(err, "could not find zip5_rate_area for %s", zip5)
 		}
 		return zip5RateArea.RateArea, nil
@@ -83,7 +83,7 @@ func FetchRegionForZip5(db *pop.Connection, zip5 string) (int, error) {
 	zip3 := zip5[0:3]
 
 	tariffZip3 := Tariff400ngZip3{}
-	if err := db.Where("zip3 = ?", zip3).First(&tariffZip3); err != nil {
+	if err := db.Where("zip3 = $1", zip3).First(&tariffZip3); err != nil {
 		return 0, errors.Wrapf(err, "could not find zip3 for %s", zip3)
 	}
 

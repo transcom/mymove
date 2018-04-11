@@ -94,8 +94,9 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
 		t.Fatal(err)
 	}
 
-	if rateArea != "48" {
-		t.Errorf("wrong rateArea: expected 13, got %s", rateArea)
+	expected := "48"
+	if rateArea != expected {
+		t.Errorf("wrong rateArea: expected %s, got %s", expected, rateArea)
 	}
 }
 
@@ -118,7 +119,8 @@ func (suite *ModelSuite) Test_FetchRegionForZip5() {
 		t.Fatal(err)
 	}
 
-	if region != 4 {
-		t.Errorf("wrong region: expected 4, got %d", region)
+	expected := 4
+	if region != expected {
+		t.Errorf("wrong region: expected %d, got %d", expected, region)
 	}
 }
