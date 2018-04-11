@@ -4,7 +4,7 @@ Care must be taken when representing dollars in code. Using floating point value
 
 ## Considered Alternatives
 
-* Represent dollar values as cents (integers)
+* Represent USD values as cents (integers)
 * Use a some kind of `decimal` type
 
 ## Decision Outcome
@@ -12,15 +12,38 @@ Care must be taken when representing dollars in code. Using floating point value
 * Chosen Alternative: *Represent dollar values as cents (integers)*
 * This is a commonly used pattern and should thus be familiar to developers.
 * We avoid the overhead of evaluating 3rd party libraries and learning how to integrate them with Pop, our ORM.
+* We will create a `cent` type (just an alias of an int) in order to help the compiler remind us of what our variables represent.
 
 ## Pros and Cons of the Alternatives
 
-### Represent dollar values as cents (integers)
+### Represent USD values as cents (integers)
+
+What this means is that in the code base we will be representing "$1.00" as an integer: `100`. Additionally, we will create a type in Go such that it's clearer that we're working with cents. Doing so doesn't add much burden; it is possible to use integer arithmetic on these values.
+
+For example:
+
+```go
+type cents int
+
+// Dollars returns the dollar value of c in whole numbers.
+func (c cents) Dollars() int {
+    return int(c / 100)
+}
+
+func main() {
+    var x cents
+    var y cents
+    x = 100
+    y = 200
+
+    fmt.Printf("%d + %d = %d\n", x, y, x+y)
+    fmt.Printf("%d cents in dollars is $%d\n", x, x.Dollars())
+}
+```
 
 * `+` This is a commonly used pattern and should be familiar to developers, and easy to maintain.
 * `+` No 3rd party libraries required.
-* `-` Some dollar values in the product go down to the thousandth of a cent (ex. `7.66185`). This means that there will be some special values in "millicents."
-* `-` Adds a burden on the developer to understand the semantics of what is in an `int` value.
+* `-` We might end up recreating the functionality of a decimal type.
 
 ### Use a some kind of `decimal` type
 
