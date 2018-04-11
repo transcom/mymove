@@ -31,7 +31,6 @@ export function createOrUpdatePpm(moveId, ppm) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    console.log(state);
     const currentPpm = state.ppm.currentPpm;
     if (currentPpm) {
       UpdatePpm(moveId, currentPpm.id, ppm)
