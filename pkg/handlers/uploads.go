@@ -87,6 +87,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	contentType := http.DetectContentType(buffer)
+
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
 		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
@@ -112,9 +113,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("Failed to validate", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
-		// TODO return validation errors
-		h.logger.Error(verrs.Error())
-		return uploadop.NewCreateUploadBadRequest()
+		payload := createFailedValidationPayload(verrs)
+		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
 	}
 
 	// Push file to S3

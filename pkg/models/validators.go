@@ -2,10 +2,13 @@ package models
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
@@ -34,5 +37,49 @@ type Int64IsPresent struct {
 func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	if v.Field == 0 {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// AllowedFiletype validates that a content-type is contained in our list of accepted
+// types.
+type AllowedFiletype struct {
+	Name  string
+	Field string
+}
+
+// AllowedFiletypes are the types of files that are accepted for upload.
+var AllowedFiletypes = map[string]string{
+	"JPG": "image/jpeg",
+	"PNG": "image/png",
+	"PDF": "application/pdf",
+}
+
+// IsValid adds an error if the value is equal to 0.
+func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
+	for _, filetype := range AllowedFiletypes {
+		if filetype == v.Field {
+			return
+		}
+	}
+
+	filetypes := []string{}
+	for name := range AllowedFiletypes {
+		filetypes = append(filetypes, name)
+	}
+	sort.Strings(filetypes)
+	list := strings.Join(filetypes, ", ")
+	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
+}
+
+// BranchIsPresent validates that a branch is present
+type BranchIsPresent struct {
+	Name  string
+	Field internalmessages.MilitaryBranch
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *BranchIsPresent) IsValid(errors *validate.Errors) {
+	if string(v.Field) == "" {
+		errors.Add(strings.ToLower(string(v.Field)), fmt.Sprintf("%s must not be blank!", v.Name))
 	}
 }
