@@ -119,19 +119,29 @@ func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 	return claims, ok
 }
 
-// RequireAuthMiddleware enforces that the incoming request is tied to a user session
-func RequireAuthMiddleware(next http.Handler) http.Handler {
-	mw := func(w http.ResponseWriter, r *http.Request) {
-		_, ok := context.GetUserID(r.Context())
-		if !ok {
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+// UserAuthMiddleware enforces that the incoming request is tied to a user session
+func UserAuthMiddleware(db *pop.Connection) func(next http.Handler) http.Handler {
+	return func(next http.Handler) http.Handler {
+		mw := func(w http.ResponseWriter, r *http.Request) {
+			userID, ok := context.GetUserID(r.Context())
+			if !ok {
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			user, err := models.GetUserByID(db, userID)
+			if err != nil {
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
+
+			// User is authenticated
+			ctx := context.PopulateUserModel(r.Context(), user)
+			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
-
-		next.ServeHTTP(w, r)
-		return
+		return http.HandlerFunc(mw)
 	}
-	return http.HandlerFunc(mw)
 }
 
 // TokenParsingMiddleware attempts to populate user data onto request context
