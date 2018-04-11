@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -60,4 +61,30 @@ func (t *Tariff400ngShorthaulRate) ValidateCreate(tx *pop.Connection) (*validate
 // This method is not required and may be deleted.
 func (t *Tariff400ngShorthaulRate) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchShorthaulRateCents returns the shorthaul rate for a given Centumweight-Miles
+// (cwtMiles is a unit capturing the movement of 100lbs by 1 mile.) The value returned
+// is in cents of 1 USD.
+func FetchShorthaulRateCents(tx *pop.Connection, cwtMiles int, date time.Time) (rateCents int, err error) {
+	sh := Tariff400ngShorthaulRates{}
+
+	sql := `SELECT
+		rate_cents
+	FROM
+		tariff400ng_shorthaul_rates
+	WHERE
+		cwt_miles_lower <= $1 AND $1 < cwt_miles_upper
+	AND
+		effective_date_lower <= $2 AND $2 < effective_date_upper`
+
+	err = tx.RawQuery(sql, cwtMiles, date).All(&sh)
+	if err != nil {
+		return 0, fmt.Errorf("error fetching shorthaul rate: %s", err)
+	}
+	if len(sh) != 1 {
+		return 0, fmt.Errorf("found too few/many shorthaul rates for parameters: %v, %v", cwtMiles, date)
+	}
+
+	return sh[0].RateCents, nil
 }

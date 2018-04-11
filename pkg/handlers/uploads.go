@@ -47,24 +47,24 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Error("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
-		h.logger.Error("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
 	// Validate that the document and move exists in the db, and that they belong to user
 	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
 	if !exists {
-		h.logger.Error("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadNotFound()
 	}
 	if !userOwns {
-		h.logger.Error("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadForbidden()
 	}
 
@@ -87,6 +87,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	contentType := http.DetectContentType(buffer)
+
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
 		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
@@ -112,9 +113,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("Failed to validate", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs.HasAny() {
-		// TODO return validation errors
-		h.logger.Error(verrs.Error())
-		return uploadop.NewCreateUploadBadRequest()
+		payload := createFailedValidationPayload(verrs)
+		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
 	}
 
 	// Push file to S3
