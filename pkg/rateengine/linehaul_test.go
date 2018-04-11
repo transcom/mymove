@@ -42,7 +42,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
