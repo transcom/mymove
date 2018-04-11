@@ -33,11 +33,11 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int, date time.Time) (baseLi
 func (re *RateEngine) linehaulFactors(cwt int, zip3 int, date time.Time) (linehaulFactorCents int, err error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
-		return 0.0, err
+		return 0, err
 	}
 	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, date)
 	if err != nil {
-		return 0.0, err
+		return 0, err
 	}
 	return cwt * linehaulFactorCents, nil
 }
@@ -65,12 +65,26 @@ func (re *RateEngine) linehaulChargeTotal(weight int, originZip int, destination
 	if err != nil {
 		return 0, err
 	}
-
 	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
+	if err != nil {
+		return 0, err
+	}
 	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
+	if err != nil {
+		return 0, err
+	}
 	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt, date)
 	if err != nil {
 		return 0, err
 	}
-	return int(baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents + shorthaulChargeCents), err
+
+	linehaulChargeCents = baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents + shorthaulChargeCents
+	re.logger.Info("Linehaul charge total calculated",
+		zap.Int("linehaul total", linehaulChargeCents),
+		zap.Int("linehaul", baseLinehaulChargeCents),
+		zap.Int("origin lh factor", originLinehaulFactorCents),
+		zap.Int("destination lh factor", destinationLinehaulFactorCents),
+		zap.Int("shorthaul", shorthaulChargeCents))
+
+	return linehaulChargeCents, err
 }
