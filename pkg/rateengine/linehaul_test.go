@@ -1,8 +1,6 @@
 package rateengine
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -73,9 +71,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	engine := NewRateEngine(suite.db, suite.logger)
 
 	// Load fake data
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
-
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
 		BasepointCity: "Saucier",
@@ -91,8 +86,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceArea:        428,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&serviceArea)
 

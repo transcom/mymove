@@ -27,11 +27,11 @@ func RunScenarioOne(db *pop.Connection) {
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
-	tsp1, _ := MakeTSP(db, "Excellent TSP", "TSP1")
-	tsp2, _ := MakeTSP(db, "Pretty Good TSP", "TSP2")
-	tsp3, _ := MakeTSP(db, "Good TSP", "TSP3")
-	tsp4, _ := MakeTSP(db, "OK TSP", "TSP4")
-	tsp5, _ := MakeTSP(db, "Bad TSP", "TSP5")
+	tsp1, _ := MakeTSP(db, "Excellent TSP", RandomSCAC())
+	tsp2, _ := MakeTSP(db, "Pretty Good TSP", RandomSCAC())
+	tsp3, _ := MakeTSP(db, "Good TSP", RandomSCAC())
+	tsp4, _ := MakeTSP(db, "OK TSP", RandomSCAC())
+	tsp5, _ := MakeTSP(db, "Bad TSP", RandomSCAC())
 
 	// TSPs should be orderd by offer_count first, then BVS.
 	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
