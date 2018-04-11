@@ -19,7 +19,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
+	tsp, err := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", testdatagen.RandomSCAC())
 	tdl, err := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
@@ -62,7 +62,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
-	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", testdatagen.RandomSCAC())
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 
 	market := testdatagen.DefaultMarket
@@ -112,7 +112,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 	// Creates a TSP and TDL with a blackout date connected to both.
-	testTSP1, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", "XYZA")
+	testTSP1, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", testdatagen.RandomSCAC())
 	testTDL, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
 
 	market := testdatagen.DefaultMarket
@@ -130,7 +130,7 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL, sourceGBLOC, &market)
 
 	// One TSP with no blackout dates
-	testTSP2, _ := testdatagen.MakeTSP(suite.db, "A Spotless TSP", "PORK")
+	testTSP2, _ := testdatagen.MakeTSP(suite.db, "A Spotless TSP", testdatagen.RandomSCAC())
 
 	// Two shipments with offers, using the shipments above
 	shipmentWithOfferBetween := models.ShipmentWithOffer{
@@ -209,7 +209,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market)
 
 	// Make a TSP to handle it
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
 
 	// Create a ShipmentWithOffer to feed the award queue
@@ -294,7 +294,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	}
 
 	// Make a TSP in the same TDL to handle these shipments
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
 
 	// ... and give this TSP a performance record
 	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0)
@@ -337,11 +337,11 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
-	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
-	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
+	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", testdatagen.RandomSCAC())
+	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", testdatagen.RandomSCAC())
 
 	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
@@ -392,7 +392,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	}
 
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
+		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
 		score := mps + i + 1
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0)
 	}
@@ -432,7 +432,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 
 	// Make Peak TSP and Shipment
-	tspPeak, _ := testdatagen.MakeTSP(suite.db, "Peak Shipper", "PEAK")
+	tspPeak, _ := testdatagen.MakeTSP(suite.db, "Peak Shipper", testdatagen.RandomSCAC())
 
 	tspPerfPeak := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
