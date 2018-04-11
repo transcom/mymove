@@ -1,31 +1,21 @@
 import React from 'react';
-import { Route, Redirect, Switch } from 'react-router-dom';
-import { ConnectedRouter } from 'react-router-redux';
+import { Route, Switch } from 'react-router-dom';
+import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { push } from 'react-router-redux';
 
 import DD1299 from 'scenes/DD1299';
-import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
 import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
-import Legalese from 'scenes/Legalese';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
-import WizardDemo from 'scenes/WizardDemo';
 import Header from 'shared/Header';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import Uploader from 'shared/Uploader';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-const redirect = pathname => () => (
-  <Redirect
-    to={{
-      pathname: pathname,
-    }}
-  />
-);
+
 const NoMatch = ({ location }) => (
   <div className="usa-grid">
     <h3>
@@ -43,13 +33,8 @@ export const AppWrapper = props => (
           <Route path="/submitted" component={SubmittedFeedback} />
           <Route path="/shipments/:shipmentsStatus" component={Shipments} />
           <Route path="/DD1299" component={DD1299} />
-          <PrivateRoute path="/moves/:moveId/legalese" component={Legalese} />
           <Route path="/feedback" component={Feedback} />
           <PrivateRoute path="/upload" component={Uploader} />
-          <Route exact path="/mymove" render={redirect('/mymove/intro')} />
-          {WizardDemo()}
-          <Route exact path="/demo" render={redirect('/demo/sm')} />
-          {DemoWorkflowRoutes()}
           {getWorkflowRoutes(props)}
           <Route component={NoMatch} />
         </Switch>
