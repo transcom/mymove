@@ -1,22 +1,22 @@
 development:
   dialect: "postgres"
-  database: "dev_db"
-  host: "localhost"
-  port: "5432"
-  user: "postgres"
-  password: "mysecretpassword"
+  database: {{ env "DB_NAME" }}
+  host: {{ env "DB_HOST" }}
+  port: {{ env "DB_PORT" }}
+  user: {{ env "DB_USER" }}
+  password: {{ env "DB_PASSWORD" }}
 
 test:
   dialect: "postgres"
-  database: "test_db"
-  host: "localhost"
-  port: "5432"
-  user: "postgres"
-  password: "mysecretpassword"
+  database: {{ env "DB_NAME" }}
+  host: {{ env "DB_HOST" }}
+  port: {{ env "DB_PORT" }}
+  user: {{ env "DB_USER" }}
+  password: {{ env "DB_PASSWORD" }}
 
 container:
   dialect: "postgres"
-  database: "app"
+  database: {{ env "DB_NAME" }}
   host: {{ env "DB_HOST" }}
   port: {{ env "DB_PORT" }}
   user: {{ env "DB_USER" }}

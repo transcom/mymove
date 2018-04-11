@@ -21,6 +21,14 @@
   ],
   "environment": [
     {
+      "name": "ENVIRONMENT",
+      "value": "{{environment}}"
+    },
+    {
+      "name": "SECURE_MIGRATION_DIR",
+      "value": "/migrate/secure/"
+    },
+    {
       "name": "DB_HOST",
       "value": "{{db_host}}"
     },
@@ -33,12 +41,20 @@
       "value": "master"
     },
     {
+      "name": "DB_NAME",
+      "value": "app"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
     {
       "name": "CHAMBER_USE_PATHS",
       "value": "1"
+    },
+    {
+      "name": "AWS_S3_BUCKET_NAME",
+      "value": "transcom-ppp-app-{{environment}}-us-west-2"
     }
   ],
   "logConfiguration": {

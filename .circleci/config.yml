@@ -84,7 +84,18 @@ jobs:
       - run: make deps
       - run: make client_build
       - run: make client_test
-      - run: make server_test
+      - run:
+          name: make server_test
+          command: make server_test
+          environment:
+            # Env vars needed by the `bin/apply-secure-migrations.sh` script
+            DB_PASSWORD: mysecretpassword
+            DB_USER: postgres
+            DB_HOST: localhost
+            DB_PORT: 5432
+            DB_NAME: test_db
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/migrations/secure-dev
+            ENVIRONMENT: devlocal
       - run: make tools_build
       - run: make server_build_docker
       - run:
