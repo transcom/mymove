@@ -1,19 +1,22 @@
 package rateengine
 
 import (
-	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
+	"math"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (re *RateEngine) serviceFeeCents(cwt int, zip3 int) (int, error) {
+func (re *RateEngine) serviceFeeCents(cwt int, zip3 int) (unit.Cents, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
 	}
-	return cwt * serviceArea.ServiceChargeCents, nil
+	return serviceArea.ServiceChargeCents.Multiply(cwt), nil
 }
 
-func (re *RateEngine) fullPackCents(cwt int, zip3 int) (int, error) {
+func (re *RateEngine) fullPackCents(cwt int, zip3 int) (unit.Cents, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
@@ -24,10 +27,10 @@ func (re *RateEngine) fullPackCents(cwt int, zip3 int) (int, error) {
 		return 0, err
 	}
 
-	return cwt * fullPackRate, nil
+	return fullPackRate.Multiply(cwt), nil
 }
 
-func (re *RateEngine) fullUnpackCents(cwt int, zip3 int) (int, error) {
+func (re *RateEngine) fullUnpackCents(cwt int, zip3 int) (unit.Cents, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
@@ -38,10 +41,10 @@ func (re *RateEngine) fullUnpackCents(cwt int, zip3 int) (int, error) {
 		return 0, err
 	}
 
-	return cwt * fullUnpackRate / 1000, nil
+	return unit.Cents(math.Round(float64(cwt*fullUnpackRate) / 1000.0)), nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip int, destinationZip int) (int, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip int, destinationZip int) (unit.Cents, error) {
 	cwt := re.determineCWT(weight)
 	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
 	if err != nil {
@@ -62,10 +65,10 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip int, des
 	subTotal := originServiceFee + destinationServiceFee + pack + unpack
 
 	re.logger.Info("Non-Linehaul charge total calculated",
-		zap.Int("origin service fee", originServiceFee),
-		zap.Int("destination service fee", destinationServiceFee),
-		zap.Int("pack fee", pack),
-		zap.Int("unpack fee", unpack))
+		zap.Int("origin service fee", originServiceFee.Int()),
+		zap.Int("destination service fee", destinationServiceFee.Int()),
+		zap.Int("pack fee", pack.Int()),
+		zap.Int("unpack fee", unpack.Int()))
 
 	return subTotal, nil
 }
