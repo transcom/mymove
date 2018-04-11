@@ -8,7 +8,7 @@ readonly SLEEP=10
 readonly PR_NUMBER=${1:-}
 
 if [[ -z "$PR_NUMBER" ]]; then
-  echo "usage: $0 PR_NUMBER"
+  echo "usage: $0 <pr_number>"
   exit 1
 fi
 
@@ -30,12 +30,14 @@ while :; do
     -X PUT \
     "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER/merge")
 
-  if echo "$result" | grep -e 'status check.*pending' &> /dev/null; then
+  if [[ $result =~ status\ check.*pending ]]; then
     echo "...waiting on status checks to pass."
-  elif echo "$result" | grep "Not Found" &> /dev/null; then
-    echo "Pull Request #$PR_NUMBER was not found!"
+  elif [[ "$result" =~ Not\ Found ]]; then
+    echo "Pull Request #$PR_NUMBER was not found! This may have already been merged."
     exit 1
-  elif echo "$result" | grep "Pull Request successfully merged" &> /dev/null; then
+  elif [[ "$result" =~ review\ requesting\ changes ]]; then
+    echo -e "Review is requesting changes!\\a"
+  elif [[ "$result" =~ Pull\ Request\ successfully\ merged ]]; then
     echo "Merged!"
     exit 0
   else
