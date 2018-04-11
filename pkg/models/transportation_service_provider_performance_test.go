@@ -93,7 +93,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, nil, nil)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, 2.2, 1)
 
 	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
@@ -115,7 +115,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
 	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, nil, nil)
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, 2, 2.3)
 	band := 1
 
 	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
@@ -145,11 +145,11 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, nil, nil)
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, 4.5, 4.6)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
 	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", testdatagen.RandomSCAC())
-	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, nil, nil)
+	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, 2.2, 1.9)
 
 	// Fetch TSPs in TDL
 	tspsbb, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
@@ -398,9 +398,9 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
 	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, nil, nil)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, nil, nil)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, nil, nil)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, 4.5, 4.5)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, 3, 2.9)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, 1.1, 1.3)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
@@ -430,8 +430,8 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
 	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, nil)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, nil)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, 3.3, 3.4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, 1.9, 1.7)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
