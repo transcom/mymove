@@ -43,3 +43,46 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, tdls[0].ID)
 	}
 }
+
+func (suite *ModelSuite) Test_FetchOrCreateTDL() {
+	t := suite.T()
+
+	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US28", "4", "2")
+	foundTSP, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), mps+1, 0, 4.2, 4.3)
+
+	fetchedTDLs, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	if len(fetchedTDLs) != 1 {
+		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(fetchedTDLs))
+	}
+
+	if fetchedTDLs[0].ID != foundTDL.ID {
+		t.Errorf("Got wrong TDL; expected: %s, got: %s", foundTDL.ID, fetchedTDLs[0].ID)
+	}
+
+	createdTDLs, err := FetchOrCreateTDL(suite.db, "US23", "1", "2")
+	if err != nil {
+		t.Errorf("Something went wrong creating the test objects: %s\n", err)
+	}
+	if len(createdTDLs) != 1 {
+		t.Errorf("Got wrong number of TDLs; expected: 1, got: %d", len(fetchedTDLs))
+	}
+	tdls := TrafficDistributionLists{}
+	sql := `SELECT
+			*
+		FROM
+			traffic_distribution_lists;`
+
+	err = suite.db.RawQuery(sql).All(&tdls)
+
+	if err != nil {
+		t.Errorf("Something went wrong fetching the test objects: %s\n", err)
+	}
+	if len(tdls) != 2 {
+		t.Errorf("A new object was not created")
+	}
+}

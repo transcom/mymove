@@ -78,3 +78,33 @@ func (t TrafficDistributionList) MarshalLogObject(encoder zapcore.ObjectEncoder)
 	encoder.AddString("cos", t.CodeOfService)
 	return nil
 }
+
+// FetchOrCreateTDL attempts to return a TDL based on SourceRateArea, Region, and CodeOfService (COS)
+// and creates one to return if it doesn't already exist.
+func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOfService string) (TrafficDistributionList, error) {
+	sql := `SELECT
+				*
+			FROM
+				traffic_distribution_lists
+			WHERE
+				source_rate_area = $1
+			AND
+				destination_region = $2
+			AND
+				code_of_service = $3
+			`
+
+	tdls := TrafficDistributionLists{}
+	err := db.RawQuery(sql, rateArea, region, codeOfService).All(&tdls)
+
+	if len(tdls) != 1 {
+		tdl := TrafficDistributionList{
+			SourceRateArea:    rateArea,
+			DestinationRegion: region,
+			CodeOfService:     codeOfService,
+		}
+		tdls = append(tdls, tdl)
+	}
+
+	return tdls[0], err
+}
