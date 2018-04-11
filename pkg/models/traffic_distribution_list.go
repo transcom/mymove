@@ -2,12 +2,14 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -94,7 +96,7 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 				code_of_service = $3
 			`
 
-	tdls := TrafficDistributionLists{}
+	tdls := []TrafficDistributionList{}
 	err := db.RawQuery(sql, rateArea, region, codeOfService).All(&tdls)
 
 	if len(tdls) != 1 {
@@ -102,6 +104,14 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 			SourceRateArea:    rateArea,
 			DestinationRegion: region,
 			CodeOfService:     codeOfService,
+		}
+		verrs, err := db.ValidateAndSave(&tdl)
+		if err != nil {
+			fmt.Printf("DB Insertion: %v", err)
+			return TrafficDistributionList{}, err
+		} else if verrs.HasAny() {
+			fmt.Printf("Validation errors: %v", verrs)
+			return TrafficDistributionList{}, errors.New("Validation error on TDL")
 		}
 		tdls = append(tdls, tdl)
 	}
