@@ -41,7 +41,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Info("Missing User ID in context")
+		h.logger.Error("Missing User ID in context")
 		return uploadop.NewCreateUploadBadRequest()
 	}
 

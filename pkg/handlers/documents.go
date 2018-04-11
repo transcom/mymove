@@ -29,12 +29,13 @@ type CreateDocumentHandler HandlerContext
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
 	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Info("No User ID, this should never happen.")
+		h.logger.Error("Missing User ID in context")
+		return documentop.NewCreateDocumentBadRequest()
 	}
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
-		h.logger.Info("Invalid MoveID.", zap.Error(err))
+		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
