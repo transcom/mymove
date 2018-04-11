@@ -1,0 +1,2 @@
+drop_column("transportation_service_provider_performances", "float")
+drop_column("transportation_service_provider_performances", "float")
