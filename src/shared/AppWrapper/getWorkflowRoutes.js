@@ -1,6 +1,4 @@
 import React from 'react';
-import { connect } from 'react-redux';
-
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 
@@ -17,71 +15,90 @@ const Placeholder = props => {
       pageList={props.pageList}
       pageKey={props.pageKey}
     >
-      <h1>Placeholder for {props.title}</h1>
-      <h2>{props.description}</h2>
+      <div className="Todo">
+        <h1>Placeholder for {props.title}</h1>
+        <h2>{props.description}</h2>
+      </div>
     </WizardPage>
   );
 };
 
-const stub = (key, pages) => ({ match }) => (
-  <Placeholder pageList={pages} pageKey={key} title={key} />
+const stub = (key, pages, description) => ({ match }) => (
+  <Placeholder
+    pageList={pages}
+    pageKey={key}
+    title={key}
+    description={description}
+  />
 );
+const goHome = props => () => props.push('/');
 
 const incompleteServiceMember = props => !props.hasCompleteProfile;
 const hasMove = props => props.hasMove;
-const hasHHG = props => props.selectedMoveType !== 'PPM';
-const hasPPM = props => props.selectedMoveType !== 'HHG';
-const isCombo = props => props.selectedMoveType === 'COMBO';
+const hasHHG = ({ hasMove, selectedMoveType }) =>
+  hasMove && selectedMoveType !== 'PPM';
+const hasPPM = ({ hasMove, selectedMoveType }) =>
+  hasMove && selectedMoveType !== 'HHG';
+const isCombo = ({ hasMove, selectedMoveType }) =>
+  hasMove && selectedMoveType === 'COMBO';
 const pages = {
   '/service-member/:id/create': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Create your profile',
   },
   '/service-member/:id/name': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Name',
   },
   '/service-member/:id/contact-info': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Your contact info',
   },
   '/service-member/:id/duty-station': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'current duty station',
   },
   '/service-member/:id/residence-address': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Current residence address',
   },
   '/service-member/:id/backup-mailing-address': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Backup mailing address',
   },
   '/service-member/:id/backup-contacts': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Backup contacts',
   },
   '/service-member/:id/transition': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: "OK, your profile's complete",
   },
   '/orders/:id/': {
-    render: stub,
     isInFlow: incompleteServiceMember,
+    render: stub,
     description: 'Tell us about your move orders',
   },
   '/orders/:id/upload': {
-    render: stub,
     isInFlow: incompleteServiceMember,
-    description: 'Upload your orders',
+    render: (key, pages, description, props) => ({ match }) => {
+      return (
+        <WizardPage handleSubmit={goHome(props)} pageList={pages} pageKey={key}>
+          <div className="Todo">
+            <h1>Placeholder for {key}</h1>
+            <h2>Upload your orders</h2>
+          </div>
+        </WizardPage>
+      );
+    },
   },
   '/moves/:moveId': {
     isInFlow: hasMove,
@@ -90,13 +107,13 @@ const pages = {
     ),
   },
   '/moves/:moveId/schedule': {
-    render: stub,
     isInFlow: hasHHG,
+    render: stub,
     description: 'Pick a move date',
   },
   '/moves/:moveId/address': {
-    render: stub,
     isInFlow: hasHHG,
+    render: stub,
     description: 'enter your addresses',
   },
 
@@ -110,14 +127,8 @@ const pages = {
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
-        <form>
-          {' '}
-          pickup zip, destination zip, secondary pickup, temp storage?{' '}
-        </form>
-      </WizardPage>
-    ),
+    render: stub,
+    description: 'pickup zip, destination zip, secondary pickup, temp storage',
   },
   '/moves/:moveId/ppm-size': {
     isInFlow: hasPPM,
@@ -132,19 +143,15 @@ const pages = {
     ),
   },
   '/moves/:moveId/review': {
-    render: stub,
     isInFlow: hasMove,
+    render: stub,
     description: 'Review',
   },
   '/moves/:moveId/agreement': {
     isInFlow: hasMove,
-    render: (key, pages) => ({ match }) => {
+    render: (key, pages, description, props) => ({ match }) => {
       return (
-        <WizardPage
-          handleSubmit={() => undefined}
-          pageList={pages}
-          pageKey={key}
-        >
+        <WizardPage handleSubmit={goHome(props)} pageList={pages} pageKey={key}>
           <Agreement match={match} />
         </WizardPage>
       );
@@ -157,20 +164,12 @@ export const getPageList = state =>
     return page.isInFlow(state);
   });
 
-const WorkflowRoutes = props => {
+export const getWorkflowRoutes = props => {
   const pageList = getPageList(props);
   return pageList.map(key => {
     const currPage = pages[key];
-    const render = currPage.render(key, pageList, currPage.description);
+    console.log(key, currPage.description, props);
+    const render = currPage.render(key, pageList, currPage.description, props);
     return <PrivateRoute exact path={key} key={key} render={render} />;
   });
 };
-
-const mapStateToProps = state => ({
-  hasCompleteProfile: false,
-  selectedMoveType: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.selected_move_type
-    : null,
-  hasMove: Boolean(state.submittedMoves.currentMove),
-});
-export default connect(mapStateToProps)(WorkflowRoutes);

@@ -62,6 +62,28 @@ describe('when getting the routes for the current workflow', () => {
   });
   describe('given an incomplete service member', () => {
     profileIsComplete = false;
+    describe('given no move', () => {
+      const props = {
+        hasCompleteProfile: profileIsComplete,
+        selectedMoveType: null,
+        hasMove: false,
+      };
+      const pages = getPageList(props);
+      it('just returns move pages', () => {
+        expect(pages).toEqual([
+          '/service-member/:id/create',
+          '/service-member/:id/name',
+          '/service-member/:id/contact-info',
+          '/service-member/:id/duty-station',
+          '/service-member/:id/residence-address',
+          '/service-member/:id/backup-mailing-address',
+          '/service-member/:id/backup-contacts',
+          '/service-member/:id/transition',
+          '/orders/:id/',
+          '/orders/:id/upload',
+        ]);
+      });
+    });
     describe('given a PPM', () => {
       const props = {
         hasCompleteProfile: profileIsComplete,
