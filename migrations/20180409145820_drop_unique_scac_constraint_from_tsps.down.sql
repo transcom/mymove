@@ -1,1 +1,0 @@
-ALTER table transportation_service_providers DROP constraint unique_scac;
