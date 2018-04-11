@@ -6,12 +6,10 @@ import { bindActionCreators } from 'redux';
 import { createMove } from 'scenes/Moves/ducks';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
-import { loadUserAndToken } from 'shared/User/ducks';
 
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
-    this.props.loadUserAndToken();
   }
   componentDidUpdate() {
     if (this.props.hasSubmitSuccess)
@@ -49,7 +47,7 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
+  return bindActionCreators({ push, createMove }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
