@@ -608,9 +608,9 @@ describe('given a WizardPage', () => {
           const nextButton = buttons.last();
           nextButton.simulate('click');
         });
-        it('transitionTo is set to second page', () => {
+        it('transitionFunc is set to getNextPage', () => {
           const state = wrapper.state();
-          expect(state.transitionTo).toBe('2');
+          expect(state.transitionFunc.name).toBe('getNextPagePath');
         });
         it('submit is called', () => {
           expect(submit.mock.calls.length).toBe(1);
@@ -657,9 +657,9 @@ describe('given a WizardPage', () => {
           const prevButton = buttons.first();
           prevButton.simulate('click');
         });
-        it('transitionTo is set to first page', () => {
+        it('transitionFunc is set to getPrevPage', () => {
           const state = wrapper.state();
-          expect(state.transitionTo).toBe('1');
+          expect(state.transitionFunc.name).toBe('getPreviousPagePath');
         });
         it('submit is called', () => {
           expect(submit.mock.calls.length).toBe(1);
@@ -680,9 +680,9 @@ describe('given a WizardPage', () => {
           const nextButton = buttons.last();
           nextButton.simulate('click');
         });
-        it('transitionTo is set to third page', () => {
+        it('transitionFunc is set to getNextPage', () => {
           const state = wrapper.state();
-          expect(state.transitionTo).toBe('3');
+          expect(state.transitionFunc.name).toBe('getNextPagePath');
         });
 
         it('submit is called', () => {

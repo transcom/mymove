@@ -20,7 +20,7 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
-    this.state = { transitionTo: null };
+    this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
@@ -41,7 +41,7 @@ export class WizardPage extends Component {
     if (pageIsDirty && handleSubmit) {
       handleSubmit();
       if (isAsync) {
-        this.setState({ transitionTo: path });
+        this.setState({ transitionFunc: func });
       } else {
         this.goto(path);
       }
@@ -58,7 +58,9 @@ export class WizardPage extends Component {
     push(generatePath(path, params));
   }
   onSubmitSuccessful() {
-    if (this.state.transitionTo) this.goto(this.state.transitionTo);
+    const { transitionFunc } = this.state;
+    const { pageKey, pageList } = this.props;
+    if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
   }
   nextPage() {
     this.beforeTransition(getNextPagePath);
