@@ -3,11 +3,11 @@
 
 set -eu -o pipefail
 
-readonly REPO="transcom/mymove"
-readonly SLEEP=10
-readonly PR_NUMBER=${1:-}
+readonly repo="transcom/mymove"
+readonly sleep=10
+readonly pr_number=${1:-}
 
-if [[ -z "$PR_NUMBER" ]]; then
+if [[ -z "$pr_number" ]]; then
   echo "usage: $0 <pr_number>"
   exit 1
 fi
@@ -28,12 +28,12 @@ while :; do
     -s \
     -H "Authorization: token $GITHUB_MERGE_TOKEN" \
     -X PUT \
-    "https://api.github.com/repos/$REPO/pulls/$PR_NUMBER/merge")
+    "https://api.github.com/repos/$repo/pulls/$pr_number/merge")
 
   if [[ $result =~ status\ check.*pending ]]; then
     echo "...waiting on status checks to pass."
   elif [[ "$result" =~ Not\ Found ]]; then
-    echo "Pull Request #$PR_NUMBER was not found! This may have already been merged."
+    echo "Pull Request #$pr_number was not found! This may have already been merged."
     exit 1
   elif [[ "$result" =~ review\ requesting\ changes ]]; then
     echo -e "Reviewer is requesting changes!\\a"
@@ -44,5 +44,5 @@ while :; do
     echo "$result"
   fi
 
-  sleep $SLEEP
+  sleep $sleep
 done
