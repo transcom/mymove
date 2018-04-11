@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/auth/context"
@@ -150,7 +151,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	} else { // The given serviceMember does belong to the current user.
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
-
+		fmt.Println("patch payload", payload)
 		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
 
 		if verrs.HasAny() {

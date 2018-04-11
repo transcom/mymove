@@ -13,11 +13,18 @@ export async function GetServiceMember(serviceMemberId) {
   return response.body;
 }
 
-export async function UpdateServiceMember(serviceMemberRequest) {
+export async function UpdateServiceMember(
+  serviceMemberId,
+  serviceMemberPayload,
+) {
   const client = await getClient();
-  const response = await client.apis.service_members.patchServiceMember(
-    serviceMemberRequest,
-  );
+  console.log('payload', serviceMemberPayload);
+  console.log('sm id', serviceMemberId);
+  console.log(client.apis.service_members.patchServiceMember);
+  const response = await client.apis.service_members.patchServiceMember({
+    serviceMemberId,
+    patchServiceMemberPayload: serviceMemberPayload,
+  });
   checkResponse(
     response,
     'failed to update service member due to server error',

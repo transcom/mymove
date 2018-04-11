@@ -2,7 +2,7 @@ import React from 'react';
 
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
-import NameWizard from 'scenes/ServiceMembers/NameWizard';
+import SMNameWizard from 'scenes/ServiceMembers/SMNameWizard';
 
 const Placeholder = props => {
   return (
@@ -34,12 +34,12 @@ export default () => {
     '/service-member/:serviceMemberId/create': { render: stub },
     '/service-member/:serviceMemberId/name': {
       render: (key, pages) => ({ match }) => (
-        <NameWizard pages={pages} pageKey={key} match={match} />
+        <SMNameWizard pages={pages} pageKey={key} match={match} />
       ),
     },
     '/service-member/:serviceMemberId/contact-info': { render: stub },
     '/service-member/:serviceMemberId/duty-station': { render: stub },
-    '/service-member/:serviceMemberId/resserviceMemberIdence-address': {
+    '/service-member/:serviceMemberId/residence-address': {
       render: stub,
     },
     '/service-member/:serviceMemberId/backup-mailing-address': { render: stub },

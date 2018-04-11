@@ -2,6 +2,7 @@ import { GetServiceMember, UpdateServiceMember } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
+export const SET_PENDING_SM_NAME_DATA = 'SET_PENDING_SM_NAME_DATA';
 export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   'GET_SERVICE_MEMBER',
 );
@@ -10,16 +11,25 @@ export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // Action creation
-export function updateServiceMember(value) {
+export function setPendingSMNameData(value) {
+  return { type: SET_PENDING_SM_NAME_DATA, payload: value };
+}
+
+export function updateServiceMember(serviceMember) {
   const action = ReduxHelpers.generateAsyncActions('UPDATE_SERVICE_MEMBER');
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    console.log(state);
+    console.log('ducks payload', serviceMember);
     const currentServiceMember = state.serviceMember.currentServiceMember;
     if (currentServiceMember) {
-      UpdateServiceMember(value)
-        .then(item => dispatch(action.success(item)))
+      console.log('currentServiceMember', currentServiceMember);
+      UpdateServiceMember(currentServiceMember.id, serviceMember)
+        .then(item =>
+          dispatch(
+            action.success(Object.assign({}, currentServiceMember, item)),
+          ),
+        )
         .catch(error => dispatch(action.error(error)));
     }
   };
@@ -41,21 +51,25 @@ export function loadServiceMember(serviceMemberId) {
 
 // Reducer
 const initialState = {
+  pendingSMNameData: null,
   currentServiceMember: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
+    case SET_PENDING_SM_NAME_DATA:
+      return Object.assign({}, state, {
+        pendingSMNameData: action.payload,
+      });
     case UPDATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
-        currentServiceMember: action.payload,
         hasSubmitSuccess: true,
-        hasSubmitError: false,
       });
     case UPDATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
         currentServiceMember: action.payload,
+        pendingSMNameData: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
