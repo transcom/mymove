@@ -2,7 +2,7 @@ import React from 'react';
 
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
-import Name from 'scenes/ServiceMembers/Name';
+import NameWizard from 'scenes/ServiceMembers/NameWizard';
 
 const Placeholder = props => {
   return (
@@ -31,18 +31,20 @@ const stub = (key, pages, component) => ({ match }) => {
 
 export default () => {
   const pages = {
-    '/service-member/:id/create': { render: stub },
-    '/service-member/:id/name': {
+    '/service-member/:serviceMemberId/create': { render: stub },
+    '/service-member/:serviceMemberId/name': {
       render: (key, pages) => ({ match }) => (
-        <Name pages={pages} pageKey={key} match={match} />
+        <NameWizard pages={pages} pageKey={key} match={match} />
       ),
     },
-    '/service-member/:id/contact-info': { render: stub },
-    '/service-member/:id/duty-station': { render: stub },
-    '/service-member/:id/residence-address': { render: stub },
-    '/service-member/:id/backup-mailing-address': { render: stub },
-    '/service-member/:id/backup-contacts': { render: stub },
-    '/service-member/:id/transition': { render: stub },
+    '/service-member/:serviceMemberId/contact-info': { render: stub },
+    '/service-member/:serviceMemberId/duty-station': { render: stub },
+    '/service-member/:serviceMemberId/resserviceMemberIdence-address': {
+      render: stub,
+    },
+    '/service-member/:serviceMemberId/backup-mailing-address': { render: stub },
+    '/service-member/:serviceMemberId/backup-contacts': { render: stub },
+    '/service-member/:serviceMemberId/transition': { render: stub },
   };
   const pageList = Object.keys(pages);
   const componentMap = {};
