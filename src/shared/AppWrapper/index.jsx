@@ -1,13 +1,15 @@
 import React from 'react';
 import { Route, Redirect, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
+
 import DD1299 from 'scenes/DD1299';
 import DemoWorkflowRoutes from 'scenes/DemoWorkflow/routes';
 import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Legalese from 'scenes/Legalese';
-import MoveRoutes from 'scenes/Moves/routes';
-import ServiceMemberRoutes from 'scenes/ServiceMembers/routes';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import WizardDemo from 'scenes/WizardDemo';
@@ -16,7 +18,7 @@ import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import Uploader from 'shared/Uploader';
 import PrivateRoute from 'shared/User/PrivateRoute';
-
+import { getWorkflowRoutes } from './getWorkflowRoutes';
 const redirect = pathname => () => (
   <Redirect
     to={{
@@ -31,7 +33,7 @@ const NoMatch = ({ location }) => (
     </h3>
   </div>
 );
-const AppWrapper = () => (
+export const AppWrapper = props => (
   <ConnectedRouter history={history}>
     <div className="App site">
       <Header />
@@ -48,8 +50,7 @@ const AppWrapper = () => (
           {WizardDemo()}
           <Route exact path="/demo" render={redirect('/demo/sm')} />
           {DemoWorkflowRoutes()}
-          {MoveRoutes()}
-          {ServiceMemberRoutes()}
+          {getWorkflowRoutes(props)}
           <Route component={NoMatch} />
         </Switch>
       </main>
@@ -58,4 +59,13 @@ const AppWrapper = () => (
   </ConnectedRouter>
 );
 
-export default AppWrapper;
+const mapStateToProps = state => ({
+  hasCompleteProfile: false, //todo update this when user service is ready
+  selectedMoveType: state.submittedMoves.currentMove
+    ? state.submittedMoves.currentMove.selected_move_type
+    : null,
+  hasMove: Boolean(state.submittedMoves.currentMove),
+});
+const mapDispatchToProps = dispatch => bindActionCreators({ push }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
