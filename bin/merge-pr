@@ -36,7 +36,7 @@ while :; do
     echo "Pull Request #$PR_NUMBER was not found! This may have already been merged."
     exit 1
   elif [[ "$result" =~ review\ requesting\ changes ]]; then
-    echo -e "Review is requesting changes!\\a"
+    echo -e "Reviewer is requesting changes!\\a"
   elif [[ "$result" =~ Pull\ Request\ successfully\ merged ]]; then
     echo "Merged!"
     exit 0
