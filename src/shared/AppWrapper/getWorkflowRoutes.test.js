@@ -69,7 +69,7 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: false,
       };
       const pages = getPageList(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
           '/service-member/:id/name',
@@ -81,6 +81,10 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:id/transition',
           '/orders/:id/',
           '/orders/:id/upload',
+          '/orders/:id/complete',
+          '/moves/:moveId',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
         ]);
       });
     });
@@ -91,7 +95,7 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPageList(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and PPM-specific move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
           '/service-member/:id/name',
@@ -103,6 +107,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:id/transition',
           '/orders/:id/',
           '/orders/:id/upload',
+          '/orders/:id/complete',
           '/moves/:moveId',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
@@ -119,7 +124,7 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPageList(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and HHG-specific move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
           '/service-member/:id/name',
@@ -131,6 +136,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:id/transition',
           '/orders/:id/',
           '/orders/:id/upload',
+          '/orders/:id/complete',
           '/moves/:moveId',
           '/moves/:moveId/schedule',
           '/moves/:moveId/address',
@@ -146,7 +152,7 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPageList(props);
-      it('returns the service member and move pages', () => {
+      it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
           '/service-member/:id/create',
           '/service-member/:id/name',
@@ -158,6 +164,7 @@ describe('when getting the routes for the current workflow', () => {
           '/service-member/:id/transition',
           '/orders/:id/',
           '/orders/:id/upload',
+          '/orders/:id/complete',
           '/moves/:moveId',
           '/moves/:moveId/schedule',
           '/moves/:moveId/address',

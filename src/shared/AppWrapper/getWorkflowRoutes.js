@@ -31,77 +31,90 @@ const stub = (key, pages, description) => ({ match }) => (
     description={description}
   />
 );
-const goHome = props => () => props.push('/');
 
+const goHome = props => () => props.push('/');
+const createMove = props => () => props.hasMove || props.createMove({});
+const always = () => true;
 const incompleteServiceMember = props => !props.hasCompleteProfile;
-const hasMove = props => props.hasMove;
-const hasHHG = ({ hasMove, selectedMoveType }) =>
-  hasMove && selectedMoveType !== 'PPM';
-const hasPPM = ({ hasMove, selectedMoveType }) =>
-  hasMove && selectedMoveType !== 'HHG';
-const isCombo = ({ hasMove, selectedMoveType }) =>
-  hasMove && selectedMoveType === 'COMBO';
+const hasHHG = ({ selectedMoveType }) =>
+  selectedMoveType !== null && selectedMoveType !== 'PPM';
+const hasPPM = ({ selectedMoveType }) =>
+  selectedMoveType !== null && selectedMoveType !== 'HHG';
+const isCombo = ({ selectedMoveType }) =>
+  selectedMoveType !== null && selectedMoveType === 'COMBO';
 const pages = {
-  '/service-member/:id/create': {
+  '/service-member/:serviceMemberId/create': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Create your profile',
   },
-  '/service-member/:id/name': {
+  '/service-member/:serviceMemberId/name': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Name',
   },
-  '/service-member/:id/contact-info': {
+  '/service-member/:serviceMemberId/contact-info': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Your contact info',
   },
-  '/service-member/:id/duty-station': {
+  '/service-member/:serviceMemberId/duty-station': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'current duty station',
   },
-  '/service-member/:id/residence-address': {
+  '/service-member/:serviceMemberId/residence-address': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Current residence address',
   },
-  '/service-member/:id/backup-mailing-address': {
+  '/service-member/:serviceMemberId/backup-mailing-address': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Backup mailing address',
   },
-  '/service-member/:id/backup-contacts': {
+  '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Backup contacts',
   },
-  '/service-member/:id/transition': {
+  '/service-member/:serviceMemberId/transition': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: "OK, your profile's complete",
   },
-  '/orders/:id/': {
+  '/orders/:serviceMemberId/': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Tell us about your move orders',
   },
-  '/orders/:id/upload': {
+  '/orders/:serviceMemberId/upload': {
     isInFlow: incompleteServiceMember,
+    render: stub,
+    description: 'Upload your orders',
+  },
+  '/orders/:serviceMemberId/complete': {
+    isInFlow: incompleteServiceMember, //todo: this is probably not the right check
     render: (key, pages, description, props) => ({ match }) => {
       return (
-        <WizardPage handleSubmit={goHome(props)} pageList={pages} pageKey={key}>
+        <WizardPage
+          handleSubmit={createMove(props)}
+          isAsync={!props.hasMove}
+          hasSucceeded={props.hasMove}
+          additionalParams={{ moveId: props.moveId }}
+          pageList={pages}
+          pageKey={key}
+        >
           <div className="Todo">
             <h1>Placeholder for {key}</h1>
-            <h2>Upload your orders</h2>
+            <h2>Creating move here</h2>
           </div>
         </WizardPage>
       );
     },
   },
   '/moves/:moveId': {
-    isInFlow: hasMove,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
@@ -143,12 +156,12 @@ const pages = {
     ),
   },
   '/moves/:moveId/review': {
-    isInFlow: hasMove,
+    isInFlow: always,
     render: stub,
     description: 'Review',
   },
   '/moves/:moveId/agreement': {
-    isInFlow: hasMove,
+    isInFlow: always,
     render: (key, pages, description, props) => ({ match }) => {
       return (
         <WizardPage handleSubmit={goHome(props)} pageList={pages} pageKey={key}>
@@ -168,7 +181,6 @@ export const getWorkflowRoutes = props => {
   const pageList = getPageList(props);
   return pageList.map(key => {
     const currPage = pages[key];
-    console.log(key, currPage.description, props);
     const render = currPage.render(key, pageList, currPage.description, props);
     return <PrivateRoute exact path={key} key={key} render={render} />;
   });
