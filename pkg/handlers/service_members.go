@@ -150,6 +150,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	} else { // The given serviceMember does belong to the current user.
 		serviceMember := serviceMemberResult.ServiceMember()
 		payload := params.PatchServiceMemberPayload
+
 		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
 
 		if verrs.HasAny() {
