@@ -11,7 +11,6 @@ describe('given a WizardPage', () => {
       describe('when pageIsValid is false', () => {
         describe('when on the first page', () => {
           beforeEach(() => {
-            history = [];
             const continueToNextPage = false;
 
             wrapper = shallow(
@@ -19,7 +18,6 @@ describe('given a WizardPage', () => {
                 handleSubmit={submit}
                 pageList={pageList}
                 pageKey="1"
-                history={history}
                 pageIsValid={continueToNextPage}
                 match={{}}
               >
@@ -36,7 +34,6 @@ describe('given a WizardPage', () => {
         });
         describe('when on the last page', () => {
           beforeEach(() => {
-            history = [];
             const pageIsValid = false;
 
             wrapper = shallow(
@@ -44,7 +41,6 @@ describe('given a WizardPage', () => {
                 handleSubmit={submit}
                 pageList={pageList}
                 pageKey="3"
-                history={history}
                 pageIsValid={pageIsValid}
                 match={{}}
               >
@@ -62,7 +58,6 @@ describe('given a WizardPage', () => {
       });
       describe('when pageIsValid is true', () => {
         beforeEach(() => {
-          history = [];
           const continueToNextPage = true;
 
           wrapper = shallow(
@@ -70,7 +65,6 @@ describe('given a WizardPage', () => {
               handleSubmit={submit}
               pageList={pageList}
               pageKey="1"
-              history={history}
               pageIsValid={continueToNextPage}
             >
               <div>This is page 1</div>
@@ -372,7 +366,6 @@ describe('given a WizardPage', () => {
       describe('when pageIsValid is false', () => {
         describe('when on the first page', () => {
           beforeEach(() => {
-            history = [];
             const continueToNextPage = false;
 
             wrapper = shallow(
@@ -380,7 +373,6 @@ describe('given a WizardPage', () => {
                 handleSubmit={submit}
                 pageList={pageList}
                 pageKey="1"
-                history={history}
                 pageIsValid={continueToNextPage}
                 match={{}}
                 isAsync={true}
@@ -399,7 +391,6 @@ describe('given a WizardPage', () => {
         });
         describe('when on the last page', () => {
           beforeEach(() => {
-            history = [];
             const pageIsValid = false;
 
             wrapper = shallow(
@@ -407,7 +398,6 @@ describe('given a WizardPage', () => {
                 handleSubmit={submit}
                 pageList={pageList}
                 pageKey="3"
-                history={history}
                 pageIsValid={pageIsValid}
                 match={{}}
                 isAsync={true}
@@ -432,7 +422,6 @@ describe('given a WizardPage', () => {
       });
       describe('when pageIsValid is true', () => {
         beforeEach(() => {
-          history = [];
           const continueToNextPage = true;
 
           wrapper = shallow(
@@ -440,7 +429,6 @@ describe('given a WizardPage', () => {
               handleSubmit={submit}
               pageList={pageList}
               pageKey="1"
-              history={history}
               pageIsValid={continueToNextPage}
               isAsync={true}
               hasSucceeded={false}
@@ -752,6 +740,34 @@ describe('given a WizardPage', () => {
         it('submit is called', () => {
           expect(submit.mock.calls.length).toBe(1);
         });
+      });
+    });
+  });
+  describe('when there is an additionalParams prop', () => {
+    beforeEach(() => {
+      mockPush.mockClear();
+      wrapper = shallow(
+        <WizardPage
+          pageList={['page1', 'anotherPage/:foo/:bar']}
+          pageKey="page1"
+          match={{ params: { foo: 'dvorak' } }}
+          push={mockPush}
+          handleSubmit={() => undefined}
+          additionalParams={{ bar: 'querty' }}
+        >
+          <div>This is page 1</div>
+        </WizardPage>,
+      );
+      buttons = wrapper.find('button');
+    });
+    describe('when the next button is clicked', () => {
+      beforeEach(() => {
+        const nextButton = buttons.last();
+        nextButton.simulate('click');
+      });
+      it('push gets a page with the additionalParams expanded', () => {
+        expect(mockPush.mock.calls.length).toBe(1);
+        expect(mockPush.mock.calls[0][0]).toBe('anotherPage/dvorak/querty');
       });
     });
   });
