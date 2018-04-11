@@ -30,7 +30,7 @@ export class Landing extends Component {
               There was an error starting your move.
             </Alert>
           )}
-          <LoginButton />
+          {!this.props.isLoggedIn && <LoginButton />}
           <div />
         </div>
         {this.props.isLoggedIn && (
