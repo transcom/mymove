@@ -3,6 +3,7 @@ import React from 'react';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import SMNameWizard from 'scenes/ServiceMembers/SMNameWizard';
+import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 
 const Placeholder = props => {
   return (
@@ -47,7 +48,9 @@ export default () => {
     '/service-member/:serviceMemberId/transition': { render: stub },
   };
   const pageList = Object.keys(pages);
-  const componentMap = {};
+  const componentMap = {
+    transition: TransitionToOrders,
+  };
   return pageList.map(key => {
     const step = key.split('/').pop();
     var component = componentMap[step];
