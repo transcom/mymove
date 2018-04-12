@@ -5,6 +5,7 @@ import (
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) Test_ShorthaulRateEffectiveDateValidation() {
@@ -93,7 +94,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	t := suite.T()
 
 	// Test the lower bound of a cwtMile range
-	rate1 := 100
+	rate1 := unit.Cents(100)
 	sh1 := Tariff400ngShorthaulRate{
 		CwtMilesLower:      1000,
 		CwtMilesUpper:      2000,
@@ -112,7 +113,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	}
 
 	// Test the upper bound of the CwtMiles
-	rate2 := 200
+	rate2 := unit.Cents(200)
 	sh2 := Tariff400ngShorthaulRate{
 		CwtMilesLower:      2000,
 		CwtMilesUpper:      3000,
@@ -131,7 +132,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	}
 
 	// And this rate is in a different EffectiveDate band
-	rate3 := 300
+	rate3 := unit.Cents(300)
 	sh3 := Tariff400ngShorthaulRate{
 		CwtMilesLower:      1000,
 		CwtMilesUpper:      2000,
