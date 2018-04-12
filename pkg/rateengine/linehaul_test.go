@@ -8,7 +8,7 @@ import (
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage, err := engine.determineMileage(10024, 18209)
+	mileage, err := engine.determineMileage("10024", "18209")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
@@ -72,7 +72,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -91,7 +91,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	}
 	suite.mustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, 395, testdatagen.RateEngineDate)
+	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -128,8 +128,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2000
 	expected := 8820
-	zip3Austin := 787
-	zip3SanFrancisco := 941
+	zip3Austin := "787"
+	zip3SanFrancisco := "941"
 
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
