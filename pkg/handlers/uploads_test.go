@@ -86,9 +86,9 @@ func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, mode
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	context := NewHandlerContext(suite.db, suite.logger, nil)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	return move, document, response
@@ -165,9 +165,9 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), user.ID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	context := NewHandlerContext(suite.db, suite.logger, nil)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.CreateUploadForbidden)
@@ -207,9 +207,9 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	context := NewHandlerContext(suite.db, suite.logger, nil)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.CreateUploadNotFound)

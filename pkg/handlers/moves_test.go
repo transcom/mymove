@@ -38,7 +38,7 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 	ctx = context.PopulateUserModel(ctx, user)
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.CreateMoveCreated)
@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
-	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(indexMovesParams)
 
 	// Then: Expect a 200 status code
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
-	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	indexResponse := indexHandler.Handle(indexMovesParams)
 
 	// Then: Expect a 200 status code
@@ -187,7 +187,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*moveop.PatchMoveCreated)
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.PatchMoveForbidden)
@@ -283,7 +283,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.PatchMoveNotFound)
@@ -324,7 +324,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 		PatchMovePayload: &patchPayload,
 	}
 
-	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*moveop.PatchMoveCreated)
@@ -360,7 +360,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 		MoveID:      strfmt.UUID(newMove.ID.String()),
 	}
 	// And: show Move is queried
-	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -409,7 +409,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 		MoveID:      strfmt.UUID(newMove.ID.String()),
 	}
 	// And: Show move is queried
-	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
 
 	_, ok := showResponse.(*moveop.ShowMoveForbidden)

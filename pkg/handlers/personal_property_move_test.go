@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		HTTPRequest:                         request,
 	}
 
-	handler := CreatePersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreatePersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newPPMParams)
 
 	// assert we got back the 201 response
@@ -159,7 +159,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		HTTPRequest: request,
 	}
 
-	handler := IndexPersonallyProcuredMovesHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := IndexPersonallyProcuredMovesHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(indexPPMParams)
 
 	// assert we got back the 201 response
@@ -221,7 +221,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
@@ -287,7 +287,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 403 response
@@ -352,7 +352,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 403 response
@@ -414,7 +414,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		PatchPersonallyProcuredMovePayload: &payload,
 	}
 
-	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 403 response

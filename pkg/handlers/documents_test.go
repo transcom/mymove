@@ -30,7 +30,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
-	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	createdResponse, ok := response.(*documentop.CreateDocumentCreated)

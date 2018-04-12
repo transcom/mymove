@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -110,7 +110,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationNotFound)

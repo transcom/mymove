@@ -150,7 +150,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerAllValues() {
 	}
 
 	// When: New Form1299 is posted
-	handlerContext := NewHandlerContext(suite.db, suite.logger, nil)
+	handlerContext := NewHandlerContext(suite.db, suite.logger)
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
 	handler := CreateForm1299Handler(handlerContext)
 	response := handler.Handle(newForm1299Params)
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestShowUnknown() {
 	unknownID := strfmt.UUID("2400c3c5-019d-4031-9c27-8a553e022297")
 	showFormParams := form1299op.ShowForm1299Params{Form1299ID: unknownID}
 
-	handler := ShowForm1299Handler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := ShowForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(showFormParams)
 
 	// assert we got back the 404 response
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerNoRequiredValues() {
 		MobileHomeStoredAtDestinationRequested: swag.Bool(false),
 	}
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newForm1299Params)
 
 	// Then: Assert we got back the 201 response
@@ -243,7 +243,7 @@ func (suite *HandlerSuite) TestSubmitForm1299HandlerSomeValues() {
 
 	// When: a new Form1299 is posted
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger, nil))
+	handler := CreateForm1299Handler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newForm1299Params)
 
 	// Then: Assert we got back the 201 response
@@ -277,7 +277,7 @@ func (suite *HandlerSuite) TestIndexForm1299sHandler() {
 
 	// When: New Form1299 is posted
 	newForm1299Params := form1299op.CreateForm1299Params{CreateForm1299Payload: &newForm1299Payload}
-	handlerContext := NewHandlerContext(suite.db, suite.logger, nil)
+	handlerContext := NewHandlerContext(suite.db, suite.logger)
 	handler := CreateForm1299Handler(handlerContext)
 	createResponse := handler.Handle(newForm1299Params)
 

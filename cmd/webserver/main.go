@@ -130,16 +130,17 @@ func main() {
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
 
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+
 	// Get route planner for handlers to calculate transit distances
 	routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
-
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger, routePlanner)
+	handlerContext.SetPlanner(routePlanner)
 
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
 		zap.L().Info("Using s3 storage backend")
 		if len(*s3Bucket) == 0 {
-			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+			log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
 		}
 		aws := awssession.Must(awssession.NewSession())
 		storer = storage.NewS3(*s3Bucket, logger, aws)
@@ -147,14 +148,13 @@ func main() {
 		zap.L().Info("Using filesystem storage backend")
 		absTmpPath, err := filepath.Abs("tmp")
 		if err != nil {
-			log.Fatalln(errors.New("Could not get absolute path for tmp"))
+			log.Fatalln(errors.New("could not get absolute path for tmp"))
 		}
 		storagePath := path.Join(absTmpPath, "storage")
 		webRoot := fullHostname + "/" + "storage"
 		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
-
-	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
+	handlerContext.SetFileStorer(storer)
 
 	// Base routes
 	root := goji.NewMux()
@@ -179,7 +179,7 @@ func main() {
 	internalAPIMux := goji.SubMux()
 	internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
-	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
+	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()
