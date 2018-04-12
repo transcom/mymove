@@ -5,9 +5,10 @@
 
 .sm {
 	height: 9rem;
+	margin-bottom: 3rem;
 }
 
 .lg p{
 	font-weight: bold;
-	/*font-size: 3rem;*/
+	font-size: 1.9rem;
 }
