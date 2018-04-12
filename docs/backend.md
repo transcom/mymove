@@ -145,11 +145,11 @@ We use Pop as the ORM(-ish) to mediate access to the database. [The Unofficial P
 
 If you are new to Go, you should work your way through all of these resources (in this order, ideally):
 
-1.  [A Tour of Go](https://tour.golang.org) (in-browser interactive language tutorial)
-1.  [How to Write Go Code](https://golang.org/doc/code.html) (info about the Go environment, testing, etc.)
-1.  [Effective Go](https://golang.org/doc/effective_go.html) (how to do things “the Go way”)
-1.  [Daily Dep documentation](https://golang.github.io/dep/docs/daily-dep.html) (common tasks you’ll encounter with our dependency manager)
-1.  [Exercism](http://exercism.io/languages/go/about) offers a series of exercises with gradually increasing complexity
+1. [A Tour of Go](https://tour.golang.org) (in-browser interactive language tutorial)
+1. [How to Write Go Code](https://golang.org/doc/code.html) (info about the Go environment, testing, etc.)
+1. [Effective Go](https://golang.org/doc/effective_go.html) (how to do things “the Go way”)
+1. [Daily Dep documentation](https://golang.github.io/dep/docs/daily-dep.html) (common tasks you’ll encounter with our dependency manager)
+1. [Exercism](http://exercism.io/languages/go/about) offers a series of exercises with gradually increasing complexity
 
 Additional resources:
 
