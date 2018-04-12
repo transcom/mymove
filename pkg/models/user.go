@@ -72,10 +72,7 @@ func (u User) GetServiceMemberProfile(db *pop.Connection) (*ServiceMember, error
 		return nil, err
 	}
 
-	if len(serviceMembers) > 1 {
-		return nil, errors.New("Should not ever have more than one service member profile for a user")
-	}
-
+	// There can only ever be one service_member for a given user
 	if len(serviceMembers) == 1 {
 		return &serviceMembers[0], nil
 	}

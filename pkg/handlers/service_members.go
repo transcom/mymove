@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                        fmtUUID(serviceMember.ID),
 		CreatedAt:                 fmtDateTime(serviceMember.CreatedAt),
@@ -34,7 +34,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
 		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
 	}
-	return serviceMemberPayload
+	return &serviceMemberPayload
 }
 
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
@@ -77,7 +77,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		response = servicememberop.NewCreateServiceMemberBadRequest()
 	} else {
 		servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
-		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(&servicememberPayload)
+		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(servicememberPayload)
 	}
 	return response
 }
@@ -114,7 +114,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 	} else {
 		serviceMemberPayload := payloadForServiceMemberModel(user, serviceMemberResult.ServiceMember())
-		response = servicememberop.NewShowServiceMemberOK().WithPayload(&serviceMemberPayload)
+		response = servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 	}
 	return response
 }
@@ -160,7 +160,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		} else {
 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
-			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(&serviceMemberPayload)
+			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(serviceMemberPayload)
 		}
 	}
 	return response

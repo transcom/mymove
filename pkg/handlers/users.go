@@ -10,21 +10,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUserModel(user models.User, serviceMember *models.ServiceMember) internalmessages.UserPayload {
+func payloadForUserModel(user models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
 	var smPayload *internalmessages.ServiceMemberPayload
 
 	if serviceMember != nil {
-		smp := payloadForServiceMemberModel(user, *serviceMember)
-		smPayload = &smp
+		smPayload = payloadForServiceMemberModel(user, *serviceMember)
 	}
 
-	userPayload := internalmessages.UserPayload{
+	userPayload := internalmessages.LoggedInUserPayload{
 		ID:            fmtUUID(user.ID),
 		CreatedAt:     fmtDateTime(user.CreatedAt),
 		ServiceMember: smPayload,
 		UpdatedAt:     fmtDateTime(user.UpdatedAt),
 	}
-	return userPayload
+	return &userPayload
 }
 
 // ShowLoggedInUserHandler returns the logged in user
@@ -44,6 +43,6 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 	}
 
 	userPayload := payloadForUserModel(user, serviceMember)
-	response := userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
+	response := userop.NewShowLoggedInUserOK().WithPayload(userPayload)
 	return response
 }
