@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -99,7 +98,7 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 	tdls := []TrafficDistributionList{}
 	err := db.RawQuery(sql, rateArea, region, codeOfService).All(&tdls)
 
-	if len(tdls) != 1 {
+	if len(tdls) == 0 {
 		tdl := TrafficDistributionList{
 			SourceRateArea:    rateArea,
 			DestinationRegion: region,
@@ -107,10 +106,10 @@ func FetchOrCreateTDL(db *pop.Connection, rateArea string, region string, codeOf
 		}
 		verrs, err := db.ValidateAndSave(&tdl)
 		if err != nil {
-			fmt.Printf("DB Insertion: %v", err)
+			zap.L().Error("DB insertion error", zap.Error(err))
 			return TrafficDistributionList{}, err
 		} else if verrs.HasAny() {
-			fmt.Printf("Validation errors: %v", verrs)
+			zap.L().Error("Validation errors", zap.Error(verrs))
 			return TrafficDistributionList{}, errors.New("Validation error on TDL")
 		}
 		tdls = append(tdls, tdl)
