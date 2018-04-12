@@ -65,7 +65,6 @@ Avoid:
 ### Style and Conventions
 
 Generally speaking, we will follow the recommendations laid out in [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments). By its own admission, this page:
-
 > _...collects common comments made during reviews of Go code, so that a single detailed explanation can be referred to by shorthands. This is a laundry list of common mistakes, not a style guide._
 
 Despite not being an official style guide, it covers a good amount of scope in a concise format, and should be able to keep our project code fairly consistent.
@@ -78,7 +77,7 @@ Beyond what is described above, the following contain additional insights into h
 
 ### Querying the Database Safely
 
-* SQL statements _must_ use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and _never_ interpolate values into SQL fragments in any other way.
+* SQL statements *must* use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and *never* interpolate values into SQL fragments in any other way.
 * SQL statements must only be defined in the `models` package.
 
 Here is an example of a safe query for a single `Shipment`:
@@ -99,31 +98,31 @@ if err = query.First(shipment); err == nil {
 ### Logging
 
 We use the [Zap](https://github.com/uber-go/zap) logging framework from Uber to produce structured log records.
-To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
-a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
+ To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
+  a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
 
 #### Logging Levels
 
 Another reason to use the Zap logging package is that it provides more nuanced logging levels than the basic Go logging package.
-That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
-the following indicates when each level of Logging should be used.
+ That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
+ the following indicates when each level of Logging should be used.
 
 * **Fatal** This should never be used outside of the server startup code in main.go. Fatal log messages call `sys.exit(1)` which unceremoniously kills the server without running any clean up code. This is almost certainly never what you want in production.
 
 * **Error** Reserved for system failures, e.g. cannot reach a database, a DB insert which was expected to work failed,
-  or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
-  all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
-  then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
+ or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
+ all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
+ then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
 
 * **Warn** Don't use Warn - it rarely, if ever, adds any meaningful signal to the logs.
 
 * **Info** Use for recording 'Normal' events at a granularity that may be helpful to tracing and debugging requests,
-  e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
+ e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
 
 * **Debug** Debug events are of questionable value and should be used during development, but probably best removed
-  before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
-  as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
-  in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+ before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
+ as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
+ in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
 
 ### Errors
 
@@ -155,9 +154,9 @@ Additional resources:
 
 * [GoDoc](https://godoc.org/) (where you can read the docs for nearly any Go package)
 * Check out the [Go wiki](https://github.com/golang/go/wiki/Learn)
-* _Video_: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
-* _Book_: [The Go Programming Language](http://www.gopl.io/)
-* _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
+* *Video*: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
+* *Book*: [The Go Programming Language](http://www.gopl.io/)
+* *Article*: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
 
 ### Testing
 
