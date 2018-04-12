@@ -17,7 +17,7 @@ func (re *RateEngine) determineCWT(weight int) (cwt int) {
 	return weight / 100
 }
 
-func (re *RateEngine) computePPM(weight int, originZip int, destinationZip int, date time.Time, inverseDiscount float64) (int, error) {
+func (re *RateEngine) computePPM(weight int, originZip string, destinationZip string, date time.Time, inverseDiscount float64) (int, error) {
 	cwt := re.determineCWT(weight)
 	// Linehaul charges
 	mileage, err := re.determineMileage(originZip, destinationZip)

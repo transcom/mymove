@@ -1,8 +1,6 @@
 package rateengine
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -10,7 +8,7 @@ import (
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage, err := engine.determineMileage(10024, 18209)
+	mileage, err := engine.determineMileage("10024", "18209")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
@@ -73,11 +71,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	engine := NewRateEngine(suite.db, suite.logger)
 
 	// Load fake data
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
-
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -91,12 +86,12 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceArea:        428,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, 395, testdatagen.RateEngineDate)
+	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
@@ -133,8 +128,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2000
 	expected := 8820
-	zip3Austin := 787
-	zip3SanFrancisco := 941
+	zip3Austin := "787"
+	zip3SanFrancisco := "941"
 
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
