@@ -33,10 +33,10 @@ func RunScenarioOne(db *pop.Connection) {
 	tsp4, _ := MakeTSP(db, "OK TSP", RandomSCAC())
 	tsp5, _ := MakeTSP(db, "Bad TSP", RandomSCAC())
 
-	// TSPs should be orderd by offer_count first, then BVS.
-	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
-	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0)
-	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0)
-	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0)
-	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0)
+	// TSPs should be ordered by offer_count first, then BVS.
+	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 4.2, 4.2)
+	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 3.3, 3.3)
+	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 2.1, 2.1)
+	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 1.1, 1.1)
+	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, .5, .5)
 }

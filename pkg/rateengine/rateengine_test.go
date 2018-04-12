@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
@@ -27,7 +28,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -48,7 +49,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	suite.mustSave(&originServiceArea)
 
 	destinationZip3 := models.Tariff400ngZip3{
-		Zip3:          336,
+		Zip3:          "336",
 		BasepointCity: "Tampa",
 		State:         "FL",
 		ServiceArea:   197,
@@ -103,13 +104,13 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	}
 
 	// 139698 +20000
-	fee, err := engine.computePPM(2000, 395, 336, testdatagen.RateEngineDate, .40)
+	fee, err := engine.computePPM(2000, "395", "336", testdatagen.RateEngineDate, .40)
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := 61642
+	expected := unit.Cents(61643)
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}

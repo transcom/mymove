@@ -3,12 +3,13 @@ package rateengine
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage, err := engine.determineMileage(10024, 18209)
+	mileage, err := engine.determineMileage("10024", "18209")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
@@ -22,7 +23,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	expected := 128000
+	expected := unit.Cents(128000)
 
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
@@ -72,7 +73,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -91,11 +92,11 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	}
 	suite.mustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, 395, testdatagen.RateEngineDate)
+	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
-	expected := 3420
+	expected := unit.Cents(3420)
 	if linehaulFactor != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulFactor)
 	}
@@ -106,7 +107,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 799
 	cwt := 40
-	rate := 5656
+	rate := unit.Cents(5656)
 
 	sh := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
@@ -127,9 +128,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2000
-	expected := 8820
-	zip3Austin := 787
-	zip3SanFrancisco := 941
+	expected := unit.Cents(8820)
+	zip3Austin := "787"
+	zip3SanFrancisco := "941"
 
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{

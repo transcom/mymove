@@ -50,7 +50,10 @@ export class WizardPage extends Component {
     }
   }
   goto(path) {
-    const { push, match: { params } } = this.props;
+    const {
+      push,
+      match: { params },
+    } = this.props;
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, params));
   }
