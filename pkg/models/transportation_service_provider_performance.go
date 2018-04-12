@@ -39,6 +39,8 @@ type TransportationServiceProviderPerformance struct {
 	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
 	QualityBand                     *int      `db:"quality_band"`
 	BestValueScore                  int       `db:"best_value_score"`
+	LinehaulRate                    float64   `db:"linehaul_rate"`
+	SITRate                         float64   `db:"sit_rate"`
 	OfferCount                      int       `db:"offer_count"`
 }
 
