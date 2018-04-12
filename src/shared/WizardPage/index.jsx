@@ -50,7 +50,11 @@ export class WizardPage extends Component {
     }
   }
   goto(path) {
-    const { push, match: { params }, additionalParams } = this.props;
+    const {
+      push,
+      match: { params },
+      additionalParams,
+    } = this.props;
     const combinedParams = additionalParams
       ? Object.assign({}, additionalParams, params)
       : params;
