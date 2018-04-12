@@ -258,6 +258,34 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 		if payload.EmailIsPreferred != nil {
 			s.EmailIsPreferred = payload.EmailIsPreferred
 		}
+		if payload.SocialSecurityNumber != nil {
+			if s.SocialSecurityNumber == nil {
+				newSSN := SocialSecurityNumber{}
+				s.SocialSecurityNumber = &newSSN
+			}
+			ssn := s.SocialSecurityNumber
+			verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String())
+			if verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				if err != nil {
+					responseError = err
+					return errors.New("New Transaction Error")
+				}
+			} else {
+				// save the SSN
+				verrs, err = dbConnection.ValidateAndUpdate(ssn)
+				if verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					if err != nil {
+						responseError = err
+						return errors.New("New Transaction Error")
+					}
+				} else {
+					s.SocialSecurityNumberID = &s.SocialSecurityNumber.ID
+				}
+			}
+		}
+
 		if payload.ResidentialAddress != nil {
 			residentialAddress := AddressModelFromPayload(payload.ResidentialAddress)
 			if verrs, err := dbConnection.ValidateAndCreate(residentialAddress); verrs.HasAny() || err != nil {

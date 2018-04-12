@@ -2,20 +2,14 @@ package models_test
 
 import (
 	. "github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestSSNEncryption() {
 	t := suite.T()
-
-	user, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Error("creating a user should have worked")
-	}
 	fakeSSN := "123-12-1234"
 
-	mySSN, err := BuildSocialSecurityNumber(user.ID, fakeSSN)
-	if err != nil {
+	mySSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	if err != nil || verrs.HasAny() {
 		t.Error("don't expect an error here")
 	}
 	if mySSN.EncryptedHash == fakeSSN {
@@ -33,16 +27,11 @@ func (suite *ModelSuite) TestSSNEncryption() {
 		t.Error("A different SSN should not match the hash")
 	}
 
-	suite.mustSave(&mySSN)
+	suite.mustSave(mySSN)
 }
 
 func (suite *ModelSuite) TestSSNFormat() {
 	t := suite.T()
-
-	user, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Error("creating a user should have worked")
-	}
 
 	sneakySSNs := []string{
 		"123-121234",
@@ -54,8 +43,8 @@ func (suite *ModelSuite) TestSSNFormat() {
 	}
 
 	for _, sneakySSN := range sneakySSNs {
-		_, err = BuildSocialSecurityNumber(user.ID, sneakySSN)
-		if err != ErrSSNBadFormat {
+		_, verrs, err := BuildSocialSecurityNumber(sneakySSN)
+		if err != nil || !verrs.HasAny() {
 			t.Error("Expected the bad formatter error.")
 		}
 	}
@@ -64,15 +53,10 @@ func (suite *ModelSuite) TestSSNFormat() {
 
 func (suite *ModelSuite) TestSSNSalt() {
 	t := suite.T()
-
-	user, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Error("creating a user should have worked")
-	}
 	fakeSSN := "123-12-1234"
 
-	mySSN, err := BuildSocialSecurityNumber(user.ID, fakeSSN)
-	if err != nil {
+	mySSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	if err != nil || verrs.HasAny() {
 		t.Error("don't expect an error here")
 	}
 	if mySSN.EncryptedHash == fakeSSN {
@@ -85,8 +69,8 @@ func (suite *ModelSuite) TestSSNSalt() {
 		t.Error("the source SSN should match the hash")
 	}
 
-	secondSSN, err := BuildSocialSecurityNumber(user.ID, fakeSSN)
-	if err != nil {
+	secondSSN, verrs, err := BuildSocialSecurityNumber(fakeSSN)
+	if err != nil || verrs.HasAny() {
 		t.Error("dont' expect an error here")
 	}
 
@@ -103,11 +87,6 @@ func (suite *ModelSuite) TestSSNSalt() {
 func (suite *ModelSuite) TestRawSSNNotAllowed() {
 	t := suite.T()
 
-	user, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Error("creating a user should have worked")
-	}
-
 	sneakySSNs := []string{
 		"123-12-1234",
 		"123-121234",
@@ -120,7 +99,6 @@ func (suite *ModelSuite) TestRawSSNNotAllowed() {
 
 	for _, sneakySSN := range sneakySSNs {
 		mySSN := SocialSecurityNumber{
-			UserID:        user.ID,
 			EncryptedHash: sneakySSN,
 		}
 

@@ -42,21 +42,30 @@ func (s *SocialSecurityNumber) ValidateUpdate(tx *pop.Connection) (*validate.Err
 
 var ssnFormatRegex = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
 
-// BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
-func BuildSocialSecurityNumber(unencryptedSSN string) (*SocialSecurityNumber, *validate.Errors, error) {
+// SetEncryptedHash correctly sets the encrypted hash for the given SSN
+func (s *SocialSecurityNumber) SetEncryptedHash(unencryptedSSN string) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 	if !ssnFormatRegex.MatchString(unencryptedSSN) {
 		verrs.Add("social_secuirty_number", "SSN must be in 123-45-6789 format")
-		return nil, verrs, nil
+		return verrs, nil
 	}
 
 	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), -1) // -1 chooses the default cost
 	if err != nil {
-		return nil, verrs, err
+		return verrs, err
 	}
 	hash := string(byteHash)
-	ssn := SocialSecurityNumber{
-		EncryptedHash: hash,
+	s.EncryptedHash = hash
+
+	return verrs, nil
+}
+
+// BuildSocialSecurityNumber returns an *unsaved* SSN that has the ssn hash set based on the passed in raw ssn
+func BuildSocialSecurityNumber(unencryptedSSN string) (*SocialSecurityNumber, *validate.Errors, error) {
+	ssn := SocialSecurityNumber{}
+	verrs, err := ssn.SetEncryptedHash(unencryptedSSN)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
 	}
 	return &ssn, verrs, nil
 }
