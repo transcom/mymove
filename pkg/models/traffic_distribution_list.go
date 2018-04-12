@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
