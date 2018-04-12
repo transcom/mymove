@@ -93,7 +93,8 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.T
 		return 0, fmt.Errorf("Error fetching linehaul rate: %s", err)
 	}
 	if len(linehaulRates) != 1 {
-		return 0, fmt.Errorf("Found too few/many linehaul rates for parameters: %v, %v, %v", mileage, cwt, date)
+		return 0, fmt.Errorf("Wanted 1 rate, found %d rates for parameters: %v, %v, %v",
+			len(linehaulRates), mileage, cwt, date)
 	}
 
 	return linehaulRates[0], err
