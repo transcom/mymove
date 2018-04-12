@@ -29,6 +29,7 @@ This log lists the architectural decisions for DP3 Infrastructure.
 - [ADR-0020](0020-swagger-auth.md) - Using Swagger to manage server route authentication
 - [ADR-0021](0021-ssn-use.md) - Temporary use and plan for expunging Social Security Numbers in the prototype
 - [ADR-0022](0022-xlsx-lib.md) - Chose Excelize package to parse XLSX files
+- [ADR-0023](0023-representing-dollar-values.md) - Representing Dollar Values in Go and the Database
 
 <!-- adrlogstop -->
 
