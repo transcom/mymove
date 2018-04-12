@@ -5,6 +5,7 @@ import (
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) Test_LinehaulEffectiveDateValidation() {
@@ -113,7 +114,7 @@ func (suite *ModelSuite) Test_LinehaulDistanceValidation() {
 
 func (suite *ModelSuite) Test_LinehaulRateCreateAndSave() {
 	t := suite.T()
-	mySpecificRate := 474747
+	mySpecificRate := unit.Cents(474747)
 
 	newBaseLinehaul := Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
@@ -127,7 +128,7 @@ func (suite *ModelSuite) Test_LinehaulRateCreateAndSave() {
 
 	suite.mustSave(&newBaseLinehaul)
 
-	linehaulRate := 0
+	linehaulRate := unit.Cents(0)
 
 	sql := `SELECT
 			rate_cents
