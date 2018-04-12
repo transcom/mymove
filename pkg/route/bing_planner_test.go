@@ -54,5 +54,11 @@ func (suite *PlannerFullSuite) TestBingPlanner() {
 	if err != nil {
 		t.Errorf("Failed to get distance from Bing - %v", err)
 	}
+
+	// This test is 'fragile' in that it will begin to fail should trucking routes between the two addresses change.
+	// I (nickt) think this is acceptable as a) the test is not part of the regular CI tests so is unlikely to
+	// suddenly block builds b) we are interested in consistency of routing, so if the distance changes we should be
+	// paying attention. If it turns out to be too fragile, i.e. the test fails regularly for no material reason
+	// then we should come back and change the test. Until then, I think it has value as it is.
 	suite.Equal(expectedDistance, distance)
 }
