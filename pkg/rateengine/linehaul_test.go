@@ -3,6 +3,7 @@ package rateengine
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
@@ -22,7 +23,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 
-	expected := 128000
+	expected := unit.Cents(128000)
 
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
@@ -95,7 +96,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
-	expected := 3420
+	expected := unit.Cents(3420)
 	if linehaulFactor != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulFactor)
 	}
@@ -106,7 +107,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	engine := NewRateEngine(suite.db, suite.logger)
 	mileage := 799
 	cwt := 40
-	rate := 5656
+	rate := unit.Cents(5656)
 
 	sh := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
@@ -127,7 +128,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2000
-	expected := 8820
+	expected := unit.Cents(8820)
 	zip3Austin := "787"
 	zip3SanFrancisco := "941"
 
