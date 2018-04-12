@@ -122,6 +122,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		EmailIsPreferred:          swag.Bool(true),
 		ResidentialAddress:        fakeAddress(),
 		BackupMailingAddress:      fakeAddress(),
+		SocialSecurityNumber:      (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -152,6 +153,64 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	if len(servicemembers) != 1 {
 		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
 	}
+}
+
+func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
+	t := suite.T()
+
+	// Given: A logged-in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// When: a new ServiceMember is posted
+	ssn := "123-45-6789"
+	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
+		SocialSecurityNumber: (*strfmt.SSN)(swag.String(ssn)),
+	}
+
+	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	params := servicememberop.CreateServiceMemberParams{
+		CreateServiceMemberPayload: &newServiceMemberPayload,
+		HTTPRequest:                req,
+	}
+
+	// And: the context contains the auth values for logged-in user
+	ctx := params.HTTPRequest.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
+	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+
+	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	smResponse, ok := response.(*servicememberop.CreateServiceMemberCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	if !*smResponse.Payload.HasSocialSecurityNumber {
+		t.Error("The retrieved SM doesn't indicate that it has an SSN.")
+	}
+
+	// Then: we expect a servicemember to have been created for the user
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
+	servicemembers := []models.ServiceMember{}
+	query.All(&servicemembers)
+
+	if len(servicemembers) != 1 {
+		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
+	}
+
+	smResult, _ := models.GetServiceMemberForUser(suite.db, user.ID, uuid.Must(uuid.FromString(smResponse.Payload.ID.String())))
+	ssnModel := smResult.ServiceMember().SocialSecurityNumber
+
+	if !ssnModel.Matches(ssn) {
+		t.Error("ssn doesn't match the created SSN")
+	}
+
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
