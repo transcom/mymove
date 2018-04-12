@@ -10,6 +10,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
@@ -109,7 +110,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := 61642
+	expected := unit.Cents(61643)
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}

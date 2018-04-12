@@ -8,20 +8,22 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Tariff400ngServiceArea describes the service charges for various service areas
 type Tariff400ngServiceArea struct {
-	ID                 uuid.UUID `json:"id" db:"id"`
-	CreatedAt          time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at" db:"updated_at"`
-	Name               string    `json:"name" db:"name"`
-	ServiceArea        int       `json:"service_area" db:"service_area"`
-	ServicesSchedule   int       `json:"services_schedule" db:"services_schedule"`
-	LinehaulFactor     int       `json:"linehaul_factor" db:"linehaul_factor"`
-	ServiceChargeCents int       `json:"service_charge_cents" db:"service_charge_cents"`
-	EffectiveDateLower time.Time `json:"effective_date_lower" db:"effective_date_lower"`
-	EffectiveDateUpper time.Time `json:"effective_date_upper" db:"effective_date_upper"`
+	ID                 uuid.UUID  `json:"id" db:"id"`
+	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
+	Name               string     `json:"name" db:"name"`
+	ServiceArea        int        `json:"service_area" db:"service_area"`
+	ServicesSchedule   int        `json:"services_schedule" db:"services_schedule"`
+	LinehaulFactor     unit.Cents `json:"linehaul_factor" db:"linehaul_factor"`
+	ServiceChargeCents unit.Cents `json:"service_charge_cents" db:"service_charge_cents"`
+	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
+	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
 // Tariff400ngServiceAreas is not required by pop and may be deleted
@@ -31,7 +33,7 @@ type Tariff400ngServiceAreas []Tariff400ngServiceArea
 // This method is not required and may be deleted.
 func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: t.ServiceChargeCents, Name: "ServiceChargeCents", Compared: -1},
+		&validators.IntIsGreaterThan{Field: t.ServiceChargeCents.Int(), Name: "ServiceChargeCents", Compared: -1},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},
@@ -50,7 +52,7 @@ func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 string) (Tariff
 }
 
 // FetchTariff400ngLinehaulFactor returns linehaul_factor for an origin or destination based on service area.
-func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEngineDate time.Time) (linehaulFactor int, err error) {
+func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEngineDate time.Time) (linehaulFactor unit.Cents, err error) {
 	sql := `SELECT
 			linehaul_factor
 		FROM
