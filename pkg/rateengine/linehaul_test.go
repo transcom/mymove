@@ -9,11 +9,11 @@ import (
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
-	mileage, err := engine.determineMileage("10024", "18209")
+	mileage, err := engine.determineMileage("10024", "94103")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
-	expected := 1000
+	expected := 2930
 	if mileage != expected {
 		t.Errorf("Determined mileage incorrectly. Expected %d, got %d", expected, mileage)
 	}

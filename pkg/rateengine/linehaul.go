@@ -1,23 +1,44 @@
 package rateengine
 
 import (
-	"errors"
+	"os"
 	"time"
 
-	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
+	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
-	// TODO (Rebecca): Lookup originZip to destinationZip mileage using API of choice
-	mileage = 1000
-	if mileage != 1000 {
-		err = errors.New("Oops determineMileage")
-	} else {
-		err = nil
+	originZip3, err := models.FetchCityAndStateForZip3(re.db, originZip)
+	destinationZip3, err := models.FetchCityAndStateForZip3(re.db, destinationZip)
+	bingEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
+	bingKey := os.Getenv("BING_MAPS_KEY")
+	planner := route.NewBingPlanner(re.logger, &bingEndpoint, &bingKey)
+	sourceAddress := models.Address{
+		StreetAddress1: "",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           originZip3.BasepointCity,
+		State:          originZip3.State,
+		PostalCode:     "",
 	}
-	return mileage, err
+	destinationAddress := models.Address{
+		StreetAddress1: "",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           destinationZip3.BasepointCity,
+		State:          destinationZip3.State,
+		PostalCode:     "",
+	}
+	distance, err := planner.TransitDistance(&sourceAddress, &destinationAddress)
+	if err != nil {
+		re.logger.Error("Failed to get distance from Bing - %v", zap.Error(err))
+	}
+	return distance, err
 }
 
 // Determine the Base Linehaul (BLH)

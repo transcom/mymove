@@ -26,7 +26,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 
 	params.HTTPRequest = req.WithContext(ctx)
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger, nil))
 
 	response := handler.Handle(params)
 
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 
 	params.HTTPRequest = req.WithContext(ctx)
 
-	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := ShowLoggedInUserHandler(NewHandlerContext(suite.db, suite.logger, nil))
 
 	response := handler.Handle(params)
 
