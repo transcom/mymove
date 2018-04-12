@@ -80,6 +80,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler(context)
+
 	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler(context)
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler(context)
 

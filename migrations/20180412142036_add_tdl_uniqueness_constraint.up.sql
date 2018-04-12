@@ -1,0 +1,1 @@
+ALTER TABLE traffic_distribution_lists ADD CONSTRAINT unique_channel_cos UNIQUE (source_rate_area, destination_region, code_of_service);
