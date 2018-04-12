@@ -26,11 +26,11 @@ import (
 type HandlerContext struct {
 	db      *pop.Connection
 	logger  *zap.Logger
-	planner *route.Planner
+	planner route.Planner
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger, planner *route.Planner) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger, planner route.Planner) HandlerContext {
 	return HandlerContext{
 		db:      db,
 		logger:  logger,
