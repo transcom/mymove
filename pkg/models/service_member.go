@@ -42,6 +42,7 @@ type ServiceMember struct {
 	BackupMailingAddress      *Address                            `belongs_to:"address"`
 	SocialSecurityNumberID    *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber      *SocialSecurityNumber               `belongs_to:"address"`
+	BackupContacts            *BackupContacts                     `has_many:"backup_contacts"`
 }
 
 // String is not required by pop and may be deleted
@@ -145,6 +146,25 @@ func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID)
 	return result, err
 }
 
+// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+	var serviceMember ServiceMember
+	err := db.Eager().Find(&serviceMember, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return ServiceMember{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return ServiceMember{}, err
+	}
+	// TODO: Handle case where more than one user is authorized to modify serviceMember
+	if serviceMember.UserID != user.ID {
+		return ServiceMember{}, ErrFetchForbidden
+	}
+
+	return serviceMember, nil
+}
+
 // CreateServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func CreateServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
@@ -211,6 +231,24 @@ func CreateServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMem
 
 	return responseVErrors, responseError
 
+}
+
+// CreateBackupContact creates a backup contact model tied to the service member
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission internalmessages.BackupContactPermission) (BackupContact, *validate.Errors, error) {
+	newContact := BackupContact{
+		ServiceMemberID: s.ID,
+		ServiceMember:   s,
+		Name:            name,
+		Email:           email,
+		Phone:           phone,
+		Permission:      permission,
+	}
+
+	verrs, err := db.ValidateAndCreate(&newContact)
+	if err != nil || verrs.HasAny() {
+		newContact = BackupContact{}
+	}
+	return newContact, verrs, err
 }
 
 // PatchServiceMemberWithPayload patches service member with payload
