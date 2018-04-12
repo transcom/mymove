@@ -65,5 +65,5 @@ func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEng
 		`
 	err = tx.RawQuery(sql, serviceArea, rateEngineDate).First(&linehaulFactor)
 
-	return unit.Cents(linehaulFactor), err
+	return linehaulFactor, err
 }

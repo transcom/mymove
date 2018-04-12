@@ -99,6 +99,5 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.T
 			len(linehaulRates), mileage, cwt, date)
 	}
 
-	return unit.Cents(linehaulRates[0]), err
-
+	return linehaulRates[0], err
 }
