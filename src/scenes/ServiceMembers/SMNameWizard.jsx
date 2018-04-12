@@ -12,14 +12,10 @@ export class SMNameWizardPage extends Component {
   }
 
   handleSubmit = () => {
-    const pendingSMNameData = this.props.pendingSMNameData;
+    const pendingSMNameData = this.props.nameForm.values;
+    console.log(pendingSMNameData);
     if (pendingSMNameData) {
-      const serviceMember = {
-        first_name: pendingSMNameData.first_name,
-        middle_initial: pendingSMNameData.middle_initial,
-        last_name: pendingSMNameData.last_name,
-        suffix: pendingSMNameData.suffix,
-      };
+      const serviceMember = { pendingSMNameData };
       this.props.updateServiceMember(serviceMember);
     }
   };
@@ -31,8 +27,12 @@ export class SMNameWizardPage extends Component {
       pendingSMNameData,
       hasSubmitSuccess,
       error,
+      nameForm,
     } = this.props;
-    const SMNameData = pendingSMNameData;
+    const SMNameData =
+      nameForm &&
+      nameForm.values &&
+      (nameForm.values.first_name && nameForm.values.last_name);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -51,10 +51,10 @@ export class SMNameWizardPage extends Component {
 }
 SMNameWizardPage.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
-  pendingSMNameData: PropTypes.object,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
   hasSubmitSuccess: PropTypes.bool.isRequired,
+  nameForm: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -64,6 +64,6 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  return { ...state.serviceMember };
+  return { ...state.serviceMember, nameForm: state.form.service_member_name };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(SMNameWizardPage);

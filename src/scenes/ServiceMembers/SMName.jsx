@@ -4,19 +4,16 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { setPendingSMNameData, loadServiceMember } from './ducks';
+import { loadServiceMember } from './ducks';
 
 class SMName extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Service Member Name';
   }
-  onNameDataEntry = values => {
-    this.props.setPendingSMNameData(values);
-  };
   render() {
     return (
       <div>
-        <NameForm onSubmit={this.onNameDataEntry} />
+        <NameForm onSubmit={() => {}} />
       </div>
     );
   }
@@ -24,16 +21,11 @@ class SMName extends Component {
 
 SMName.propTypes = {
   currentServiceMember: PropTypes.object,
-  pendingSMNameData: PropTypes.object,
-  setPendingSMNameData: PropTypes.func.isRequired,
   currentForm: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { setPendingSMNameData, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ loadServiceMember }, dispatch);
 }
 
 function mapStateToProps(state) {
