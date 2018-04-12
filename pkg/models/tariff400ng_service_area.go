@@ -41,7 +41,7 @@ func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors,
 }
 
 // FetchTariff400ngServiceAreaForZip3 returns the service area for a specified Zip3.
-func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 int) (Tariff400ngServiceArea, error) {
+func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 string) (Tariff400ngServiceArea, error) {
 	serviceArea := Tariff400ngServiceArea{}
 	err := db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
 		Where(`tariff400ng_zip3s.zip3 = $1`, zip3).First(&serviceArea)
