@@ -148,11 +148,8 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
-
-	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
-	if err != nil {
-		response = servicememberop.NewPatchServiceMemberBadRequest()
-	}
+	// swagger validates our UUID format.
+	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 
 	// Validate that this serviceMember belongs to the current user
 	serviceMemberResult, err := models.GetServiceMemberForUser(h.db, user.ID, serviceMemberID)
@@ -166,6 +163,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		case models.FetchErrorForbidden:
 			response = servicememberop.NewPatchServiceMemberForbidden()
 		default:
+			h.logger.Error("Unexpected error Fetching Service Member", zap.Error(err))
 			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		}
 		return response
@@ -178,11 +176,13 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		if verrs.HasAny() {
 			response = servicememberop.NewPatchServiceMemberBadRequest()
 		} else if err != nil {
+			h.logger.Error("Unexpected error Patching Service Member", zap.Error(err))
 			response = servicememberop.NewPatchServiceMemberInternalServerError()
 		} else {
 			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
-			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(&serviceMemberPayload)
+			response = servicememberop.NewPatchServiceMemberOK().WithPayload(&serviceMemberPayload)
 		}
 	}
+
 	return response
 }

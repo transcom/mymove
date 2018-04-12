@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	okResponse, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	okResponse, ok := response.(*servicememberop.PatchServiceMemberOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -338,7 +338,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	_, ok := response.(*servicememberop.PatchServiceMemberOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}

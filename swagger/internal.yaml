@@ -2034,7 +2034,7 @@ paths:
           schema:
             $ref: '#/definitions/PatchServiceMemberPayload'
       responses:
-        201:
+        200:
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
