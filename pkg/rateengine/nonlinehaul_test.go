@@ -3,6 +3,7 @@ package rateengine
 import (
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
@@ -34,7 +35,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
 
-	expected := 17500
+	expected := unit.Cents(17500)
 	if fee != expected {
 		t.Errorf("wrong service fee: expected %d, got %d", expected, fee)
 	}
@@ -81,7 +82,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
 
-	expected := 271450
+	expected := unit.Cents(271450)
 	if fee != expected {
 		t.Errorf("wrong full pack fee: expected %d, got %d", expected, fee)
 	}
@@ -135,7 +136,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
 
-	expected := 27145
+	expected := unit.Cents(27145)
 	if fee != expected {
 		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, fee)
 	}
@@ -211,7 +212,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
 	// (7000 + 13260 + 108580 + 10858)
-	expected := 139698
+	expected := unit.Cents(139698)
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}

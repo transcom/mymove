@@ -19,7 +19,7 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models
 
 	_, err := db.ValidateAndSave(&tdl)
 	if err != nil {
-		log.Panic(err)
+		log.Fatalf("Failed to validate and save tdl: %v", err)
 	}
 
 	return tdl, err
