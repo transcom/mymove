@@ -15,6 +15,7 @@ type PlannerSuite struct {
 
 type PlannerFullSuite struct {
 	PlannerSuite
+	planner Planner
 }
 
 func TestHandlerSuite(t *testing.T) {
@@ -25,7 +26,7 @@ func TestHandlerSuite(t *testing.T) {
 
 	var testSuite suite.TestingSuite
 	if testing.Short() == false {
-		testSuite = &PlannerFullSuite{PlannerSuite{logger: logger}}
+		testSuite = &PlannerFullSuite{PlannerSuite: PlannerSuite{logger: logger}}
 	} else {
 		testSuite = &PlannerSuite{logger: logger}
 	}

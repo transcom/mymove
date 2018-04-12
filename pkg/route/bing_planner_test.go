@@ -38,21 +38,23 @@ var realAddressDestination = models.Address{
 
 const expectedDistance = 2902
 
+func (suite *PlannerFullSuite) SetupTest() {
+	testEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
+	testKey := os.Getenv("BING_MAPS_KEY")
+	if len(testEndpoint) == 0 || len(testKey) == 0 {
+		suite.T().Fatal("You must set BING_MAPS_ENDPOINT and BING_MAPS_KEY to run this test")
+	}
+	suite.planner = NewBingPlanner(suite.logger, &testEndpoint, &testKey)
+
+}
+
 // TestBingPlanner is an expensive test which calls out to the Bing API.
 // It is only run as part of the server_test_all target and require
 // BING_MAPS_ENDPOINT & BING_MAPS_KEY environment variables to be set
 func (suite *PlannerFullSuite) TestBingPlanner() {
-	t := suite.T()
-
-	testEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
-	testKey := os.Getenv("BING_MAPS_KEY")
-	if len(testEndpoint) == 0 || len(testKey) == 0 {
-		t.Fatal("You must set BING_MAPS_ENDPOINT and BING_MAPS_KEY to run this test")
-	}
-	planner := NewBingPlanner(suite.logger, &testEndpoint, &testKey)
-	distance, err := planner.TransitDistance(&realAddressSource, &realAddressDestination)
+	distance, err := suite.planner.TransitDistance(&realAddressSource, &realAddressDestination)
 	if err != nil {
-		t.Errorf("Failed to get distance from Bing - %v", err)
+		suite.T().Errorf("Failed to get distance from Bing - %v", err)
 	}
 
 	// This test is 'fragile' in that it will begin to fail should trucking routes between the two addresses change.
@@ -61,4 +63,26 @@ func (suite *PlannerFullSuite) TestBingPlanner() {
 	// paying attention. If it turns out to be too fragile, i.e. the test fails regularly for no material reason
 	// then we should come back and change the test. Until then, I think it has value as it is.
 	suite.Equal(expectedDistance, distance)
+}
+
+var cityBradySource = models.Address{
+	StreetAddress1: "",
+	City:           "Brady",
+	State:          "TX",
+	PostalCode:     ""}
+
+var cityVenturaDestination = models.Address{
+	StreetAddress1: "",
+	City:           "Ventura",
+	State:          "CA",
+	PostalCode:     ""}
+
+func (suite *PlannerFullSuite) TestPartialAddress() {
+	distance, err := suite.planner.TransitDistance(&realAddressSource, &realAddressDestination)
+	if err != nil {
+		suite.T().Errorf("Failed to get distance from Bing - %v", err)
+	}
+	if distance < 1000 || distance > 3000 {
+		suite.Fail("Implasible distance from TX to CA")
+	}
 }
