@@ -10,6 +10,7 @@
   * [Querying the Database Safely](#querying-the-database-safely)
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
+  * [Errors](#errors)
   * [Libraries](#libraries)
     * [Pop](#pop)
   * [Learning](#learning)
@@ -64,6 +65,7 @@ Avoid:
 ### Style and Conventions
 
 Generally speaking, we will follow the recommendations laid out in [Go Code Review Comments](https://github.com/golang/go/wiki/CodeReviewComments). By its own admission, this page:
+
 > _...collects common comments made during reviews of Go code, so that a single detailed explanation can be referred to by shorthands. This is a laundry list of common mistakes, not a style guide._
 
 Despite not being an official style guide, it covers a good amount of scope in a concise format, and should be able to keep our project code fairly consistent.
@@ -76,7 +78,7 @@ Beyond what is described above, the following contain additional insights into h
 
 ### Querying the Database Safely
 
-* SQL statements *must* use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and *never* interpolate values into SQL fragments in any other way.
+* SQL statements _must_ use PostgreSQL-native parameter replacement format (e.g. `$1`, `$2`, etc.) and _never_ interpolate values into SQL fragments in any other way.
 * SQL statements must only be defined in the `models` package.
 
 Here is an example of a safe query for a single `Shipment`:
@@ -97,31 +99,41 @@ if err = query.First(shipment); err == nil {
 ### Logging
 
 We use the [Zap](https://github.com/uber-go/zap) logging framework from Uber to produce structured log records.
- To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
-  a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
+To this end, code should avoid using the [SugaredLogger](https://godoc.org/go.uber.org/zap#Logger.Sugar)s without
+a very explicit reason which should be record in an inline comment where the SugaredLogger is constructed.
 
 #### Logging Levels
 
 Another reason to use the Zap logging package is that it provides more nuanced logging levels than the basic Go logging package.
- That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
- the following indicates when each level of Logging should be used.
+That said, leveled logging is only meaningful if there is a common pattern in the usage of each logging level. To that end,
+the following indicates when each level of Logging should be used.
 
 * **Fatal** This should never be used outside of the server startup code in main.go. Fatal log messages call `sys.exit(1)` which unceremoniously kills the server without running any clean up code. This is almost certainly never what you want in production.
 
 * **Error** Reserved for system failures, e.g. cannot reach a database, a DB insert which was expected to work failed,
- or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
- all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
- then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
+  or an `"enum"` has an unexpected value. In production an Error logging message should alert the team that
+  all is not well with the server, so avoid being the 'Boy Who Cried Wolf'. In particular, if there is an API which takes an object ID as part of the URL,
+  then passing a bad value in should NOT log an Error message. It should log Info and then return 404.
 
 * **Warn** Don't use Warn - it rarely, if ever, adds any meaningful signal to the logs.
 
 * **Info** Use for recording 'Normal' events at a granularity that may be helpful to tracing and debugging requests,
- e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
+  e.g. 404's from requests with bad IDs, authentication events (user logs in/out), authorization failures etc.
 
 * **Debug** Debug events are of questionable value and should be used during development, but probably best removed
- before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
- as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
- in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+  before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
+  as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
+  in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+
+### Errors
+
+Some general guidelines for errors:
+
+* **Don't bury your errors in underscores.** If a function or other action generates an error, assign it to a variable and either return it as part of your function's output or handle it in place (`if err != nil`, etc.). There will be the very occasional exception to this - one is within tests, depending on the test's goal. If you find yourself typing that underscore, take a moment to ask yourself why you're choosing that option.
+* **Log at the top level; create and pass along errors below.** If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on.
+* **Use `errors.Wrap()` when using external libraries.** [`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output.
+* **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling to a point, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log).
+* **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed.
 
 ### Libraries
 
@@ -133,19 +145,19 @@ We use Pop as the ORM(-ish) to mediate access to the database. [The Unofficial P
 
 If you are new to Go, you should work your way through all of these resources (in this order, ideally):
 
-1. [A Tour of Go](https://tour.golang.org) (in-browser interactive language tutorial)
-1. [How to Write Go Code](https://golang.org/doc/code.html) (info about the Go environment, testing, etc.)
-1. [Effective Go](https://golang.org/doc/effective_go.html) (how to do things “the Go way”)
-1. [Daily Dep documentation](https://golang.github.io/dep/docs/daily-dep.html) (common tasks you’ll encounter with our dependency manager)
-1. [Exercism](http://exercism.io/languages/go/about) offers a series of exercises with gradually increasing complexity
+1.  [A Tour of Go](https://tour.golang.org) (in-browser interactive language tutorial)
+1.  [How to Write Go Code](https://golang.org/doc/code.html) (info about the Go environment, testing, etc.)
+1.  [Effective Go](https://golang.org/doc/effective_go.html) (how to do things “the Go way”)
+1.  [Daily Dep documentation](https://golang.github.io/dep/docs/daily-dep.html) (common tasks you’ll encounter with our dependency manager)
+1.  [Exercism](http://exercism.io/languages/go/about) offers a series of exercises with gradually increasing complexity
 
 Additional resources:
 
 * [GoDoc](https://godoc.org/) (where you can read the docs for nearly any Go package)
 * Check out the [Go wiki](https://github.com/golang/go/wiki/Learn)
-* *Video*: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
-* *Book*: [The Go Programming Language](http://www.gopl.io/)
-* *Article*: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
+* _Video_: [Advanced Testing with Go](https://www.youtube.com/watch?v=yszygk1cpEc). (great overview of useful techniques, useful for all Go programmers)
+* _Book_: [The Go Programming Language](http://www.gopl.io/)
+* _Article_: [Copying data from S3 to EBS 30x faster using Golang](https://medium.com/@venks.sa/copying-data-from-s3-to-ebs-30x-faster-using-go-e2cdb1093284)
 
 ### Testing
 
