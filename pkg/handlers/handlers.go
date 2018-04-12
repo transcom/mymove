@@ -81,6 +81,8 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 	}
 	internalAPI := internalops.NewMymoveAPI(internalSpec)
 
+	internalAPI.UsersShowLoggedInUserHandler = ShowLoggedInUserHandler(context)
+
 	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler(context)
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler(context)
 
