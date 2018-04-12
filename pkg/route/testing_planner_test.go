@@ -7,9 +7,9 @@ import (
 func (suite *PlannerSuite) TestNewTestPlanner() {
 	t := suite.T()
 
-	planner := NewTestPlanner()
+	planner := NewTestingPlanner()
 	if planner == nil {
-		t.Error("NewTestPlanner returned nil")
+		t.Error("NewTestingPlanner returned nil")
 	}
 
 	addressOne := models.Address{
