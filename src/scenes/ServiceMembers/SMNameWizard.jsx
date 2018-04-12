@@ -13,22 +13,19 @@ export class SMNameWizardPage extends Component {
 
   handleSubmit = () => {
     const pendingSMNameData = this.props.nameForm.values;
-    console.log(pendingSMNameData);
     if (pendingSMNameData) {
-      const serviceMember = { pendingSMNameData };
-      this.props.updateServiceMember(serviceMember);
+      const nameDataToPatch = {
+        first_name: pendingSMNameData.first_name,
+        middle_initial: pendingSMNameData.middle_initial,
+        last_name: pendingSMNameData.last_name,
+        suffix: pendingSMNameData.suffix,
+      };
+      this.props.updateServiceMember(nameDataToPatch);
     }
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      pendingSMNameData,
-      hasSubmitSuccess,
-      error,
-      nameForm,
-    } = this.props;
+    const { pages, pageKey, hasSubmitSuccess, error, nameForm } = this.props;
     const SMNameData =
       nameForm &&
       nameForm.values &&
@@ -40,7 +37,7 @@ export class SMNameWizardPage extends Component {
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={Boolean(SMNameData)}
-        pageIsDirty={Boolean(pendingSMNameData)}
+        pageIsDirty={Boolean(SMNameData)}
         hasSucceeded={hasSubmitSuccess}
         error={error}
       >

@@ -13,7 +13,10 @@ class SMName extends Component {
   render() {
     return (
       <div>
-        <NameForm onSubmit={() => {}} />
+        <NameForm
+          onSubmit={() => {}}
+          initialValues={this.props.currentServiceMember}
+        />
       </div>
     );
   }
