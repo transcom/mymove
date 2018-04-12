@@ -13,6 +13,7 @@ import (
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -20,15 +21,17 @@ import (
 // Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
-	db     *pop.Connection
-	logger *zap.Logger
+	db      *pop.Connection
+	logger  *zap.Logger
+	planner *route.Planner
 }
 
 // NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger, planner *route.Planner) HandlerContext {
 	return HandlerContext{
-		db:     db,
-		logger: logger,
+		db:      db,
+		logger:  logger,
+		planner: planner,
 	}
 }
 

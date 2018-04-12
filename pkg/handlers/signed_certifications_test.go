@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationCreated)
@@ -110,7 +110,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationForbidden)
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*certop.CreateSignedCertificationNotFound)
@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	certs := []models.SignedCertification{}
+	var certs []models.SignedCertification
 	suite.db.All(&certs)
 
 	if len(certs) > 0 {

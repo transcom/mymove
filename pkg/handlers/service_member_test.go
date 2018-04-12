@@ -41,7 +41,7 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: show ServiceMember is queried
-	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
@@ -87,7 +87,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
 	}
 	// And: Show servicemember is queried
-	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	showResponse := showHandler.Handle(showServiceMemberParams)
 
 	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	ctx = context.PopulateUserModel(ctx, user)
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
-	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*servicememberop.CreateServiceMemberCreated)
@@ -191,7 +191,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	okResponse, ok := response.(*servicememberop.PatchServiceMemberCreated)
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*servicememberop.PatchServiceMemberForbidden)
@@ -294,7 +294,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*servicememberop.PatchServiceMemberNotFound)
@@ -335,7 +335,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 		PatchServiceMemberPayload: &patchPayload,
 	}
 
-	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(params)
 
 	_, ok := response.(*servicememberop.PatchServiceMemberCreated)

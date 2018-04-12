@@ -55,7 +55,7 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
 	newSearchParams.HTTPRequest = newSearchParams.HTTPRequest.WithContext(ctx)
 
-	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger, nil))
 	response := handler.Handle(newSearchParams)
 
 	// Assert we got back the 201 response

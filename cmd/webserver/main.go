@@ -19,6 +19,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -74,6 +75,8 @@ func main() {
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
+	bingMapsEndpoint := flag.String("bing_maps_endpoint", "", "URL for the Bing Maps Truck endpoint to use")
+	bingMapsKey := flag.String("bing_maps_key", "", "Authentication key to use for the Bing Maps endpoint")
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 
@@ -127,7 +130,10 @@ func main() {
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
 
-	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	// Get route planner for handlers to calculate transit distances
+	routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
+
+	handlerContext := handlers.NewHandlerContext(dbConnection, logger, routePlanner)
 
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
