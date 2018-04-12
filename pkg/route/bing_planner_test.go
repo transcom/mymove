@@ -36,7 +36,7 @@ var realAddressDestination = models.Address{
 	State:          "DC",
 	PostalCode:     "20301-1000"}
 
-const expectedDistance = 2901
+const expectedDistance = 2902
 
 // TestBingPlanner is an expensive test which calls out to the Bing API.
 // It is only run as part of the server_test_all target and require
@@ -54,5 +54,5 @@ func (suite *PlannerFullSuite) TestBingPlanner() {
 	if err != nil {
 		t.Errorf("Failed to get distance from Bing - %v", err)
 	}
-	suite.Equal(distance, expectedDistance)
+	suite.Equal(expectedDistance, distance)
 }

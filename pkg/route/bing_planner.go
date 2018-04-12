@@ -1,17 +1,13 @@
 package route
 
 import (
-	"net/http"
-
-	"time"
-
-	"fmt"
-
 	"encoding/json"
-
-	"strings"
-
+	"fmt"
+	"math"
+	"net/http"
 	"net/url"
+	"strings"
+	"time"
 
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/models"
@@ -88,7 +84,7 @@ func (p *bingPlanner) TransitDistance(source *models.Address, destination *model
 		p.logger.Error("Expected at least one Resource in response", zap.Any("response", response))
 		return 0, errors.New("malformed response from Bing")
 	}
-	return int(resourceSet.Resources[0].TravelDistance), nil
+	return int(math.Round(resourceSet.Resources[0].TravelDistance)), nil
 }
 
 // NewBingPlanner constructs and returns a Planner which uses the Bing Map API to plan routes.
