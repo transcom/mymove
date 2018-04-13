@@ -50,7 +50,11 @@ func (s *SocialSecurityNumber) SetEncryptedHash(unencryptedSSN string) (*validat
 		return verrs, nil
 	}
 
-	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), -1) // -1 chooses the default cost
+	workFactor := 13 // This was timed on the staging infrastructure to be ~1 second per hash.
+	// # of iterations is 2 ^ workFactor
+	// ~1 second per hash was picked based on this description:
+	// https://security.stackexchange.com/questions/3959/recommended-of-iterations-when-using-pkbdf2-sha256/3993
+	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), 13)
 	if err != nil {
 		return verrs, err
 	}
@@ -70,7 +74,7 @@ func BuildSocialSecurityNumber(unencryptedSSN string) (*SocialSecurityNumber, *v
 	return &ssn, verrs, nil
 }
 
-// Matches returns true if the encrypted_hahs matches the unencryptedSSN
+// Matches returns true if the encrypted_hash matches the unencryptedSSN
 func (s SocialSecurityNumber) Matches(unencryptedSSN string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(s.EncryptedHash), []byte(unencryptedSSN))
 	return err == nil
