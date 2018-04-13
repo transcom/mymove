@@ -16,9 +16,9 @@ We conducted a white-boarding session to demonstrate three different options:
 
 * Handlers get models through fetchers that accept an authenticated user, fetchers handle authorization
 * Fetchers return generic errors, handlers have helper function to convert generic errors into responses
-* Creator functions are hung from parent models, if available, e.g. serviceMember.CreateBackupContact()
+* Creator functions are hung from parent models, if available, e.g. `serviceMember.CreateBackupContact()`
 
-## Pros and Cos
+## Pros and Cons
 
 ### Validation happens in the models
 
