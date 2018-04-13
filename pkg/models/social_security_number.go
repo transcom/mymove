@@ -54,7 +54,7 @@ func (s *SocialSecurityNumber) SetEncryptedHash(unencryptedSSN string) (*validat
 	// # of iterations is 2 ^ workFactor
 	// ~1 second per hash was picked based on this description:
 	// https://security.stackexchange.com/questions/3959/recommended-of-iterations-when-using-pkbdf2-sha256/3993
-	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), 13)
+	byteHash, err := bcrypt.GenerateFromPassword([]byte(unencryptedSSN), workFactor)
 	if err != nil {
 		return verrs, err
 	}
