@@ -48,7 +48,6 @@ export class ContactInfo extends Component {
   }
 
   handleSubmit = () => {
-    debugger;
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
@@ -67,6 +66,7 @@ export class ContactInfo extends Component {
     } = this.props;
     const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
+    // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
