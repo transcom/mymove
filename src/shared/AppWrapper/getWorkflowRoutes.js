@@ -8,6 +8,7 @@ import MoveType from 'scenes/Moves/MoveTypeWizard';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import SMNameWizard from 'scenes/ServiceMembers/SMNameWizard';
+import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 
 const Placeholder = props => {
   return (
@@ -57,8 +58,9 @@ const pages = {
   },
   '/service-member/:serviceMemberId/contact-info': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Your contact info',
+    render: (key, pages) => ({ match }) => (
+      <ContactInfo pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/service-member/:serviceMemberId/duty-station': {
     isInFlow: incompleteServiceMember,
