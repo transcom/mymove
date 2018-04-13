@@ -192,6 +192,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        x-format: edipi
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
@@ -232,6 +233,7 @@ definitions:
         x-nullable: true
       personal_email:
         type: string
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true
@@ -274,7 +276,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: edipi
+        x-format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
@@ -325,7 +327,7 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true
@@ -357,7 +359,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
-        format: edipi
+        x-format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
@@ -408,6 +410,7 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true
@@ -455,6 +458,7 @@ definitions:
         title: Phone
       email:
         type: string
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true
@@ -494,6 +498,7 @@ definitions:
         title: Phone
       email:
         type: string
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true
@@ -520,6 +525,7 @@ definitions:
         x-nullable: true
       email:
         type: string
+        x-format: email
         pattern: ^(.+)@(.+)\.(.{1,3})$
         example: john_bob@foo.edu
         x-nullable: true

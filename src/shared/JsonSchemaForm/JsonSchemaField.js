@@ -210,24 +210,24 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 
   let children = null;
-
   if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     fieldProps = configureNumberField(swaggerField, fieldProps);
   } else if (swaggerField.type === 'string') {
-    if (swaggerField.format === 'date') {
+    const fieldFormat = swaggerField.format || swaggerField['x-format'];
+    if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'telephone') {
+    } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'ssn') {
+    } else if (fieldFormat === 'ssn') {
       fieldProps = configureSSNField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'zip') {
+    } else if (fieldFormat === 'zip') {
       fieldProps = configureZipField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'email') {
+    } else if (fieldFormat === 'email') {
       fieldProps = configureEmailField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'edipi') {
+    } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
       // more cases go here. Datetime, Date,
       // more cases go here. Datetime, Date,
