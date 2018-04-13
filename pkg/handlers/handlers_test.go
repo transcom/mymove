@@ -32,17 +32,17 @@ func (suite *HandlerSuite) SetupTest() {
 func (suite *HandlerSuite) mustSave(model interface{}) {
 	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
-		suite.T().Fatalf("Errors encountered saving %v: %v", model, err)
+		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
 	}
 	if verrs.HasAny() {
-		suite.T().Fatalf("Validation errors encountered saving %v: %v", model, verrs)
+		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
 	}
 }
 
 func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
 	errResponse, ok := resp.(*errResponse)
 	if !ok || errResponse.code != code {
-		suite.T().Fatalf("Expected %s Response: %v", name, resp)
+		suite.T().Errorf("Expected %s Response: %v", name, resp)
 	}
 }
 
@@ -81,14 +81,14 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
 
 	info, err := os.Stat(fixturePath)
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 	header := multipart.FileHeader{
 		Filename: name,
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	}
 	data, err := os.Open(fixturePath)
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 	suite.closeFile(data)
 	return &runtime.File{
