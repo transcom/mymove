@@ -30,6 +30,15 @@ const uiSchema = {
     },
   },
   requiredFields: subsetOfFields,
+  todos: (
+    <ul>
+      <li>layout of city, state, zip does not match wireframe</li>
+      <li>
+        patch returns original address values (I suspect it is adding a new
+        address rather than updating the existing one)
+      </li>
+    </ul>
+  ),
 };
 const formName = 'service_member_backup_mailing_addresss';
 const CurrentForm = reduxifyForm(formName);

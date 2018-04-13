@@ -157,11 +157,18 @@ const JsonSchemaForm = props => {
   addUiSchemaRequiredFields(schema, uiSchema);
   const title = uiSchema.title || (schema ? schema.title : '');
   const description = uiSchema.description;
+  const todos = uiSchema.todos;
   return (
     <form className={className} onSubmit={handleSubmit}>
       <h1>{title}</h1>
       {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
+      {todos && (
+        <div className="Todo">
+          <h3>Todo:</h3>
+          {todos}
+        </div>
+      )}
       {showSubmit && (
         <button type="submit" disabled={pristine || submitting || invalid}>
           Submit

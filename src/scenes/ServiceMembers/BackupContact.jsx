@@ -11,12 +11,7 @@ import WizardPage from 'shared/WizardPage';
 
 import './BackupMailingAddress.css';
 
-const subsetOfFields = [
-  'name',
-  'email',
-  'telephone',
-  'authorized_to_meet_mover',
-];
+const subsetOfFields = ['name', 'email', 'telephone'];
 
 const uiSchema = {
   title: 'Backup Contacts',
@@ -25,6 +20,16 @@ const uiSchema = {
   order: subsetOfFields,
 
   requiredFields: ['name', 'email'],
+  todos: (
+    <ul>
+      <li>load/save is not wired up (since backend for this is not done)</li>
+      <li>
+        leaving out permissions ui since we are prioritizing getting flow for
+        service member done first and current model for permissions is not in
+        master yet
+      </li>
+    </ul>
+  ),
 };
 const formName = 'service_member_backup_contact';
 const CurrentForm = reduxifyForm(formName);

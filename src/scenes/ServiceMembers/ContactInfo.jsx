@@ -30,6 +30,18 @@ const uiSchema = {
       ],
     },
   },
+  todos: (
+    <ul>
+      <li>
+        Preferred use of text message is being stored in
+        secondary_phone_is_preferred (backend model needs to replace
+        secondary_phone_is_preferred with text_message_is_preferred)
+      </li>
+      <li>
+        need to test that email from login is loaded when there was no email set
+      </li>
+    </ul>
+  ),
 };
 const subsetOfFields = [
   'telephone',

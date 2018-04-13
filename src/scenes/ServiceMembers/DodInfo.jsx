@@ -21,6 +21,17 @@ const uiSchema = {
       enum: ['ARMY', 'NAVY', 'MARINES', 'AIRFORCE', 'COASTGUARD'],
     },
   },
+  todos: (
+    <ul>
+      <li>loading branch breaks page</li>
+      <li>SSN should be masked when not active</li>
+      <li>
+        some of these fields will be hidden when electronic orders are a thing
+        for some branches
+      </li>
+      <li>DDS requested that backend calls branch affiliation</li>
+    </ul>
+  ),
 };
 
 const formName = 'service_member_dod_info';
