@@ -1,3 +1,5 @@
+// TODO: this file is obsolete--all changes should go in shared/AppWrapper/getWorkflowRoutes
+
 import React from 'react';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
