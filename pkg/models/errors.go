@@ -1,5 +1,9 @@
 package models
 
+import (
+	"errors"
+)
+
 // These are errors that are returned by various model functions
 
 // FetchError is a base type that can typecast for specific APIs,
@@ -13,5 +17,11 @@ const (
 	FetchErrorForbidden FetchError = "FORBIDDEN"
 )
 
+// ErrCreateViolatesUniqueConstraint is returned if you call create and violate a unique constraint.
+var ErrCreateViolatesUniqueConstraint = errors.New("CREATE_VIOLATES_UNIQUE")
+
 // RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
 const RecordNotFoundErrorString = "sql: no rows in result set"
+
+// UniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
+const UniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"

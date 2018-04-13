@@ -56,7 +56,7 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 		FirstName: &firstName,
 	}
 
-	verrs, err := models.CreateServiceMemberWithAddresses(suite.db, &serviceMember)
+	verrs, err := models.CreateServiceMember(suite.db, &serviceMember)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 		t.Fatal("Couldnt create theSM")
