@@ -97,11 +97,16 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
+	suite.mustSave(&newBaseLinehaul)
 
-	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
-	if err != nil {
-		t.Errorf("The newBaselineHaul didn't save.")
+	shorthaul := models.Tariff400ngShorthaulRate{
+		CwtMilesLower:      1,
+		CwtMilesUpper:      50000,
+		RateCents:          5656,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
+	suite.mustSave(&shorthaul)
 
 	// 139698 +20000
 	fee, err := engine.computePPM(2000, "39574", "33633", testdatagen.RateEngineDate, .40)
@@ -110,7 +115,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := unit.Cents(61643)
+	expected := unit.Cents(63793)
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}

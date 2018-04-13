@@ -43,19 +43,12 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 		WeightLbsUpper:     4000,
 		RateCents:          158000,
 		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		EffectiveDateLower: testdatagen.NonPeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
 	}
 
-	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
-	if err != nil {
-		t.Errorf("The object didn't save: %s", err)
-	}
-
-	_, otherErr := suite.db.ValidateAndSave(&otherBaseLinehaul)
-	if otherErr != nil {
-		t.Errorf("The object didn't save: %s", otherErr)
-	}
+	suite.mustSave(&newBaseLinehaul)
+	suite.mustSave(&otherBaseLinehaul)
 
 	mileage := 3200
 	cwt := 39
@@ -64,6 +57,9 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	blh, err := engine.baseLinehaul(mileage, cwt, date)
 	if blh != expected {
 		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
+	}
+	if err != nil {
+		t.Errorf("Encountered error trying to get baseLinehaul: %v", err)
 	}
 }
 
@@ -128,7 +124,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger)
 	weight := 2000
-	expected := unit.Cents(8820)
+	expected := unit.Cents(11462)
 	zip3Austin := "787"
 	zip5Austin := "78717"
 	zip3SanFrancisco := "941"
@@ -188,19 +184,6 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&sa2)
-
-	// Create base linehaul rate for something within our weight and mileage
-	linehaulRate := models.Tariff400ngLinehaulRate{
-		WeightLbsLower:     weight - 100,
-		WeightLbsUpper:     weight + 200,
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 6000,
-		Type:               "ConusLinehaul",
-		RateCents:          2000,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.mustSave(&linehaulRate)
 
 	linehaulChargeTotal, err := engine.linehaulChargeTotal(
 		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
