@@ -89,18 +89,3 @@ func FetchRegionForZip5(db *pop.Connection, zip5 string) (int, error) {
 
 	return tariffZip3.Region, nil
 }
-
-// JAMES ATHEY AT DDS SAYS NOT TO USE BASEPOINT CITY/STATE COMBO
-// FetchCityAndStateForZip3 returns the full zip3 object for a specified zip3.
-// func FetchCityAndStateForZip3(db *pop.Connection, zip string) (zip3 Tariff400ngZip3, err error) {
-// 	sql := `SELECT
-// 			basepoint_city, state
-// 		FROM
-// 			tariff400ng_zip3s
-// 		WHERE
-// 			zip3 = $1
-// 		`
-
-// 	err = db.RawQuery(sql, zip).First(&zip3)
-// 	return zip3, err
-// }
