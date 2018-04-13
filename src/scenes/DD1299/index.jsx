@@ -5,7 +5,6 @@ import PropTypes from 'prop-types';
 
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { submitForm, resetSuccess } from './ducks';
-import { loadSchema } from 'shared/Swagger/ducks';
 
 import Alert from 'shared/Alert';
 
@@ -13,7 +12,6 @@ const DD1299Form = reduxifyForm('DD1299');
 export class DD1299 extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: DD1299';
-    this.props.loadSchema();
   }
   submit = values => {
     this.props.submitForm(values);
@@ -67,7 +65,6 @@ export class DD1299 extends Component {
 }
 
 DD1299.propTypes = {
-  loadSchema: PropTypes.func.isRequired,
   submitForm: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
@@ -85,7 +82,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema, submitForm, resetSuccess }, dispatch);
+  return bindActionCreators({ submitForm, resetSuccess }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DD1299);
