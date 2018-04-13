@@ -11,6 +11,9 @@ CREATE TABLE temp_tsp_discount_rates (
 );
 
 \copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code 2 Peak Rates.txt' WITH CSV HEADER;
+\copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code 2 NonPeak Rates.txt' WITH CSV HEADER;
+\copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code D Peak Rates.txt' WITH CSV HEADER;
+\copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code D NonPeak Rates.txt' WITH CSV HEADER;
 
 DROP TABLE IF EXISTS temp_tdl_scores;
 
@@ -28,6 +31,9 @@ CREATE TABLE temp_tdl_scores (
 );
 
 \copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores 15May18-30September18 - Code 2.csv' WITH CSV HEADER;
+\copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores 15May18-30September18 - Code D.csv' WITH CSV HEADER;
+\copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores - 1Jan-31Jul PP - 2018 NP - Code 2.csv' WITH CSV HEADER;
+\copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores - 1Jan-31Jul PP - 2018 NP - Code D.csv' WITH CSV HEADER;
 
 DROP TABLE IF EXISTS tdl_scores_and_discounts;
 
@@ -49,6 +55,7 @@ DROP TABLE IF EXISTS tdl_scores_and_discounts;
 -- 	rate_cycle_end date DEFAULT 2018-09-30
 -- );
 
+
 CREATE TABLE tdl_scores_and_discounts AS
 	SELECT dr.rate_cycle, s.market, s.origin, s.destination, s.cos, s.quartile, s.rank, s.scac, s.bvs, dr.lh_rate, dr.sit_rate FROM temp_tdl_scores AS s
 	LEFT JOIN temp_tsp_discount_rates as dr
@@ -57,5 +64,9 @@ CREATE TABLE tdl_scores_and_discounts AS
 	AND s.cos = dr.cos
 	AND s.scac = dr.scac;
 
-ALTER TABLE tdl_scores_and_discounts ADD COLUMN effective_date_lower date DEFAULT '2018-05-15';
-ALTER TABLE tdl_scores_and_discounts ADD COLUMN effective_date_upper date DEFAULT '2018-09-30';
+-- Adds rate cycle and performance period dates for TSPP matching
+ALTER TABLE tdl_scores_and_discounts ADD COLUMN rate_cycle_start date DEFAULT '2018-05-15';
+ALTER TABLE tdl_scores_and_discounts ADD COLUMN rate_cycle_end date DEFAULT '2018-09-30';
+ALTER TABLE tdl_scores_and_discounts ADD COLUMN performance_period_start date DEFAULT '2018-5-15';
+ALTER TABLE tdl_scores_and_discounts ADD COLUMN performance_period_end date DEFAULT '2018-7-31';
+
