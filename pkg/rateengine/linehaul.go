@@ -13,8 +13,9 @@ import (
 )
 
 func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
-	originZip3, err := models.FetchCityAndStateForZip3(re.db, originZip)
-	destinationZip3, err := models.FetchCityAndStateForZip3(re.db, destinationZip)
+	// JAMES ATHEY AT DDS SAYS NOT TO USE BASEPOINT CITY/STATE COMBO
+	// originZip3, err := models.FetchCityAndStateForZip3(re.db, originZip)
+	// destinationZip3, err := models.FetchCityAndStateForZip3(re.db, destinationZip)
 	bingEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
 	bingKey := os.Getenv("BING_MAPS_KEY")
 	planner := route.NewBingPlanner(re.logger, &bingEndpoint, &bingKey)
@@ -22,18 +23,34 @@ func (re *RateEngine) determineMileage(originZip string, destinationZip string) 
 		StreetAddress1: "",
 		StreetAddress2: swag.String(""),
 		StreetAddress3: swag.String(""),
-		City:           originZip3.BasepointCity,
-		State:          originZip3.State,
+		City:           "",
+		State:          originZip,
 		PostalCode:     "",
 	}
 	destinationAddress := models.Address{
 		StreetAddress1: "",
 		StreetAddress2: swag.String(""),
 		StreetAddress3: swag.String(""),
-		City:           destinationZip3.BasepointCity,
-		State:          destinationZip3.State,
-		PostalCode:     "",
+		City:           "",
+		State:          "",
+		PostalCode:     destinationZip,
 	}
+	// sourceAddress := models.Address{
+	// 	StreetAddress1: "",
+	// 	StreetAddress2: swag.String(""),
+	// 	StreetAddress3: swag.String(""),
+	// 	City:           originZip3.BasepointCity,
+	// 	State:          originZip3.State,
+	// 	PostalCode:     "",
+	// }
+	// destinationAddress := models.Address{
+	// 	StreetAddress1: "",
+	// 	StreetAddress2: swag.String(""),
+	// 	StreetAddress3: swag.String(""),
+	// 	City:           destinationZip3.BasepointCity,
+	// 	State:          destinationZip3.State,
+	// 	PostalCode:     "",
+	// }
 	distance, err := planner.TransitDistance(&sourceAddress, &destinationAddress)
 	if err != nil {
 		re.logger.Error("Failed to get distance from Bing - %v", zap.Error(err))
