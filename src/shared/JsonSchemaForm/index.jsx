@@ -138,16 +138,18 @@ const renderSchema = (schema, uiSchema, nameSpace = '') => {
   }
 };
 const JsonSchemaForm = props => {
-  const { pristine, submitting, invalid } = props;
+  const { pristine, submitting, invalid, className } = props;
   const { handleSubmit, schema, showSubmit } = props;
   const uiSchema = props.subsetOfUiSchema
     ? Object.assign({}, props.uiSchema, {
         order: props.subsetOfUiSchema,
       })
     : props.uiSchema;
+
+  addUiSchemaRequiredFields(schema, uiSchema);
   const title = uiSchema.title || (schema ? schema.title : '');
   return (
-    <form className="default" onSubmit={handleSubmit}>
+    <form className={className} onSubmit={handleSubmit}>
       <h1>{title}</h1>
       {renderSchema(schema, uiSchema)}
       {showSubmit && (
@@ -169,6 +171,7 @@ JsonSchemaForm.propTypes = {
 
 JsonSchemaForm.defaultProps = {
   showSubmit: true,
+  className: 'default',
 };
 
 export const reduxifyForm = name =>
