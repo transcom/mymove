@@ -1,16 +1,15 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
-
-import LoginButton from 'shared/User/LoginButton';
-import { bindActionCreators } from 'redux';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { push } from 'react-router-redux';
+import { bindActionCreators } from 'redux';
+
 import { createMove } from 'scenes/Moves/ducks';
+import Alert from 'shared/Alert';
+import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
-    this.props.loadUserAndToken();
   }
   componentDidUpdate() {
     if (this.props.hasSubmitSuccess)
@@ -24,7 +23,12 @@ export class Landing extends Component {
       <div className="usa-grid">
         <h1>Welcome! </h1>
         <div>
-          <LoginButton />
+          {this.props.hasSubmitError && (
+            <Alert type="error" heading="An error occurred">
+              There was an error starting your move.
+            </Alert>
+          )}
+          {!this.props.isLoggedIn && <LoginButton />}
           <div />
         </div>
         {this.props.isLoggedIn && (
@@ -43,7 +47,7 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
+  return bindActionCreators({ push, createMove }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
