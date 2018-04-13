@@ -124,6 +124,14 @@ const configureEmailField = (swaggerField, props) => {
 
   return props;
 };
+const configureEdipiField = (swaggerField, props) => {
+  props.validate.push(
+    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
+  );
+  props.type = 'text';
+
+  return props;
+};
 
 const renderInputField = ({
   input,
@@ -219,6 +227,8 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureZipField(swaggerField, fieldProps);
     } else if (swaggerField.format === 'email') {
       fieldProps = configureEmailField(swaggerField, fieldProps);
+    } else if (swaggerField.format === 'edipi') {
+      fieldProps = configureEdipiField(swaggerField, fieldProps);
       // more cases go here. Datetime, Date,
       // more cases go here. Datetime, Date,
     } else {

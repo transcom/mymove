@@ -274,6 +274,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
@@ -356,6 +357,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
