@@ -159,7 +159,7 @@ const renderInputField = ({
         htmlFor={input.name}
       >
         {title}
-        {always_required ? '*' : null}
+        {!always_required && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
