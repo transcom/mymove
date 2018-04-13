@@ -1,13 +1,14 @@
+import { pick } from 'lodash';
+import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes from 'prop-types';
-import { updateServiceMember, loadServiceMember } from './ducks';
-import WizardPage from 'shared/WizardPage';
-import { no_op } from 'shared/utils';
-import { pick } from 'lodash';
 
+import { updateServiceMember, loadServiceMember } from './ducks';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
+import { no_op } from 'shared/utils';
+import WizardPage from 'shared/WizardPage';
+
 import './ContactInfo.css';
 
 const uiSchema = {
