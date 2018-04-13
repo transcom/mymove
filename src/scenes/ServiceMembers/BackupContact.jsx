@@ -20,7 +20,7 @@ const subsetOfFields = [
 
 const uiSchema = {
   title: 'Backup Contacts',
-  subtitle:
+  description:
     "If we can't reach you, who can we contact (such as spouse or parent)?",
   order: subsetOfFields,
 

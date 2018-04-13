@@ -15,6 +15,8 @@ const subsetOfFields = ['backup_mailing_address'];
 
 const uiSchema = {
   title: 'Backup mailing address',
+  description:
+    'Enter a backup mailing address, such as your permanent residence or a parent’s address.',
   order: subsetOfFields,
   definitions: {
     Address: {
