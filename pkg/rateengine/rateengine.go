@@ -19,10 +19,17 @@ func (re *RateEngine) determineCWT(weight int) (cwt int) {
 	return weight / 100
 }
 
-func (re *RateEngine) computePPM(weight int, originZip string, destinationZip string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
+func (re *RateEngine) calculateZip3(originZip5 string, destinationZip5 string) (originZip3 string, destinationZip3 string) {
+	originZip3 = originZip5[0:3]
+	destinationZip3 = destinationZip5[0:3]
+	return originZip3, destinationZip3
+}
+
+func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
 	cwt := re.determineCWT(weight)
 	// Linehaul charges
-	mileage, err := re.determineMileage(originZip, destinationZip)
+	mileage, err := re.determineMileage(originZip5, destinationZip5)
+	originZip3, destinationZip3 := re.calculateZip3(originZip5, destinationZip5)
 	if err != nil {
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
 		return 0, err
@@ -32,12 +39,12 @@ func (re *RateEngine) computePPM(weight int, originZip string, destinationZip st
 		re.logger.Error("Failed to determine base linehaul charge", zap.Error(err))
 		return 0, err
 	}
-	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
+	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin linehaul factor", zap.Error(err))
 		return 0, err
 	}
-	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
+	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination linehaul factor", zap.Error(err))
 		return 0, err
@@ -48,22 +55,22 @@ func (re *RateEngine) computePPM(weight int, originZip string, destinationZip st
 		return 0, err
 	}
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
+	originServiceFee, err := re.serviceFeeCents(cwt, originZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return 0, err
 	}
-	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip)
+	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return 0, err
 	}
-	pack, err := re.fullPackCents(cwt, originZip)
+	pack, err := re.fullPackCents(cwt, originZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
 		return 0, err
 	}
-	unpack, err := re.fullUnpackCents(cwt, destinationZip)
+	unpack, err := re.fullUnpackCents(cwt, destinationZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err

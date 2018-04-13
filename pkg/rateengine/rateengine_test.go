@@ -94,8 +94,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		WeightLbsUpper:     4000,
 		RateCents:          20000,
 		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.RateEngineDate,
-		EffectiveDateUpper: testdatagen.RateEngineDate,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 
 	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
@@ -104,7 +104,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	}
 
 	// 139698 +20000
-	fee, err := engine.computePPM(2000, "395", "336", testdatagen.RateEngineDate, .40)
+	fee, err := engine.computePPM(2000, "39574", "33633", testdatagen.RateEngineDate, .40)
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
