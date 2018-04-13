@@ -70,3 +70,12 @@ ALTER TABLE tdl_scores_and_discounts ADD COLUMN rate_cycle_end date DEFAULT '201
 ALTER TABLE tdl_scores_and_discounts ADD COLUMN performance_period_start date DEFAULT '2018-5-15';
 ALTER TABLE tdl_scores_and_discounts ADD COLUMN performance_period_end date DEFAULT '2018-7-31';
 
+    -- created_at timestamp without time zone NOT NULL,
+    -- updated_at timestamp without time zone NOT NULL
+
+-- To assign UUIDs to records as they're created on import. Example here: https://github.com/transcom/mymove/pull/338/files
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
++
++-- Pack rates
++SELECT
++    uuid_generate_v4() as id,
