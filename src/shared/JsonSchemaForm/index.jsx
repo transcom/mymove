@@ -140,12 +140,12 @@ const renderSchema = (schema, uiSchema, nameSpace = '') => {
 const JsonSchemaForm = props => {
   const { pristine, submitting, invalid } = props;
   const { handleSubmit, schema, showSubmit } = props;
-  const title = schema ? schema.title : '';
   const uiSchema = props.subsetOfUiSchema
     ? Object.assign({}, props.uiSchema, {
         order: props.subsetOfUiSchema,
       })
     : props.uiSchema;
+  const title = uiSchema.title || (schema ? schema.title : '');
   return (
     <form className="default" onSubmit={handleSubmit}>
       <h1>{title}</h1>
