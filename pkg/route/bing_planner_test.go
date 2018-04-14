@@ -67,15 +67,15 @@ func (suite *PlannerFullSuite) TestBingPlanner() {
 
 var cityBradySource = models.Address{
 	StreetAddress1: "",
-	City:           "Brady",
-	State:          "TX",
-	PostalCode:     ""}
+	City:           "",
+	State:          "",
+	PostalCode:     "76825"}
 
 var cityVenturaDestination = models.Address{
 	StreetAddress1: "",
-	City:           "Ventura",
-	State:          "CA",
-	PostalCode:     ""}
+	City:           "",
+	State:          "",
+	PostalCode:     "93007"}
 
 func (suite *PlannerFullSuite) TestPartialAddress() {
 	distance, err := suite.planner.TransitDistance(&realAddressSource, &realAddressDestination)
@@ -83,6 +83,6 @@ func (suite *PlannerFullSuite) TestPartialAddress() {
 		suite.T().Errorf("Failed to get distance from Bing - %v", err)
 	}
 	if distance < 1000 || distance > 3000 {
-		suite.Fail("Implasible distance from TX to CA")
+		suite.Fail("Implausible distance from TX to CA")
 	}
 }
