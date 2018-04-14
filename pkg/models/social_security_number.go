@@ -50,7 +50,7 @@ func (s *SocialSecurityNumber) SetEncryptedHash(unencryptedSSN string) (*validat
 		return verrs, nil
 	}
 
-	workFactor := 13 // This was timed on the staging infrastructure to be ~1 second per hash.
+	workFactor := 13 // This was timed on the staging infrastructure to be ~1 second per hash. ( .76 sph actual)
 	// # of iterations is 2 ^ workFactor
 	// ~1 second per hash was picked based on this description:
 	// https://security.stackexchange.com/questions/3959/recommended-of-iterations-when-using-pkbdf2-sha256/3993
