@@ -10,7 +10,7 @@ CREATE TABLE temp_tsp_discount_rates (
 	sit_rate numeric(6,2)
 );
 
-\copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code 2 Peak Rates.txt' WITH CSV HEADER;
+\copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) 2018 Code 2 Peak Rates.txt' WITH CSV HEADER;
 \copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code 2 NonPeak Rates.txt' WITH CSV HEADER;
 \copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code D Peak Rates.txt' WITH CSV HEADER;
 \copy temp_tsp_discount_rates FROM '/Users/breanneboland/Desktop/datadump/2018 Code D NonPeak Rates.txt' WITH CSV HEADER;
@@ -30,7 +30,7 @@ CREATE TABLE temp_tdl_scores (
 	bvs numeric(8,4)
 );
 
-\copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores 15May18-30September18 - Code 2.csv' WITH CSV HEADER;
+\copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores RC15May-30September18 PP15May-31July18 - Code 2.csv' WITH CSV HEADER;
 \copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores 15May18-30September18 - Code D.csv' WITH CSV HEADER;
 \copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores - 1Jan-31Jul PP - 2018 NP - Code 2.csv' WITH CSV HEADER;
 \copy temp_tdl_scores FROM '/Users/breanneboland/Desktop/datadump/(Pre-Decisional FOUO) TDL Scores - 1Jan-31Jul PP - 2018 NP - Code D.csv' WITH CSV HEADER;
@@ -74,8 +74,16 @@ ALTER TABLE tdl_scores_and_discounts ADD COLUMN performance_period_end date DEFA
     -- updated_at timestamp without time zone NOT NULL
 
 -- To assign UUIDs to records as they're created on import. Example here: https://github.com/transcom/mymove/pull/338/files
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
-+
-+-- Pack rates
-+SELECT
-+    uuid_generate_v4() as id,
+-- CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
+
+-- -- Pack rates
+
+-- SELECT
+--     uuid_generate_v4() as id,
+-- Query to unite the two tables
+-- SELECT dr.rate_cycle, s.market, dr.origin, dr.destination, dr.cos, dr.scac, s.bvs, dr.lh_rate, dr.sit_rate FROM temp_tsp_discount_rates as dr
+-- 	LEFT JOIN temp_tdl_scores AS s
+--  	ON s.origin = dr.origin
+--  	AND s.destination = dr.destination
+-- 	AND s.cos = dr.cos
+-- 	AND s.scac = dr.scac;
