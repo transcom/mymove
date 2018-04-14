@@ -48,6 +48,11 @@ func fmtBool(b bool) *bool {
 	return &b
 }
 
+func fmtEmail(email string) *strfmt.Email {
+	fmtEmail := strfmt.Email(email)
+	return &fmtEmail
+}
+
 func stringFromSSN(ssn *strfmt.SSN) *string {
 	var stringPointer *string
 	if ssn != nil {

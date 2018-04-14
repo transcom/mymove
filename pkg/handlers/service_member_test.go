@@ -116,7 +116,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		Suffix:                    swag.String("random string bla"),
 		Telephone:                 swag.String("random string bla"),
 		SecondaryTelephone:        swag.String("random string bla"),
-		PersonalEmail:             swag.String("random string bla"),
+		PersonalEmail:             fmtEmail("random string bla"),
 		PhoneIsPreferred:          swag.Bool(false),
 		SecondaryPhoneIsPreferred: swag.Bool(false),
 		EmailIsPreferred:          swag.Bool(true),

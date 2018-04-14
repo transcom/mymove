@@ -232,6 +232,27 @@ describe('SchemaField tests', () => {
     testField(telephoneField, stringTests);
   });
 
+  describe('email field', () => {
+    const emailField = {
+      type: 'string',
+      format: 'email',
+      example: 'john_bob@example.com',
+      'x-nullable': true,
+      title: 'Personal Email Address',
+    };
+
+    const stringTests = [
+      ['john_bob@example.com', 'john_bob@example.com', null],
+      ['macrae.linton@gmail.com', 'macrae.linton@gmail.com', null],
+      ['john_BOB@examPLE.co.uk', 'john_BOB@examPLE.co.uk', null],
+      ['john_bot', 'john_bot', 'Must be a valid email address'],
+      ['john_bot@foo', 'john_bot@foo', 'Must be a valid email address'],
+      ['john_bot.com', 'john_bot.com', 'Must be a valid email address'],
+    ];
+
+    testField(emailField, stringTests);
+  });
+
   describe('ssn field', () => {
     const ssnField = {
       type: 'string',

@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
@@ -26,7 +28,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Suffix:                    serviceMember.Suffix,
 		Telephone:                 serviceMember.Telephone,
 		SecondaryTelephone:        serviceMember.SecondaryTelephone,
-		PersonalEmail:             serviceMember.PersonalEmail,
+		PersonalEmail:             (*strfmt.Email)(serviceMember.PersonalEmail),
 		PhoneIsPreferred:          serviceMember.PhoneIsPreferred,
 		SecondaryPhoneIsPreferred: serviceMember.SecondaryPhoneIsPreferred,
 		EmailIsPreferred:          serviceMember.EmailIsPreferred,
@@ -61,7 +63,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		Suffix:                    params.CreateServiceMemberPayload.Suffix,
 		Telephone:                 params.CreateServiceMemberPayload.Telephone,
 		SecondaryTelephone:        params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:             params.CreateServiceMemberPayload.PersonalEmail,
+		PersonalEmail:             swag.String(params.CreateServiceMemberPayload.PersonalEmail.String()),
 		PhoneIsPreferred:          params.CreateServiceMemberPayload.PhoneIsPreferred,
 		SecondaryPhoneIsPreferred: params.CreateServiceMemberPayload.SecondaryPhoneIsPreferred,
 		EmailIsPreferred:          params.CreateServiceMemberPayload.EmailIsPreferred,
