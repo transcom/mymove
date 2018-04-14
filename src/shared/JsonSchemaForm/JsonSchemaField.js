@@ -216,7 +216,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     fieldProps = configureNumberField(swaggerField, fieldProps);
   } else if (swaggerField.type === 'string') {
-    const fieldFormat = swaggerField.format || swaggerField['x-format'];
+    const fieldFormat = swaggerField.format;
     if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
