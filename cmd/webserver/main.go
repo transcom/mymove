@@ -9,6 +9,7 @@ import (
 	"path"
 	"path/filepath"
 
+	aws "github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
@@ -76,6 +77,7 @@ func main() {
 
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
+	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 
 	flag.Parse()
 
@@ -135,7 +137,13 @@ func main() {
 		if len(*s3Bucket) == 0 {
 			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
 		}
-		aws := awssession.Must(awssession.NewSession())
+		if *s3Region == "" {
+			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
+		}
+		aws := awssession.Must(awssession.NewSession(&aws.Config{
+			Region: s3Region,
+		}))
+
 		storer = storage.NewS3(*s3Bucket, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
