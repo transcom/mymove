@@ -160,7 +160,7 @@ const JsonSchemaForm = props => {
   const todos = uiSchema.todos;
   return (
     <form className={className} onSubmit={handleSubmit}>
-      <h1>{title}</h1>
+      <h1 className="sm-heading">{title}</h1>
       {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
       {todos && (
