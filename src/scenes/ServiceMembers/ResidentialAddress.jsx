@@ -9,8 +9,6 @@ import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-import './BackupMailingAddress.css';
-
 const subsetOfFields = ['residential_address'];
 
 const uiSchema = {
