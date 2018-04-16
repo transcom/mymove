@@ -1,6 +1,6 @@
 import React from 'react';
 import { shallow } from 'enzyme';
-import AppWrapper from '.';
+import { AppWrapper } from '.';
 import Header from 'shared/Header';
 import Footer from 'shared/Footer';
 

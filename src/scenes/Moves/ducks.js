@@ -49,7 +49,7 @@ export function setPendingMoveType(value) {
 }
 
 export function createMove(moveType) {
-  return function(dispatch, getState) {
+  return function(dispatch) {
     dispatch(createMoveRequest());
     CreateMove(moveType)
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
@@ -58,7 +58,7 @@ export function createMove(moveType) {
 }
 
 export function updateMove(moveId, moveType) {
-  return function(dispatch, getState) {
+  return function(dispatch) {
     dispatch(updateMoveRequest());
     UpdateMove(moveId, { selected_move_type: moveType })
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
@@ -68,10 +68,10 @@ export function updateMove(moveId, moveType) {
 
 export function loadMove(moveId) {
   return function(dispatch, getState) {
-    dispatch(getMoveRequest());
     const state = getState();
     const currentMove = state.submittedMoves.currentMove;
     if (!currentMove) {
+      dispatch(getMoveRequest());
       GetMove(moveId)
         .then(item => dispatch(getMoveSuccess(item)))
         .catch(error => dispatch(getMoveFailure(error)));
