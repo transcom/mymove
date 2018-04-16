@@ -65,7 +65,7 @@ const configureTelephoneField = (swaggerField, props) => {
   props.validate.push(
     validator.patternMatches(
       swaggerField.pattern,
-      'Number must have 10 digits.',
+      'Number must have 10 digits and a valid area code.',
     ),
   );
   props.type = 'text';
