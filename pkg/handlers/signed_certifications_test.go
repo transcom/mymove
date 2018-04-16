@@ -171,7 +171,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	certs := []models.SignedCertification{}
+	var certs []models.SignedCertification
 	suite.db.All(&certs)
 
 	if len(certs) > 0 {
