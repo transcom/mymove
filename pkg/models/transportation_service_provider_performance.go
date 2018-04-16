@@ -277,6 +277,5 @@ func FetchDiscountRate(db *pop.Connection, originZip string, destinationZip stri
 	if err != nil {
 		return 0.0, errors.Wrap(err, "could find the tsp performance")
 	}
-	// return tspPerformance.DiscountRate, nil
-	return 50.5, nil
+	return tspPerformance.LinehaulRate, nil
 }
