@@ -81,13 +81,13 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.T
 	FROM
 		tariff400ng_linehaul_rates
 	WHERE
-		(distance_miles_lower <= $1 AND distance_miles_upper >= $1)
+		(distance_miles_lower <= $1 AND $1 < distance_miles_upper)
 	AND
-		(weight_lbs_lower <= $2 AND weight_lbs_upper > $2)
+		(weight_lbs_lower <= $2 AND $2 < weight_lbs_upper)
 	AND
 		type = $3
 	AND
-		(effective_date_lower <= $4 AND effective_date_upper >= $4);`
+		(effective_date_lower <= $4 AND $4 < effective_date_upper);`
 
 	err = tx.RawQuery(sql, mileage, (cwt * 100), moveType, date).All(&linehaulRates)
 
