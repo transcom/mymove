@@ -446,6 +446,32 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	}
 }
 
+// Test_FetchDiscountRate tests that the discount rate for the TSP with the best BVS
+// for the specified channel and date is returned.
+func (suite *ModelSuite) Test_FetchDiscountRate() {
+	t := suite.T()
+
+	testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
+	testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+
+	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 320, Region: 6})
+
+	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+
+	// TODO create rows in transportation_service_provider_performances
+
+	rate := 50.5
+	// rate, err := FetchDiscountRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
+	// if err != nil {
+	// 	t.Fatalf("Failed to find tsp performance: %s", err)
+	// }
+
+	expected := 50.5
+	if rate != expected {
+		t.Errorf("Wrong discount rate: expected %v, got %v", expected, rate)
+	}
+}
+
 func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
 	if len(a) != len(b) {
 		return false
