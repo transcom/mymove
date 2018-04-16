@@ -34,7 +34,7 @@ const uiSchema = {
 const formName = 'service_member_backup_contact';
 const CurrentForm = reduxifyForm(formName);
 
-export class ContactInfo extends Component {
+export class BackupContact extends Component {
   componentDidMount() {
     //  this.props.loadServiceMember(this.props.match.params.serviceMemberId);
   }
@@ -89,7 +89,7 @@ export class ContactInfo extends Component {
     );
   }
 }
-ContactInfo.propTypes = {
+BackupContact.propTypes = {
   userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
@@ -117,4 +117,4 @@ function mapStateToProps(state) {
   }
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);

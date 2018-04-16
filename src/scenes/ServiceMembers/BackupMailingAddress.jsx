@@ -43,7 +43,7 @@ const uiSchema = {
 const formName = 'service_member_backup_mailing_addresss';
 const CurrentForm = reduxifyForm(formName);
 
-export class ContactInfo extends Component {
+export class BackupMailingAddress extends Component {
   componentDidMount() {
     this.props.loadServiceMember(this.props.match.params.serviceMemberId);
   }
@@ -98,7 +98,7 @@ export class ContactInfo extends Component {
     );
   }
 }
-ContactInfo.propTypes = {
+BackupMailingAddress.propTypes = {
   userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
@@ -125,4 +125,6 @@ function mapStateToProps(state) {
   }
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(
+  BackupMailingAddress,
+);

@@ -37,7 +37,7 @@ const uiSchema = {
 const formName = 'service_member_dod_info';
 const CurrentForm = reduxifyForm(formName);
 
-export class ContactInfo extends Component {
+export class DodInfo extends Component {
   componentDidMount() {
     this.props.loadServiceMember(this.props.match.params.serviceMemberId);
   }
@@ -87,7 +87,7 @@ export class ContactInfo extends Component {
     );
   }
 }
-ContactInfo.propTypes = {
+DodInfo.propTypes = {
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
@@ -113,4 +113,4 @@ function mapStateToProps(state) {
   }
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);
