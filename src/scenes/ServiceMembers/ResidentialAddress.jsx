@@ -9,8 +9,6 @@ import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-import './BackupMailingAddress.css';
-
 const subsetOfFields = ['residential_address'];
 
 const uiSchema = {
@@ -41,7 +39,7 @@ const uiSchema = {
 const formName = 'service_member_residential_address';
 const CurrentForm = reduxifyForm(formName);
 
-export class ContactInfo extends Component {
+export class ResidentialAddress extends Component {
   componentDidMount() {
     this.props.loadServiceMember(this.props.match.params.serviceMemberId);
   }
@@ -96,7 +94,7 @@ export class ContactInfo extends Component {
     );
   }
 }
-ContactInfo.propTypes = {
+ResidentialAddress.propTypes = {
   userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
@@ -123,4 +121,4 @@ function mapStateToProps(state) {
   }
   return props;
 }
-export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);
