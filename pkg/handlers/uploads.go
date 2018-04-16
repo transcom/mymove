@@ -27,7 +27,7 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 }
 
 // CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
-type CreateUploadHandler FileHandlerContext
+type CreateUploadHandler HandlerContext
 
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {

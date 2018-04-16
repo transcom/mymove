@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -11,29 +10,16 @@ import (
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"io"
+
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
-
-// HandlerContext contains dependencies that are shared between all handlers.
-// Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
-// can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
-type HandlerContext struct {
-	db     *pop.Connection
-	logger *zap.Logger
-}
-
-// NewHandlerContext returns a new HandlerContext with its private fields set.
-func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
-	return HandlerContext{
-		db:     db,
-		logger: logger,
-	}
-}
 
 // FileStorer is the set of methods needed to store and retrieve objects.
 type FileStorer interface {
@@ -42,19 +28,32 @@ type FileStorer interface {
 	PresignedURL(string, string) (string, error)
 }
 
-// FileHandlerContext wraps a HandlerContext with an additional dependency for file
-// manipulation
-type FileHandlerContext struct {
-	HandlerContext
+// HandlerContext contains dependencies that are shared between all handlers.
+// Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
+// can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
+type HandlerContext struct {
+	db      *pop.Connection
+	logger  *zap.Logger
+	planner route.Planner
 	storage FileStorer
 }
 
-// NewFileHandlerContext returns a new FileHandlerContext with its private fields set.
-func NewFileHandlerContext(context HandlerContext, storage FileStorer) FileHandlerContext {
-	return FileHandlerContext{
-		HandlerContext: context,
-		storage:        storage,
+// NewHandlerContext returns a new HandlerContext with its required private fields set.
+func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
+	return HandlerContext{
+		db:     db,
+		logger: logger,
 	}
+}
+
+// SetFileStorer is a simple setter for storage private field
+func (context *HandlerContext) SetFileStorer(storer FileStorer) {
+	context.storage = storer
+}
+
+// SetPlanner is a simple setter for the route.Planner private field
+func (context *HandlerContext) SetPlanner(planner route.Planner) {
+	context.planner = planner
 }
 
 // NewPublicAPIHandler returns a handler for the public API
@@ -73,7 +72,7 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 }
 
 // NewInternalAPIHandler returns a handler for the public API
-func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContext) http.Handler {
+func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
 	if err != nil {
@@ -111,7 +110,7 @@ func NewInternalAPIHandler(context HandlerContext, fileContext FileHandlerContex
 
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
-	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(fileContext)
+	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 
 	return internalAPI.Serve(nil)
 }
