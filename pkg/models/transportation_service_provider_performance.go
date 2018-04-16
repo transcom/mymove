@@ -246,10 +246,10 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 	return start, end
 }
 
-// FetchDiscountRate returns the discount rate for the TSP with the highest
+// FetchLinehaulRate returns the discount rate for the TSP with the highest
 // BVS during the specified data, limited to those TSPs in the channel defined by the
 // originZip and destinationZip.
-func FetchDiscountRate(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (float64, error) {
+func FetchLinehaulRate(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (float64, error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
 	if err != nil {
 		return 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)

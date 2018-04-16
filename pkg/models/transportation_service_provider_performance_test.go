@@ -499,7 +499,7 @@ func (suite *ModelSuite) Test_FetchLinehaulRate() {
 	}
 	suite.mustSave(&otherRateCycleTSPPerformance)
 
-	rate, err := FetchDiscountRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
+	rate, err := FetchLinehaulRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Failed to find tsp performance: %s", err)
 	}
