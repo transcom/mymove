@@ -20,6 +20,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -75,6 +76,8 @@ func main() {
 	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
+	bingMapsEndpoint := flag.String("bing_maps_endpoint", "", "URL for the Bing Maps Truck endpoint to use")
+	bingMapsKey := flag.String("bing_maps_key", "", "Authentication key to use for the Bing Maps endpoint")
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
@@ -131,11 +134,15 @@ func main() {
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
+	// Get route planner for handlers to calculate transit distances
+	routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
+	handlerContext.SetPlanner(routePlanner)
+
 	var storer handlers.FileStorer
 	if *storageBackend == "s3" {
 		zap.L().Info("Using s3 storage backend")
 		if len(*s3Bucket) == 0 {
-			log.Fatalln(errors.New("Must provide aws_s3_bucket_name parameter, exiting"))
+			log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
 		}
 		if *s3Region == "" {
 			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
@@ -149,14 +156,13 @@ func main() {
 		zap.L().Info("Using filesystem storage backend")
 		absTmpPath, err := filepath.Abs("tmp")
 		if err != nil {
-			log.Fatalln(errors.New("Could not get absolute path for tmp"))
+			log.Fatalln(errors.New("could not get absolute path for tmp"))
 		}
 		storagePath := path.Join(absTmpPath, "storage")
 		webRoot := fullHostname + "/" + "storage"
 		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
-
-	fileHandlerContext := handlers.NewFileHandlerContext(handlerContext, storer)
+	handlerContext.SetFileStorer(storer)
 
 	// Base routes
 	root := goji.NewMux()
@@ -181,7 +187,7 @@ func main() {
 	internalAPIMux := goji.SubMux()
 	internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
-	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext, fileHandlerContext))
+	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
 	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
 	authMux := goji.SubMux()
