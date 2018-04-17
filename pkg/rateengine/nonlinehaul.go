@@ -1,23 +1,25 @@
 package rateengine
 
 import (
-	"go.uber.org/zap"
 	"math"
+	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (re *RateEngine) serviceFeeCents(cwt int, zip3 string) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) serviceFeeCents(cwt int, zip3 string, date time.Time) (unit.Cents, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
 	return serviceArea.ServiceChargeCents.Multiply(cwt), nil
 }
 
-func (re *RateEngine) fullPackCents(cwt int, zip3 string) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) fullPackCents(cwt int, zip3 string, date time.Time) (unit.Cents, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -30,8 +32,8 @@ func (re *RateEngine) fullPackCents(cwt int, zip3 string) (unit.Cents, error) {
 	return fullPackRate.Multiply(cwt), nil
 }
 
-func (re *RateEngine) fullUnpackCents(cwt int, zip3 string) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) fullUnpackCents(cwt int, zip3 string, date time.Time) (unit.Cents, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -44,21 +46,21 @@ func (re *RateEngine) fullUnpackCents(cwt int, zip3 string) (unit.Cents, error) 
 	return unit.Cents(math.Round(float64(cwt*fullUnpackRate) / 1000.0)), nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip string, destinationZip string) (unit.Cents, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(weight int, originZip string, destinationZip string, date time.Time) (unit.Cents, error) {
 	cwt := re.determineCWT(weight)
-	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
+	originServiceFee, err := re.serviceFeeCents(cwt, originZip, date)
 	if err != nil {
 		return 0, err
 	}
-	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip)
+	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip, date)
 	if err != nil {
 		return 0, err
 	}
-	pack, err := re.fullPackCents(cwt, originZip)
+	pack, err := re.fullPackCents(cwt, originZip, date)
 	if err != nil {
 		return 0, err
 	}
-	unpack, err := re.fullUnpackCents(cwt, destinationZip)
+	unpack, err := re.fullUnpackCents(cwt, destinationZip, date)
 	if err != nil {
 		return 0, err
 	}

@@ -48,22 +48,22 @@ func (re *RateEngine) computePPM(weight int, originZip string, destinationZip st
 		return 0, err
 	}
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(cwt, originZip)
+	originServiceFee, err := re.serviceFeeCents(cwt, originZip, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return 0, err
 	}
-	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip)
+	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return 0, err
 	}
-	pack, err := re.fullPackCents(cwt, originZip)
+	pack, err := re.fullPackCents(cwt, originZip, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
 		return 0, err
 	}
-	unpack, err := re.fullUnpackCents(cwt, destinationZip)
+	unpack, err := re.fullUnpackCents(cwt, destinationZip, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err

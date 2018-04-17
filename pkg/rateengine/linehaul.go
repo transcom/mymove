@@ -32,7 +32,7 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int, date time.Time) (baseLi
 
 // Determine the Linehaul Factors (OLF and DLF)
 func (re *RateEngine) linehaulFactors(cwt int, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
