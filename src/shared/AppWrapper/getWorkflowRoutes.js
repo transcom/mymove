@@ -1,6 +1,7 @@
 import React from 'react';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
+import { no_op } from 'shared/utils';
 
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
@@ -96,7 +97,7 @@ const pages = {
   '/service-member/:serviceMemberId/transition': {
     isInFlow: incompleteServiceMember,
     render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <TransitionToOrders />
       </WizardPage>
     ),
@@ -151,7 +152,7 @@ const pages = {
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,
     render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <Transition />
       </WizardPage>
     ),
