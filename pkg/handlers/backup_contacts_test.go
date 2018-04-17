@@ -20,7 +20,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	serviceMember, _ := testdatagen.MakeServiceMember(suite.db)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
-		Email:      swag.String("email@example.com"),
+		Email:      fmtEmail("email@example.com"),
 		Name:       swag.String("name"),
 		Permission: internalmessages.BackupContactPermissionEDIT,
 		Telephone:  swag.String("5555555555"),
@@ -170,7 +170,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      swag.String("otheremail@example.com"),
+		Email:      fmtEmail("otheremail@example.com"),
 		Name:       swag.String("other name"),
 		Permission: internalmessages.BackupContactPermissionNONE,
 		Telephone:  swag.String("4444444444"),
@@ -204,7 +204,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      swag.String("otheremail@example.com"),
+		Email:      fmtEmail("otheremail@example.com"),
 		Name:       swag.String("other name"),
 		Permission: internalmessages.BackupContactPermissionNONE,
 		Telephone:  swag.String("4444444444"),
