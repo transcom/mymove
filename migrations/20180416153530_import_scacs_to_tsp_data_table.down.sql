@@ -1,0 +1,1 @@
+DROP TABLE transportation_service_provider_data;

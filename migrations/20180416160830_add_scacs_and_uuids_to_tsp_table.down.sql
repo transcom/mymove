@@ -1,0 +1,1 @@
+TRUNCATE TABLE transportation_service_providers CASCADE;
