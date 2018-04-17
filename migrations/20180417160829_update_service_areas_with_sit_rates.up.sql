@@ -1,24 +1,249 @@
-ALTER TABLE tariff400ng_service_areas ADD COLUMN sit_185A_rate_cents int;
-ALTER TABLE tariff400ng_service_areas ADD COLUMN sit_185B_rate_cents int;
+CREATE OR REPLACE FUNCTION update_sit_rates(
+	service_area int,
+	sit_185a_rate_cents int,
+	sit_185b_rate_cents int,
+	sit_pd_schedule int)
+RETURNS void language plpgsql AS $$
+BEGIN
+	UPDATE tariff400ng_service_areas
+	SET
+		sit_185a_rate_cents = $2,
+		sit_185b_rate_cents = $3,
+		sit_pd_schedule = $4
+	WHERE tariff400ng_service_areas.service_area = $1
+		AND tariff400ng_service_areas.effective_date_lower = '2018-05-15';
+END $$;
+
+ALTER TABLE tariff400ng_service_areas ADD COLUMN sit_185a_rate_cents int;
+ALTER TABLE tariff400ng_service_areas ADD COLUMN sit_185b_rate_cents int;
 ALTER TABLE tariff400ng_service_areas ADD COLUMN sit_pd_schedule int;
 
-CREATE FUNCTION import_sit_rates() RETURNS void AS $$
-DECLARE
-	temp_sit_rate record;
-BEGIN
-	FOR temp_sit_rate IN SELECT * FROM temp_sit_rates LOOP
-		UPDATE tariff400ng_service_areas
-		SET
-			sit_185A_rate_cents = temp_sit_rate.sit_185A_rate_cents,
-			sit_185B_rate_cents = temp_sit_rate.sit_185a_rate_cents,
-			sit_pd_schedule = temp_sit_rate.sit_pd_schedule
-		WHERE tariff400ng_service_areas.service_area = temp_sit_rate.service_area_number
-			AND tariff400ng_service_areas.effective_date_lower = '2018-05-15';
-	END LOOP;
-END;
-$$ LANGUAGE plpgsql;
+SELECT update_sit_rates(4, 1853, 65, 2);
+SELECT update_sit_rates(8, 1422, 44, 2);
+SELECT update_sit_rates(12, 1466, 46, 2);
+SELECT update_sit_rates(16, 1532, 65, 3);
+SELECT update_sit_rates(20, 1532, 65, 3);
+SELECT update_sit_rates(22, 1394, 51, 4);
+SELECT update_sit_rates(24, 1402, 46, 3);
+SELECT update_sit_rates(28, 1402, 46, 3);
+SELECT update_sit_rates(32, 1345, 53, 3);
+SELECT update_sit_rates(36, 1402, 46, 3);
+SELECT update_sit_rates(40, 1583, 70, 3);
+SELECT update_sit_rates(44, 1698, 70, 3);
+SELECT update_sit_rates(48, 1583, 70, 3);
+SELECT update_sit_rates(52, 1106, 44, 3);
+SELECT update_sit_rates(56, 1626, 60, 3);
+SELECT update_sit_rates(57, 1626, 60, 3);
+SELECT update_sit_rates(60, 1369, 51, 3);
+SELECT update_sit_rates(64, 1232, 46, 3);
+SELECT update_sit_rates(68, 1583, 70, 3);
+SELECT update_sit_rates(72, 1626, 53, 3);
+SELECT update_sit_rates(76, 1532, 53, 3);
+SELECT update_sit_rates(77, 1532, 53, 3);
+SELECT update_sit_rates(80, 1447, 51, 3);
+SELECT update_sit_rates(81, 1447, 51, 3);
+SELECT update_sit_rates(84, 861, 44, 2);
+SELECT update_sit_rates(140, 1402, 44, 3);
+SELECT update_sit_rates(144, 1532, 60, 3);
+SELECT update_sit_rates(145, 1532, 60, 3);
+SELECT update_sit_rates(148, 1417, 44, 3);
+SELECT update_sit_rates(152, 1417, 44, 3);
+SELECT update_sit_rates(156, 1417, 44, 3);
+SELECT update_sit_rates(160, 1563, 60, 3);
+SELECT update_sit_rates(164, 1728, 60, 3);
+SELECT update_sit_rates(168, 1626, 60, 3);
+SELECT update_sit_rates(169, 1626, 60, 3);
+SELECT update_sit_rates(172, 1139, 44, 1);
+SELECT update_sit_rates(176, 1402, 51, 1);
+SELECT update_sit_rates(180, 1795, 65, 3);
+SELECT update_sit_rates(181, 1795, 65, 3);
+SELECT update_sit_rates(184, 1691, 65, 3);
+SELECT update_sit_rates(185, 1691, 65, 3);
+SELECT update_sit_rates(188, 1394, 51, 1);
+SELECT update_sit_rates(192, 1394, 46, 2);
+SELECT update_sit_rates(196, 1466, 51, 1);
+SELECT update_sit_rates(197, 1466, 51, 1);
+SELECT update_sit_rates(200, 1007, 46, 1);
+SELECT update_sit_rates(204, 1547, 53, 3);
+SELECT update_sit_rates(205, 1547, 53, 3);
+SELECT update_sit_rates(208, 1394, 51, 2);
+SELECT update_sit_rates(212, 1394, 51, 1);
+SELECT update_sit_rates(216, 1394, 51, 3);
+SELECT update_sit_rates(236, 1402, 44, 2);
+SELECT update_sit_rates(240, 1306, 41, 2);
+SELECT update_sit_rates(244, 1402, 44, 2);
+SELECT update_sit_rates(248, 1337, 44, 1);
+SELECT update_sit_rates(252, 1717, 74, 3);
+SELECT update_sit_rates(253, 1717, 74, 3);
+SELECT update_sit_rates(256, 1292, 51, 3);
+SELECT update_sit_rates(260, 1337, 46, 3);
+SELECT update_sit_rates(264, 1358, 53, 3);
+SELECT update_sit_rates(268, 1394, 46, 2);
+SELECT update_sit_rates(272, 1358, 60, 1);
+SELECT update_sit_rates(276, 1394, 46, 2);
+SELECT update_sit_rates(280, 1422, 60, 2);
+SELECT update_sit_rates(284, 1422, 60, 3);
+SELECT update_sit_rates(288, 1422, 60, 2);
+SELECT update_sit_rates(292, 1337, 46, 3);
+SELECT update_sit_rates(296, 1337, 51, 3);
+SELECT update_sit_rates(300, 1123, 53, 2);
+SELECT update_sit_rates(304, 1337, 46, 3);
+SELECT update_sit_rates(308, 1313, 51, 2);
+SELECT update_sit_rates(312, 1292, 51, 2);
+SELECT update_sit_rates(316, 1369, 53, 3);
+SELECT update_sit_rates(320, 1292, 51, 2);
+SELECT update_sit_rates(324, 1547, 70, 3);
+SELECT update_sit_rates(328, 1626, 70, 3);
+SELECT update_sit_rates(332, 1620, 53, 2);
+SELECT update_sit_rates(336, 1626, 70, 3);
+SELECT update_sit_rates(340, 1626, 70, 3);
+SELECT update_sit_rates(344, 1752, 81, 3);
+SELECT update_sit_rates(348, 1808, 60, 3);
+SELECT update_sit_rates(352, 1752, 81, 3);
+SELECT update_sit_rates(356, 1717, 65, 3);
+SELECT update_sit_rates(357, 1717, 65, 3);
+SELECT update_sit_rates(360, 1626, 60, 3);
+SELECT update_sit_rates(364, 1139, 44, 2);
+SELECT update_sit_rates(368, 1139, 44, 2);
+SELECT update_sit_rates(372, 1547, 53, 3);
+SELECT update_sit_rates(376, 1139, 44, 2);
+SELECT update_sit_rates(380, 1728, 60, 3);
+SELECT update_sit_rates(381, 1728, 60, 3);
+SELECT update_sit_rates(384, 1547, 53, 3);
+SELECT update_sit_rates(385, 1547, 53, 3);
+SELECT update_sit_rates(388, 1563, 60, 3);
+SELECT update_sit_rates(396, 1058, 44, 2);
+SELECT update_sit_rates(400, 1563, 62, 3);
+SELECT update_sit_rates(401, 1563, 62, 3);
+SELECT update_sit_rates(404, 1394, 44, 3);
+SELECT update_sit_rates(408, 1394, 44, 2);
+SELECT update_sit_rates(412, 1422, 53, 3);
+SELECT update_sit_rates(416, 1337, 46, 3);
+SELECT update_sit_rates(417, 1337, 46, 3);
+SELECT update_sit_rates(420, 1050, 44, 2);
+SELECT update_sit_rates(424, 1752, 81, 3);
+SELECT update_sit_rates(428, 1422, 65, 3);
+SELECT update_sit_rates(432, 1752, 81, 3);
+SELECT update_sit_rates(436, 1752, 81, 3);
+SELECT update_sit_rates(440, 1752, 81, 3);
+SELECT update_sit_rates(444, 1227, 44, 2);
+SELECT update_sit_rates(448, 1369, 53, 3);
+SELECT update_sit_rates(452, 1698, 74, 3);
+SELECT update_sit_rates(456, 1292, 51, 3);
+SELECT update_sit_rates(457, 1292, 51, 3);
+SELECT update_sit_rates(460, 1378, 44, 3);
+SELECT update_sit_rates(464, 1313, 44, 3);
+SELECT update_sit_rates(468, 1422, 53, 3);
+SELECT update_sit_rates(472, 1378, 46, 3);
+SELECT update_sit_rates(476, 1358, 46, 3);
+SELECT update_sit_rates(480, 935, 40, 3);
+SELECT update_sit_rates(484, 935, 44, 3);
+SELECT update_sit_rates(488, 956, 41, 3);
+SELECT update_sit_rates(492, 693, 44, 2);
+SELECT update_sit_rates(496, 575, 39, 3);
+SELECT update_sit_rates(500, 1532, 60, 3);
+SELECT update_sit_rates(504, 1583, 70, 3);
+SELECT update_sit_rates(508, 1547, 53, 3);
+SELECT update_sit_rates(512, 1626, 60, 3);
+SELECT update_sit_rates(516, 1466, 53, 3);
+SELECT update_sit_rates(520, 1466, 53, 3);
+SELECT update_sit_rates(524, 1466, 53, 3);
+SELECT update_sit_rates(528, 1466, 53, 3);
+SELECT update_sit_rates(532, 1466, 53, 3);
+SELECT update_sit_rates(536, 985, 44, 1);
+SELECT update_sit_rates(540, 1292, 46, 3);
+SELECT update_sit_rates(544, 1839, 65, 3);
+SELECT update_sit_rates(545, 1839, 65, 3);
+SELECT update_sit_rates(548, 895, 44, 2);
+SELECT update_sit_rates(552, 1029, 44, 2);
+SELECT update_sit_rates(556, 1337, 46, 3);
+SELECT update_sit_rates(560, 1167, 53, 3);
+SELECT update_sit_rates(564, 1664, 74, 3);
+SELECT update_sit_rates(568, 1547, 70, 3);
+SELECT update_sit_rates(572, 1547, 70, 3);
+SELECT update_sit_rates(576, 935, 44, 1);
+SELECT update_sit_rates(580, 1547, 70, 3);
+SELECT update_sit_rates(584, 1547, 70, 3);
+SELECT update_sit_rates(588, 1532, 60, 3);
+SELECT update_sit_rates(592, 1422, 53, 3);
+SELECT update_sit_rates(596, 1532, 60, 3);
+SELECT update_sit_rates(600, 1422, 53, 3);
+SELECT update_sit_rates(604, 1422, 53, 3);
+SELECT update_sit_rates(608, 1378, 51, 2);
+SELECT update_sit_rates(612, 1517, 60, 3);
+SELECT update_sit_rates(616, 1460, 60, 2);
+SELECT update_sit_rates(620, 1378, 51, 2);
+SELECT update_sit_rates(624, 1460, 60, 2);
+SELECT update_sit_rates(628, 1174, 51, 2);
+SELECT update_sit_rates(632, 1489, 65, 2);
+SELECT update_sit_rates(636, 1642, 70, 3);
+SELECT update_sit_rates(640, 1642, 70, 3);
+SELECT update_sit_rates(644, 1394, 46, 3);
+SELECT update_sit_rates(648, 1394, 70, 3);
+SELECT update_sit_rates(652, 1369, 65, 3);
+SELECT update_sit_rates(656, 1123, 44, 3);
+SELECT update_sit_rates(660, 1394, 70, 3);
+SELECT update_sit_rates(664, 876, 44, 3);
+SELECT update_sit_rates(668, 1394, 44, 2);
+SELECT update_sit_rates(672, 1728, 65, 3);
+SELECT update_sit_rates(673, 1728, 65, 3);
+SELECT update_sit_rates(676, 1447, 53, 3);
+SELECT update_sit_rates(680, 1351, 51, 2);
+SELECT update_sit_rates(684, 1547, 53, 3);
+SELECT update_sit_rates(688, 1255, 53, 2);
+SELECT update_sit_rates(692, 1378, 53, 2);
+SELECT update_sit_rates(696, 1345, 62, 2);
+SELECT update_sit_rates(700, 1422, 53, 3);
+SELECT update_sit_rates(704, 956, 44, 2);
+SELECT update_sit_rates(708, 1532, 60, 3);
+SELECT update_sit_rates(712, 1422, 53, 3);
+SELECT update_sit_rates(716, 1394, 46, 1);
+SELECT update_sit_rates(720, 1583, 70, 3);
+SELECT update_sit_rates(724, 1590, 70, 3);
+SELECT update_sit_rates(728, 1698, 70, 3);
+SELECT update_sit_rates(732, 1626, 70, 3);
+SELECT update_sit_rates(736, 1190, 44, 1);
+SELECT update_sit_rates(740, 1022, 44, 1);
+SELECT update_sit_rates(744, 1642, 70, 3);
+SELECT update_sit_rates(748, 1402, 53, 3);
+SELECT update_sit_rates(752, 1698, 74, 3);
+SELECT update_sit_rates(753, 1698, 74, 3);
+SELECT update_sit_rates(756, 1402, 53, 3);
+SELECT update_sit_rates(760, 1190, 44, 3);
+SELECT update_sit_rates(764, 1717, 65, 2);
+SELECT update_sit_rates(765, 1717, 65, 2);
+SELECT update_sit_rates(768, 1402, 53, 3);
+SELECT update_sit_rates(772, 950, 46, 1);
+SELECT update_sit_rates(776, 1717, 65, 3);
+SELECT update_sit_rates(780, 1402, 53, 3);
+SELECT update_sit_rates(781, 1402, 53, 3);
+SELECT update_sit_rates(784, 1583, 70, 3);
+SELECT update_sit_rates(788, 1337, 53, 2);
+SELECT update_sit_rates(792, 1532, 60, 3);
+SELECT update_sit_rates(796, 1167, 46, 3);
+SELECT update_sit_rates(800, 1167, 46, 3);
+SELECT update_sit_rates(804, 1481, 51, 3);
+SELECT update_sit_rates(808, 1481, 51, 3);
+SELECT update_sit_rates(812, 1227, 46, 2);
+SELECT update_sit_rates(816, 1547, 65, 3);
+SELECT update_sit_rates(820, 1411, 60, 3);
+SELECT update_sit_rates(824, 1227, 44, 2);
+SELECT update_sit_rates(828, 1474, 53, 3);
+SELECT update_sit_rates(832, 1197, 44, 3);
+SELECT update_sit_rates(836, 1255, 44, 3);
+SELECT update_sit_rates(840, 1438, 70, 3);
+SELECT update_sit_rates(841, 1438, 70, 3);
+SELECT update_sit_rates(844, 1447, 70, 3);
+SELECT update_sit_rates(848, 1106, 44, 3);
+SELECT update_sit_rates(852, 1160, 41, 2);
+SELECT update_sit_rates(856, 1284, 51, 3);
+SELECT update_sit_rates(860, 1160, 44, 2);
+SELECT update_sit_rates(864, 810, 39, 2);
+SELECT update_sit_rates(868, 1292, 53, 1);
+SELECT update_sit_rates(872, 1292, 53, 1);
+SELECT update_sit_rates(876, 1292, 46, 2);
+SELECT update_sit_rates(880, 1174, 46, 2);
+SELECT update_sit_rates(884, 1422, 60, 3);
+SELECT update_sit_rates(888, 1422, 60, 3);
 
-SELECT import_sit_rates();
-
-DROP TABLE temp_sit_rates;
-DROP FUNCTION import_sit_rates;
+DROP FUNCTION update_sit_rates;

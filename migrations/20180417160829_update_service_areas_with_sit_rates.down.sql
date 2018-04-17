@@ -1,6 +1,3 @@
-CREATE TABLE temp_sit_rates (
-    service_area_number integer,
-    sit_185a_rate_cents integer,
-    sit_185b_rate_cents integer,
-    sit_pd_schedule integer
-);
+ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_185a_rate_cents;
+ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_185b_rate_cents;
+ALTER TABLE tariff400ng_service_areas DROP COLUMN sit_pd_schedule;
