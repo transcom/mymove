@@ -87,8 +87,8 @@ func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, mode
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
 	context := NewHandlerContext(suite.db, suite.logger)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	return move, document, response
@@ -166,8 +166,8 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
 	context := NewHandlerContext(suite.db, suite.logger)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.CreateUploadForbidden)
@@ -208,8 +208,8 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
 
 	context := NewHandlerContext(suite.db, suite.logger)
-	fileContext := NewFileHandlerContext(context, fakeS3)
-	handler := CreateUploadHandler(fileContext)
+	context.SetFileStorer(fakeS3)
+	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
 	_, ok := response.(*uploadop.CreateUploadNotFound)
