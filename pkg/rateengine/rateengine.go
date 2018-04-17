@@ -6,13 +6,15 @@ import (
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
-	db     *pop.Connection
-	logger *zap.Logger
+	db      *pop.Connection
+	logger  *zap.Logger
+	planner route.Planner
 }
 
 func (re *RateEngine) determineCWT(weight int) (cwt int) {
@@ -100,6 +102,6 @@ func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 
 }
 
 // NewRateEngine creates a new RateEngine
-func NewRateEngine(db *pop.Connection, logger *zap.Logger) *RateEngine {
-	return &RateEngine{db: db, logger: logger}
+func NewRateEngine(db *pop.Connection, logger *zap.Logger, planner route.Planner) *RateEngine {
+	return &RateEngine{db: db, logger: logger, planner: planner}
 }

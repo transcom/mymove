@@ -2,6 +2,7 @@ package rateengine
 
 import (
 	"log"
+	"os"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -9,13 +10,14 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	weight := 2500
 	cwt := engine.determineCWT(weight)
 
@@ -26,7 +28,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
 
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
 		BasepointCity: "Saucier",
@@ -123,8 +125,9 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 
 type RateEngineSuite struct {
 	suite.Suite
-	db     *pop.Connection
-	logger *zap.Logger
+	db      *pop.Connection
+	logger  *zap.Logger
+	planner route.Planner
 }
 
 func (suite *RateEngineSuite) SetupTest() {
@@ -152,6 +155,11 @@ func TestRateEngineSuite(t *testing.T) {
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
 
-	hs := &RateEngineSuite{db: db, logger: logger}
+	// Setup Bing API
+	bingEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
+	bingKey := os.Getenv("BING_MAPS_KEY")
+	planner := route.NewBingPlanner(logger, &bingEndpoint, &bingKey)
+
+	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}
 	suite.Run(t, hs)
 }

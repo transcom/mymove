@@ -1,21 +1,16 @@
 package rateengine
 
 import (
-	"os"
 	"time"
 
 	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
-	bingEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
-	bingKey := os.Getenv("BING_MAPS_KEY")
-	planner := route.NewBingPlanner(re.logger, &bingEndpoint, &bingKey)
 	sourceAddress := models.Address{
 		StreetAddress1: "",
 		StreetAddress2: swag.String(""),
@@ -33,7 +28,7 @@ func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string
 		PostalCode:     destinationZip5,
 	}
 
-	distance, err := planner.TransitDistance(&sourceAddress, &destinationAddress)
+	distance, err := re.planner.TransitDistance(&sourceAddress, &destinationAddress)
 	if err != nil {
 		re.logger.Error("Failed to get distance from Bing - %v", zap.Error(err))
 	}

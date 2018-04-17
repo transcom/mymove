@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	mileage, err := engine.determineMileage("39574", "33633")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
@@ -21,7 +21,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	expected := unit.Cents(128000)
 
@@ -65,7 +65,7 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	// Load fake data
 	originZip3 := models.Tariff400ngZip3{
@@ -100,7 +100,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	mileage := 799
 	cwt := 40
 	rate := unit.Cents(5656)
@@ -122,7 +122,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	weight := 2000
 	expected := unit.Cents(11462)
 	zip3Austin := "787"
