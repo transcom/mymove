@@ -37,12 +37,19 @@ definitions:
   MilitaryBranch:
     type: string
     x-nullable: true
+    title: Branch
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
       - MARINES
       - AIRFORCE
       - COASTGUARD
+    x-display-value:
+      ARMY: ARMY
+      NAVY: NAVY
+      MARINES: MARINES
+      AIRFORCE: AIRFORCE
+      COASTGUARD: COASTGUARD
   DutyStationPayload:
     type: object
     properties:
