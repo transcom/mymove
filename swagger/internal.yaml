@@ -206,7 +206,7 @@ definitions:
         type: string
         example: John
         x-nullable: true
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
@@ -295,11 +295,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut
@@ -377,11 +377,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut

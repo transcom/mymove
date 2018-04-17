@@ -26,7 +26,7 @@ type ServiceMember struct {
 	Branch                    *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
 	Rank                      *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
 	FirstName                 *string                             `json:"first_name" db:"first_name"`
-	MiddleInitial             *string                             `json:"middle_initial" db:"middle_initial"`
+	MiddleName                *string                             `json:"middle_name" db:"middle_name"`
 	LastName                  *string                             `json:"last_name" db:"last_name"`
 	Suffix                    *string                             `json:"suffix" db:"suffix"`
 	Telephone                 *string                             `json:"telephone" db:"telephone"`
@@ -203,8 +203,8 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 		if payload.FirstName != nil {
 			s.FirstName = payload.FirstName
 		}
-		if payload.MiddleInitial != nil {
-			s.MiddleInitial = payload.MiddleInitial
+		if payload.MiddleName != nil {
+			s.MiddleName = payload.MiddleName
 		}
 		if payload.LastName != nil {
 			s.LastName = payload.LastName

@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		UserID:                    strfmt.UUID(user.ID.String()),
 		Edipi:                     swag.String("random string bla"),
 		FirstName:                 swag.String("random string bla"),
-		MiddleInitial:             swag.String("random string bla"),
+		MiddleName:                swag.String("random string bla"),
 		LastName:                  swag.String("random string bla"),
 		Suffix:                    swag.String("random string bla"),
 		Telephone:                 swag.String("random string bla"),
