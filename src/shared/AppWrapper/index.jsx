@@ -18,6 +18,8 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
 import { loadUserAndToken } from 'shared/User/ducks';
+import { loadSchema } from 'shared/Swagger/ducks';
+import { no_op } from 'shared/utils';
 
 const NoMatch = ({ location }) => (
   <div className="usa-grid">
@@ -28,7 +30,8 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
-    this.props.loadUserAndToken && this.props.loadUserAndToken();
+    this.props.loadUserAndToken();
+    this.props.loadSchema();
   }
 
   render() {
@@ -55,6 +58,7 @@ export class AppWrapper extends Component {
     );
   }
 }
+AppWrapper.defaultProps = { loadSchema: no_op, loadUserAndToken: no_op };
 
 const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready
@@ -67,6 +71,9 @@ const mapStateToProps = state => ({
     : null,
 });
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ push, loadUserAndToken, createMove }, dispatch);
+  bindActionCreators(
+    { push, loadSchema, loadUserAndToken, createMove },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

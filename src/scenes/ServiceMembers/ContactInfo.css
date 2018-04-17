@@ -1,0 +1,8 @@
+form.service_member_contact_info fieldset {
+  margin-top: 2em;
+}
+
+form.service_member_contact_info legend {
+  font-size: 1.7rem;
+  font-weight: 400;
+}

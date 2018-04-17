@@ -65,7 +65,7 @@ const configureTelephoneField = (swaggerField, props) => {
   props.validate.push(
     validator.patternMatches(
       swaggerField.pattern,
-      'Number must have 10 digits.',
+      'Number must have 10 digits and a valid area code.',
     ),
   );
   props.type = 'text';
@@ -76,7 +76,7 @@ const configureTelephoneField = (swaggerField, props) => {
 const configureSSNField = (swaggerField, props) => {
   props.normalize = validator.normalizeSSN;
   props.validate.push(
-    validator.patternMatches(swaggerField.pattern, 'SSN must have 9 digits.'),
+    validator.patternMatches(/^\d{3}-\d{2}-\d{4}$/, 'SSN must have 9 digits.'),
   );
   props.type = 'text';
 
@@ -109,6 +109,28 @@ const configureTextField = (swaggerField, props) => {
   if (swaggerField.minLength) {
     props.validate.push(validator.minLength(swaggerField.minLength));
   }
+
+  return props;
+};
+
+const configureEmailField = (swaggerField, props) => {
+  props.validate.push(
+    validator.patternMatches(
+      // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
+      // but that is pretty obnoxious so we will risk the difference and use this simpler one
+      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      'Must be a valid email address',
+    ),
+  );
+  props.type = 'text';
+
+  return props;
+};
+const configureEdipiField = (swaggerField, props) => {
+  props.validate.push(
+    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
+  );
+  props.type = 'text';
 
   return props;
 };
@@ -147,7 +169,7 @@ const renderInputField = ({
         htmlFor={input.name}
       >
         {title}
-        {always_required ? '*' : null}
+        {!always_required && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
@@ -190,21 +212,26 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 
   let children = null;
-
   if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
     fieldProps = configureNumberField(swaggerField, fieldProps);
   } else if (swaggerField.type === 'string') {
-    if (swaggerField.format === 'date') {
+    const fieldFormat = swaggerField.format;
+    if (fieldFormat === 'date') {
       fieldProps = configureDateField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'telephone') {
+    } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'ssn') {
+    } else if (fieldFormat === 'ssn') {
       fieldProps = configureSSNField(swaggerField, fieldProps);
-    } else if (swaggerField.format === 'zip') {
+    } else if (fieldFormat === 'zip') {
       fieldProps = configureZipField(swaggerField, fieldProps);
+    } else if (fieldFormat === 'email') {
+      fieldProps = configureEmailField(swaggerField, fieldProps);
+    } else if (fieldFormat === 'edipi') {
+      fieldProps = configureEdipiField(swaggerField, fieldProps);
+      // more cases go here. Datetime, Date,
       // more cases go here. Datetime, Date,
     } else {
       if (swaggerField.pattern) {
