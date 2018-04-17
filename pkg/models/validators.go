@@ -98,6 +98,19 @@ type BranchIsPresent struct {
 // IsValid adds an error if the string value is blank.
 func (v *BranchIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
-		errors.Add(strings.ToLower(string(v.Field)), fmt.Sprintf("%s must not be blank!", v.Name))
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// BackupContactPermissionIsPresent validates that permission field is present
+type BackupContactPermissionIsPresent struct {
+	Name  string
+	Field internalmessages.BackupContactPermission
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
+	if string(v.Field) == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }
