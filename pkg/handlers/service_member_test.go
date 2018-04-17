@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -90,9 +91,11 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showServiceMemberParams)
 
-	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", showResponse)
+	errResponse := showResponse.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusForbidden {
+		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
@@ -204,10 +207,13 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
 	}
 
-	smResult, _ := models.GetServiceMemberForUser(suite.db, user.ID, uuid.Must(uuid.FromString(smResponse.Payload.ID.String())))
-	ssnModel := smResult.ServiceMember().SocialSecurityNumber
+	serviceMemberID, _ := uuid.FromString(smResponse.Payload.ID.String())
+	serviceMember, err := models.FetchServiceMember(suite.db, user, serviceMemberID)
+	if err != nil {
+		t.Error("error fetching service member")
+	}
 
-	if !ssnModel.Matches(ssn) {
+	if !serviceMember.SocialSecurityNumber.Matches(ssn) {
 		t.Error("ssn doesn't match the created SSN")
 	}
 
@@ -317,9 +323,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+	errResponse := response.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusForbidden {
+		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
@@ -356,9 +364,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberNotFound)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+	errResponse := response.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusNotFound {
+		t.Errorf("Expected to receive a not found HTTP code, got %v", code)
 	}
 }
 

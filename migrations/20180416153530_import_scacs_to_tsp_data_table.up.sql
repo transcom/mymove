@@ -5,35 +5,19 @@
 -- Dumped from database version 10.1
 -- Dumped by pg_dump version 10.1
 
-SET statement_timeout = 0;
-SET lock_timeout = 0;
-SET idle_in_transaction_session_timeout = 0;
-SET client_encoding = 'UTF8';
-SET standard_conforming_strings = on;
-SET check_function_bodies = false;
-SET client_min_messages = warning;
-SET row_security = off;
-
-SET search_path = public, pg_catalog;
-
-SET default_tablespace = '';
-
-SET default_with_oids = false;
-
 --
--- Name: transportation_service_provider_data; Type: TABLE; Schema: public; Owner: postgres
+-- Name: transportation_service_provider_data; Type: TABLE; Schema: public
 --
+
+DROP TABLE IF EXISTS transportation_service_provider_data;
 
 CREATE TABLE transportation_service_provider_data (
     id uuid,
     scac text
 );
 
-
-ALTER TABLE transportation_service_provider_data OWNER TO postgres;
-
 --
--- Data for Name: transportation_service_provider_data; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: transportation_service_provider_data; Type: TABLE DATA; Schema: public
 --
 
 INSERT INTO transportation_service_provider_data VALUES ('d441ffa2-251b-4529-9893-2d99ba0b7062', 'BKFI');
