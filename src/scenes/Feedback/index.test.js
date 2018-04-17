@@ -22,7 +22,6 @@ it('renders without crashing', () => {
         hasErrored={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={dummyFunc}
         createIssue={dummyFunc}
       />
     </Provider>,
