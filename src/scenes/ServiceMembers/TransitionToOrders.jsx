@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import profileComplete from 'shared/images/profile_check.png';
 import moveOrders from 'shared/images/man_with_clipboard.png';
-import 'scenes/ServiceMembers/NameForm.css';
+import 'scenes/ServiceMembers/ServiceMembers.css';
 
 export class TransitionToOrders extends Component {
   componentDidMount() {

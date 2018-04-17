@@ -23,7 +23,6 @@ describe('When there is a form creation error', () => {
         hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={dummyFunc}
         submitForm={dummyFunc}
       />,
     );
@@ -50,7 +49,6 @@ describe('When a form is successfully created', () => {
         hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={dummyFunc}
         submitForm={dummyFunc}
       />,
     );
@@ -79,7 +77,6 @@ describe('When a form fails to be created', () => {
           hasSubmitError={hasSubmitError}
           schema={schema}
           uiSchema={uiSchema}
-          loadSchema={dummyFunc}
           submitForm={dummyFunc}
         />
       </Provider>,

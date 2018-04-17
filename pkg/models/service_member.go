@@ -5,6 +5,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -247,7 +248,7 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 			s.SecondaryTelephone = payload.SecondaryTelephone
 		}
 		if payload.PersonalEmail != nil {
-			s.PersonalEmail = payload.PersonalEmail
+			s.PersonalEmail = swag.String(payload.PersonalEmail.String())
 		}
 		if payload.PhoneIsPreferred != nil {
 			s.PhoneIsPreferred = payload.PhoneIsPreferred

@@ -2,13 +2,19 @@ import React from 'react';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 
-import Agreement from 'scenes/Legalese';
-import Transition from 'scenes/Moves/Transition';
-import SMNameWizard from 'scenes/ServiceMembers/SMNameWizard';
+import DodInfo from 'scenes/ServiceMembers/DodInfo';
+import SMName from 'scenes/ServiceMembers/Name';
+import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
+import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
+import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
+import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
+
 import MoveType from 'scenes/Moves/MoveTypeWizard';
-import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import Transition from 'scenes/Moves/Transition';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import Agreement from 'scenes/Legalese';
 
 const Placeholder = props => {
   return (
@@ -47,19 +53,21 @@ const isCombo = ({ selectedMoveType }) =>
 const pages = {
   '/service-member/:serviceMemberId/create': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Create your profile',
+    render: (key, pages) => ({ match }) => (
+      <DodInfo pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/service-member/:serviceMemberId/name': {
     isInFlow: incompleteServiceMember,
     render: (key, pages) => ({ match }) => (
-      <SMNameWizard pages={pages} pageKey={key} match={match} />
+      <SMName pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/contact-info': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Your contact info',
+    render: (key, pages) => ({ match }) => (
+      <ContactInfo pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/service-member/:serviceMemberId/duty-station': {
     isInFlow: incompleteServiceMember,
@@ -68,17 +76,21 @@ const pages = {
   },
   '/service-member/:serviceMemberId/residence-address': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Current residence address',
+    render: (key, pages) => ({ match }) => (
+      <ResidentialAddress pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/service-member/:serviceMemberId/backup-mailing-address': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Backup mailing address',
+    render: (key, pages) => ({ match }) => (
+      <BackupMailingAddress pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: incompleteServiceMember,
-    render: stub,
+    render: (key, pages) => ({ match }) => (
+      <BackupContact pages={pages} pageKey={key} match={match} />
+    ),
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/transition': {

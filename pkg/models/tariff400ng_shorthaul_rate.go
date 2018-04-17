@@ -85,7 +85,8 @@ func FetchShorthaulRateCents(tx *pop.Connection, cwtMiles int, date time.Time) (
 		return 0, fmt.Errorf("error fetching shorthaul rate: %s", err)
 	}
 	if len(sh) != 1 {
-		return 0, fmt.Errorf("found too few/many shorthaul rates for parameters: %v, %v", cwtMiles, date)
+		return 0, fmt.Errorf("Wanted 1 shorthaul rate, found %d rates for parameters: %v, %v",
+			len(sh), cwtMiles, date)
 	}
 
 	return sh[0].RateCents, nil
