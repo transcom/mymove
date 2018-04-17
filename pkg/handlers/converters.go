@@ -53,6 +53,14 @@ func fmtEmail(email string) *strfmt.Email {
 	return &fmtEmail
 }
 
+func stringFromEmail(email *strfmt.Email) *string {
+	if email == nil {
+		return nil
+	}
+	emailString := email.String()
+	return &emailString
+}
+
 func stringFromSSN(ssn *strfmt.SSN) *string {
 	var stringPointer *string
 	if ssn != nil {
