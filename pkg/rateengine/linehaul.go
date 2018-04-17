@@ -30,7 +30,7 @@ func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string
 
 	mileage, err = re.planner.TransitDistance(&sourceAddress, &destinationAddress)
 	if err != nil {
-		re.logger.Error("Failed to get distance from Bing - %v", zap.Error(err))
+		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err))
 	}
 	return mileage, err
 }

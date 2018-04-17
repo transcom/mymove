@@ -2,7 +2,6 @@ package rateengine
 
 import (
 	"log"
-	"os"
 	"testing"
 
 	"github.com/gobuffalo/pop"
@@ -117,7 +116,7 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := unit.Cents(63793)
+	expected := unit.Cents(61643)
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}
@@ -154,11 +153,7 @@ func TestRateEngineSuite(t *testing.T) {
 
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
-
-	// Setup Bing API
-	bingEndpoint := os.Getenv("BING_MAPS_ENDPOINT")
-	bingKey := os.Getenv("BING_MAPS_KEY")
-	planner := route.NewBingPlanner(logger, &bingEndpoint, &bingKey)
+	planner := route.NewTestingPlanner()
 
 	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}
 	suite.Run(t, hs)

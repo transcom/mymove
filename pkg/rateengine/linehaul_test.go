@@ -13,7 +13,7 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
-	expected := 592
+	expected := 1234
 	if mileage != expected {
 		t.Errorf("Determined mileage incorrectly. Expected %d, got %d", expected, mileage)
 	}
