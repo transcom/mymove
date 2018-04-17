@@ -225,11 +225,41 @@ describe('SchemaField tests', () => {
       ['615-222-3323', '615-222-3323', null],
       ['6152223323', '615-222-3323', null],
       ['615-222-332sdfsdfsd3', '615-222-3323', null],
-      ['615-222-332', '615-222-332', 'Number must have 10 digits.'],
+      [
+        '615-222-332',
+        '615-222-332',
+        'Number must have 10 digits and a valid area code.',
+      ],
       ['615-222-33233', '615-222-3323', null],
+      [
+        '115-222-33233',
+        '115-222-3323',
+        'Number must have 10 digits and a valid area code.',
+      ],
     ];
 
     testField(telephoneField, stringTests);
+  });
+
+  describe('email field', () => {
+    const emailField = {
+      type: 'string',
+      format: 'email',
+      example: 'john_bob@example.com',
+      'x-nullable': true,
+      title: 'Personal Email Address',
+    };
+
+    const stringTests = [
+      ['john_bob@example.com', 'john_bob@example.com', null],
+      ['macrae.linton@gmail.com', 'macrae.linton@gmail.com', null],
+      ['john_BOB@examPLE.co.uk', 'john_BOB@examPLE.co.uk', null],
+      ['john_bot', 'john_bot', 'Must be a valid email address'],
+      ['john_bot@foo', 'john_bot@foo', 'Must be a valid email address'],
+      ['john_bot.com', 'john_bot.com', 'Must be a valid email address'],
+    ];
+
+    testField(emailField, stringTests);
   });
 
   describe('ssn field', () => {

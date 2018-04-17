@@ -7,14 +7,12 @@ import Alert from 'shared/Alert';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 
 import { createIssue } from './ducks';
-import { loadSchema } from 'shared/Swagger/ducks';
 
 const FeedbackForm = reduxifyForm('Feedback');
 
 export class Feedback extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Submit Feedback';
-    this.props.loadSchema();
   }
 
   handleSubmit = values => {
@@ -48,7 +46,6 @@ export class Feedback extends Component {
 
 Feedback.propTypes = {
   createIssue: PropTypes.func.isRequired,
-  loadSchema: PropTypes.func.isRequired,
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   hasErrored: PropTypes.bool.isRequired,
@@ -64,7 +61,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadSchema, createIssue }, dispatch);
+  return bindActionCreators({ createIssue }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Feedback);

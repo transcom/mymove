@@ -192,6 +192,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        format: edipi
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
@@ -231,8 +232,8 @@ definitions:
         x-nullable: true
       personal_email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@example.com
         x-nullable: true
         title: personal email address
       phone_is_preferred:
@@ -274,6 +275,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
@@ -314,32 +316,32 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: telephone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Secondary Telephone
+        title: Alternate phone
       personal_email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@example.com
         x-nullable: true
-        title: personal email address
+        title: Personal email
       phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Phone is Preferred
+        title: Phone
       secondary_phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Secondary Phone is Preferred
+        title: Text message
       email_is_preferred:
         type: boolean
         x-nullable: true
-        title: Email is Preferred
+        title: Email
       current_station:
         $ref: '#/definitions/DutyStationPayload'
       residential_address:
@@ -355,6 +357,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       edipi:
         type: string
+        format: edipi
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
@@ -395,32 +398,32 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: telephone
+        title: Best contact phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Secondary Telephone
+        title: Alternate phone
       personal_email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@example.com
         x-nullable: true
-        title: personal email address
+        title: Personal email
       phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Phone is Preferred
+        title: Phone
       secondary_phone_is_preferred:
         type: boolean
         x-nullable: true
-        title: Secondary Phone is Preferred
+        title: Text message
       email_is_preferred:
         type: boolean
         x-nullable: true
-        title: Email is Preferred
+        title: Email
       current_station:
         $ref: '#/definitions/DutyStationPayload'
       residential_address:
@@ -442,18 +445,20 @@ definitions:
         type: string
         example: Susan Smith
         x-nullable: true
+        title: Name
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
+        title: Phone
       email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@example.com
         x-nullable: true
-        title: email address
+        title: Email
       authorized_to_meet_mover:
         type: boolean
         x-nullable: true
@@ -479,18 +484,20 @@ definitions:
         type: string
         example: Susan Smith
         x-nullable: true
+        title: Name
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
+        title: Phone
       email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@exmaple.com
         x-nullable: true
-        title: email address
+        title: Email
       authorized_to_meet_mover:
         type: boolean
         x-nullable: true
@@ -513,8 +520,8 @@ definitions:
         x-nullable: true
       email:
         type: string
-        pattern: ^(.+)@(.+)\.(.{1,3})$
-        example: john_bob@foo.edu
+        format: email
+        example: john_bob@example.com
         x-nullable: true
         title: email address
       authorized_to_meet_mover:
@@ -694,7 +701,6 @@ definitions:
       service_member_ssn:
         type: string
         format: ssn
-        pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
         title: SSN
@@ -998,7 +1004,6 @@ definitions:
       service_member_ssn:
         type: string
         format: ssn
-        pattern: '^\d{3}-\d{2}-\d{4}$'
         example: 555-55-5555
         x-nullable: true
       service_member_agency:

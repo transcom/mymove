@@ -1,21 +1,36 @@
 package rateengine
 
 import (
-	"errors"
 	"time"
+
+	"github.com/go-openapi/swag"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
-	"go.uber.org/zap"
 )
 
-func (re *RateEngine) determineMileage(originZip string, destinationZip string) (mileage int, err error) {
-	// TODO (Rebecca): Lookup originZip to destinationZip mileage using API of choice
-	mileage = 1000
-	if mileage != 1000 {
-		err = errors.New("Oops determineMileage")
-	} else {
-		err = nil
+func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
+	sourceAddress := models.Address{
+		StreetAddress1: "",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "",
+		State:          "",
+		PostalCode:     originZip5,
+	}
+	destinationAddress := models.Address{
+		StreetAddress1: "",
+		StreetAddress2: swag.String(""),
+		StreetAddress3: swag.String(""),
+		City:           "",
+		State:          "",
+		PostalCode:     destinationZip5,
+	}
+
+	mileage, err = re.planner.TransitDistance(&sourceAddress, &destinationAddress)
+	if err != nil {
+		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err))
 	}
 	return mileage, err
 }
@@ -59,18 +74,19 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date time.Time) (sho
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeTotal(weight int, originZip string, destinationZip string, date time.Time) (linehaulChargeCents unit.Cents, err error) {
-	mileage, err := re.determineMileage(originZip, destinationZip)
+func (re *RateEngine) linehaulChargeTotal(weight int, originZip5 string, destinationZip5 string, date time.Time) (linehaulChargeCents unit.Cents, err error) {
+	mileage, err := re.determineMileage(originZip5, destinationZip5)
 	cwt := re.determineCWT(weight)
+	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt, date)
 	if err != nil {
 		return 0, err
 	}
-	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip, date)
+	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip3, date)
 	if err != nil {
 		return 0, err
 	}
-	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip, date)
+	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip3, date)
 	if err != nil {
 		return 0, err
 	}
