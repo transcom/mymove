@@ -118,7 +118,6 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	req := httptest.NewRequest("GET", showPath, nil)
 
 	params := contactop.ShowServiceMemberBackupContactParams{
-		ServiceMemberID: *fmtUUID(contact.ServiceMember.ID),
 		BackupContactID: *fmtUUID(contact.ID),
 	}
 	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember.User)
@@ -144,7 +143,6 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("GET", showPath, nil)
 
 	params := contactop.ShowServiceMemberBackupContactParams{
-		ServiceMemberID: *fmtUUID(contact.ServiceMember.ID),
 		BackupContactID: *fmtUUID(contact.ID),
 	}
 	// Logged in as other user
@@ -177,7 +175,6 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
-		ServiceMemberID:                         *fmtUUID(contact.ServiceMember.ID),
 		BackupContactID:                         *fmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
@@ -211,7 +208,6 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	}
 
 	params := contactop.UpdateServiceMemberBackupContactParams{
-		ServiceMemberID:                         *fmtUUID(contact.ServiceMember.ID),
 		BackupContactID:                         *fmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}

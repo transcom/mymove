@@ -2116,7 +2116,7 @@ paths:
           description: contact not found
         500:
           description: internal server error
-  /service_members/{serviceMemberId}/backup_contacts/{backupContactId}:
+  /backup_contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
@@ -2124,12 +2124,6 @@ paths:
       tags:
         - backup_contacts
       parameters:
-        - in: path
-          name: serviceMemberId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the service member
         - in: path
           name: backupContactId
           type: string
@@ -2169,12 +2163,6 @@ paths:
           format: uuid
           required: true
           description: UUID of the service member backup contact
-        - in: path
-          name: serviceMemberId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the service member
       responses:
         201:
           description: updated instance of backup contact

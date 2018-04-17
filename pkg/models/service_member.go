@@ -11,7 +11,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -78,72 +77,6 @@ func (s *ServiceMember) ValidateCreate(tx *pop.Connection) (*validate.Errors, er
 // This method is not required and may be deleted.
 func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// ServiceMemberResult is returned by GetServiceMemberForUser and encapsulates whether the call succeeded and why it failed.
-type ServiceMemberResult struct {
-	valid         bool
-	errorCode     FetchError
-	serviceMember ServiceMember
-}
-
-// IsValid indicates whether the ServiceMemberResult is valid.
-func (m ServiceMemberResult) IsValid() bool {
-	return m.valid
-}
-
-// ServiceMember returns the serviceMember if and only if the serviceMember was correctly fetched
-func (m ServiceMemberResult) ServiceMember() ServiceMember {
-	if !m.valid {
-		zap.L().Fatal("Check if this isValid before accessing the ServiceMember()!")
-	}
-	return m.serviceMember
-}
-
-// ErrorCode returns the error if and only if the serviceMember was not correctly fetched
-func (m ServiceMemberResult) ErrorCode() FetchError {
-	if m.valid {
-		zap.L().Fatal("Check that this !isValid before accessing the ErrorCode()!")
-	}
-	return m.errorCode
-}
-
-// NewInvalidServiceMemberResult creates an invalid ServiceMemberResult
-func NewInvalidServiceMemberResult(errorCode FetchError) ServiceMemberResult {
-	return ServiceMemberResult{
-		errorCode: errorCode,
-	}
-}
-
-// NewValidServiceMemberResult creates a valid ServiceMemberResult
-func NewValidServiceMemberResult(serviceMember ServiceMember) ServiceMemberResult {
-	return ServiceMemberResult{
-		valid:         true,
-		serviceMember: serviceMember,
-	}
-}
-
-// GetServiceMemberForUser returns a serviceMember only if it is allowed for the given user to access that serviceMember.
-// If the user is not authorized to access that serviceMember, it behaves as if no such serviceMember exists.
-func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (ServiceMemberResult, error) {
-	var result ServiceMemberResult
-	var serviceMember ServiceMember
-	err := db.Eager().Find(&serviceMember, id)
-	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
-			result = NewInvalidServiceMemberResult(FetchErrorNotFound)
-			err = nil
-		}
-		// Otherwise, it's an unexpected err so we return that.
-	} else {
-		if serviceMember.UserID != userID {
-			result = NewInvalidServiceMemberResult(FetchErrorForbidden)
-		} else {
-			result = NewValidServiceMemberResult(serviceMember)
-		}
-	}
-
-	return result, err
 }
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.

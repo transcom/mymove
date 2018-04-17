@@ -23,7 +23,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 	return contactPayload
 }
 
-// CreateBackupContactHandler creates a new move via POST /move
+// CreateBackupContactHandler creates a new backup contact
 type CreateBackupContactHandler HandlerContext
 
 // Handle ... creates a new BackupContact from a request payload
