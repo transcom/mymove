@@ -61,20 +61,3 @@ func FetchTariff400ngServiceAreaForZip3(tx *pop.Connection, zip3 string, date ti
 	}
 	return serviceArea, nil
 }
-
-// FetchTariff400ngLinehaulFactor returns linehaul_factor for an origin or destination based on service area.
-func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEngineDate time.Time) (linehaulFactor unit.Cents, err error) {
-	sql := `SELECT
-			linehaul_factor
-		FROM
-			tariff400ng_service_areas
-		WHERE
-			service_area = $1
-		AND
-			$2 BETWEEN effective_date_lower AND effective_date_upper;
-
-		`
-	err = tx.RawQuery(sql, serviceArea, rateEngineDate).First(&linehaulFactor)
-
-	return linehaulFactor, err
-}

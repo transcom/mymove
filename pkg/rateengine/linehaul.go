@@ -36,11 +36,7 @@ func (re *RateEngine) linehaulFactors(cwt int, zip3 string, date time.Time) (lin
 	if err != nil {
 		return 0, err
 	}
-	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, date)
-	if err != nil {
-		return 0, err
-	}
-	return linehaulFactorCents.Multiply(cwt), nil
+	return serviceArea.LinehaulFactor.Multiply(cwt), nil
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
