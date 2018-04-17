@@ -28,7 +28,7 @@ func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string
 		PostalCode:     destinationZip5,
 	}
 
-	mileage, err := re.planner.TransitDistance(&sourceAddress, &destinationAddress)
+	mileage, err = re.planner.TransitDistance(&sourceAddress, &destinationAddress)
 	if err != nil {
 		re.logger.Error("Failed to get distance from Bing - %v", zap.Error(err))
 	}
