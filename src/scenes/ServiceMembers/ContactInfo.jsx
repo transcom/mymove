@@ -9,7 +9,7 @@ import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-import './ContactInfo.css';
+import './ServiceMembers.css';
 
 const uiSchema = {
   title: 'Your Contact Info',
