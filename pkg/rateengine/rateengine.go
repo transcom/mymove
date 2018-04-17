@@ -30,9 +30,10 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 
 func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
 	cwt := re.determineCWT(weight)
+	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
+
 	// Linehaul charges
 	mileage, err := re.determineMileage(originZip5, destinationZip5)
-	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 	if err != nil {
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
 		return 0, err
