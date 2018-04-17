@@ -11,19 +11,15 @@ import WizardPage from 'shared/WizardPage';
 
 const uiSchema = {
   title: 'Name',
-  order: ['first_name', 'middle_initial', 'last_name', 'suffix'],
+  order: ['first_name', 'middle_name', 'last_name', 'suffix'],
   requiredFields: ['first_name', 'last_name'],
   todos: (
     <ul>
-      <li>
-        form should have middle name, not middle initial (this is a swagger,
-        backend issue)
-      </li>
       <li>suffix should be shorter field</li>
     </ul>
   ),
 };
-const subsetOfFields = ['first_name', 'middle_initial', 'last_name', 'suffix'];
+const subsetOfFields = ['first_name', 'middle_name', 'last_name', 'suffix'];
 const formName = 'service_member_name';
 const CurrentForm = reduxifyForm(formName);
 

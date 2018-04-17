@@ -1,0 +1,1 @@
+rename_column("service_members", "secondary_phone_is_preferred", "text_message_is_preferred")

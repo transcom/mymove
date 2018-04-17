@@ -17,31 +17,31 @@ import (
 
 // ServiceMember is a user of type service member
 type ServiceMember struct {
-	ID                        uuid.UUID                           `json:"id" db:"id"`
-	CreatedAt                 time.Time                           `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time                           `json:"updated_at" db:"updated_at"`
-	UserID                    uuid.UUID                           `json:"user_id" db:"user_id"`
-	User                      User                                `belongs_to:"user"`
-	Edipi                     *string                             `json:"edipi" db:"edipi"`
-	Branch                    *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
-	Rank                      *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
-	FirstName                 *string                             `json:"first_name" db:"first_name"`
-	MiddleName                *string                             `json:"middle_name" db:"middle_name"`
-	LastName                  *string                             `json:"last_name" db:"last_name"`
-	Suffix                    *string                             `json:"suffix" db:"suffix"`
-	Telephone                 *string                             `json:"telephone" db:"telephone"`
-	SecondaryTelephone        *string                             `json:"secondary_telephone" db:"secondary_telephone"`
-	PersonalEmail             *string                             `json:"personal_email" db:"personal_email"`
-	PhoneIsPreferred          *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
-	SecondaryPhoneIsPreferred *bool                               `json:"secondary_phone_is_preferred" db:"secondary_phone_is_preferred"`
-	EmailIsPreferred          *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
-	ResidentialAddressID      *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress        *Address                            `belongs_to:"address"`
-	BackupMailingAddressID    *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress      *Address                            `belongs_to:"address"`
-	SocialSecurityNumberID    *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber      *SocialSecurityNumber               `belongs_to:"address"`
-	BackupContacts            *BackupContacts                     `has_many:"backup_contacts"`
+	ID                     uuid.UUID                           `json:"id" db:"id"`
+	CreatedAt              time.Time                           `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                           `json:"updated_at" db:"updated_at"`
+	UserID                 uuid.UUID                           `json:"user_id" db:"user_id"`
+	User                   User                                `belongs_to:"user"`
+	Edipi                  *string                             `json:"edipi" db:"edipi"`
+	Branch                 *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
+	Rank                   *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
+	FirstName              *string                             `json:"first_name" db:"first_name"`
+	MiddleName             *string                             `json:"middle_name" db:"middle_name"`
+	LastName               *string                             `json:"last_name" db:"last_name"`
+	Suffix                 *string                             `json:"suffix" db:"suffix"`
+	Telephone              *string                             `json:"telephone" db:"telephone"`
+	SecondaryTelephone     *string                             `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail          *string                             `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred       *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
+	TextMessageIsPreferred *bool                               `json:"text_message_is_preferred" db:"text_message_is_preferred"`
+	EmailIsPreferred       *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID   *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress     *Address                            `belongs_to:"address"`
+	BackupMailingAddressID *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress   *Address                            `belongs_to:"address"`
+	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
+	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
+	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
 }
 
 // String is not required by pop and may be deleted
@@ -224,8 +224,8 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 		if payload.PhoneIsPreferred != nil {
 			s.PhoneIsPreferred = payload.PhoneIsPreferred
 		}
-		if payload.SecondaryPhoneIsPreferred != nil {
-			s.SecondaryPhoneIsPreferred = payload.SecondaryPhoneIsPreferred
+		if payload.TextMessageIsPreferred != nil {
+			s.TextMessageIsPreferred = payload.TextMessageIsPreferred
 		}
 		if payload.EmailIsPreferred != nil {
 			s.EmailIsPreferred = payload.EmailIsPreferred
@@ -324,7 +324,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.PersonalEmail == nil {
 		return false
 	}
-	if s.PhoneIsPreferred == nil && s.SecondaryPhoneIsPreferred == nil && s.EmailIsPreferred == nil {
+	if s.PhoneIsPreferred == nil && s.TextMessageIsPreferred == nil && s.EmailIsPreferred == nil {
 		return false
 	}
 	if s.ResidentialAddress == nil {

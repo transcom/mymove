@@ -239,7 +239,7 @@ definitions:
       phone_is_preferred:
         type: boolean
         x-nullable: true
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
       email_is_preferred:
@@ -334,7 +334,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
@@ -416,7 +416,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
