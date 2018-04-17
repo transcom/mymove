@@ -85,3 +85,5 @@ SELECT insert_duty_station('USCG Humboldt Bay','COASTGUARD','Samoa','CA','95564'
 SELECT insert_duty_station('Vandenberg AFB','AIRFORCE','Lompoc','CA','93437');
 SELECT insert_duty_station('Whiteman AFB','AIRFORCE','Whiteman AFB','MO','65305');
 SELECT insert_duty_station('White Sands Missile Range','ARMY','White Sands Missile Range','NM','88002');
+
+DROP FUNCTION insert_duty_station;
