@@ -6,7 +6,7 @@
 -- Dumped by pg_dump version 10.1
 
 --
--- Name: transportation_service_provider_data; Type: TABLE; Schema: public; Owner: postgres
+-- Name: transportation_service_provider_data; Type: TABLE; Schema: public
 --
 
 DROP TABLE IF EXISTS transportation_service_provider_data;
@@ -17,7 +17,7 @@ CREATE TABLE transportation_service_provider_data (
 );
 
 --
--- Data for Name: transportation_service_provider_data; Type: TABLE DATA; Schema: public; Owner: postgres
+-- Data for Name: transportation_service_provider_data; Type: TABLE DATA; Schema: public
 --
 
 INSERT INTO transportation_service_provider_data VALUES ('d441ffa2-251b-4529-9893-2d99ba0b7062', 'BKFI');
