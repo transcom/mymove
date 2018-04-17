@@ -110,36 +110,17 @@ type ShowServiceMemberHandler HandlerContext
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
 
-	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
+	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
 	if err != nil {
-		response = servicememberop.NewShowServiceMemberBadRequest()
-		return response
+		return responseForError(h.logger, err)
 	}
 
-	serviceMemberResult, err := models.GetServiceMemberForUser(h.db, user.ID, serviceMemberID)
-	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = servicememberop.NewShowServiceMemberInternalServerError()
-	} else if !serviceMemberResult.IsValid() {
-		switch errCode := serviceMemberResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = servicememberop.NewShowServiceMemberNotFound()
-		case models.FetchErrorForbidden:
-			response = servicememberop.NewShowServiceMemberForbidden()
-		default:
-			response = servicememberop.NewShowServiceMemberInternalServerError()
-		}
-		return response
-
-	} else {
-		serviceMemberPayload := payloadForServiceMemberModel(user, serviceMemberResult.ServiceMember())
-		response = servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
-	}
-	return response
+	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
@@ -147,44 +128,20 @@ type PatchServiceMemberHandler HandlerContext
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
-	// swagger validates our UUID format.
+
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-
-	// Validate that this serviceMember belongs to the current user
-	serviceMemberResult, err := models.GetServiceMemberForUser(h.db, user.ID, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
 	if err != nil {
-		h.logger.Error("DB Error checking on serviceMember validity", zap.Error(err))
-		response = servicememberop.NewPatchServiceMemberInternalServerError()
-	} else if !serviceMemberResult.IsValid() {
-		switch errCode := serviceMemberResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = servicememberop.NewPatchServiceMemberNotFound()
-		case models.FetchErrorForbidden:
-			response = servicememberop.NewPatchServiceMemberForbidden()
-		default:
-			h.logger.Error("Unexpected error Fetching Service Member", zap.Error(err))
-			response = servicememberop.NewPatchServiceMemberInternalServerError()
-		}
-		return response
-	} else { // The given serviceMember does belong to the current user.
-		serviceMember := serviceMemberResult.ServiceMember()
-		payload := params.PatchServiceMemberPayload
-
-		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
-
-		if verrs.HasAny() {
-			response = servicememberop.NewPatchServiceMemberBadRequest()
-		} else if err != nil {
-			h.logger.Error("Unexpected error Patching Service Member", zap.Error(err))
-			response = servicememberop.NewPatchServiceMemberInternalServerError()
-		} else {
-			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
-			response = servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
-		}
+		return responseForError(h.logger, err)
 	}
 
-	return response
+	payload := params.PatchServiceMemberPayload
+	if verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload); verrs.HasAny() || err != nil {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
