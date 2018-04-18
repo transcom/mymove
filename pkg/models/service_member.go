@@ -5,42 +5,43 @@ import (
 	"strings"
 	"time"
 
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // ServiceMember is a user of type service member
 type ServiceMember struct {
-	ID                        uuid.UUID                           `json:"id" db:"id"`
-	CreatedAt                 time.Time                           `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time                           `json:"updated_at" db:"updated_at"`
-	UserID                    uuid.UUID                           `json:"user_id" db:"user_id"`
-	User                      User                                `belongs_to:"user"`
-	Edipi                     *string                             `json:"edipi" db:"edipi"`
-	Branch                    *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
-	Rank                      *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
-	FirstName                 *string                             `json:"first_name" db:"first_name"`
-	MiddleInitial             *string                             `json:"middle_initial" db:"middle_initial"`
-	LastName                  *string                             `json:"last_name" db:"last_name"`
-	Suffix                    *string                             `json:"suffix" db:"suffix"`
-	Telephone                 *string                             `json:"telephone" db:"telephone"`
-	SecondaryTelephone        *string                             `json:"secondary_telephone" db:"secondary_telephone"`
-	PersonalEmail             *string                             `json:"personal_email" db:"personal_email"`
-	PhoneIsPreferred          *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
-	SecondaryPhoneIsPreferred *bool                               `json:"secondary_phone_is_preferred" db:"secondary_phone_is_preferred"`
-	EmailIsPreferred          *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
-	ResidentialAddressID      *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
-	ResidentialAddress        *Address                            `belongs_to:"address"`
-	BackupMailingAddressID    *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
-	BackupMailingAddress      *Address                            `belongs_to:"address"`
-	SocialSecurityNumberID    *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
-	SocialSecurityNumber      *SocialSecurityNumber               `belongs_to:"address"`
+	ID                     uuid.UUID                           `json:"id" db:"id"`
+	CreatedAt              time.Time                           `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                           `json:"updated_at" db:"updated_at"`
+	UserID                 uuid.UUID                           `json:"user_id" db:"user_id"`
+	User                   User                                `belongs_to:"user"`
+	Edipi                  *string                             `json:"edipi" db:"edipi"`
+	Branch                 *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
+	Rank                   *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
+	FirstName              *string                             `json:"first_name" db:"first_name"`
+	MiddleName             *string                             `json:"middle_name" db:"middle_name"`
+	LastName               *string                             `json:"last_name" db:"last_name"`
+	Suffix                 *string                             `json:"suffix" db:"suffix"`
+	Telephone              *string                             `json:"telephone" db:"telephone"`
+	SecondaryTelephone     *string                             `json:"secondary_telephone" db:"secondary_telephone"`
+	PersonalEmail          *string                             `json:"personal_email" db:"personal_email"`
+	PhoneIsPreferred       *bool                               `json:"phone_is_preferred" db:"phone_is_preferred"`
+	TextMessageIsPreferred *bool                               `json:"text_message_is_preferred" db:"text_message_is_preferred"`
+	EmailIsPreferred       *bool                               `json:"email_is_preferred" db:"email_is_preferred"`
+	ResidentialAddressID   *uuid.UUID                          `json:"residential_address_id" db:"residential_address_id"`
+	ResidentialAddress     *Address                            `belongs_to:"address"`
+	BackupMailingAddressID *uuid.UUID                          `json:"backup_mailing_address_id" db:"backup_mailing_address_id"`
+	BackupMailingAddress   *Address                            `belongs_to:"address"`
+	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
+	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
+	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
 }
 
 // String is not required by pop and may be deleted
@@ -78,70 +79,23 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 	return validate.NewErrors(), nil
 }
 
-// ServiceMemberResult is returned by GetServiceMemberForUser and encapsulates whether the call succeeded and why it failed.
-type ServiceMemberResult struct {
-	valid         bool
-	errorCode     FetchError
-	serviceMember ServiceMember
-}
-
-// IsValid indicates whether the ServiceMemberResult is valid.
-func (m ServiceMemberResult) IsValid() bool {
-	return m.valid
-}
-
-// ServiceMember returns the serviceMember if and only if the serviceMember was correctly fetched
-func (m ServiceMemberResult) ServiceMember() ServiceMember {
-	if !m.valid {
-		zap.L().Fatal("Check if this isValid before accessing the ServiceMember()!")
-	}
-	return m.serviceMember
-}
-
-// ErrorCode returns the error if and only if the serviceMember was not correctly fetched
-func (m ServiceMemberResult) ErrorCode() FetchError {
-	if m.valid {
-		zap.L().Fatal("Check that this !isValid before accessing the ErrorCode()!")
-	}
-	return m.errorCode
-}
-
-// NewInvalidServiceMemberResult creates an invalid ServiceMemberResult
-func NewInvalidServiceMemberResult(errorCode FetchError) ServiceMemberResult {
-	return ServiceMemberResult{
-		errorCode: errorCode,
-	}
-}
-
-// NewValidServiceMemberResult creates a valid ServiceMemberResult
-func NewValidServiceMemberResult(serviceMember ServiceMember) ServiceMemberResult {
-	return ServiceMemberResult{
-		valid:         true,
-		serviceMember: serviceMember,
-	}
-}
-
-// GetServiceMemberForUser returns a serviceMember only if it is allowed for the given user to access that serviceMember.
-// If the user is not authorized to access that serviceMember, it behaves as if no such serviceMember exists.
-func GetServiceMemberForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (ServiceMemberResult, error) {
-	var result ServiceMemberResult
+// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Eager().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
-			result = NewInvalidServiceMemberResult(FetchErrorNotFound)
-			err = nil
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-	} else {
-		if serviceMember.UserID != userID {
-			result = NewInvalidServiceMemberResult(FetchErrorForbidden)
-		} else {
-			result = NewValidServiceMemberResult(serviceMember)
-		}
+		return ServiceMember{}, err
+	}
+	// TODO: Handle case where more than one user is authorized to modify serviceMember
+	if serviceMember.UserID != user.ID {
+		return ServiceMember{}, ErrFetchForbidden
 	}
 
-	return result, err
+	return serviceMember, nil
 }
 
 // CreateServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
@@ -212,6 +166,24 @@ func CreateServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMem
 
 }
 
+// CreateBackupContact creates a backup contact model tied to the service member
+func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, email string, phone *string, permission internalmessages.BackupContactPermission) (BackupContact, *validate.Errors, error) {
+	newContact := BackupContact{
+		ServiceMemberID: s.ID,
+		ServiceMember:   s,
+		Name:            name,
+		Email:           email,
+		Phone:           phone,
+		Permission:      permission,
+	}
+
+	verrs, err := db.ValidateAndCreate(&newContact)
+	if err != nil || verrs.HasAny() {
+		newContact = BackupContact{}
+	}
+	return newContact, verrs, err
+}
+
 // PatchServiceMemberWithPayload patches service member with payload
 func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
@@ -231,8 +203,8 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 		if payload.FirstName != nil {
 			s.FirstName = payload.FirstName
 		}
-		if payload.MiddleInitial != nil {
-			s.MiddleInitial = payload.MiddleInitial
+		if payload.MiddleName != nil {
+			s.MiddleName = payload.MiddleName
 		}
 		if payload.LastName != nil {
 			s.LastName = payload.LastName
@@ -247,43 +219,50 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 			s.SecondaryTelephone = payload.SecondaryTelephone
 		}
 		if payload.PersonalEmail != nil {
-			s.PersonalEmail = payload.PersonalEmail
+			s.PersonalEmail = swag.String(payload.PersonalEmail.String())
 		}
 		if payload.PhoneIsPreferred != nil {
 			s.PhoneIsPreferred = payload.PhoneIsPreferred
 		}
-		if payload.SecondaryPhoneIsPreferred != nil {
-			s.SecondaryPhoneIsPreferred = payload.SecondaryPhoneIsPreferred
+		if payload.TextMessageIsPreferred != nil {
+			s.TextMessageIsPreferred = payload.TextMessageIsPreferred
 		}
 		if payload.EmailIsPreferred != nil {
 			s.EmailIsPreferred = payload.EmailIsPreferred
 		}
 		if payload.SocialSecurityNumber != nil {
-			if s.SocialSecurityNumber == nil {
-				newSSN := SocialSecurityNumber{}
-				s.SocialSecurityNumber = &newSSN
-			}
-			ssn := s.SocialSecurityNumber
-			verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String())
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				if err != nil {
+			if s.SocialSecurityNumber != nil {
+				// If SSN model exists
+				ssn := s.SocialSecurityNumber
+				if verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = err
+					return errors.New("New Transaction Error")
+				}
+
+				if verrs, err := dbConnection.ValidateAndUpdate(ssn); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
 					responseError = err
 					return errors.New("New Transaction Error")
 				}
 			} else {
-				// save the SSN
-				verrs, err = dbConnection.ValidateAndUpdate(ssn)
-				if verrs.HasAny() || err != nil {
+				// Else create an SSN model
+				newSSN := SocialSecurityNumber{}
+				if verrs, err := newSSN.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
-					if err != nil {
-						responseError = err
-						return errors.New("New Transaction Error")
-					}
-				} else {
-					s.SocialSecurityNumberID = &s.SocialSecurityNumber.ID
+					responseError = err
+					return errors.New("New Transaction Error")
 				}
+
+				if verrs, err := dbConnection.ValidateAndCreate(&newSSN); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = err
+					return errors.New("New Transaction Error")
+				}
+				s.SocialSecurityNumber = &newSSN
+				s.SocialSecurityNumberID = &newSSN.ID
 			}
+
 		}
 
 		if payload.ResidentialAddress != nil {
@@ -352,7 +331,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.PersonalEmail == nil {
 		return false
 	}
-	if s.PhoneIsPreferred == nil && s.SecondaryPhoneIsPreferred == nil && s.EmailIsPreferred == nil {
+	if s.PhoneIsPreferred == nil && s.TextMessageIsPreferred == nil && s.EmailIsPreferred == nil {
 		return false
 	}
 	if s.ResidentialAddress == nil {
