@@ -111,21 +111,21 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		UserID:                    strfmt.UUID(user.ID.String()),
-		Edipi:                     swag.String("random string bla"),
-		FirstName:                 swag.String("random string bla"),
-		MiddleInitial:             swag.String("random string bla"),
-		LastName:                  swag.String("random string bla"),
-		Suffix:                    swag.String("random string bla"),
-		Telephone:                 swag.String("random string bla"),
-		SecondaryTelephone:        swag.String("random string bla"),
-		PersonalEmail:             fmtEmail("random string bla"),
-		PhoneIsPreferred:          swag.Bool(false),
-		SecondaryPhoneIsPreferred: swag.Bool(false),
-		EmailIsPreferred:          swag.Bool(true),
-		ResidentialAddress:        fakeAddress(),
-		BackupMailingAddress:      fakeAddress(),
-		SocialSecurityNumber:      (*strfmt.SSN)(swag.String("123-45-6789")),
+		UserID:                 strfmt.UUID(user.ID.String()),
+		Edipi:                  swag.String("random string bla"),
+		FirstName:              swag.String("random string bla"),
+		MiddleName:             swag.String("random string bla"),
+		LastName:               swag.String("random string bla"),
+		Suffix:                 swag.String("random string bla"),
+		Telephone:              swag.String("random string bla"),
+		SecondaryTelephone:     swag.String("random string bla"),
+		PersonalEmail:          fmtEmail("random string bla"),
+		PhoneIsPreferred:       swag.Bool(false),
+		TextMessageIsPreferred: swag.Bool(false),
+		EmailIsPreferred:       swag.Bool(true),
+		ResidentialAddress:     fakeAddress(),
+		BackupMailingAddress:   fakeAddress(),
+		SocialSecurityNumber:   (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
