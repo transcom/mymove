@@ -9,8 +9,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"go.uber.org/zap/zapcore"
 )
 
@@ -92,6 +90,13 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return verrs, nil
 }
 
+func (a *Address) isValid() bool {
+	return a.StreetAddress1 != "" &&
+		a.City != "" &&
+		a.State != "" &&
+		a.PostalCode != ""
+}
+
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (a *Address) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
@@ -102,23 +107,6 @@ func (a *Address) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (a *Address) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// AddressModelFromPayload returns the model struct from payload
-func AddressModelFromPayload(rawAddress *internalmessages.Address) *Address {
-	if rawAddress == nil {
-		return nil
-	}
-	address := Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
-	}
-	return &address
 }
 
 // MarshalLogObject is required to be able to zap.Object log TDLs

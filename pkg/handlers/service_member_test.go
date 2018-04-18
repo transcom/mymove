@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth/context"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,12 +29,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	}
 	suite.mustSave(&newServiceMember)
 
-	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, user)
 
 	params := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
@@ -77,12 +72,9 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	}
 	suite.mustSave(&newServiceMember)
 
-	// And: the context contains the auth values for logged-in user
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, loggedInUser)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, loggedInUser)
+
 	showServiceMemberParams := servicememberop.ShowServiceMemberParams{
 		HTTPRequest:     req,
 		ServiceMemberID: strfmt.UUID(newServiceMember.ID.String()),
@@ -129,16 +121,12 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	req = suite.authenticateRequest(req, user)
+
 	params := servicememberop.CreateServiceMemberParams{
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-
-	// And: the context contains the auth values for logged-in user
-	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -175,16 +163,12 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	req = suite.authenticateRequest(req, user)
+
 	params := servicememberop.CreateServiceMemberParams{
 		CreateServiceMemberPayload: &newServiceMemberPayload,
 		HTTPRequest:                req,
 	}
-
-	// And: the context contains the auth values for logged-in user
-	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -240,10 +224,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 	branch := internalmessages.MilitaryBranchARMY
 	rank := internalmessages.ServiceMemberRankE1
+	ssn := fmtSSN("555-55-5555")
+	resAddress := fakeAddress()
+	backupAddress := fakeAddress()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi:                &newEdipi,
-		BackupMailingAddress: fakeAddress(),
-		ResidentialAddress:   fakeAddress(),
+		BackupMailingAddress: backupAddress,
+		ResidentialAddress:   resAddress,
 		Branch:               &branch,
 		EmailIsPreferred:     swag.Bool(true),
 		FirstName:            swag.String("Firstname"),
@@ -254,17 +241,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		Rank:                 &rank,
 		TextMessageIsPreferred: swag.Bool(true),
 		SecondaryTelephone:     swag.String("555555555"),
-		SocialSecurityNumber:   fmtSSN("555-55-5555"),
+		SocialSecurityNumber:   ssn,
 		Suffix:                 swag.String("Sr."),
 		Telephone:              swag.String("555555555"),
 	}
 
-	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -280,13 +263,16 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	patchServiceMemberPayload := okResponse.Payload
+	serviceMemberPayload := okResponse.Payload
 
-	if *patchServiceMemberPayload.Edipi != newEdipi {
-		t.Fatalf("Edipi should have been updated.")
-	}
+	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
+	suite.Assertions.Equal(*serviceMemberPayload.Branch, branch)
+	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, true)
+	suite.Assertions.Equal(*serviceMemberPayload.TextMessageIsPreferred, true)
+	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
+	suite.Assertions.Equal(*serviceMemberPayload.BackupMailingAddress.StreetAddress1, *backupAddress.StreetAddress1)
 
-	// Then: we expect an addresses to have been created
+	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.db.All(&addresses)
 
@@ -325,10 +311,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user2)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, user2)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -365,11 +348,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 		Edipi: &newEdipi,
 	}
 
-	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
@@ -407,12 +387,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 
 	patchPayload := internalmessages.PatchServiceMemberPayload{}
 
-	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, user)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,
