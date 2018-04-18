@@ -131,7 +131,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.fullUnpackCents(unit.CWT(50), "395")
+	fee, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}

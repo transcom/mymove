@@ -22,8 +22,8 @@ type Tariff400ngLinehaulRate struct {
 	DistanceMilesLower int        `json:"distance_miles_lower" db:"distance_miles_lower"`
 	DistanceMilesUpper int        `json:"distance_miles_upper" db:"distance_miles_upper"`
 	Type               string     `json:"type" db:"type"`
-	WeightLbsLower     int        `json:"weight_lbs_lower" db:"weight_lbs_lower"`
-	WeightLbsUpper     int        `json:"weight_lbs_upper" db:"weight_lbs_upper"`
+	WeightLbsLower     unit.Pound `json:"weight_lbs_lower" db:"weight_lbs_lower"`
+	WeightLbsUpper     unit.Pound `json:"weight_lbs_upper" db:"weight_lbs_upper"`
 	RateCents          unit.Cents `json:"rate_cents" db:"rate_cents"`
 	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
@@ -51,8 +51,8 @@ func (t *Tariff400ngLinehaulRate) Validate(tx *pop.Connection) (*validate.Errors
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsLessThan{Field: t.DistanceMilesLower, Name: "DistanceMilesLower",
 			Compared: t.DistanceMilesUpper},
-		&validators.IntIsLessThan{Field: t.WeightLbsLower, Name: "WeightLbsLower",
-			Compared: t.WeightLbsUpper},
+		&validators.IntIsLessThan{Field: int(t.WeightLbsLower), Name: "WeightLbsLower",
+			Compared: int(t.WeightLbsUpper)},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},

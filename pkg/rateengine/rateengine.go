@@ -33,7 +33,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
 		return 0, err
 	}
-	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, weight.ToCWT(), date)
+	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		re.logger.Error("Failed to determine base linehaul charge", zap.Error(err))
 		return 0, err
@@ -69,7 +69,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
 		return 0, err
 	}
-	unpack, err := re.fullUnpackCents(weight.ToCWT(), destinationZip3)
+	unpack, err := re.fullUnpackCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err

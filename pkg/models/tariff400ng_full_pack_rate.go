@@ -18,8 +18,8 @@ type Tariff400ngFullPackRate struct {
 	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
 	Schedule           int        `json:"schedule" db:"schedule"`
-	WeightLbsLower     int        `json:"weight_lbs_lower" db:"weight_lbs_lower"`
-	WeightLbsUpper     int        `json:"weight_lbs_upper" db:"weight_lbs_upper"`
+	WeightLbsLower     unit.Pound `json:"weight_lbs_lower" db:"weight_lbs_lower"`
+	WeightLbsUpper     unit.Pound `json:"weight_lbs_upper" db:"weight_lbs_upper"`
 	RateCents          unit.Cents `json:"rate_cents" db:"rate_cents"`
 	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
@@ -33,8 +33,8 @@ type Tariff400ngFullPackRates []Tariff400ngFullPackRate
 func (t *Tariff400ngFullPackRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
-		&validators.IntIsLessThan{Field: t.WeightLbsLower, Name: "WeightLbsLower",
-			Compared: t.WeightLbsUpper},
+		&validators.IntIsLessThan{Field: int(t.WeightLbsLower), Name: "WeightLbsLower",
+			Compared: int(t.WeightLbsUpper)},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},

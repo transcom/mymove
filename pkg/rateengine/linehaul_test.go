@@ -51,10 +51,10 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	suite.mustSave(&otherBaseLinehaul)
 
 	mileage := 3200
-	cwt := unit.CWT(39)
+	weight := unit.Pound(3900)
 	date := testdatagen.DateInsidePeakRateCycle
 
-	blh, err := engine.baseLinehaul(mileage, cwt, date)
+	blh, err := engine.baseLinehaul(mileage, weight, date)
 	if blh != expected {
 		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
 	}

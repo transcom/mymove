@@ -87,8 +87,8 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 
 	fpr := Tariff400ngFullPackRate{
 		Schedule:           schedule,
-		WeightLbsLower:     int(weightLower),
-		WeightLbsUpper:     int(weightUpper),
+		WeightLbsLower:     weightLower,
+		WeightLbsUpper:     weightUpper,
 		RateCents:          rateExpected,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,

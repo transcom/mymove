@@ -31,13 +31,13 @@ func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (
 	return fullPackRate.Multiply(int(cwt)), nil
 }
 
-func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string) (unit.Cents, error) {
+func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
 	}
 
-	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(re.db, serviceArea.ServicesSchedule)
+	fullUnpackRate, err := models.FetchTariff400ngFullUnpackRateMillicents(re.db, serviceArea.ServicesSchedule, date)
 	if err != nil {
 		return 0, err
 	}
@@ -59,7 +59,7 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 
 	if err != nil {
 		return 0, err
 	}
-	unpack, err := re.fullUnpackCents(weight.ToCWT(), destinationZip3)
+	unpack, err := re.fullUnpackCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		return 0, err
 	}

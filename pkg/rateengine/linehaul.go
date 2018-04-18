@@ -36,8 +36,8 @@ func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string
 }
 
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) baseLinehaul(mileage int, cwt unit.CWT, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
-	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, cwt, date)
+func (re *RateEngine) baseLinehaul(mileage int, weight unit.Pound, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
+	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, weight, date)
 	if err != nil {
 		re.logger.Error("Base Linehaul query didn't complete: ", zap.Error(err))
 	}
@@ -78,7 +78,7 @@ func (re *RateEngine) linehaulChargeTotal(weight unit.Pound, originZip5 string, 
 	cwt := weight.ToCWT()
 	mileage, err := re.determineMileage(originZip5, destinationZip5)
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
-	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt, date)
+	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		return 0, err
 	}

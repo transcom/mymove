@@ -124,8 +124,8 @@ func (suite *ModelSuite) Test_FetchLinehaulRate() {
 	newBaseLinehaul := Tariff400ngLinehaulRate{
 		DistanceMilesLower: distanceLower,
 		DistanceMilesUpper: distanceUpper,
-		WeightLbsLower:     int(weightLbsLower),
-		WeightLbsUpper:     int(weightLbsUpper),
+		WeightLbsLower:     weightLbsLower,
+		WeightLbsUpper:     weightLbsUpper,
 		RateCents:          mySpecificRate,
 		Type:               "ConusLinehaul",
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
