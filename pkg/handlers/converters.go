@@ -61,6 +61,11 @@ func stringFromEmail(email *strfmt.Email) *string {
 	return &emailString
 }
 
+func fmtSSN(s string) *strfmt.SSN {
+	ssn := strfmt.SSN(s)
+	return &ssn
+}
+
 func stringFromSSN(ssn *strfmt.SSN) *string {
 	var stringPointer *string
 	if ssn != nil {

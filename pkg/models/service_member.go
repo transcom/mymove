@@ -231,31 +231,38 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 			s.EmailIsPreferred = payload.EmailIsPreferred
 		}
 		if payload.SocialSecurityNumber != nil {
-			if s.SocialSecurityNumber == nil {
-				newSSN := SocialSecurityNumber{}
-				s.SocialSecurityNumber = &newSSN
-			}
-			ssn := s.SocialSecurityNumber
-			verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String())
-			if verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				if err != nil {
+			if s.SocialSecurityNumber != nil {
+				// If SSN model exists
+				ssn := s.SocialSecurityNumber
+				if verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = err
+					return errors.New("New Transaction Error")
+				}
+
+				if verrs, err := dbConnection.ValidateAndUpdate(ssn); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
 					responseError = err
 					return errors.New("New Transaction Error")
 				}
 			} else {
-				// save the SSN
-				verrs, err = dbConnection.ValidateAndUpdate(ssn)
-				if verrs.HasAny() || err != nil {
+				// Else create an SSN model
+				newSSN := SocialSecurityNumber{}
+				if verrs, err := newSSN.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
-					if err != nil {
-						responseError = err
-						return errors.New("New Transaction Error")
-					}
-				} else {
-					s.SocialSecurityNumberID = &s.SocialSecurityNumber.ID
+					responseError = err
+					return errors.New("New Transaction Error")
 				}
+
+				if verrs, err := dbConnection.ValidateAndCreate(&newSSN); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = err
+					return errors.New("New Transaction Error")
+				}
+				s.SocialSecurityNumber = &newSSN
+				s.SocialSecurityNumberID = &newSSN.ID
 			}
+
 		}
 
 		if payload.ResidentialAddress != nil {
