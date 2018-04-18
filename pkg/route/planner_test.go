@@ -65,20 +65,11 @@ func (suite *PlannerFullSuite) TestAddressPlanner() {
 	}
 }
 
-var cityBradySource = models.Address{
-	StreetAddress1: "",
-	City:           "",
-	State:          "",
-	PostalCode:     "76825"}
+const bradyTXZip = "76825"
+const venturaCAZip = "93007"
 
-var cityVenturaDestination = models.Address{
-	StreetAddress1: "",
-	City:           "",
-	State:          "",
-	PostalCode:     "93007"}
-
-func (suite *PlannerFullSuite) TestPartialAddress() {
-	distance, err := suite.planner.TransitDistance(&cityBradySource, &cityVenturaDestination)
+func (suite *PlannerFullSuite) TestZip5Distance() {
+	distance, err := suite.planner.Zip5TransitDistance(bradyTXZip, venturaCAZip)
 	if err != nil {
 		suite.T().Errorf("Failed to get distance from Source - %v", err)
 	}

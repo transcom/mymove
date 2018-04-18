@@ -37,9 +37,9 @@ type BingResponse struct {
 	ResourceSets []ResourceSet `json:"resourceSets"`
 }
 
-// TransitDistance uses the Microsoft Bing Maps API to calculate the truck routing distance between two addresses
-func (p *bingPlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
-	query := fmt.Sprintf("%s&wp.1=%s&wp.2=%s", p.endPointWithKey, urlencodeAddress(source), urlencodeAddress(destination))
+// Uses the Microsoft Bing Maps API to calculate the trucking distance between two endpoints
+func (p *bingPlanner) wayPointsTransitDistance(wp1 string, wp2 string) (int, error) {
+	query := fmt.Sprintf("%s&wp.1=%s&wp.2=%s", p.endPointWithKey, wp1, wp2)
 
 	resp, err := p.httpClient.Get(query)
 	if err != nil {
@@ -70,6 +70,18 @@ func (p *bingPlanner) TransitDistance(source *models.Address, destination *model
 		return 0, errors.New("malformed response from Bing")
 	}
 	return int(math.Round(resourceSet.Resources[0].TravelDistance)), nil
+}
+
+func (p *bingPlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int, error) {
+	return p.wayPointsTransitDistance(source.Coords(), dest.Coords())
+}
+
+func (p *bingPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
+	return zip5TransitDistanceHelper(p, source, destination)
+}
+
+func (p *bingPlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
+	return p.wayPointsTransitDistance(urlencodeAddress(source), urlencodeAddress(destination))
 }
 
 // NewBingPlanner constructs and returns a Planner which uses the Bing Map API to plan routes.

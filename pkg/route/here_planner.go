@@ -123,32 +123,11 @@ type RoutingResponseBody struct {
 	Response RoutingResponse `json:"response"`
 }
 
-const routeEndpointFormat = "%s&waypoint0=geo!%f,%f&waypoint1=geo!%f,%f&mode=fastest;truck;traffic:disabled"
+const routeEndpointFormat = "%s&waypoint0=geo!%s&waypoint1=geo!%s&mode=fastest;truck;traffic:disabled"
 const metersInAMile = 1609.34
 
-// TransitDistance uses the Microsoft Bing Maps API to calculate the truck routing distance between two addresses
-func (p *herePlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
-
-	// Convert addresses to LatLong using geocode API. Do via goroutines and channel so we can do two
-	// requests in parallel
-	responses := make(chan addressLatLong)
-	var srcLatLong LatLong
-	var destLatLong LatLong
-	go p.getAddressLatLong(responses, source)
-	go p.getAddressLatLong(responses, destination)
-	for count := 0; count < 2; count++ {
-		response := <-responses
-		if response.err != nil {
-			return 0, response.err
-		}
-		if response.address == source {
-			srcLatLong = response.location
-		} else {
-			destLatLong = response.location
-		}
-	}
-
-	query := fmt.Sprintf(routeEndpointFormat, p.routeEndPointWithKeys, srcLatLong.Latitude, srcLatLong.Longitude, destLatLong.Latitude, destLatLong.Longitude)
+func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int, error) {
+	query := fmt.Sprintf(routeEndpointFormat, p.routeEndPointWithKeys, source.Coords(), dest.Coords())
 	resp, err := p.httpClient.Get(query)
 	if err != nil {
 		p.logger.Error("Getting route response from HERE.", zap.Error(err))
@@ -170,6 +149,33 @@ func (p *herePlanner) TransitDistance(source *models.Address, destination *model
 			return int(math.Round(float64(response.Response.Routes[0].Summary.Distance) / metersInAMile)), nil
 		}
 	}
+}
+
+func (p *herePlanner) Zip5TransitDistance(source string, destination string) (int, error) {
+	return zip5TransitDistanceHelper(p, source, destination)
+}
+
+func (p *herePlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
+
+	// Convert addresses to LatLong using geocode API. Do via goroutines and channel so we can do two
+	// requests in parallel
+	responses := make(chan addressLatLong)
+	var srcLatLong LatLong
+	var destLatLong LatLong
+	go p.getAddressLatLong(responses, source)
+	go p.getAddressLatLong(responses, destination)
+	for count := 0; count < 2; count++ {
+		response := <-responses
+		if response.err != nil {
+			return 0, response.err
+		}
+		if response.address == source {
+			srcLatLong = response.location
+		} else {
+			destLatLong = response.location
+		}
+	}
+	return p.LatLongTransitDistance(srcLatLong, destLatLong)
 }
 
 func addKeysToEndpoint(endpoint *string, id *string, code *string) string {
