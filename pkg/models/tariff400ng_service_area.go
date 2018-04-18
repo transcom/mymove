@@ -24,6 +24,9 @@ type Tariff400ngServiceArea struct {
 	ServiceChargeCents unit.Cents `json:"service_charge_cents" db:"service_charge_cents"`
 	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
+	SIT185ARateCents   unit.Cents `json:"sit_185a_rate_cents" db:"sit_185a_rate_cents"`
+	SIT185BRateCents   unit.Cents `json:"sit_185b_rate_cents" db:"sit_185b_rate_cents"`
+	SITPDSchedule      int        `json:"sit_pd_schedule" db:"sit_pd_schedule"`
 }
 
 // Tariff400ngServiceAreas is not required by pop and may be deleted
@@ -34,6 +37,9 @@ type Tariff400ngServiceAreas []Tariff400ngServiceArea
 func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsGreaterThan{Field: t.ServiceChargeCents.Int(), Name: "ServiceChargeCents", Compared: -1},
+		&validators.IntIsPresent{Field: t.SIT185ARateCents.Int(), Name: "SIT185ARateCents"},
+		&validators.IntIsPresent{Field: t.SIT185BRateCents.Int(), Name: "SIT185BRateCents"},
+		&validators.IntIsPresent{Field: t.SITPDSchedule, Name: "SITPDSchedule"},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},

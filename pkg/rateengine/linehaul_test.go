@@ -89,6 +89,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -174,6 +177,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa1)
 
@@ -184,6 +190,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa2)
 

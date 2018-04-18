@@ -45,6 +45,9 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&originServiceArea)
 
@@ -66,6 +69,9 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&destinationServiceArea)
 
