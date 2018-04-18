@@ -1696,7 +1696,7 @@ INSERT INTO tdl_data VALUES ('f2ee7ffa-491b-4d19-b78d-83515aa47d40', '2018-04-18
 --
 
 INSERT INTO traffic_distribution_lists (id, source_rate_area, destination_region, code_of_service, created_at, updated_at)
-  SELECT id, source_rate_area, destination_region, code_of_service, created_at, updated_atqsq
+  SELECT id, source_rate_area, destination_region, code_of_service, created_at, updated_at
   FROM tdl_data;
 
 DROP TABLE tdl_data;
