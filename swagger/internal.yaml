@@ -37,12 +37,19 @@ definitions:
   MilitaryBranch:
     type: string
     x-nullable: true
+    title: Branch
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
       - MARINES
       - AIRFORCE
       - COASTGUARD
+    x-display-value:
+      ARMY: ARMY
+      NAVY: NAVY
+      MARINES: MARINES
+      AIRFORCE: AIRFORCE
+      COASTGUARD: COASTGUARD
   DutyStationPayload:
     type: object
     properties:
@@ -206,7 +213,7 @@ definitions:
         type: string
         example: John
         x-nullable: true
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
@@ -239,7 +246,7 @@ definitions:
       phone_is_preferred:
         type: boolean
         x-nullable: true
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
       email_is_preferred:
@@ -295,11 +302,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut
@@ -334,7 +341,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
@@ -377,11 +384,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut
@@ -416,7 +423,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
