@@ -55,7 +55,7 @@ func (re *RateEngine) linehaulFactors(cwt unit.CWT, zip3 string, date time.Time)
 	if err != nil {
 		return 0, err
 	}
-	return linehaulFactorCents.Multiply(int(cwt)), nil
+	return linehaulFactorCents.Multiply(cwt.Int()), nil
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
@@ -66,7 +66,7 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 	re.logger.Debug("Shipment qualifies for shorthaul fee",
 		zap.Int("miles", mileage))
 
-	cwtMiles := mileage * int(cwt)
+	cwtMiles := mileage * cwt.Int()
 	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
 
 	return shorthaulChargeCents, err

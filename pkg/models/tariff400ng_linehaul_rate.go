@@ -51,8 +51,8 @@ func (t *Tariff400ngLinehaulRate) Validate(tx *pop.Connection) (*validate.Errors
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsLessThan{Field: t.DistanceMilesLower, Name: "DistanceMilesLower",
 			Compared: t.DistanceMilesUpper},
-		&validators.IntIsLessThan{Field: int(t.WeightLbsLower), Name: "WeightLbsLower",
-			Compared: int(t.WeightLbsUpper)},
+		&validators.IntIsLessThan{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower",
+			Compared: t.WeightLbsUpper.Int()},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},
@@ -90,7 +90,7 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, weight unit.Pound, d
 	AND
 		(effective_date_lower <= $4 AND $4 < effective_date_upper);`
 
-	err = tx.RawQuery(sql, mileage, int(weight), moveType, date).All(&linehaulRates)
+	err = tx.RawQuery(sql, mileage, weight.Int(), moveType, date).All(&linehaulRates)
 
 	if err != nil {
 		return 0, fmt.Errorf("Error fetching linehaul rate: %s", err)

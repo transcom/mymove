@@ -67,7 +67,7 @@ func (suite *ModelSuite) Test_FetchLinehaulFactor() {
 	// Test inclusivity of EffectiveDateLower
 	lf, err := FetchTariff400ngLinehaulFactor(suite.db, goodServiceArea, testdatagen.PeakRateCycleStart)
 	if err != nil {
-		t.Errorf("EffectiveDateLower is probably incorrectly exlusive: %s", err)
+		t.Errorf("EffectiveDateLower is incorrectly exlusive: %s", err)
 	}
 
 	// Test exclusivity of EffectiveDateUpper

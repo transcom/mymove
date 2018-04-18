@@ -91,6 +91,6 @@ func (suite *ModelSuite) Test_FetchFullUnPackRateCents() {
 	// Test inclusivity of weight_lbs_upper
 	rate, err = FetchTariff400ngFullUnpackRateMillicents(suite.db, schedule, testdatagen.PeakRateCycleStart)
 	if err != nil {
-		t.Errorf("EffectiveDateLower is probably exclusive of lower bound: %v", err)
+		t.Errorf("EffectiveDateLower is exclusive of lower bound: %v", err)
 	}
 }

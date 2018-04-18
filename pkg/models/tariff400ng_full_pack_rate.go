@@ -33,8 +33,8 @@ type Tariff400ngFullPackRates []Tariff400ngFullPackRate
 func (t *Tariff400ngFullPackRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
-		&validators.IntIsLessThan{Field: int(t.WeightLbsLower), Name: "WeightLbsLower",
-			Compared: int(t.WeightLbsUpper)},
+		&validators.IntIsLessThan{Field: t.WeightLbsLower.Int(), Name: "WeightLbsLower",
+			Compared: t.WeightLbsUpper.Int()},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},

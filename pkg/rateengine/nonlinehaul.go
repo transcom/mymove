@@ -14,7 +14,7 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string) (unit.Cents, er
 	if err != nil {
 		return 0, err
 	}
-	return serviceArea.ServiceChargeCents.Multiply(int(cwt)), nil
+	return serviceArea.ServiceChargeCents.Multiply(cwt.Int()), nil
 }
 
 func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
@@ -28,7 +28,7 @@ func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (
 		return 0, err
 	}
 
-	return fullPackRate.Multiply(int(cwt)), nil
+	return fullPackRate.Multiply(cwt.Int()), nil
 }
 
 func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
@@ -42,7 +42,7 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 		return 0, err
 	}
 
-	return unit.Cents(math.Round(float64(int(cwt)*fullUnpackRate) / 1000.0)), nil
+	return unit.Cents(math.Round(float64(cwt.Int()*fullUnpackRate) / 1000.0)), nil
 }
 
 func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (unit.Cents, error) {
