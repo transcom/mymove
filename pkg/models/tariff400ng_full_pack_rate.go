@@ -42,11 +42,9 @@ func (t *Tariff400ngFullPackRate) Validate(tx *pop.Connection) (*validate.Errors
 }
 
 // FetchTariff400ngFullPackRateCents returns the full unpack rate for a service
-// schedule and weight in CWT.
-func FetchTariff400ngFullPackRateCents(tx *pop.Connection, weightCwt int, schedule int) (unit.Cents, error) {
+// schedule and weight..
+func FetchTariff400ngFullPackRateCents(tx *pop.Connection, weight unit.Pound, schedule int) (unit.Cents, error) {
 	rate := Tariff400ngFullPackRate{}
-
-	weightLbs := weightCwt * 100
 
 	sql := `SELECT
 			*
@@ -59,7 +57,7 @@ func FetchTariff400ngFullPackRateCents(tx *pop.Connection, weightCwt int, schedu
 		`
 
 	pop.Debug = true
-	err := tx.RawQuery(sql, schedule, weightLbs).First(&rate)
+	err := tx.RawQuery(sql, schedule, weight).First(&rate)
 	pop.Debug = false
 	if err != nil {
 		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullPackRate")

@@ -4,6 +4,8 @@ import (
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) Test_EffectiveDateValidation() {
@@ -72,4 +74,36 @@ func (suite *ModelSuite) Test_RateValidation() {
 		"rate_cents": []string{"-1 is not greater than -1."},
 	}
 	suite.verifyValidationErrors(&invalidPackRate, expErrors)
+}
+
+func (suite *ModelSuite) Test_FetchFullPackRateCents() {
+	t := suite.T()
+
+	rate1 := unit.Cents(100)
+	cwt := 15
+	schedule := 1
+
+	fpr1 := Tariff400ngFullPackRate{
+		Schedule:           schedule,
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     2000,
+		RateCents:          rate1,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&fpr1)
+
+	rate, err := FetchTariff400ngFullPackRateCents(suite.db, cwt, schedule)
+	if err != nil {
+		t.Fatalf("Unable to query full pack rate: %v", err)
+	}
+	if rate != rate1 {
+		t.Errorf("Incorrect full pack rate recieved. Got: %d. Expected: %d.", rate, rate1)
+	}
+
+	// Test upper bound exclusivity of EffectiveDateUpper
+	rate, err = FetchTariff400ngFullPackRateCents(suite.db, cwt, schedule)
+	if err == nil && rate == rate1 {
+		t.Errorf("EffectiveDateUpper is inclusive of upper bound.")
+	}
 }

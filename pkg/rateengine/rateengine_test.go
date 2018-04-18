@@ -14,17 +14,6 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *RateEngineSuite) Test_CheckDetermineCWT() {
-	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	weight := 2500
-	cwt := engine.determineCWT(weight)
-
-	if cwt != 25 {
-		t.Errorf("CWT should have been 25 but is %d.", cwt)
-	}
-}
-
 func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
