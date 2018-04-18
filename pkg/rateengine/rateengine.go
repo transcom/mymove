@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/unit"
@@ -15,6 +16,38 @@ type RateEngine struct {
 	db      *pop.Connection
 	logger  *zap.Logger
 	planner route.Planner
+}
+
+// CostComputation represents the results of a computation.
+type CostComputation struct {
+	PPMPayback                unit.Cents
+	PPMSubtotal               unit.Cents
+	InverseDiscount           float64
+	BaseLinehaul              unit.Cents
+	OriginLinehaulFactor      unit.Cents
+	DestinationLinehaulFactor unit.Cents
+	ShorthaulCharge           unit.Cents
+	OriginServiceFee          unit.Cents
+	DestinationServiceFee     unit.Cents
+	PackFee                   unit.Cents
+	UnpackFee                 unit.Cents
+}
+
+// MarshalLogObject allows CostComputation to be logged by Zap.
+func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddInt("PPMPayback", c.PPMPayback.Int())
+	encoder.AddInt("PPMSubtotal", c.PPMSubtotal.Int())
+	encoder.AddFloat64("InverseDiscount", c.InverseDiscount)
+	encoder.AddInt("BaseLinehaul", c.BaseLinehaul.Int())
+	encoder.AddInt("OriginLinehaulFactor", c.OriginLinehaulFactor.Int())
+	encoder.AddInt("DestinationLinehaulFactor", c.DestinationLinehaulFactor.Int())
+	encoder.AddInt("ShorthaulCharge", c.ShorthaulCharge.Int())
+	encoder.AddInt("OriginServiceFee", c.OriginServiceFee.Int())
+	encoder.AddInt("DestinationServiceFee", c.DestinationServiceFee.Int())
+	encoder.AddInt("PackFee", c.PackFee.Int())
+	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
+
+	return nil
 }
 
 func (re *RateEngine) determineCWT(weight int) (cwt int) {
@@ -28,7 +61,7 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 	return originZip3, destinationZip3
 }
 
-func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
+func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
 	cwt := re.determineCWT(weight)
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
@@ -36,71 +69,61 @@ func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 
 	mileage, err := re.determineMileage(originZip5, destinationZip5)
 	if err != nil {
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
-		return 0, err
+		return
 	}
-	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt, date)
+	cost.BaseLinehaul, err = re.baseLinehaul(mileage, cwt, date)
 	if err != nil {
 		re.logger.Error("Failed to determine base linehaul charge", zap.Error(err))
-		return 0, err
+		return
 	}
-	originLinehaulFactorCents, err := re.linehaulFactors(cwt, originZip3, date)
+	cost.OriginLinehaulFactor, err = re.linehaulFactors(cwt, originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin linehaul factor", zap.Error(err))
-		return 0, err
+		return
 	}
-	destinationLinehaulFactorCents, err := re.linehaulFactors(cwt, destinationZip3, date)
+	cost.DestinationLinehaulFactor, err = re.linehaulFactors(cwt, destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination linehaul factor", zap.Error(err))
-		return 0, err
+		return
 	}
-	shorthaulChargeCents, err := re.shorthaulCharge(mileage, cwt, date)
+	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, cwt, date)
 	if err != nil {
 		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
-		return 0, err
+		return
 	}
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(cwt, originZip3)
+	cost.OriginServiceFee, err = re.serviceFeeCents(cwt, originZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
-		return 0, err
+		return
 	}
-	destinationServiceFee, err := re.serviceFeeCents(cwt, destinationZip3)
+	cost.DestinationServiceFee, err = re.serviceFeeCents(cwt, destinationZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
-		return 0, err
+		return
 	}
-	pack, err := re.fullPackCents(cwt, originZip3)
+	cost.PackFee, err = re.fullPackCents(cwt, originZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
-		return 0, err
+		return
 	}
-	unpack, err := re.fullUnpackCents(cwt, destinationZip3)
+	cost.UnpackFee, err = re.fullUnpackCents(cwt, destinationZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
-		return 0, err
+		return
 	}
-	ppmSubtotal := baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents +
-		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack
-	ppmBestValue := ppmSubtotal.MultiplyFloat64(inverseDiscount)
+
+	cost.PPMSubtotal = cost.BaseLinehaul + cost.OriginLinehaulFactor + cost.DestinationLinehaulFactor +
+		cost.ShorthaulCharge + cost.OriginServiceFee + cost.DestinationServiceFee + cost.PackFee + cost.UnpackFee
+
+	ppmBestValue := cost.PPMSubtotal.MultiplyFloat64(inverseDiscount)
 
 	// PPMs only pay 95% of the best value
-	ppmPayback := ppmBestValue.MultiplyFloat64(.95)
+	cost.PPMPayback = ppmBestValue.MultiplyFloat64(.95)
 
-	re.logger.Info("PPM compensation total calculated",
-		zap.Int("PPM compensation total", ppmPayback.Int()),
-		zap.Int("PPM subtotal", ppmSubtotal.Int()),
-		zap.Float64("inverse discount", inverseDiscount),
-		zap.Int("base linehaul", baseLinehaulChargeCents.Int()),
-		zap.Int("origin lh factor", originLinehaulFactorCents.Int()),
-		zap.Int("destination lh factor", destinationLinehaulFactorCents.Int()),
-		zap.Int("shorthaul", shorthaulChargeCents.Int()),
-		zap.Int("origin service fee", originServiceFee.Int()),
-		zap.Int("destination service fee", destinationServiceFee.Int()),
-		zap.Int("pack fee", pack.Int()),
-		zap.Int("unpack fee", unpack.Int()),
-	)
+	re.logger.Info("PPM cost computation", zap.Object("computation", cost))
 
-	return ppmPayback, nil
+	return cost, nil
 }
 
 // NewRateEngine creates a new RateEngine
