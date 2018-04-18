@@ -64,7 +64,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return 0, err
 	}
-	pack, err := re.fullPackCents(weight.ToCWT(), originZip3)
+	pack, err := re.fullPackCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
 		return 0, err

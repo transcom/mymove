@@ -103,7 +103,7 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 	}
 	suite.mustSave(&sh1)
 
-	// Test the lower bound of a cwtMile range
+	// Test inclusivity CwtMilesLower
 	rate, err := FetchShorthaulRateCents(suite.db, 1000, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Unable to query shorthaul rate: %s", err)
@@ -112,10 +112,22 @@ func (suite *ModelSuite) Test_FetchShorthaulRateCents() {
 		t.Errorf("Incorrect shorthaul rate. Got: %d, expected %d", rate, rate1)
 	}
 
-	// Test upper bound exclusivity of EffectiveDateUpper
+	// Test exclusivity CwtMilesUpper
+	rate, err = FetchShorthaulRateCents(suite.db, 2000, testdatagen.DateInsidePeakRateCycle)
+	if err == nil && rate == rate1 {
+		t.Errorf("CwtMilesLower is incorrectly inlusive")
+	}
+
+	// Test inclusivity of EffectiveDateLower
+	rate, err = FetchShorthaulRateCents(suite.db, 1500, testdatagen.PeakRateCycleStart)
+	if err != nil {
+		t.Errorf("EffectiveDateLower is probably incorrectly exlusive: %s", err)
+	}
+
+	// Test exclusivity of EffectiveDateUpper
 	rate, err = FetchShorthaulRateCents(suite.db, 1500, testdatagen.PeakRateCycleEnd)
 	if err == nil && rate == rate1 {
-		t.Errorf("EffectiveDateUpper is inclusive of upper bound.")
+		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
 	}
 
 	rate2 := unit.Cents(200)

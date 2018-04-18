@@ -79,31 +79,51 @@ func (suite *ModelSuite) Test_RateValidation() {
 func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 	t := suite.T()
 
-	rate1 := unit.Cents(100)
-	cwt := 15
+	rateExpected := unit.Cents(100)
+	weight := unit.Pound(1500)
+	weightLower := unit.Pound(1000)
+	weightUpper := unit.Pound(2000)
 	schedule := 1
 
-	fpr1 := Tariff400ngFullPackRate{
+	fpr := Tariff400ngFullPackRate{
 		Schedule:           schedule,
-		WeightLbsLower:     1000,
-		WeightLbsUpper:     2000,
-		RateCents:          rate1,
+		WeightLbsLower:     int(weightLower),
+		WeightLbsUpper:     int(weightUpper),
+		RateCents:          rateExpected,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
-	suite.mustSave(&fpr1)
+	suite.mustSave(&fpr)
 
-	rate, err := FetchTariff400ngFullPackRateCents(suite.db, cwt, schedule)
+	rate, err := FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Unable to query full pack rate: %v", err)
 	}
-	if rate != rate1 {
-		t.Errorf("Incorrect full pack rate recieved. Got: %d. Expected: %d.", rate, rate1)
+	if rate != rate {
+		t.Errorf("Incorrect full pack rate recieved. Got: %d. Expected: %d.", rate, rateExpected)
 	}
 
-	// Test upper bound exclusivity of EffectiveDateUpper
-	rate, err = FetchTariff400ngFullPackRateCents(suite.db, cwt, schedule)
-	if err == nil && rate == rate1 {
-		t.Errorf("EffectiveDateUpper is inclusive of upper bound.")
+	// Test inclusivity of effective_date_lower
+	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.PeakRateCycleStart)
+	if err != nil {
+		t.Errorf("EffectiveDateUpper is probably incorrectly exlusive: %s", err)
+	}
+
+	// Test exclusivity of effective_date_upper
+	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weight, schedule, testdatagen.PeakRateCycleEnd)
+	if err == nil && rate == rateExpected {
+		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
+	}
+
+	// Test inclusivity of weight_lbs_lower
+	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weightLower, schedule, testdatagen.DateInsidePeakRateCycle)
+	if err != nil {
+		t.Errorf("WeightLbsLower is probably incorrectly exclusive: %s", err)
+	}
+
+	// Test exclusivity of weight_lbs_upper
+	rate, err = FetchTariff400ngFullPackRateCents(suite.db, weightUpper, schedule, testdatagen.DateInsidePeakRateCycle)
+	if err == nil && rate == rateExpected {
+		t.Errorf("WeightLbsUpper is incorrectly inclusive.")
 	}
 }

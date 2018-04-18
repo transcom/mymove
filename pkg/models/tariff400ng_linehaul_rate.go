@@ -72,8 +72,9 @@ func (t *Tariff400ngLinehaulRate) ValidateUpdate(tx *pop.Connection) (*validate.
 }
 
 // FetchBaseLinehaulRate takes a move's distance and weight and queries the tariff400ng_linehaul_rates table to find a move's base linehaul rate.
-func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt unit.CWT, date time.Time) (linehaulRate unit.Cents, err error) {
-	moveType := "ConusLinehaul" // TODO: change to a parameter once we're serving more move types
+func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, weight unit.Pound, date time.Time) (linehaulRate unit.Cents, err error) {
+	// TODO: change to a parameter once we're serving more move types
+	moveType := "ConusLinehaul"
 	var linehaulRates []unit.Cents
 
 	sql := `SELECT
@@ -89,14 +90,14 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt unit.CWT, date t
 	AND
 		(effective_date_lower <= $4 AND $4 < effective_date_upper);`
 
-	err = tx.RawQuery(sql, mileage, cwt.ToPounds(), moveType, date).All(&linehaulRates)
+	err = tx.RawQuery(sql, mileage, int(weight), moveType, date).All(&linehaulRates)
 
 	if err != nil {
 		return 0, fmt.Errorf("Error fetching linehaul rate: %s", err)
 	}
 	if len(linehaulRates) != 1 {
 		return 0, fmt.Errorf("Wanted 1 rate, found %d rates for parameters: %v, %v, %v",
-			len(linehaulRates), mileage, cwt, date)
+			len(linehaulRates), mileage, weight, date)
 	}
 
 	return linehaulRates[0], err

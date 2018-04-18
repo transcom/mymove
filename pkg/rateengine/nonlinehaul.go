@@ -3,6 +3,7 @@ package rateengine
 import (
 	"go.uber.org/zap"
 	"math"
+	"time"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
@@ -16,13 +17,13 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string) (unit.Cents, er
 	return serviceArea.ServiceChargeCents.Multiply(int(cwt)), nil
 }
 
-func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string) (unit.Cents, error) {
+func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
 	if err != nil {
 		return 0, err
 	}
 
-	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(re.db, cwt.ToPounds(), serviceArea.ServicesSchedule)
+	fullPackRate, err := models.FetchTariff400ngFullPackRateCents(re.db, cwt.ToPounds(), serviceArea.ServicesSchedule, date)
 	if err != nil {
 		return 0, err
 	}
@@ -44,7 +45,7 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string) (unit.Cents, er
 	return unit.Cents(math.Round(float64(int(cwt)*fullUnpackRate) / 1000.0)), nil
 }
 
-func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string, destinationZip5 string) (unit.Cents, error) {
+func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (unit.Cents, error) {
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3)
 	if err != nil {
@@ -54,7 +55,7 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 
 	if err != nil {
 		return 0, err
 	}
-	pack, err := re.fullPackCents(weight.ToCWT(), originZip3)
+	pack, err := re.fullPackCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		return 0, err
 	}
