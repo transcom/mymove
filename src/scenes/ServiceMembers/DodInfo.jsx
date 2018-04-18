@@ -10,7 +10,7 @@ import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
 // todo: add branch (once can get yaml anchors to work)
-const subsetOfFields = ['edipi', 'social_security_number', 'rank'];
+const subsetOfFields = ['branch', 'edipi', 'social_security_number', 'rank'];
 const uiSchema = {
   title: 'Create your profile',
   order: subsetOfFields,
@@ -23,7 +23,6 @@ const uiSchema = {
   },
   todos: (
     <ul>
-      <li>loading branch breaks page</li>
       <li>SSN should be masked when not active</li>
       <li>
         some of these fields will be hidden when electronic orders are a thing
