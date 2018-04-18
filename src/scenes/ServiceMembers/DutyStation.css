@@ -1,0 +1,12 @@
+.station-description {
+  list-style-type: none;
+  padding-left: 20px;
+}
+
+.station-description li {
+  margin-left: 0;
+}
+
+.station-description li:first-child {
+  font-weight: bold;
+}

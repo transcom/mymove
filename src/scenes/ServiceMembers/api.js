@@ -42,3 +42,13 @@ export async function UpdateServiceMember(
   );
   return response.body;
 }
+
+export async function SearchDutyStations(branch, query) {
+  const client = await getClient();
+  const response = await client.apis.duty_stations.searchDutyStations({
+    branch: branch,
+    search: query,
+  });
+  checkResponse(response, 'failed to query duty stations due to server error');
+  return response.body;
+}

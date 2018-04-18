@@ -68,13 +68,24 @@ func FindDutyStations(tx *pop.Connection, search string, branch string) (DutySta
 
 	// ILIKE does case-insensitive pattern matching, "%" matches any string
 	searchQuery := fmt.Sprintf("%%%s%%", search)
-	query := tx.Where("branch = $1 AND name ILIKE $2", branch, searchQuery)
+	query := tx.Eager().Where("branch = $1 AND name ILIKE $2", branch, searchQuery)
 
-	if err := query.Eager().All(&stations); err != nil {
+	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
 		}
 	}
 
 	return stations, nil
+}
+
+// FetchDutyStation returns all duty stations matching a search query and military branch
+func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
+	var station DutyStation
+
+	if err := tx.Eager().Find(&station, id); err != nil {
+		return station, err
+	}
+
+	return station, nil
 }
