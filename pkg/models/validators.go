@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"regexp"
 	"sort"
 	"strings"
 
@@ -24,6 +25,23 @@ func (v *StringIsNilOrNotBlank) IsValid(errors *validate.Errors) {
 	}
 	if strings.TrimSpace(*v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// StringDoesNotContainSSN adds an error if the Field contains an SSN.
+type StringDoesNotContainSSN struct {
+	Name  string
+	Field string
+}
+
+var ignoredCharactersRegex = regexp.MustCompile(`(\s|-|\.|_)`)
+var nineDigitsRegex = regexp.MustCompile(`^\d{9}$`)
+
+// IsValid adds an error if the Field contains an SSN.
+func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
+	cleanSSN := ignoredCharactersRegex.ReplaceAllString(v.Field, "")
+	if nineDigitsRegex.MatchString(cleanSSN) {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s Cannot store a raw SSN in this field.", v.Name))
 	}
 }
 
@@ -80,6 +98,19 @@ type BranchIsPresent struct {
 // IsValid adds an error if the string value is blank.
 func (v *BranchIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
-		errors.Add(strings.ToLower(string(v.Field)), fmt.Sprintf("%s must not be blank!", v.Name))
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// BackupContactPermissionIsPresent validates that permission field is present
+type BackupContactPermissionIsPresent struct {
+	Name  string
+	Field internalmessages.BackupContactPermission
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
+	if string(v.Field) == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
 }

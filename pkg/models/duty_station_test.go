@@ -47,3 +47,15 @@ func (suite *ModelSuite) TestFindDutyStations() {
 		t.Error("Address should have been loaded")
 	}
 }
+
+func (suite *ModelSuite) Test_DutyStationValidations() {
+	station := &models.DutyStation{}
+
+	var expErrors = map[string][]string{
+		"name":       {"Name can not be blank."},
+		"branch":     {"Branch can not be blank."},
+		"address_id": {"AddressID can not be blank."},
+	}
+
+	suite.verifyValidationErrors(station, expErrors)
+}

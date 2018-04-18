@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestUserCreation() {
 		LoginGovEmail: userEmail,
 	}
 
-	if err := suite.db.Create(&newUser); err != nil {
+	if verrs, err := suite.db.ValidateAndCreate(&newUser); err != nil || verrs.HasAny() {
 		t.Fatal("Didn't create user in db.")
 	}
 

@@ -22,7 +22,6 @@ it('renders without crashing', () => {
         hasSubmitError={hasSubmitError}
         schema={schema}
         uiSchema={uiSchema}
-        loadSchema={dummyFunc}
         confirmationText=""
         createIssue={dummyFunc}
         match={{ match: 'match' }}

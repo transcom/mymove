@@ -64,6 +64,23 @@ func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 	return user, err
 }
 
+// GetServiceMemberProfile returns a service member profile if one is associated with this user, otherwise returns nil
+func (u User) GetServiceMemberProfile(db *pop.Connection) (*ServiceMember, error) {
+	serviceMembers := ServiceMembers{}
+	err := db.Where("user_id = $1", u.ID).All(&serviceMembers)
+	if err != nil {
+		return nil, err
+	}
+
+	// There can only ever be one service_member for a given user
+	if len(serviceMembers) == 1 {
+		return &serviceMembers[0], nil
+	}
+
+	return nil, nil
+
+}
+
 // GetOrCreateUser is called upon successful login.gov verification
 func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (*User, error) {
 

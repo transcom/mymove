@@ -57,6 +57,10 @@
       "value": "transcom-ppp-app-{{environment}}-us-west-2"
     },
     {
+      "name": "AWS_S3_REGION",
+      "value": "us-west-2"
+    },
+    {
       "name": "AWS_S3_KEY_NAMESPACE",
       "value": "app"
     },

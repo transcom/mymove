@@ -1,8 +1,9 @@
 package storage
 
 import (
-	"go.uber.org/zap"
 	"testing"
+
+	"go.uber.org/zap"
 )
 
 func TestPresignedURL(t *testing.T) {

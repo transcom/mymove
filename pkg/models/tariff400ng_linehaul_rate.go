@@ -9,22 +9,24 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Tariff400ngLinehaulRate describes the rate paids paid to transport various weights of goods
 // various distances.
 type Tariff400ngLinehaulRate struct {
-	ID                 uuid.UUID `json:"id" db:"id"`
-	CreatedAt          time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt          time.Time `json:"updated_at" db:"updated_at"`
-	DistanceMilesLower int       `json:"distance_miles_lower" db:"distance_miles_lower"`
-	DistanceMilesUpper int       `json:"distance_miles_upper" db:"distance_miles_upper"`
-	Type               string    `json:"type" db:"type"`
-	WeightLbsLower     int       `json:"weight_lbs_lower" db:"weight_lbs_lower"`
-	WeightLbsUpper     int       `json:"weight_lbs_upper" db:"weight_lbs_upper"`
-	RateCents          int       `json:"rate_cents" db:"rate_cents"`
-	EffectiveDateLower time.Time `json:"effective_date_lower" db:"effective_date_lower"`
-	EffectiveDateUpper time.Time `json:"effective_date_upper" db:"effective_date_upper"`
+	ID                 uuid.UUID  `json:"id" db:"id"`
+	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
+	DistanceMilesLower int        `json:"distance_miles_lower" db:"distance_miles_lower"`
+	DistanceMilesUpper int        `json:"distance_miles_upper" db:"distance_miles_upper"`
+	Type               string     `json:"type" db:"type"`
+	WeightLbsLower     int        `json:"weight_lbs_lower" db:"weight_lbs_lower"`
+	WeightLbsUpper     int        `json:"weight_lbs_upper" db:"weight_lbs_upper"`
+	RateCents          unit.Cents `json:"rate_cents" db:"rate_cents"`
+	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
+	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
 // String is not required by pop and may be deleted
@@ -46,7 +48,7 @@ func (t Tariff400ngLinehaulRates) String() string {
 // This method is not required and may be deleted.
 func (t *Tariff400ngLinehaulRate) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: t.RateCents, Name: "RateCents", Compared: -1},
+		&validators.IntIsGreaterThan{Field: t.RateCents.Int(), Name: "RateCents", Compared: -1},
 		&validators.IntIsLessThan{Field: t.DistanceMilesLower, Name: "DistanceMilesLower",
 			Compared: t.DistanceMilesUpper},
 		&validators.IntIsLessThan{Field: t.WeightLbsLower, Name: "WeightLbsLower",
@@ -70,9 +72,9 @@ func (t *Tariff400ngLinehaulRate) ValidateUpdate(tx *pop.Connection) (*validate.
 }
 
 // FetchBaseLinehaulRate takes a move's distance and weight and queries the tariff400ng_linehaul_rates table to find a move's base linehaul rate.
-func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.Time) (linehaulRate int, err error) {
+func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.Time) (linehaulRate unit.Cents, err error) {
 	moveType := "ConusLinehaul" // TODO: change to a parameter once we're serving more move types
-	var linehaulRates []int
+	var linehaulRates []unit.Cents
 
 	sql := `SELECT
 		rate_cents
@@ -98,5 +100,4 @@ func FetchBaseLinehaulRate(tx *pop.Connection, mileage int, cwt int, date time.T
 	}
 
 	return linehaulRates[0], err
-
 }
