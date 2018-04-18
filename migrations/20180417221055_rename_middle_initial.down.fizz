@@ -1,1 +1,0 @@
-rename_column("service_members", "middle_name", "middle_initial")
