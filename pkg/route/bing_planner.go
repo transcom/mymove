@@ -5,8 +5,6 @@ import (
 	"fmt"
 	"math"
 	"net/http"
-	"net/url"
-	"strings"
 	"time"
 
 	"github.com/pkg/errors"
@@ -14,21 +12,8 @@ import (
 	"go.uber.org/zap"
 )
 
-// requestTimeout is how long to wait on Bing request before timing out (30 seconds).
-const requestTimeout = time.Duration(30) * time.Second
-
-// urlencodeAddress converts an address into a comma separated string which is safely encoded to include it in a URL
-func urlencodeAddress(address *models.Address) string {
-	s := []string{address.StreetAddress1}
-	if address.StreetAddress2 != nil {
-		s = append(s, *address.StreetAddress2)
-	}
-	if address.StreetAddress3 != nil {
-		s = append(s, *address.StreetAddress3)
-	}
-	s = append(s, address.City, address.State, address.PostalCode)
-	return url.QueryEscape(strings.Join(s, ","))
-}
+// bingRequestTimeout is how long to wait on Bing request before timing out (30 seconds).
+const bingRequestTimeout = time.Duration(30) * time.Second
 
 // bingPlanner holds configuration information to make TransitDistance calls via Microsoft's BING maps API
 type bingPlanner struct {
@@ -94,6 +79,6 @@ func (p *bingPlanner) TransitDistance(source *models.Address, destination *model
 func NewBingPlanner(logger *zap.Logger, endpoint *string, apiKey *string) Planner {
 	return &bingPlanner{
 		logger:          logger,
-		httpClient:      http.Client{Timeout: requestTimeout},
+		httpClient:      http.Client{Timeout: bingRequestTimeout},
 		endPointWithKey: fmt.Sprintf("%s?key=%s", *endpoint, *apiKey)}
 }
