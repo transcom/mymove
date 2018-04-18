@@ -102,7 +102,6 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    userEmail: state.user.email,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,

@@ -43,7 +43,6 @@ export class Name extends Component {
       hasSubmitSuccess,
       error,
       currentServiceMember,
-      userEmail,
     } = this.props;
     const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
@@ -51,8 +50,6 @@ export class Name extends Component {
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
-    if (initialValues && !initialValues.personal_email)
-      initialValues.personal_email = userEmail;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -78,7 +75,6 @@ export class Name extends Component {
   }
 }
 Name.propTypes = {
-  userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
@@ -94,7 +90,6 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    userEmail: state.user.email,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,
