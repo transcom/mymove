@@ -238,9 +238,25 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.mustSave(&newServiceMember)
 
+	branch := internalmessages.MilitaryBranchARMY
+	rank := internalmessages.ServiceMemberRankE1
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi:              &newEdipi,
-		ResidentialAddress: fakeAddress(),
+		Edipi:                &newEdipi,
+		BackupMailingAddress: fakeAddress(),
+		ResidentialAddress:   fakeAddress(),
+		Branch:               &branch,
+		EmailIsPreferred:     swag.Bool(true),
+		FirstName:            swag.String("Firstname"),
+		LastName:             swag.String("Lastname"),
+		MiddleName:           swag.String("Middlename"),
+		PersonalEmail:        fmtEmail("name@domain.com"),
+		PhoneIsPreferred:     swag.Bool(true),
+		Rank:                 &rank,
+		TextMessageIsPreferred: swag.Bool(true),
+		SecondaryTelephone:     swag.String("555555555"),
+		SocialSecurityNumber:   fmtSSN("555-55-5555"),
+		Suffix:                 swag.String("Sr."),
+		Telephone:              swag.String("555555555"),
 	}
 
 	// And: the context contains the auth values
@@ -274,7 +290,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	addresses := []models.Address{}
 	suite.db.All(&addresses)
 
-	if len(addresses) != 1 {
+	if len(addresses) != 2 {
 		t.Errorf("Expected to find one address but found %v", len(addresses))
 	}
 }
