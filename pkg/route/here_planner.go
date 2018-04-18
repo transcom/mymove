@@ -75,7 +75,7 @@ func (p *herePlanner) getAddressLatLong(responses chan addressLatLong, address *
 		p.logger.Error("Getting response from HERE.", zap.Error(err), zap.Object("address", address))
 		latLongResponse.err = errors.Wrap(err, "calling HERE")
 	} else if resp.StatusCode != 200 {
-		p.logger.Info("Got non-200 response from Bing.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
+		p.logger.Info("Got non-200 response from HERE.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
 		latLongResponse.err = errors.New("error response from HERE")
 	} else {
 		// Decode Json response and check structure
