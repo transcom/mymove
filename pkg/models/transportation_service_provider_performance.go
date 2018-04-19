@@ -178,7 +178,7 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
 // order that they should be assigned quality bands.
-func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
+func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps float64) (TransportationServiceProviderPerformances, error) {
 
 	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
 	// performance periods and rate areas should be broken up into separate quality bands.

@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-var mps = 10
+var mps = 10.000
 
 func (suite *ModelSuite) Test_PerformancePeriodValidations() {
 	now := time.Now()
