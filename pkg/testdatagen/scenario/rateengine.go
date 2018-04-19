@@ -21,6 +21,10 @@ func mustSave(db *pop.Connection, model interface{}) {
 
 // RunRateEngineScenario1 runs... scenario 1.
 func RunRateEngineScenario1(db *pop.Connection) {
+	may15_2018 := time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
+	october15_2018 := time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
+	may15_2019 := time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
+
 	zip3_321 := models.Tariff400ngZip3{
 		Zip3:          "321",
 		BasepointCity: "Crescent City",
@@ -66,8 +70,8 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(60),
 		ServiceChargeCents: unit.Cents(361),
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &originServiceArea)
 
@@ -77,8 +81,8 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(431),
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &destinationServiceArea)
 
@@ -89,8 +93,8 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		WeightLbsLower:     4000,
 		WeightLbsUpper:     4200,
 		RateCents:          unit.Cents(458300),
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &linehaulRate)
 
@@ -98,8 +102,8 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		CwtMilesLower:      0,
 		CwtMilesUpper:      16001,
 		RateCents:          32834,
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &shorthaulRate)
 
@@ -108,25 +112,25 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(16001),
 		RateCents:          unit.Cents(6130),
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           2,
 		RateMillicents:     643650,
-		EffectiveDateLower: time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		EffectiveDateUpper: time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
 	}
 	mustSave(db, &fullUnpackRate)
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		PerformancePeriodEnd:            time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC),
-		RateCycleStart:                  time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC),
-		RateCycleEnd:                    time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC),
+		PerformancePeriodStart:          may15_2018,
+		PerformancePeriodEnd:            october15_2018,
+		RateCycleStart:                  may15_2018,
+		RateCycleEnd:                    october15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
