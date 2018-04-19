@@ -90,13 +90,6 @@ func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return verrs, nil
 }
 
-func (a *Address) isValid() bool {
-	return a.StreetAddress1 != "" &&
-		a.City != "" &&
-		a.State != "" &&
-		a.PostalCode != ""
-}
-
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
 // This method is not required and may be deleted.
 func (a *Address) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {

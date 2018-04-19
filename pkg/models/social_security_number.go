@@ -74,10 +74,6 @@ func BuildSocialSecurityNumber(unencryptedSSN string) (*SocialSecurityNumber, *v
 	return &ssn, verrs, nil
 }
 
-func (s *SocialSecurityNumber) isValid() bool {
-	return s.EncryptedHash != ""
-}
-
 // Matches returns true if the encrypted_hash matches the unencryptedSSN
 func (s SocialSecurityNumber) Matches(unencryptedSSN string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(s.EncryptedHash), []byte(unencryptedSSN))

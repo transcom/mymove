@@ -93,6 +93,17 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 		return ServiceMember{}, ErrFetchForbidden
 	}
 
+	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
+	if serviceMember.ResidentialAddressID == nil {
+		serviceMember.ResidentialAddress = nil
+	}
+	if serviceMember.BackupMailingAddressID == nil {
+		serviceMember.BackupMailingAddress = nil
+	}
+	if serviceMember.SocialSecurityNumberID == nil {
+		serviceMember.SocialSecurityNumber = nil
+	}
+
 	return serviceMember, nil
 }
 
@@ -105,7 +116,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		if serviceMember.ResidentialAddress != nil && serviceMember.ResidentialAddress.isValid() {
+		if serviceMember.ResidentialAddress != nil {
 			if verrs, err := dbConnection.ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -114,7 +125,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 			serviceMember.ResidentialAddressID = &serviceMember.ResidentialAddress.ID
 		}
 
-		if serviceMember.BackupMailingAddress != nil && serviceMember.BackupMailingAddress.isValid() {
+		if serviceMember.BackupMailingAddress != nil {
 			if verrs, err := dbConnection.ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err
@@ -123,7 +134,7 @@ func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMembe
 			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
 
-		if serviceMember.SocialSecurityNumber != nil && serviceMember.SocialSecurityNumber.isValid() {
+		if serviceMember.SocialSecurityNumber != nil {
 			if verrs, err := dbConnection.ValidateAndSave(serviceMember.SocialSecurityNumber); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = err

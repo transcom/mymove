@@ -243,8 +243,12 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Then: we expect addresses to have been created
 	addresses := []models.Address{}
 	suite.db.All(&addresses)
-
 	suite.Assertions.Len(addresses, 2)
+
+	// Then: we expect a SSN to have been created
+	ssns := models.SocialSecurityNumbers{}
+	suite.db.All(&ssns)
+	suite.Assertions.Len(ssns, 1)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
