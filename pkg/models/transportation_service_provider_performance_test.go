@@ -448,7 +448,7 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 
 // Test_FetchLinehaulRate tests that the discount rate for the TSP with the best BVS
 // for the specified channel and date is returned.
-func (suite *ModelSuite) Test_FetchLinehaulRate() {
+func (suite *ModelSuite) Test_FetchLinehaulRateBVS() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS

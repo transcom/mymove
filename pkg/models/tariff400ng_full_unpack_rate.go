@@ -37,9 +37,20 @@ func (t *Tariff400ngFullUnpackRate) Validate(tx *pop.Connection) (*validate.Erro
 
 // FetchTariff400ngFullUnpackRateMillicents returns the full unpack rate for a service
 // schedule.
-func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedule int) (int, error) {
+func FetchTariff400ngFullUnpackRateMillicents(tx *pop.Connection, serviceSchedule int, date time.Time) (int, error) {
 	rate := Tariff400ngFullUnpackRate{}
-	err := tx.Where("schedule = ?", serviceSchedule).First(&rate)
+
+	sql := `SELECT *
+		FROM
+			tariff400ng_full_unpack_rates
+		WHERE
+			schedule = $1
+		AND
+			effective_date_lower <= $2 AND $2 < effective_date_upper
+		;`
+
+	err := tx.RawQuery(sql, serviceSchedule, date).First(&rate)
+
 	if err != nil {
 		return 0, errors.Wrap(err, "could not find a matching Tariff400ngFullUnpackRate")
 	}

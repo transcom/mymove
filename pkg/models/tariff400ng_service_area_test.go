@@ -4,6 +4,8 @@ import (
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) Test_ServiceAreaEffectiveDateValidation() {
@@ -46,17 +48,31 @@ func (suite *ModelSuite) Test_ServiceAreaServiceChargeValidation() {
 	suite.verifyValidationErrors(&invalidServiceArea, expErrors)
 }
 
-func (suite *ModelSuite) Test_ServiceAreaCreateAndSave() {
-	now := time.Now()
+func (suite *ModelSuite) Test_FetchLinehaulFactor() {
+	t := suite.T()
+
+	goodServiceArea := 1
+	expectedLinehaulFactor := unit.Cents(1)
 
 	validServiceArea := Tariff400ngServiceArea{
 		Name:               "Test",
 		ServiceChargeCents: 100,
-		ServiceArea:        1,
-		LinehaulFactor:     1,
-		EffectiveDateLower: now,
-		EffectiveDateUpper: now.AddDate(0, 1, 0),
+		ServiceArea:        goodServiceArea,
+		LinehaulFactor:     expectedLinehaulFactor,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&validServiceArea)
+
+	// Test inclusivity of EffectiveDateLower
+	lf, err := FetchTariff400ngLinehaulFactor(suite.db, goodServiceArea, testdatagen.PeakRateCycleStart)
+	if err != nil {
+		t.Errorf("EffectiveDateLower is incorrectly exlusive: %s", err)
 	}
 
-	suite.mustSave(&validServiceArea)
+	// Test exclusivity of EffectiveDateUpper
+	lf, err = FetchTariff400ngLinehaulFactor(suite.db, goodServiceArea, testdatagen.PeakRateCycleEnd)
+	if err == nil && lf == expectedLinehaulFactor {
+		t.Errorf("EffectiveDateUpper is incorrectly inclusive.")
+	}
 }

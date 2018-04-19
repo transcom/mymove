@@ -50,10 +50,6 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-func (re *RateEngine) determineCWT(weight int) (cwt int) {
-	return weight / 100
-}
-
 // zip5ToZip3 takes two ZIP5 strings and returns the ZIP3 representation of them.
 func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (originZip3 string, destinationZip3 string) {
 	originZip3 = originZip5[0:3]
@@ -61,8 +57,7 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 	return originZip3, destinationZip3
 }
 
-func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
-	cwt := re.determineCWT(weight)
+func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
 	// Linehaul charges
@@ -71,43 +66,43 @@ func (re *RateEngine) computePPM(weight int, originZip5 string, destinationZip5 
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
 		return
 	}
-	cost.BaseLinehaul, err = re.baseLinehaul(mileage, cwt, date)
+	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		re.logger.Error("Failed to determine base linehaul charge", zap.Error(err))
 		return
 	}
-	cost.OriginLinehaulFactor, err = re.linehaulFactors(cwt, originZip3, date)
+	cost.OriginLinehaulFactor, err = re.linehaulFactors(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin linehaul factor", zap.Error(err))
 		return
 	}
-	cost.DestinationLinehaulFactor, err = re.linehaulFactors(cwt, destinationZip3, date)
+	cost.DestinationLinehaulFactor, err = re.linehaulFactors(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination linehaul factor", zap.Error(err))
 		return
 	}
-	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, cwt, date)
+	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, weight.ToCWT(), date)
 	if err != nil {
 		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
 		return
 	}
 	// Non linehaul charges
-	cost.OriginServiceFee, err = re.serviceFeeCents(cwt, originZip3)
+	cost.OriginServiceFee, err = re.serviceFeeCents(weight.ToCWT(), originZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return
 	}
-	cost.DestinationServiceFee, err = re.serviceFeeCents(cwt, destinationZip3)
+	cost.DestinationServiceFee, err = re.serviceFeeCents(weight.ToCWT(), destinationZip3)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return
 	}
-	cost.PackFee, err = re.fullPackCents(cwt, originZip3)
+	cost.PackFee, err = re.fullPackCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
 		return
 	}
-	cost.UnpackFee, err = re.fullUnpackCents(cwt, destinationZip3)
+	cost.UnpackFee, err = re.fullUnpackCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return

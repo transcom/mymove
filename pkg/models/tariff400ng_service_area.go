@@ -60,7 +60,7 @@ func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEng
 		WHERE
 			service_area = $1
 		AND
-			$2 BETWEEN effective_date_lower AND effective_date_upper;
+			effective_date_lower <= $2 AND $2 < effective_date_upper;
 
 		`
 	err = tx.RawQuery(sql, serviceArea, rateEngineDate).First(&linehaulFactor)
