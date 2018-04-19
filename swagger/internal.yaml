@@ -483,6 +483,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: Allow them to view the thing
+      EDIT: Allow them to view and edit your moves
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:

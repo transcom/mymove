@@ -4,12 +4,17 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import {
+  updateServiceMember,
+  loadServiceMember,
+  indexBackupContacts,
+  createBackupContact,
+} from './ducks';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-const subsetOfFields = ['name', 'email', 'telephone'];
+const subsetOfFields = ['name', 'email', 'telephone', 'permission'];
 
 const uiSchema = {
   title: 'Backup Contacts',
@@ -20,6 +25,9 @@ const uiSchema = {
   requiredFields: ['name', 'email'],
   todos: (
     <ul>
+      <li>Make it a radio button, not a chooser</li>
+      <li> load the created.</li>
+      <li> setup the second thing</li>
       <li>load/save is not wired up (since backend for this is not done)</li>
       <li>
         leaving out permissions ui since we are prioritizing getting flow for
@@ -34,16 +42,22 @@ const CurrentForm = reduxifyForm(formName);
 
 export class BackupContact extends Component {
   componentDidMount() {
-    //  this.props.loadServiceMember(this.props.match.params.serviceMemberId);
+    this.props.indexBackupContacts(this.props.match.params.serviceMemberId);
   }
 
   handleSubmit = () => {
-    // const pendingValues = this.props.formData.values;
-    // if (pendingValues) {
-    //   debugger;
-    //   const patch = pick(pendingValues, subsetOfFields);
-    //   this.props.updateServiceMember(patch);
-    // }
+    const pendingValues = this.props.formData.values;
+    console.log('SUBMITTING', pendingValues);
+    if (pendingValues) {
+      if (this.props.currentBackupContacts.length > 0) {
+        //update existing
+      } else {
+        this.props.createBackupContact(
+          this.props.match.params.serviceMemberId,
+          pendingValues,
+        );
+      }
+    }
   };
 
   render() {
@@ -98,13 +112,20 @@ BackupContact.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
+    {
+      updateServiceMember,
+      loadServiceMember,
+      indexBackupContacts,
+      createBackupContact,
+    },
     dispatch,
   );
 }
 function mapStateToProps(state) {
   const props = {
     userEmail: state.user.email,
+    currentBackupContacts: state.serviceMember.currentBackupContacts,
+    loggedInUser: state.loggedInUser.loggedInUser,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,
