@@ -79,3 +79,12 @@ repos:
             vendor/|
             docs/adr/index.md
           )$
+
+  - repo: local
+    hooks:
+      - id: dep-status
+        name: dep status
+        entry: dep status
+        language: system
+        description: If this hook fails, try running `dep ensure`
+        files: \.go$

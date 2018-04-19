@@ -37,12 +37,19 @@ definitions:
   MilitaryBranch:
     type: string
     x-nullable: true
+    title: Branch
     enum: &MILITARYBRANCHES
       - ARMY
       - NAVY
       - MARINES
       - AIRFORCE
       - COASTGUARD
+    x-display-value:
+      ARMY: ARMY
+      NAVY: NAVY
+      MARINES: MARINES
+      AIRFORCE: AIRFORCE
+      COASTGUARD: COASTGUARD
   DutyStationPayload:
     type: object
     properties:
@@ -202,12 +209,11 @@ definitions:
         $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
         type: boolean
-        x-nullable: true
       first_name:
         type: string
         example: John
         x-nullable: true
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
@@ -240,7 +246,7 @@ definitions:
       phone_is_preferred:
         type: boolean
         x-nullable: true
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
       email_is_preferred:
@@ -264,6 +270,7 @@ definitions:
       - id
       - user_id
       - is_profile_complete
+      - has_social_security_number
       - created_at
       - updated_at
   CreateServiceMemberPayload:
@@ -295,11 +302,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut
@@ -334,7 +341,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
@@ -377,11 +384,11 @@ definitions:
         example: John
         x-nullable: true
         title: First Name
-      middle_initial:
+      middle_name:
         type: string
         example: L.
         x-nullable: true
-        title: Middle Initial
+        title: Middle Name
       last_name:
         type: string
         example: Donut
@@ -416,7 +423,7 @@ definitions:
         type: boolean
         x-nullable: true
         title: Phone
-      secondary_phone_is_preferred:
+      text_message_is_preferred:
         type: boolean
         x-nullable: true
         title: Text message
@@ -437,10 +444,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
         example: Susan Smith
@@ -459,9 +462,8 @@ definitions:
         example: john_bob@example.com
         x-nullable: true
         title: Email
-      authorized_to_meet_mover:
-        type: boolean
-        x-nullable: true
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
       created_at:
         type: string
         format: date-time
@@ -470,16 +472,20 @@ definitions:
         format: date-time
     required:
       - id
-      - user_id
       - created_at
       - updated_at
+      - name
+      - email
+      - permission
+  BackupContactPermission:
+    type: string
+    enum:
+    - NONE
+    - VIEW
+    - EDIT
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
-      user_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
         example: Susan Smith
@@ -498,16 +504,15 @@ definitions:
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
-      authorized_to_meet_mover:
-        type: boolean
-        x-nullable: true
-  PatchServiceMemberBackupContactPayload:
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+    required:
+      - name
+      - email
+      - permission
+  UpdateServiceMemberBackupContactPayload:
     type: object
     properties:
-      user_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       name:
         type: string
         example: Susan Smith
@@ -524,9 +529,12 @@ definitions:
         example: john_bob@example.com
         x-nullable: true
         title: email address
-      authorized_to_meet_mover:
-        type: boolean
-        x-nullable: true
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+    required:
+      - name
+      - email
+      - permission
   IndexServiceMemberBackupContactsPayload:
     type: array
     items:
@@ -2039,7 +2047,7 @@ paths:
           schema:
             $ref: '#/definitions/PatchServiceMemberPayload'
       responses:
-        201:
+        200:
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
@@ -2053,7 +2061,7 @@ paths:
           description: service member not found
         500:
           description: internal server error
-  /service_members/{serviceMemberId}/backup_contact:
+  /service_members/{serviceMemberId}/backup_contacts:
     post:
       summary: Submits backup contact for a logged-in user
       description: Creates an instance of a backup contact tied to a service member user
@@ -2115,7 +2123,7 @@ paths:
           description: contact not found
         500:
           description: internal server error
-  /service_members/{serviceMemberId}/backup_contact/{backupContactId}:
+  /backup_contacts/{backupContactId}:
     get:
       summary: Returns the given service member backup contact
       description: Returns the given service member backup contact
@@ -2123,12 +2131,6 @@ paths:
       tags:
         - backup_contacts
       parameters:
-        - in: path
-          name: serviceMemberId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the service member
         - in: path
           name: backupContactId
           type: string
@@ -2150,30 +2152,24 @@ paths:
           description: backup contact not found
         500:
           description: internal server error
-    patch:
-      summary: Patches the service member backup contact
+    put:
+      summary: Updates a service member backup contact
       description: Any fields sent in this request will be set on the backup contact referenced
-      operationId: patchServiceMemberBackupContact
+      operationId: updateServiceMemberBackupContact
       tags:
         - backup_contacts
       parameters:
         - in: body
-          name: patchServiceMemberBackupContactPayload
+          name: updateServiceMemberBackupContactPayload
           required: true
           schema:
-            $ref: '#/definitions/PatchServiceMemberBackupContactPayload'
+            $ref: '#/definitions/UpdateServiceMemberBackupContactPayload'
         - in: path
           name: backupContactId
           type: string
           format: uuid
           required: true
           description: UUID of the service member backup contact
-        - in: path
-          name: serviceMemberId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the service member
       responses:
         201:
           description: updated instance of backup contact

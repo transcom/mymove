@@ -446,6 +446,70 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	}
 }
 
+// Test_FetchLinehaulRate tests that the discount rate for the TSP with the best BVS
+// for the specified channel and date is returned.
+func (suite *ModelSuite) Test_FetchLinehaulRateBVS() {
+	t := suite.T()
+
+	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+
+	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 320, Region: 6})
+	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+
+	tspPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    50.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&tspPerformance)
+
+	lowerTSPPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  89,
+		LinehaulRate:                    55.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&lowerTSPPerformance)
+
+	otherRateCycleTSPPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.NonPeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.NonPeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  91,
+		LinehaulRate:                    55.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&otherRateCycleTSPPerformance)
+
+	rate, err := FetchLinehaulRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
+	if err != nil {
+		t.Fatalf("Failed to find tsp performance: %s", err)
+	}
+
+	expected := 50.5
+	if rate != expected {
+		t.Errorf("Wrong discount rate: expected %v, got %v", expected, rate)
+	}
+}
+
 func equalUUIDSlice(a []uuid.UUID, b []uuid.UUID) bool {
 	if len(a) != len(b) {
 		return false

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -90,9 +91,11 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showServiceMemberParams)
 
-	_, ok := showResponse.(*servicememberop.ShowServiceMemberForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", showResponse)
+	errResponse := showResponse.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusForbidden {
+		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
@@ -108,20 +111,21 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
-		UserID:                    strfmt.UUID(user.ID.String()),
-		Edipi:                     swag.String("random string bla"),
-		FirstName:                 swag.String("random string bla"),
-		MiddleInitial:             swag.String("random string bla"),
-		LastName:                  swag.String("random string bla"),
-		Suffix:                    swag.String("random string bla"),
-		Telephone:                 swag.String("random string bla"),
-		SecondaryTelephone:        swag.String("random string bla"),
-		PersonalEmail:             fmtEmail("wml@example.com"),
-		PhoneIsPreferred:          swag.Bool(false),
-		SecondaryPhoneIsPreferred: swag.Bool(false),
-		EmailIsPreferred:          swag.Bool(true),
-		ResidentialAddress:        fakeAddress(),
-		BackupMailingAddress:      fakeAddress(),
+		UserID:                 strfmt.UUID(user.ID.String()),
+		Edipi:                  swag.String("random string bla"),
+		FirstName:              swag.String("random string bla"),
+		MiddleName:             swag.String("random string bla"),
+		LastName:               swag.String("random string bla"),
+		Suffix:                 swag.String("random string bla"),
+		Telephone:              swag.String("random string bla"),
+		SecondaryTelephone:     swag.String("random string bla"),
+		PersonalEmail:          fmtEmail("wml@example.com"),
+		PhoneIsPreferred:       swag.Bool(false),
+		TextMessageIsPreferred: swag.Bool(false),
+		EmailIsPreferred:       swag.Bool(true),
+		ResidentialAddress:     fakeAddress(),
+		BackupMailingAddress:   fakeAddress(),
+		SocialSecurityNumber:   (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
 	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
@@ -154,6 +158,67 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	}
 }
 
+func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
+	t := suite.T()
+
+	// Given: A logged-in user
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// When: a new ServiceMember is posted
+	ssn := "123-45-6789"
+	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
+		SocialSecurityNumber: (*strfmt.SSN)(swag.String(ssn)),
+	}
+
+	req := httptest.NewRequest("GET", "/service_members/some_id", nil)
+	params := servicememberop.CreateServiceMemberParams{
+		CreateServiceMemberPayload: &newServiceMemberPayload,
+		HTTPRequest:                req,
+	}
+
+	// And: the context contains the auth values for logged-in user
+	ctx := params.HTTPRequest.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
+	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+
+	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	smResponse, ok := response.(*servicememberop.CreateServiceMemberCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	if !*smResponse.Payload.HasSocialSecurityNumber {
+		t.Error("The retrieved SM doesn't indicate that it has an SSN.")
+	}
+
+	// Then: we expect a servicemember to have been created for the user
+	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
+	servicemembers := []models.ServiceMember{}
+	query.All(&servicemembers)
+
+	if len(servicemembers) != 1 {
+		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
+	}
+
+	serviceMemberID, _ := uuid.FromString(smResponse.Payload.ID.String())
+	serviceMember, err := models.FetchServiceMember(suite.db, user, serviceMemberID)
+	if err != nil {
+		t.Error("error fetching service member")
+	}
+
+	if !serviceMember.SocialSecurityNumber.Matches(ssn) {
+		t.Error("ssn doesn't match the created SSN")
+	}
+
+}
+
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	t := suite.T()
 
@@ -173,9 +238,25 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.mustSave(&newServiceMember)
 
+	branch := internalmessages.MilitaryBranchARMY
+	rank := internalmessages.ServiceMemberRankE1
 	patchPayload := internalmessages.PatchServiceMemberPayload{
-		Edipi:              &newEdipi,
-		ResidentialAddress: fakeAddress(),
+		Edipi:                &newEdipi,
+		BackupMailingAddress: fakeAddress(),
+		ResidentialAddress:   fakeAddress(),
+		Branch:               &branch,
+		EmailIsPreferred:     swag.Bool(true),
+		FirstName:            swag.String("Firstname"),
+		LastName:             swag.String("Lastname"),
+		MiddleName:           swag.String("Middlename"),
+		PersonalEmail:        fmtEmail("name@domain.com"),
+		PhoneIsPreferred:     swag.Bool(true),
+		Rank:                 &rank,
+		TextMessageIsPreferred: swag.Bool(true),
+		SecondaryTelephone:     swag.String("555555555"),
+		SocialSecurityNumber:   fmtSSN("555-55-5555"),
+		Suffix:                 swag.String("Sr."),
+		Telephone:              swag.String("555555555"),
 	}
 
 	// And: the context contains the auth values
@@ -194,7 +275,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	okResponse, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	okResponse, ok := response.(*servicememberop.PatchServiceMemberOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -209,7 +290,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	addresses := []models.Address{}
 	suite.db.All(&addresses)
 
-	if len(addresses) != 1 {
+	if len(addresses) != 2 {
 		t.Errorf("Expected to find one address but found %v", len(addresses))
 	}
 }
@@ -258,9 +339,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+	errResponse := response.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusForbidden {
+		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
 	}
 }
 
@@ -297,9 +380,11 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberNotFound)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+	errResponse := response.(*errResponse)
+	code := errResponse.code
+
+	if code != http.StatusNotFound {
+		t.Errorf("Expected to receive a not found HTTP code, got %v", code)
 	}
 }
 
@@ -338,7 +423,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberCreated)
+	_, ok := response.(*servicememberop.PatchServiceMemberOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}

@@ -11,6 +11,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"go.uber.org/zap/zapcore"
 )
 
 // Address is an address
@@ -118,4 +119,22 @@ func AddressModelFromPayload(rawAddress *internalmessages.Address) *Address {
 		Country:        rawAddress.Country,
 	}
 	return &address
+}
+
+// MarshalLogObject is required to be able to zap.Object log TDLs
+func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("street1", a.StreetAddress1)
+	if a.StreetAddress2 != nil {
+		encoder.AddString("street2", *a.StreetAddress2)
+	}
+	if a.StreetAddress3 != nil {
+		encoder.AddString("street3", *a.StreetAddress3)
+	}
+	encoder.AddString("city", a.City)
+	encoder.AddString("state", a.State)
+	encoder.AddString("code", a.PostalCode)
+	if a.Country != nil {
+		encoder.AddString("country", *a.Country)
+	}
+	return nil
 }

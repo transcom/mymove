@@ -1,18 +1,21 @@
 import React from 'react';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
+import { no_op } from 'shared/utils';
 
-import Agreement from 'scenes/Legalese';
-import Transition from 'scenes/Moves/Transition';
-import MoveType from 'scenes/Moves/MoveTypeWizard';
-import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
-import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
-import DodInfo from 'scenes/ServiceMembers/DodInfo';
+import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
-import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
+import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
+
+import MoveType from 'scenes/Moves/MoveTypeWizard';
+import Transition from 'scenes/Moves/Transition';
+import PpmWeight from 'scenes/Moves/Ppm/Weight';
+import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import Agreement from 'scenes/Legalese';
 
 const Placeholder = props => {
   return (
@@ -93,8 +96,11 @@ const pages = {
   },
   '/service-member/:serviceMemberId/transition': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: "OK, your profile's complete",
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <TransitionToOrders />
+      </WizardPage>
+    ),
   },
   '/orders/:serviceMemberId/': {
     isInFlow: incompleteServiceMember,
@@ -146,7 +152,7 @@ const pages = {
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,
     render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={() => undefined} pageList={pages} pageKey={key}>
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <Transition />
       </WizardPage>
     ),

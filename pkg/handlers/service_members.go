@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth/context"
@@ -14,26 +15,27 @@ import (
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
-		ID:                        fmtUUID(serviceMember.ID),
-		CreatedAt:                 fmtDateTime(serviceMember.CreatedAt),
-		UpdatedAt:                 fmtDateTime(serviceMember.UpdatedAt),
-		UserID:                    fmtUUID(user.ID),
-		Edipi:                     serviceMember.Edipi,
-		Branch:                    serviceMember.Branch,
-		Rank:                      serviceMember.Rank,
-		FirstName:                 serviceMember.FirstName,
-		MiddleInitial:             serviceMember.MiddleInitial,
-		LastName:                  serviceMember.LastName,
-		Suffix:                    serviceMember.Suffix,
-		Telephone:                 serviceMember.Telephone,
-		SecondaryTelephone:        serviceMember.SecondaryTelephone,
-		PersonalEmail:             (*strfmt.Email)(serviceMember.PersonalEmail),
-		PhoneIsPreferred:          serviceMember.PhoneIsPreferred,
-		SecondaryPhoneIsPreferred: serviceMember.SecondaryPhoneIsPreferred,
-		EmailIsPreferred:          serviceMember.EmailIsPreferred,
-		ResidentialAddress:        payloadForAddressModel(serviceMember.ResidentialAddress),
-		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
-		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
+		ID:                      fmtUUID(serviceMember.ID),
+		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
+		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
+		UserID:                  fmtUUID(user.ID),
+		Edipi:                   serviceMember.Edipi,
+		Branch:                  serviceMember.Branch,
+		Rank:                    serviceMember.Rank,
+		FirstName:               serviceMember.FirstName,
+		MiddleName:              serviceMember.MiddleName,
+		LastName:                serviceMember.LastName,
+		Suffix:                  serviceMember.Suffix,
+		Telephone:               serviceMember.Telephone,
+		SecondaryTelephone:      serviceMember.SecondaryTelephone,
+		PersonalEmail:           (*strfmt.Email)(serviceMember.PersonalEmail),
+		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
+		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
+		EmailIsPreferred:        serviceMember.EmailIsPreferred,
+		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
+		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
+		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
+		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
 	}
 	return &serviceMemberPayload
 }
@@ -47,35 +49,55 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	residentialAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
 	backupMailingAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
+	ssnString := params.CreateServiceMemberPayload.SocialSecurityNumber
+	var ssn *models.SocialSecurityNumber
+	verrs := validate.NewErrors()
+	if ssnString != nil {
+		var err error
+		ssn, verrs, err = models.BuildSocialSecurityNumber(ssnString.String())
+		if err != nil {
+			h.logger.Error("Unexpected error building SSN model", zap.Error(err))
+			return servicememberop.NewCreateServiceMemberInternalServerError()
+		}
+		// if there are any validation errors, they will get rolled up with the rest of them.
+	}
+
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
-		UserID:                    user.ID,
-		Edipi:                     params.CreateServiceMemberPayload.Edipi,
-		Branch:                    params.CreateServiceMemberPayload.Branch,
-		Rank:                      params.CreateServiceMemberPayload.Rank,
-		FirstName:                 params.CreateServiceMemberPayload.FirstName,
-		MiddleInitial:             params.CreateServiceMemberPayload.MiddleInitial,
-		LastName:                  params.CreateServiceMemberPayload.LastName,
-		Suffix:                    params.CreateServiceMemberPayload.Suffix,
-		Telephone:                 params.CreateServiceMemberPayload.Telephone,
-		SecondaryTelephone:        params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:             stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
-		PhoneIsPreferred:          params.CreateServiceMemberPayload.PhoneIsPreferred,
-		SecondaryPhoneIsPreferred: params.CreateServiceMemberPayload.SecondaryPhoneIsPreferred,
-		EmailIsPreferred:          params.CreateServiceMemberPayload.EmailIsPreferred,
-		ResidentialAddress:        residentialAddress,
-		BackupMailingAddress:      backupMailingAddress,
+		UserID:                 user.ID,
+		Edipi:                  params.CreateServiceMemberPayload.Edipi,
+		Branch:                 params.CreateServiceMemberPayload.Branch,
+		Rank:                   params.CreateServiceMemberPayload.Rank,
+		FirstName:              params.CreateServiceMemberPayload.FirstName,
+		MiddleName:             params.CreateServiceMemberPayload.MiddleName,
+		LastName:               params.CreateServiceMemberPayload.LastName,
+		Suffix:                 params.CreateServiceMemberPayload.Suffix,
+		Telephone:              params.CreateServiceMemberPayload.Telephone,
+		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
+		PersonalEmail:          stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
+		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
+		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
+		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
+		ResidentialAddress:     residentialAddress,
+		BackupMailingAddress:   backupMailingAddress,
+		SocialSecurityNumber:   ssn,
 	}
-	verrs, err := models.CreateServiceMemberWithAddresses(h.db, &newServiceMember)
+	smVerrs, err := models.CreateServiceMember(h.db, &newServiceMember)
+	verrs.Append(smVerrs)
 	if verrs.HasAny() {
-		h.logger.Error("DB Validation", zap.Error(verrs))
+		h.logger.Info("DB Validation", zap.Error(verrs))
 		response = servicememberop.NewCreateServiceMemberBadRequest()
 	} else if err != nil {
-		h.logger.Error("DB Insertion", zap.Error(err))
-		response = servicememberop.NewCreateServiceMemberBadRequest()
+		if err == models.ErrCreateViolatesUniqueConstraint {
+			h.logger.Info("Attempted to create a second SM when one already exists")
+			response = servicememberop.NewCreateServiceMemberBadRequest()
+		} else {
+			h.logger.Error("DB Insertion", zap.Error(err))
+			response = servicememberop.NewCreateServiceMemberInternalServerError()
+		}
 	} else {
 		servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
 		response = servicememberop.NewCreateServiceMemberCreated().WithPayload(servicememberPayload)
@@ -88,36 +110,17 @@ type ShowServiceMemberHandler HandlerContext
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
 
-	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
+	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
 	if err != nil {
-		response = servicememberop.NewShowServiceMemberBadRequest()
-		return response
+		return responseForError(h.logger, err)
 	}
 
-	serviceMemberResult, err := models.GetServiceMemberForUser(h.db, user.ID, serviceMemberID)
-	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = servicememberop.NewShowServiceMemberInternalServerError()
-	} else if !serviceMemberResult.IsValid() {
-		switch errCode := serviceMemberResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = servicememberop.NewShowServiceMemberNotFound()
-		case models.FetchErrorForbidden:
-			response = servicememberop.NewShowServiceMemberForbidden()
-		default:
-			response = servicememberop.NewShowServiceMemberInternalServerError()
-		}
-		return response
-
-	} else {
-		serviceMemberPayload := payloadForServiceMemberModel(user, serviceMemberResult.ServiceMember())
-		response = servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
-	}
-	return response
+	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
@@ -125,44 +128,20 @@ type PatchServiceMemberHandler HandlerContext
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := context.GetUser(params.HTTPRequest.Context())
 
-	serviceMemberID, err := uuid.FromString(params.ServiceMemberID.String())
+	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
 	if err != nil {
-		response = servicememberop.NewPatchServiceMemberBadRequest()
+		return responseForError(h.logger, err)
 	}
 
-	// Validate that this serviceMember belongs to the current user
-	serviceMemberResult, err := models.GetServiceMemberForUser(h.db, user.ID, serviceMemberID)
-	if err != nil {
-		h.logger.Error("DB Error checking on serviceMember validity", zap.Error(err))
-		response = servicememberop.NewPatchServiceMemberInternalServerError()
-	} else if !serviceMemberResult.IsValid() {
-		switch errCode := serviceMemberResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = servicememberop.NewPatchServiceMemberNotFound()
-		case models.FetchErrorForbidden:
-			response = servicememberop.NewPatchServiceMemberForbidden()
-		default:
-			response = servicememberop.NewPatchServiceMemberInternalServerError()
-		}
-		return response
-	} else { // The given serviceMember does belong to the current user.
-		serviceMember := serviceMemberResult.ServiceMember()
-		payload := params.PatchServiceMemberPayload
-
-		verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload)
-
-		if verrs.HasAny() {
-			response = servicememberop.NewPatchServiceMemberBadRequest()
-		} else if err != nil {
-			response = servicememberop.NewPatchServiceMemberInternalServerError()
-		} else {
-			serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
-			response = servicememberop.NewPatchServiceMemberCreated().WithPayload(serviceMemberPayload)
-		}
+	payload := params.PatchServiceMemberPayload
+	if verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload); verrs.HasAny() || err != nil {
+		return responseForVErrors(h.logger, verrs, err)
 	}
-	return response
+
+	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }

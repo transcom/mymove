@@ -8,7 +8,7 @@ import (
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -30,7 +30,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(50, "395")
+	fee, err := engine.serviceFeeCents(unit.CWT(50), "395")
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -44,7 +44,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -77,7 +77,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.mustSave(&fullPackRate)
 
-	fee, err := engine.fullPackCents(50, "395")
+	fee, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
@@ -90,7 +90,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -131,7 +131,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.fullUnpackCents(50, "395")
+	fee, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
@@ -144,7 +144,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
 		Zip3:          "395",
@@ -206,7 +206,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(2000, "395", "336")
+	fee, err := engine.nonLinehaulChargeTotalCents(unit.Pound(2000), "395", "336", testdatagen.DateInsidePeakRateCycle)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
