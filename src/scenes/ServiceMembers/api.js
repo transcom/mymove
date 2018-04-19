@@ -8,8 +8,6 @@ export async function GetSpec() {
 export async function CreateServiceMember(service_member) {
   // we create service members with no data associated with them.
   const client = await getClient();
-  console.log(client.apis.service_members);
-  console.log(client.apis.service_members.createServiceMember);
   const response = await client.apis.service_members.createServiceMember({
     createServiceMemberPayload: service_member,
   });
