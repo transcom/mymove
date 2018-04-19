@@ -43,8 +43,8 @@ func patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload 
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Branch != nil {
-		serviceMember.Branch = payload.Branch
+	if payload.Affiliation != nil {
+		serviceMember.Affiliation = payload.Affiliation
 	}
 	if payload.Rank != nil {
 		serviceMember.Rank = payload.Rank
