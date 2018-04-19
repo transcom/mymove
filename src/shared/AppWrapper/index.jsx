@@ -18,6 +18,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
 import { loadUserAndToken } from 'shared/User/ducks';
+import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 
@@ -30,6 +31,7 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
+    this.props.loadLoggedInUser();
     this.props.loadUserAndToken();
     this.props.loadSchema();
   }
@@ -72,7 +74,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { push, loadSchema, loadUserAndToken, createMove },
+    { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
     dispatch,
   );
 
