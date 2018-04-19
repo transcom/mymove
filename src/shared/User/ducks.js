@@ -1,5 +1,7 @@
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
+import * as helpers from 'shared/ReduxHelpers';
+import { GetLoggedInUser } from './api.js';
 
 const LOAD_USER_AND_TOKEN = 'USER|LOAD_USER_AND_TOKEN';
 
@@ -8,6 +10,23 @@ const loggedOutUser = {
   email: null,
   jwt: null,
 };
+
+const GET_LOGGED_IN_USER = 'GET_LOGGED_IN_USER';
+
+export const getUserTypes = helpers.generateAsyncActionTypes(
+  GET_LOGGED_IN_USER,
+);
+
+export const loadLoggedInUser = helpers.generateAsyncActionCreator(
+  GET_LOGGED_IN_USER,
+  GetLoggedInUser,
+);
+
+export const loggedInUserReducer = helpers.generateAsyncReducer(
+  GET_LOGGED_IN_USER,
+  u => ({ loggedInUser: u }),
+);
+
 function getUserInfo() {
   const cookie = Cookies.get('user_session');
   if (!cookie) return loggedOutUser;
