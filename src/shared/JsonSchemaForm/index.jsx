@@ -89,7 +89,10 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
         }
       }
     } else {
-      console.error('The schema should have fields for all present values..');
+      console.error(
+        'The schema should have fields for all present values..',
+        key,
+      );
     }
   });
 

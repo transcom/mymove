@@ -4,6 +4,7 @@ import (
 	"time"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_UnpackEffectiveDateValidation() {
@@ -57,4 +58,39 @@ func (suite *ModelSuite) Test_UnpackCreateAndSave() {
 	}
 
 	suite.mustSave(&validUnpackRate)
+}
+
+func (suite *ModelSuite) Test_FetchFullUnPackRateCents() {
+	t := suite.T()
+
+	rateExpected := 100
+	schedule := 1
+
+	fupr := Tariff400ngFullUnpackRate{
+		Schedule:           schedule,
+		RateMillicents:     rateExpected,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+	}
+	suite.mustSave(&fupr)
+
+	rate, err := FetchTariff400ngFullUnpackRateMillicents(suite.db, schedule, testdatagen.DateInsidePeakRateCycle)
+	if err != nil {
+		t.Fatalf("Unable to query full unpack rate: %v", err)
+	}
+	if rate != rateExpected {
+		t.Errorf("Incorrect full unpack rate recieved. Got: %d. Expected: %d.", rate, rateExpected)
+	}
+
+	// Test exclusivity of effective_date_upper
+	rate, err = FetchTariff400ngFullUnpackRateMillicents(suite.db, schedule, testdatagen.PeakRateCycleEnd)
+	if err == nil && rate == rateExpected {
+		t.Errorf("EffectiveDateUpper is inclusive of upper bound.")
+	}
+
+	// Test inclusivity of weight_lbs_upper
+	rate, err = FetchTariff400ngFullUnpackRateMillicents(suite.db, schedule, testdatagen.PeakRateCycleStart)
+	if err != nil {
+		t.Errorf("EffectiveDateLower is exclusive of lower bound: %v", err)
+	}
 }

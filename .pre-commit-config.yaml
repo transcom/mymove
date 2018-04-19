@@ -84,7 +84,7 @@ repos:
     hooks:
       - id: dep-status
         name: dep status
-        entry: dep status
+        entry: dep status -v
         language: system
         description: If this hook fails, try running `dep ensure`
         files: \.go$
