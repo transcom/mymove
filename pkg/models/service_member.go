@@ -23,7 +23,7 @@ type ServiceMember struct {
 	UserID                 uuid.UUID                           `json:"user_id" db:"user_id"`
 	User                   User                                `belongs_to:"user"`
 	Edipi                  *string                             `json:"edipi" db:"edipi"`
-	Branch                 *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
+	Affiliation            *internalmessages.Affiliation       `json:"affiliation" db:"affiliation"`
 	Rank                   *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
 	FirstName              *string                             `json:"first_name" db:"first_name"`
 	MiddleName             *string                             `json:"middle_name" db:"middle_name"`
@@ -194,8 +194,8 @@ func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payloa
 		if payload.Edipi != nil {
 			s.Edipi = payload.Edipi
 		}
-		if payload.Branch != nil {
-			s.Branch = payload.Branch
+		if payload.Affiliation != nil {
+			s.Affiliation = payload.Affiliation
 		}
 		if payload.Rank != nil {
 			s.Rank = payload.Rank
@@ -306,7 +306,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.Edipi == nil {
 		return false
 	}
-	if s.Branch == nil {
+	if s.Affiliation == nil {
 		return false
 	}
 	if s.Rank == nil {

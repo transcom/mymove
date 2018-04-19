@@ -32,7 +32,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	// And: a service member is incompletely initialized with almost all required values
 	edipi := "12345567890"
-	branch := internalmessages.MilitaryBranchARMY
+	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE5
 	firstName := "bob"
 	lastName := "sally"
@@ -49,7 +49,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	servicemember := ServiceMember{
 		UserID:             user1.ID,
 		Edipi:              &edipi,
-		Branch:             &branch,
+		Affiliation:        &affiliation,
 		Rank:               &rank,
 		FirstName:          &firstName,
 		LastName:           &lastName,

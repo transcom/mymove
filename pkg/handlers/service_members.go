@@ -20,7 +20,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                  fmtUUID(user.ID),
 		Edipi:                   serviceMember.Edipi,
-		Branch:                  serviceMember.Branch,
+		Affiliation:             serviceMember.Affiliation,
 		Rank:                    serviceMember.Rank,
 		FirstName:               serviceMember.FirstName,
 		MiddleName:              serviceMember.MiddleName,
@@ -69,7 +69,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	newServiceMember := models.ServiceMember{
 		UserID:                 user.ID,
 		Edipi:                  params.CreateServiceMemberPayload.Edipi,
-		Branch:                 params.CreateServiceMemberPayload.Branch,
+		Affiliation:            params.CreateServiceMemberPayload.Affiliation,
 		Rank:                   params.CreateServiceMemberPayload.Rank,
 		FirstName:              params.CreateServiceMemberPayload.FirstName,
 		MiddleName:             params.CreateServiceMemberPayload.MiddleName,

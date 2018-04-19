@@ -34,11 +34,11 @@ definitions:
       - id
       - created_at
       - updated_at
-  MilitaryBranch:
+  Affiliation:
     type: string
     x-nullable: true
     title: Branch
-    enum: &MILITARYBRANCHES
+    enum: &AFFILIATION
       - ARMY
       - NAVY
       - MARINES
@@ -63,8 +63,8 @@ definitions:
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       created_at:
         type: string
         format: date-time
@@ -75,7 +75,7 @@ definitions:
       - id
       - name
       - address
-      - branch
+      - affiliation
       - created_at
       - updated_at
   DutyStationsPayload:
@@ -203,8 +203,8 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
@@ -287,8 +287,8 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
@@ -369,8 +369,8 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
@@ -2194,10 +2194,10 @@ paths:
         - duty_stations
       parameters:
         - in: query
-          name: branch
+          name: affiliation
           required: true
           type: string
-          enum: *MILITARYBRANCHES
+          enum: *AFFILIATION
         - in: query
           name: search
           type: string

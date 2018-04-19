@@ -10,7 +10,12 @@ import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
 // todo: add branch (once can get yaml anchors to work)
-const subsetOfFields = ['branch', 'edipi', 'social_security_number', 'rank'];
+const subsetOfFields = [
+  'affiliation',
+  'edipi',
+  'social_security_number',
+  'rank',
+];
 const uiSchema = {
   title: 'Create your profile',
   order: subsetOfFields,
@@ -28,7 +33,6 @@ const uiSchema = {
         some of these fields will be hidden when electronic orders are a thing
         for some branches
       </li>
-      <li>DDS requested that backend calls branch affiliation</li>
     </ul>
   ),
 };

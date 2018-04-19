@@ -17,20 +17,20 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	suite.mustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:      "First Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "First Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:      "Second Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "Second Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station2)
 
-	stations, err := models.FindDutyStations(suite.db, "first", string(internalmessages.MilitaryBranchARMY))
+	stations, err := models.FindDutyStations(suite.db, "first", string(internalmessages.AffiliationARMY))
 	if err != nil {
 		t.Errorf("Find duty stations error: %v", err)
 	}
@@ -52,9 +52,9 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 	station := &models.DutyStation{}
 
 	var expErrors = map[string][]string{
-		"name":       {"Name can not be blank."},
-		"branch":     {"Branch can not be blank."},
-		"address_id": {"AddressID can not be blank."},
+		"name":        {"Name can not be blank."},
+		"affiliation": {"Affiliation can not be blank."},
+		"address_id":  {"AddressID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(station, expErrors)
