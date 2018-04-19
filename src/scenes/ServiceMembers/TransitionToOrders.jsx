@@ -19,6 +19,12 @@ export class TransitionToOrders extends Component {
           <p>Now, we need to take a look at your move orders.</p>
           <img className="sm Todo" src={moveOrders} alt="onto-move-orders" />
         </div>
+        <ul className="Todo">
+          <li>
+            Replace screenshots of icons with svgs once we get assets from
+            design.
+          </li>
+        </ul>
       </div>
     );
   }

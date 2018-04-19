@@ -18,6 +18,13 @@ export class TransitionToMove extends Component {
           <p>Now, we're ready to schedule your move!</p>
           <img className="sm Todo" src={moveIcon} alt="onto-move-orders" />
         </div>
+
+        <ul className="Todo">
+          <li>
+            Replace screenshots of icons with svgs once we get assets from
+            design.
+          </li>
+        </ul>
       </div>
     );
   }
