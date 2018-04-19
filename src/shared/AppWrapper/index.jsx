@@ -31,8 +31,8 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
-    this.props.loadLoggedInUser();
     this.props.loadUserAndToken();
+    this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
 
@@ -60,7 +60,11 @@ export class AppWrapper extends Component {
     );
   }
 }
-AppWrapper.defaultProps = { loadSchema: no_op, loadUserAndToken: no_op };
+AppWrapper.defaultProps = {
+  loadSchema: no_op,
+  loadUserAndToken: no_op,
+  loadLoggedInUser: no_op,
+};
 
 const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready

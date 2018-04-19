@@ -65,7 +65,8 @@ func stringFromSSN(ssn *strfmt.SSN) *string {
 func stringFromEmail(email *strfmt.Email) *string {
 	var stringPointer *string
 	if email != nil {
-		*stringPointer = email.String()
+		plainString := email.String()
+		stringPointer = &plainString
 	}
 	return stringPointer
 }
