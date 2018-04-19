@@ -13,11 +13,6 @@ const uiSchema = {
   title: 'Name',
   order: ['first_name', 'middle_name', 'last_name', 'suffix'],
   requiredFields: ['first_name', 'last_name'],
-  todos: (
-    <ul>
-      <li>suffix should be shorter field</li>
-    </ul>
-  ),
 };
 const subsetOfFields = ['first_name', 'middle_name', 'last_name', 'suffix'];
 const formName = 'service_member_name';
