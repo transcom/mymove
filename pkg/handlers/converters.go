@@ -74,12 +74,3 @@ func stringFromSSN(ssn *strfmt.SSN) *string {
 	}
 	return stringPointer
 }
-
-func stringFromEmail(email *strfmt.Email) *string {
-	var stringPointer *string
-	if email != nil {
-		plainString := email.String()
-		stringPointer = &plainString
-	}
-	return stringPointer
-}
