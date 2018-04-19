@@ -9,8 +9,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"go.uber.org/zap/zapcore"
 )
 
 // Address is an address
@@ -103,19 +102,20 @@ func (a *Address) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
-// AddressModelFromPayload returns the model struct from payload
-func AddressModelFromPayload(rawAddress *internalmessages.Address) *Address {
-	if rawAddress == nil {
-		return nil
+// MarshalLogObject is required to be able to zap.Object log TDLs
+func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
+	encoder.AddString("street1", a.StreetAddress1)
+	if a.StreetAddress2 != nil {
+		encoder.AddString("street2", *a.StreetAddress2)
 	}
-	address := Address{
-		StreetAddress1: *rawAddress.StreetAddress1,
-		StreetAddress2: rawAddress.StreetAddress2,
-		StreetAddress3: rawAddress.StreetAddress3,
-		City:           *rawAddress.City,
-		State:          *rawAddress.State,
-		PostalCode:     *rawAddress.PostalCode,
-		Country:        rawAddress.Country,
+	if a.StreetAddress3 != nil {
+		encoder.AddString("street3", *a.StreetAddress3)
 	}
-	return &address
+	encoder.AddString("city", a.City)
+	encoder.AddString("state", a.State)
+	encoder.AddString("code", a.PostalCode)
+	if a.Country != nil {
+		encoder.AddString("country", *a.Country)
+	}
+	return nil
 }

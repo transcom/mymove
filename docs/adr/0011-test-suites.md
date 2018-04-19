@@ -27,8 +27,6 @@ We did not consider adopting [another Go testing framework](https://awesome-go.c
 
 * Providing setup/teardown per-test functionality is familiar to developers who have worked with xUnit-style testing libraries in the past.
 
-* Testify includes a lot of functionality that we don't wish to use at this time, such as its optional assertion packages `assert` and `require`.
-
 ## Pros and Cons of the Alternatives <!-- optional -->
 
 ### Use subtests in the style suggested [on the Go Blog](https://blog.golang.org/subtests#TOC_6.)

@@ -45,11 +45,11 @@ definitions:
       - AIRFORCE
       - COASTGUARD
     x-display-value:
-      ARMY: ARMY
-      NAVY: NAVY
-      MARINES: MARINES
-      AIRFORCE: AIRFORCE
-      COASTGUARD: COASTGUARD
+      ARMY: Army
+      NAVY: Navy
+      MARINES: Marines
+      AIRFORCE: Airforce
+      COASTGUARD: Coastguard
   DutyStationPayload:
     type: object
     properties:

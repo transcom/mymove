@@ -53,7 +53,6 @@ export class BackupContact extends Component {
       hasSubmitSuccess,
       error,
       currentServiceMember,
-      userEmail,
     } = this.props;
     const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
@@ -61,8 +60,6 @@ export class BackupContact extends Component {
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
-    if (initialValues && !initialValues.personal_email)
-      initialValues.personal_email = userEmail;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -104,7 +101,6 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    userEmail: state.user.email,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,

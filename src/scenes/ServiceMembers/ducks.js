@@ -1,4 +1,8 @@
-import { GetServiceMember, UpdateServiceMember } from './api.js';
+import {
+  GetServiceMember,
+  UpdateServiceMember,
+  CreateServiceMember,
+} from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -7,6 +11,16 @@ export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
 );
 export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   'UPDATE_SERVICE_MEMBER',
+);
+
+const createServiceMemberType = 'CREATE_SERVICE_MEMBER';
+const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
+  createServiceMemberType,
+);
+
+export const createServiceMember = ReduxHelpers.generateAsyncActionCreator(
+  createServiceMemberType,
+  CreateServiceMember,
 );
 
 // Action creation
@@ -50,9 +64,25 @@ const initialState = {
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
+    case CREATE_SERVICE_MEMBER.start:
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+      });
+    case CREATE_SERVICE_MEMBER.success:
+      return Object.assign({}, state, {
+        currentServiceMember: action.payload,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+      });
+    case CREATE_SERVICE_MEMBER.failure:
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
+      });
     case UPDATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
-        hasSubmitSuccess: true,
+        hasSubmitSuccess: false,
       });
     case UPDATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
