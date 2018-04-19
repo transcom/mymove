@@ -18,6 +18,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
 import { loadUserAndToken } from 'shared/User/ducks';
+import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 
@@ -31,6 +32,7 @@ const NoMatch = ({ location }) => (
 export class AppWrapper extends Component {
   componentDidMount() {
     this.props.loadUserAndToken();
+    this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
 
@@ -58,7 +60,11 @@ export class AppWrapper extends Component {
     );
   }
 }
-AppWrapper.defaultProps = { loadSchema: no_op, loadUserAndToken: no_op };
+AppWrapper.defaultProps = {
+  loadSchema: no_op,
+  loadUserAndToken: no_op,
+  loadLoggedInUser: no_op,
+};
 
 const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready
@@ -72,7 +78,7 @@ const mapStateToProps = state => ({
 });
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { push, loadSchema, loadUserAndToken, createMove },
+    { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
     dispatch,
   );
 

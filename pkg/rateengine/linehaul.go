@@ -36,8 +36,8 @@ func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string
 }
 
 // Determine the Base Linehaul (BLH)
-func (re *RateEngine) baseLinehaul(mileage int, cwt int, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
-	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, cwt, date)
+func (re *RateEngine) baseLinehaul(mileage int, weight unit.Pound, date time.Time) (baseLinehaulChargeCents unit.Cents, err error) {
+	baseLinehaulChargeCents, err = models.FetchBaseLinehaulRate(re.db, mileage, weight, date)
 	if err != nil {
 		re.logger.Error("Base Linehaul query didn't complete: ", zap.Error(err))
 	}
@@ -46,23 +46,23 @@ func (re *RateEngine) baseLinehaul(mileage int, cwt int, date time.Time) (baseLi
 }
 
 // Determine the Linehaul Factors (OLF and DLF)
-func (re *RateEngine) linehaulFactors(cwt int, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
+func (re *RateEngine) linehaulFactors(cwt unit.CWT, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
 	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
-	return serviceArea.LinehaulFactor.Multiply(cwt), nil
+	return serviceArea.LinehaulFactor.Multiply(cwt.Int()), nil
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)
-func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date time.Time) (shorthaulChargeCents unit.Cents, err error) {
+func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time) (shorthaulChargeCents unit.Cents, err error) {
 	if mileage >= 800 {
 		return 0, nil
 	}
 	re.logger.Debug("Shipment qualifies for shorthaul fee",
 		zap.Int("miles", mileage))
 
-	cwtMiles := mileage * cwt
+	cwtMiles := mileage * cwt.Int()
 	shorthaulChargeCents, err = models.FetchShorthaulRateCents(re.db, cwtMiles, date)
 
 	return shorthaulChargeCents, err
@@ -70,11 +70,11 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt int, date time.Time) (sho
 
 // Determine Linehaul Charge (LC) TOTAL
 // Formula: LC= [BLH + OLF + DLF + [SH]
-func (re *RateEngine) linehaulChargeTotal(weight int, originZip5 string, destinationZip5 string, date time.Time) (linehaulChargeCents unit.Cents, err error) {
+func (re *RateEngine) linehaulChargeTotal(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (linehaulChargeCents unit.Cents, err error) {
+	cwt := weight.ToCWT()
 	mileage, err := re.determineMileage(originZip5, destinationZip5)
-	cwt := re.determineCWT(weight)
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
-	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, cwt, date)
+	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		return 0, err
 	}

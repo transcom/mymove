@@ -67,6 +67,14 @@
     {
       "name": "STORAGE_BACKEND",
       "value": "s3"
+    },
+    {
+      "name": "HERE_MAPS_GEOCODE_ENDPOINT",
+      "value": "https://geocoder.cit.api.here.com/6.2/geocode.json"
+    },
+    {
+      "name": "HERE_MAPS_ROUTING_ENDPOINT",
+      "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
     }
   ],
   "logConfiguration": {

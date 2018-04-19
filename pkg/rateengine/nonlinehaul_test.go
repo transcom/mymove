@@ -33,7 +33,7 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(50, "395", testdatagen.DateInsidePeakRateCycle)
+	fee, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -83,7 +83,7 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 	}
 	suite.mustSave(&fullPackRate)
 
-	fee, err := engine.fullPackCents(50, "395", testdatagen.DateInsidePeakRateCycle)
+	fee, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
@@ -140,7 +140,7 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.fullUnpackCents(50, "395", testdatagen.DateInsidePeakRateCycle)
+	fee, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
@@ -221,7 +221,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(2000, "395", "336", testdatagen.DateInsidePeakRateCycle)
+	fee, err := engine.nonLinehaulChargeTotalCents(unit.Pound(2000), "395", "336", testdatagen.DateInsidePeakRateCycle)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
