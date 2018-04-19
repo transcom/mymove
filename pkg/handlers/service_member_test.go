@@ -15,8 +15,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
-	t := suite.T()
-
 	// Given: A servicemember and a user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -38,21 +36,17 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	}
 	// And: show ServiceMember is queried
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-	showResponse := showHandler.Handle(params)
+	response := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
-	okResponse := showResponse.(*servicememberop.ShowServiceMemberOK)
-	servicemember := okResponse.Payload
+	suite.Assertions.IsType(&servicememberop.ShowServiceMemberOK{}, response)
+	okResponse := response.(*servicememberop.ShowServiceMemberOK)
 
 	// And: Returned query to include our added servicemember
-	if servicemember.UserID.String() != user.ID.String() {
-		t.Errorf("Expected an servicemember to have user ID '%v'. None do.", user.ID)
-	}
+	suite.Assertions.Equal(user.ID.String(), okResponse.Payload.UserID.String())
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
-	t := suite.T()
-
 	// Given: A servicemember with a not-logged-in user and a separate logged-in user
 	notLoggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -81,19 +75,15 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	}
 	// And: Show servicemember is queried
 	showHandler := ShowServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
-	showResponse := showHandler.Handle(showServiceMemberParams)
+	response := showHandler.Handle(showServiceMemberParams)
 
-	errResponse := showResponse.(*errResponse)
-	code := errResponse.code
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
 
-	if code != http.StatusForbidden {
-		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
-	}
+	suite.Assertions.Equal(http.StatusForbidden, errResponse.code)
 }
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
-	t := suite.T()
-
 	// Given: A logged-in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -131,24 +121,17 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.CreateServiceMemberCreated)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
 
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
 	servicemembers := []models.ServiceMember{}
 	query.All(&servicemembers)
 
-	if len(servicemembers) != 1 {
-		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
-	}
+	suite.Assertions.Len(servicemembers, 1)
 }
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
-	t := suite.T()
-
 	// Given: A logged-in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -173,39 +156,26 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	smResponse, ok := response.(*servicememberop.CreateServiceMemberCreated)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
+	okResponse := response.(*servicememberop.CreateServiceMemberCreated)
 
-	if !*smResponse.Payload.HasSocialSecurityNumber {
-		t.Error("The retrieved SM doesn't indicate that it has an SSN.")
-	}
+	suite.Assertions.True(*okResponse.Payload.HasSocialSecurityNumber)
 
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
 	servicemembers := []models.ServiceMember{}
 	query.All(&servicemembers)
 
-	if len(servicemembers) != 1 {
-		t.Errorf("Expected to find 1 servicemember but found %v", len(servicemembers))
-	}
+	suite.Assertions.Len(servicemembers, 1)
 
-	serviceMemberID, _ := uuid.FromString(smResponse.Payload.ID.String())
+	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
 	serviceMember, err := models.FetchServiceMember(suite.db, user, serviceMemberID)
-	if err != nil {
-		t.Error("error fetching service member")
-	}
+	suite.Assertions.NoError(err)
 
-	if !serviceMember.SocialSecurityNumber.Matches(ssn) {
-		t.Error("ssn doesn't match the created SSN")
-	}
-
+	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
-	t := suite.T()
-
 	// Given: a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -258,10 +228,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	okResponse, ok := response.(*servicememberop.PatchServiceMemberOK)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
+	okResponse := response.(*servicememberop.PatchServiceMemberOK)
 
 	serviceMemberPayload := okResponse.Payload
 
@@ -276,14 +244,10 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	addresses := []models.Address{}
 	suite.db.All(&addresses)
 
-	if len(addresses) != 2 {
-		t.Errorf("Expected to find one address but found %v", len(addresses))
-	}
+	suite.Assertions.Len(addresses, 2)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
-	t := suite.T()
-
 	// Given: a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -322,17 +286,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
+	suite.Assertions.IsType(&errResponse{}, response)
 	errResponse := response.(*errResponse)
-	code := errResponse.code
 
-	if code != http.StatusForbidden {
-		t.Errorf("Expected to receive a forbidden HTTP code, got %v", code)
-	}
+	suite.Assertions.Equal(http.StatusForbidden, errResponse.code)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
-	t := suite.T()
-
 	// Given: a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -360,17 +320,13 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
+	suite.Assertions.IsType(&errResponse{}, response)
 	errResponse := response.(*errResponse)
-	code := errResponse.code
 
-	if code != http.StatusNotFound {
-		t.Errorf("Expected to receive a not found HTTP code, got %v", code)
-	}
+	suite.Assertions.Equal(http.StatusNotFound, errResponse.code)
 }
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
-	t := suite.T()
-
 	// Given: a logged in user with a servicemember
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -399,8 +355,5 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	handler := PatchServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*servicememberop.PatchServiceMemberOK)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
 }
