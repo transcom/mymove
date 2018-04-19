@@ -46,13 +46,13 @@ func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 string) (Tariff
 	err := db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
 		Where(`tariff400ng_zip3s.zip3 = $1`, zip3).First(&serviceArea)
 	if err != nil {
-		return serviceArea, errors.Wrap(err, "could not find a matching Tariff400ngServiceArea")
+		return serviceArea, errors.Wrapf(err, "could not find a matching Tariff400ngServiceArea for zip3 %s", zip3)
 	}
 	return serviceArea, nil
 }
 
 // FetchTariff400ngLinehaulFactor returns linehaul_factor for an origin or destination based on service area.
-func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEngineDate time.Time) (linehaulFactor unit.Cents, err error) {
+func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, date time.Time) (linehaulFactor unit.Cents, err error) {
 	sql := `SELECT
 			linehaul_factor
 		FROM
@@ -63,7 +63,10 @@ func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, rateEng
 			effective_date_lower <= $2 AND $2 < effective_date_upper;
 
 		`
-	err = tx.RawQuery(sql, serviceArea, rateEngineDate).First(&linehaulFactor)
+	err = tx.RawQuery(sql, serviceArea, date).First(&linehaulFactor)
+	if err != nil {
+		return linehaulFactor, errors.Wrapf(err, "could not find service area with area %d on date %s", serviceArea, date)
+	}
 
 	return linehaulFactor, err
 }

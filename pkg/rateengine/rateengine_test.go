@@ -105,9 +105,9 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := unit.Cents(61643)
-	if cost.PPMPayback != expected {
-		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, cost.PPMPayback)
+	expected := unit.Cents(64887)
+	if cost.GCC != expected {
+		t.Errorf("wrong GCC: expected %d, got %d", expected, cost.GCC)
 	}
 }
 
@@ -142,7 +142,7 @@ func TestRateEngineSuite(t *testing.T) {
 
 	// Use a no-op logger during testing
 	logger := zap.NewNop()
-	planner := route.NewTestingPlanner()
+	planner := route.NewTestingPlanner(1234)
 
 	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}
 	suite.Run(t, hs)
