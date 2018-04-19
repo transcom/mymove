@@ -36,7 +36,7 @@ export class Landing extends Component {
       <div className="usa-grid">
         <h1>Welcome! </h1>
         <div>
-          {(this.props.loggedInUserError || isLoggedOut) && (
+          {unknownUserError && (
             <Alert type="error" heading="An error occurred">
               There was an error starting your move.
             </Alert>
