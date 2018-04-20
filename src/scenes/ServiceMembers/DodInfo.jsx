@@ -9,26 +9,15 @@ import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-// todo: add branch (once can get yaml anchors to work)
 const subsetOfFields = ['branch', 'edipi', 'social_security_number', 'rank'];
+
 const uiSchema = {
   title: 'Create your profile',
   order: subsetOfFields,
   requiredFields: subsetOfFields,
-  definitions: {
-    MilitaryBranch: {
-      type: 'string',
-      enum: ['ARMY', 'NAVY', 'MARINES', 'AIRFORCE', 'COASTGUARD'],
-    },
-  },
   todos: (
     <ul>
       <li>SSN should be masked when not active</li>
-      <li>
-        some of these fields will be hidden when electronic orders are a thing
-        for some branches
-      </li>
-      <li>DDS requested that backend calls branch affiliation</li>
     </ul>
   ),
 };
@@ -42,11 +31,11 @@ export class DodInfo extends Component {
   }
 
   handleSubmit = () => {
-    // const pendingValues = this.props.formData.values;
-    // if (pendingValues) {
-    //   const patch = pick(pendingValues, subsetOfFields);
-    //   this.props.updateServiceMember(patch);
-    // }
+    const pendingValues = this.props.formData.values;
+    if (pendingValues) {
+      const patch = pick(pendingValues, subsetOfFields);
+      this.props.updateServiceMember(patch);
+    }
   };
 
   render() {
