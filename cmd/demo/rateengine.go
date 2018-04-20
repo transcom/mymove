@@ -22,7 +22,7 @@ func main() {
 	pop.AddLookupPaths("config")
 	db, err := pop.Connect("test")
 	if err != nil {
-		log.Fatalf("count not connect to database: %+v", err)
+		log.Fatalf("could not connect to database: %+v", err)
 	}
 	db.TruncateAll()
 
@@ -44,7 +44,7 @@ func main() {
 
 		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, inverseDiscount)
 		if err != nil {
-			log.Fatalf("cound not compute PPM: %+v", err)
+			log.Fatalf("could not compute PPM: %+v", err)
 		}
 		fmt.Printf("%+v", cost)
 
