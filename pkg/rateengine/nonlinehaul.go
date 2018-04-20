@@ -1,16 +1,17 @@
 package rateengine
 
 import (
-	"go.uber.org/zap"
 	"math"
 	"time"
+
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -18,7 +19,7 @@ func (re *RateEngine) serviceFeeCents(cwt unit.CWT, zip3 string) (unit.Cents, er
 }
 
 func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -32,7 +33,7 @@ func (re *RateEngine) fullPackCents(cwt unit.CWT, zip3 string, date time.Time) (
 }
 
 func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time) (unit.Cents, error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
@@ -47,11 +48,11 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 
 func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (unit.Cents, error) {
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
-	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3)
+	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		return 0, err
 	}
-	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3)
+	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		return 0, err
 	}

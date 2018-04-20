@@ -393,8 +393,8 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
-		score := mps + i + 1
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, float64(score)*.5, float64(score)*.5)
+		score := float64(mps + i + 1)
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, score*.5, float64(score)*.5)
 	}
 
 	err = queue.assignPerformanceBands()
