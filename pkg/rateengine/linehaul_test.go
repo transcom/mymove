@@ -1,20 +1,19 @@
 package rateengine
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	mileage, err := engine.determineMileage(10024, 18209)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	mileage, err := engine.determineMileage("39574", "33633")
 	if err != nil {
 		t.Error("Unable to determine mileage: ", err)
 	}
-	expected := 1000
+	expected := 1234
 	if mileage != expected {
 		t.Errorf("Determined mileage incorrectly. Expected %d, got %d", expected, mileage)
 	}
@@ -22,9 +21,9 @@ func (suite *RateEngineSuite) Test_CheckDetermineMileage() {
 
 func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
-	expected := 128000
+	expected := unit.Cents(128000)
 
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 3101,
@@ -44,40 +43,33 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 		WeightLbsUpper:     4000,
 		RateCents:          158000,
 		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		EffectiveDateLower: testdatagen.NonPeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.NonPeakRateCycleEnd,
 	}
 
-	_, err := suite.db.ValidateAndSave(&newBaseLinehaul)
-	if err != nil {
-		t.Errorf("The object didn't save: %s", err)
-	}
-
-	_, otherErr := suite.db.ValidateAndSave(&otherBaseLinehaul)
-	if otherErr != nil {
-		t.Errorf("The object didn't save: %s", otherErr)
-	}
+	suite.mustSave(&newBaseLinehaul)
+	suite.mustSave(&otherBaseLinehaul)
 
 	mileage := 3200
-	cwt := 39
+	weight := unit.Pound(3900)
 	date := testdatagen.DateInsidePeakRateCycle
 
-	blh, err := engine.baseLinehaul(mileage, cwt, date)
+	blh, err := engine.baseLinehaul(mileage, weight, date)
 	if blh != expected {
 		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
+	}
+	if err != nil {
+		t.Errorf("Encountered error trying to get baseLinehaul: %v", err)
 	}
 }
 
 func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	// Load fake data
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
-
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -91,16 +83,19 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceArea:        428,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
-	linehaulFactor, err := engine.linehaulFactors(60, 395, testdatagen.RateEngineDate)
+	linehaulFactor, err := engine.linehaulFactors(60, "395", testdatagen.RateEngineDate)
 	if err != nil {
 		t.Error("Unable to determine linehaulFactor: ", err)
 	}
-	expected := 3420
+	expected := unit.Cents(3420)
 	if linehaulFactor != expected {
 		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulFactor)
 	}
@@ -108,10 +103,10 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 
 func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	mileage := 799
-	cwt := 40
-	rate := 5656
+	cwt := unit.CWT(40)
+	rate := unit.Cents(5656)
 
 	sh := models.Tariff400ngShorthaulRate{
 		CwtMilesLower:      1,
@@ -130,11 +125,13 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	weight := 2000
-	expected := 8820
-	zip3Austin := 787
-	zip3SanFrancisco := 941
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+	weight := unit.Pound(2000)
+	expected := unit.Cents(11462)
+	zip3Austin := "787"
+	zip5Austin := "78717"
+	zip3SanFrancisco := "941"
+	zip5SanFrancisco := "94103"
 
 	// $4642 is the 2018 baseline rate for a 1700 mile (Austin -> SF), 2000lb move
 	newBaseLinehaul := models.Tariff400ngLinehaulRate{
@@ -144,8 +141,8 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		WeightLbsUpper:     4000,
 		RateCents:          4642,
 		Type:               "ConusLinehaul",
-		EffectiveDateLower: testdatagen.RateEngineDate,
-		EffectiveDateUpper: testdatagen.RateEngineDate,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&newBaseLinehaul)
 
@@ -178,6 +175,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa1)
 
@@ -188,24 +188,14 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa2)
 
-	// Create base linehaul rate for something within our weight and mileage
-	linehaulRate := models.Tariff400ngLinehaulRate{
-		WeightLbsLower:     weight - 100,
-		WeightLbsUpper:     weight + 200,
-		DistanceMilesLower: 1,
-		DistanceMilesUpper: 6000,
-		Type:               "ConusLinehaul",
-		RateCents:          2000,
-		EffectiveDateLower: testdatagen.PeakRateCycleStart,
-		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-	}
-	suite.mustSave(&linehaulRate)
-
 	linehaulChargeTotal, err := engine.linehaulChargeTotal(
-		weight, zip3Austin, zip3SanFrancisco, testdatagen.DateInsidePeakRateCycle)
+		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}

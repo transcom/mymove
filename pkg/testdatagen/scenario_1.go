@@ -27,16 +27,16 @@ func RunScenarioOne(db *pop.Connection) {
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
-	tsp1, _ := MakeTSP(db, "Excellent TSP", "TSP1")
-	tsp2, _ := MakeTSP(db, "Pretty Good TSP", "TSP2")
-	tsp3, _ := MakeTSP(db, "Good TSP", "TSP3")
-	tsp4, _ := MakeTSP(db, "OK TSP", "TSP4")
-	tsp5, _ := MakeTSP(db, "Bad TSP", "TSP5")
+	tsp1, _ := MakeTSP(db, "Excellent TSP", RandomSCAC())
+	tsp2, _ := MakeTSP(db, "Pretty Good TSP", RandomSCAC())
+	tsp3, _ := MakeTSP(db, "Good TSP", RandomSCAC())
+	tsp4, _ := MakeTSP(db, "OK TSP", RandomSCAC())
+	tsp5, _ := MakeTSP(db, "Bad TSP", RandomSCAC())
 
-	// TSPs should be orderd by offer_count first, then BVS.
-	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0)
-	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0)
-	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0)
-	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0)
-	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0)
+	// TSPs should be ordered by offer_count first, then BVS.
+	MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 4.2, 4.2)
+	MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 3.3, 3.3)
+	MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 2.1, 2.1)
+	MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 1.1, 1.1)
+	MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, .5, .5)
 }

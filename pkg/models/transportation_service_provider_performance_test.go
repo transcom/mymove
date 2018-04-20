@@ -92,8 +92,8 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, 2.2, 1)
 
 	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
 	if err != nil {
@@ -114,8 +114,8 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0)
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, 2, 2.3)
 	band := 1
 
 	err := AssignQualityBandToTSPPerformance(suite.db, band, perf.ID)
@@ -144,12 +144,12 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", "TEST")
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0)
+		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, 4.5, 4.6)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
-	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", "TEST")
-	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0)
+	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", testdatagen.RandomSCAC())
+	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, 2.2, 1.9)
 
 	// Fetch TSPs in TDL
 	tspsbb, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
@@ -171,14 +171,14 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, 4.4, 4.4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+3, 0, 4.4, 4.4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(1), mps+2, 0, 4.4, 4.4)
 
 	tspp, err := NextTSPPerformanceInQualityBand(suite.db, tdl.ID, 1, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -354,17 +354,17 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	t := suite.T()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP3")
-	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", "TSP4")
-	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", "TSP5")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
+	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", testdatagen.RandomSCAC())
+	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", testdatagen.RandomSCAC())
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, 4.4, 4.4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, 4.3, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+3, 0, 3.2, 3.2)
+	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+2, 0, 2.1, 2.1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, 1.1, 1.1)
 
 	tsps, err := GatherNextEligibleTSPPerformances(suite.db, tdl.ID, testdatagen.DateInsidePerformancePeriod,
 		testdatagen.DateInsidePeakRateCycle)
@@ -394,13 +394,13 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", "TSP2")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
 	// What matter is the BVS score order; offer count has no influence.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, 4.5, 4.5)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, 3, 2.9)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, nil, 15, 1, 1.1, 1.3)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
@@ -427,11 +427,11 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", "TSP1")
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", "TSP2")
+	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, 3.3, 3.4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, 1.9, 1.7)
 
 	tsps, err := FetchTSPPerformanceForQualityBandAssignment(suite.db, tdl.ID, mps)
 
@@ -443,6 +443,70 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 		t.Errorf("Incorrect TSP returned. Expected %s, received %s.",
 			tsp1.ID,
 			tsps[0].TransportationServiceProviderID)
+	}
+}
+
+// Test_FetchLinehaulRate tests that the discount rate for the TSP with the best BVS
+// for the specified channel and date is returned.
+func (suite *ModelSuite) Test_FetchLinehaulRateBVS() {
+	t := suite.T()
+
+	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
+	tsp, _ := testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+
+	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 320, Region: 6})
+	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+
+	tspPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  90,
+		LinehaulRate:                    50.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&tspPerformance)
+
+	lowerTSPPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.PeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  89,
+		LinehaulRate:                    55.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&lowerTSPPerformance)
+
+	otherRateCycleTSPPerformance := TransportationServiceProviderPerformance{
+		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,
+		PerformancePeriodEnd:            testdatagen.PerformancePeriodEnd,
+		RateCycleStart:                  testdatagen.NonPeakRateCycleStart,
+		RateCycleEnd:                    testdatagen.NonPeakRateCycleEnd,
+		TrafficDistributionListID:       tdl.ID,
+		TransportationServiceProviderID: tsp.ID,
+		QualityBand:                     swag.Int(1),
+		BestValueScore:                  91,
+		LinehaulRate:                    55.5,
+		SITRate:                         50.0,
+	}
+	suite.mustSave(&otherRateCycleTSPPerformance)
+
+	rate, err := FetchLinehaulRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
+	if err != nil {
+		t.Fatalf("Failed to find tsp performance: %s", err)
+	}
+
+	expected := 50.5
+	if rate != expected {
+		t.Errorf("Wrong discount rate: expected %v, got %v", expected, rate)
 	}
 }
 

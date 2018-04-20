@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"math"
 	"sort"
@@ -12,7 +11,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	//"go.uber.org/zap"
+	"github.com/pkg/errors"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -39,6 +38,8 @@ type TransportationServiceProviderPerformance struct {
 	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
 	QualityBand                     *int      `db:"quality_band"`
 	BestValueScore                  int       `db:"best_value_score"`
+	LinehaulRate                    float64   `db:"linehaul_rate"`
+	SITRate                         float64   `db:"sit_rate"`
 	OfferCount                      int       `db:"offer_count"`
 }
 
@@ -243,4 +244,38 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 	}
 
 	return start, end
+}
+
+// FetchLinehaulRate returns the discount rate for the TSP with the highest
+// BVS during the specified data, limited to those TSPs in the channel defined by the
+// originZip and destinationZip.
+func FetchLinehaulRate(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (float64, error) {
+	rateArea, err := FetchRateAreaForZip5(db, originZip)
+	if err != nil {
+		return 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)
+	}
+	region, err := FetchRegionForZip5(db, destinationZip)
+	if err != nil {
+		return 0.0, errors.Wrapf(err, "could not find a region for zip %s", destinationZip)
+	}
+
+	var tspPerformance TransportationServiceProviderPerformance
+
+	query := `
+		SELECT tspp.*
+		FROM transportation_service_provider_performances AS tspp
+		LEFT JOIN traffic_distribution_lists AS tdl ON tdl.id = tspp.traffic_distribution_list_id
+		WHERE
+			tdl.source_rate_area = $1
+			AND tdl.destination_region = $2
+			AND tdl.code_of_service = $3
+			AND tspp.rate_cycle_start <= $4 AND tspp.rate_cycle_end > $4
+		ORDER BY tspp.best_value_score DESC
+	`
+
+	err = db.RawQuery(query, rateArea, region, cos, date).First(&tspPerformance)
+	if err != nil {
+		return 0.0, errors.Wrap(err, "could find the tsp performance")
+	}
+	return tspPerformance.LinehaulRate, nil
 }

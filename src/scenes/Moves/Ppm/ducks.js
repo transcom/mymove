@@ -20,7 +20,7 @@ export function setPendingPpmWeight(value) {
 }
 
 export function getIncentive(weight) {
-  // todo: this will probably need more information for real rate engince
+  // todo: this will probably need more information for real rate engine
   return {
     type: GET_INCENTIVE,
     payload: `$${0.75 * weight} - $${1.15 * weight}`,

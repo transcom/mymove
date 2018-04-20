@@ -1,0 +1,2 @@
+add_column("transportation_service_provider_performances", "linehaul_rate", "float", {})
+add_column("transportation_service_provider_performances", "sit_rate", "float", {})

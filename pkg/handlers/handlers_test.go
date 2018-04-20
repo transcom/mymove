@@ -3,14 +3,19 @@ package handlers
 import (
 	"log"
 	"mime/multipart"
+	"net/http"
 	"os"
 	"path"
 	"testing"
 
 	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
+
+	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/models"
 )
 
 type HandlerSuite struct {
@@ -25,27 +30,68 @@ func (suite *HandlerSuite) SetupTest() {
 }
 
 func (suite *HandlerSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
 	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
-		log.Panic(err)
+		suite.T().Errorf("Errors encountered saving %v: %v", model, err)
 	}
-	if verrs.Count() > 0 {
-		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
+	if verrs.HasAny() {
+		suite.T().Errorf("Validation errors encountered saving %v: %v", model, verrs)
 	}
+}
+
+func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
+	errResponse, ok := resp.(*errResponse)
+	if !ok || errResponse.code != code {
+		suite.T().Errorf("Expected %s Response: %v", name, resp)
+	}
+}
+
+func (suite *HandlerSuite) checkResponseBadRequest(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusBadRequest, "BadRequest")
+}
+
+func (suite *HandlerSuite) checkResponseUnauthorized(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusUnauthorized, "Unauthorized")
+}
+
+func (suite *HandlerSuite) checkResponseForbidden(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusForbidden, "Forbidden")
+}
+
+func (suite *HandlerSuite) checkResponseNotFound(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusNotFound, "NotFound")
+}
+
+func (suite *HandlerSuite) checkResponseInternalServerError(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusInternalServerError, "InternalServerError")
+}
+
+func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
+	suite.checkErrorResponse(resp, http.StatusTeapot, "Teapot")
+}
+
+func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.User) *http.Request {
+	ctx := req.Context()
+	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = context.PopulateUserModel(ctx, user)
+	return req.WithContext(ctx)
 }
 
 func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
 
 	info, err := os.Stat(fixturePath)
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 	header := multipart.FileHeader{
 		Filename: name,
@@ -53,7 +99,7 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	}
 	data, err := os.Open(fixturePath)
 	if err != nil {
-		suite.T().Fatal(err)
+		suite.T().Error(err)
 	}
 	suite.closeFile(data)
 	return &runtime.File{

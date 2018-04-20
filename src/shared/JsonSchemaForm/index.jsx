@@ -2,7 +2,7 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
-import { isEmpty } from 'lodash';
+import { isEmpty, uniq } from 'lodash';
 import { reduxForm } from 'redux-form';
 import './index.css';
 
@@ -89,7 +89,10 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
         }
       }
     } else {
-      console.error('The schema should have fields for all present values..');
+      console.error(
+        'The schema should have fields for all present values..',
+        key,
+      );
     }
   });
 
@@ -131,25 +134,44 @@ const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
     recursivleyAnnotateRequiredFields(schema);
 
-    const fields = schema.properties || [];
+    const fields = schema.properties || {};
     return uiSchema.order.map(i =>
       renderGroupOrField(i, fields, uiSchema, nameSpace),
     );
   }
 };
+
+const addUiSchemaRequiredFields = (schema, uiSchema) => {
+  if (!uiSchema.requiredFields) return;
+  if (!schema.properties) return;
+  if (!schema.required) schema.required = uiSchema.requiredFields;
+  schema.required = uniq(schema.required.concat(uiSchema.requiredFields));
+};
+
 const JsonSchemaForm = props => {
-  const { pristine, submitting, invalid } = props;
+  const { pristine, submitting, invalid, className } = props;
   const { handleSubmit, schema, showSubmit } = props;
-  const title = schema ? schema.title : '';
   const uiSchema = props.subsetOfUiSchema
     ? Object.assign({}, props.uiSchema, {
         order: props.subsetOfUiSchema,
       })
     : props.uiSchema;
+
+  addUiSchemaRequiredFields(schema, uiSchema);
+  const title = uiSchema.title || (schema ? schema.title : '');
+  const description = uiSchema.description;
+  const todos = uiSchema.todos;
   return (
-    <form className="default" onSubmit={handleSubmit}>
-      <h1>{title}</h1>
+    <form className={className} onSubmit={handleSubmit}>
+      <h1 className="sm-heading">{title}</h1>
+      {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
+      {todos && (
+        <div className="Todo">
+          <h3>Todo:</h3>
+          {todos}
+        </div>
+      )}
       {showSubmit && (
         <button type="submit" disabled={pristine || submitting || invalid}>
           Submit
@@ -169,6 +191,7 @@ JsonSchemaForm.propTypes = {
 
 JsonSchemaForm.defaultProps = {
   showSubmit: true,
+  className: 'default',
 };
 
 export const reduxifyForm = name =>

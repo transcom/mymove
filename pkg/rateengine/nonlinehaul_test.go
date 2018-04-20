@@ -1,20 +1,17 @@
 package rateengine
 
 import (
-	"time"
-
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *RateEngineSuite) Test_CheckServiceFee() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -28,17 +25,20 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		ServiceArea:        428,
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(50, 395)
+	fee, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
 
-	expected := 17500
+	expected := unit.Cents(17500)
 	if fee != expected {
 		t.Errorf("wrong service fee: expected %d, got %d", expected, fee)
 	}
@@ -47,12 +47,10 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 func (suite *RateEngineSuite) Test_CheckFullPack() {
 	t := suite.T()
 
-	engine := NewRateEngine(suite.db, suite.logger)
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -67,8 +65,11 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -77,17 +78,17 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		WeightLbsLower:     0,
 		WeightLbsUpper:     16001,
 		RateCents:          5429,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullPackRate)
 
-	fee, err := engine.fullPackCents(50, 395)
+	fee, err := engine.fullPackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full pack fee: %s", err)
 	}
 
-	expected := 271450
+	expected := unit.Cents(271450)
 	if fee != expected {
 		t.Errorf("wrong full pack fee: expected %d, got %d", expected, fee)
 	}
@@ -95,13 +96,10 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 
 func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	t := suite.T()
-
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
-	engine := NewRateEngine(suite.db, suite.logger)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -116,8 +114,11 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -126,25 +127,25 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		WeightLbsLower:     0,
 		WeightLbsUpper:     16001,
 		RateCents:          5429,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
 		RateMillicents:     542900,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.fullUnpackCents(50, 395)
+	fee, err := engine.fullUnpackCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate full unpack fee: %s", err)
 	}
 
-	expected := 27145
+	expected := unit.Cents(27145)
 	if fee != expected {
 		t.Errorf("wrong full unpack fee: expected %d, got %d", expected, fee)
 	}
@@ -152,12 +153,10 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
-	engine := NewRateEngine(suite.db, suite.logger)
-	defaultRateDateLower := time.Date(2017, 5, 15, 0, 0, 0, 0, time.UTC)
-	defaultRateDateUpper := time.Date(2018, 5, 15, 0, 0, 0, 0, time.UTC)
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 
 	originZip3 := models.Tariff400ngZip3{
-		Zip3:          395,
+		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
 		ServiceArea:   428,
@@ -172,13 +171,16 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&originServiceArea)
 
 	destinationZip3 := models.Tariff400ngZip3{
-		Zip3:          336,
+		Zip3:          "336",
 		BasepointCity: "Tampa",
 		State:         "FL",
 		ServiceArea:   197,
@@ -193,8 +195,11 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		LinehaulFactor:     69,
 		ServiceChargeCents: 663,
 		ServicesSchedule:   1,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&destinationServiceArea)
 
@@ -203,26 +208,26 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		WeightLbsLower:     0,
 		WeightLbsUpper:     16001,
 		RateCents:          5429,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullPackRate)
 
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           1,
 		RateMillicents:     542900,
-		EffectiveDateLower: defaultRateDateLower,
-		EffectiveDateUpper: defaultRateDateUpper,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(2000, 395, 336)
+	fee, err := engine.nonLinehaulChargeTotalCents(unit.Pound(2000), "395", "336", testdatagen.DateInsidePeakRateCycle)
 
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
 	// (7000 + 13260 + 108580 + 10858)
-	expected := 139698
+	expected := unit.Cents(139698)
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}
