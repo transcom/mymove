@@ -47,15 +47,11 @@ func (re *RateEngine) baseLinehaul(mileage int, weight unit.Pound, date time.Tim
 
 // Determine the Linehaul Factors (OLF and DLF)
 func (re *RateEngine) linehaulFactors(cwt unit.CWT, zip3 string, date time.Time) (linehaulFactorCents unit.Cents, err error) {
-	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3)
+	serviceArea, err := models.FetchTariff400ngServiceAreaForZip3(re.db, zip3, date)
 	if err != nil {
 		return 0, err
 	}
-	linehaulFactorCents, err = models.FetchTariff400ngLinehaulFactor(re.db, serviceArea.ServiceArea, date)
-	if err != nil {
-		return 0, err
-	}
-	return linehaulFactorCents.Multiply(cwt.Int()), nil
+	return serviceArea.LinehaulFactor.Multiply(cwt.Int()), nil
 }
 
 // Determine Shorthaul (SH) Charge (ONLY applies if shipment moves 800 miles and less)

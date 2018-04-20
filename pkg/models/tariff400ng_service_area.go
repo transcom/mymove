@@ -24,6 +24,9 @@ type Tariff400ngServiceArea struct {
 	ServiceChargeCents unit.Cents `json:"service_charge_cents" db:"service_charge_cents"`
 	EffectiveDateLower time.Time  `json:"effective_date_lower" db:"effective_date_lower"`
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
+	SIT185ARateCents   unit.Cents `json:"sit_185a_rate_cents" db:"sit_185a_rate_cents"`
+	SIT185BRateCents   unit.Cents `json:"sit_185b_rate_cents" db:"sit_185b_rate_cents"`
+	SITPDSchedule      int        `json:"sit_pd_schedule" db:"sit_pd_schedule"`
 }
 
 // Tariff400ngServiceAreas is not required by pop and may be deleted
@@ -34,6 +37,9 @@ type Tariff400ngServiceAreas []Tariff400ngServiceArea
 func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.IntIsGreaterThan{Field: t.ServiceChargeCents.Int(), Name: "ServiceChargeCents", Compared: -1},
+		&validators.IntIsPresent{Field: t.SIT185ARateCents.Int(), Name: "SIT185ARateCents"},
+		&validators.IntIsPresent{Field: t.SIT185BRateCents.Int(), Name: "SIT185BRateCents"},
+		&validators.IntIsPresent{Field: t.SITPDSchedule, Name: "SITPDSchedule"},
 		&validators.TimeAfterTime{
 			FirstTime: t.EffectiveDateUpper, FirstName: "EffectiveDateUpper",
 			SecondTime: t.EffectiveDateLower, SecondName: "EffectiveDateLower"},
@@ -41,32 +47,23 @@ func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors,
 }
 
 // FetchTariff400ngServiceAreaForZip3 returns the service area for a specified Zip3.
-func FetchTariff400ngServiceAreaForZip3(db *pop.Connection, zip3 string) (Tariff400ngServiceArea, error) {
+func FetchTariff400ngServiceAreaForZip3(tx *pop.Connection, zip3 string, date time.Time) (Tariff400ngServiceArea, error) {
 	serviceArea := Tariff400ngServiceArea{}
-	err := db.Q().LeftJoin("tariff400ng_zip3s", "tariff400ng_zip3s.service_area=tariff400ng_service_areas.service_area").
-		Where(`tariff400ng_zip3s.zip3 = $1`, zip3).First(&serviceArea)
+	sql := `SELECT
+				tariff400ng_service_areas.*
+			FROM
+				tariff400ng_service_areas
+			LEFT JOIN
+				tariff400ng_zip3s ON tariff400ng_zip3s.service_area = tariff400ng_service_areas.service_area
+			WHERE
+				tariff400ng_zip3s.zip3 = $1
+			AND
+				effective_date_lower <= $2
+			AND effective_date_upper > $2;
+			`
+	err := tx.RawQuery(sql, zip3, date).First(&serviceArea)
 	if err != nil {
 		return serviceArea, errors.Wrapf(err, "could not find a matching Tariff400ngServiceArea for zip3 %s", zip3)
 	}
 	return serviceArea, nil
-}
-
-// FetchTariff400ngLinehaulFactor returns linehaul_factor for an origin or destination based on service area.
-func FetchTariff400ngLinehaulFactor(tx *pop.Connection, serviceArea int, date time.Time) (linehaulFactor unit.Cents, err error) {
-	sql := `SELECT
-			linehaul_factor
-		FROM
-			tariff400ng_service_areas
-		WHERE
-			service_area = $1
-		AND
-			effective_date_lower <= $2 AND $2 < effective_date_upper;
-
-		`
-	err = tx.RawQuery(sql, serviceArea, date).First(&linehaulFactor)
-	if err != nil {
-		return linehaulFactor, errors.Wrapf(err, "could not find service area with area %d on date %s", serviceArea, date)
-	}
-
-	return linehaulFactor, err
 }

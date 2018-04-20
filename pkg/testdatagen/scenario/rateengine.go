@@ -70,6 +70,9 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(60),
 		ServiceChargeCents: unit.Cents(361),
+		SIT185ARateCents:   unit.Cents(1),
+		SIT185BRateCents:   unit.Cents(1),
+		SITPDSchedule:      1,
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
 	}
@@ -81,6 +84,9 @@ func RunRateEngineScenario1(db *pop.Connection) {
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(431),
+		SIT185ARateCents:   unit.Cents(1),
+		SIT185BRateCents:   unit.Cents(1),
+		SITPDSchedule:      1,
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
 	}

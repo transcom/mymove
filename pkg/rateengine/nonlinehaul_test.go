@@ -27,10 +27,13 @@ func (suite *RateEngineSuite) Test_CheckServiceFee() {
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
-	fee, err := engine.serviceFeeCents(unit.CWT(50), "395")
+	fee, err := engine.serviceFeeCents(unit.CWT(50), "395", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate service fee: %s", err)
 	}
@@ -64,6 +67,9 @@ func (suite *RateEngineSuite) Test_CheckFullPack() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -110,6 +116,9 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -164,6 +173,9 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&originServiceArea)
 
@@ -185,6 +197,9 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&destinationServiceArea)
 

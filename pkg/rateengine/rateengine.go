@@ -102,14 +102,14 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	cost.LinehaulChargeTotal = linehaulChargeSubtotal.MultiplyFloat64(inverseDiscount)
 
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3)
+	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return
 	}
 	cost.OriginServiceFee = originServiceFee.MultiplyFloat64(inverseDiscount)
 
-	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3)
+	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return

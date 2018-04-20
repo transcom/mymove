@@ -2,6 +2,7 @@ import { combineReducers } from 'redux';
 import { reducer as formReducer } from 'redux-form';
 import { routerReducer } from 'react-router-redux';
 
+import { loggedInUserReducer } from 'shared/User/ducks';
 import userReducer from 'shared/User/ducks';
 import swaggerReducer from 'shared/Swagger/ducks';
 
@@ -17,6 +18,7 @@ import { documentReducer } from 'shared/Uploader/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
+  loggedInUser: loggedInUserReducer,
   swagger: swaggerReducer,
   submittedIssues: issuesReducer,
   submittedMoves: moveReducer,
