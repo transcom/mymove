@@ -74,8 +74,7 @@ export class ContactInfo extends Component {
     }
     const isValid =
       this.refs.currentForm && this.refs.currentForm.valid && prefSelected;
-    const isDirty =
-      this.refs.currentForm && this.refs.currentForm.dirty && prefSelected;
+    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
