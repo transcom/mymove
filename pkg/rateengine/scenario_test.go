@@ -57,9 +57,9 @@ func (suite *RateEngineSuite) Test_Scenario2() {
 	cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, inverseDiscount)
 	suite.Assertions.Nil(err, "could not compute PPM")
 
-	suite.Equal(unit.Cents(421707), cost.LinehaulChargeTotal)
+	suite.Equal(unit.Cents(430147), cost.LinehaulChargeTotal)
 	suite.Equal(unit.Cents(12103), cost.OriginServiceFee)
 	suite.Equal(unit.Cents(11187), cost.DestinationServiceFee)
 	suite.Equal(unit.Cents(183620), cost.FullPackUnpackFee)
-	suite.Equal(unit.Cents(637056), cost.GCC)
+	suite.Equal(unit.Cents(637057), cost.GCC) // Existing system has only 6,370.56
 }

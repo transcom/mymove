@@ -231,7 +231,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		Name:               "San Francisco, CA",
 		ServiceArea:        80,
 		ServicesSchedule:   3,
-		LinehaulFactor:     unit.Cents(253),
+		LinehaulFactor:     unit.Cents(263),
 		ServiceChargeCents: unit.Cents(489),
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
