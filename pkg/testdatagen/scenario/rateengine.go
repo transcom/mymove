@@ -12,10 +12,10 @@ import (
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
-		log.Fatalf("Errors encountered saving %v: %v", model, err)
+		log.Panicf("Errors encountered saving %+v: %v", model, err)
 	}
 	if verrs.HasAny() {
-		log.Fatalf("Validation errors encountered saving %v: %v", model, verrs)
+		log.Panicf("Validation errors encountered saving %+v: %v", model, verrs)
 	}
 }
 
@@ -193,9 +193,6 @@ func RunRateEngineScenario2(db *pop.Connection) {
 	}
 	mustSave(db, &tdl)
 
-	// "sit_185a_rate_cents" : 1447,
-	// "sit_185b_rate_cents" : 51,
-	// "sit_pd_schedule" : 3,
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "San Francisco, CA",
 		ServiceArea:        80,
@@ -204,12 +201,12 @@ func RunRateEngineScenario2(db *pop.Connection) {
 		ServiceChargeCents: unit.Cents(489),
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
+		SIT185ARateCents:   unit.Cents(1447),
+		SIT185BRateCents:   unit.Cents(51),
+		SITPDSchedule:      3,
 	}
 	mustSave(db, &originServiceArea)
 
-	// "sit_185a_rate_cents" : 1642,
-	// "sit_185b_rate_cents" : 70,
-	// "sit_pd_schedule" : 3,
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Austin, TX",
 		ServiceArea:        744,
@@ -218,6 +215,9 @@ func RunRateEngineScenario2(db *pop.Connection) {
 		ServiceChargeCents: unit.Cents(452),
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
+		SIT185ARateCents:   unit.Cents(1642),
+		SIT185BRateCents:   unit.Cents(70),
+		SITPDSchedule:      3,
 	}
 	mustSave(db, &destinationServiceArea)
 
