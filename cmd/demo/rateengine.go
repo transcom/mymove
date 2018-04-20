@@ -30,7 +30,7 @@ func main() {
 	planner := route.NewTestingPlanner(362)
 	engine := rateengine.NewRateEngine(db, logger, planner)
 
-	fmt.Printf("Running scenario %d: New Smyrna Beach, FL -> Awendaw, SC\n", *scenarioNumber)
+	fmt.Printf("Running scenario %d: New Smyrna Beach, FL -> Awendaw, SC\n\n", *scenarioNumber)
 	if *scenarioNumber == 1 {
 		scenario.RunRateEngineScenario1(db)
 
@@ -44,7 +44,19 @@ func main() {
 		if err != nil {
 			log.Fatalf("cound not compute PPM: %+v", err)
 		}
-		fmt.Printf("%+v", cost)
+
+		fmt.Printf("%-30s%s\n", "Base linehaul (non-disc'd):", cost.BaseLinehaul.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Origin linehaul factor:", cost.OriginLinehaulFactor.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Destination linehaul factor:", cost.DestinationLinehaulFactor.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Shorthaul chargeg:", cost.ShorthaulCharge.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Linehaul total (trans. cost):", cost.LinehaulChargeTotal.ToDollarString())
+		fmt.Println("")
+		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginServiceFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack charge:", cost.PackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack charge:", cost.UnpackFee.ToDollarString())
+		fmt.Println("")
+		fmt.Printf("%-30s%s\n", "Government Constructive Cost:", cost.GCC.ToDollarString())
 
 	} else if *scenarioNumber == 2 {
 		scenario.RunRateEngineScenario2(db)

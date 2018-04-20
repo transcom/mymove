@@ -23,3 +23,26 @@ func TestCentsMultiplyFloat64(t *testing.T) {
 		t.Errorf("wrong number of Cents: expected %d, got %d", expected, result)
 	}
 }
+
+func TestCentsToDollarString(t *testing.T) {
+	cents := Cents(1)
+	result := cents.ToDollarString()
+	expected := "$0.01"
+	if result != expected {
+		t.Errorf("wrong conversion of Cents: expected %s, got %s", expected, result)
+	}
+
+	cents = Cents(100)
+	result = cents.ToDollarString()
+	expected = "$1.00"
+	if result != expected {
+		t.Errorf("wrong conversion of Cents: expected %s, got %s", expected, result)
+	}
+
+	cents = Cents(10099)
+	result = cents.ToDollarString()
+	expected = "$100.99"
+	if result != expected {
+		t.Errorf("wrong conversion of Cents: expected %s, got %s", expected, result)
+	}
+}
