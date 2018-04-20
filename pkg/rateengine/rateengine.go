@@ -61,7 +61,8 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 	return originZip3, destinationZip3
 }
 
-func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
+// ComputePPM Calculates the cost of a PPM move.
+func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
 	// Linehaul charges
