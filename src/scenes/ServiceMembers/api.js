@@ -66,7 +66,6 @@ export async function IndexBackupContactsAPI(serviceMemberId) {
       serviceMemberId,
     },
   );
-  console.log('NEVER AGAIN', response.body);
   checkResponse(response, 'failed to get backup contacts due to server error');
   return response.body;
 }

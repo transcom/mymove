@@ -22,7 +22,7 @@ const uiSchema = {
     "If we can't reach you, who can we contact (such as spouse or parent)?",
   order: subsetOfFields,
 
-  requiredFields: ['name', 'email'],
+  requiredFields: ['name', 'email', 'permission'],
   todos: (
     <ul>
       <li>Make it a radio button, not a chooser</li>
