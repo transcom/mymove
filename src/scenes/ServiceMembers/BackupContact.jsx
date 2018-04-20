@@ -9,6 +9,7 @@ import {
   loadServiceMember,
   indexBackupContacts,
   createBackupContact,
+  updateBackupContact,
 } from './ducks';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
@@ -50,7 +51,9 @@ export class BackupContact extends Component {
     console.log('SUBMITTING', pendingValues);
     if (pendingValues) {
       if (this.props.currentBackupContacts.length > 0) {
-        //update existing
+        // update existing
+        const oldOne = this.props.currentBackupContacts[0];
+        this.props.updateBackupContact(oldOne.id, pendingValues);
       } else {
         this.props.createBackupContact(
           this.props.match.params.serviceMemberId,
@@ -72,11 +75,8 @@ export class BackupContact extends Component {
     const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentServiceMember
-      ? pick(currentServiceMember, subsetOfFields)
-      : null;
-    if (initialValues && !initialValues.personal_email)
-      initialValues.personal_email = userEmail;
+    var [backup1, backup2] = this.props.currentBackupContacts;
+    const firstInitialValues = backup1 ? pick(backup1, subsetOfFields) : null;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -95,7 +95,7 @@ export class BackupContact extends Component {
           schema={this.props.schema}
           uiSchema={uiSchema}
           showSubmit={false}
-          initialValues={initialValues}
+          initialValues={firstInitialValues}
         />
       </WizardPage>
     );
@@ -117,6 +117,7 @@ function mapDispatchToProps(dispatch) {
       loadServiceMember,
       indexBackupContacts,
       createBackupContact,
+      updateBackupContact,
     },
     dispatch,
   );

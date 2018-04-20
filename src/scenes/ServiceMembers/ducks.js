@@ -93,6 +93,7 @@ export function loadServiceMember(serviceMemberId) {
 // Reducer
 const initialState = {
   currentServiceMember: null,
+  currentBackupContacts: [],
   hasSubmitError: false,
   hasSubmitSuccess: false,
 };
