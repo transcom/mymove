@@ -51,10 +51,10 @@ func (suite *RateEngineSuite) Test_CheckBaseLinehaul() {
 	suite.mustSave(&otherBaseLinehaul)
 
 	mileage := 3200
-	cwt := 39
+	weight := unit.Pound(3900)
 	date := testdatagen.DateInsidePeakRateCycle
 
-	blh, err := engine.baseLinehaul(mileage, cwt, date)
+	blh, err := engine.baseLinehaul(mileage, weight, date)
 	if blh != expected {
 		t.Errorf("BaseLinehaulCents should have been %d but is %d.", expected, blh)
 	}
@@ -85,6 +85,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&serviceArea)
 
@@ -102,7 +105,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
 	mileage := 799
-	cwt := 40
+	cwt := unit.CWT(40)
 	rate := unit.Cents(5656)
 
 	sh := models.Tariff400ngShorthaulRate{
@@ -123,7 +126,7 @@ func (suite *RateEngineSuite) Test_CheckShorthaulCharge() {
 func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
-	weight := 2000
+	weight := unit.Pound(2000)
 	expected := unit.Cents(11462)
 	zip3Austin := "787"
 	zip5Austin := "78717"
@@ -172,6 +175,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa1)
 
@@ -182,6 +188,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(50),
+		SIT185BRateCents:   unit.Cents(50),
+		SITPDSchedule:      1,
 	}
 	suite.mustSave(&sa2)
 

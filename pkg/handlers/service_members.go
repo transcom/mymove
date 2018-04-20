@@ -2,7 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
@@ -15,29 +15,97 @@ import (
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
-		ID:                        fmtUUID(serviceMember.ID),
-		CreatedAt:                 fmtDateTime(serviceMember.CreatedAt),
-		UpdatedAt:                 fmtDateTime(serviceMember.UpdatedAt),
-		UserID:                    fmtUUID(user.ID),
-		Edipi:                     serviceMember.Edipi,
-		Branch:                    serviceMember.Branch,
-		Rank:                      serviceMember.Rank,
-		FirstName:                 serviceMember.FirstName,
-		MiddleInitial:             serviceMember.MiddleInitial,
-		LastName:                  serviceMember.LastName,
-		Suffix:                    serviceMember.Suffix,
-		Telephone:                 serviceMember.Telephone,
-		SecondaryTelephone:        serviceMember.SecondaryTelephone,
-		PersonalEmail:             (*strfmt.Email)(serviceMember.PersonalEmail),
-		PhoneIsPreferred:          serviceMember.PhoneIsPreferred,
-		SecondaryPhoneIsPreferred: serviceMember.SecondaryPhoneIsPreferred,
-		EmailIsPreferred:          serviceMember.EmailIsPreferred,
-		ResidentialAddress:        payloadForAddressModel(serviceMember.ResidentialAddress),
-		BackupMailingAddress:      payloadForAddressModel(serviceMember.BackupMailingAddress),
-		HasSocialSecurityNumber:   fmtBool(serviceMember.SocialSecurityNumberID != nil),
-		IsProfileComplete:         fmtBool(serviceMember.IsProfileComplete()),
+		ID:                      fmtUUID(serviceMember.ID),
+		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
+		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
+		UserID:                  fmtUUID(user.ID),
+		Edipi:                   serviceMember.Edipi,
+		Branch:                  serviceMember.Branch,
+		Rank:                    serviceMember.Rank,
+		FirstName:               serviceMember.FirstName,
+		MiddleName:              serviceMember.MiddleName,
+		LastName:                serviceMember.LastName,
+		Suffix:                  serviceMember.Suffix,
+		Telephone:               serviceMember.Telephone,
+		SecondaryTelephone:      serviceMember.SecondaryTelephone,
+		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
+		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
+		EmailIsPreferred:        serviceMember.EmailIsPreferred,
+		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
+		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
+		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
+		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
 	}
 	return &serviceMemberPayload
+}
+
+func patchServiceMemberWithPayload(serviceMember *models.ServiceMember, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
+	if payload.Edipi != nil {
+		serviceMember.Edipi = payload.Edipi
+	}
+	if payload.Branch != nil {
+		serviceMember.Branch = payload.Branch
+	}
+	if payload.Rank != nil {
+		serviceMember.Rank = payload.Rank
+	}
+	if payload.FirstName != nil {
+		serviceMember.FirstName = payload.FirstName
+	}
+	if payload.MiddleName != nil {
+		serviceMember.MiddleName = payload.MiddleName
+	}
+	if payload.LastName != nil {
+		serviceMember.LastName = payload.LastName
+	}
+	if payload.Suffix != nil {
+		serviceMember.Suffix = payload.Suffix
+	}
+	if payload.Telephone != nil {
+		serviceMember.Telephone = payload.Telephone
+	}
+	if payload.SecondaryTelephone != nil {
+		serviceMember.SecondaryTelephone = payload.SecondaryTelephone
+	}
+	if payload.PersonalEmail != nil {
+		serviceMember.PersonalEmail = swag.String(payload.PersonalEmail.String())
+	}
+	if payload.PhoneIsPreferred != nil {
+		serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
+	}
+	if payload.TextMessageIsPreferred != nil {
+		serviceMember.TextMessageIsPreferred = payload.TextMessageIsPreferred
+	}
+	if payload.EmailIsPreferred != nil {
+		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
+	}
+	if payload.SocialSecurityNumber != nil {
+		if serviceMember.SocialSecurityNumber == nil {
+			newSsn := models.SocialSecurityNumber{}
+			serviceMember.SocialSecurityNumber = &newSsn
+		}
+
+		if verrs, err := serviceMember.SocialSecurityNumber.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
+			return verrs, err
+		}
+	}
+
+	if payload.ResidentialAddress != nil {
+		if serviceMember.ResidentialAddress == nil {
+			serviceMember.ResidentialAddress = addressModelFromPayload(payload.ResidentialAddress)
+		} else {
+			updateAddressWithPayload(serviceMember.ResidentialAddress, payload.ResidentialAddress)
+		}
+	}
+	if payload.BackupMailingAddress != nil {
+		if serviceMember.BackupMailingAddress == nil {
+			serviceMember.BackupMailingAddress = addressModelFromPayload(payload.BackupMailingAddress)
+		} else {
+			updateAddressWithPayload(serviceMember.BackupMailingAddress, payload.BackupMailingAddress)
+		}
+	}
+
+	return validate.NewErrors(), nil
 }
 
 // CreateServiceMemberHandler creates a new service member via POST /serviceMember
@@ -46,8 +114,8 @@ type CreateServiceMemberHandler HandlerContext
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceMemberParams) middleware.Responder {
 	var response middleware.Responder
-	residentialAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
-	backupMailingAddress := models.AddressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
+	residentialAddress := addressModelFromPayload(params.CreateServiceMemberPayload.ResidentialAddress)
+	backupMailingAddress := addressModelFromPayload(params.CreateServiceMemberPayload.BackupMailingAddress)
 
 	ssnString := params.CreateServiceMemberPayload.SocialSecurityNumber
 	var ssn *models.SocialSecurityNumber
@@ -67,25 +135,25 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
-		UserID:                    user.ID,
-		Edipi:                     params.CreateServiceMemberPayload.Edipi,
-		Branch:                    params.CreateServiceMemberPayload.Branch,
-		Rank:                      params.CreateServiceMemberPayload.Rank,
-		FirstName:                 params.CreateServiceMemberPayload.FirstName,
-		MiddleInitial:             params.CreateServiceMemberPayload.MiddleInitial,
-		LastName:                  params.CreateServiceMemberPayload.LastName,
-		Suffix:                    params.CreateServiceMemberPayload.Suffix,
-		Telephone:                 params.CreateServiceMemberPayload.Telephone,
-		SecondaryTelephone:        params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:             stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
-		PhoneIsPreferred:          params.CreateServiceMemberPayload.PhoneIsPreferred,
-		SecondaryPhoneIsPreferred: params.CreateServiceMemberPayload.SecondaryPhoneIsPreferred,
-		EmailIsPreferred:          params.CreateServiceMemberPayload.EmailIsPreferred,
-		ResidentialAddress:        residentialAddress,
-		BackupMailingAddress:      backupMailingAddress,
-		SocialSecurityNumber:      ssn,
+		UserID:                 user.ID,
+		Edipi:                  params.CreateServiceMemberPayload.Edipi,
+		Branch:                 params.CreateServiceMemberPayload.Branch,
+		Rank:                   params.CreateServiceMemberPayload.Rank,
+		FirstName:              params.CreateServiceMemberPayload.FirstName,
+		MiddleName:             params.CreateServiceMemberPayload.MiddleName,
+		LastName:               params.CreateServiceMemberPayload.LastName,
+		Suffix:                 params.CreateServiceMemberPayload.Suffix,
+		Telephone:              params.CreateServiceMemberPayload.Telephone,
+		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
+		PersonalEmail:          stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
+		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
+		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
+		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
+		ResidentialAddress:     residentialAddress,
+		BackupMailingAddress:   backupMailingAddress,
+		SocialSecurityNumber:   ssn,
 	}
-	smVerrs, err := models.CreateServiceMember(h.db, &newServiceMember)
+	smVerrs, err := models.SaveServiceMember(h.db, &newServiceMember)
 	verrs.Append(smVerrs)
 	if verrs.HasAny() {
 		h.logger.Info("DB Validation", zap.Error(verrs))
@@ -138,7 +206,10 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 	}
 
 	payload := params.PatchServiceMemberPayload
-	if verrs, err := serviceMember.PatchServiceMemberWithPayload(h.db, payload); verrs.HasAny() || err != nil {
+	if verrs, err := patchServiceMemberWithPayload(&serviceMember, payload); verrs.HasAny() || err != nil {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	if verrs, err := models.SaveServiceMember(h.db, &serviceMember); verrs.HasAny() || err != nil {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 

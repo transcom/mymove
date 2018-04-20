@@ -1,11 +1,11 @@
 package models_test
 
 import (
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicServiceMemberInstantiation() {
@@ -38,14 +38,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress := Address{
-		StreetAddress1: "123 main st.",
-		StreetAddress2: swag.String("Apt.1"),
-		City:           "Pleasantville",
-		State:          "AL",
-		PostalCode:     "01234",
-		Country:        swag.String("USA"),
-	}
+	fakeAddress, _ := testdatagen.MakeAddress(suite.db)
 	servicemember := ServiceMember{
 		UserID:             user1.ID,
 		Edipi:              &edipi,

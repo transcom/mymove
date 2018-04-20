@@ -25,30 +25,18 @@ const uiSchema = {
       title: 'Preferred contact method during your move:',
       fields: [
         'phone_is_preferred',
-        'secondary_phone_is_preferred',
+        'text_message_is_preferred',
         'email_is_preferred',
       ],
     },
   },
-  todos: (
-    <ul>
-      <li>
-        Preferred use of text message is being stored in
-        secondary_phone_is_preferred (backend model needs to replace
-        secondary_phone_is_preferred with text_message_is_preferred)
-      </li>
-      <li>
-        need to test that email from login is loaded when there was no email set
-      </li>
-    </ul>
-  ),
 };
 const subsetOfFields = [
   'telephone',
   'secondary_telephone',
   'personal_email',
   'phone_is_preferred',
-  'secondary_phone_is_preferred',
+  'text_message_is_preferred',
   'email_is_preferred',
 ];
 const formName = 'service_member_contact_info';
@@ -76,7 +64,16 @@ export class ContactInfo extends Component {
       currentServiceMember,
       userEmail,
     } = this.props;
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
+    let prefSelected = false;
+    if (this.refs.currentForm && this.refs.currentForm.values) {
+      prefSelected = Boolean(
+        this.refs.currentForm.values.phone_is_preferred ||
+          this.refs.currentForm.values.text_message_is_preferred ||
+          this.refs.currentForm.values.email_is_preferred,
+      );
+    }
+    const isValid =
+      this.refs.currentForm && this.refs.currentForm.valid && prefSelected;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember
