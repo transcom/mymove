@@ -19,12 +19,15 @@ func (suite *ModelSuite) SetupTest() {
 }
 
 func (suite *ModelSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
 	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
 		log.Panic(err)
 	}
 	if verrs.Count() > 0 {
-		suite.T().Fatalf("errors encountered saving %v: %v", model, verrs)
+		t.Fatalf("errors encountered saving %v: %v", model, verrs)
 	}
 }
 
