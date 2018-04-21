@@ -11,13 +11,6 @@
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
   * [Errors](#errors)
-  * [Libraries](#libraries)
-    * [Pop](#pop)
-  * [Learning](#learning)
-  * [Testing](#testing)
-    * [General](#general)
-    * [Models](#models)
-    * [Miscellaneous Tips](#miscellaneous-tips)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -129,6 +122,7 @@ Another reason to use the Zap logging package is that it provides more nuanced l
 Some general guidelines for errors:
 
 * **Don't bury your errors in underscores.** If a function or other action generates an error, assign it to a variable and either return it as part of your function's output or handle it in place (`if err != nil`, etc.). There will be the very occasional exception to this - one is within tests, depending on the test's goal. If you find yourself typing that underscore, take a moment to ask yourself why you're choosing that option. On those very rare occasions when it is the correct behavior, please add a comment explaining why.
+
 *Don't:*
     `myVal, _ := aFunctionWhichReturnsError()`
 *Do:*
@@ -136,10 +130,23 @@ Some general guidelines for errors:
     if err!=nil {
          return myVal, errors.Wrap(err, "aFunction has no name")
    }```
+
 * **Log at the top level; create and pass along errors below.** If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on.
 * **Use `errors.Wrap()` when using external libraries.** [`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output.
 * **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling to a point, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log).
-* **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed.
+* **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed. `fmt.Printf("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `fmt.Printf("%+v\n", err)` will provide a deeper stack trace, like this:
+
+```not enough arguments, expected at least 3, got 0
+main.parseArgs
+        /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:12
+main.main
+        /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:18
+runtime.main
+        /home/dfc/go/src/runtime/proc.go:183
+runtime.goexit
+        /home/dfc/go/src/runtime/asm_amd64.s:2059```
+
+Example taken from [Dave Cheney's post about the error package and stack traces](https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package).
 
 ### Libraries
 
