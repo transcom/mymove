@@ -24,7 +24,9 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 	return originZip3, destinationZip3
 }
 
-func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
+func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string,
+	date time.Time, daysInSIT int, inverseDiscount float64) (unit.Cents, error) {
+
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
 	// Linehaul charges
@@ -53,6 +55,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
 		return 0, err
 	}
+
 	// Non linehaul charges
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
@@ -74,12 +77,18 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err
 	}
+	sit, err := re.sitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	if err != nil {
+		return 0, err
+	}
+
 	ppmSubtotal := baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents +
-		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack
-	ppmBestValue := ppmSubtotal.MultiplyFloat64(inverseDiscount)
+		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack + sit
+
+	gcc := ppmSubtotal.MultiplyFloat64(inverseDiscount)
 
 	// PPMs only pay 95% of the best value
-	ppmPayback := ppmBestValue.MultiplyFloat64(.95)
+	ppmPayback := gcc.MultiplyFloat64(.95)
 
 	re.logger.Info("PPM compensation total calculated",
 		zap.Int("PPM compensation total", ppmPayback.Int()),
@@ -93,6 +102,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		zap.Int("destination service fee", destinationServiceFee.Int()),
 		zap.Int("pack fee", pack.Int()),
 		zap.Int("unpack fee", unpack.Int()),
+		zap.Int("sit fee", sit.Int()),
 	)
 
 	return ppmPayback, nil
