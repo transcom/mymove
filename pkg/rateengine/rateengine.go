@@ -25,7 +25,7 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 }
 
 func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string,
-	date time.Time, daysInSIT int, inverseDiscount float64) (unit.Cents, error) {
+	date time.Time, daysInSIT int, lhInvDiscount float64, sitInvDiscount float64) (unit.Cents, error) {
 
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
@@ -83,17 +83,24 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 	}
 
 	ppmSubtotal := baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents +
-		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack + sit
+		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack
 
-	gcc := ppmSubtotal.MultiplyFloat64(inverseDiscount)
+	gcc := ppmSubtotal.MultiplyFloat64(lhInvDiscount)
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	gcc += sit.MultiplyFloat64(sitInvDiscount)
 
 	// PPMs only pay 95% of the best value
+	// TODO: the 95% rule applies to the estimate. For actual reimbursement, they can get 100% *if*
+	// their out of pocket was greater than the GCC. Eventually, when we implement reimbursements,
+	// we'll want to break this out and differentiate the two.
+	// https://www.pivotaltracker.com/story/show/156969315
 	ppmPayback := gcc.MultiplyFloat64(.95)
 
 	re.logger.Info("PPM compensation total calculated",
 		zap.Int("PPM compensation total", ppmPayback.Int()),
 		zap.Int("PPM subtotal", ppmSubtotal.Int()),
-		zap.Float64("inverse discount", inverseDiscount),
+		zap.Float64("inverse discount", lhInvDiscount),
+		zap.Float64("SIT inverse discount", sitInvDiscount),
 		zap.Int("base linehaul", baseLinehaulChargeCents.Int()),
 		zap.Int("origin lh factor", originLinehaulFactorCents.Int()),
 		zap.Int("destination lh factor", destinationLinehaulFactorCents.Int()),
