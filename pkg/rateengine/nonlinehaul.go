@@ -77,7 +77,7 @@ func (re *RateEngine) sitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 }
 
 func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string,
-	destinationZip5 string, date time.Time, daysInSIT int, isPPM bool) (unit.Cents, error) {
+	destinationZip5 string, date time.Time) (unit.Cents, error) {
 
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
@@ -96,18 +96,13 @@ func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 
 	if err != nil {
 		return 0, err
 	}
-	sit, err := re.sitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, isPPM)
-	if err != nil {
-		return 0, err
-	}
-	subTotal := originServiceFee + destinationServiceFee + pack + unpack + sit
+	subTotal := originServiceFee + destinationServiceFee + pack + unpack
 
 	re.logger.Info("Non-Linehaul charge total calculated",
 		zap.Int("origin service fee", originServiceFee.Int()),
 		zap.Int("destination service fee", destinationServiceFee.Int()),
 		zap.Int("pack fee", pack.Int()),
-		zap.Int("unpack fee", unpack.Int()),
-		zap.Int("SIT fee", sit.Int()))
+		zap.Int("unpack fee", unpack.Int()))
 
 	return subTotal, nil
 }

@@ -277,10 +277,8 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	daysInSIT := 3
-
 	fee, err := engine.nonLinehaulChargeTotalCents(
-		unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle, daysInSIT, false)
+		unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
@@ -289,8 +287,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	// dest. service fee:  13260
 	// pack fee:          108580
 	// unpack fee:         10858
-	// SIT:                37000
-	expected := unit.Cents(176698)
+	expected := unit.Cents(139698)
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
 	}
