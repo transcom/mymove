@@ -63,7 +63,7 @@ func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
 	}
 }
 
-func createUpload(suite *HandlerSuite) (models.Move, models.Document, uploadop.CreateUploadParams) {
+func createPrereqs(suite *HandlerSuite) (models.Move, models.Document, uploadop.CreateUploadParams) {
 	t := suite.T()
 
 	move, err := testdatagen.MakeMove(suite.db)
@@ -99,7 +99,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, userID
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
-	move, document, params := createUpload(suite)
+	move, document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
@@ -143,7 +143,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
-	_, _, params := createUpload(suite)
+	_, _, params := createPrereqs(suite)
 
 	// Create a user that is not associated with the move
 	otherUser := models.User{
@@ -173,7 +173,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
 	fakeS3 := newFakeS3Storage(true)
-	_, document, params := createUpload(suite)
+	_, document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
 	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
@@ -198,7 +198,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(false)
-	_, document, params := createUpload(suite)
+	_, document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)
