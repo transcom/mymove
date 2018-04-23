@@ -104,7 +104,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
 	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
 	}
 
 	uploadPayload := createdResponse.Payload
@@ -155,7 +155,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	response := makeRequest(suite, params, otherUser.ID, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadForbidden)
 	if !ok {
-		t.Fatalf("Request was success, expected failure. User should not have access.")
+		t.Fatalf("Wrong response type. Expected CreateUploadForbidden, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
@@ -181,7 +181,32 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadNotFound)
 	if !ok {
-		t.Fatalf("Request was success, expected failure. Document doesn't exist.")
+		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
+	}
+
+	count, err := suite.db.Count(&models.Upload{})
+
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
+	t := suite.T()
+
+	fakeS3 := newFakeS3Storage(true)
+	_, document, params := createPrereqs(suite)
+
+	params.File = suite.fixture("empty.pdf")
+
+	response := makeRequest(suite, params, document.UploaderID, fakeS3)
+	_, ok := response.(*uploadop.CreateUploadBadRequest)
+	if !ok {
+		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
@@ -203,7 +228,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)
 	if !ok {
-		t.Fatalf("Request was success, expected failure")
+		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
