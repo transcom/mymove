@@ -31,6 +31,7 @@ type CostComputation struct {
 	PackFee               unit.Cents
 	UnpackFee             unit.Cents
 	FullPackUnpackFee     unit.Cents
+	SITFee                unit.Cents
 
 	GCC unit.Cents
 }
@@ -48,6 +49,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("PackFee", c.PackFee.Int())
 	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
 	encoder.AddInt("FullPackUnpackFee", c.FullPackUnpackFee.Int())
+	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
 
@@ -62,7 +64,7 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 }
 
 // ComputePPM Calculates the cost of a PPM move.
-func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhInvDiscount float64, sitInvDiscount float64) (cost CostComputation, err error) {
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
 	// Linehaul charges
@@ -99,7 +101,7 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	linehaulChargeSubtotal := cost.BaseLinehaul + cost.OriginLinehaulFactor +
 		cost.DestinationLinehaulFactor + cost.ShorthaulCharge
 
-	cost.LinehaulChargeTotal = linehaulChargeSubtotal.MultiplyFloat64(inverseDiscount)
+	cost.LinehaulChargeTotal = linehaulChargeSubtotal.MultiplyFloat64(lhInvDiscount)
 
 	// Non linehaul charges
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
@@ -107,14 +109,14 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return
 	}
-	cost.OriginServiceFee = originServiceFee.MultiplyFloat64(inverseDiscount)
+	cost.OriginServiceFee = originServiceFee.MultiplyFloat64(lhInvDiscount)
 
 	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return
 	}
-	cost.DestinationServiceFee = destinationServiceFee.MultiplyFloat64(inverseDiscount)
+	cost.DestinationServiceFee = destinationServiceFee.MultiplyFloat64(lhInvDiscount)
 
 	cost.PackFee, err = re.fullPackCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
@@ -127,7 +129,16 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 		return
 	}
 
-	cost.FullPackUnpackFee = (cost.PackFee + cost.UnpackFee).MultiplyFloat64(inverseDiscount)
+	/// SIT
+	sit, err := re.sitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	if err != nil {
+		return
+	}
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	cost.SITFee = sit.MultiplyFloat64(sitInvDiscount)
+
+	// Totals
+	cost.FullPackUnpackFee = (cost.PackFee + cost.UnpackFee).MultiplyFloat64(lhInvDiscount)
 
 	cost.GCC = cost.LinehaulChargeTotal + cost.OriginServiceFee + cost.DestinationServiceFee +
 		cost.FullPackUnpackFee
