@@ -11,6 +11,13 @@
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
   * [Errors](#errors)
+  * [Libraries](#libraries)
+    * [Pop](#pop)
+  * [Learning](#learning)
+  * [Testing](#testing)
+    * [General](#general)
+    * [Models](#models)
+    * [Miscellaneous Tips](#miscellaneous-tips)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -146,6 +153,7 @@ In the case of our use of models, query functions, and other packages, this woul
 * **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed. `fmt.Printf("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `fmt.Printf("%+v\n", err)` will provide a deeper stack trace, like this:
 
 ```
+
 not enough arguments, expected at least 3, got 0
 main.parseArgs
         /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:12
@@ -154,8 +162,7 @@ main.main
 runtime.main
         /home/dfc/go/src/runtime/proc.go:183
 runtime.goexit
-        /home/dfc/go/src/runtime/asm_amd64.s:2059
-```
+        /home/dfc/go/src/runtime/asm_amd64.s:2059```
 
 Example taken from [Dave Cheney's post about the error package and stack traces](https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package).
 
