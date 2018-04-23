@@ -15,7 +15,6 @@
     * [Log at the top level; create and pass along errors below](#log-at-the-top-level-create-and-pass-along-errors-below)
     * [Use `errors.Wrap()` when using external libraries](#use-errorswrap-when-using-external-libraries)
     * [Don't `fmt` errors; log instead](#dont-fmt-errors-log-instead)
-    * [Use the `%+v` substitution verb to access the full stack trace](#use-the-%25v-substitution-verb-to-access-the-full-stack-trace)
     * [If some of your errors are predictable, pattern match on them to provide more error detail](#if-some-of-your-errors-are-predictable-pattern-match-on-them-to-provide-more-error-detail)
   * [Libraries](#libraries)
     * [Pop](#pop)
@@ -218,24 +217,6 @@ if err != nil {
 
 *Do:*
     `logger.Error("Blackout dates fetch failed: ", err)`
-
-#### Use the `%+v` substitution verb to access the full stack trace
-
-`logger.Error("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `logger.Error("%+v\n", err)` will provide a deeper stack trace, like this:
-
-```text
-not enough arguments, expected at least 3, got 0
-main.parseArgs
-        /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:12
-main.main
-        /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:18
-runtime.main
-        /home/dfc/go/src/runtime/proc.go:183
-runtime.goexit
-        /home/dfc/go/src/runtime/asm_amd64.s:2059
-```
-
-Example taken from [Dave Cheney's post about the error package and stack traces](https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package).
 
 #### If some of your errors are predictable, pattern match on them to provide more error detail
 
