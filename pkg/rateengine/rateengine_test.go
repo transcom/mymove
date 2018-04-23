@@ -150,7 +150,7 @@ func TestRateEngineSuite(t *testing.T) {
 	}
 
 	// Use a no-op logger during testing
-	logger := zap.NewNop()
+	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner()
 
 	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}

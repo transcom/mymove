@@ -158,7 +158,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	cwt := unit.CWT(10)
 	daysInSIT := 4
 	zip3 := "395"
-	sit185ARate := unit.Cents(1854)
+	sit185ARate := unit.Cents(2324)
 	sit185BRate := unit.Cents(431)
 
 	z := models.Tariff400ngZip3{
@@ -192,7 +192,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	}
 	expected := sit185BRate.Multiply(daysInSIT).Multiply(cwt.Int())
 	if charge != expected {
-		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, charge)
+		t.Errorf("wrong PPM SIT charge total: expected %d, got %d", expected, charge)
 	}
 
 	// Test HHG SIT charges
@@ -200,10 +200,11 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	if err != nil {
 		t.Fatalf("error calculating SIT charge: %s", err)
 	}
-	expected = unit.Cents(
-		sit185ARate.Multiply(cwt.Int()).Int() + sit185BRate.Multiply(daysInSIT-1).Multiply(cwt.Int()).Int())
+	expectedFirstDay := sit185ARate.Multiply(cwt.Int()).Int()
+	expectedAddtlDay := sit185BRate.Multiply(daysInSIT - 1).Multiply(cwt.Int()).Int()
+	expected = unit.Cents(expectedFirstDay + expectedAddtlDay)
 	if charge != expected {
-		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, charge)
+		t.Errorf("wrong HHG SIT charge total: expected %d, got %d", expected, charge)
 	}
 }
 
