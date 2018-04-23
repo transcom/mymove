@@ -141,9 +141,52 @@ Some general guidelines for errors:
    }
 ```
 
-* **Log at the top level; create and pass along errors below.** If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on.
+* **Log at the top level; create and pass along errors below.** If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on. Here's an example of when to create errors and when to handle them:
 
-In the case of our use of models, query functions, and other packages, this would mean, for example, that `FetchTSPBlackoutDates` in `pkg/models/blackout_dates.go` returns a slice of blackout dates and an error. `FetchTSPBlackoutDates` is called by  `ShipmentWithinBlackoutDates` in `pkg/awardqueue/awardqueue.go`, which returns a boolean and an error (which would be triggered by the presence of an error from `FetchTSPBlackoutDates` and is logged before being returned by the function). `ShipmentWithinBlackoutDates` is, finally, called by `attemptShipmentOffer` in the same file, which checks for the presence of an error, logs it if present, and stops the function if it is. The error is created at the lowest level, logged and passed along at the middle level, and logged again at the highest level before finally halting the progress of the process.
+In `pkg/models/blackout_dates.go`, an error is created and returned:
+
+```golang
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
+  ...
+  err = query.All(&blackoutDates)
+  if err != nil {
+    return blackoutDates, errors.Wrap(err, "Blackout dates query failed")
+  }
+
+  return blackoutDates, err
+}
+```
+
+In `pkg/awardqueue/awardqueue.go`, `FetchTSPBlackoutDates` is called, and any possible error is handled. This function also returns an error.
+
+```golang
+func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+  blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
+
+  if err != nil {
+    return false, errors.Wrap(err, "Error retrieving blackout dates from database")
+  }
+
+  return len(blackoutDates) != 0, nil
+}
+```
+
+Finally, at the top level in `attemptShipmentOffer` in the same file, any errors bubbled up from `ShipmentWithinBlackoutDates` or `FetchTSPBlackoutDates` are handled definitively, halting the progress of the longer function if the underlying processes and queries didn't complete as expected in the functions being called:
+
+```golang
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
+  aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
+  ...
+  isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+  if err != nil {
+    aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
+    return err
+  }
+  ...
+}
+```
+
+The error is created and passed along at the lowest level, logged and passed along at the middle level (along with other errors that can happen within that function), and logged again at the highest level before finally halting the progress of the process if an error is present.
 
 * **Use `errors.Wrap()` when using external libraries.** [`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output. Instead of just returning the error, offer greater context with something like this:
 
@@ -153,9 +196,14 @@ if err != nil {
 }
 ```
 
-* **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling during initial debugging, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log, per the first point in this section). Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Info()`, perhaps with [Zap](https://github.com/uber-go/zap).
+* **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling during initial debugging, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log, per the first point in this section). Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
-* **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed. `fmt.Printf("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `fmt.Printf("%+v\n", err)` will provide a deeper stack trace, like this:
+*Don't:*
+    `fmt.Println("Blackout dates fetch failed: ", err)`
+*Do:*
+    `logger.Error("Blackout dates fetch failed: ", err)`
+
+* **Use the `%+v` substitution verb to access the full stack trace.** `logger.Error("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `logger.Error("%+v\n", err)` will provide a deeper stack trace, like this:
 
 ```text
 not enough arguments, expected at least 3, got 0
