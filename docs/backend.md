@@ -133,10 +133,13 @@ Some general guidelines for errors:
 *Don't:*
     `myVal, _ := functionThatShouldReturnAnInt()`
 *Do:*
-    ```myVal, err := functionThatShouldReturnAnInt()
+
+```golang
+    myVal, err := functionThatShouldReturnAnInt()
     if err != nil {
          return myVal, errors.Wrap(err, "function didn't return an int")
-   }```
+   }
+```
 
 * **Log at the top level; create and pass along errors below.** If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on.
 
@@ -144,16 +147,17 @@ In the case of our use of models, query functions, and other packages, this woul
 
 * **Use `errors.Wrap()` when using external libraries.** [`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output. Instead of just returning the error, offer greater context with something like this:
 
-```if err != nil {
+```golang
+if err != nil {
         return errors.Wrap(err, "Pop validate failed")
-}```
+}
+```
 
 * **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling to a point, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log, per the first point in this section). Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Info()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
 * **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed. `fmt.Printf("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `fmt.Printf("%+v\n", err)` will provide a deeper stack trace, like this:
 
-```
-
+```text
 not enough arguments, expected at least 3, got 0
 main.parseArgs
         /home/dfc/src/github.com/pkg/errors/_examples/wrap/main.go:12
@@ -162,7 +166,8 @@ main.main
 runtime.main
         /home/dfc/go/src/runtime/proc.go:183
 runtime.goexit
-        /home/dfc/go/src/runtime/asm_amd64.s:2059```
+        /home/dfc/go/src/runtime/asm_amd64.s:2059
+```
 
 Example taken from [Dave Cheney's post about the error package and stack traces](https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package).
 
