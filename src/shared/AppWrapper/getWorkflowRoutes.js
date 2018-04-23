@@ -114,30 +114,17 @@ const pages = {
     render: stub,
     description: 'Upload your orders',
   },
-  '/orders/:serviceMemberId/complete': {
-    isInFlow: incompleteServiceMember, //todo: this is probably not the right check
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage
-          handleSubmit={createMove(props)}
-          isAsync={!props.hasMove}
-          hasSucceeded={props.hasMove}
-          additionalParams={{ moveId: props.moveId }}
-          pageList={pages}
-          pageKey={key}
-        >
-          <div className="Todo">
-            <h1>Placeholder for {key}</h1>
-            <h2>Creating move here</h2>
-          </div>
-        </WizardPage>
-      );
-    },
-  },
   '/orders/:serviceMemberId/transition': {
     isInFlow: incompleteServiceMember, //todo: this is probably not the right check
-    render: (key, pages) => ({ match }) => (
-      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+    render: (key, pages, description, props) => ({ match }) => (
+      <WizardPage
+        handleSubmit={createMove(props)}
+        isAsync={!props.hasMove}
+        hasSucceeded={props.hasMove}
+        pageList={pages}
+        pageKey={key}
+        additionalParams={{ moveId: props.moveId }}
+      >
         <TransitionToMove />
       </WizardPage>
     ),
