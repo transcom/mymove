@@ -11,6 +11,8 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 
+import TransitionToMove from 'scenes/Orders/TransitionToMove';
+
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -131,6 +133,14 @@ const pages = {
         </WizardPage>
       );
     },
+  },
+  '/orders/:serviceMemberId/transition': {
+    isInFlow: incompleteServiceMember, //todo: this is probably not the right check
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <TransitionToMove />
+      </WizardPage>
+    ),
   },
   '/moves/:moveId': {
     isInFlow: always,
