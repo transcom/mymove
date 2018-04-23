@@ -153,7 +153,7 @@ if err != nil {
 }
 ```
 
-* **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling to a point, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log, per the first point in this section). Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Info()`, perhaps with [Zap](https://github.com/uber-go/zap).
+* **Don't `fmt` errors when you can log instead.** `fmt` provides useful error handling during initial debugging, but if a function's errors require enough context that you're considering print statements, log instead (or bubble the errors up to the appropriate level to log, per the first point in this section). Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Info()`, perhaps with [Zap](https://github.com/uber-go/zap).
 
 * **Use the `%+v` substitution verb to access the full stack trace.** This can be done via an `fmt` print statement (when debugging) or with the logger for a final PR, if needed. `fmt.Printf("%v\n", err)` will yield a simple error statement, such as `not enough arguments, expected at least 3, got 0`, whereas `fmt.Printf("%+v\n", err)` will provide a deeper stack trace, like this:
 
