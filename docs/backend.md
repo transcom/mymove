@@ -171,6 +171,31 @@ runtime.goexit
 
 Example taken from [Dave Cheney's post about the error package and stack traces](https://dave.cheney.net/2016/06/12/stack-traces-and-the-errors-package).
 
+* **If some of your errors are predictable, pattern match on them to provide more error detail.** Some errors are predictable, such as those from the database that Pop returns to us. This gives you the option to use those predictable errors to give yourself and fellow maintainers of code more detail than you might get otherwise, like so:
+
+```golang
+// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+  var serviceMember ServiceMember
+  err := db.Eager().Find(&serviceMember, id)
+  if err != nil {
+    if errors.Cause(err).Error() == RecordNotFoundErrorString {
+      return ServiceMember{}, ErrFetchNotFound
+    }
+    // Otherwise, it's an unexpected err so we return that.
+    return ServiceMember{}, err
+  }
+
+  if serviceMember.UserID != user.ID {
+    return ServiceMember{}, ErrFetchForbidden
+  }
+
+  return serviceMember, nil
+ }
+```
+
+You can also use `errors.Wrap()` in this situation to provide access to even more information, beyond the breadcrumbs left here.
+
 ### Libraries
 
 #### Pop
