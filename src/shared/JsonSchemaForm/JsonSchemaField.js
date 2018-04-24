@@ -76,7 +76,10 @@ const configureTelephoneField = (swaggerField, props) => {
 const configureSSNField = (swaggerField, props) => {
   props.normalize = validator.normalizeSSN;
   props.validate.push(
-    validator.patternMatches(/^\d{3}-\d{2}-\d{4}$/, 'SSN must have 9 digits.'),
+    validator.patternMatches(
+      '^\\d{3}-\\d{2}-\\d{4}$',
+      'SSN must have 9 digits.',
+    ),
   );
   props.type = 'text';
 
@@ -118,7 +121,7 @@ const configureEmailField = (swaggerField, props) => {
     validator.patternMatches(
       // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
       // but that is pretty obnoxious so we will risk the difference and use this simpler one
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       'Must be a valid email address',
     ),
   );
