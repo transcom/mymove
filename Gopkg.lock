@@ -60,8 +60,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "9b0098a71f6d4d473a26ec8ad3c2feaac6eb1da6"
-  version = "v1.13.32"
+  revision = "6454c9c7415974700e9d0d7f480edbe669f7b2f8"
+  version = "v1.13.36"
 
 [[projects]]
   branch = "master"
@@ -117,14 +117,14 @@
 [[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
-  revision = "ace140f73450505f33e8b8418216792275ae82a7"
-  version = "v1.35.0"
+  revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
+  version = "v1.36.0"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/analysis"
   packages = ["."]
-  revision = "f59a71f0ece6f9dfb438be7f45148f006cbad88e"
+  revision = "863ac7f90e00e88e507095639a8457bbbf3c2ec9"
 
 [[projects]]
   branch = "master"
@@ -172,7 +172,7 @@
     "middleware/untyped",
     "security"
   ]
-  revision = "62281b694b396a17fe3e4313ee8b0ca2c3cca719"
+  revision = "f12926f16ac2fb1da15316fd0aa84ce0d64550c3"
 
 [[projects]]
   branch = "master"
@@ -196,7 +196,7 @@
   branch = "master"
   name = "github.com/go-openapi/validate"
   packages = ["."]
-  revision = "a6c59cf99c081a216ca6988799f3203df06458d2"
+  revision = "f8f9c5961cd5fd7c22af8d93d3190b640b4c72af"
 
 [[projects]]
   name = "github.com/go-sql-driver/mysql"
@@ -215,7 +215,7 @@
     "generator",
     "scan"
   ]
-  revision = "acd311c7278b74e74c4dcebe9bafe4049b06180b"
+  revision = "21f7c2d92a8a1d1ca15692d22a1ed38ed85bcc9a"
 
 [[projects]]
   name = "github.com/gobuffalo/envy"
@@ -243,13 +243,14 @@
     "columns",
     "fizz",
     "fizz/translators",
+    "nulls",
     "soda",
     "soda/cmd",
     "soda/cmd/generate",
     "soda/cmd/schema"
   ]
-  revision = "0b56be1c9d0df7712144496aa0e89de36c5c77d6"
-  version = "v4.4.0"
+  revision = "7e384f31116dafb43de7ff1ab5565430f9903ba0"
+  version = "v4.5.5"
 
 [[projects]]
   name = "github.com/gobuffalo/uuid"
@@ -270,7 +271,7 @@
   branch = "master"
   name = "github.com/golang/lint"
   packages = ["golint"]
-  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
+  revision = "1fb4e4796c08a9a18d8796a6aed584bf4b346bc9"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -586,13 +587,13 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "d6449816ce06963d9d136eee5a56fca5b0616e7e"
+  revision = "2b6c08872f4b66da917bb4ce98df4f0307330f78"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
-  revision = "85993ffd0a6cd043291f3f63d45d656d97b165bd"
+  revision = "1fb4e4796c08a9a18d8796a6aed584bf4b346bc9"
 
 [[projects]]
   branch = "master"
@@ -602,7 +603,7 @@
     "context/ctxhttp",
     "idna"
   ]
-  revision = "500e7a4f953ddaf55d316b4d3adc516aa0379622"
+  revision = "5f9ae10d9af5b1c89ae6904293b14b064d4ada23"
 
 [[projects]]
   branch = "master"
@@ -611,7 +612,7 @@
     ".",
     "internal"
   ]
-  revision = "921ae394b9430ed4fb549668d7b087601bd60a81"
+  revision = "6881fee410a5daf86371371f9ad451b95e168b71"
 
 [[projects]]
   branch = "master"
@@ -623,7 +624,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "2f57af4873d00d535c5c9028850aa2152e6a5566"
+  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -657,9 +658,10 @@
     "go/internal/gcimporter",
     "go/loader",
     "go/types/typeutil",
-    "imports"
+    "imports",
+    "internal/fastwalk"
   ]
-  revision = "d9caac373771d868e508d835ebc3294a9a611c50"
+  revision = "c1def519f03ddf76f16b3e444ee1095d73afa01b"
 
 [[projects]]
   name = "google.golang.org/appengine"
