@@ -1480,6 +1480,70 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  QueueMove:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        type: string
+        example: Booked - Awaiting Review
+      locator_number:
+        type: string
+        example: "12432"
+      customer_name:
+        type: string
+        example: Thedog, Nino
+        title: Customer Name
+      edipi:
+        type: string
+        format: edipi
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
+        title: 'DoD ID #'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
+      move_type:
+        type: string
+        title: Move Type
+        enum:
+          - PCS - OCONUS
+          - PCS - CONUS
+          - PCS + TDY - OCONUS
+          - PCS + TDY - CONUS
+      move_date:
+        type: string
+        format: date
+        example: 4/25/2018
+      customer_deadline:
+        type: string
+        format: date
+        example: 7/20/2018
+      last_mod:
+        type: string
+        title: Last Modified
+        example: 4/9/18 11:25 by Bollinger, Sam
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - status
+      - locator_number
+      - customer_name
+      - edipi
+      - rank
+      - move_type
+      - move_date
+      - customer_deadline
+      - last_mod
+      - created_at
+      - updated_at
 paths:
   /issues:
     post:
@@ -2219,3 +2283,57 @@ paths:
           description: matching duty station not found
         500:
           description: internal server error
+  /queues/new_moves:
+    get:
+      summary: List all moves in the new_moves queue
+      description: List all moves in the new_moves queue
+      operationId: indexQueueNewMoves
+      tags:
+        - queueMoves
+      responses:
+        200:
+          description: list all moves in the new_moves queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QueueMove'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+  /queues/troubleshooting:
+    get:
+      summary: List all moves in the troubleshooting queue
+      description: List all moves in the troubleshooting queue
+      operationId: indexQueueTroubleshooting
+      tags:
+        - queueMoves
+      responses:
+        200:
+          description: list all moves in the troubleshooting queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QueueMove'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+  /queues/ppms:
+    get:
+      summary: List all moves in the ppms queue
+      description: List all moves in the ppms queue
+      operationId: indexQueuePPMs
+      tags:
+        - queueMoves
+      responses:
+        200:
+          description: list all moves in the ppms queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/QueueMove'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
