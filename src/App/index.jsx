@@ -1,18 +1,25 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { Provider } from 'react-redux';
 
-import AppWrapper from 'shared/AppWrapper';
 import store from 'shared/store';
 import './index.css';
 
-class App extends Component {
-  render() {
-    return (
-      <Provider store={store}>
-        <AppWrapper />
-      </Provider>
-    );
-  }
-}
+import Loadable from 'react-loadable';
+
+const Office = Loadable({
+  loader: () => import('scenes/Office'),
+  loading: () => <div>Loading...</div>,
+});
+
+const MyMove = Loadable({
+  loader: () => import('scenes/MyMove'),
+  loading: () => <div>Loading...</div>,
+});
+
+const hostname = window && window.location && window.location.hostname;
+const isOfficeSite = hostname.startsWith('office');
+const App = () => (
+  <Provider store={store}>{!isOfficeSite ? <MyMove /> : <Office />}</Provider>
+);
 
 export default App;

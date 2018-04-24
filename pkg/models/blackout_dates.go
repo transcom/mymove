@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // BlackoutDate indicates the range of unavailable times for a TSP and includes its TDL as well.
@@ -40,6 +41,9 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 	}
 
 	err = query.All(&blackoutDates)
+	if err != nil {
+		return blackoutDates, errors.Wrap(err, "Blackout dates query failed")
+	}
 
 	return blackoutDates, err
 }

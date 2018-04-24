@@ -151,6 +151,63 @@ func (suite *RateEngineSuite) Test_CheckFullUnpack() {
 	}
 }
 
+func (suite *RateEngineSuite) Test_SITCharge() {
+	t := suite.T()
+	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
+
+	cwt := unit.CWT(10)
+	daysInSIT := 4
+	zip3 := "395"
+	sit185ARate := unit.Cents(2324)
+	sit185BRate := unit.Cents(431)
+
+	z := models.Tariff400ngZip3{
+		Zip3:          zip3,
+		BasepointCity: "Saucier",
+		State:         "MS",
+		ServiceArea:   428,
+		RateArea:      "48",
+		Region:        11,
+	}
+	suite.mustSave(&z)
+
+	sa := models.Tariff400ngServiceArea{
+		Name:               "Tampa, FL",
+		ServiceArea:        428,
+		LinehaulFactor:     69,
+		ServiceChargeCents: 663,
+		ServicesSchedule:   1,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   sit185ARate,
+		SIT185BRateCents:   sit185BRate,
+		SITPDSchedule:      1,
+	}
+	suite.mustSave(&sa)
+
+	// Test PPM SIT charges
+	charge, err := engine.sitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, true)
+	if err != nil {
+		t.Fatalf("error calculating SIT charge: %s", err)
+	}
+	expected := sit185BRate.Multiply(daysInSIT).Multiply(cwt.Int())
+	if charge != expected {
+		t.Errorf("wrong PPM SIT charge total: expected %d, got %d", expected, charge)
+	}
+
+	// Test HHG SIT charges
+	charge, err = engine.sitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, false)
+	if err != nil {
+		t.Fatalf("error calculating SIT charge: %s", err)
+	}
+	expectedFirstDay := sit185ARate.Multiply(cwt.Int()).Int()
+	expectedAddtlDay := sit185BRate.Multiply(daysInSIT - 1).Multiply(cwt.Int()).Int()
+	expected = unit.Cents(expectedFirstDay + expectedAddtlDay)
+	if charge != expected {
+		t.Errorf("wrong HHG SIT charge total: expected %d, got %d", expected, charge)
+	}
+}
+
 func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	t := suite.T()
 	engine := NewRateEngine(suite.db, suite.logger, suite.planner)
@@ -197,7 +254,7 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
+		SIT185ARateCents:   unit.Cents(1750),
 		SIT185BRateCents:   unit.Cents(50),
 		SITPDSchedule:      1,
 	}
@@ -221,12 +278,16 @@ func (suite *RateEngineSuite) Test_CheckNonLinehaulChargeTotal() {
 	}
 	suite.mustSave(&fullUnpackRate)
 
-	fee, err := engine.nonLinehaulChargeTotalCents(unit.Pound(2000), "395", "336", testdatagen.DateInsidePeakRateCycle)
-
+	fee, err := engine.nonLinehaulChargeTotalCents(
+		unit.Pound(2000), "39503", "33607", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("failed to calculate non linehaul charge: %s", err)
 	}
-	// (7000 + 13260 + 108580 + 10858)
+
+	// origin service fee:  7000
+	// dest. service fee:  13260
+	// pack fee:          108580
+	// unpack fee:         10858
 	expected := unit.Cents(139698)
 	if fee != expected {
 		t.Errorf("wrong non-linehaul charge total: expected %d, got %d", expected, fee)
