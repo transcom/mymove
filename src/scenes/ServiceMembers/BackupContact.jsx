@@ -97,13 +97,13 @@ const validateContact = (values, form) => {
   return requiredErrors;
 };
 
-const FutureForm = reduxForm({ form: formName, validate: validateContact })(
+const ContactForm = reduxForm({ form: formName, validate: validateContact })(
   baseForm,
 );
 
 // in order to read the values of the from from within the form we must connect it
 const selector = formValueSelector(formName);
-const ConnectedFutureForm = connect(
+const ConnectedContactForm = connect(
   state => {
     const authorizeAgent = selector(state, 'authorizeAgent');
     return {
@@ -113,7 +113,7 @@ const ConnectedFutureForm = connect(
   null,
   null,
   { withRef: true },
-)(FutureForm);
+)(ContactForm);
 
 const addAgentChoiceInitialValues = (initialValues, permission) => {
   if (initialValues && permission) {
@@ -159,15 +159,15 @@ export class BackupContact extends Component {
       this.refs.currentForm && this.refs.currentForm.getWrappedInstance().valid;
     const isDirty =
       this.refs.currentForm && this.refs.currentForm.getWrappedInstance().dirty;
+    // eslint-disable-next-line
+    var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
     // initialValues has to be null until there are values from the action since only the first values are taken
-    var [backup1, backup2] = this.props.currentBackupContacts;
-    console.log('Second Backup to be used later.', backup2);
-    const firstInitialValues = backup1
-      ? pick(backup1, ['name', 'email', 'telephone'])
+    const firstInitialValues = contact1
+      ? pick(contact1, ['name', 'email', 'telephone'])
       : null;
     addAgentChoiceInitialValues(
       firstInitialValues,
-      backup1 ? backup1.permission : null,
+      contact1 ? contact1.permission : null,
     );
     return (
       <WizardPage
@@ -180,7 +180,7 @@ export class BackupContact extends Component {
         hasSucceeded={hasSubmitSuccess}
         error={error}
       >
-        <ConnectedFutureForm
+        <ConnectedContactForm
           ref="currentForm"
           initialValues={firstInitialValues}
           handleSubmit={no_op}
