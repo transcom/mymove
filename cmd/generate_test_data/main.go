@@ -27,9 +27,9 @@ func main() {
 	}
 
 	if *scenario == 1 {
-		tdgs.RunRateEngineScenario1(db)
+		tdgs.RunAwardQueueScenario1(db)
 	} else if *scenario == 2 {
-		tdgs.RunRateEngineScenario2(db)
+		tdgs.RunAwardQueueScenario2(db)
 	} else if *scenario == 3 {
 		tdgs.RunDutyStationScenario3(db)
 	} else {
