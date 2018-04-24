@@ -37,7 +37,7 @@ type TransportationServiceProviderPerformance struct {
 	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
 	QualityBand                     *int      `db:"quality_band"`
-	BestValueScore                  int       `db:"best_value_score"`
+	BestValueScore                  float64   `db:"best_value_score"`
 	LinehaulRate                    float64   `db:"linehaul_rate"`
 	SITRate                         float64   `db:"sit_rate"`
 	OfferCount                      int       `db:"offer_count"`
@@ -79,10 +79,10 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 		&validators.IntIsGreaterThan{Field: qualityBand, Name: "QualityBand", Compared: 0},
 		&validators.IntIsLessThan{Field: qualityBand, Name: "QualityBand", Compared: 5},
 
-		// Best Value Scores can range from 0 - 100, as defined in DTR403. See page 7
-		// of https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-403.pdf
-		&validators.IntIsGreaterThan{Field: t.BestValueScore, Name: "BestValueScore", Compared: -1},
-		&validators.IntIsLessThan{Field: t.BestValueScore, Name: "BestValueScore", Compared: 101},
+		// Best Value Scores can range from 0 - 100, with up to four decimal places, as defined
+		// in DTR403. See page 7 of https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-403.pdf
+		&validators.IntIsGreaterThan{Field: int(t.BestValueScore), Name: "BestValueScore", Compared: -1},
+		&validators.IntIsLessThan{Field: int(t.BestValueScore), Name: "BestValueScore", Compared: 101},
 	), nil
 }
 
@@ -178,7 +178,7 @@ func sortedMapIntKeys(mapWithIntKeys map[int]TransportationServiceProviderPerfor
 
 // FetchTSPPerformanceForQualityBandAssignment returns TSPs in a given TDL in the
 // order that they should be assigned quality bands.
-func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps int) (TransportationServiceProviderPerformances, error) {
+func FetchTSPPerformanceForQualityBandAssignment(tx *pop.Connection, tdlID uuid.UUID, mps float64) (TransportationServiceProviderPerformances, error) {
 
 	// TODO: bookDate and requestedPickupDate should also be qualifiers here. BVSs from different
 	// performance periods and rate areas should be broken up into separate quality bands.
