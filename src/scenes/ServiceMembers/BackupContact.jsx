@@ -138,7 +138,6 @@ export class BackupContact extends Component {
       ? pendingValues.authorizeAgentChoice
       : 'NONE';
     pendingValues.permission = permission;
-    console.log('SUBMITTING', pendingValues);
     if (pendingValues) {
       if (this.props.currentBackupContacts.length > 0) {
         // update existing
