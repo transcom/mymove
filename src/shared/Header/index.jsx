@@ -84,84 +84,15 @@ function Header() {
         <nav className="usa-nav">
           <ul className="usa-nav-primary usa-accordion">
             <li>
-              <button
-                className="usa-accordion-button usa-nav-link"
-                aria-expanded="false"
-                aria-controls="side-nav-1"
-              >
-                <span>Forms</span>
-              </button>
-              <ul id="side-nav-1" className="usa-nav-submenu">
-                <li>
-                  <NavLink to="/DD1299" className="usa-nav-link">
-                    <span>DD1299</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <a>DD1797 (coming soon)</a>
-                </li>
-                <li>
-                  <a>DD2278 (coming soon)</a>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <button
-                className="usa-accordion-button usa-nav-link"
-                aria-expanded="false"
-                aria-controls="sidenav-2"
-              >
-                <span>Shipments</span>
-              </button>
-              <ul id="sidenav-2" className="usa-nav-submenu">
-                <li>
-                  <NavLink to="/shipments/available" className="usa-nav-link">
-                    <span>Available Shipments</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/shipments/awarded" className="usa-nav-link">
-                    <span>Awarded Shipments</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/shipments/all" className="usa-nav-link">
-                    <span>All Shipments</span>
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <button
-                className="usa-accordion-button usa-nav-link"
-                aria-expanded="false"
-                aria-controls="side-nav-3"
-              >
-                <span>Feedback</span>
-              </button>
-              <ul id="side-nav-3" className="usa-nav-submenu">
-                <li>
-                  <NavLink to="/Feedback" className="usa-nav-link">
-                    <span>Report a bug</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/submitted" className="usa-nav-link">
-                    <span>Submitted Feedback</span>
-                  </NavLink>
-                </li>
-                <li>
-                  <NavLink to="/upload" className="usa-nav-link">
-                    <span>Upload a Document</span>
-                  </NavLink>
-                </li>
-              </ul>
-            </li>
-            <li>
-              <LoginButton />
+              <NavLink to="/Feedback" className="usa-nav-link">
+                <span>Report a bug</span>
+              </NavLink>
             </li>
             <li>
               <Email />
+            </li>
+            <li>
+              <LoginButton />
             </li>
           </ul>
           <form className="usa-search usa-search-small">
