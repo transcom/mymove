@@ -24,6 +24,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
   * [Setup: Client](#setup-client)
+  * [Setup: Office/admin client](#setup-officeadmin-client)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -146,6 +147,12 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
+
+### Setup: Office/admin client
+
+1. add the following line to \etc\hosts\
+    `127.0.0.1 bolocal`
+2. `make office_client_run`
 
 ### Setup: S3
 
