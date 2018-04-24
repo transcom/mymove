@@ -33,7 +33,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   return renderField(fieldName, fields, nameSpace);
 };
 
-const renderField = (fieldName, fields, nameSpace) => {
+export const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
     return;
@@ -56,7 +56,10 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
   // first, check that all required fields are present
   if (spec.required) {
     spec.required.forEach(requiredFieldName => {
-      if (values[requiredFieldName] === undefined) {
+      if (
+        values[requiredFieldName] === undefined ||
+        values[requiredFieldName] === ''
+      ) {
         // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
         let schemaForKey = spec.properties[requiredFieldName];
         if (schemaForKey) {
@@ -100,7 +103,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
 
 // To validate that fields are required, we look at the list of top level required
 // fields and then validate them and their children.
-const validateRequiredFields = (values, form, somethingelse, andhow) => {
+const validateRequiredFields = (values, form) => {
   const swaggerSpec = form.schema;
   let requiredErrors;
   if (swaggerSpec && !isEmpty(swaggerSpec)) {
@@ -111,7 +114,7 @@ const validateRequiredFields = (values, form, somethingelse, andhow) => {
 
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
 // Fields like Address in the Form1299 are not required, so even though they have required subfields they are not annotated.
-const recursivleyAnnotateRequiredFields = schema => {
+export const recursivleyAnnotateRequiredFields = schema => {
   if (schema.required) {
     schema.required.forEach(requiredFieldName => {
       // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
