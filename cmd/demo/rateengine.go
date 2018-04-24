@@ -16,6 +16,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// This executable is used to demonstrate the rate engine and as a diagnostic tool to
+// easily see what values it is computing for a known scenario.
+//
+// Run using go run cmd/demo/rateengine.go -scenario=n, where n is either 1 or 2
 func main() {
 	scenarioNumber := flag.Int("scenario", 1, "Specify which scenario you'd like to run. Current options: 1, 2.")
 	flag.Parse()
@@ -30,7 +34,9 @@ func main() {
 	logger := zap.NewNop()
 
 	if *scenarioNumber == 1 {
-		fmt.Println("Running scenario 1: New Smyrna Beach, FL -> Awendaw, SC")
+		fmt.Println("Running scenario 1")
+		fmt.Println("Origin: New Smyrna Beach, FL, 32168")
+		fmt.Println("Destination: Awendaw, SC, 29429")
 		fmt.Println("")
 
 		if err := scenario.RunRateEngineScenario1(db); err != nil {
@@ -46,7 +52,7 @@ func main() {
 		date := time.Date(2018, time.June, 18, 0, 0, 0, 0, time.UTC)
 		inverseDiscount := 0.33
 
-		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, inverseDiscount)
+		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
 		if err != nil {
 			log.Fatalf("could not compute PPM: %+v", err)
 		}
@@ -60,10 +66,12 @@ func main() {
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
 		fmt.Println("")
-		fmt.Printf("%-30s%s\n", "Government Constructive Cost:", cost.GCC.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 
 	} else if *scenarioNumber == 2 {
-		fmt.Println("Running scenario 2: Hayward, CA -> Georgetown, TX")
+		fmt.Println("Running scenario 2")
+		fmt.Println("Origin: Hayward, CA, 94540")
+		fmt.Println("Destination: Georgetown, TX, 78626")
 		fmt.Println("")
 
 		if err := scenario.RunRateEngineScenario2(db); err != nil {
@@ -79,7 +87,7 @@ func main() {
 		date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
 		inverseDiscount := 0.33
 
-		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, inverseDiscount)
+		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
 		if err != nil {
 			log.Fatalf("could not compute PPM: %+v", errors.Cause(err))
 		}
@@ -93,6 +101,6 @@ func main() {
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
 		fmt.Println("")
-		fmt.Printf("%-30s%s\n", "Government Constructive Cost:", cost.GCC.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 	}
 }
