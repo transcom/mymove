@@ -82,17 +82,29 @@ class Admin extends React.Component {
         <ReactTable
           columns={[
             {
-              Header: 'First Name',
-              accessor: 'firstName',
+              Header: 'ID',
+              accessor: 'id',
             },
             {
-              Header: 'Last Name',
-              id: 'lastName',
-              accessor: d => d.lastName,
+              Header: 'Name',
+              id: 'name',
+              // accessor: d => d.lastName,
             },
             {
-              Header: 'Age',
-              accessor: 'age',
+              Header: 'Address',
+              accessor: 'address',
+            },
+            {
+              Header: 'Branch',
+              accessor: 'branch',
+            },
+            {
+              Header: 'Created At',
+              accessor: 'createdAt',
+            },
+            {
+              Header: 'Updated At',
+              accessor: 'updatedAt',
             },
           ]}
           manual // Forces table not to paginate or sort automatically, so we can handle it server-side
