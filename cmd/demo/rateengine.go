@@ -29,7 +29,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("could not connect to database: %+v", err)
 	}
-	db.TruncateAll()
+	err = db.TruncateAll()
+	if err != nil {
+		log.Fatalf("could not truncate the database: %+v", err)
+	}
 
 	logger := zap.NewNop()
 
