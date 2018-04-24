@@ -98,7 +98,6 @@ const initialState = {
   hasSubmitSuccess: false,
 };
 export function serviceMemberReducer(state = initialState, action) {
-  console.log('REDUCIN', action);
   switch (action.type) {
     case CREATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {

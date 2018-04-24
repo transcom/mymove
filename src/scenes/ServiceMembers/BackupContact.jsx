@@ -117,7 +117,7 @@ const ConnectedFutureForm = connect(
 
 const addAgentChoiceInitialValues = (initialValues, permission) => {
   if (initialValues && permission) {
-    if (permission == 'NONE') {
+    if (permission === 'NONE') {
       initialValues.authorizeAgent = false;
       initialValues.authorizeAgentChoice = 'VIEW';
     } else {
@@ -154,20 +154,14 @@ export class BackupContact extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      currentServiceMember,
-      userEmail,
-    } = this.props;
+    const { pages, pageKey, hasSubmitSuccess, error } = this.props;
     const isValid =
       this.refs.currentForm && this.refs.currentForm.getWrappedInstance().valid;
     const isDirty =
       this.refs.currentForm && this.refs.currentForm.getWrappedInstance().dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     var [backup1, backup2] = this.props.currentBackupContacts;
+    console.log('Second Backup to be used later.', backup2);
     const firstInitialValues = backup1
       ? pick(backup1, ['name', 'email', 'telephone'])
       : null;
@@ -197,7 +191,6 @@ export class BackupContact extends Component {
   }
 }
 BackupContact.propTypes = {
-  userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
@@ -219,7 +212,6 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    userEmail: state.user.email,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     loggedInUser: state.loggedInUser.loggedInUser,
     schema: {},
