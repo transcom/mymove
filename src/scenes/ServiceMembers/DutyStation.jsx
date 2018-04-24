@@ -63,10 +63,20 @@ export class DutyStation extends Component {
       return SearchDutyStations(
         this.props.currentServiceMember.branch,
         inputValue,
-      ).then(item => {
-        const sorted = sortBy(item, 'name');
-        callback(sorted);
-      });
+      )
+        .then(item => {
+          this.setState({
+            error: null,
+          });
+          const sorted = sortBy(item, 'name');
+          callback(sorted);
+        })
+        .catch(err => {
+          this.setState({
+            error: err,
+          });
+          callback([]);
+        });
     } else {
       callback([]);
     }
@@ -97,6 +107,7 @@ export class DutyStation extends Component {
   }
 
   renderOption(props) {
+    // React throws an error complaining about use of this property, so we delete it
     delete props.innerProps.innerRef;
     return (
       <div {...props.innerProps}>
@@ -120,7 +131,7 @@ export class DutyStation extends Component {
         pageKey={pageKey}
         pageIsValid={this.state.isValid}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        error={error || this.state.error}
       >
         <form className="duty-station" onSubmit={no_op}>
           <h1 className="sm-heading">Current Duty Station</h1>
