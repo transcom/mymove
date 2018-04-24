@@ -17,7 +17,7 @@ const MyMove = Loadable({
 });
 
 const hostname = window && window.location && window.location.hostname;
-const isOfficeSite = hostname === 'bolocal' || hostname.startsWith('office');
+const isOfficeSite = hostname.startsWith('office');
 const App = () => (
   <Provider store={store}>{!isOfficeSite ? <MyMove /> : <Office />}</Provider>
 );

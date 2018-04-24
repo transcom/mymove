@@ -45,7 +45,7 @@ client_test_coverage : client_deps
 	yarn test:coverage
 
 office_client_run: client_deps
-	HOST=bolocal yarn start
+	HOST=officelocal yarn start
 
 server_deps_update: server_generate
 	dep ensure -v -update

@@ -150,7 +150,7 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 ### Setup: Office/admin client
 
-1. add the following line to \etc\hosts\
+1. add the following line to /etc/hosts
     `127.0.0.1 bolocal`
 2. `make office_client_run`
 
