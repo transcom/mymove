@@ -11,6 +11,7 @@ import 'react-table/react-table.css';
 const rawData = RetrieveDutyStations();
 console.log(rawData);
 
+// Example based on the one here: https://react-table.js.org/#/story/server-side-data
 const requestData = (pageSize, page, sorted, filtered) => {
   return new Promise((resolve, reject) => {
     // You can retrieve your data however you want, in this case, we will just use some local data.
@@ -88,6 +89,14 @@ class Admin extends React.Component {
         <ReactTable
           columns={[
             {
+              Header: 'Flair',
+              Cell: row => (
+                <div>
+                  <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Heart_coraz%C3%B3n.svg/130px-Heart_coraz%C3%B3n.svg.png" />
+                </div>
+              ),
+            },
+            {
               Header: 'ID',
               accessor: 'id',
             },
@@ -95,10 +104,6 @@ class Admin extends React.Component {
               Header: 'Name',
               accessor: 'name',
             },
-            // {
-            //   Header: 'Address',
-            //   accessor: 'address',
-            // },
             {
               Header: 'Branch',
               accessor: 'branch',
@@ -117,7 +122,7 @@ class Admin extends React.Component {
           pages={pages} // Display the total number of pages
           loading={loading} // Display the loading overlay when we need it
           onFetchData={this.fetchData} // Request new data when things change
-          filterable
+          // filterable
           defaultPageSize={50}
           className="-striped -highlight"
         />
