@@ -760,12 +760,12 @@ class Admin extends React.Component {
               accessor: 'updated_at',
             },
           ]}
-          manual // Forces table not to paginate or sort automatically, so we can handle it server-side
+          // manual // Forces table not to paginate or sort automatically, so we can handle it server-side
           data={data}
           pages={pages} // Display the total number of pages
           loading={loading} // Display the loading overlay when we need it
           onFetchData={this.fetchData} // Request new data when things change
-          // filterable
+          filterable
           defaultPageSize={50}
           className="-striped -highlight"
         />
