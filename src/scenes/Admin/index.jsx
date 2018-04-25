@@ -9,6 +9,7 @@ import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
 const rawData = RetrieveDutyStations();
+console.log(rawData);
 
 const requestData = (pageSize, page, sorted, filtered) => {
   return new Promise((resolve, reject) => {
@@ -40,13 +41,17 @@ const requestData = (pageSize, page, sorted, filtered) => {
     );
 
     // You must return an object containing the rows of the current page, and optionally the total pages number.
-    const res = {
-      rows: sortedData.slice(pageSize * page, pageSize * page + pageSize),
-      pages: Math.ceil(filteredData.length / pageSize),
-    };
+    rawData.then(makeRows => {
+      console.log(makeRows.slice(pageSize * page, pageSize * page + pageSize));
 
-    // Here we'll simulate a server response with 500ms of delay.
-    setTimeout(() => resolve(res), 500);
+      const res = {
+        rows: makeRows.slice(pageSize * page, pageSize * page + pageSize),
+        pages: Math.ceil(makeRows.length / pageSize),
+      };
+
+      // Here we'll simulate a server response with 500ms of delay.
+      setTimeout(() => resolve(res), 500);
+    });
   });
 };
 
@@ -88,24 +93,23 @@ class Admin extends React.Component {
             },
             {
               Header: 'Name',
-              id: 'name',
-              // accessor: d => d.lastName,
+              accessor: 'name',
             },
-            {
-              Header: 'Address',
-              accessor: 'address',
-            },
+            // {
+            //   Header: 'Address',
+            //   accessor: 'address',
+            // },
             {
               Header: 'Branch',
               accessor: 'branch',
             },
             {
               Header: 'Created At',
-              accessor: 'createdAt',
+              accessor: 'created_at',
             },
             {
               Header: 'Updated At',
-              accessor: 'updatedAt',
+              accessor: 'updated_at',
             },
           ]}
           manual // Forces table not to paginate or sort automatically, so we can handle it server-side
