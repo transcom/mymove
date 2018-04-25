@@ -79,6 +79,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
+	if file.Header.Size == 0 {
+		h.logger.Error("File has a length of 0, aborting.")
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
 	buffer := make([]byte, 512)
 	_, err = file.Data.Read(buffer)
 	if err != nil {

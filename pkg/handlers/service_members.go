@@ -19,7 +19,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                  fmtUUID(user.ID),
 		Edipi:                   serviceMember.Edipi,
-		Branch:                  serviceMember.Branch,
+		Affiliation:             serviceMember.Affiliation,
 		Rank:                    serviceMember.Rank,
 		FirstName:               serviceMember.FirstName,
 		MiddleName:              serviceMember.MiddleName,
@@ -81,7 +81,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	newServiceMember := models.ServiceMember{
 		UserID:                 user.ID,
 		Edipi:                  params.CreateServiceMemberPayload.Edipi,
-		Branch:                 params.CreateServiceMemberPayload.Branch,
+		Affiliation:            params.CreateServiceMemberPayload.Affiliation,
 		Rank:                   params.CreateServiceMemberPayload.Rank,
 		FirstName:              params.CreateServiceMemberPayload.FirstName,
 		MiddleName:             params.CreateServiceMemberPayload.MiddleName,
@@ -157,8 +157,8 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.Edipi != nil {
 		serviceMember.Edipi = payload.Edipi
 	}
-	if payload.Branch != nil {
-		serviceMember.Branch = payload.Branch
+	if payload.Affiliation != nil {
+		serviceMember.Affiliation = payload.Affiliation
 	}
 	if payload.Rank != nil {
 		serviceMember.Rank = payload.Rank

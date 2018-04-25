@@ -61,7 +61,7 @@ export class DutyStation extends Component {
       inputValue.length >= minSearchLength
     ) {
       return SearchDutyStations(
-        this.props.currentServiceMember.branch,
+        this.props.currentServiceMember.affiliation,
         inputValue,
       )
         .then(item => {

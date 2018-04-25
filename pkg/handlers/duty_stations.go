@@ -15,12 +15,12 @@ func payloadForDutyStation(station *models.DutyStation) *internalmessages.DutySt
 		return nil
 	}
 	return &internalmessages.DutyStationPayload{
-		ID:        fmtUUID(station.ID),
-		CreatedAt: fmtDateTime(station.CreatedAt),
-		UpdatedAt: fmtDateTime(station.UpdatedAt),
-		Name:      swag.String(station.Name),
-		Branch:    &station.Branch,
-		Address:   payloadForAddressModel(&station.Address),
+		ID:          fmtUUID(station.ID),
+		CreatedAt:   fmtDateTime(station.CreatedAt),
+		UpdatedAt:   fmtDateTime(station.UpdatedAt),
+		Name:        swag.String(station.Name),
+		Affiliation: &station.Affiliation,
+		Address:     payloadForAddressModel(&station.Address),
 	}
 }
 
@@ -33,7 +33,7 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 	var response middleware.Responder
 	var err error
 
-	stations, err = models.FindDutyStations(h.db, params.Search, params.Branch)
+	stations, err = models.FindDutyStations(h.db, params.Search, params.Affiliation)
 	if err != nil {
 		h.logger.Error("Finding duty stations", zap.Error(err))
 		response = stationop.NewSearchDutyStationsInternalServerError()
