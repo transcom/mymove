@@ -66,7 +66,7 @@ func (b *BackupContact) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // FetchBackupContact returns a specific backup contact model
 func FetchBackupContact(db *pop.Connection, authUser User, id uuid.UUID) (BackupContact, error) {
 	var contact BackupContact
-	err := db.Eager().Find(&contact, id)
+	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return BackupContact{}, ErrFetchNotFound
