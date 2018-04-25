@@ -2,10 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"strings"
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -95,71 +93,63 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 		return ServiceMember{}, ErrFetchForbidden
 	}
 
+	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
+	if serviceMember.ResidentialAddressID == nil {
+		serviceMember.ResidentialAddress = nil
+	}
+	if serviceMember.BackupMailingAddressID == nil {
+		serviceMember.BackupMailingAddress = nil
+	}
+	if serviceMember.SocialSecurityNumberID == nil {
+		serviceMember.SocialSecurityNumber = nil
+	}
+
 	return serviceMember, nil
 }
 
-// CreateServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
-func CreateServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
+// SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
+func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
 	// If the passed in function returns an error, the transaction is rolled back
 	dbConnection.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
 
-		var transactionError error
-		addressModels := []*Address{
-			serviceMember.ResidentialAddress,
-			serviceMember.BackupMailingAddress,
-		}
-
-		for _, model := range addressModels {
-			if model == nil {
-				continue
-			} else if verrs, err := dbConnection.ValidateAndCreate(model); verrs.HasAny() || err != nil {
+		if serviceMember.ResidentialAddress != nil {
+			if verrs, err := dbConnection.ValidateAndSave(serviceMember.ResidentialAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				transactionError = errors.New("Rollback The transaction")
-				// Halt what we're doing if we get a database error
-				if err != nil {
-					responseError = err
-					break
-				}
+				responseError = err
+				return transactionError
 			}
+			serviceMember.ResidentialAddressID = &serviceMember.ResidentialAddress.ID
 		}
 
-		if transactionError == nil && serviceMember.SocialSecurityNumber != nil {
-			verrs, err := dbConnection.ValidateAndCreate(serviceMember.SocialSecurityNumber)
-			if err != nil || verrs.HasAny() {
+		if serviceMember.BackupMailingAddress != nil {
+			if verrs, err := dbConnection.ValidateAndSave(serviceMember.BackupMailingAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				transactionError = errors.New("Rollback The Transaction")
-				if err != nil {
-					responseError = err
-				}
+				responseError = err
+				return transactionError
 			}
+			serviceMember.BackupMailingAddressID = &serviceMember.BackupMailingAddress.ID
 		}
 
-		if transactionError == nil {
-			if serviceMember.SocialSecurityNumber != nil {
-				serviceMember.SocialSecurityNumberID = &serviceMember.SocialSecurityNumber.ID
+		if serviceMember.SocialSecurityNumber != nil {
+			if verrs, err := dbConnection.ValidateAndSave(serviceMember.SocialSecurityNumber); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
 			}
-			serviceMember.ResidentialAddressID = GetAddressID(serviceMember.ResidentialAddress)
-			serviceMember.BackupMailingAddressID = GetAddressID(serviceMember.BackupMailingAddress)
-
-			if verrs, err := dbConnection.ValidateAndCreate(serviceMember); verrs.HasAny() || err != nil {
-				// Return a reasonable error if someone tries to create a second SM when one already exists for this user
-				if strings.HasPrefix(errors.Cause(err).Error(), UniqueConstraintViolationErrorPrefix) {
-					responseError = ErrCreateViolatesUniqueConstraint
-				} else {
-					responseError = err
-				}
-
-				transactionError = errors.New("Rollback The transaction")
-				responseVErrors = verrs
-
-			}
+			serviceMember.SocialSecurityNumberID = &serviceMember.SocialSecurityNumber.ID
 		}
 
-		return transactionError
+		if verrs, err := dbConnection.ValidateAndSave(serviceMember); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
 
+		return nil
 	})
 
 	return responseVErrors, responseError
@@ -182,128 +172,6 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 		newContact = BackupContact{}
 	}
 	return newContact, verrs, err
-}
-
-// PatchServiceMemberWithPayload patches service member with payload
-func (s *ServiceMember) PatchServiceMemberWithPayload(db *pop.Connection, payload *internalmessages.PatchServiceMemberPayload) (*validate.Errors, error) {
-	responseVErrors := validate.NewErrors()
-	var responseError error
-	db.Transaction(func(dbConnection *pop.Connection) error {
-		var transactionError error
-
-		if payload.Edipi != nil {
-			s.Edipi = payload.Edipi
-		}
-		if payload.Branch != nil {
-			s.Branch = payload.Branch
-		}
-		if payload.Rank != nil {
-			s.Rank = payload.Rank
-		}
-		if payload.FirstName != nil {
-			s.FirstName = payload.FirstName
-		}
-		if payload.MiddleName != nil {
-			s.MiddleName = payload.MiddleName
-		}
-		if payload.LastName != nil {
-			s.LastName = payload.LastName
-		}
-		if payload.Suffix != nil {
-			s.Suffix = payload.Suffix
-		}
-		if payload.Telephone != nil {
-			s.Telephone = payload.Telephone
-		}
-		if payload.SecondaryTelephone != nil {
-			s.SecondaryTelephone = payload.SecondaryTelephone
-		}
-		if payload.PersonalEmail != nil {
-			s.PersonalEmail = swag.String(payload.PersonalEmail.String())
-		}
-		if payload.PhoneIsPreferred != nil {
-			s.PhoneIsPreferred = payload.PhoneIsPreferred
-		}
-		if payload.TextMessageIsPreferred != nil {
-			s.TextMessageIsPreferred = payload.TextMessageIsPreferred
-		}
-		if payload.EmailIsPreferred != nil {
-			s.EmailIsPreferred = payload.EmailIsPreferred
-		}
-		if payload.SocialSecurityNumber != nil {
-			if s.SocialSecurityNumber != nil {
-				// If SSN model exists
-				ssn := s.SocialSecurityNumber
-				if verrs, err := ssn.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = err
-					return errors.New("New Transaction Error")
-				}
-
-				if verrs, err := dbConnection.ValidateAndUpdate(ssn); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = err
-					return errors.New("New Transaction Error")
-				}
-			} else {
-				// Else create an SSN model
-				newSSN := SocialSecurityNumber{}
-				if verrs, err := newSSN.SetEncryptedHash(payload.SocialSecurityNumber.String()); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = err
-					return errors.New("New Transaction Error")
-				}
-
-				if verrs, err := dbConnection.ValidateAndCreate(&newSSN); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = err
-					return errors.New("New Transaction Error")
-				}
-				s.SocialSecurityNumber = &newSSN
-				s.SocialSecurityNumberID = &newSSN.ID
-			}
-
-		}
-
-		if payload.ResidentialAddress != nil {
-			residentialAddress := AddressModelFromPayload(payload.ResidentialAddress)
-			if verrs, err := dbConnection.ValidateAndCreate(residentialAddress); verrs.HasAny() || err != nil {
-				if verrs.HasAny() {
-					responseVErrors = verrs
-				} else {
-					responseError = err
-				}
-				transactionError = errors.New("Failed saving residential address model")
-				return transactionError
-			}
-			s.ResidentialAddressID = &residentialAddress.ID
-		}
-		if payload.BackupMailingAddress != nil {
-			backupMailingAddress := AddressModelFromPayload(payload.BackupMailingAddress)
-			if verrs, err := dbConnection.ValidateAndCreate(backupMailingAddress); verrs.HasAny() || err != nil {
-				if verrs.HasAny() {
-					responseVErrors = verrs
-				} else {
-					responseError = err
-				}
-				transactionError = errors.New("Failed saving backup mailing address model")
-				return transactionError
-			}
-			s.BackupMailingAddressID = &backupMailingAddress.ID
-		}
-
-		if verrs, err := dbConnection.ValidateAndUpdate(s); verrs.HasAny() || err != nil {
-			if verrs.HasAny() {
-				responseVErrors = verrs
-			} else {
-				responseError = err
-			}
-			transactionError = errors.New("Failed saving service member model")
-		}
-
-		return transactionError
-	})
-	return responseVErrors, responseError
 }
 
 // IsProfileComplete checks if the profile has been completely filled out

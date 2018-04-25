@@ -64,7 +64,16 @@ export class ContactInfo extends Component {
       currentServiceMember,
       userEmail,
     } = this.props;
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
+    let prefSelected = false;
+    if (this.refs.currentForm && this.refs.currentForm.values) {
+      prefSelected = Boolean(
+        this.refs.currentForm.values.phone_is_preferred ||
+          this.refs.currentForm.values.text_message_is_preferred ||
+          this.refs.currentForm.values.email_is_preferred,
+      );
+    }
+    const isValid =
+      this.refs.currentForm && this.refs.currentForm.valid && prefSelected;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember

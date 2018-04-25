@@ -11,6 +11,8 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 
+import TransitionToMove from 'scenes/Orders/TransitionToMove';
+
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
@@ -112,25 +114,20 @@ const pages = {
     render: stub,
     description: 'Upload your orders',
   },
-  '/orders/:serviceMemberId/complete': {
+  '/orders/:serviceMemberId/transition': {
     isInFlow: incompleteServiceMember, //todo: this is probably not the right check
-    render: (key, pages, description, props) => ({ match }) => {
-      return (
-        <WizardPage
-          handleSubmit={createMove(props)}
-          isAsync={!props.hasMove}
-          hasSucceeded={props.hasMove}
-          additionalParams={{ moveId: props.moveId }}
-          pageList={pages}
-          pageKey={key}
-        >
-          <div className="Todo">
-            <h1>Placeholder for {key}</h1>
-            <h2>Creating move here</h2>
-          </div>
-        </WizardPage>
-      );
-    },
+    render: (key, pages, description, props) => ({ match }) => (
+      <WizardPage
+        handleSubmit={createMove(props)}
+        isAsync={!props.hasMove}
+        hasSucceeded={props.hasMove}
+        pageList={pages}
+        pageKey={key}
+        additionalParams={{ moveId: props.moveId }}
+      >
+        <TransitionToMove />
+      </WizardPage>
+    ),
   },
   '/moves/:moveId': {
     isInFlow: always,

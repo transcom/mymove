@@ -10,6 +10,12 @@
   * [Querying the Database Safely](#querying-the-database-safely)
   * [Logging](#logging)
     * [Logging Levels](#logging-levels)
+  * [Errors](#errors)
+    * [Don't bury your errors in underscores](#dont-bury-your-errors-in-underscores)
+    * [Log at the top level; create and pass along errors below](#log-at-the-top-level-create-and-pass-along-errors-below)
+    * [Use `errors.Wrap()` when using external libraries](#use-errorswrap-when-using-external-libraries)
+    * [Don't `fmt` errors; log instead](#dont-fmt-errors-log-instead)
+    * [If some of your errors are predictable, pattern match on them to provide more error detail](#if-some-of-your-errors-are-predictable-pattern-match-on-them-to-provide-more-error-detail)
   * [Libraries](#libraries)
     * [Pop](#pop)
   * [Learning](#learning)
@@ -122,6 +128,122 @@ Another reason to use the Zap logging package is that it provides more nuanced l
  before landing changes. The issue with them is, if they are left in the code, they quickly become so dense in the logs
  as to obscure other debug log entries. This leads to people an arms race of folks adding 'XXXXXXX' to comments
  in order to identify their log items. If you must use them, I suggest adding an, e.g. zap.String("owner", "nick")
+
+### Errors
+
+Some general guidelines for errors:
+
+#### Don't bury your errors in underscores
+
+If a function or other action generates an error, assign it to a variable and either return it as part of your function's output or handle it in place (`if err != nil`, etc.). There will be the very occasional exception to this - one is within tests, depending on the test's goal. If you find yourself typing that underscore, take a moment to ask yourself why you're choosing that option. On those very rare occasions when it is the correct behavior, please add a comment explaining why.
+
+*Don't:*
+    `myVal, _ := functionThatShouldReturnAnInt()`
+
+*Do:*
+
+```golang
+    myVal, err := functionThatShouldReturnAnInt()
+    if err != nil {
+         return myVal, errors.Wrap(err, "function didn't return an int")
+   }
+```
+
+#### Log at the top level; create and pass along errors below
+
+If you're creating a query (1) that is called by a function (2) that is in turned called by another function (3), create and return errors at levels 1 and 2 (and possibly handle them immediately after creation, if needed), and log them at level 3. Logs should be created at the top level and contain context about what created them. This is more difficult if logs are being created in every function and file that supports the operation you're working on. Here's an example of when to create errors and when to handle them:
+
+In `pkg/models/blackout_dates.go`, an error is created and returned:
+
+```golang
+func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment ShipmentWithOffer) ([]BlackoutDate, error) {
+  ...
+  err = query.All(&blackoutDates)
+  if err != nil {
+    return blackoutDates, errors.Wrap(err, "Blackout dates query failed")
+  }
+
+  return blackoutDates, err
+}
+```
+
+In `pkg/awardqueue/awardqueue.go`, `FetchTSPBlackoutDates` is called, and any possible error is handled. This function also returns an error.
+
+```golang
+func ShipmentWithinBlackoutDates(tspID uuid.UUID, shipment models.ShipmentWithOffer) (bool, error) {
+  blackoutDates, err := models.FetchTSPBlackoutDates(aq.db, tspID, shipment)
+
+  if err != nil {
+    return false, errors.Wrap(err, "Error retrieving blackout dates from database")
+  }
+
+  return len(blackoutDates) != 0, nil
+}
+```
+
+Finally, at the top level in `attemptShipmentOffer` in the same file, any errors bubbled up from `ShipmentWithinBlackoutDates` or `FetchTSPBlackoutDates` are handled definitively, halting the progress of the longer function if the underlying processes and queries didn't complete as expected in the functions being called:
+
+```golang
+func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*models.ShipmentOffer, error) {
+  aq.logger.Info("Attempting to offer shipment", zap.Any("shipment_id", shipment.ID))
+  ...
+  isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
+  if err != nil {
+    aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
+    return err
+  }
+  ...
+}
+```
+
+The error is created and passed along at the lowest level, logged and passed along at the middle level (along with other errors that can happen within that function), and logged again at the highest level before finally halting the progress of the process if an error is present.
+
+#### Use `errors.Wrap()` when using external libraries
+
+[`errors.Wrap()`](https://godoc.org/github.com/pkg/errors) provides greater error context and a stack trace, making it especially useful when dealing with the opacity that sometimes comes with external libraries. `errors.Wrap()` takes two parameters: the error and a string to provide context and explanation. Keep the string brief and clear, assuming that the fuller cause will be provided by the context `errors.Wrap()` brings. It can also add useful context for errors related to internal code if there might otherwise be unhelpful opacity. `errors.Errorf()` and `errors.Wrapf()` also capture stack traces with the additional function of string substitution/formatting for output. Instead of just returning the error, offer greater context with something like this:
+
+```golang
+if err != nil {
+        return errors.Wrap(err, "Pop validate failed")
+}
+```
+
+#### Don't `fmt` errors; log instead
+
+`fmt` can provide useful error handling during initial debugging, but we strongly suggest logging instead, from when you write the initial lines of a new function. Using logging creates structured logs instead of the unstructured, human-friendly-only output that `fmt` does. If an `fmt` statement offers usefulness beyond your initial troubleshooting while working, switch it to `errors.Wrap()` or `logger.Error()`, perhaps with [Zap](https://github.com/uber-go/zap).
+
+*Don't:*
+    `fmt.Println("Blackout dates fetch failed: ", err)`
+
+*Do:*
+    `logger.Error("Blackout dates fetch failed: ", err)`
+
+#### If some of your errors are predictable, pattern match on them to provide more error detail
+
+Some errors are predictable, such as those from the database that Pop returns to us. This gives you the option to use those predictable errors to give yourself and fellow maintainers of code more detail than you might get otherwise, like so:
+
+```golang
+// FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+  var serviceMember ServiceMember
+  err := db.Eager().Find(&serviceMember, id)
+  if err != nil {
+    if errors.Cause(err).Error() == RecordNotFoundErrorString {
+      return ServiceMember{}, ErrFetchNotFound
+    }
+    // Otherwise, it's an unexpected err so we return that.
+    return ServiceMember{}, err
+  }
+
+  if serviceMember.UserID != user.ID {
+    return ServiceMember{}, ErrFetchForbidden
+  }
+
+  return serviceMember, nil
+ }
+```
+
+You can also use `errors.Wrap()` in this situation to provide access to even more information, beyond the breadcrumbs left here.
 
 ### Libraries
 

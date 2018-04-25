@@ -24,7 +24,9 @@ func (re *RateEngine) zip5ToZip3(originZip5 string, destinationZip5 string) (ori
 	return originZip3, destinationZip3
 }
 
-func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, inverseDiscount float64) (unit.Cents, error) {
+func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinationZip5 string,
+	date time.Time, daysInSIT int, lhInvDiscount float64, sitInvDiscount float64) (unit.Cents, error) {
+
 	originZip3, destinationZip3 := re.zip5ToZip3(originZip5, destinationZip5)
 
 	// Linehaul charges
@@ -53,13 +55,14 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
 		return 0, err
 	}
+
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3)
+	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return 0, err
 	}
-	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3)
+	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return 0, err
@@ -74,17 +77,30 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
 		return 0, err
 	}
+	sit, err := re.sitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
+	if err != nil {
+		return 0, err
+	}
+
 	ppmSubtotal := baseLinehaulChargeCents + originLinehaulFactorCents + destinationLinehaulFactorCents +
 		shorthaulChargeCents + originServiceFee + destinationServiceFee + pack + unpack
-	ppmBestValue := ppmSubtotal.MultiplyFloat64(inverseDiscount)
+
+	gcc := ppmSubtotal.MultiplyFloat64(lhInvDiscount)
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	gcc += sit.MultiplyFloat64(sitInvDiscount)
 
 	// PPMs only pay 95% of the best value
-	ppmPayback := ppmBestValue.MultiplyFloat64(.95)
+	// TODO: the 95% rule applies to the estimate. For actual reimbursement, they can get 100% *if*
+	// their out of pocket was greater than the GCC. Eventually, when we implement reimbursements,
+	// we'll want to break this out and differentiate the two.
+	// https://www.pivotaltracker.com/story/show/156969315
+	ppmPayback := gcc.MultiplyFloat64(.95)
 
 	re.logger.Info("PPM compensation total calculated",
 		zap.Int("PPM compensation total", ppmPayback.Int()),
 		zap.Int("PPM subtotal", ppmSubtotal.Int()),
-		zap.Float64("inverse discount", inverseDiscount),
+		zap.Float64("inverse discount", lhInvDiscount),
+		zap.Float64("SIT inverse discount", sitInvDiscount),
 		zap.Int("base linehaul", baseLinehaulChargeCents.Int()),
 		zap.Int("origin lh factor", originLinehaulFactorCents.Int()),
 		zap.Int("destination lh factor", destinationLinehaulFactorCents.Int()),
@@ -93,6 +109,7 @@ func (re *RateEngine) computePPM(weight unit.Pound, originZip5 string, destinati
 		zap.Int("destination service fee", destinationServiceFee.Int()),
 		zap.Int("pack fee", pack.Int()),
 		zap.Int("unpack fee", unpack.Int()),
+		zap.Int("sit fee", sit.Int()),
 	)
 
 	return ppmPayback, nil

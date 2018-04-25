@@ -30,6 +30,9 @@ func (suite *HandlerSuite) SetupTest() {
 }
 
 func (suite *HandlerSuite) mustSave(model interface{}) {
+	t := suite.T()
+	t.Helper()
+
 	verrs, err := suite.db.ValidateAndSave(model)
 	if err != nil {
 		suite.T().Errorf("Errors encountered saving %v: %v", model, err)

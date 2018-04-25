@@ -12,7 +12,7 @@ import (
 
 // MakeTSPPerformance makes a single best_value_score record
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score int, offerCount int, linehaulRate float64, SITRate float64) (models.TransportationServiceProviderPerformance, error) {
+	tdl models.TrafficDistributionList, qualityBand *int, score float64, offerCount int, linehaulRate float64, SITRate float64) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
@@ -69,7 +69,7 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 		// for quality band 2 between 50-75, etc.
 		var offers int
 		minBvs := (qualityBand - 1) * 25
-		bvs := 100 - (rand.Intn(25) + minBvs)
+		bvs := float64(100 - (rand.Intn(25) + minBvs))
 		// Make linehaul and SIT rates a percentage of BVS--in this case we'll call both discountRate
 		discountRate := float64(bvs) * .3
 

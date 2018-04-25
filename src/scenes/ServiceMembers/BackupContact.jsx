@@ -160,6 +160,7 @@ export class BackupContact extends Component {
       this.refs.currentForm && this.refs.currentForm.getWrappedInstance().dirty;
     // eslint-disable-next-line
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
+
     // initialValues has to be null until there are values from the action since only the first values are taken
     const firstInitialValues = contact1
       ? pick(contact1, ['name', 'email', 'telephone'])
@@ -168,6 +169,7 @@ export class BackupContact extends Component {
       firstInitialValues,
       contact1 ? contact1.permission : null,
     );
+
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
