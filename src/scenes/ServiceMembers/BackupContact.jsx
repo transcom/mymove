@@ -1,6 +1,6 @@
 import { pick } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -13,7 +13,7 @@ import {
 } from './ducks';
 import {
   renderField,
-  recursivleyAnnotateRequiredFields,
+  recursivelyAnnotateRequiredFields,
 } from 'shared/JsonSchemaForm';
 import { reduxForm, Field, formValueSelector } from 'redux-form';
 import { no_op } from 'shared/utils';
@@ -21,10 +21,74 @@ import WizardPage from 'shared/WizardPage';
 
 import './BackupContact.css';
 
+const permissionsField = props => {
+  const {
+    input: { value, onChange },
+  } = props;
+  const localOnChange = event => {
+    if (event.target.id === 'authorizeAgent') {
+      if (event.target.checked && value === 'NONE') {
+        onChange('VIEW');
+      } else if (!event.target.checked) {
+        onChange('NONE');
+      }
+    } else if (event.target.id === 'aaChoiceView') {
+      onChange('VIEW');
+    } else if (event.target.id === 'aaChoiceEdit') {
+      onChange('EDIT');
+    }
+  };
+
+  const authorizedChecked = value !== 'NONE';
+  const viewChecked = value === 'VIEW';
+  const editChecked = value === 'EDIT';
+
+  return (
+    <Fragment>
+      <input
+        id="authorizeAgent"
+        type="checkbox"
+        onChange={localOnChange}
+        checked={authorizedChecked}
+      />
+      <label htmlFor="authorizeAgent">I authorize this person to:</label>
+      <input
+        id="aaChoiceView"
+        type="radio"
+        onChange={localOnChange}
+        checked={viewChecked}
+        disabled={!authorizedChecked}
+      />
+      <label
+        htmlFor="aaChoiceView"
+        className={authorizedChecked ? '' : 'disabled'}
+      >
+        Sign for pickup or delivery in my absence, and view move details in this
+        app.
+      </label>
+      <input
+        id="aaChoiceEdit"
+        type="radio"
+        onChange={localOnChange}
+        checked={editChecked}
+        disabled={!authorizedChecked}
+      />
+      <label
+        htmlFor="aaChoiceEdit"
+        className={authorizedChecked ? '' : 'disabled'}
+      >
+        Represent me in all aspects of this move (this person will be invited to
+        login and will be authorized with with power of attorney on your
+        behalf).
+      </label>
+    </Fragment>
+  );
+};
+
 const formName = 'service_member_backup_contact';
 const baseForm = props => {
   const { schema, authorizeAgent } = props;
-  recursivleyAnnotateRequiredFields(schema);
+  recursivelyAnnotateRequiredFields(schema);
   const fields = schema.properties || {};
 
   const disableAgentPermissions = !authorizeAgent;
@@ -40,46 +104,7 @@ const baseForm = props => {
       {renderField('email', fields, '')}
       {renderField('telephone', fields, '')}
 
-      <Field
-        id="authorizeAgent"
-        name="authorizeAgent"
-        component="input"
-        type="checkbox"
-      />
-      <label htmlFor="authorizeAgent">I authorize this person to:</label>
-
-      <Field
-        id="aaChoiceView"
-        name="authorizeAgentChoice"
-        component="input"
-        type="radio"
-        value="VIEW"
-        disabled={disableAgentPermissions}
-      />
-      <label
-        htmlFor="aaChoiceView"
-        className={disableAgentPermissions ? 'disabled' : ''}
-      >
-        Sign for pickup or delivery in my absence, and view move details in this
-        app.
-      </label>
-
-      <Field
-        id="aaChoiceEdit"
-        name="authorizeAgentChoice"
-        component="input"
-        type="radio"
-        value="EDIT"
-        disabled={disableAgentPermissions}
-      />
-      <label
-        htmlFor="aaChoiceEdit"
-        className={disableAgentPermissions ? 'disabled' : ''}
-      >
-        Represent me in all aspects of this move (this person will be invited to
-        login and will be authorized with with power of attorney on your
-        behalf).
-      </label>
+      <Field name="permission" component={permissionsField} />
     </form>
   );
 };
@@ -101,32 +126,6 @@ const ContactForm = reduxForm({ form: formName, validate: validateContact })(
   baseForm,
 );
 
-// in order to read the values of the from from within the form we must connect it
-const selector = formValueSelector(formName);
-const ConnectedContactForm = connect(
-  state => {
-    const authorizeAgent = selector(state, 'authorizeAgent');
-    return {
-      authorizeAgent,
-    };
-  },
-  null,
-  null,
-  { withRef: true },
-)(ContactForm);
-
-const addAgentChoiceInitialValues = (initialValues, permission) => {
-  if (initialValues && permission) {
-    if (permission === 'NONE') {
-      initialValues.authorizeAgent = false;
-      initialValues.authorizeAgentChoice = 'VIEW';
-    } else {
-      initialValues.authorizeAgent = true;
-      initialValues.authorizeAgentChoice = permission;
-    }
-  }
-};
-
 export class BackupContact extends Component {
   componentDidMount() {
     this.props.indexBackupContacts(this.props.match.params.serviceMemberId);
@@ -134,10 +133,6 @@ export class BackupContact extends Component {
 
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
-    const permission = pendingValues.authorizeAgent
-      ? pendingValues.authorizeAgentChoice
-      : 'NONE';
-    pendingValues.permission = permission;
 
     if (pendingValues.telephone === '') {
       pendingValues.telephone = null;
@@ -159,21 +154,16 @@ export class BackupContact extends Component {
 
   render() {
     const { pages, pageKey, hasSubmitSuccess, error } = this.props;
-    const isValid =
-      this.refs.currentForm && this.refs.currentForm.getWrappedInstance().valid;
-    const isDirty =
-      this.refs.currentForm && this.refs.currentForm.getWrappedInstance().dirty;
+    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
+    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
+
     // eslint-disable-next-line
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
 
     // initialValues has to be null until there are values from the action since only the first values are taken
     const firstInitialValues = contact1
-      ? pick(contact1, ['name', 'email', 'telephone'])
+      ? pick(contact1, ['name', 'email', 'telephone', 'permission'])
       : null;
-    addAgentChoiceInitialValues(
-      firstInitialValues,
-      contact1 ? contact1.permission : null,
-    );
 
     return (
       <WizardPage
@@ -186,7 +176,7 @@ export class BackupContact extends Component {
         hasSucceeded={hasSubmitSuccess}
         error={error}
       >
-        <ConnectedContactForm
+        <ContactForm
           ref="currentForm"
           initialValues={firstInitialValues}
           handleSubmit={no_op}

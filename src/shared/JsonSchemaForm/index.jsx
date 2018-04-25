@@ -114,14 +114,14 @@ const validateRequiredFields = (values, form) => {
 
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
 // Fields like Address in the Form1299 are not required, so even though they have required subfields they are not annotated.
-export const recursivleyAnnotateRequiredFields = schema => {
+export const recursivelyAnnotateRequiredFields = schema => {
   if (schema.required) {
     schema.required.forEach(requiredFieldName => {
       // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
       let schemaForKey = schema.properties[requiredFieldName];
       if (schemaForKey) {
         if (schemaForKey.type === 'object') {
-          recursivleyAnnotateRequiredFields(schemaForKey);
+          recursivelyAnnotateRequiredFields(schemaForKey);
         } else {
           schemaForKey[ALWAYS_REQUIRED_KEY] = true;
         }
@@ -134,7 +134,7 @@ export const recursivleyAnnotateRequiredFields = schema => {
 
 const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
-    recursivleyAnnotateRequiredFields(schema);
+    recursivelyAnnotateRequiredFields(schema);
 
     const fields = schema.properties || {};
     return uiSchema.order.map(i =>
