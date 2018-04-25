@@ -2314,3 +2314,5 @@ paths:
           description: invalid request
         401:
           description: request requires user authentication
+        403:
+          description: user is not authorized to access this queue
