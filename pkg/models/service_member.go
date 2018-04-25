@@ -80,7 +80,8 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
-	err := db.Eager().Find(&serviceMember, id)
+	eagerConn := *db
+	err := eagerConn.Eager().Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound

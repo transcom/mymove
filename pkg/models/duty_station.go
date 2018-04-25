@@ -68,9 +68,11 @@ func FindDutyStations(tx *pop.Connection, search string, affiliation string) (Du
 
 	// ILIKE does case-insensitive pattern matching, "%" matches any string
 	searchQuery := fmt.Sprintf("%%%s%%", search)
-	query := tx.Where("affiliation = $1 AND name ILIKE $2", affiliation, searchQuery)
 
-	if err := query.Eager().All(&stations); err != nil {
+	eagerConn := *tx
+	query := eagerConn.Eager().Where("affiliation = $1 AND name ILIKE $2", affiliation, searchQuery)
+
+	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != RecordNotFoundErrorString {
 			return stations, err
 		}
