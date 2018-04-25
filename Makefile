@@ -44,6 +44,9 @@ client_test: client_deps
 client_test_coverage : client_deps
 	yarn test:coverage
 
+office_client_run: client_deps
+	HOST=officelocal yarn start
+
 server_deps_update: server_generate
 	dep ensure -v -update
 server_deps: go_version .server_deps.stamp
