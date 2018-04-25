@@ -10,3 +10,8 @@
 .station-description li:first-child {
   font-weight: bold;
 }
+
+div#react-select-2-listbox{
+  height: 100%;
+  max-height: 300px;
+}
