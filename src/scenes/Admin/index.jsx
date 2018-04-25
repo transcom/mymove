@@ -2,12 +2,13 @@ import React from 'react';
 import { render } from 'react-dom';
 import _ from 'lodash';
 import { makeData } from './Utils';
+import { RetrieveDutyStations } from './api.js';
 
 // Import React Table
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
-const rawData = makeData();
+const rawData = RetrieveDutyStations();
 
 const requestData = (pageSize, page, sorted, filtered) => {
   return new Promise((resolve, reject) => {
@@ -113,7 +114,7 @@ class Admin extends React.Component {
           loading={loading} // Display the loading overlay when we need it
           onFetchData={this.fetchData} // Request new data when things change
           filterable
-          defaultPageSize={10}
+          defaultPageSize={50}
           className="-striped -highlight"
         />
         <br />
