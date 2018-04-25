@@ -85,10 +85,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.IssuesCreateIssueHandler = CreateIssueHandler(context)
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler(context)
 
-	internalAPI.Form1299sCreateForm1299Handler = CreateForm1299Handler(context)
-	internalAPI.Form1299sIndexForm1299sHandler = IndexForm1299sHandler(context)
-	internalAPI.Form1299sShowForm1299Handler = ShowForm1299Handler(context)
-
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler(context)
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler(context)

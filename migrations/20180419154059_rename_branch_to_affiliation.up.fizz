@@ -1,0 +1,2 @@
+rename_column("service_members", "branch", "affiliation")
+rename_column("duty_stations", "branch", "affiliation")
