@@ -82,6 +82,7 @@ func (aq *AwardQueue) attemptShipmentOffer(shipment models.ShipmentWithOffer) (*
 
 				isAdministrativeShipment, err := aq.ShipmentWithinBlackoutDates(tsp.ID, shipment)
 				if err != nil {
+					aq.logger.Error("Failed to determine if shipment is within TSP blackout dates", zap.Error(err))
 					return err
 				}
 

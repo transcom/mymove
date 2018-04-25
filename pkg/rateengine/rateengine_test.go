@@ -59,8 +59,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		ServicesSchedule:   1,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
-		SIT185ARateCents:   unit.Cents(50),
-		SIT185BRateCents:   unit.Cents(50),
+		SIT185ARateCents:   unit.Cents(5550),
+		SIT185BRateCents:   unit.Cents(222),
 		SITPDSchedule:      1,
 	}
 	suite.mustSave(&destinationServiceArea)
@@ -105,13 +105,13 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	suite.mustSave(&shorthaul)
 
 	// 139698 +20000
-	fee, err := engine.computePPM(2000, "39574", "33633", testdatagen.RateEngineDate, .40)
+	fee, err := engine.computePPM(2000, "39574", "33633", testdatagen.RateEngineDate, 1, .40, .5)
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)
 	}
 
-	expected := unit.Cents(61643)
+	expected := unit.Cents(63752)
 	if fee != expected {
 		t.Errorf("wrong PPM charge total: expected %d, got %d", expected, fee)
 	}
@@ -150,7 +150,7 @@ func TestRateEngineSuite(t *testing.T) {
 	}
 
 	// Use a no-op logger during testing
-	logger := zap.NewNop()
+	logger, _ := zap.NewDevelopment()
 	planner := route.NewTestingPlanner()
 
 	hs := &RateEngineSuite{db: db, logger: logger, planner: planner}
