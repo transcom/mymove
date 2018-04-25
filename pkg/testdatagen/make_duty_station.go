@@ -10,7 +10,7 @@ import (
 )
 
 // MakeDutyStation creates a single DutyStation
-func MakeDutyStation(db *pop.Connection, name string, branch internalmessages.MilitaryBranch, address models.Address) (models.DutyStation, error) {
+func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessages.Affiliation, address models.Address) (models.DutyStation, error) {
 	var station models.DutyStation
 
 	verrs, err := db.ValidateAndSave(&address)
@@ -22,9 +22,9 @@ func MakeDutyStation(db *pop.Connection, name string, branch internalmessages.Mi
 	}
 
 	station = models.DutyStation{
-		Name:      name,
-		Branch:    branch,
-		AddressID: address.ID,
+		Name:        name,
+		Affiliation: affiliation,
+		AddressID:   address.ID,
 	}
 
 	verrs, err = db.ValidateAndSave(&station)

@@ -30,23 +30,23 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	suite.mustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:      "First Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "First Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:      "Second Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "Second Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 	newSearchParams := stationop.SearchDutyStationsParams{
 		HTTPRequest: req,
-		Branch:      string(internalmessages.MilitaryBranchARMY),
+		Affiliation: string(internalmessages.AffiliationARMY),
 		Search:      "first",
 	}
 
