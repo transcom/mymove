@@ -9,8 +9,13 @@ import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-const subsetOfFields = ['branch', 'edipi', 'social_security_number', 'rank'];
-
+// todo: add branch (once can get yaml anchors to work)
+const subsetOfFields = [
+  'affiliation',
+  'edipi',
+  'social_security_number',
+  'rank',
+];
 const uiSchema = {
   title: 'Create your profile',
   order: subsetOfFields,
