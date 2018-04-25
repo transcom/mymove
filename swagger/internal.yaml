@@ -91,6 +91,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      incentive:
+        type: string
+        title: Incentive
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -100,6 +104,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      incentive:
+        type: string
+        title: Incentive
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -108,6 +116,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      incentive:
+        type: string
+        title: Incentive
         x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
@@ -121,6 +133,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      incentive:
+        type: string
+        title: Incentive
         x-nullable: true
       created_at:
         type: string
