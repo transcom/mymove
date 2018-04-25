@@ -79,7 +79,6 @@ const configureSSNField = (swaggerField, props) => {
     validator.patternMatches(/^\d{3}-\d{2}-\d{4}$/, 'SSN must have 9 digits.'),
   );
   props.type = 'text';
-
   return props;
 };
 
@@ -241,7 +240,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
           swaggerField,
         );
         console.error(
-          "Since it's not feasable to generate a sensible error message from a regex, please add a new format and matching validator",
+          "Since it's not feasible to generate a sensible error message from a regex, please add a new format and matching validator",
         );
         fieldProps.validate.push(
           validator.patternMatches(swaggerField.pattern, swaggerField.example),
@@ -255,7 +254,7 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     }
   } else {
     console.error(
-      'ERROR: This is an unimplemented type in our JSONSchemaForm implmentation',
+      'ERROR: This is an unimplemented type in our JSONSchemaForm implementation',
     );
   }
   return (

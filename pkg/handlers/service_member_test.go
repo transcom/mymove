@@ -192,7 +192,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.mustSave(&newServiceMember)
 
-	branch := internalmessages.MilitaryBranchARMY
+	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
 	ssn := fmtSSN("555-55-5555")
 	resAddress := fakeAddress()
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		Edipi:                &newEdipi,
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
-		Branch:               &branch,
+		Affiliation:          &affiliation,
 		EmailIsPreferred:     swag.Bool(true),
 		FirstName:            swag.String("Firstname"),
 		LastName:             swag.String("Lastname"),
@@ -234,7 +234,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	serviceMemberPayload := okResponse.Payload
 
 	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
-	suite.Assertions.Equal(*serviceMemberPayload.Branch, branch)
+	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, affiliation)
 	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, true)
 	suite.Assertions.Equal(*serviceMemberPayload.TextMessageIsPreferred, true)
 	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
