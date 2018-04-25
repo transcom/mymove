@@ -82,7 +82,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
-	err := db.Eager().Find(&serviceMember, id)
+	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == RecordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
@@ -110,7 +110,7 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 		serviceMember.DutyStation = nil
 	} else {
 		// Need to do this because Pop's nested eager loading seems to be broken
-		db.Eager().Find(&serviceMember.DutyStation.Address, serviceMember.DutyStation.AddressID)
+		db.Q().Eager().Find(&serviceMember.DutyStation.Address, serviceMember.DutyStation.AddressID)
 	}
 
 	return serviceMember, nil
