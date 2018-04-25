@@ -17,11 +17,12 @@ type QueueMove struct {
 	Rank             *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
 	CustomerName     *string                             `json:"customer_name" db:"customer_name"`
 	Status           *string                             `json:"status" db:"status"`
-	LocatorNumber    *string                             `json:"locator_number" db:"locator_number"`
+	Locator          *string                             `json:"locator" db:"locator"`
 	MoveType         *string                             `json:"move_type" db:"move_type"`
 	MoveDate         time.Time                           `json:"move_date" db:"move_date"`
 	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
-	LastModified     *string                             `json:"last_modified" db:"last_modified"`
+	LastModifiedDate *time.Time                          `json:"last_modified_date" db:"last_modified_date"`
+	LastModifiedName *string                             `json:"last_modified_name" db:"last_modified_name"`
 }
 
 // String is not required by pop and may be deleted
@@ -55,12 +56,4 @@ func (q *QueueMove) ValidateCreate(tx *pop.Connection) (*validate.Errors, error)
 // This method is not required and may be deleted.
 func (q *QueueMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// GetQueueMoves gets all queueMove models for a specific queue
-func GetQueueMoves(db *pop.Connection, queue string) (QueueMoves, error) {
-	var queueMoves QueueMoves
-	query := db.Where("queue_type = $1", queue)
-	err := query.All(&queueMoves)
-	return queueMoves, err
 }

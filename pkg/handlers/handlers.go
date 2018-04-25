@@ -117,9 +117,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 
-	internalAPI.QueueMovesIndexQueueNewMovesHandler = IndexQueueNewMovesHandler(context)
-	internalAPI.QueueMovesIndexQueueTroubleshootingHandler = IndexQueueTroubleshootingHandler(context)
-	internalAPI.QueueMovesIndexQueuePPMsHandler = IndexQueuePPMsHandler(context)
+	internalAPI.QueueMovesShowQueueHandler = ShowQueueHandler(context)
 
 	return internalAPI.Serve(nil)
 }
