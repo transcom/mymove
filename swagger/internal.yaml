@@ -1490,7 +1490,7 @@ definitions:
       status:
         type: string
         example: Booked - Awaiting Review
-      locator_number:
+      locator:
         type: string
         example: "12432"
       customer_name:
@@ -1505,7 +1505,7 @@ definitions:
         title: 'DoD ID #'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
-      move_type:
+      orders_type:
         type: string
         title: Move Type
         enum:
@@ -1516,15 +1516,18 @@ definitions:
       move_date:
         type: string
         format: date
-        example: 4/25/2018
+        example: 2018-04-25
       customer_deadline:
         type: string
         format: date
-        example: 7/20/2018
-      last_mod:
+        example: 2018-07-20
+      last_modified_date:
         type: string
-        title: Last Modified
-        example: 4/9/18 11:25 by Bollinger, Sam
+        format: date
+        example: 2018-04-25
+      last_modified_name:
+        type: string
+        example: Bollinger, Sam
       created_at:
         type: string
         format: date-time
@@ -1534,16 +1537,16 @@ definitions:
     required:
       - id
       - status
-      - locator_number
+      - locator
       - customer_name
       - edipi
       - rank
-      - move_type
+      - orders_type
       - move_date
       - customer_deadline
-      - last_mod
+      - last_modified_date
+      - last_modified_name
       - created_at
-      - updated_at
 paths:
   /issues:
     post:
@@ -2283,52 +2286,26 @@ paths:
           description: matching duty station not found
         500:
           description: internal server error
-  /queues/new_moves:
+  /queues/{queueType}:
     get:
-      summary: List all moves in the new_moves queue
-      description: List all moves in the new_moves queue
-      operationId: indexQueueNewMoves
+      summary: Show all moves in a queue
+      description: Show all moves in a queue
+      operationId: showQueue
       tags:
-        - queueMoves
+        - queues
+      parameters:
+        - in: path
+          name: queueType
+          type: string
+          enum:
+          - new
+          - troubleshooting
+          - ppm
+          required: true
+          description: Queue type to show
       responses:
         200:
-          description: list all moves in the new_moves queue
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/QueueMove'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-  /queues/troubleshooting:
-    get:
-      summary: List all moves in the troubleshooting queue
-      description: List all moves in the troubleshooting queue
-      operationId: indexQueueTroubleshooting
-      tags:
-        - queueMoves
-      responses:
-        200:
-          description: list all moves in the troubleshooting queue
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/QueueMove'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-  /queues/ppms:
-    get:
-      summary: List all moves in the ppms queue
-      description: List all moves in the ppms queue
-      operationId: indexQueuePPMs
-      tags:
-        - queueMoves
-      responses:
-        200:
-          description: list all moves in the ppms queue
+          description: list all moves in the specified queue
           schema:
             type: array
             items:

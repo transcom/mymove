@@ -10,9 +10,18 @@ import (
 
 // QueueMove is a move for a queue
 type QueueMove struct {
-	ID        uuid.UUID `json:"id" db:"id"`
-	CreatedAt time.Time `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+	ID               uuid.UUID                           `json:"id" db:"id"`
+	CreatedAt        time.Time                           `json:"created_at" db:"created_at"`
+	UpdatedAt        time.Time                           `json:"updated_at" db:"updated_at"`
+	Edipi            *string                             `json:"edipi" db:"edipi"`
+	Rank             *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
+	CustomerName     *string                             `json:"customer_name" db:"customer_name"`
+	Status           *string                             `json:"status" db:"status"`
+	LocatorNumber    *string                             `json:"locator_number" db:"locator_number"`
+	MoveType         *string                             `json:"move_type" db:"move_type"`
+	MoveDate         time.Time                           `json:"move_date" db:"move_date"`
+	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
+	LastModified     *string                             `json:"last_modified" db:"last_modified"`
 }
 
 // String is not required by pop and may be deleted
@@ -46,4 +55,12 @@ func (q *QueueMove) ValidateCreate(tx *pop.Connection) (*validate.Errors, error)
 // This method is not required and may be deleted.
 func (q *QueueMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// GetQueueMoves gets all queueMove models for a specific queue
+func GetQueueMoves(db *pop.Connection, queue string) (QueueMoves, error) {
+	var queueMoves QueueMoves
+	query := db.Where("queue_type = $1", queue)
+	err := query.All(&queueMoves)
+	return queueMoves, err
 }

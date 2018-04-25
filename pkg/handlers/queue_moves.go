@@ -15,27 +15,42 @@ import (
 
 func payloadForQueueMoveModel(user models.User, queueMove models.QueueMove) *internalmessages.QueueMove {
 	queueMovePayload := internalmessages.QueueMove{
-		ID:                      fmtUUID(queueMove.ID),
-		CreatedAt:               fmtDateTime(queueMove.CreatedAt),
-		UpdatedAt:               fmtDateTime(queueMove.UpdatedAt),
-		Edipi:                   queueMove.Edipi,
-		Branch:                  queueMove.Branch,
-		Rank:                    queueMove.Rank,
-		FirstName:               queueMove.FirstName,
-		MiddleName:              queueMove.MiddleName,
-		LastName:                queueMove.LastName,
-		Suffix:                  queueMove.Suffix,
-		Telephone:               queueMove.Telephone,
-		SecondaryTelephone:      queueMove.SecondaryTelephone,
-		PhoneIsPreferred:        queueMove.PhoneIsPreferred,
-		TextMessageIsPreferred:  queueMove.TextMessageIsPreferred,
-		EmailIsPreferred:        queueMove.EmailIsPreferred,
-		ResidentialAddress:      payloadForAddressModel(queueMove.ResidentialAddress),
-		BackupMailingAddress:    payloadForAddressModel(queueMove.BackupMailingAddress),
-		HasSocialSecurityNumber: fmtBool(queueMove.SocialSecurityNumberID != nil),
-		IsProfileComplete:       fmtBool(queueMove.IsProfileComplete()),
+		ID:               fmtUUID(queueMove.ID),
+		CreatedAt:        fmtDateTime(queueMove.CreatedAt),
+		UpdatedAt:        fmtDateTime(queueMove.UpdatedAt),
+		Edipi:            queueMove.Edipi,
+		Rank:             queueMove.Rank,
+		CustomerName:     queueMove.CustomerName,
+		LocatorNumber:    queueMove.LocatorNumber,
+		Status:           queueMove.Status,
+		MoveType:         queueMove.MoveType,
+		MoveDate:         fmtDate(queueMove.MoveDate),
+		CustomerDeadline: fmtDate(queueMove.CustomerDeadline),
+		LastModified:     queueMove.LastModified,
 	}
 	return &queueMovePayload
+}
+
+// IndexQueueNewMovesHandler returns a list of all queueMoves in the new moves queue
+type IndexQueueNewMovesHandler HandlerContext
+
+// Handle retrieves a list of all queueMoves in the system in the new moves queue
+func (h IndexQueueNewMovesHandler) Handle(params queuemoveop.IndexQueueNewMovesParams) middleware.Responder {
+	var response middleware.Responder
+
+	queueMoves, err := models.GetMovesForUserID(h.db, user.ID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = moveop.NewIndexMovesBadRequest()
+	} else {
+		movePayloads := make(internalmessages.IndexMovesPayload, len(moves))
+		for i, move := range moves {
+			movePayload := payloadForMoveModel(user, move)
+			movePayloads[i] = &movePayload
+		}
+		response = moveop.NewIndexQueueMovesOK().WithPayload(movePayloads)
+	}
+	return response
 }
 
 // CreateQueueMoveHandler creates a new service member via POST /queueMove
@@ -44,24 +59,7 @@ type CreateQueueMoveHandler HandlerContext
 // Handle ... creates a new QueueMove from a request payload
 func (h CreateQueueMoveHandler) Handle(params queuemoveop.CreateQueueMoveParams) middleware.Responder {
 	var response middleware.Responder
-	residentialAddress := addressModelFromPayload(params.CreateQueueMove.ResidentialAddress)
-	backupMailingAddress := addressModelFromPayload(params.CreateQueueMove.BackupMailingAddress)
-
-	ssnString := params.CreateQueueMove.SocialSecurityNumber
-	var ssn *models.SocialSecurityNumber
 	verrs := validate.NewErrors()
-	if ssnString != nil {
-		var err error
-		ssn, verrs, err = models.BuildSocialSecurityNumber(ssnString.String())
-		if err != nil {
-			h.logger.Error("Unexpected error building SSN model", zap.Error(err))
-			return queuemoveop.NewCreateQueueMoveInternalServerError()
-		}
-		// if there are any validation errors, they will get rolled up with the rest of them.
-	}
-
-	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
 
 	// Create a new queueMove for an authenticated user
 	newQueueMove := models.QueueMove{
@@ -101,22 +99,4 @@ func (h CreateQueueMoveHandler) Handle(params queuemoveop.CreateQueueMoveParams)
 		response = queuemoveop.NewCreateQueueMoveCreated().WithPayload(queuemovePayload)
 	}
 	return response
-}
-
-// ShowQueueMoveHandler returns a queueMove for a user and service member ID
-type ShowQueueMoveHandler HandlerContext
-
-// Handle retrieves a service member in the system belonging to the logged in user given service member ID
-func (h ShowQueueMoveHandler) Handle(params queuemoveop.ShowQueueMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
-
-	queueMoveID, _ := uuid.FromString(params.QueueMoveID.String())
-	queueMove, err := models.FetchQueueMove(h.db, user, queueMoveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	queueMovePayload := payloadForQueueMoveModel(user, queueMove)
-	return queuemoveop.NewShowQueueMoveOK().WithPayload(queueMovePayload)
 }
