@@ -37,6 +37,11 @@ type ShowQueueHandler HandlerContext
 // Handle retrieves a list of all queueMoves in the system in the new moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
 	var response middleware.Responder
+	// TODO: Only authorized users should be able to view
+	_, ok := authctx.GetUser(params.HTTPRequest.Context())
+	if !ok {
+		h.logger.Fatal("No user logged in, this should never happen.")
+	}
 
 	lifecycleState, err := params.queueType.String()
 	if err != nil {
