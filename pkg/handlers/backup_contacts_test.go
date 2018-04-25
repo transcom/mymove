@@ -43,7 +43,8 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	}
 
 	contacts := models.BackupContacts{}
-	suite.db.Eager().All(&contacts)
+	eagerConn := *suite.db
+	eagerConn.Eager().All(&contacts)
 
 	if len(contacts) != 1 {
 		t.Errorf("Expected to find 1 result but found %v", len(contacts))

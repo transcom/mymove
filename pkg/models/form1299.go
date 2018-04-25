@@ -147,7 +147,8 @@ func CreateForm1299WithAddresses(dbConnection *pop.Connection, form1299 *Form129
 func FetchAllForm1299s(dbConnection *pop.Connection) (Form1299s, error) {
 	var err error
 	form1299s := []Form1299{}
-	if err := dbConnection.Eager().All(&form1299s); err != nil {
+	eagerConn := *dbConnection
+	if err := eagerConn.Eager().All(&form1299s); err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 	}
 	return form1299s, err
@@ -156,7 +157,8 @@ func FetchAllForm1299s(dbConnection *pop.Connection) (Form1299s, error) {
 // FetchForm1299ByID fetches a single Form1299 by ID and populated address fields
 func FetchForm1299ByID(dbConnection *pop.Connection, id strfmt.UUID) (Form1299, error) {
 	form1299 := Form1299{}
-	err := dbConnection.Eager().Find(&form1299, id)
+	eagerConn := *dbConnection
+	err := eagerConn.Eager().Find(&form1299, id)
 	if err != nil {
 		zap.L().Error("DB Query", zap.Error(err))
 	}
