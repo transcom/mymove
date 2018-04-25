@@ -59,7 +59,7 @@ export class PpmWeight extends Component {
     const moveId = this.props.match.params.moveId;
     createOrUpdatePpm(moveId, {
       weight_estimate: pendingPpmWeight,
-      incentive: incentive,
+      estimated_incentive: estimated_incentive,
     });
   };
   onWeightSelecting = value => {

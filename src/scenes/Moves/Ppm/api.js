@@ -15,7 +15,7 @@ export async function GetPpm(moveId) {
 
 export async function CreatePpm(
   moveId,
-  payload /*shape: {size, weightEstimate, incentive}*/,
+  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
 ) {
   const client = await getClient();
   const response = await client.apis.ppm.createPersonallyProcuredMove({
@@ -29,7 +29,7 @@ export async function CreatePpm(
 export async function UpdatePpm(
   moveId,
   personallyProcuredMoveId,
-  payload /*shape: {size, weightEstimate, incentive}*/,
+  payload /*shape: {size, weightEstimate, estimatedIncentive}*/,
 ) {
   const client = await getClient();
   const response = await client.apis.ppm.patchPersonallyProcuredMove({
