@@ -18,6 +18,7 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		UpdatedAt:      fmtDateTime(personallyProcuredMove.UpdatedAt),
 		Size:           personallyProcuredMove.Size,
 		WeightEstimate: personallyProcuredMove.WeightEstimate,
+		Incentive:      personallyProcuredMove.Incentive,
 	}
 	return ppmPayload
 }
@@ -56,6 +57,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 			MoveID:         moveID,
 			Size:           params.CreatePersonallyProcuredMovePayload.Size,
 			WeightEstimate: params.CreatePersonallyProcuredMovePayload.WeightEstimate,
+			Incentive:      params.CreatePersonallyProcuredMovePayload.Incentive,
 		}
 
 		if verrs, err := h.db.ValidateAndCreate(&newPersonallyProcuredMove); err != nil {
@@ -161,12 +163,16 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	// TODO: Is there a pattern for updating that doesn't require hardcoding fields?
 	size := params.PatchPersonallyProcuredMovePayload.Size
 	weightEstimate := params.PatchPersonallyProcuredMovePayload.WeightEstimate
+	incentive := params.PatchPersonallyProcuredMovePayload.Incentive
 
 	if size != nil {
 		ppm.Size = size
 	}
 	if weightEstimate != nil {
 		ppm.WeightEstimate = weightEstimate
+	}
+	if incentive != nil {
+		ppm.Incentive = incentive
 	}
 
 	if verrs, err := h.db.ValidateAndUpdate(&ppm); err != nil {

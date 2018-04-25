@@ -54,10 +54,13 @@ export class PpmWeight extends Component {
     this.props.loadPpm(this.props.match.params.moveId);
   }
   handleSubmit = () => {
-    const { pendingPpmWeight, createOrUpdatePpm } = this.props;
+    const { pendingPpmWeight, incentive, createOrUpdatePpm } = this.props;
     //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
-    createOrUpdatePpm(moveId, { weight_estimate: pendingPpmWeight });
+    createOrUpdatePpm(moveId, {
+      weight_estimate: pendingPpmWeight,
+      incentive: incentive,
+    });
   };
   onWeightSelecting = value => {
     this.props.setPendingPpmWeight(value);
@@ -149,6 +152,7 @@ PpmWeight.propTypes = {
     id: PropTypes.string,
     size: PropTypes.string,
     weight: PropTypes.number,
+    incentive: PropTypes.string,
   }),
   hasSubmitSuccess: PropTypes.bool.isRequired,
   moveDistance: PropTypes.number,

@@ -19,6 +19,7 @@ type PersonallyProcuredMove struct {
 	UpdatedAt      time.Time                    `json:"updated_at" db:"updated_at"`
 	Size           *internalmessages.TShirtSize `json:"size" db:"size"`
 	WeightEstimate *int64                       `json:"weight_estimate" db:"weight_estimate"`
+	Incentive      *string                      `json:"incentive" db:"incentive"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
