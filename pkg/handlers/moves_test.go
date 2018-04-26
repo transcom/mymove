@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	}
 
 	if !moveExists {
-		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
+		t.Errorf("Expected a move to have user ID '%v'. None do.", user.ID)
 	}
 }
 

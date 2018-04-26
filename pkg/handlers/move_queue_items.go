@@ -2,31 +2,29 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
-	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth/context"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+
+	authctx "github.com/transcom/mymove/pkg/auth/context"
 )
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
 		ID:               fmtUUID(MoveQueueItem.ID),
 		CreatedAt:        fmtDateTime(MoveQueueItem.CreatedAt),
-		UpdatedAt:        fmtDateTime(MoveQueueItem.UpdatedAt),
 		Edipi:            MoveQueueItem.Edipi,
 		Rank:             MoveQueueItem.Rank,
 		CustomerName:     MoveQueueItem.CustomerName,
-		LocatorNumber:    MoveQueueItem.LocatorNumber,
+		Locator:          MoveQueueItem.Locator,
 		Status:           MoveQueueItem.Status,
-		MoveType:         MoveQueueItem.MoveType,
+		OrdersType:       MoveQueueItem.OrdersType,
 		MoveDate:         fmtDate(MoveQueueItem.MoveDate),
 		CustomerDeadline: fmtDate(MoveQueueItem.CustomerDeadline),
-		LastModified:     MoveQueueItem.LastModified,
+		LastModifiedDate: fmtDateTime(MoveQueueItem.LastModifiedDate),
+		LastModifiedName: MoveQueueItem.LastModifiedName,
 	}
 	return &MoveQueueItemPayload
 }
@@ -43,23 +41,19 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 		h.logger.Error("No user logged in, this should never happen.")
 	}
 
-	lifecycleState, err := params.queueType.String()
-	if err != nil {
-		response = queueop.NewShowQueueBadRequest()
-		return response
-	}
+	lifecycleState := params.QueueType
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		response = queueop.ShowQueueBadRequest()
 	} else {
-		MoveQueueItemPayloads := make(internalmessages.ShowQueuePayload, len(MoveQueueItems))
+		MoveQueueItemPayloads := make(internalmessages.MoveQueueItem, len(MoveQueueItems))
 		for i, MoveQueueItem := range MoveQueueItems {
 			MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
 			MoveQueueItemPayloads[i] = &MoveQueueItemPayload
 		}
-		response = queueop.ShowQueueOK().WithPayload(MoveQueueItemPayload)
+		response = queueop.ShowQueueOK().WithPayload(MoveQueueItemPayloads)
 	}
 	return response
 }
