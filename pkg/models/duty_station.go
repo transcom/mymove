@@ -62,6 +62,13 @@ func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, erro
 	return validate.NewErrors(), nil
 }
 
+// FetchDutyStation returns a station for a given id
+func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
+	var station DutyStation
+	err := tx.Q().Eager().Find(&station, id)
+	return station, err
+}
+
 // FindDutyStations returns all duty stations matching a search query and military affiliation
 func FindDutyStations(tx *pop.Connection, search string, affiliation string) (DutyStations, error) {
 	var stations DutyStations
