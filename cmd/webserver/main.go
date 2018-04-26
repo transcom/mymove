@@ -31,7 +31,13 @@ var logger *zap.Logger
 func requestLoggerMiddleware(inner http.Handler) http.Handler {
 	zap.L().Info("requestLoggerMiddleware installed")
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request", zap.String("method", r.Method), zap.String("url", r.URL.String()))
+		zap.L().Info("Request",
+			zap.String("method", r.Method),
+			zap.String("url", r.URL.String()),
+			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
+			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
+			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+		)
 		inner.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(wrapper)
