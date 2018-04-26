@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"log"
+	"os"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -25,13 +26,26 @@ func main() {
 	flag.Parse()
 
 	pop.AddLookupPaths("config")
-	db, err := pop.Connect("test")
+	db, err := pop.Connect("development")
 	if err != nil {
 		log.Fatalf("could not connect to database: %+v", err)
 	}
 	err = db.TruncateAll()
 	if err != nil {
 		log.Fatalf("could not truncate the database: %+v", err)
+	}
+
+	var input string
+	for {
+		fmt.Println("Running this tool will delete everything in your development database.")
+		fmt.Print("Do you wish to proceed? (y)es or (n)o: ")
+		fmt.Scanln(&input)
+		if input == "n" || input == "no" {
+			os.Exit(1)
+		} else if input == "y" || input == "yes" {
+			break
+		}
+		fmt.Println("")
 	}
 
 	logger := zap.NewNop()
