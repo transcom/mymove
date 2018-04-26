@@ -96,6 +96,8 @@ const initialState = {
   currentBackupContacts: [],
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  createBackupContactSuccess: false,
+  updateBackupContactSuccess: false,
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {

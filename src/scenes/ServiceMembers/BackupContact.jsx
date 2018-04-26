@@ -88,9 +88,16 @@ const permissionsField = props => {
 const formName = 'service_member_backup_contact';
 
 class ContactForm extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {};
+  }
+
   static getDerivedStateFromProps(nextProps, prevState) {
     const { valid, dirty, updateValidDirty } = nextProps;
     updateValidDirty(valid, dirty);
+
+    return prevState;
   }
 
   render() {
@@ -231,10 +238,12 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const props = {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
+    hasSubmitSuccess:
+      state.serviceMember.createBackupContactSuccess ||
+      state.serviceMember.updateBackupContactSuccess,
     loggedInUser: state.loggedInUser.loggedInUser,
     schema: {},
     formData: state.form[formName],
-    ...state.serviceMember,
   };
   if (state.swagger.spec) {
     props.schema =
