@@ -60,6 +60,18 @@ func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func httpsComplianceMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("httpsComplianceMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// set the HSTS header using values recommended by OWASP
+		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
+		w.Header().Set("strict-transport-security", "max-age=31536000; includeSubdomains; preload")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -186,6 +198,7 @@ func main() {
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
 	site.Use(requestLoggerMiddleware)
+	site.Use(httpsComplianceMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
