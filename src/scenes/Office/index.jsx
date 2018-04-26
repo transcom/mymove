@@ -4,19 +4,20 @@ import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 
 import QueueList from './QueueList';
+import QueueTable from './QueueTable';
 
-class QueueTable extends Component {
-  render() {
-    return (
-      <div style={{ background: 'rgb(200,255,200)' }}>
-        <h3>QueueTable</h3>
-        <p>
-          Now showing the <strong>{this.props.queueType}</strong> queue!
-        </p>
-      </div>
-    );
-  }
-}
+// class QueueTable extends Component {
+//   render() {
+//     return (
+//       <div style={{ background: 'rgb(200,255,200)' }}>
+//         <h3>QueueTable</h3>
+//         <p>
+//           Now showing the <strong>{this.props.queueType}</strong> queue!
+//         </p>
+//       </div>
+//     );
+//   }
+// }
 
 class QueueHeader extends Component {
   render() {

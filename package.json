@@ -18,6 +18,7 @@
     "react-router-dom": "^4.2.2",
     "react-router-redux": "^5.0.0-alpha.8",
     "react-scripts": "1.0.17",
+    "react-table": "^6.8.2",
     "react-window-size": "^1.0.1",
     "redux": "^3.7.2",
     "redux-form": "^7.2.1",
