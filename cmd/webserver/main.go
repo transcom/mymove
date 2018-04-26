@@ -28,11 +28,11 @@ var logger *zap.Logger
 
 // TODO(nick - 12/21/17) - this is a simple logger for debugging testing
 // It needs replacing with something we can use in production
-func requestLogger(h http.Handler) http.Handler {
-	zap.L().Info("Request logger installed")
+func requestLoggerMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("requestLoggerMiddleware installed")
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
 		zap.L().Info("Request", zap.String("method", r.Method), zap.String("url", r.URL.String()))
-		h.ServeHTTP(w, r)
+		inner.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(wrapper)
 }
@@ -43,10 +43,11 @@ const maxBodySize int64 = 200 * 1000 * 1000
 // max request headers size is 1 mb
 const maxHeaderSize int = 1 * 1000 * 1000
 
-func limitBodySizeMiddleware(next http.Handler) http.Handler {
+func limitBodySizeMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("limitBodySizeMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-		next.ServeHTTP(w, r)
+		inner.ServeHTTP(w, r)
 		return
 	}
 	return http.HandlerFunc(mw)
@@ -173,6 +174,12 @@ func main() {
 
 	// Base routes
 	root := goji.NewMux()
+
+	// Add middleware: they are evaluated in the reverse order in which they
+	// are added, but the resulting http.Handlers execute in "normal" order
+	// (i.e., the http.Handler returned by the first Middleware added gets
+	// called first).
+	root.Use(requestLoggerMiddleware)
 	root.Use(limitBodySizeMiddleware)
 	root.Use(tokenMiddleware)
 
@@ -213,9 +220,6 @@ func main() {
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
-
-	// And request logging
-	root.Use(requestLogger)
 
 	// Start http/https listener(s)
 	errChan := make(chan error)
