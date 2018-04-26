@@ -924,16 +924,20 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member:
-        $ref: "#/definitions/ServiceMemberPayload"
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issue_date:
         type: string
         description: The date and time that these orders were cut.
-        format: date-time
+        format: date
+        example: "2018-04-26"
       report_by_date:
         type: string
         description: Report By Date
         format: date
+        example: "2018-04-26"
       orders_type:
         type: string
         enum:
@@ -965,7 +969,7 @@ definitions:
         format: date-time
     required:
       - id
-      - service_member
+      - service_member_id
       - issue_date
       - report_by_date
       - orders_type
@@ -976,18 +980,20 @@ definitions:
   CreateUpdateOrdersPayload:
     type: object
     properties:
-      id:
+      service_member_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issue_date:
         type: string
         description: The date and time that these orders were cut.
-        format: date-time
+        format: date
+        example: "2018-04-26"
       report_by_date:
         type: string
         description: Report By Date
         format: date
+        example: "2018-04-26"
       orders_type:
         type: string
         enum:
@@ -1012,7 +1018,7 @@ definitions:
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
     required:
-      - id
+      - service_member_id
       - issue_date
       - report_by_date
       - orders_type

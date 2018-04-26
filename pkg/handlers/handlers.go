@@ -95,6 +95,9 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
+	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
+	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler(context)
+
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
 	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
