@@ -61,7 +61,7 @@ func main() {
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
-	httpPort := flag.String("http_port", "8080", "the `port` to listen on.")
+	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -222,7 +222,7 @@ func main() {
 	// Start http/https listener(s)
 	errChan := make(chan error)
 	go func() { // start http listener
-		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpPort)
+		addr := fmt.Sprintf("%s:%s", *listenInterface, *port)
 		zap.L().Info("Starting http server listening", zap.String("address", addr))
 		s := &http.Server{
 			Addr:           addr,
