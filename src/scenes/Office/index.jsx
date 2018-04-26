@@ -1,20 +1,41 @@
 import React, { Component } from 'react';
+import { Redirect, Route, Switch } from 'react-router-dom';
+import { ConnectedRouter } from 'react-router-redux';
+import { history } from 'shared/store';
 
-class QueueList extends Component {
-  render() {
-    return <div style={{ background: 'rgb(255,200,200)' }}>QueueList</div>;
-  }
-}
+import QueueList from './QueueList';
 
 class QueueTable extends Component {
   render() {
-    return <div style={{ background: 'rgb(200,255,200)' }}>QueueTable</div>;
+    return (
+      <div style={{ background: 'rgb(200,255,200)' }}>
+        <h3>QueueTable</h3>
+        <p>
+          Now showing the <strong>{this.props.queueType}</strong> queue!
+        </p>
+      </div>
+    );
   }
 }
 
 class QueueHeader extends Component {
   render() {
     return <div style={{ background: 'rgb(200,200,255)' }}>QueueHeader</div>;
+  }
+}
+
+class Queues extends Component {
+  render() {
+    return (
+      <div className="usa-grid">
+        <div className="usa-width-one-fourth">
+          <QueueList />
+        </div>
+        <div className="usa-width-three-fourths">
+          <QueueTable queueType={this.props.match.params.queueType} />
+        </div>
+      </div>
+    );
   }
 }
 
@@ -25,23 +46,21 @@ class OfficeWrapper extends Component {
 
   render() {
     return (
-      <div className="Office site">
-        <main className="site__content">
-          <div>
-            <div class="usa-grid">
-              <QueueHeader />
-            </div>
-            <div class="usa-grid">
-              <div class="usa-width-one-fourth">
-                <QueueList />
+      <ConnectedRouter history={history}>
+        <div className="Office site">
+          <main className="site__content">
+            <div>
+              <div className="usa-grid">
+                <QueueHeader />
               </div>
-              <div class="usa-width-three-fourths">
-                <QueueTable />
-              </div>
+              <Switch>
+                <Redirect from="/" to="/queues/new_moves" exact />
+                <Route path="/queues/:queueType" component={Queues} />
+              </Switch>
             </div>
-          </div>
-        </main>
-      </div>
+          </main>
+        </div>
+      </ConnectedRouter>
     );
   }
 }
