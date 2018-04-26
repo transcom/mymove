@@ -2,13 +2,13 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -82,10 +82,10 @@ func FetchShorthaulRateCents(tx *pop.Connection, cwtMiles int, date time.Time) (
 
 	err = tx.RawQuery(sql, cwtMiles, date).All(&sh)
 	if err != nil {
-		return 0, fmt.Errorf("error fetching shorthaul rate: %s", err)
+		return 0, errors.Wrapf(err, "error fetching shorthaul rate for %d cwtmiles on %s", cwtMiles, date)
 	}
 	if len(sh) != 1 {
-		return 0, fmt.Errorf("Wanted 1 shorthaul rate, found %d rates for parameters: %v, %v",
+		return 0, errors.Errorf("Wanted 1 shorthaul rate, found %d rates for parameters: %v cwtMiles, %v",
 			len(sh), cwtMiles, date)
 	}
 

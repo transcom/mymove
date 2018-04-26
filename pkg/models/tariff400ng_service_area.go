@@ -63,7 +63,7 @@ func FetchTariff400ngServiceAreaForZip3(tx *pop.Connection, zip3 string, date ti
 			`
 	err := tx.RawQuery(sql, zip3, date).First(&serviceArea)
 	if err != nil {
-		return serviceArea, errors.Wrap(err, "could not find a matching Tariff400ngServiceArea")
+		return serviceArea, errors.Wrapf(err, "could not find a matching Tariff400ngServiceArea for zip3 %s", zip3)
 	}
 	return serviceArea, nil
 }
