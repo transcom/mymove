@@ -18,6 +18,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route"
@@ -58,10 +59,9 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
-	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
-	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
+	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
+	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
 	httpPort := flag.String("http_port", "8080", "the `port` to listen on.")
-	callbackPort := flag.String("callback_port", "443", "The port for callback urls.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -72,8 +72,11 @@ func main() {
 	httpsCert := flag.String("https_cert", "", "TLS certificate.")
 	httpsKey := flag.String("https_key", "", "TLS private key.")
 
+	loginGovCallbackProtocol := flag.String("login_gov_callback_protocol", "https://", "Protocol for non local environments.")
+	loginGovCallbackPort := flag.String("login_gov_callback_port", "443", "The port for callback urls.")
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
-	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+	loginGovMyClientID := flag.String("login_gov_my_client_id", "", "Client ID registered with login gov.")
+	loginGovOfficeClientID := flag.String("login_gov_office_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
 	/* For bing Maps use the following
@@ -103,6 +106,9 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
+	// Middleware to look at request hostname and work out which APP (my.move.mil, office.move.mil ..) we are serving
+	appDetectionMiddleware := app.DetectorMiddleware(logger, *myHostname, *officeHostname)
+
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
@@ -125,14 +131,9 @@ func main() {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
-	// Register Login.gov authentication provider
-	if *env == "development" {
-		*protocol = "http://"
-		*callbackPort = "3000"
-	}
-	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
-	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, *loginGovClientID, logger)
-	loginGovProvider.RegisterProvider(fullHostname)
+	// Register Login.gov authentication provider for My.(move.mil)
+	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
+	loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
@@ -166,7 +167,7 @@ func main() {
 			log.Fatalln(errors.New("could not get absolute path for tmp"))
 		}
 		storagePath := path.Join(absTmpPath, "storage")
-		webRoot := fullHostname + "/" + "storage"
+		webRoot := "/" + "storage"
 		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
 	handlerContext.SetFileStorer(storer)
@@ -174,6 +175,7 @@ func main() {
 	// Base routes
 	root := goji.NewMux()
 	root.Use(limitBodySizeMiddleware)
+	root.Use(appDetectionMiddleware)
 	root.Use(tokenMiddleware)
 
 	// Stub health check
@@ -196,12 +198,12 @@ func main() {
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
-	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
+	authContext := auth.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(authContext))
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *noSessionTimeout, fullHostname, logger, loginGovProvider))
-	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
+	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler{AuthorizationContext: authContext})
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler{AuthorizationContext: authContext})
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development

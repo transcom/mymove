@@ -6,7 +6,7 @@ import (
 
 	"github.com/satori/go.uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth/context"
+	authcontext "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
