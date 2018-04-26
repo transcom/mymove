@@ -113,7 +113,7 @@ const validateRequiredFields = (values, form) => {
 };
 
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
-// Fields like Address in the Form1299 are not required, so even though they have required subfields they are not annotated.
+// Fields like Addresses may not be required, so even though they have required subfields they are not annotated.
 export const recursivelyAnnotateRequiredFields = schema => {
   if (schema.required) {
     schema.required.forEach(requiredFieldName => {
