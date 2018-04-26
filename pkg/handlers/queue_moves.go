@@ -40,7 +40,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 	// TODO: Only authorized users should be able to view
 	_, ok := authctx.GetUser(params.HTTPRequest.Context())
 	if !ok {
-		h.logger.Fatal("No user logged in, this should never happen.")
+		h.logger.Error("No user logged in, this should never happen.", zap.Error(err))
 	}
 
 	lifecycleState, err := params.queueType.String()
