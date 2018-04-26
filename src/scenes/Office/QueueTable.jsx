@@ -3,7 +3,6 @@ import { render } from 'react-dom';
 // // import _ from 'lodash';
 // import { RetrieveDutyStations } from './api.js';
 
-// Import React Table
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 
@@ -92,31 +91,39 @@ export default class QueueTable extends Component {
           <ReactTable
             columns={[
               {
-                Header: 'Flair',
-                Cell: row => (
-                  <div>
-                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/f/f1/Heart_coraz%C3%B3n.svg/130px-Heart_coraz%C3%B3n.svg.png" />
-                  </div>
-                ),
+                Header: 'Status',
+                accessor: 'status',
               },
               {
-                Header: 'ID',
-                accessor: 'id',
+                Header: 'Locator #',
+                accessor: 'locator_number',
               },
               {
-                Header: 'Name',
-                accessor: 'name',
+                Header: 'Customer name',
+                accessor: 'customer_name',
               },
               {
-                Header: 'Branch',
-                accessor: 'branch',
+                Header: 'DOD ID',
+                accessor: 'dod_id',
               },
               {
-                Header: 'Created At',
+                Header: 'Rank',
+                accessor: 'rank',
+              },
+              {
+                Header: 'Move type',
+                accessor: 'move_type',
+              },
+              {
+                Header: 'Move date',
+                accessor: 'move_date',
+              },
+              {
+                Header: 'Created',
                 accessor: 'created_at',
               },
               {
-                Header: 'Updated At',
+                Header: 'Last modified',
                 accessor: 'updated_at',
               },
             ]}
