@@ -47,9 +47,9 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	ctx = context.PopulateUserModel(ctx, officeUser)
 	req = req.WithContext(ctx)
 
-	params := queueop.ShowMoveParams{
+	params := queueop.ShowQueueParams{
 		HTTPRequest: req,
-		queueType:   "new_moves",
+		QueueType:   "new_moves",
 	}
 	// And: show Queue is queried
 	showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
@@ -57,11 +57,12 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 	// Then: Expect a 200 status code
 	okResponse := showResponse.(*queueop.ShowQueueOK)
-	moveQueueItem := okResponse.Payload
+	moveQueueItem := okResponse.Payload[0]
 
 	// And: Returned query to include our added move
-	if moveQueueItem.CustomerName.String() != fmt.Sprintf("%v, %v", newServiceMember.LastName, newServiceMember.FirstName) {
-		t.Errorf("Expected move queue item to have service member ID '%v', instead has '%v'", newServiceMember.ID, moveQueueItem.serviceMemberID)
+	expectedCustomerName := fmt.Sprintf("%v, %v", newServiceMember.LastName, newServiceMember.FirstName)
+	if *moveQueueItem.CustomerName != expectedCustomerName {
+		t.Errorf("Expected move queue item to have service member name '%v', instead has '%v'", expectedCustomerName, moveQueueItem.CustomerName)
 	}
 
 }

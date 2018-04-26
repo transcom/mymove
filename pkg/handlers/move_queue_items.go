@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"go.uber.org/zap"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
@@ -15,16 +16,16 @@ func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessag
 	MoveQueueItemPayload := internalmessages.MoveQueueItem{
 		ID:               fmtUUID(MoveQueueItem.ID),
 		CreatedAt:        fmtDateTime(MoveQueueItem.CreatedAt),
-		Edipi:            MoveQueueItem.Edipi,
+		Edipi:            swag.String(MoveQueueItem.Edipi),
 		Rank:             MoveQueueItem.Rank,
-		CustomerName:     MoveQueueItem.CustomerName,
-		Locator:          MoveQueueItem.Locator,
-		Status:           MoveQueueItem.Status,
-		OrdersType:       MoveQueueItem.OrdersType,
+		CustomerName:     swag.String(MoveQueueItem.CustomerName),
+		Locator:          swag.String(MoveQueueItem.Locator),
+		Status:           swag.String(MoveQueueItem.Status),
+		OrdersType:       swag.String(MoveQueueItem.OrdersType),
 		MoveDate:         fmtDate(MoveQueueItem.MoveDate),
 		CustomerDeadline: fmtDate(MoveQueueItem.CustomerDeadline),
 		LastModifiedDate: fmtDateTime(MoveQueueItem.LastModifiedDate),
-		LastModifiedName: MoveQueueItem.LastModifiedName,
+		LastModifiedName: swag.String(MoveQueueItem.LastModifiedName),
 	}
 	return &MoveQueueItemPayload
 }
@@ -46,14 +47,14 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
-		response = queueop.ShowQueueBadRequest()
+		response = queueop.NewShowQueueBadRequest()
 	} else {
-		MoveQueueItemPayloads := make(internalmessages.MoveQueueItem, len(MoveQueueItems))
+		MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
 		for i, MoveQueueItem := range MoveQueueItems {
 			MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
-			MoveQueueItemPayloads[i] = &MoveQueueItemPayload
+			MoveQueueItemPayloads[i] = MoveQueueItemPayload
 		}
-		response = queueop.ShowQueueOK().WithPayload(MoveQueueItemPayloads)
+		response = queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
 	}
 	return response
 }
