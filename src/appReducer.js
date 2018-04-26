@@ -12,7 +12,6 @@ import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
-import dd1299Reducer from 'scenes/DD1299/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 
@@ -29,7 +28,6 @@ export const appReducer = combineReducers({
   form: formReducer,
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
-  DD1299: dd1299Reducer,
   upload: documentReducer,
 });
 
