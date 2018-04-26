@@ -4,7 +4,6 @@ import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import DD1299 from 'scenes/DD1299';
 import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
@@ -48,7 +47,6 @@ export class AppWrapper extends Component {
               <Route exact path="/" component={Landing} />
               <Route path="/submitted" component={SubmittedFeedback} />
               <Route path="/shipments/:shipmentsStatus" component={Shipments} />
-              <Route path="/DD1299" component={DD1299} />
               <Route path="/feedback" component={Feedback} />
               <Route path="/admin" component={Admin} />
               <PrivateRoute path="/upload" component={Uploader} />
