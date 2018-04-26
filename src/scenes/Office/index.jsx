@@ -20,7 +20,11 @@ class QueueTable extends Component {
 
 class QueueHeader extends Component {
   render() {
-    return <div style={{ background: 'rgb(200,200,255)' }}>QueueHeader</div>;
+    return (
+      <div style={{ background: 'rgb(200,200,255)' }}>
+        <h1 style={{ margin: 0 }}>QueueHeader</h1>
+      </div>
+    );
   }
 }
 
