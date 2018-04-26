@@ -30,13 +30,14 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 	moveQueueItems := []MoveQueueItem{}
 	// TODO: add clause `WHERE moves.lifecycle_state = $1`
 	// err = db.RawQuery(query, lifecycleState).All(&moveQueueItems)
+	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
+
 	query := `
-		SELECT moves.*, sm.id AS service_member_id, sm.edipi, sm.rank, CONCAT(sm.last_name, ', ', sm.first_name) AS customer_name, ppm.id AS ppm_id
+		SELECT moves.ID, sm.edipi, sm.rank, CONCAT(sm.last_name, ', ', sm.first_name) AS customer_name
 		FROM moves
-		JOIN service_members AS sm ON moves.user_id = sm.user_id
-		JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
+		INNER JOIN service_members AS sm ON moves.user_id = sm.user_id
 	`
-	fmt.Printf("Add %v to query: ", lifecycleState)
+	fmt.Printf("TODO: Add %v to query: ", lifecycleState)
 	err := db.RawQuery(query).All(&moveQueueItems)
 	return moveQueueItems, err
 }

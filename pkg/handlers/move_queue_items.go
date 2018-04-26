@@ -3,13 +3,10 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
-	"go.uber.org/zap"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-
-	authctx "github.com/transcom/mymove/pkg/auth/context"
 )
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
@@ -35,26 +32,18 @@ type ShowQueueHandler HandlerContext
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	var response middleware.Responder
-	// TODO: Only authorized users should be able to view
-	_, ok := authctx.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("No user logged in, this should never happen.")
-	}
-
+	// TODO: Check user is authorized to see office queues
 	lifecycleState := params.QueueType
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
 	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = queueop.NewShowQueueBadRequest()
-	} else {
-		MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
-		for i, MoveQueueItem := range MoveQueueItems {
-			MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
-			MoveQueueItemPayloads[i] = MoveQueueItemPayload
-		}
-		response = queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
+		return responseForError(h.logger, err)
 	}
-	return response
+
+	MoveQueueItemPayloads := make([]*internalmessages.MoveQueueItem, len(MoveQueueItems))
+	for i, MoveQueueItem := range MoveQueueItems {
+		MoveQueueItemPayload := payloadForMoveQueueItem(MoveQueueItem)
+		MoveQueueItemPayloads[i] = MoveQueueItemPayload
+	}
+	return queueop.NewShowQueueOK().WithPayload(MoveQueueItemPayloads)
 }
