@@ -7,7 +7,7 @@ import (
 func (suite *PlannerSuite) TestNewTestPlanner() {
 	t := suite.T()
 
-	planner := NewTestingPlanner()
+	planner := NewTestingPlanner(1234)
 	if planner == nil {
 		t.Error("NewTestingPlanner returned nil")
 	}
