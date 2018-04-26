@@ -765,7 +765,7 @@ class Admin extends React.Component {
           pages={pages} // Display the total number of pages
           loading={loading} // Display the loading overlay when we need it
           onFetchData={this.fetchData} // Request new data when things change
-          filterable
+          // filterable
           defaultPageSize={50}
           className="-striped -highlight"
         />
