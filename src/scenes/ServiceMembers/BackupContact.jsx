@@ -15,7 +15,7 @@ import {
   renderField,
   recursivelyAnnotateRequiredFields,
 } from 'shared/JsonSchemaForm';
-import { reduxForm, Field, formValueSelector } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
@@ -86,28 +86,34 @@ const permissionsField = props => {
 };
 
 const formName = 'service_member_backup_contact';
-const baseForm = props => {
-  const { schema, authorizeAgent } = props;
-  recursivelyAnnotateRequiredFields(schema);
-  const fields = schema.properties || {};
 
-  const disableAgentPermissions = !authorizeAgent;
+class ContactForm extends Component {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const { valid, dirty, updateValidDirty } = nextProps;
+    updateValidDirty(valid, dirty);
+  }
 
-  return (
-    <form>
-      <h1 className="sm-heading">Backup Contact</h1>
-      <p>
-        If we can't reach you, who can we contact (such as spouse or parent)?
-      </p>
+  render() {
+    const { schema } = this.props;
+    recursivelyAnnotateRequiredFields(schema);
+    const fields = schema.properties || {};
 
-      {renderField('name', fields, '')}
-      {renderField('email', fields, '')}
-      {renderField('telephone', fields, '')}
+    return (
+      <form>
+        <h1 className="sm-heading">Backup Contact</h1>
+        <p>
+          If we can't reach you, who can we contact (such as spouse or parent)?
+        </p>
 
-      <Field name="permission" component={permissionsField} />
-    </form>
-  );
-};
+        {renderField('name', fields, '')}
+        {renderField('email', fields, '')}
+        {renderField('telephone', fields, '')}
+
+        <Field name="permission" component={permissionsField} />
+      </form>
+    );
+  }
+}
 
 const validateContact = (values, form) => {
   let requiredErrors = {};
@@ -122,11 +128,19 @@ const validateContact = (values, form) => {
   return requiredErrors;
 };
 
-const ContactForm = reduxForm({ form: formName, validate: validateContact })(
-  baseForm,
+ContactForm = reduxForm({ form: formName, validate: validateContact })(
+  ContactForm,
 );
 
 export class BackupContact extends Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      isValid: true,
+      isDirty: false,
+    };
+  }
+
   componentDidMount() {
     this.props.indexBackupContacts(this.props.match.params.serviceMemberId);
   }
@@ -152,10 +166,17 @@ export class BackupContact extends Component {
     }
   };
 
+  updateValidDirty = (isValid, isDirty) => {
+    this.setState({
+      isValid,
+      isDirty,
+    });
+  };
+
   render() {
     const { pages, pageKey, hasSubmitSuccess, error } = this.props;
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
-    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
+    const isValid = this.state.isValid;
+    const isDirty = this.state.isDirty;
 
     // eslint-disable-next-line
     var [contact1, contact2] = this.props.currentBackupContacts; // contact2 will be used when we implement saving two backup contacts.
@@ -178,6 +199,7 @@ export class BackupContact extends Component {
       >
         <ContactForm
           ref="currentForm"
+          updateValidDirty={this.updateValidDirty}
           initialValues={firstInitialValues}
           handleSubmit={no_op}
           schema={this.props.schema}
