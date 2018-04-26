@@ -67,5 +67,4 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	if *moveQueueItem.CustomerName != expectedCustomerName {
 		t.Errorf("Expected move queue item to have service member name '%v', instead has '%v'", expectedCustomerName, moveQueueItem.CustomerName)
 	}
-
 }
