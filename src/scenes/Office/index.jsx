@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 
+import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 
 class QueueTable extends Component {
@@ -18,15 +19,15 @@ class QueueTable extends Component {
   }
 }
 
-class QueueHeader extends Component {
-  render() {
-    return (
-      <div style={{ background: 'rgb(200,200,255)' }}>
-        <h1 style={{ margin: 0 }}>QueueHeader</h1>
-      </div>
-    );
-  }
-}
+// class QueueHeader extends Component {
+//   render() {
+//     return (
+//       <div style={{ background: 'rgb(200,200,255)' }}>
+//         <h1 style={{ margin: 0 }}>QueueHeader</h1>
+//       </div>
+//     );
+//   }
+// }
 
 class Queues extends Component {
   render() {

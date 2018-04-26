@@ -8,7 +8,7 @@ import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
-import Header from 'shared/Header';
+import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import Uploader from 'shared/Uploader';
