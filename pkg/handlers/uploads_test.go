@@ -12,7 +12,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth/context"
+	authcontext "github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
