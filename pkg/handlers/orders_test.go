@@ -46,6 +46,27 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
 }
 
+func (suite *HandlerSuite) TestShowOrder() {
+	order, _ := testdatagen.MakeOrder(suite.db)
+
+	path := fmt.Sprintf("/orders/%v", order.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+	req = suite.authenticateRequest(req, order.ServiceMember.User)
+
+	params := ordersop.ShowOrdersParams{
+		HTTPRequest: req,
+		OrderID:     *fmtUUID(order.ID),
+	}
+	showHandler := ShowOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+	response := showHandler.Handle(params)
+
+	suite.Assertions.IsType(&ordersop.ShowOrdersOK{}, response)
+	okResponse := response.(*ordersop.ShowOrdersOK)
+
+	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.Assertions.Equal(order.OrdersType, *okResponse.Payload.OrdersType)
+}
+
 func (suite *HandlerSuite) TestUpdateOrder() {
 	order, _ := testdatagen.MakeOrder(suite.db)
 

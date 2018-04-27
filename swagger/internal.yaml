@@ -1237,6 +1237,34 @@ paths:
           description: orders not found
         500:
           description: internal server error
+    get:
+      summary: Returns the given order
+      description: Returns the given order
+      operationId: showOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+      responses:
+        200:
+          description: the instance of the order
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: order is not found
+        500:
+          description: internal server error
   /moves:
     post:
       summary: Submits move for a logged-in user

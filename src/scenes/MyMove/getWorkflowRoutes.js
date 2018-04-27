@@ -10,6 +10,7 @@ import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
+import Orders from 'scenes/Orders/Orders';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 
@@ -106,8 +107,9 @@ const pages = {
   },
   '/orders/:serviceMemberId/': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Tell us about your move orders',
+    render: (key, pages) => ({ match }) => (
+      <Orders pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/orders/:serviceMemberId/upload': {
     isInFlow: incompleteServiceMember,
