@@ -8,7 +8,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	authctx "github.com/transcom/mymove/pkg/auth/context"
+	authctx "github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -122,8 +122,9 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	}
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:         move.ID,
-		WeightEstimate: swag.Int64(1),
+		MoveID:             move.ID,
+		WeightEstimate:     swag.Int64(1),
+		EstimatedIncentive: swag.String("$2681.25 - $4111.25"),
 	}
 	ppm2 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,

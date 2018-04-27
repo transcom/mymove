@@ -5,7 +5,6 @@ import (
 	"crypto/rsa"
 	"crypto/x509"
 	"encoding/pem"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -20,7 +19,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -64,7 +63,7 @@ func TestAuthSuite(t *testing.T) {
 }
 
 func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
-	return NewLoginGovProvider("fakeHostname", "secret_key", "client_id", logger)
+	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 
 func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
@@ -111,23 +110,28 @@ func (suite *AuthSuite) TestGenerateNonce() {
 
 func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	t := suite.T()
+
 	fakeToken := "some_token"
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
-	testHostname := "hostname"
+	myMoveMil := "my.move.host"
+	officeMoveMil := "office.move.host"
+	callbackPort := "1234"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
+
 	req, err := http.NewRequest("GET", "/auth/logout", nil)
 	if err != nil {
 		t.Fatal(err)
 	}
+	req.Host = officeMoveMil
+	ctx := PopulateAuthContext(req.Context(), fakeUUID, fakeToken)
+	req = req.WithContext(ctx)
+
+	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http://", callbackPort)
+	handler := AuthorizationLogoutHandler{authContext}
+	wrappedHandler := app.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(handler)
 
 	rr := httptest.NewRecorder()
-	authContext := NewAuthContext(fmt.Sprintf("http://%s", testHostname), suite.logger, fakeLoginGovProvider(suite.logger))
-	handler := AuthorizationLogoutHandler(authContext)
-
-	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, fakeUUID, fakeToken)
-
-	handler.ServeHTTP(rr, req.WithContext(ctx))
+	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))
 
 	if status := rr.Code; status != http.StatusTemporaryRedirect {
 		t.Errorf("handler returned wrong status code: got %v wanted %v", status, http.StatusTemporaryRedirect)
@@ -140,17 +144,12 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	params := redirectURL.Query()
 
 	postRedirectURI, err := url.Parse(params["post_logout_redirect_uri"][0])
-	if err != nil {
-		t.Fatal(err)
-	}
 
-	if testHostname != postRedirectURI.Host {
-		t.Errorf("handler returned wrong redirect URI hostname: got %v wanted %v", postRedirectURI.Host, testHostname)
-	}
-
-	if token := params["id_token_hint"][0]; token != fakeToken {
-		t.Errorf("handler returned wrong id_token: got %v wanted %v", token, fakeToken)
-	}
+	suite.Nil(err)
+	suite.Equal(officeMoveMil, postRedirectURI.Hostname())
+	suite.Equal(callbackPort, postRedirectURI.Port())
+	token := params["id_token_hint"][0]
+	suite.Equal(fakeToken, token, "handler id_token")
 }
 
 func (suite *AuthSuite) TestTokenParsingMiddlewareWithBadToken() {
@@ -175,7 +174,7 @@ func (suite *AuthSuite) TestTokenParsingMiddlewareWithBadToken() {
 	}
 
 	// And there should be no token passed through
-	if incomingToken, ok := context.GetIDToken(req.Context()); ok {
+	if incomingToken, ok := GetIDToken(req.Context()); ok {
 		t.Errorf("expected id_token to be nil, got %v", incomingToken)
 	}
 
@@ -218,7 +217,7 @@ func (suite *AuthSuite) TestTokenParsingMiddlewareWithValidToken() {
 	}
 
 	// And there should be an ID token in the request context
-	if incomingToken, ok := context.GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
+	if incomingToken, ok := GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
 		t.Errorf("handler returned wrong id_token: got %v, wanted %v", incomingToken, idToken)
 	}
 
@@ -261,7 +260,7 @@ func (suite *AuthSuite) TestTokenParsingMiddlewareWithRenewalToken() {
 	}
 
 	// And there should be an ID token in the request context
-	if incomingToken, ok := context.GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
+	if incomingToken, ok := GetIDToken(handledRequest.Context()); !ok || incomingToken != idToken {
 		t.Errorf("handler returned wrong id_token: got %v, wanted %v", incomingToken, idToken)
 	}
 
@@ -301,7 +300,7 @@ func (suite *AuthSuite) TestTokenParsingMiddlewareWithExpiredToken() {
 	}
 
 	// And there should be no token passed through
-	if incomingToken, ok := context.GetIDToken(req.Context()); ok {
+	if incomingToken, ok := GetIDToken(req.Context()); ok {
 		t.Errorf("expected id_token to be nil, got %v", incomingToken)
 	}
 
@@ -327,13 +326,13 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 
 	// And: the context contains the auth values
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = PopulateAuthContext(ctx, user.ID, "fake token")
 	req = req.WithContext(ctx)
 
 	var contextUser models.User
 	var ok bool
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		contextUser, ok = context.GetUser(r.Context())
+		contextUser, ok = GetUser(r.Context())
 	})
 	middleware := UserAuthMiddleware(suite.db)(handler)
 
