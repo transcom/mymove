@@ -180,19 +180,21 @@ func main() {
 	handlerContext.SetFileStorer(storer)
 
 	// Base routes
-	root := goji.NewMux()
-
+	site := goji.NewMux()
 	// Add middleware: they are evaluated in the reverse order in which they
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	root.Use(requestLoggerMiddleware)
-	root.Use(limitBodySizeMiddleware)
-	root.Use(appDetectionMiddleware)
-	root.Use(tokenMiddleware)
+	site.Use(requestLoggerMiddleware)
+	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
-	root.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+
+	root := goji.NewMux()
+	root.Use(appDetectionMiddleware)
+	root.Use(tokenMiddleware)
+	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
@@ -236,7 +238,7 @@ func main() {
 		zap.L().Info("Starting http server listening", zap.String("address", addr))
 		s := &http.Server{
 			Addr:           addr,
-			Handler:        root,
+			Handler:        site,
 			MaxHeaderBytes: maxHeaderSize,
 		}
 		errChan <- s.ListenAndServe()
@@ -244,7 +246,7 @@ func main() {
 	go func() { // start https listener
 		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
 		zap.L().Info("Starting https server listening", zap.String("address", addr))
-		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), root)
+		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), site)
 	}()
 	log.Fatal(<-errChan)
 }
