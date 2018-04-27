@@ -75,6 +75,24 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
 
+// ShowOrdersHandler returns orders for a user and order ID
+type ShowOrdersHandler HandlerContext
+
+// Handle retrieves orders in the system belonging to the logged in user given order ID
+func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := context.GetUser(params.HTTPRequest.Context())
+
+	orderID, _ := uuid.FromString(params.OrderID.String())
+	order, err := models.FetchOrder(h.db, user, orderID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	orderPayload := payloadForOrdersModel(user, order)
+	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
+}
+
 // UpdateOrdersHandler updates an order via PUT /orders/{orderId}
 type UpdateOrdersHandler HandlerContext
 
