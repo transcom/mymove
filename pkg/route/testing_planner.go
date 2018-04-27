@@ -2,14 +2,16 @@ package route
 
 import "github.com/transcom/mymove/pkg/models"
 
-type testingPlanner struct{}
+type testingPlanner struct {
+	distance int
+}
 
 func (tp testingPlanner) TransitDistance(source *models.Address, destination *models.Address) (int, error) {
-	return 1234, nil
+	return tp.distance, nil
 }
 
 func (tp testingPlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int, error) {
-	return 1234, nil
+	return tp.distance, nil
 }
 
 func (tp testingPlanner) Zip5TransitDistance(source string, destination string) (int, error) {
@@ -17,6 +19,8 @@ func (tp testingPlanner) Zip5TransitDistance(source string, destination string) 
 }
 
 // NewTestingPlanner constructs a route.Planner to be used when testing other code
-func NewTestingPlanner() Planner {
-	return new(testingPlanner)
+func NewTestingPlanner(distance int) Planner {
+	return testingPlanner{
+		distance: distance,
+	}
 }

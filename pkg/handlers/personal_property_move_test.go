@@ -122,8 +122,9 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	}
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:         move.ID,
-		WeightEstimate: swag.Int64(1),
+		MoveID:             move.ID,
+		WeightEstimate:     swag.Int64(1),
+		EstimatedIncentive: swag.String("$2681.25 - $4111.25"),
 	}
 	ppm2 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
