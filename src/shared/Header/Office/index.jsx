@@ -2,7 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 
 import LoginButton from 'shared/User/LoginButton';
-import Email from 'shared/User/Email';
 
 function QueueHeader() {
   return (
@@ -19,26 +18,41 @@ function QueueHeader() {
           </div>
         </div>
         <nav className="usa-nav">
-          <form className="usa-search usa-search-small">
-            <div role="search">
-              <label className="usa-sr-only" htmlFor="search-field-small">
-                Search small
-              </label>
-              <input id="search-field-small" type="search" name="search" />
-              <button type="submit">
-                <span className="usa-sr-only">Search</span>
-              </button>
-            </div>
-          </form>
           <ul className="usa-nav-primary usa-accordion">
             <li>
               <NavLink to="/" className="usa-nav-link">
-                <span>Queue List</span>
+                <div className="button_wrapper">
+                  <button className="usa-button">Queues</button>
+                </div>
               </NavLink>
             </li>
             <li>
-              <Email />
+              <form className="usa-search usa-search-small">
+                <div role="search">
+                  <label className="usa-sr-only" htmlFor="search-field-small">
+                    Search small
+                  </label>
+                  <input id="search-field-small" type="search" name="search" />
+                  <button type="submit">
+                    <span className="usa-sr-only">Search</span>
+                  </button>
+                </div>
+              </form>
             </li>
+            <li>
+              <form className="usa-form">
+                <select name="options" id="options">
+                  <option value>All</option>
+                  <option value="locator">Move Locator</option>
+                  <option value="edipi">DOD ID</option>
+                  <option value="customerName">Name (Last, First)</option>
+                  <option value="gbl">GBL</option>
+                  <option value="order">Orders</option>
+                  <option value="status">Status</option>
+                </select>
+              </form>
+            </li>
+            <li>Welcome Janelle!</li>
             <li>
               <LoginButton />
             </li>
