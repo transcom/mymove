@@ -21,27 +21,38 @@ import WizardPage from 'shared/WizardPage';
 
 import './BackupContact.css';
 
+const NonePermission = 'NONE';
+const ViewPermission = 'VIEW';
+const EditPermission = 'EDIT';
+
 const permissionsField = props => {
   const {
-    input: { value, onChange },
+    input: { value: rawValue, onChange },
   } = props;
+  let value;
+  if (![NonePermission, ViewPermission, EditPermission].includes(rawValue)) {
+    value = NonePermission;
+  } else {
+    value = rawValue;
+  }
+
   const localOnChange = event => {
     if (event.target.id === 'authorizeAgent') {
-      if (event.target.checked && value === 'NONE') {
-        onChange('VIEW');
+      if (event.target.checked && value === NonePermission) {
+        onChange(ViewPermission);
       } else if (!event.target.checked) {
-        onChange('NONE');
+        onChange(NonePermission);
       }
     } else if (event.target.id === 'aaChoiceView') {
-      onChange('VIEW');
+      onChange(ViewPermission);
     } else if (event.target.id === 'aaChoiceEdit') {
-      onChange('EDIT');
+      onChange(EditPermission);
     }
   };
 
-  const authorizedChecked = value !== 'NONE';
-  const viewChecked = value === 'VIEW';
-  const editChecked = value === 'EDIT';
+  const authorizedChecked = value !== NonePermission;
+  const viewChecked = value === ViewPermission;
+  const editChecked = value === EditPermission;
 
   return (
     <Fragment>
