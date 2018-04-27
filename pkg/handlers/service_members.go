@@ -6,7 +6,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -75,7 +75,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
@@ -115,7 +115,7 @@ type ShowServiceMemberHandler HandlerContext
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
@@ -133,7 +133,7 @@ type PatchServiceMemberHandler HandlerContext
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)

@@ -3,12 +3,11 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"go.uber.org/zap"
-
-	"github.com/transcom/mymove/pkg/auth/context"
 )
 
 func payloadForMoveModel(user models.User, move models.Move) internalmessages.MovePayload {
@@ -29,7 +28,7 @@ type CreateMoveHandler HandlerContext
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	var response middleware.Responder
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	// Create a new move for an authenticated user
 	newMove := models.Move{
@@ -57,7 +56,7 @@ type IndexMovesHandler HandlerContext
 func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
 	var response middleware.Responder
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	moves, err := models.GetMovesForUserID(h.db, user.ID)
 	if err != nil {
@@ -81,7 +80,7 @@ type ShowMoveHandler HandlerContext
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	var response middleware.Responder
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {
@@ -118,7 +117,7 @@ type PatchMoveHandler HandlerContext
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	var response middleware.Responder
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	moveID, err := uuid.FromString(params.MoveID.String())
 	if err != nil {

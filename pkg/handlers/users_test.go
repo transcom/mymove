@@ -3,7 +3,7 @@ package handlers
 import (
 	"net/http/httptest"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -21,8 +21,8 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, unknownUser.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, unknownUser)
+	ctx = auth.PopulateAuthContext(ctx, unknownUser.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, unknownUser)
 
 	params.HTTPRequest = req.WithContext(ctx)
 
@@ -66,8 +66,8 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, smUser.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, smUser)
+	ctx = auth.PopulateAuthContext(ctx, smUser.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, smUser)
 
 	params.HTTPRequest = req.WithContext(ctx)
 
