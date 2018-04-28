@@ -155,7 +155,7 @@ jobs:
       - checkout
       - run:
           name: Health check staging site
-          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null https://app.staging.dp3.us; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null https://my.staging.dp3.us; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
   deploy_prod_migrations:
