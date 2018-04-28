@@ -499,6 +499,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
