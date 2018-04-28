@@ -238,3 +238,15 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	// All required fields have a set value
 	return true
 }
+
+// ValidateServiceMemberAccess validates that a user has access to serviceMember
+func ValidateServiceMemberAccess(db *pop.Connection, userID uuid.UUID, serviceMemberID uuid.UUID) bool {
+	userHasAccess := false
+	// TODO: Handle case where more than one user is authorized to modify move
+	var serviceMember ServiceMember
+	smErr := db.Find(&serviceMember, serviceMemberID)
+	if smErr == nil {
+		userHasAccess = uuid.Equal(userID, serviceMember.UserID)
+	}
+	return userHasAccess
+}
