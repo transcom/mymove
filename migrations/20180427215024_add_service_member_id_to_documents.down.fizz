@@ -1,0 +1,3 @@
+drop_foreign_key("documents", "service_member_id", {"if_exists": true})
+drop_column("documents", "service_member_id")
+add_foreign_key("documents", "move_id", {"moves": ["id"]}, {})
