@@ -945,7 +945,7 @@ definitions:
         type: object
         additionalProperties:
           type: string
-  QueueMove:
+  MoveQueueItem:
     type: object
     properties:
       id:
@@ -1714,7 +1714,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/QueueMove'
+              $ref: '#/definitions/MoveQueueItem'
         400:
           description: invalid request
         401:
