@@ -11,6 +11,10 @@ import WizardPage from 'shared/WizardPage';
 
 // import './Orders.css';
 
+// class YesNoBoolean (props) => {
+
+// }
+
 const uiSchema = {
   title: 'Your Move Orders',
   order: ['orders_type', 'issue_date', 'report_by_date', 'has_dependents'],
@@ -20,6 +24,9 @@ const uiSchema = {
     'report_by_date',
     'has_dependents',
   ],
+  // custom_components: {
+  //   has_dependents: <YesNoBoolean />,
+  // },
   // groups: {
   //   has_dependents: {
   //     title: 'Are dependents included in your orders?',
