@@ -60,8 +60,8 @@
     "service/ssm/ssmiface",
     "service/sts"
   ]
-  revision = "64aa9485bf77b8a811e88e95060a4a049bb373fb"
-  version = "v1.13.37"
+  revision = "cb873de7862ba08c63e82f37ffebc5ba02d87d26"
+  version = "v1.13.38"
 
 [[projects]]
   branch = "master"
@@ -215,7 +215,7 @@
     "generator",
     "scan"
   ]
-  revision = "21f7c2d92a8a1d1ca15692d22a1ed38ed85bcc9a"
+  revision = "266042444c884f5254732d101d8e8b93ce671f08"
 
 [[projects]]
   name = "github.com/gobuffalo/envy"
@@ -249,8 +249,8 @@
     "soda/cmd/generate",
     "soda/cmd/schema"
   ]
-  revision = "c67c14d737b88d2ce006c1d2c578289e1a984a82"
-  version = "v4.5.6"
+  revision = "2d7bf0d3ce16eec61b870adb2be5f2fb0d0777e2"
+  version = "v4.5.7"
 
 [[projects]]
   name = "github.com/gobuffalo/uuid"
@@ -271,7 +271,7 @@
   branch = "master"
   name = "github.com/golang/lint"
   packages = ["golint"]
-  revision = "1fb4e4796c08a9a18d8796a6aed584bf4b346bc9"
+  revision = "470b6b0bb3005eda157f0275e2e4895055396a81"
 
 [[projects]]
   name = "github.com/golang/protobuf"
@@ -587,13 +587,13 @@
     "bcrypt",
     "blowfish"
   ]
-  revision = "b0697eccbea9adec5b7ba8008f4c33d98d733388"
+  revision = "db7d12313a59cd5b727192a287195e2cdfa40049"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/lint"
   packages = ["."]
-  revision = "1fb4e4796c08a9a18d8796a6aed584bf4b346bc9"
+  revision = "470b6b0bb3005eda157f0275e2e4895055396a81"
 
 [[projects]]
   branch = "master"
@@ -624,7 +624,7 @@
   branch = "master"
   name = "golang.org/x/sys"
   packages = ["unix"]
-  revision = "79b0c6888797020a994db17c8510466c72fe75d9"
+  revision = "f67ecc163a74fbeea4cb1db0a101dcd07201464a"
 
 [[projects]]
   name = "golang.org/x/text"
@@ -661,7 +661,7 @@
     "imports",
     "internal/fastwalk"
   ]
-  revision = "c1def519f03ddf76f16b3e444ee1095d73afa01b"
+  revision = "8e070db38e5c55da6a85c81878ab769bf5667848"
 
 [[projects]]
   name = "google.golang.org/appengine"
