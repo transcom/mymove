@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
@@ -103,7 +103,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
 
 // To validate that fields are required, we look at the list of top level required
 // fields and then validate them and their children.
-const validateRequiredFields = (values, form) => {
+export const validateRequiredFields = (values, form) => {
   const swaggerSpec = form.schema;
   let requiredErrors;
   if (swaggerSpec && !isEmpty(swaggerSpec)) {
@@ -132,7 +132,7 @@ export const recursivelyAnnotateRequiredFields = schema => {
   }
 };
 
-const renderSchema = (schema, uiSchema, nameSpace = '') => {
+export const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
     recursivelyAnnotateRequiredFields(schema);
 
@@ -150,21 +150,16 @@ const addUiSchemaRequiredFields = (schema, uiSchema) => {
   schema.required = uniq(schema.required.concat(uiSchema.requiredFields));
 };
 
-const JsonSchemaForm = props => {
-  const { pristine, submitting, invalid, className } = props;
-  const { handleSubmit, schema, showSubmit } = props;
-  const uiSchema = props.subsetOfUiSchema
-    ? Object.assign({}, props.uiSchema, {
-        order: props.subsetOfUiSchema,
-      })
-    : props.uiSchema;
+export const JsonSchemaFormBody = props => {
+  const { schema, uiSchema } = props;
 
   addUiSchemaRequiredFields(schema, uiSchema);
   const title = uiSchema.title || (schema ? schema.title : '');
   const description = uiSchema.description;
   const todos = uiSchema.todos;
+
   return (
-    <form className={className} onSubmit={handleSubmit}>
+    <Fragment>
       <h1 className="sm-heading">{title}</h1>
       {description && <p>{description}</p>}
       {renderSchema(schema, uiSchema)}
@@ -174,11 +169,25 @@ const JsonSchemaForm = props => {
           {todos}
         </div>
       )}
-      {showSubmit && (
-        <button type="submit" disabled={pristine || submitting || invalid}>
-          Submit
-        </button>
-      )}
+    </Fragment>
+  );
+};
+
+JsonSchemaFormBody.propTypes = {
+  schema: PropTypes.object.isRequired,
+  uiSchema: PropTypes.object.isRequired,
+};
+
+JsonSchemaFormBody.defaultProps = {
+  className: 'default',
+};
+
+const JsonSchemaForm = props => {
+  const { className } = props;
+  const { handleSubmit, schema, uiSchema } = props;
+  return (
+    <form className={className} onSubmit={handleSubmit}>
+      <JsonSchemaFormBody schema={schema} uiSchema={uiSchema} />
     </form>
   );
 };
@@ -187,12 +196,9 @@ JsonSchemaForm.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  showSubmit: PropTypes.bool,
-  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
 };
 
 JsonSchemaForm.defaultProps = {
-  showSubmit: true,
   className: 'default',
 };
 
