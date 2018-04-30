@@ -4,54 +4,57 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateOrders, loadOrders } from './ducks';
+import { createOrders, updateOrders, loadOrders } from './ducks';
 import { reduxifyForm } from 'shared/JsonSchemaForm';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
-import './Orderss.css';
+// import './Orders.css';
 
 const uiSchema = {
-  title: 'Your Contact Info',
-  order: [
-    'telephone',
-    'secondary_telephone',
-    'personal_email',
-    'contact_preferences',
+  title: 'Your Move Orders',
+  order: ['orders_type', 'issue_date', 'report_by_date', 'has_dependents'],
+  requiredFields: [
+    'orders_type',
+    'issue_date',
+    'report_by_date',
+    'has_dependents',
   ],
-  requiredFields: ['telephone', 'personal_email'],
-  groups: {
-    contact_preferences: {
-      title: 'Preferred contact method during your move:',
-      fields: [
-        'phone_is_preferred',
-        'text_message_is_preferred',
-        'email_is_preferred',
-      ],
-    },
-  },
+  // groups: {
+  //   has_dependents: {
+  //     title: 'Are dependents included in your orders?',
+  //     fields: [
+  //       'has_dependents',
+  //     ],
+  //   },
+  // },
 };
 const subsetOfFields = [
-  'telephone',
-  'secondary_telephone',
-  'personal_email',
-  'phone_is_preferred',
-  'text_message_is_preferred',
-  'email_is_preferred',
+  'orders_type',
+  'issue_date',
+  'report_by_date',
+  'has_dependents',
 ];
 const formName = 'orders_info';
 const CurrentForm = reduxifyForm(formName);
 
 export class Orders extends Component {
   componentDidMount() {
-    this.props.loadOrders(this.props.match.params.serviceMemberId);
+    if (this.props.currentOrders) {
+      this.props.loadOrders(this.props.match.params.orderId);
+    }
   }
 
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
+    // Update if orders object already extant
     if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      this.props.updateOrders(patch);
+      const toCreateOrUpdate = pick(pendingValues, subsetOfFields);
+      if (this.props.currentOrders) {
+        this.props.updateOrders(this.props.currentOrders.id, toCreateOrUpdate);
+      } else {
+        this.props.createOrders(toCreateOrUpdate);
+      }
     }
   };
 
@@ -62,25 +65,21 @@ export class Orders extends Component {
       hasSubmitSuccess,
       error,
       currentOrders,
-      userEmail,
     } = this.props;
-    let prefSelected = false;
-    if (this.refs.currentForm && this.refs.currentForm.values) {
-      prefSelected = Boolean(
-        this.refs.currentForm.values.phone_is_preferred ||
-          this.refs.currentForm.values.text_message_is_preferred ||
-          this.refs.currentForm.values.email_is_preferred,
-      );
-    }
-    const isValid =
-      this.refs.currentForm && this.refs.currentForm.valid && prefSelected;
+    // let prefSelected = false;
+    // if (this.refs.currentForm && this.refs.currentForm.values) {
+    //   prefSelected = Boolean(
+    //     this.refs.currentForm.values.phone_is_preferred ||
+    //       this.refs.currentForm.values.text_message_is_preferred ||
+    //       this.refs.currentForm.values.email_is_preferred,
+    //   );
+    // }
+    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
     const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders
       ? pick(currentOrders, subsetOfFields)
       : null;
-    if (initialValues && !initialValues.personal_email)
-      initialValues.personal_email = userEmail;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -106,7 +105,6 @@ export class Orders extends Component {
   }
 }
 Orders.propTypes = {
-  userEmail: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   updateOrders: PropTypes.func.isRequired,
   currentOrders: PropTypes.object,
@@ -119,13 +117,12 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    userEmail: state.user.email,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,
   };
   if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateOrdersPayload;
+    props.schema = state.swagger.spec.definitions.OrdersPayload;
   }
   return props;
 }
