@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,7 +11,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -78,9 +76,11 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	return document, params
 }
 
-func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, userID uuid.UUID, fakeS3 *fakeS3Storage) middleware.Responder {
-	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, user models.User, fakeS3 *fakeS3Storage) middleware.Responder {
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, user)
+
+	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	fakeS3 := newFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.UploaderID, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
@@ -117,7 +117,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
 	}
 
-	key := fmt.Sprintf("/documents/%s/uploads/%s", document.ID, upload.ID)
+	key := fmt.Sprintf("documents/%s/uploads/%s", document.ID, upload.ID)
 	if fakeS3.putFiles[0].key != key {
 		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.putFiles[0].key)
 	}
@@ -146,11 +146,11 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	}
 	suite.mustSave(&otherUser)
 
-	response := makeRequest(suite, params, otherUser.ID, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadForbidden)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadForbidden, got %T", response)
-	}
+	response := makeRequest(suite, params, otherUser, fakeS3)
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
+
+	suite.Assertions.Equal(http.StatusForbidden, errResponse.code)
 
 	count, err := suite.db.Count(&models.Upload{})
 
@@ -172,11 +172,11 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	// Make a document ID that is not actually associated with a document
 	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 
-	response := makeRequest(suite, params, document.UploaderID, fakeS3)
-	_, ok := response.(*uploadop.CreateUploadNotFound)
-	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
-	}
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
+
+	suite.Assertions.Equal(http.StatusNotFound, errResponse.code)
 
 	count, err := suite.db.Count(&models.Upload{})
 
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 
 	params.File = suite.fixture("empty.pdf")
 
-	response := makeRequest(suite, params, document.UploaderID, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadBadRequest)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
@@ -219,7 +219,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	fakeS3 := newFakeS3Storage(false)
 	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.UploaderID, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)

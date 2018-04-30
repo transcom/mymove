@@ -12,7 +12,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -39,11 +39,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("Missing User ID in context")
-		return uploadop.NewCreateUploadBadRequest()
-	}
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
@@ -51,15 +48,10 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	// Validate that the document and move exists in the db, and that they belong to user
-	exists, userHasAccess := models.ValidateDocumentAccess(h.db, userID, documentID)
-	if !exists {
-		h.logger.Info("document does not exist", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadNotFound()
-	}
-	if !userHasAccess {
-		h.logger.Info("user does not have access to document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadForbidden()
+	//fetching document to ensure user has access to it
+	_, docErr := models.FetchDocument(h.db, user, documentID)
+	if docErr != nil {
+		return responseForError(h.logger, docErr)
 	}
 
 	hash := md5.New()
@@ -99,7 +91,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	newUpload := models.Upload{
 		ID:          id,
 		DocumentID:  documentID,
-		UploaderID:  userID,
+		UploaderID:  user.ID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: contentType,

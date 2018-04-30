@@ -15,9 +15,10 @@ import (
 
 func payloadForDocumentModel(document models.Document) internalmessages.DocumentPayload {
 	documentPayload := internalmessages.DocumentPayload{
-		ID:      fmtUUID(document.ID),
-		Name:    swag.String(document.Name),
-		Uploads: []*internalmessages.UploadPayload{},
+		ID:              fmtUUID(document.ID),
+		ServiceMemberID: fmtUUID(document.ServiceMemberID),
+		Name:            swag.String(document.Name),
+		Uploads:         []*internalmessages.UploadPayload{},
 	}
 	return documentPayload
 }

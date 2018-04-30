@@ -717,6 +717,7 @@ definitions:
     required:
       - id
       - name
+      - service_member_id
       - uploads
   PostDocumentPayload:
     type: object

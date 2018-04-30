@@ -21,6 +21,7 @@ func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember) (mode
 	document := models.Document{
 		UploaderID:      serviceMember.UserID,
 		ServiceMemberID: serviceMember.ID,
+		ServiceMember:   *serviceMember,
 	}
 
 	verrs, err := db.ValidateAndSave(&document)

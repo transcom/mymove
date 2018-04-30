@@ -8,18 +8,20 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // A Document represents a physical artifact such as a multipage form that was
 // filled out by hand. A Document can have many associated Uploads, which allows
 // for handling multiple files that belong to the same document.
 type Document struct {
-	ID              uuid.UUID `db:"id"`
-	UploaderID      uuid.UUID `db:"uploader_id"`
-	ServiceMemberID uuid.UUID `db:"service_member_id"`
-	Name            string    `db:"name"`
-	CreatedAt       time.Time `db:"created_at"`
-	UpdatedAt       time.Time `db:"updated_at"`
+	ID              uuid.UUID     `db:"id"`
+	UploaderID      uuid.UUID     `db:"uploader_id"`
+	ServiceMemberID uuid.UUID     `db:"service_member_id"`
+	ServiceMember   ServiceMember `belongs_to:"service_members"`
+	Name            string        `db:"name"`
+	CreatedAt       time.Time     `db:"created_at"`
+	UpdatedAt       time.Time     `db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted
@@ -45,15 +47,21 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	), nil
 }
 
-// ValidateDocumentAccess validates that a user has access to document
-func ValidateDocumentAccess(db *pop.Connection, userID uuid.UUID, documentID uuid.UUID) (bool, bool) {
-	exists := false
-	userHasAccess := false
+// FetchDocument returns a document if the user has access to that document
+func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error) {
 	var document Document
-	docErr := db.Find(&document, documentID)
-	if docErr == nil {
-		exists = true
-		userHasAccess = ValidateServiceMemberAccess(db, userID, document.ServiceMemberID)
+	err := db.Q().Eager().Find(&document, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Document{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Document{}, err
 	}
-	return exists, userHasAccess
+
+	_, smErr := FetchServiceMember(db, user, document.ServiceMemberID)
+	if smErr != nil {
+		return Document{}, smErr
+	}
+	return document, nil
 }

@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -92,6 +93,7 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 	}
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if serviceMember.UserID != user.ID {
+		fmt.Println("*****", user.ID, serviceMember.UserID)
 		return ServiceMember{}, ErrFetchForbidden
 	}
 
