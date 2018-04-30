@@ -22,7 +22,7 @@ func payloadForDocumentModel(document models.Document) internalmessages.Document
 	return documentPayload
 }
 
-// CreateDocumentHandler creates a new document via POST /moves/{moveID}/documents/
+// CreateDocumentHandler creates a new document via POST /documents/
 type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
@@ -33,16 +33,16 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
-	moveID, err := uuid.FromString(params.MoveID.String())
+	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
-		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("Badly formed UUID for serviceMemberId", zap.String("service_member_id", params.DocumentPayload.ServiceMemberID.String()), zap.Error(err))
 		return documentop.NewCreateDocumentBadRequest()
 	}
 
 	newDocument := models.Document{
-		UploaderID: userID,
-		MoveID:     moveID,
-		Name:       params.DocumentPayload.Name,
+		UploaderID:      userID,
+		ServiceMemberID: serviceMemberID,
+		Name:            params.DocumentPayload.Name,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newDocument)

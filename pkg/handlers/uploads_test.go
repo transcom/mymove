@@ -63,25 +63,19 @@ func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
 	}
 }
 
-func createPrereqs(suite *HandlerSuite) (models.Move, models.Document, uploadop.CreateUploadParams) {
+func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %s", err)
-	}
-
-	document, err := testdatagen.MakeDocument(suite.db, &move)
+	document, err := testdatagen.MakeDocument(suite.db, nil)
 	if err != nil {
 		t.Fatalf("could not create document: %s", err)
 	}
 
 	params := uploadop.NewCreateUploadParams()
-	params.MoveID = strfmt.UUID(move.ID.String())
 	params.DocumentID = strfmt.UUID(document.ID.String())
 	params.File = suite.fixture("test.pdf")
 
-	return move, document, params
+	return document, params
 }
 
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, userID uuid.UUID, fakeS3 *fakeS3Storage) middleware.Responder {
@@ -99,7 +93,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, userID
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
-	move, document, params := createPrereqs(suite)
+	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
@@ -123,7 +117,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
 	}
 
-	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
+	key := fmt.Sprintf("/documents/%s/uploads/%s", document.ID, upload.ID)
 	if fakeS3.putFiles[0].key != key {
 		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.putFiles[0].key)
 	}
@@ -143,7 +137,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
-	_, _, params := createPrereqs(suite)
+	_, params := createPrereqs(suite)
 
 	// Create a user that is not associated with the move
 	otherUser := models.User{
@@ -173,7 +167,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
 	fakeS3 := newFakeS3Storage(true)
-	_, document, params := createPrereqs(suite)
+	document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
 	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
@@ -199,7 +193,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
 	fakeS3 := newFakeS3Storage(true)
-	_, document, params := createPrereqs(suite)
+	document, params := createPrereqs(suite)
 
 	params.File = suite.fixture("empty.pdf")
 
@@ -223,7 +217,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(false)
-	_, document, params := createPrereqs(suite)
+	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.UploaderID, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)

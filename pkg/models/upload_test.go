@@ -10,11 +10,6 @@ import (
 func (suite *ModelSuite) Test_UploadCreate() {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %v", err)
-	}
-
 	document := models.Document{
 		UploaderID: move.UserID,
 		MoveID:     move.ID,

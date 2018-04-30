@@ -26,7 +26,7 @@ func payloadForUploadModel(upload models.Upload, url string) internalmessages.Up
 	}
 }
 
-// CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
+// CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler HandlerContext
 
 // Handle creates a new Upload from a request payload
@@ -45,12 +45,6 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadBadRequest()
-	}
-
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
@@ -58,13 +52,13 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	// Validate that the document and move exists in the db, and that they belong to user
-	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
+	exists, userHasAccess := models.ValidateDocumentAccess(h.db, userID, documentID)
 	if !exists {
-		h.logger.Info("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+		h.logger.Info("document does not exist", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadNotFound()
 	}
-	if !userOwns {
-		h.logger.Info("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
+	if !userHasAccess {
+		h.logger.Info("user does not have access to document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
 		return uploadop.NewCreateUploadForbidden()
 	}
 
@@ -123,7 +117,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	// Push file to S3
-	key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", id.String())
+	key := h.storage.Key("documents", documentID.String(), "uploads", id.String())
 	_, err = h.storage.Store(key, file.Data, checksum)
 	if err != nil {
 		h.logger.Error("failed to store", zap.Error(err))
