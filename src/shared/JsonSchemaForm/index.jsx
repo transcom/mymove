@@ -33,7 +33,7 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   return renderField(fieldName, fields, nameSpace);
 };
 
-const renderField = (fieldName, fields, nameSpace) => {
+export const renderField = (fieldName, fields, nameSpace) => {
   const field = fields[fieldName];
   if (!field) {
     return;
@@ -93,8 +93,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
       }
     } else {
       console.error(
-        'The schema should have fields for all present values..',
-        key,
+        `The schema should have fields for all present values. Missing ${key}`,
       );
     }
   });
@@ -104,7 +103,7 @@ export const recursivelyValidateRequiredFields = (values, spec) => {
 
 // To validate that fields are required, we look at the list of top level required
 // fields and then validate them and their children.
-export const validateRequiredFields = (values, form, somethingelse, andhow) => {
+export const validateRequiredFields = (values, form) => {
   const swaggerSpec = form.schema;
   let requiredErrors;
   if (swaggerSpec && !isEmpty(swaggerSpec)) {
@@ -115,14 +114,14 @@ export const validateRequiredFields = (values, form, somethingelse, andhow) => {
 
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
 // Fields like Addresses may not be required, so even though they have required subfields they are not annotated.
-const recursivleyAnnotateRequiredFields = schema => {
+export const recursivelyAnnotateRequiredFields = schema => {
   if (schema.required) {
     schema.required.forEach(requiredFieldName => {
       // check if the required thing is a object, in that case put it on its required fields. Otherwise recurse.
       let schemaForKey = schema.properties[requiredFieldName];
       if (schemaForKey) {
         if (schemaForKey.type === 'object') {
-          recursivleyAnnotateRequiredFields(schemaForKey);
+          recursivelyAnnotateRequiredFields(schemaForKey);
         } else {
           schemaForKey[ALWAYS_REQUIRED_KEY] = true;
         }
@@ -135,7 +134,7 @@ const recursivleyAnnotateRequiredFields = schema => {
 
 export const renderSchema = (schema, uiSchema, nameSpace = '') => {
   if (schema && !isEmpty(schema)) {
-    recursivleyAnnotateRequiredFields(schema);
+    recursivelyAnnotateRequiredFields(schema);
 
     const fields = schema.properties || {};
     return uiSchema.order.map(i =>
