@@ -91,6 +91,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -100,6 +104,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -108,6 +116,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
@@ -121,6 +133,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
       created_at:
         type: string
@@ -483,6 +499,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -917,6 +938,93 @@ definitions:
       - city
       - state
       - postal_code
+  OrdersType:
+    type: string
+    enum:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+    x-display-value:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+  OrdersPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member:
+        $ref: "#/definitions/ServiceMemberPayload"
+      issue_date:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date-time
+      report_by_date:
+        type: string
+        description: Report By Date
+        format: date
+      orders_type:
+        $ref: "#/definitions/OrdersType"
+      has_dependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      new_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - service_member
+      - issue_date
+      - report_by_date
+      - orders_type
+      - has_dependents
+      - new_duty_station
+      - created_at
+      - updated_at
+  CreateUpdateOrdersPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issue_date:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date-time
+      report_by_date:
+        type: string
+        description: Report By Date
+        format: date
+      orders_type:
+        $ref: "#/definitions/OrdersType"
+      has_dependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      new_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+    required:
+      - id
+      - issue_date
+      - report_by_date
+      - orders_type
+      - has_dependents
+      - new_duty_station
   InvalidRequestResponsePayload:
     type: object
     properties:
@@ -924,7 +1032,7 @@ definitions:
         type: object
         additionalProperties:
           type: string
-  QueueMove:
+  MoveQueueItem:
     type: object
     properties:
       id:
@@ -1054,6 +1162,66 @@ paths:
           description: request requires user authentication
         500:
           description: server error
+  /orders:
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: Creates an instance of orders tied to a service member
+      operationId: createOrders
+      tags:
+        - orders
+      parameters:
+        - in: body
+          name: createOrdersPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrdersPayload'
+      responses:
+        201:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /orders/{orderId}:
+    put:
+      summary: Updates orders
+      description: All fields sent in this request will be set on the orders referenced
+      operationId: updateOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the orders model
+        - in: body
+          name: updateOrdersPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrdersPayload'
+      responses:
+        200:
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
   /moves:
     post:
       summary: Submits move for a logged-in user
@@ -1693,7 +1861,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/QueueMove'
+              $ref: '#/definitions/MoveQueueItem'
         400:
           description: invalid request
         401:
