@@ -917,6 +917,24 @@ definitions:
       - city
       - state
       - postal_code
+  OrdersType:
+    type: string
+    enum:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+    x-display-value:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
   OrdersPayload:
     type: object
     properties:
@@ -935,23 +953,7 @@ definitions:
         description: Report By Date
         format: date
       orders_type:
-        type: string
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -989,23 +991,7 @@ definitions:
         description: Report By Date
         format: date
       orders_type:
-        type: string
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
