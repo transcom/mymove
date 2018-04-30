@@ -185,7 +185,7 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 }
 
 // CreateOrder creates an order model tied to the service member
-func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType string, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
+func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType internalmessages.OrdersType, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
 	newOrders := Order{
 		ServiceMemberID:  s.ID,
 		ServiceMember:    s,

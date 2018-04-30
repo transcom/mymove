@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/pop"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -30,7 +31,7 @@ func MakeOrder(db *pop.Connection) (models.Order, error) {
 		NewDutyStation:   station,
 		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:       "Vanilla",
+		OrdersType:       internalmessages.OrdersTypeAccession,
 		HasDependents:    true,
 	}
 

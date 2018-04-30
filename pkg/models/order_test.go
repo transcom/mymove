@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -31,7 +32,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := "blueberry"
+	ordersType := internalmessages.OrdersTypeRotational
 	hasDependents := true
 	order := Order{
 		ServiceMemberID:  serviceMember1.ID,
