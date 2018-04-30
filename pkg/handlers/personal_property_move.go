@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth/context"
+	authctx "github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -13,11 +13,12 @@ import (
 
 func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:             fmtUUID(personallyProcuredMove.ID),
-		CreatedAt:      fmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:      fmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:           personallyProcuredMove.Size,
-		WeightEstimate: personallyProcuredMove.WeightEstimate,
+		ID:                 fmtUUID(personallyProcuredMove.ID),
+		CreatedAt:          fmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:          fmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:               personallyProcuredMove.Size,
+		WeightEstimate:     personallyProcuredMove.WeightEstimate,
+		EstimatedIncentive: personallyProcuredMove.EstimatedIncentive,
 	}
 	return ppmPayload
 }
@@ -53,9 +54,10 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		}
 	} else { // The given move does belong to the current user.
 		newPersonallyProcuredMove := models.PersonallyProcuredMove{
-			MoveID:         moveID,
-			Size:           params.CreatePersonallyProcuredMovePayload.Size,
-			WeightEstimate: params.CreatePersonallyProcuredMovePayload.WeightEstimate,
+			MoveID:             moveID,
+			Size:               params.CreatePersonallyProcuredMovePayload.Size,
+			WeightEstimate:     params.CreatePersonallyProcuredMovePayload.WeightEstimate,
+			EstimatedIncentive: params.CreatePersonallyProcuredMovePayload.EstimatedIncentive,
 		}
 
 		if verrs, err := h.db.ValidateAndCreate(&newPersonallyProcuredMove); err != nil {
@@ -161,12 +163,16 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	// TODO: Is there a pattern for updating that doesn't require hardcoding fields?
 	size := params.PatchPersonallyProcuredMovePayload.Size
 	weightEstimate := params.PatchPersonallyProcuredMovePayload.WeightEstimate
+	estimatedIncentive := params.PatchPersonallyProcuredMovePayload.EstimatedIncentive
 
 	if size != nil {
 		ppm.Size = size
 	}
 	if weightEstimate != nil {
 		ppm.WeightEstimate = weightEstimate
+	}
+	if estimatedIncentive != nil {
+		ppm.EstimatedIncentive = estimatedIncentive
 	}
 
 	if verrs, err := h.db.ValidateAndUpdate(&ppm); err != nil {

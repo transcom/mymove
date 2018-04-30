@@ -3,11 +3,10 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-
-	"github.com/transcom/mymove/pkg/auth/context"
 )
 
 func payloadForBackupContactModel(contact models.BackupContact) internalmessages.ServiceMemberBackupContactPayload {
@@ -29,7 +28,7 @@ type CreateBackupContactHandler HandlerContext
 // Handle ... creates a new BackupContact from a request payload
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
@@ -56,7 +55,7 @@ type IndexBackupContactsHandler HandlerContext
 // Handle retrieves a list of all moves in the system belonging to the logged in user
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
@@ -81,7 +80,7 @@ type ShowBackupContactHandler HandlerContext
 // Handle retrieves a backup contact in the system belonging to the logged in user given backup contact ID
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.db, user, contactID)
@@ -99,7 +98,7 @@ type UpdateBackupContactHandler HandlerContext
 // Handle ... updates a BackupContact from a request payload
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.db, user, contactID)

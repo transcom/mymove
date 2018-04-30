@@ -7,7 +7,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -34,8 +34,8 @@ func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
 
 	// And: the context contains the auth values
 	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -80,8 +80,8 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 
 	// And: the context contains the auth values
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestIndexMovesHandler() {
 	}
 
 	if !moveExists {
-		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
+		t.Errorf("Expected a move to have user ID '%v'. None do.", user.ID)
 	}
 }
 
@@ -134,8 +134,8 @@ func (suite *HandlerSuite) TestIndexMovesWrongUser() {
 
 	// And: the context contains the auth values for user 2
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user2)
+	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user2)
 	indexMovesParams.HTTPRequest = req.WithContext(ctx)
 
 	// And: All moves are queried
@@ -177,8 +177,8 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -233,8 +233,8 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user2)
+	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user2)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -273,8 +273,8 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -314,8 +314,8 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
@@ -351,8 +351,8 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	req = req.WithContext(ctx)
 
 	params := moveop.ShowMoveParams{
@@ -401,8 +401,8 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// And: the context contains the auth values for logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, loggedInUser)
+	ctx = auth.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, loggedInUser)
 	req = req.WithContext(ctx)
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,

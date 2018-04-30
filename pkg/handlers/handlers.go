@@ -116,6 +116,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 
+	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
+
 	return internalAPI.Serve(nil)
 }
 

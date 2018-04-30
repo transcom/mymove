@@ -91,6 +91,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
+        x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -100,6 +104,10 @@ definitions:
         type: integer
         title: Weight Estimate
         x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
+        x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -108,6 +116,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
@@ -121,6 +133,10 @@ definitions:
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
       created_at:
         type: string
@@ -483,6 +499,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -917,6 +938,24 @@ definitions:
       - city
       - state
       - postal_code
+  OrdersType:
+    type: string
+    enum:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+    x-display-value:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
   OrdersPayload:
     type: object
     properties:
@@ -939,23 +978,7 @@ definitions:
         format: date
         example: "2018-04-26"
       orders_type:
-        type: string
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -995,23 +1018,7 @@ definitions:
         format: date
         example: "2018-04-26"
       orders_type:
-        type: string
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1031,6 +1038,70 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  MoveQueueItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        type: string
+        example: Booked - Awaiting Review
+      locator:
+        type: string
+        example: "12432"
+      customer_name:
+        type: string
+        example: Thedog, Nino
+        title: Customer Name
+      edipi:
+        type: string
+        format: edipi
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
+        title: 'DoD ID #'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
+      orders_type:
+        type: string
+        title: Move Type
+        enum:
+          - PCS - OCONUS
+          - PCS - CONUS
+          - PCS + TDY - OCONUS
+          - PCS + TDY - CONUS
+      move_date:
+        type: string
+        format: date
+        example: 2018-04-25
+      customer_deadline:
+        type: string
+        format: date
+        example: 2018-07-20
+      last_modified_date:
+        type: string
+        format: date-time
+        example: 2018-04-25 11:25
+      last_modified_name:
+        type: string
+        example: Bollinger, Sam
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - status
+      - locator
+      - customer_name
+      - edipi
+      - rank
+      - orders_type
+      - move_date
+      - customer_deadline
+      - last_modified_date
+      - last_modified_name
+      - created_at
 paths:
   /issues:
     post:
@@ -1801,3 +1872,33 @@ paths:
           description: matching duty station not found
         500:
           description: internal server error
+  /queues/{queueType}:
+    get:
+      summary: Show all moves in a queue
+      description: Show all moves in a queue
+      operationId: showQueue
+      tags:
+        - queues
+      parameters:
+        - in: path
+          name: queueType
+          type: string
+          enum:
+          - new
+          - troubleshooting
+          - ppm
+          required: true
+          description: Queue type to show
+      responses:
+        200:
+          description: list all moves in the specified queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MoveQueueItem'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to access this queue
