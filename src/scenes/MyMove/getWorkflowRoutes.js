@@ -11,6 +11,7 @@ import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 import Orders from 'scenes/Orders/Orders';
+import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
 
@@ -75,7 +76,9 @@ const pages = {
   },
   '/service-member/:serviceMemberId/duty-station': {
     isInFlow: incompleteServiceMember,
-    render: stub,
+    render: (key, pages) => ({ match }) => (
+      <DutyStation pages={pages} pageKey={key} match={match} />
+    ),
     description: 'current duty station',
   },
   '/service-member/:serviceMemberId/residence-address': {

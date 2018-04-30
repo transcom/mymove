@@ -11,7 +11,6 @@ import (
 )
 
 func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
-
 	return &internalmessages.DutyStationPayload{
 		ID:          fmtUUID(station.ID),
 		CreatedAt:   fmtDateTime(station.CreatedAt),

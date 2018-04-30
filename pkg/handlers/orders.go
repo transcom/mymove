@@ -4,10 +4,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,7 +20,7 @@ func payloadForOrdersModel(user models.User, order models.Order) *internalmessag
 		ServiceMemberID: fmtUUID(order.ServiceMember.ID),
 		IssueDate:       fmtDate(order.IssueDate),
 		ReportByDate:    fmtDate(order.ReportByDate),
-		OrdersType:      swag.String(order.OrdersType),
+		OrdersType:      order.OrdersType,
 		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:   fmtBool(order.HasDependents),
 	}
@@ -33,7 +32,7 @@ type CreateOrdersHandler HandlerContext
 // Handle ... creates a new ServiceMember from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	payload := params.CreateOrdersPayload
 
@@ -60,7 +59,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		ServiceMember:    serviceMember,
 		IssueDate:        time.Time(*payload.IssueDate),
 		ReportByDate:     time.Time(*payload.ReportByDate),
-		OrdersType:       *payload.OrdersType,
+		OrdersType:       payload.OrdersType,
 		HasDependents:    *payload.HasDependents,
 		NewDutyStationID: dutyStation.ID,
 		NewDutyStation:   dutyStation,
@@ -81,7 +80,7 @@ type ShowOrdersHandler HandlerContext
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	orderID, _ := uuid.FromString(params.OrderID.String())
 	order, err := models.FetchOrder(h.db, user, orderID)
@@ -99,7 +98,7 @@ type UpdateOrdersHandler HandlerContext
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := context.GetUser(params.HTTPRequest.Context())
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	orderID, err := uuid.FromString(params.OrderID.String())
 	if err != nil {
@@ -122,7 +121,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 
 	order.IssueDate = time.Time(*payload.IssueDate)
 	order.ReportByDate = time.Time(*payload.ReportByDate)
-	order.OrdersType = *payload.OrdersType
+	order.OrdersType = payload.OrdersType
 	order.HasDependents = *payload.HasDependents
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation

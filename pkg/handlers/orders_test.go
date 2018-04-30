@@ -5,8 +5,6 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/go-openapi/swag"
-
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -22,12 +20,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	hasDependents := true
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := "Banana walnut"
+	ordersType := internalmessages.OrdersTypeRotational
 	payload := &internalmessages.CreateUpdateOrdersPayload{
 		HasDependents:   fmtBool(hasDependents),
 		IssueDate:       fmtDate(issueDate),
 		ReportByDate:    fmtDate(reportByDate),
-		OrdersType:      swag.String(ordersType),
+		OrdersType:      ordersType,
 		NewDutyStation:  payloadForDutyStationModel(station),
 		ServiceMemberID: fmtUUID(sm.ID),
 	}
@@ -43,7 +41,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	okResponse := response.(*ordersop.CreateOrdersCreated)
 
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(ordersType, *okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
@@ -64,7 +62,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 	okResponse := response.(*ordersop.ShowOrdersOK)
 
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(order.OrdersType, *okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(order.OrdersType, okResponse.Payload.OrdersType)
 }
 
 func (suite *HandlerSuite) TestUpdateOrder() {
@@ -74,12 +72,12 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req := httptest.NewRequest("PUT", path, nil)
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
-	newOrdersType := "Banana walnut"
+	newOrdersType := internalmessages.OrdersTypeRotational
 	payload := &internalmessages.CreateUpdateOrdersPayload{
 		HasDependents:   fmtBool(order.HasDependents),
 		IssueDate:       fmtDate(order.IssueDate),
 		ReportByDate:    fmtDate(order.ReportByDate),
-		OrdersType:      swag.String(newOrdersType),
+		OrdersType:      newOrdersType,
 		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
 		ServiceMemberID: fmtUUID(order.ServiceMember.ID),
 	}
@@ -96,5 +94,5 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
 	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
-	suite.Assertions.Equal(newOrdersType, *okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
 }

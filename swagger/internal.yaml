@@ -499,6 +499,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -933,6 +938,24 @@ definitions:
       - city
       - state
       - postal_code
+  OrdersType:
+    type: string
+    enum:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+    x-display-value:
+      accession: accession
+      brac: brac
+      operational: operational
+      rotational: rotational
+      separation: separation
+      training: training
+      unit-move: unit-move
   OrdersPayload:
     type: object
     properties:
@@ -957,24 +980,7 @@ definitions:
         example: "2018-04-26"
         title:  Report-by date
       orders_type:
-        type: string
-        title: Orders type
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          accession: accession
-          brac: brac
-          operational: operational
-          rotational: rotational
-          separation: separation
-          training: training
-          unit-move: unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1014,23 +1020,7 @@ definitions:
         format: date
         example: "2018-04-26"
       orders_type:
-        type: string
-        enum:
-          - accession
-          - brac
-          - operational
-          - rotational
-          - separation
-          - training
-          - unit-move
-        x-display-value:
-          accession: accession
-          brac: brac
-          operational: operational
-          rotational: rotational
-          separation: separation
-          training: training
-          unit-move: unit-move
+        $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1050,7 +1040,7 @@ definitions:
         type: object
         additionalProperties:
           type: string
-  QueueMove:
+  MoveQueueItem:
     type: object
     properties:
       id:
@@ -1907,7 +1897,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/QueueMove'
+              $ref: '#/definitions/MoveQueueItem'
         400:
           description: invalid request
         401:
