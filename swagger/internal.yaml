@@ -87,6 +87,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -100,6 +130,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -113,6 +173,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -130,6 +220,36 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
