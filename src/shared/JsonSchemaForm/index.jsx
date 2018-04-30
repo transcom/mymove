@@ -152,12 +152,7 @@ const addUiSchemaRequiredFields = (schema, uiSchema) => {
 };
 
 export const JsonSchemaFormBody = props => {
-  const { schema } = props;
-  const uiSchema = props.subsetOfUiSchema
-    ? Object.assign({}, props.uiSchema, {
-        order: props.subsetOfUiSchema,
-      })
-    : props.uiSchema;
+  const { schema, uiSchema } = props;
 
   addUiSchemaRequiredFields(schema, uiSchema);
   const title = uiSchema.title || (schema ? schema.title : '');
@@ -182,7 +177,6 @@ export const JsonSchemaFormBody = props => {
 JsonSchemaFormBody.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
-  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
 };
 
 JsonSchemaFormBody.defaultProps = {
@@ -191,14 +185,10 @@ JsonSchemaFormBody.defaultProps = {
 
 const JsonSchemaForm = props => {
   const { className } = props;
-  const { handleSubmit, schema, subsetOfUiSchema, uiSchema } = props;
+  const { handleSubmit, schema, uiSchema } = props;
   return (
     <form className={className} onSubmit={handleSubmit}>
-      <JsonSchemaFormBody
-        schema={schema}
-        uiSchema={uiSchema}
-        subsetOfUiSchema={subsetOfUiSchema}
-      />
+      <JsonSchemaFormBody schema={schema} uiSchema={uiSchema} />
     </form>
   );
 };
@@ -207,7 +197,6 @@ JsonSchemaForm.propTypes = {
   schema: PropTypes.object.isRequired,
   uiSchema: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func.isRequired,
-  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
 };
 
 JsonSchemaForm.defaultProps = {
