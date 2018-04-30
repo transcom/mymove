@@ -949,13 +949,13 @@ definitions:
       - training
       - unit-move
     x-display-value:
-      - accession
-      - brac
-      - operational
-      - rotational
-      - separation
-      - training
-      - unit-move
+      accession: accession
+      brac: brac
+      operational: operational
+      rotational: rotational
+      separation: separation
+      training: training
+      unit-move: unit-move
   OrdersPayload:
     type: object
     properties:
