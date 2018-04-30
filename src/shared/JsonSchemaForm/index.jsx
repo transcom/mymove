@@ -186,12 +186,33 @@ JsonSchemaFormBody.propTypes = {
 };
 
 JsonSchemaFormBody.defaultProps = {
-  showSubmit: true,
   className: 'default',
 };
 
-// TODO: delete this
-export const reduxifyForm = name =>
-  reduxForm({ form: name, validate: validateRequiredFields })(
-    JsonSchemaFormBody,
+const JsonSchemaForm = props => {
+  const { className } = props;
+  const { handleSubmit, schema, subsetOfUiSchema, uiSchema } = props;
+  return (
+    <form className={className} onSubmit={handleSubmit}>
+      <JsonSchemaFormBody
+        schema={schema}
+        uiSchema={uiSchema}
+        subsetOfUiSchema={subsetOfUiSchema}
+      />
+    </form>
   );
+};
+
+JsonSchemaForm.propTypes = {
+  schema: PropTypes.object.isRequired,
+  uiSchema: PropTypes.object.isRequired,
+  handleSubmit: PropTypes.func.isRequired,
+  subsetOfUiSchema: PropTypes.arrayOf(PropTypes.string),
+};
+
+JsonSchemaForm.defaultProps = {
+  className: 'default',
+};
+
+export const reduxifyForm = name =>
+  reduxForm({ form: name, validate: validateRequiredFields })(JsonSchemaForm);

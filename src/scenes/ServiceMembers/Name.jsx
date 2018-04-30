@@ -62,7 +62,6 @@ export class Name extends Component {
           handleSubmit={no_op}
           schema={this.props.schema}
           uiSchema={uiSchema}
-          showSubmit={false}
           initialValues={initialValues}
         />
       </WizardPage>
