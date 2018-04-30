@@ -1,7 +1,7 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import { AppWrapper } from '.';
-import Header from 'shared/MyMove/Header';
+import Header from 'shared/Header/MyMove';
 import Footer from 'shared/Footer';
 
 describe('AppWrapper tests', () => {
