@@ -14,7 +14,7 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -75,8 +75,8 @@ func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
 
 func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.User) *http.Request {
 	ctx := req.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 	return req.WithContext(ctx)
 }
 

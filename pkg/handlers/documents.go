@@ -6,7 +6,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth/context"
+	authctx "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
