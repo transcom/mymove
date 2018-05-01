@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import { requestData } from './ducks.js';
+import { requestData } from './api.js';
 
 export default class QueueTable extends Component {
   constructor() {
@@ -39,7 +39,7 @@ export default class QueueTable extends Component {
   render() {
     return (
       <div>
-        <h1>Header that changes based on props</h1>
+        <h1>{this.props.queueType} Moves Queue</h1>
         <div>
           <ReactTable
             columns={[
