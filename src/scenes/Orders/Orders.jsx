@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { createOrders, updateOrders, loadOrders } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+// import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 const YesNoBoolean = props => {
   const {
@@ -50,25 +51,31 @@ const uiSchema = {
     'issue_date',
     'report_by_date',
     'has_dependents',
-    'new_duty_station',
+    // 'new_duty_station',
   ],
   requiredFields: [
     'orders_type',
     'issue_date',
     'report_by_date',
     'has_dependents',
-    'new_duty_station',
+    // 'new_duty_station',
   ],
   custom_components: {
     has_dependents: YesNoBoolean,
-    new_duty_station: NewDutyStation,
+    // new_duty_station: DutyStationSearchBox,
   },
+  // definitions: {
+  //   DutyStationPayload: {
+  //     order: ['name'],
+  //   },
+  // },
 };
 const subsetOfFields = [
   'orders_type',
   'issue_date',
   'report_by_date',
   'has_dependents',
+  'new_duty_station',
 ];
 const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName);
@@ -142,7 +149,8 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
   if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.OrdersPayload;
+    console.log('swagger spec', state.swagger.spec);
+    props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;
   }
   return props;
 }
