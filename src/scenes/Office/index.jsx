@@ -3,6 +3,7 @@ import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
 
+import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 
 class QueueTable extends Component {
@@ -13,16 +14,6 @@ class QueueTable extends Component {
         <p>
           Now showing the <strong>{this.props.queueType}</strong> queue!
         </p>
-      </div>
-    );
-  }
-}
-
-class QueueHeader extends Component {
-  render() {
-    return (
-      <div style={{ background: 'rgb(200,200,255)' }}>
-        <h1 style={{ margin: 0 }}>QueueHeader</h1>
       </div>
     );
   }
@@ -52,11 +43,10 @@ class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
+          <QueueHeader />
           <main className="site__content">
             <div>
-              <div className="usa-grid">
-                <QueueHeader />
-              </div>
+              <div className="usa-grid" />
               <Switch>
                 <Redirect from="/" to="/queues/new_moves" exact />
                 <Route path="/queues/:queueType" component={Queues} />
