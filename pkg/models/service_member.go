@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -81,6 +80,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+// This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
@@ -93,7 +93,6 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 	}
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
 	if serviceMember.UserID != user.ID {
-		fmt.Println("*****", user.ID, serviceMember.UserID)
 		return ServiceMember{}, ErrFetchForbidden
 	}
 
@@ -239,16 +238,4 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	// TODO: add check for station, SSN, and backup contacts
 	// All required fields have a set value
 	return true
-}
-
-// ValidateServiceMemberAccess validates that a user has access to serviceMember
-func ValidateServiceMemberAccess(db *pop.Connection, userID uuid.UUID, serviceMemberID uuid.UUID) bool {
-	userHasAccess := false
-	// TODO: Handle case where more than one user is authorized to modify move
-	var serviceMember ServiceMember
-	smErr := db.Find(&serviceMember, serviceMemberID)
-	if smErr == nil {
-		userHasAccess = uuid.Equal(userID, serviceMember.UserID)
-	}
-	return userHasAccess
 }
