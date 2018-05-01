@@ -6,7 +6,6 @@ export async function GetSpec() {
 }
 
 export async function CreateUpload(fileUpload, documentId) {
-  console.log(arguments);
   const client = await getClient();
   const response = await client.apis.uploads.createUpload({
     file: fileUpload,
