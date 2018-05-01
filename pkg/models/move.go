@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -10,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -59,49 +57,6 @@ func (m *Move) ValidateCreate(tx *pop.Connection) (*validate.Errors, error) {
 // This method is not required and may be deleted.
 func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
-}
-
-// MoveResult is returned by GetMoveForUser and encapsulates whether the call succeeded and why it failed.
-type MoveResult struct {
-	valid     bool
-	errorCode FetchError
-	move      Move
-}
-
-// IsValid indicates whether the MoveResult is valid.
-func (m MoveResult) IsValid() bool {
-	return m.valid
-}
-
-// Move returns the move if and only if the move was correctly fetched
-func (m MoveResult) Move() Move {
-	if !m.valid {
-		zap.L().Fatal("Check if this isValid before accessing the Move()!")
-	}
-	return m.move
-}
-
-// ErrorCode returns the error if and only if the move was not correctly fetched
-func (m MoveResult) ErrorCode() FetchError {
-	if m.valid {
-		zap.L().Fatal("Check that this !isValid before accessing the ErrorCode()!")
-	}
-	return m.errorCode
-}
-
-// NewInvalidMoveResult creates an invalid MoveResult
-func NewInvalidMoveResult(errorCode FetchError) MoveResult {
-	return MoveResult{
-		errorCode: errorCode,
-	}
-}
-
-// NewValidMoveResult creates a valid MoveResult
-func NewValidMoveResult(move Move) MoveResult {
-	return MoveResult{
-		valid: true,
-		move:  move,
-	}
 }
 
 // FetchMove fetches and validates a Move for this User
@@ -155,28 +110,27 @@ func (m Move) CreatePPM(db *pop.Connection,
 	return &newPPM, verrs, nil
 }
 
-// GetMoveForUser returns a move only if it is allowed for the given user to access that move.
-// If the user is not authorized to access that move, it behaves as if no such move exists.
-func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveResult, error) {
-	var result MoveResult
-	var move Move
-	err := db.Find(&move, id)
-	if err != nil {
-		if errors.Cause(err).Error() == "sql: no rows in result set" {
-			result = NewInvalidMoveResult(FetchErrorNotFound)
-			err = nil
-		}
-		// Otherwise, it's an unexpected err so we return that.
-	} else {
-		// TODO: Handle case where more than one user is authorized to modify move
-		if move.UserID != userID {
-			result = NewInvalidMoveResult(FetchErrorForbidden)
-		} else {
-			result = NewValidMoveResult(move)
-		}
+// CreateSignedCertification creates a new SignedCertification associated with this move
+func (m Move) CreateSignedCertification(db *pop.Connection,
+	submittingUser User,
+	certificationText string,
+	signature string,
+	date time.Time) (*SignedCertification, *validate.Errors, error) {
+
+	newSignedCertification := SignedCertification{
+		MoveID:            m.ID,
+		SubmittingUserID:  submittingUser.ID,
+		CertificationText: certificationText,
+		Signature:         signature,
+		Date:              date,
 	}
 
-	return result, err
+	verrs, err := db.ValidateAndCreate(&newSignedCertification)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
+	}
+
+	return &newSignedCertification, verrs, nil
 }
 
 // GetMovesForUserID gets all move models for a given user ID
