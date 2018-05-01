@@ -268,6 +268,14 @@ definitions:
       - id
       - created_at
       - updated_at
+  PersonallyProcuredMoveSitEstimate:
+    type: object
+    properties:
+      sit_estimate:
+        type: integer
+        title: Value in cents of SIT estimate for PPM
+    required:
+      - sit_estimate
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1232,6 +1240,52 @@ definitions:
       - last_modified_name
       - created_at
 paths:
+  /estimates/ppm_sit:
+    get:
+      summary: Return a PPM move's SIT cost estimate
+      description: Calculates a reimbursment for a PPM move's SIT
+      operationId: showEstimatePersonallyProcuredMoveSit
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: days_in_storage
+          type: integer
+          required: true
+        - in: query
+          name: pickup_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMoveSitEstimate'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /issues:
     post:
       summary: Create a new issue
