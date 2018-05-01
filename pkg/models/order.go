@@ -72,7 +72,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	return db.ValidateAndSave(order)
 }
 
-// FetchOrder returns a service member only if it is allowed for the given user to access that service member.
+// FetchOrder returns orders only if it is allowed for the given user to access those orders.
 func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address").Find(&order, id)

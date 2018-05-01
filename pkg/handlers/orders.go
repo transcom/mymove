@@ -26,10 +26,10 @@ func payloadForOrdersModel(user models.User, order models.Order) *internalmessag
 	}
 }
 
-// CreateOrdersHandler creates a new service member via POST /serviceMember
+// CreateOrdersHandler creates new orders via POST /orders
 type CreateOrdersHandler HandlerContext
 
-// Handle ... creates a new ServiceMember from a request payload
+// Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
