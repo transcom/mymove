@@ -17,9 +17,13 @@ export const getUserTypes = helpers.generateAsyncActionTypes(
   GET_LOGGED_IN_USER,
 );
 
+async function GetLoggedInUserIfLoggedIn() {
+  const userInfo = getUserInfo();
+  if (userInfo.isLoggedIn) await GetLoggedInUser();
+}
 export const loadLoggedInUser = helpers.generateAsyncActionCreator(
   GET_LOGGED_IN_USER,
-  GetLoggedInUser,
+  GetLoggedInUserIfLoggedIn,
 );
 
 export const loggedInUserReducer = helpers.generateAsyncReducer(
