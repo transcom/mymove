@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -16,12 +17,13 @@ import (
 
 // Move is an object representing a move
 type Move struct {
-	ID               uuid.UUID                          `json:"id" db:"id"`
-	CreatedAt        time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time                          `json:"updated_at" db:"updated_at"`
-	UserID           uuid.UUID                          `json:"user_id" db:"user_id"`
-	User             User                               `belongs_to:"user"`
-	SelectedMoveType *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
+	ID                      uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
+	UserID                  uuid.UUID                          `json:"user_id" db:"user_id"`
+	User                    User                               `belongs_to:"user"`
+	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
+	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
 }
 
 // String is not required by pop and may be deleted
@@ -102,6 +104,57 @@ func NewValidMoveResult(move Move) MoveResult {
 	}
 }
 
+// FetchMove fetches and validates a Move for this User
+func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
+	var move Move
+	err := db.Q().Eager().Find(&move, id)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, err
+	}
+	// TODO: Handle case where more than one user is authorized to modify move
+	if move.UserID != authUser.ID {
+		return nil, ErrFetchForbidden
+	}
+
+	return &move, nil
+}
+
+// CreatePPM creates a new PPM associated with this move
+func (m Move) CreatePPM(db *pop.Connection,
+	size *internalmessages.TShirtSize,
+	weightEstimate *int64,
+	estimatedIncentive *string,
+	plannedMoveDate *time.Time,
+	pickupZip *string,
+	additionalPickupZip *string,
+	destinationZip *string,
+	daysInStorage *int64) (*PersonallyProcuredMove, *validate.Errors, error) {
+
+	newPPM := PersonallyProcuredMove{
+		MoveID:              m.ID,
+		Move:                m,
+		Size:                size,
+		WeightEstimate:      weightEstimate,
+		EstimatedIncentive:  estimatedIncentive,
+		PlannedMoveDate:     plannedMoveDate,
+		PickupZip:           pickupZip,
+		AdditionalPickupZip: additionalPickupZip,
+		DestinationZip:      destinationZip,
+		DaysInStorage:       daysInStorage,
+	}
+
+	verrs, err := db.ValidateAndCreate(&newPPM)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
+	}
+
+	return &newPPM, verrs, nil
+}
+
 // GetMoveForUser returns a move only if it is allowed for the given user to access that move.
 // If the user is not authorized to access that move, it behaves as if no such move exists.
 func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveResult, error) {
@@ -124,23 +177,6 @@ func GetMoveForUser(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (MoveRes
 	}
 
 	return result, err
-}
-
-// ValidateMoveOwnership validates that a user owns a move that exists
-func ValidateMoveOwnership(db *pop.Connection, userID uuid.UUID, id uuid.UUID) (bool, bool) {
-	exists := false
-	userOwns := false
-	var move Move
-	err := db.Find(&move, id)
-	if err == nil {
-		exists = true
-		// TODO: Handle case where more than one user is authorized to modify move
-		if uuid.Equal(move.UserID, userID) {
-			userOwns = true
-		}
-	}
-
-	return exists, userOwns
 }
 
 // GetMovesForUserID gets all move models for a given user ID

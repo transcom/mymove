@@ -1,24 +1,32 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
+
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                 fmtUUID(personallyProcuredMove.ID),
-		CreatedAt:          fmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:          fmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:               personallyProcuredMove.Size,
-		WeightEstimate:     personallyProcuredMove.WeightEstimate,
-		EstimatedIncentive: personallyProcuredMove.EstimatedIncentive,
+		ID:                  fmtUUID(personallyProcuredMove.ID),
+		CreatedAt:           fmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:           fmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:                personallyProcuredMove.Size,
+		WeightEstimate:      personallyProcuredMove.WeightEstimate,
+		EstimatedIncentive:  personallyProcuredMove.EstimatedIncentive,
+		PlannedMoveDate:     fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
+		PickupZip:           personallyProcuredMove.PickupZip,
+		AdditionalPickupZip: personallyProcuredMove.AdditionalPickupZip,
+		DestinationZip:      personallyProcuredMove.DestinationZip,
+		DaysInStorage:       personallyProcuredMove.DaysInStorage,
 	}
 	return ppmPayload
 }
@@ -28,50 +36,33 @@ type CreatePersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	var response middleware.Responder
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Fatal("No User ID, this should never happen.")
-	}
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	moveResult, err := models.GetMoveForUser(h.db, userID, moveID)
+	move, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
-		h.logger.Error("DB Error checking on move validity", zap.Error(err))
-		response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
-	} else if !moveResult.IsValid() {
-		switch errCode := moveResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound: // this won't work yet...
-			response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
-		case models.FetchErrorForbidden:
-			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
-		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
-		}
-	} else { // The given move does belong to the current user.
-		newPersonallyProcuredMove := models.PersonallyProcuredMove{
-			MoveID:             moveID,
-			Size:               params.CreatePersonallyProcuredMovePayload.Size,
-			WeightEstimate:     params.CreatePersonallyProcuredMovePayload.WeightEstimate,
-			EstimatedIncentive: params.CreatePersonallyProcuredMovePayload.EstimatedIncentive,
-		}
-
-		if verrs, err := h.db.ValidateAndCreate(&newPersonallyProcuredMove); err != nil {
-			h.logger.Error("DB Insertion", zap.Error(err))
-			response = ppmop.NewCreatePersonallyProcuredMoveBadRequest()
-		} else if verrs.HasAny() {
-			h.logger.Error("We got verrs!", zap.String("verrs", verrs.String()))
-			response = ppmop.NewCreatePersonallyProcuredMoveBadRequest()
-		} else {
-			ppmPayload := payloadForPPMModel(newPersonallyProcuredMove)
-			response = ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
-		}
+		return responseForError(h.logger, err)
 	}
-	return response
+
+	payload := params.CreatePersonallyProcuredMovePayload
+	newPPM, verrs, err := move.CreatePPM(h.db,
+		payload.Size,
+		payload.WeightEstimate,
+		payload.EstimatedIncentive,
+		(*time.Time)(payload.PlannedMoveDate),
+		payload.PickupZip,
+		payload.AdditionalPickupZip,
+		payload.DestinationZip,
+		payload.DaysInStorage)
+
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	ppmPayload := payloadForPPMModel(*newPPM)
+	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 }
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
@@ -79,46 +70,53 @@ type IndexPersonallyProcuredMovesHandler HandlerContext
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
-	var response middleware.Responder
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Fatal("No User ID, this should never happen.")
-	}
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
-	}
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	moveResult, err := models.GetMoveForUser(h.db, userID, moveID)
+	move, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
-		h.logger.Error("DB Error checking on move validity", zap.Error(err))
-		response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
-	} else if !moveResult.IsValid() {
-		switch errCode := moveResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = ppmop.NewCreatePersonallyProcuredMoveNotFound()
-		case models.FetchErrorForbidden:
-			response = ppmop.NewCreatePersonallyProcuredMoveForbidden()
-		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
-		}
-	} else { // The given move does belong to the current user.
-		ppms, err := models.GetPersonallyProcuredMovesForMoveID(h.db, moveID)
-		if err != nil {
-			h.logger.Error("DB Error checking on move validity", zap.Error(err))
-			response = ppmop.NewCreatePersonallyProcuredMoveInternalServerError()
-		} else {
-			ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
-			for i, ppm := range ppms {
-				ppmPayload := payloadForPPMModel(ppm)
-				ppmsPayload[i] = &ppmPayload
-			}
-			response = ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
-		}
+		return responseForError(h.logger, err)
 	}
 
+	// The given move does belong to the current user.
+	ppms := move.PersonallyProcuredMoves
+	ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
+	for i, ppm := range ppms {
+		ppmPayload := payloadForPPMModel(ppm)
+		ppmsPayload[i] = &ppmPayload
+	}
+	response := ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 	return response
+}
+
+func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalmessages.PatchPersonallyProcuredMovePayload) {
+
+	if payload.Size != nil {
+		ppm.Size = payload.Size
+	}
+	if payload.WeightEstimate != nil {
+		ppm.WeightEstimate = payload.WeightEstimate
+	}
+	if payload.EstimatedIncentive != nil {
+		ppm.EstimatedIncentive = payload.EstimatedIncentive
+	}
+	if payload.PlannedMoveDate != nil {
+		ppm.PlannedMoveDate = (*time.Time)(payload.PlannedMoveDate)
+	}
+	if payload.PickupZip != nil {
+		ppm.PickupZip = payload.PickupZip
+	}
+	if payload.AdditionalPickupZip != nil {
+		ppm.AdditionalPickupZip = payload.AdditionalPickupZip
+	}
+	if payload.DestinationZip != nil {
+		ppm.DestinationZip = payload.DestinationZip
+	}
+	if payload.DaysInStorage != nil {
+		ppm.DaysInStorage = payload.DaysInStorage
+	}
 }
 
 // PatchPersonallyProcuredMoveHandler Patchs a PPM
@@ -126,65 +124,29 @@ type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	var response middleware.Responder
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Fatal("No User ID, this should never happen.")
-	}
-	moveID, err := uuid.FromString(params.MoveID.String())
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, ppmID)
 	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
-	}
-	ppmID, err := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	if err != nil {
-		h.logger.Fatal("Invalid PersonallyProcuredMoveID, this should never happen.")
+		return responseForError(h.logger, err)
 	}
 
-	// Make sure the move exists and is owned by the user
-	exists, userOwns := models.ValidateMoveOwnership(h.db, userID, moveID)
-	if !exists {
-		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
-		return response
-	} else if !userOwns {
-		response = ppmop.NewPatchPersonallyProcuredMoveForbidden()
-		return response
+	if ppm.MoveID != moveID {
+		h.logger.Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
+		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 
-	ppm, err := models.GetPersonallyProcuredMoveForID(h.db, ppmID)
-	if err != nil {
-		response = ppmop.NewPatchPersonallyProcuredMoveNotFound()
-		return response
-	} else if ppm.MoveID != moveID {
-		// Saved move ID should match request move ID
-		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
-		return response
+	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
+
+	verrs, err := h.db.ValidateAndUpdate(ppm)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	// TODO: Is there a pattern for updating that doesn't require hardcoding fields?
-	size := params.PatchPersonallyProcuredMovePayload.Size
-	weightEstimate := params.PatchPersonallyProcuredMovePayload.WeightEstimate
-	estimatedIncentive := params.PatchPersonallyProcuredMovePayload.EstimatedIncentive
+	ppmPayload := payloadForPPMModel(*ppm)
+	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 
-	if size != nil {
-		ppm.Size = size
-	}
-	if weightEstimate != nil {
-		ppm.WeightEstimate = weightEstimate
-	}
-	if estimatedIncentive != nil {
-		ppm.EstimatedIncentive = estimatedIncentive
-	}
-
-	if verrs, err := h.db.ValidateAndUpdate(&ppm); err != nil {
-		h.logger.Error("DB Patch", zap.Error(err))
-		response = ppmop.NewPatchPersonallyProcuredMoveInternalServerError()
-	} else if verrs.HasAny() {
-		h.logger.Error("We got verrs!", zap.String("verrs", verrs.String()))
-		response = ppmop.NewPatchPersonallyProcuredMoveBadRequest()
-	} else {
-		ppmPayload := payloadForPPMModel(ppm)
-		response = ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
-	}
-
-	return response
 }
