@@ -87,6 +87,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -100,6 +130,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -113,6 +173,36 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -130,6 +220,36 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: Move Date
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -586,6 +706,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
       uploads:
         type: array
         items:
@@ -593,6 +717,7 @@ definitions:
     required:
       - id
       - name
+      - service_member_id
       - uploads
   PostDocumentPayload:
     type: object
@@ -600,6 +725,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
   UploadPayload:
     type: object
     properties:
@@ -949,13 +1078,13 @@ definitions:
       - training
       - unit-move
     x-display-value:
-      - accession
-      - brac
-      - operational
-      - rotational
-      - separation
-      - training
-      - unit-move
+      accession: accession
+      brac: brac
+      operational: operational
+      rotational: rotational
+      separation: separation
+      training: training
+      unit-move: unit-move
   OrdersPayload:
     type: object
     properties:
@@ -963,16 +1092,20 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      service_member:
-        $ref: "#/definitions/ServiceMemberPayload"
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issue_date:
         type: string
         description: The date and time that these orders were cut.
-        format: date-time
+        format: date
+        example: "2018-04-26"
       report_by_date:
         type: string
         description: Report By Date
         format: date
+        example: "2018-04-26"
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
@@ -988,7 +1121,7 @@ definitions:
         format: date-time
     required:
       - id
-      - service_member
+      - service_member_id
       - issue_date
       - report_by_date
       - orders_type
@@ -999,18 +1132,20 @@ definitions:
   CreateUpdateOrdersPayload:
     type: object
     properties:
-      id:
+      service_member_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       issue_date:
         type: string
         description: The date and time that these orders were cut.
-        format: date-time
+        format: date
+        example: "2018-04-26"
       report_by_date:
         type: string
         description: Report By Date
         format: date
+        example: "2018-04-26"
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
@@ -1019,7 +1154,7 @@ definitions:
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
     required:
-      - id
+      - service_member_id
       - issue_date
       - report_by_date
       - orders_type
@@ -1220,6 +1355,34 @@ paths:
           description: user is not authorized
         404:
           description: orders not found
+        500:
+          description: internal server error
+    get:
+      summary: Returns the given order
+      description: Returns the given order
+      operationId: showOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: orderId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+      responses:
+        200:
+          description: the instance of the order
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: order is not found
         500:
           description: internal server error
   /moves:
@@ -1520,7 +1683,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/documents:
+  /documents:
     post:
       summary: Create a new document
       description: Documents represent a physical artifact such as a scanned document or a PDF file
@@ -1528,12 +1691,6 @@ paths:
       tags:
         - documents
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: body
           name: documentPayload
           required: true
@@ -1548,7 +1705,7 @@ paths:
           description: invalid request
         500:
           description: server error
-  /moves/{moveId}/documents/{documentId}/uploads:
+  /documents/{documentId}/uploads:
     post:
       summary: Create a new upload
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -1558,12 +1715,6 @@ paths:
       consumes:
         - multipart/form-data
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: path
           name: documentId
           type: string

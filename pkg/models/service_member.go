@@ -39,7 +39,7 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                            `belongs_to:"address"`
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
-	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
+	BackupContacts         BackupContacts                      `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
 }
@@ -80,6 +80,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+// This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
@@ -181,6 +182,26 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 		newContact = BackupContact{}
 	}
 	return newContact, verrs, err
+}
+
+// CreateOrder creates an order model tied to the service member
+func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType internalmessages.OrdersType, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
+	newOrders := Order{
+		ServiceMemberID:  s.ID,
+		ServiceMember:    s,
+		IssueDate:        issueDate,
+		ReportByDate:     reportByDate,
+		OrdersType:       ordersType,
+		HasDependents:    hasDependents,
+		NewDutyStationID: newDutyStation.ID,
+		NewDutyStation:   newDutyStation,
+	}
+
+	verrs, err := db.ValidateAndCreate(&newOrders)
+	if err != nil || verrs.HasAny() {
+		newOrders = Order{}
+	}
+	return newOrders, verrs, err
 }
 
 // IsProfileComplete checks if the profile has been completely filled out
