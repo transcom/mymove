@@ -81,6 +81,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+// This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
