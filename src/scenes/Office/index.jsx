@@ -19,16 +19,6 @@ class QueueTable extends Component {
   }
 }
 
-// class QueueHeader extends Component {
-//   render() {
-//     return (
-//       <div style={{ background: 'rgb(200,200,255)' }}>
-//         <h1 style={{ margin: 0 }}>QueueHeader</h1>
-//       </div>
-//     );
-//   }
-// }
-
 class Queues extends Component {
   render() {
     return (
@@ -53,11 +43,10 @@ class OfficeWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <div className="Office site">
+          <QueueHeader />
           <main className="site__content">
             <div>
-              <div className="usa-grid">
-                <QueueHeader />
-              </div>
+              <div className="usa-grid" />
               <Switch>
                 <Redirect from="/" to="/queues/new_moves" exact />
                 <Route path="/queues/:queueType" component={Queues} />

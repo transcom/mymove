@@ -7,7 +7,7 @@ import './index.css';
 
 function QueueHeader() {
   return (
-    <header role="banner">
+    <header role="banner" className="header">
       <div className="officeHeaderOne">
         <h3>admin.move.mil</h3>
       </div>

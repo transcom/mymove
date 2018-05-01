@@ -18,6 +18,9 @@
   float: left;
   margin: 2%;
 }
-.magnifying-glass{
+.magnifying-glass {
   color: white;
+}
+header.header {
+  border-bottom: 3px solid black;
 }
