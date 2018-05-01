@@ -63,7 +63,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 		return responseForError(h.logger, err)
 	}
 
-	contacts := *serviceMember.BackupContacts
+	contacts := serviceMember.BackupContacts
 
 	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
 	for i, contact := range contacts {
