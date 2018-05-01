@@ -62,13 +62,13 @@ func (p LoginGovProvider) RegisterProvider(myHostname string, myClientID string,
 
 	myProvider, err := p.getOpenIDProvider(myHostname, myClientID, callbackProtocol, callbackPort)
 	if err != nil {
-		p.logger.Error("getting open_id provider for 'my.move.xxx'", zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", myHostname), zap.Error(err))
 		return err
 	}
 	myProvider.SetName(myProviderName)
 	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
 	if err != nil {
-		p.logger.Error("getting open_id provider for 'my.move.xxx'", zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
 		return err
 	}
 	officeProvider.SetName(officeProviderName)
