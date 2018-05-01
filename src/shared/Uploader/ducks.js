@@ -22,10 +22,10 @@ export const createDocumentFailure = error => ({
 });
 
 // Action creator
-export function createDocument(fileUpload, moveID) {
+export function createDocument(fileUpload, serviceMemberId) {
   return function(dispatch, getState) {
     dispatch(createDocumentRequest());
-    CreateDocument(fileUpload, moveID)
+    CreateDocument(fileUpload, serviceMemberId)
       .then(item => dispatch(createDocumentSuccess(item)))
       .catch(error => dispatch(createDocumentFailure(error)));
   };
