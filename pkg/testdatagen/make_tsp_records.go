@@ -24,7 +24,7 @@ func RandomSCAC() string {
 func MakeTSP(db *pop.Connection, name string, SCAC string) (models.TransportationServiceProvider, error) {
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: SCAC,
-		Name: name}
+		Name: &name}
 
 	_, err := db.ValidateAndSave(&tsp)
 	if err != nil {
