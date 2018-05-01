@@ -940,6 +940,7 @@ definitions:
       - postal_code
   OrdersType:
     type: string
+    title: Orders type
     enum:
       - accession
       - brac

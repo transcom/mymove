@@ -1,19 +1,47 @@
 import { pick } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { createOrders, updateOrders, loadOrders } from './ducks';
-import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
-// import './Orders.css';
+const YesNoBoolean = props => {
+  const {
+    input: { value: rawValue, onChange },
+  } = props;
+  let value = rawValue;
+  const yesChecked = value === true;
+  const noChecked = value === false;
 
-// class YesNoBoolean (props) => {
+  const localOnChange = event => {
+    if (event.target.id === 'yes') {
+      onChange(true);
+    } else {
+      onChange(false);
+    }
+  };
 
-// }
+  return (
+    <Fragment>
+      <input
+        id="yes"
+        type="radio"
+        onChange={localOnChange}
+        checked={yesChecked}
+      />
+      <label htmlFor="yes">Yes</label>
+      <input
+        id="no"
+        type="radio"
+        onChange={localOnChange}
+        checked={noChecked}
+      />
+      <label htmlFor="no">No</label>
+    </Fragment>
+  );
+};
 
 const uiSchema = {
   title: 'Your Move Orders',
@@ -24,17 +52,9 @@ const uiSchema = {
     'report_by_date',
     'has_dependents',
   ],
-  // custom_components: {
-  //   has_dependents: <YesNoBoolean />,
-  // },
-  // groups: {
-  //   has_dependents: {
-  //     title: 'Are dependents included in your orders?',
-  //     fields: [
-  //       'has_dependents',
-  //     ],
-  //   },
-  // },
+  custom_components: {
+    has_dependents: YesNoBoolean,
+  },
 };
 const subsetOfFields = [
   'orders_type',
@@ -43,7 +63,7 @@ const subsetOfFields = [
   'has_dependents',
 ];
 const formName = 'orders_info';
-const CurrentForm = reduxifyForm(formName);
+const OrdersWizardForm = reduxifyWizardForm(formName);
 
 export class Orders extends Component {
   componentDidMount() {
@@ -73,41 +93,22 @@ export class Orders extends Component {
       error,
       currentOrders,
     } = this.props;
-    // let prefSelected = false;
-    // if (this.refs.currentForm && this.refs.currentForm.values) {
-    //   prefSelected = Boolean(
-    //     this.refs.currentForm.values.phone_is_preferred ||
-    //       this.refs.currentForm.values.text_message_is_preferred ||
-    //       this.refs.currentForm.values.email_is_preferred,
-    //   );
-    // }
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
-    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders
       ? pick(currentOrders, subsetOfFields)
       : null;
     return (
-      <WizardPage
+      <OrdersWizardForm
         handleSubmit={this.handleSubmit}
         isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        pageIsDirty={isDirty}
         hasSucceeded={hasSubmitSuccess}
         error={error}
-      >
-        <CurrentForm
-          ref="currentForm"
-          className={formName}
-          handleSubmit={no_op}
-          schema={this.props.schema}
-          uiSchema={uiSchema}
-          showSubmit={false}
-          initialValues={initialValues}
-        />
-      </WizardPage>
+        initialValues={initialValues}
+        schema={this.props.schema}
+        uiSchema={uiSchema}
+      />
     );
   }
 }
@@ -120,7 +121,10 @@ Orders.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateOrders, loadOrders }, dispatch);
+  return bindActionCreators(
+    { updateOrders, createOrders, loadOrders },
+    dispatch,
+  );
 }
 function mapStateToProps(state) {
   const props = {

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
 import { isEmpty, uniq } from 'lodash';
-import { reduxForm } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import './index.css';
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
@@ -17,6 +17,8 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
     fields[fieldName] &&
     fields[fieldName].$$ref &&
     fields[fieldName].properties;
+  const isCustom =
+    uiSchema.custom_components && uiSchema.custom_components[fieldName];
   if (group) {
     const keys = group.fields;
     return (
@@ -29,6 +31,16 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
     const refName = fields[fieldName].$$ref.split('/').pop();
     const refSchema = uiSchema.definitions[refName];
     return renderSchema(fields[fieldName], refSchema, fieldName);
+  } else if (isCustom) {
+    return (
+      <Fragment key={fieldName}>
+        <p>{fields[fieldName].title}</p>
+        <Field
+          name={fieldName}
+          component={uiSchema.custom_components[fieldName]}
+        />
+      </Fragment>
+    );
   }
   return renderField(fieldName, fields, nameSpace);
 };
