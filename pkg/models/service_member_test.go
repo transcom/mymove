@@ -64,3 +64,39 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		t.Error("Expected profile to be complete.")
 	}
 }
+
+func (suite *ModelSuite) TestFetchServiceMember() {
+	user1, _ := testdatagen.MakeUser(suite.db)
+	user2, _ := testdatagen.MakeUser(suite.db)
+
+	firstName := "Oliver"
+	resAddress, _ := testdatagen.MakeAddress(suite.db)
+	sm := ServiceMember{
+		User:                 user1,
+		UserID:               user1.ID,
+		FirstName:            &firstName,
+		ResidentialAddressID: &resAddress.ID,
+		ResidentialAddress:   &resAddress,
+	}
+	suite.mustSave(&sm)
+
+	// User is authorized to fetch order
+	goodSm, err := FetchServiceMember(suite.db, user1, sm.ID)
+	if suite.NoError(err) {
+		suite.Equal(sm.FirstName, goodSm.FirstName)
+		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
+	}
+
+	// User is forbidden from fetching order
+	_, err = FetchServiceMember(suite.db, user2, sm.ID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchForbidden, err)
+	}
+
+	// Wrong Order ID
+	wrongID, _ := uuid.NewV4()
+	_, err = FetchServiceMember(suite.db, user1, wrongID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchNotFound, err)
+	}
+}

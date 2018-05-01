@@ -13,6 +13,10 @@ import (
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+	var currentStation *internalmessages.DutyStationPayload
+	if serviceMember.DutyStation != nil {
+		currentStation = payloadForDutyStationModel(*serviceMember.DutyStation)
+	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
@@ -34,7 +38,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          payloadForDutyStation(serviceMember.DutyStation),
+		CurrentStation:          currentStation,
 	}
 	return &serviceMemberPayload
 }
