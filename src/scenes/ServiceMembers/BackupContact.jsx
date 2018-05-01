@@ -170,6 +170,10 @@ export class BackupContact extends Component {
       pendingValues.telephone = null;
     }
 
+    if (pendingValues.permission === undefined) {
+      pendingValues.permission = NonePermission;
+    }
+
     if (pendingValues) {
       if (this.props.currentBackupContacts.length > 0) {
         // update existing
@@ -252,6 +256,7 @@ function mapStateToProps(state) {
     hasSubmitSuccess:
       state.serviceMember.createBackupContactSuccess ||
       state.serviceMember.updateBackupContactSuccess,
+    error: state.serviceMember.error,
     loggedInUser: state.loggedInUser.loggedInUser,
     schema: {},
     formData: state.form[formName],
