@@ -1,0 +1,26 @@
+.officeHeaderOne, .officeHeaderTwo, .officeHeaderThree {
+  float: left;
+  margin: 1%;
+}
+ .officeHeaderThree {
+  width: 40%;
+}
+.officeHeaderFour {
+  float: right;
+}
+.forms-shared {
+  width: 35%;
+  float: left;
+  margin: 2%;
+}
+.user-shared {
+  width: 45%;
+  float: left;
+  margin: 2%;
+}
+.magnifying-glass {
+  color: white;
+}
+header.header {
+  border-bottom: 3px solid black;
+}
