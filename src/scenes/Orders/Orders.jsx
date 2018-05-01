@@ -44,16 +44,24 @@ const YesNoBoolean = props => {
 };
 
 const uiSchema = {
-  title: 'Your Move Orders',
-  order: ['orders_type', 'issue_date', 'report_by_date', 'has_dependents'],
+  title: 'Tell Us About Your Move Orders',
+  order: [
+    'orders_type',
+    'issue_date',
+    'report_by_date',
+    'has_dependents',
+    'new_duty_station',
+  ],
   requiredFields: [
     'orders_type',
     'issue_date',
     'report_by_date',
     'has_dependents',
+    'new_duty_station',
   ],
   custom_components: {
     has_dependents: YesNoBoolean,
+    new_duty_station: NewDutyStation,
   },
 };
 const subsetOfFields = [
@@ -80,6 +88,7 @@ export class Orders extends Component {
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, toCreateOrUpdate);
       } else {
+        console.log(toCreateOrUpdate);
         this.props.createOrders(toCreateOrUpdate);
       }
     }
