@@ -481,7 +481,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  89,
 		LinehaulRate:                    55.5,
-		SITRate:                         50.0,
+		SITRate:                         52.0,
 	}
 	suite.mustSave(&lowerTSPPerformance)
 
@@ -495,7 +495,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  91,
 		LinehaulRate:                    55.5,
-		SITRate:                         50.0,
+		SITRate:                         53.0,
 	}
 	suite.mustSave(&otherRateCycleTSPPerformance)
 
