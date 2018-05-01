@@ -1261,10 +1261,6 @@ paths:
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: days_in_storage
-          type: integer
-          required: true
-        - in: query
           name: weight_estimate
           type: integer
           required: true
