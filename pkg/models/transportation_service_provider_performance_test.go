@@ -446,9 +446,9 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	}
 }
 
-// Test_FetchLinehaulRate tests that the discount rate for the TSP with the best BVS
+// Test_FetchDiscountRates tests that the discount rate for the TSP with the best BVS
 // for the specified channel and date is returned.
-func (suite *ModelSuite) Test_FetchLinehaulRateBVS() {
+func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
@@ -499,14 +499,19 @@ func (suite *ModelSuite) Test_FetchLinehaulRateBVS() {
 	}
 	suite.mustSave(&otherRateCycleTSPPerformance)
 
-	rate, err := FetchLinehaulRate(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
+	discountRate, sitRate, err := FetchDiscountRates(suite.db, "77901", "67401", "2", testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Fatalf("Failed to find tsp performance: %s", err)
 	}
 
-	expected := 50.5
-	if rate != expected {
-		t.Errorf("Wrong discount rate: expected %v, got %v", expected, rate)
+	expectedLinehaul := 50.5
+	if discountRate != expectedLinehaul {
+		t.Errorf("Wrong discount rate: expected %v, got %v", expectedLinehaul, discountRate)
+	}
+
+	expectedSIT := 50.0
+	if sitRate != expectedSIT {
+		t.Errorf("Wrong discount rate: expected %v, got %v", expectedSIT, sitRate)
 	}
 }
 
