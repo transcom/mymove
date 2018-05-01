@@ -10,10 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDutyStation(station *models.DutyStation) *internalmessages.DutyStationPayload {
-	if station == nil {
-		return nil
-	}
+func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
 	return &internalmessages.DutyStationPayload{
 		ID:          fmtUUID(station.ID),
 		CreatedAt:   fmtDateTime(station.CreatedAt),
@@ -41,8 +38,8 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 
 	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
 	for i, station := range stations {
-		stationPayload := *payloadForDutyStation(&station)
-		stationPayloads[i] = &stationPayload
+		stationPayload := payloadForDutyStationModel(station)
+		stationPayloads[i] = stationPayload
 	}
 	response = stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
 
