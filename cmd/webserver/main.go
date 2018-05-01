@@ -156,7 +156,7 @@ func main() {
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
+	// userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
@@ -222,7 +222,7 @@ func main() {
 
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
-	internalAPIMux.Use(userAuthMiddleware)
+	// internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
