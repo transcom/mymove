@@ -139,7 +139,7 @@ export class DutyStationSearchBox extends Component {
 }
 DutyStationSearchBox.propTypes = {
   currentServiceMember: PropTypes.object,
-  onChange: PropTypes.func.isRequired,
+  onChange: PropTypes.func,
   existingStation: PropTypes.object,
 };
 

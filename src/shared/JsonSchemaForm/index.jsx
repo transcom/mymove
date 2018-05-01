@@ -27,10 +27,6 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
         {keys.map(f => renderGroupOrField(f, fields, uiSchema, nameSpace))}
       </fieldset>
     );
-  } else if (isRef) {
-    const refName = fields[fieldName].$$ref.split('/').pop();
-    const refSchema = uiSchema.definitions[refName];
-    return renderSchema(fields[fieldName], refSchema, fieldName);
   } else if (isCustom) {
     return (
       <Fragment key={fieldName}>
@@ -41,6 +37,10 @@ const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
         />
       </Fragment>
     );
+  } else if (isRef) {
+    const refName = fields[fieldName].$$ref.split('/').pop();
+    const refSchema = uiSchema.definitions[refName];
+    return renderSchema(fields[fieldName], refSchema, fieldName);
   }
   return renderField(fieldName, fields, nameSpace);
 };

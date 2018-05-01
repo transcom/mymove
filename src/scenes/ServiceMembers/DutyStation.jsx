@@ -30,7 +30,6 @@ export class DutyStation extends Component {
 
   handleSubmit = () => {
     if (this.state.value) {
-      console.log('value to update', this.state.value);
       this.props.updateServiceMember({ current_station: this.state.value });
     }
   };
@@ -38,7 +37,7 @@ export class DutyStation extends Component {
   render() {
     const { pages, pageKey, hasSubmitSuccess, error } = this.props;
     // TODO: make sure isvalid is accurate
-    const isValid = this.state.value;
+    const isValid = !!this.state.value;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}

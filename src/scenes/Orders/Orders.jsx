@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { createOrders, updateOrders, loadOrders } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-// import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 const YesNoBoolean = props => {
   const {
@@ -51,24 +51,19 @@ const uiSchema = {
     'issue_date',
     'report_by_date',
     'has_dependents',
-    // 'new_duty_station',
+    'new_duty_station',
   ],
   requiredFields: [
     'orders_type',
     'issue_date',
     'report_by_date',
     'has_dependents',
-    // 'new_duty_station',
+    'new_duty_station',
   ],
   custom_components: {
     has_dependents: YesNoBoolean,
-    // new_duty_station: DutyStationSearchBox,
+    new_duty_station: DutyStationSearchBox,
   },
-  // definitions: {
-  //   DutyStationPayload: {
-  //     order: ['name'],
-  //   },
-  // },
 };
 const subsetOfFields = [
   'orders_type',
@@ -95,7 +90,6 @@ export class Orders extends Component {
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, toCreateOrUpdate);
       } else {
-        console.log(toCreateOrUpdate);
         this.props.createOrders(toCreateOrUpdate);
       }
     }
@@ -149,7 +143,6 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
   if (state.swagger.spec) {
-    console.log('swagger spec', state.swagger.spec);
     props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;
   }
   return props;
