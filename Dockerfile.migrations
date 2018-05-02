@@ -36,7 +36,6 @@ RUN pip3 install awscli
 WORKDIR /bin
 ENTRYPOINT ["soda"]
 CMD ["migrate", \
-     "-d", \
      "-c", "/migrate/database.yml", \
      "-p", "/migrate/migrations", \
      "up"]

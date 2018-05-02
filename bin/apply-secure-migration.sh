@@ -6,7 +6,7 @@
 
 
 # sh doesn't have `-o pipefail`
-set -eux
+set -eu
 
 readonly migration_file="${1:-}"
 psql_ssl_mode=""
