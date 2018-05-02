@@ -268,6 +268,18 @@ definitions:
       - id
       - created_at
       - updated_at
+  PPMEstimateRange:
+    type: object
+    properties:
+      range_min:
+        type: integer
+        title: Low estimate
+      range_max:
+        type: integer
+        title: High estimate
+    required:
+      - range_min
+      - range_max
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -706,6 +718,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
       uploads:
         type: array
         items:
@@ -713,6 +729,7 @@ definitions:
     required:
       - id
       - name
+      - service_member_id
       - uploads
   PostDocumentPayload:
     type: object
@@ -720,6 +737,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
   UploadPayload:
     type: object
     properties:
@@ -1223,6 +1244,48 @@ definitions:
       - last_modified_name
       - created_at
 paths:
+  /estimates/ppm:
+    get:
+      summary: Return a PPM cost estimate
+      description: Calculates a reimbursement range for a PPM move (excluding SIT)
+      operationId: showEstimatePPM
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: pickup_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/PPMEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /issues:
     post:
       summary: Create a new issue
@@ -1674,7 +1737,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/documents:
+  /documents:
     post:
       summary: Create a new document
       description: Documents represent a physical artifact such as a scanned document or a PDF file
@@ -1682,12 +1745,6 @@ paths:
       tags:
         - documents
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: body
           name: documentPayload
           required: true
@@ -1702,7 +1759,7 @@ paths:
           description: invalid request
         500:
           description: server error
-  /moves/{moveId}/documents/{documentId}/uploads:
+  /documents/{documentId}/uploads:
     post:
       summary: Create a new upload
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -1712,12 +1769,6 @@ paths:
       consumes:
         - multipart/form-data
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: path
           name: documentId
           type: string
