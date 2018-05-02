@@ -49,7 +49,7 @@ class OfficeWrapper extends Component {
             <div>
               <div className="usa-grid" />
               <Switch>
-                <Redirect from="/" to="/queues/new_moves" exact />
+                <Redirect from="/" to="/queues/new" exact />
                 <Route path="/queues/:queueType" component={Queues} />
               </Switch>
             </div>

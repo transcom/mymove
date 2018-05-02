@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { render } from 'react-dom';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import { requestData } from './api.js';
+import { requestData, RetrieveMovesForOffice } from './api.js';
 
 export default class QueueTable extends Component {
   constructor() {
@@ -20,20 +20,28 @@ export default class QueueTable extends Component {
     // You can set the `loading` prop of the table to true to use the built-in one or show you're own loading bar if you want.
     this.setState({ loading: true });
     // Request the data however you want.  Here, we'll use our mocked service we created earlier
-    requestData(
-      this.props.queueType,
-      state.pageSize,
-      state.page,
-      state.sorted,
-      state.filtered,
-    ).then(res => {
-      // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
-      this.setState({
-        data: res.rows,
-        pages: res.pages,
-        loading: false,
-      });
-    });
+    RetrieveMovesForOffice(this.props.queueType)
+      // requestData(
+      //   this.props.queueType,
+      //   state.pageSize,
+      //   state.page,
+      //   state.sorted,
+      //   state.filtered,
+      // )
+      .then(
+        response => {
+          // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
+          console.log('response, ', response);
+          this.setState({
+            data: response.rows,
+            pages: 1,
+            loading: false,
+          });
+        },
+        response => {
+          console.log('hit the second res function!');
+        },
+      );
   }
 
   render() {
@@ -53,7 +61,7 @@ export default class QueueTable extends Component {
               },
               {
                 Header: 'Customer name',
-                accessor: 'customer_name',
+                accessor: 'first_name',
               },
               {
                 Header: 'DOD ID',
@@ -75,13 +83,10 @@ export default class QueueTable extends Component {
                 Header: 'Created',
                 accessor: 'created_at',
               },
-              // {
-              //   Header: 'Last modified',
-              //   accessor: d =>
-              //     <div dangerouslySetInnerHTML={{
-              //       __html: d.last_modified_date + " by " + d.last_modified_name
-              //     }}
-              // },
+              {
+                Header: 'Last modified',
+                accessor: 'updated_at',
+              },
             ]}
             // manual // Forces table not to paginate or sort automatically, so we can handle it server-side
             // data={data}
