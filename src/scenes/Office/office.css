@@ -1,0 +1,42 @@
+/* Use with .usa-grid for a liquid and nearly full-width grid layout. */
+.grid-wide {
+  max-width: 2000px;
+  margin: auto;
+  padding: 0 2em;
+}
+
+.move-info-header-meta {
+  list-style: none outside;
+  border-top: solid 1px rgb(222,222,222);
+  margin: 0;
+  padding: 2px 0 0;
+}
+
+.move-info-header-meta .icon {
+  margin: 0 0.4em;
+}
+
+.move-info-header-meta li {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.move-info-header-meta li:after {
+  content: '-';
+  margin: 0 .8em;
+}
+
+.move-info-header-meta li:last-child:after {
+  content: none;
+  margin: 0;
+}
+
+.nav-controls {
+  text-align: right;
+  padding-top: .5em;
+  font-size: 0.9em;
+}
+
+.tabs {
+  margin-top: 2em;
+}
