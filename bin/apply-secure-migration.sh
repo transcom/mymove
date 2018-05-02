@@ -9,7 +9,7 @@
 set -eux
 
 readonly migration_file="${1:-}"
-ssl_mode=""
+psql_ssl_mode=""
 
 if [ -z "${SECURE_MIGRATION_DIR:-}" ]; then
   echo "error: \$SECURE_MIGRATION_DIR needs to be set"
@@ -22,14 +22,14 @@ download_migration_from_s3() {
   aws s3 cp "${url}" "${SECURE_MIGRATION_DIR}/${migration_file}"
 }
 
-case $ENVIRONMENT in
-  devlocal)
-    echo "Running in local development environment..."
+case $SECURE_MIGRATION_SOURCE in
+  local)
+    echo "Running secure migrations from local source..."
     ;;
-  *)
-    echo "Running in a CI environment..."
+  s3)
+    echo "Running secure migrations from S3..."
     download_migration_from_s3 "$migration_file"
-    ssl_mode="?sslmode=require"
+    psql_ssl_mode="?sslmode=require"
     ;;
 esac
 
@@ -42,4 +42,4 @@ fi
 
 echo "Applying secure migrations: ${migration_file}"
 
-psql postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$ssl_mode" < "$migration"
+psql postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode" < "$migration"

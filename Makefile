@@ -136,7 +136,7 @@ db_dev_run:
 			-d \
 			-p 5432:5432 \
 			postgres:10.1 && \
-		bin/wait-for-db && \
+		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 # This is just an alias for backwards compatibility
 db_dev_init: db_dev_run

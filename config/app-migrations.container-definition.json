@@ -25,6 +25,10 @@
       "value": "{{environment}}"
     },
     {
+      "name": "SECURE_MIGRATION_SOURCE",
+      "value": "s3"
+    },
+    {
       "name": "SECURE_MIGRATION_DIR",
       "value": "/migrate/secure/"
     },
