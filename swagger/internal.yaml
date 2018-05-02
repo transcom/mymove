@@ -268,14 +268,14 @@ definitions:
       - id
       - created_at
       - updated_at
-  PersonallyProcuredMoveSitEstimate:
+  PpmSitEstimate:
     type: object
     properties:
-      sit_estimate:
+      estimate:
         type: integer
         title: Value in cents of SIT estimate for PPM
     required:
-      - sit_estimate
+      - estimate
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1244,40 +1244,40 @@ paths:
     get:
       summary: Return a PPM move's SIT cost estimate
       description: Calculates a reimbursment for a PPM move's SIT
-      operationId: showEstimatePersonallyProcuredMoveSit
+      operationId: showPpmSitEstimate
       tags:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: PlannedMoveDate
           type: string
           format: date
           required: true
         - in: query
-          name: days_in_storage
+          name: DaysInStorage
           type: integer
           required: true
         - in: query
-          name: pickup_zip
+          name: DestinationZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: destination_zip
+          name: OriginZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: weight_estimate
+          name: WeightEstimate
           type: integer
           required: true
       responses:
         200:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/PersonallyProcuredMoveSitEstimate'
+            $ref: '#/definitions/PpmSitEstimate'
         400:
           description: invalid request
         401:

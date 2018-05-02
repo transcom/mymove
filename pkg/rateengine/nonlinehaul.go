@@ -51,7 +51,7 @@ func (re *RateEngine) fullUnpackCents(cwt unit.CWT, zip3 string, date time.Time)
 // If `isPPM` (Personally Procured Move) is True we do not apply the first-day
 // storage fees, 185A, to the total.
 func (re *RateEngine) sitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date time.Time, isPPM bool) (unit.Cents, error) {
-	if daysInSIT < 0 {
+	if daysInSIT == 0 {
 		return 0, nil
 	} else if daysInSIT < 0 {
 		return 0, errors.New("requested sitCharge for negative days in SIT")
