@@ -1263,7 +1263,7 @@ paths:
         - in: query
           name: plannedMoveDate
           type: string
-          format: date
+          format: date-time
           required: true
         - in: query
           name: pickupZip
@@ -1305,7 +1305,7 @@ paths:
         - in: query
           name: plannedMoveDate
           type: string
-          format: date
+          format: date-time
           required: true
         - in: query
           name: daysInStorage
