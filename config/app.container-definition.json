@@ -41,6 +41,10 @@
       "value": "master"
     },
     {
+      "name": "DB_NAME",
+      "value": "app"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
