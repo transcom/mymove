@@ -203,8 +203,6 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
-	t := suite.T()
-
 	// Given: a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -246,15 +244,10 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*moveop.PatchMoveForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
-	t := suite.T()
-
 	// Given: a logged in user
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -286,10 +279,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*moveop.PatchMoveNotFound)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseNotFound(response)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
@@ -375,8 +365,6 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
-	t := suite.T()
-
 	// Given: A move with a not-logged-in user and a separate logged-in user
 	notLoggedInUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -412,8 +400,6 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
 
-	_, ok := showResponse.(*moveop.ShowMoveForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", showResponse)
-	}
+	suite.checkResponseForbidden(showResponse)
+
 }
