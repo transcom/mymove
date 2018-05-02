@@ -157,7 +157,7 @@ func main() {
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	// userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
+	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
