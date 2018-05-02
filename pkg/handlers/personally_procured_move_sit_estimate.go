@@ -21,7 +21,7 @@ func (h ShowPpmSitEstimate) Handle(params ppmop.ShowPpmSitEstimateParams) middle
 	}
 
 	sitDiscount := FetchDiscountRates(params.originZip, params.destinationZip, "D", params.PlannedMoveDate)
-	inverseDiscount := 100 - sitDiscount
+	inverseDiscount := 1.00 - sitDiscount
 	sitCharge := sitTotal * inverseDiscount
 	ppmSitEstimate := internalmessages.PpmSitEstimate{
 		Estimate: sitCharge,

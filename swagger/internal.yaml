@@ -276,7 +276,7 @@ definitions:
         title: Value in cents of SIT estimate for PPM
     required:
       - estimate
-  PPMEstimateRange:
+  PpmEstimateRange:
     type: object
     properties:
       range_min:
@@ -1285,7 +1285,7 @@ paths:
         200:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/PPMEstimateRange'
+            $ref: '#/definitions/PpmEstimateRange'
         400:
           description: invalid request
         401:
