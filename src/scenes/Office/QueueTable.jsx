@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
-import { render } from 'react-dom';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
-import { requestData, RetrieveMovesForOffice } from './api.js';
+import { RetrieveMovesForOffice } from './api.js';
 
 export default class QueueTable extends Component {
   constructor() {
@@ -16,38 +15,26 @@ export default class QueueTable extends Component {
   }
 
   fetchData(state, instance) {
-    // Whenever the table model changes, or the user sorts or changes pages, this method gets called and passed the current table model.
-    // You can set the `loading` prop of the table to true to use the built-in one or show you're own loading bar if you want.
-    this.setState({ loading: true });
-    // Request the data however you want.  Here, we'll use our mocked service we created earlier
-    RetrieveMovesForOffice(this.props.queueType)
-      // requestData(
-      //   this.props.queueType,
-      //   state.pageSize,
-      //   state.page,
-      //   state.sorted,
-      //   state.filtered,
-      // )
-      .then(
-        response => {
-          // Now just get the rows of data to your React Table (and update anything else like total pages or loading)
-          console.log('response, ', response);
-          this.setState({
-            data: response.rows,
-            pages: 1,
-            loading: false,
-          });
-        },
-        response => {
-          console.log('hit the second res function!');
-        },
-      );
+    RetrieveMovesForOffice(this.props.queueType).then(
+      response => {
+        this.setState({
+          data: response,
+          pages: 1,
+          loading: false,
+        });
+      },
+      response => {
+        // TODO: add error handling
+      },
+    );
   }
 
   render() {
     return (
       <div>
-        <h1>{this.props.queueType} Moves Queue</h1>
+        <h1 style={{ textTransform: 'capitalize' }}>
+          {this.props.queueType} Moves Queue
+        </h1>
         <div>
           <ReactTable
             columns={[
@@ -61,7 +48,7 @@ export default class QueueTable extends Component {
               },
               {
                 Header: 'Customer name',
-                accessor: 'first_name',
+                accessor: 'customer_name',
               },
               {
                 Header: 'DOD ID',
@@ -85,16 +72,13 @@ export default class QueueTable extends Component {
               },
               {
                 Header: 'Last modified',
-                accessor: 'updated_at',
+                accessor: 'last_modified_date',
               },
             ]}
-            // manual // Forces table not to paginate or sort automatically, so we can handle it server-side
-            // data={data}
-            // pages={pages} // Display the total number of pages
-            // loading={loading} // Display the loading overlay when we need it
+            data={this.state.data}
+            loading={this.state.loading} // Display the loading overlay when we need it
             onFetchData={this.fetchData} // Request new data when things change
-            // filterable
-            defaultPageSize={50}
+            pageSize={this.state.data.length}
             className="-striped -highlight"
           />
         </div>
@@ -102,5 +86,3 @@ export default class QueueTable extends Component {
     );
   }
 }
-
-// export default QueueTable;

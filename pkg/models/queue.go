@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -35,10 +34,10 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 
 	// TODO: replace hardcoded values with actual query values once data is available
 	query := `
-		SELECT moves.ID, 'test ID' as edipi, 'major' as rank, 'Telly Tester' AS first_name, '12345' as locator, 'COMBO' as move_type, current_date as move_date, current_time as created_at, 'Awaiting review' as status, '5/6/2018 13:52 by Mehta, Julia' as updated_at
+		SELECT moves.ID, 'test ID' as edipi, 'major' as rank, 'Telly Tester' AS customer_name, '12345' as locator, 'COMBO' as orders_type, current_date as move_date, current_time as created_at, 'Awaiting review' as status, current_time as last_modified_date
 		FROM moves
 	`
-	fmt.Printf("TODO: Add %v to query: ", lifecycleState)
+	// TODO: add lifecycleState to query, once available
 	err := db.RawQuery(query).All(&moveQueueItems)
 	return moveQueueItems, err
 }
