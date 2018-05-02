@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"path"
+	"runtime/debug"
 	"testing"
 
 	"github.com/go-openapi/runtime"
@@ -46,6 +47,7 @@ func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code in
 	errResponse, ok := resp.(*errResponse)
 	if !ok || errResponse.code != code {
 		suite.T().Errorf("Expected %s Response: %v", name, resp)
+		debug.PrintStack()
 	}
 }
 
