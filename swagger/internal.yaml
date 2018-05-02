@@ -268,7 +268,7 @@ definitions:
       - id
       - created_at
       - updated_at
-  PPMEstimateRangePayload:
+  PPMEstimateRange:
     type: object
     properties:
       range_min:
@@ -1247,7 +1247,7 @@ paths:
   /estimates/ppm:
     get:
       summary: Return a PPM cost estimate
-      description: Calculates a reimbursment range for a PPM move
+      description: Calculates a reimbursement range for a PPM move (excluding SIT)
       operationId: showEstimatePPM
       tags:
         - ppm
@@ -1277,11 +1277,13 @@ paths:
         200:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/PPMEstimateRangePayload'
+            $ref: '#/definitions/PPMEstimateRange'
         400:
           description: invalid request
         401:
           description: request requires user authentication
+        403:
+          description: user is not authorized
         500:
           description: internal server error
   /issues:
