@@ -247,7 +247,7 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: ak-secure-migrations
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
