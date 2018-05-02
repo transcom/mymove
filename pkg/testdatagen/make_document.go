@@ -9,18 +9,19 @@ import (
 )
 
 // MakeDocument creates a single Document.
-func MakeDocument(db *pop.Connection, move *models.Move) (models.Document, error) {
-	if move == nil {
-		newMove, err := MakeMove(db)
+func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember) (models.Document, error) {
+	if serviceMember == nil {
+		newServiceMember, err := MakeServiceMember(db)
 		if err != nil {
 			log.Panic(err)
 		}
-		move = &newMove
+		serviceMember = &newServiceMember
 	}
 
 	document := models.Document{
-		UploaderID: move.UserID,
-		MoveID:     move.ID,
+		UploaderID:      serviceMember.UserID,
+		ServiceMemberID: serviceMember.ID,
+		ServiceMember:   *serviceMember,
 	}
 
 	verrs, err := db.ValidateAndSave(&document)
@@ -32,24 +33,4 @@ func MakeDocument(db *pop.Connection, move *models.Move) (models.Document, error
 	}
 
 	return document, err
-}
-
-// MakeDocumentData creates a Document for every Move in the database.
-func MakeDocumentData(db *pop.Connection) {
-	moveList := []models.Move{}
-	err := db.All(&moveList)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	for _, move := range moveList {
-		document, err := MakeDocument(db, &move)
-		if err != nil {
-			log.Panic(err)
-		}
-		_, err = MakeUpload(db, &document)
-		if err != nil {
-			log.Panic(err)
-		}
-	}
 }

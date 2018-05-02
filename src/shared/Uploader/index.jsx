@@ -17,18 +17,21 @@ export class Uploader extends Component {
   }
 
   uploadFile() {
-    this.props.createDocument(this.fileInput.files[0], this.moveIdInput.value);
+    this.props.createDocument(
+      this.fileInput.files[0],
+      this.serviceMemberId.value,
+    );
   }
 
   render() {
     const { hasErrored, hasSucceeded } = this.props;
     return (
       <div className="usa-grid">
-        Enter Move ID:{' '}
+        Enter Service Member ID:{' '}
         <input
           type="text"
           ref={input => {
-            this.moveIdInput = input;
+            this.serviceMemberId = input;
           }}
         />
         <input
