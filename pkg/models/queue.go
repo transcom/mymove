@@ -34,8 +34,18 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 
 	// TODO: replace hardcoded values with actual query values once data is available
 	query := `
-		SELECT moves.ID, 'test ID' as edipi, 'major' as rank, 'Telly Tester' AS customer_name, '12345' as locator, 'COMBO' as orders_type, current_date as move_date, current_time as created_at, 'Awaiting review' as status, current_time as last_modified_date
+		SELECT moves.ID,
+			COALESCE(sm.edipi, 'test ID') as edipi,
+			COALESCE(sm.rank, 'major') as rank,
+			COALESCE(CONCAT(sm.first_name, ' ', sm.last_name), 'Telly Tester') AS customer_name,
+			'12345' as locator,
+			COALESCE(moves.selected_move_type, 'COMBO') as orders_type,
+			current_date as move_date,
+			current_time as created_at,
+			'Awaiting review' as status,
+			current_time as last_modified_date
 		FROM moves
+		INNER JOIN service_members AS sm ON moves.user_id = sm.user_id
 	`
 	// TODO: add lifecycleState to query, once available
 	err := db.RawQuery(query).All(&moveQueueItems)
