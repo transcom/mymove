@@ -29,6 +29,11 @@ func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
 	return &fmtDateTime
 }
 
+func timeFromDateTime(dateTime strfmt.DateTime) time.Time {
+	fmtTime := time.Time(dateTime)
+	return fmtTime
+}
+
 func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate

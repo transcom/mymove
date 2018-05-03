@@ -186,7 +186,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	suite.mustSave(&sa)
 
 	// Test PPM SIT charges
-	charge, err := engine.sitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, true)
+	charge, err := engine.SitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, true)
 	if err != nil {
 		t.Fatalf("error calculating SIT charge: %s", err)
 	}
@@ -196,7 +196,7 @@ func (suite *RateEngineSuite) Test_SITCharge() {
 	}
 
 	// Test HHG SIT charges
-	charge, err = engine.sitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, false)
+	charge, err = engine.SitCharge(cwt, daysInSIT, zip3, testdatagen.DateInsidePeakRateCycle, false)
 	if err != nil {
 		t.Fatalf("error calculating SIT charge: %s", err)
 	}

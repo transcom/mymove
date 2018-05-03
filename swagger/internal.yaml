@@ -268,7 +268,15 @@ definitions:
       - id
       - created_at
       - updated_at
-  PPMEstimateRange:
+  PpmSitEstimate:
+    type: object
+    properties:
+      estimate:
+        type: integer
+        title: Value in cents of SIT estimate for PPM
+    required:
+      - estimate
+  PpmEstimateRange:
     type: object
     properties:
       range_min:
@@ -1253,31 +1261,77 @@ paths:
         - ppm
       parameters:
         - in: query
-          name: planned_move_date
+          name: plannedMoveDate
           type: string
-          format: date
+          format: date-time
           required: true
         - in: query
-          name: pickup_zip
-          type: string
-          format: zip
-          pattern: '^(\d{5}([\-]\d{4})?)$'
-          required: true
-        - in: query
-          name: destination_zip
+          name: pickupZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: weight_estimate
+          name: destinationZip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weightEstimate
           type: integer
           required: true
       responses:
         200:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/PPMEstimateRange'
+            $ref: '#/definitions/PpmEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /estimates/ppm_sit:
+    get:
+      summary: Return a PPM move's SIT cost estimate
+      description: Calculates a reimbursment for a PPM move's SIT
+      operationId: showPpmSitEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: plannedMoveDate
+          type: string
+          format: date-time
+          required: true
+        - in: query
+          name: daysInStorage
+          type: integer
+          required: true
+        - in: query
+          name: destinationZip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: originZip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weightEstimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: show PPM SIT estimate
+          schema:
+            $ref: '#/definitions/PpmSitEstimate'
         400:
           description: invalid request
         401:
