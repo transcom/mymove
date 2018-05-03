@@ -41,6 +41,7 @@ export const loggedInUserReducer = (state, action) => {
   switch (action.type) {
     case 'CREATE_SERVICE_MEMBER_SUCCESS':
     case 'UPDATE_SERVICE_MEMBER_SUCCESS':
+    case 'GET_SERVICE_MEMBER_SUCCESS':
       return {
         ...mutatedState,
         loggedInUser: {

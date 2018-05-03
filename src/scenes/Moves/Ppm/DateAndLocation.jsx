@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { pick, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
@@ -13,9 +13,7 @@ import {
 } from 'shared/JsonSchemaForm';
 import WizardPage from 'shared/WizardPage';
 
-import { loadMove } from '../ducks';
 import { loadPpm, createOrUpdatePpm } from './ducks';
-import { serviceMemberReducer } from '../../ServiceMembers/ducks';
 
 const formName = 'ppp_date_and_location';
 const uiSchema = {
@@ -24,7 +22,6 @@ const uiSchema = {
 const subsetOfFields = ['planned_move_date', 'pickup_zip', 'destination_zip'];
 export class DateAndLocation extends React.Component {
   componentDidMount() {
-    //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
     this.props.loadPpm(moveId);
   }
@@ -64,9 +61,15 @@ export class DateAndLocation extends React.Component {
       >
         <form>
           <h1 className="sm-heading">PPM Dates & Locations</h1>
-
+          <h3> Move Date </h3>
           {renderField('planned_move_date', fields, '')}
+          <h3>Pickup Location</h3>
           {renderField('pickup_zip', fields, '')}
+          <h3>Destination Location</h3>
+          <p>
+            Enter the ZIP for your new home if you know it, or for destination
+            duty station if you don't
+          </p>
           {renderField('destination_zip', fields, '')}
         </form>
       </WizardPage>
@@ -76,7 +79,6 @@ export class DateAndLocation extends React.Component {
 
 DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
-  loadMove: PropTypes.func.isRequired,
   loadPpm: PropTypes.func.isRequired,
   createOrUpdatePpm: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
@@ -89,10 +91,19 @@ function mapStateToProps(state) {
     schema: {},
     ...state.ppm,
     formData: state.form[formName],
+    enableReinitialize: true,
   };
+  const defaultPickupZip = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.residential_address.postal_code',
+  );
   props.initialValues = props.currentPpm
     ? pick(props.currentPpm, subsetOfFields)
-    : null; //todo: get pickup zip from service member
+    : defaultPickupZip
+      ? {
+          pickup_zip: defaultPickupZip,
+        }
+      : null;
   if (state.swagger.spec) {
     props.schema =
       state.swagger.spec.definitions.UpdatePersonallyProcuredMovePayload;
@@ -100,7 +111,7 @@ function mapStateToProps(state) {
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadMove, loadPpm, createOrUpdatePpm }, dispatch);
+  return bindActionCreators({ loadPpm, createOrUpdatePpm }, dispatch);
 }
 
 const DateAndLocationForm = reduxForm({
