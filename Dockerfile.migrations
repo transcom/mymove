@@ -16,16 +16,25 @@ RUN dep ensure -vendor-only
 RUN go build -o /bin/soda -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/gobuffalo/pop/soda
 RUN go build -o /bin/chamber -ldflags "-linkmode external -extldflags -static" ./vendor/github.com/segmentio/chamber
 
-# We don't need any of the Go mechanics, just the binaries. Copy into a single
-# layer image.
-FROM gcr.io/distroless/base
+# Copy build artifacts into a new container with a minimal Linux distro.
+# We need to have something with minimal tooling as the migrations container runs shell scripts
+# and uses AWS tools.
+FROM alpine:3.7
 COPY --from=build /bin/soda /bin/soda
 COPY --from=build /bin/chamber /bin/chamber
+COPY bin/apply-secure-migration.sh /bin
 COPY migrations /migrate/migrations
 COPY config/database.yml /migrate
+RUN mkdir /migrate/secure
 ENV GO_ENV=container
 
-ENTRYPOINT ["/bin/soda"]
+# Install tools needed in container
+RUN apk update
+RUN apk add postgresql-client python3 ca-certificates
+RUN pip3 install awscli
+
+WORKDIR /bin
+ENTRYPOINT ["soda"]
 CMD ["migrate", \
      "-c", "/migrate/database.yml", \
      "-p", "/migrate/migrations", \
