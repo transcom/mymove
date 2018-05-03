@@ -18,6 +18,7 @@ import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 const Placeholder = props => {
@@ -176,8 +177,9 @@ const pages = {
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    render: stub,
-    description: 'Review',
+    render: (key, pages) => ({ match }) => (
+      <Review pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
