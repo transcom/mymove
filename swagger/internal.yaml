@@ -276,7 +276,7 @@ definitions:
         title: Value in cents of SIT estimate for PPM
     required:
       - estimate
-  PpmEstimateRange:
+  PPMEstimateRange:
     type: object
     properties:
       range_min:
@@ -1256,7 +1256,7 @@ paths:
     get:
       summary: Return a PPM cost estimate
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
-      operationId: showEstimatePPM
+      operationId: showPPMEstimate
       tags:
         - ppm
       parameters:
@@ -1266,7 +1266,7 @@ paths:
           format: date-time
           required: true
         - in: query
-          name: pickupZip
+          name: originZip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -1285,7 +1285,7 @@ paths:
         200:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/PpmEstimateRange'
+            $ref: '#/definitions/PPMEstimateRange'
         400:
           description: invalid request
         401:

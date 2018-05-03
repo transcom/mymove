@@ -275,7 +275,7 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 
 	err = db.RawQuery(query, rateArea, region, cos, date).First(&tspPerformance)
 	if err != nil {
-		return 0.0, 0.0, errors.Wrap(err, "could find the tsp performance")
+		return 0.0, 0.0, errors.Wrapf(err, "could find the tsp performance for %s -> %s in cos %s on %v", originZip, destinationZip, cos, date)
 	}
 	return tspPerformance.LinehaulRate, tspPerformance.SITRate, nil
 }
