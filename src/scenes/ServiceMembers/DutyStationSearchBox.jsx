@@ -21,7 +21,6 @@ export class DutyStationSearchBox extends Component {
     super(props);
 
     this.state = {
-      value: null,
       inputValue: '',
     };
     this.loadOptions = this.loadOptions.bind(this);
@@ -31,26 +30,14 @@ export class DutyStationSearchBox extends Component {
     this.onInputChange = this.onInputChange.bind(this);
     this.renderOption = this.renderOption.bind(this);
   }
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (prevState.value === null) {
-      return {
-        value: nextProps.existingStation,
-        inputValue: getOptionName(nextProps.existingStation),
-      };
-    }
-    return {};
-  }
 
   loadOptions(inputValue, callback) {
     if (
-      this.props.currentServiceMember &&
+      this.props.affiliation &&
       inputValue &&
       inputValue.length >= minSearchLength
     ) {
-      return SearchDutyStations(
-        this.props.currentServiceMember.affiliation,
-        inputValue,
-      )
+      return SearchDutyStations(this.props.affiliation, inputValue)
         .then(item => {
           this.setState({
             error: null,
@@ -80,12 +67,10 @@ export class DutyStationSearchBox extends Component {
 
   localOnChange(value) {
     if (value && value.id) {
-      this.setState({ value });
-      this.props.onChange(value);
+      this.props.input.onChange(value);
       return value;
     } else {
-      this.setState({ value: null });
-      this.props.onChange(null);
+      this.props.input.onChange(null);
       return null;
     }
   }
@@ -124,12 +109,13 @@ export class DutyStationSearchBox extends Component {
           components={{ Option: this.renderOption }}
           placeholder="Start typing a duty station..."
         />
-        {this.state.value && (
+        {this.props.input.value && (
           <ul className="station-description">
-            <li>{this.state.value.name}</li>
+            <li>{this.props.input.value.name}</li>
             <li>
-              {this.state.value.address.city}, {this.state.value.address.state}{' '}
-              {this.state.value.address.postal_code}
+              {this.props.input.value.address.city},{' '}
+              {this.props.input.value.address.state}{' '}
+              {this.props.input.value.address.postal_code}
             </li>
           </ul>
         )}
@@ -138,27 +124,9 @@ export class DutyStationSearchBox extends Component {
   }
 }
 DutyStationSearchBox.propTypes = {
-  currentServiceMember: PropTypes.object,
+  affiliation: PropTypes.string,
   onChange: PropTypes.func,
   existingStation: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadServiceMember }, dispatch);
-}
-function mapStateToProps(state) {
-  const currentServiceMember = state.serviceMember.currentServiceMember;
-  const dutyStation =
-    currentServiceMember && currentServiceMember.current_station
-      ? currentServiceMember.current_station
-      : null;
-  const props = {
-    existingStation: dutyStation,
-    ...state.serviceMember,
-  };
-  return props;
-}
-
-export default connect(mapStateToProps, mapDispatchToProps)(
-  DutyStationSearchBox,
-);
+export default DutyStationSearchBox;

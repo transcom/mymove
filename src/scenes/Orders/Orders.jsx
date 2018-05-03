@@ -4,9 +4,16 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { Field } from 'redux-form';
+
 import { createOrders, updateOrders, loadOrders } from './ducks';
+import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import './Orders.css';
 
 const YesNoBoolean = props => {
   const {
@@ -95,6 +102,19 @@ export class Orders extends Component {
     }
   };
 
+  componentDidUpdate(prevProps, prevState) {
+    // If we don't have a service member yet, fetch one when loggedInUser loads.
+    if (
+      !prevProps.user.loggedInUser &&
+      this.props.user.loggedInUser &&
+      !this.props.currentServiceMember
+    ) {
+      this.props.loadServiceMember(
+        this.props.user.loggedInUser.service_member.id,
+      );
+    }
+  }
+
   render() {
     const {
       pages,
@@ -110,15 +130,41 @@ export class Orders extends Component {
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
+        className={formName}
         pageList={pages}
         pageKey={pageKey}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
         initialValues={initialValues}
-        schema={this.props.schema}
-        uiSchema={uiSchema}
-      />
+      >
+        <h1 className="sm-heading">Your Contact Info</h1>
+        <SwaggerField
+          fieldName="orders_type"
+          swagger={this.props.schema}
+          required
+        />
+        <SwaggerField
+          fieldName="issue_date"
+          swagger={this.props.schema}
+          required
+        />
+        <SwaggerField
+          fieldName="report_by_date"
+          swagger={this.props.schema}
+          required
+        />
+        <fieldset key="dependents">
+          <legend htmlFor="dependents">
+            Are dependents included in your orders?
+          </legend>
+          <Field name="has_dependents" component={YesNoBoolean} />
+        </fieldset>
+        <Field
+          name="new_duty_station"
+          component={DutyStationSearchBox}
+          affiliation={this.props.affiliation}
+        />
+      </OrdersWizardForm>
     );
   }
 }
@@ -132,15 +178,21 @@ Orders.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { updateOrders, createOrders, loadOrders },
+    { updateOrders, createOrders, loadOrders, loadServiceMember },
     dispatch,
   );
 }
 function mapStateToProps(state) {
+  const currentServiceMember = state.serviceMember.currentServiceMember;
+  const affiliation = currentServiceMember
+    ? currentServiceMember.affiliation
+    : null;
   const props = {
+    affiliation,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,
+    user: state.loggedInUser,
   };
   if (state.swagger.spec) {
     props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;

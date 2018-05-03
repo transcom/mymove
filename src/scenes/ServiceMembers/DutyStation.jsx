@@ -3,13 +3,40 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import { Field } from 'redux-form';
+
 import { updateServiceMember, loadServiceMember } from './ducks';
 import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import './DutyStation.css';
+
+const validateDutyStationForm = (values, form) => {
+  let errors = {};
+
+  let prefSelected = false;
+  prefSelected = Boolean(
+    values.phone_is_preferred ||
+      values.text_message_is_preferred ||
+      values.email_is_preferred,
+  );
+  if (!values.current_station) {
+    const newError = {
+      current_station: 'Please select a duty station.',
+    };
+    return newError;
+  }
+  return errors;
+};
+
+const dutyStationFormName = 'duty_station';
+const DutyStationWizardForm = reduxifyWizardForm(
+  dutyStationFormName,
+  validateDutyStationForm,
+);
 
 export class DutyStation extends Component {
   constructor(props) {
@@ -28,31 +55,46 @@ export class DutyStation extends Component {
     this.props.loadServiceMember(this.props.match.params.serviceMemberId);
   }
 
-  handleSubmit = () => {
-    if (this.state.value) {
-      this.props.updateServiceMember({ current_station: this.state.value });
+  handleSubmit = (somethings, elses) => {
+    const pendingValues = this.props.formData.values;
+    if (pendingValues) {
+      this.props.updateServiceMember({
+        current_station: pendingValues.current_station,
+      });
     }
   };
 
   render() {
-    const { pages, pageKey, hasSubmitSuccess, error } = this.props;
+    const {
+      pages,
+      pageKey,
+      hasSubmitSuccess,
+      error,
+      existingStation,
+    } = this.props;
     // TODO: make sure isvalid is accurate
-    const isValid = !!this.state.value;
+
+    let initialValues = null;
+    if (existingStation) {
+      initialValues = { current_station: existingStation };
+    }
     return (
-      <WizardPage
+      <DutyStationWizardForm
         handleSubmit={this.handleSubmit}
         isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
+        initialValues={initialValues}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
       >
-        <form className="duty-station" onSubmit={no_op}>
-          <h1 className="sm-heading">Current Duty Station</h1>
-          <DutyStationSearchBox onChange={this.stationOnChange} />
-        </form>
-      </WizardPage>
+        <h1 className="sm-heading">Current Duty Station</h1>
+        <Field
+          name="current_station"
+          component={DutyStationSearchBox}
+          affiliation={this.props.affiliation}
+        />
+      </DutyStationWizardForm>
     );
   }
 }
@@ -69,9 +111,21 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
+  const currentServiceMember = state.serviceMember.currentServiceMember;
+  const dutyStation =
+    currentServiceMember && currentServiceMember.current_station
+      ? currentServiceMember.current_station
+      : null;
+  const affiliation = currentServiceMember
+    ? currentServiceMember.affiliation
+    : null;
   const props = {
+    affiliation,
+    formData: state.form[dutyStationFormName],
+    existingStation: dutyStation,
     ...state.serviceMember,
   };
   return props;
 }
+
 export default connect(mapStateToProps, mapDispatchToProps)(DutyStation);
