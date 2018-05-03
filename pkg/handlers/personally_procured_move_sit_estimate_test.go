@@ -75,7 +75,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDateTime(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
@@ -158,7 +158,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 
 	params := ppmop.ShowPPMSitEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDateTime(testdatagen.DateInsidePeakRateCycle),
+		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
 		DaysInStorage:   4,
 		OriginZip:       "77901",
 		DestinationZip:  "67401",
