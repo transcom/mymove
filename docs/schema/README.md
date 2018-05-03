@@ -2,7 +2,7 @@
 
 This documentation was created using [SQLEditor](https://www.malcolmhardie.com/sqleditor/)
 
-It was initially seeded from the (then) current `/migraions/schema.sql` and should
+It was initially seeded from the (then) current `/migrations/schema.sql` and should
  be maintained as models are added to the DB.
 
 ## Installing the tool
