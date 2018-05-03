@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"time"
+
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/pkg/errors"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -10,30 +13,37 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// ShowPpmSitEstimateHandler returns PPM SIT estimate for a weight, move date,
-type ShowPpmSitEstimateHandler HandlerContext
+// ShowPPMSitEstimateHandler returns PPM SIT estimate for a weight, move date,
+type ShowPPMSitEstimateHandler HandlerContext
 
 // Handle calculates SIT charge and retrieves SIT discount rate.
 // It returns the discount rate applied to relevant SIT charge.
-func (h ShowPpmSitEstimateHandler) Handle(params ppmop.ShowPpmSitEstimateParams) middleware.Responder {
+func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
 	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
-	_, sitZip3 := engine.Zip5ToZip3(params.OriginZip, params.DestinationZip)
+	sitZip3 := engine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
-	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, timeFromDateTime(params.PlannedMoveDate), true)
+	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, time.Time(params.PlannedMoveDate), true)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	// TODO: Determine COS for PPMs
-	_, sitDiscount, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "D", timeFromDateTime(params.PlannedMoveDate))
+	// Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
+	_, sitDiscount, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "D", time.Time(params.PlannedMoveDate))
 	if err != nil {
-		return responseForError(h.logger, err)
+		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+			return responseForError(h.logger, err)
+		}
+		_, sitDiscount, err = models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "2", time.Time(params.PlannedMoveDate))
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
 	}
 
 	inverseDiscount := (100.00 - sitDiscount) / 100
+	// Swagger returns int64 when using the integer type
 	sitCharge := int64(sitTotal.MultiplyFloat64(inverseDiscount))
-	ppmSitEstimate := internalmessages.PpmSitEstimate{
+	ppmSitEstimate := internalmessages.PPMSitEstimate{
 		Estimate: &sitCharge,
 	}
-	return ppmop.NewShowPpmSitEstimateOK().WithPayload(&ppmSitEstimate)
+	return ppmop.NewShowPPMSitEstimateOK().WithPayload(&ppmSitEstimate)
 }

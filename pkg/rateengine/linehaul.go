@@ -73,7 +73,8 @@ func (re *RateEngine) shorthaulCharge(mileage int, cwt unit.CWT, date time.Time)
 func (re *RateEngine) linehaulChargeTotal(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time) (linehaulChargeCents unit.Cents, err error) {
 	cwt := weight.ToCWT()
 	mileage, err := re.determineMileage(originZip5, destinationZip5)
-	originZip3, destinationZip3 := re.Zip5ToZip3(originZip5, destinationZip5)
+	originZip3 := re.Zip5ToZip3(originZip5)
+	destinationZip3 := re.Zip5ToZip3(destinationZip5)
 	baseLinehaulChargeCents, err := re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		return 0, err
