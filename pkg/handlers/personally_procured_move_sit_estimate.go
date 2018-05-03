@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/pkg/errors"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -30,7 +29,7 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	// Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
 	_, sitDiscount, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "D", time.Time(params.PlannedMoveDate))
 	if err != nil {
-		if errors.Cause(err).Error() != models.RecordNotFoundErrorString {
+		if err != models.ErrFetchNotFound {
 			return responseForError(h.logger, err)
 		}
 		_, sitDiscount, err = models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "2", time.Time(params.PlannedMoveDate))

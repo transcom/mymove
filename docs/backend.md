@@ -228,7 +228,7 @@ Some errors are predictable, such as those from the database that Pop returns to
   var serviceMember ServiceMember
   err := db.Eager().Find(&serviceMember, id)
   if err != nil {
-    if errors.Cause(err).Error() == RecordNotFoundErrorString {
+    if errors.Cause(err).Error() == recordNotFoundErrorString {
       return ServiceMember{}, ErrFetchNotFound
     }
     // Otherwise, it's an unexpected err so we return that.
