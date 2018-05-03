@@ -6,6 +6,8 @@ import (
 
 // These are errors that are returned by various model functions
 
+// *** DEPRECATED *** this FetchError method of error matching should be phased out in favor of ADR 24.
+
 // FetchError is a base type that can typecast for specific APIs,
 // It indicicates why an attempted db fetch failed.
 type FetchError string
@@ -16,6 +18,8 @@ const (
 	// FetchErrorForbidden means that the record exists but that the user does not have access to it
 	FetchErrorForbidden FetchError = "FETCH_FORBIDDEN"
 )
+
+//  *** End DEPRECATED ***
 
 // ErrCreateViolatesUniqueConstraint is returned if you call create and violate a unique constraint.
 var ErrCreateViolatesUniqueConstraint = errors.New("CREATE_VIOLATES_UNIQUE")
