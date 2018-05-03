@@ -3,11 +3,8 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import { components } from 'react-select';
-import { connect } from 'react-redux';
 import Highlighter from 'react-highlight-words';
-import { bindActionCreators } from 'redux';
 
-import { loadServiceMember } from './ducks';
 import { SearchDutyStations } from './api.js';
 
 import './DutyStation.css';

@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { Field } from 'redux-form';
 
 import { updateServiceMember, loadServiceMember } from './ducks';
-import { no_op } from 'shared/utils';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
@@ -17,12 +16,6 @@ import './DutyStation.css';
 const validateDutyStationForm = (values, form) => {
   let errors = {};
 
-  let prefSelected = false;
-  prefSelected = Boolean(
-    values.phone_is_preferred ||
-      values.text_message_is_preferred ||
-      values.email_is_preferred,
-  );
   if (!values.current_station) {
     const newError = {
       current_station: 'Please select a duty station.',

@@ -1,4 +1,3 @@
-import { pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -51,36 +50,22 @@ const YesNoBoolean = props => {
   );
 };
 
-const uiSchema = {
-  title: 'Tell Us About Your Move Orders',
-  order: [
-    'orders_type',
-    'issue_date',
-    'report_by_date',
-    'has_dependents',
-    'new_duty_station',
-  ],
-  requiredFields: [
-    'orders_type',
-    'issue_date',
-    'report_by_date',
-    'has_dependents',
-    'new_duty_station',
-  ],
-  custom_components: {
-    has_dependents: YesNoBoolean,
-    new_duty_station: DutyStationSearchBox,
-  },
+const validateOrdersForm = (values, form) => {
+  let errors = {};
+
+  const required_fields = ['has_dependents', 'new_duty_station'];
+
+  required_fields.forEach(fieldName => {
+    if (!values[fieldName]) {
+      errors[fieldName] = 'Required.';
+    }
+  });
+
+  return errors;
 };
-const subsetOfFields = [
-  'orders_type',
-  'issue_date',
-  'report_by_date',
-  'has_dependents',
-  'new_duty_station',
-];
+
 const formName = 'orders_info';
-const OrdersWizardForm = reduxifyWizardForm(formName);
+const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
   handleSubmit = () => {
