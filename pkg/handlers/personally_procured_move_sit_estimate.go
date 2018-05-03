@@ -23,10 +23,6 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
 	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
-	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
 
 	// Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
 	_, sitDiscount, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "D", plannedMoveDateTime)
@@ -44,9 +40,17 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		h.logger.Info("Found SIT Discount for TDL with COS D.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.Time("move_date", plannedMoveDateTime))
 	}
 
+	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
+
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	// TODO (rebecca): Settle how percentages are handled
 	inverseDiscount := (100.00 - sitDiscount) / 100
 	// Swagger returns int64 when using the integer type
 	sitCharge := int64(sitTotal.MultiplyFloat64(inverseDiscount))
+
 	ppmSitEstimate := internalmessages.PPMSitEstimate{
 		Estimate: &sitCharge,
 	}
