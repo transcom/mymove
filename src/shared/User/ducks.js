@@ -17,10 +17,17 @@ export const getUserTypes = helpers.generateAsyncActionTypes(
   GET_LOGGED_IN_USER,
 );
 
-export const loadLoggedInUser = helpers.generateAsyncActionCreator(
-  GET_LOGGED_IN_USER,
-  GetLoggedInUser,
-);
+const getLoggedInActions = helpers.generateAsyncActions(GET_LOGGED_IN_USER);
+export const loadLoggedInUser = () => {
+  return function(dispatch) {
+    const userInfo = getUserInfo();
+    if (!userInfo.isLoggedIn) return;
+    dispatch(getLoggedInActions.start());
+    GetLoggedInUser()
+      .then(item => dispatch(getLoggedInActions.success(item)))
+      .catch(error => dispatch(getLoggedInActions.error(error)));
+  };
+};
 
 export const loggedInUserReducer = helpers.generateAsyncReducer(
   GET_LOGGED_IN_USER,

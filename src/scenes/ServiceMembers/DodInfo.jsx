@@ -73,7 +73,6 @@ export class DodInfo extends Component {
           handleSubmit={no_op}
           schema={this.props.schema}
           uiSchema={uiSchema}
-          showSubmit={false}
           initialValues={initialValues}
         />
       </WizardPage>
