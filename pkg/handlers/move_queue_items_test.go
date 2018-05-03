@@ -15,6 +15,7 @@ import (
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	t := suite.T()
+	t.Skip("don't test stubbed out endpoint")
 
 	// Given: An office user
 	officeUser := models.User{
