@@ -226,7 +226,7 @@ func main() {
 
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
-	// internalAPIMux.Use(userAuthMiddleware)
+	internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
