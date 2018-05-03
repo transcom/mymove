@@ -288,6 +288,12 @@ workflows:
             branches:
               only: master
 
+      - deploy_prod_app_redirect:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
       - deploy_prod_app:
           requires:
             - deploy_prod_migrations
