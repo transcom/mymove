@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	suite.verifyValidationErrors(move, expErrors)
 }
 
-func (suite *ModelSuite) TestGetMoveForUser() {
+func (suite *ModelSuite) TestFetchMove() {
 	t := suite.T()
 
 	user1 := User{
@@ -53,39 +53,24 @@ func (suite *ModelSuite) TestGetMoveForUser() {
 	fmt.Println(user1.ID, user2.ID, move.UserID)
 
 	// All correct
-	moveResult, err := GetMoveForUser(suite.db, user1.ID, move.ID)
+	fetchedMove, err := FetchMove(suite.db, user1, move.ID)
 	if err != nil {
 		t.Error("Expected to get moveResult back.", err)
 	}
-	if !moveResult.IsValid() {
-		t.Error("Expected the move to be valid")
-	}
-	if moveResult.Move().ID != move.ID {
+	if fetchedMove.ID != move.ID {
 		t.Error("Expected new move to match move.")
 	}
 
 	// Bad Move
-	moveResult, err = GetMoveForUser(suite.db, user1.ID, uuid.Must(uuid.NewV4()))
-	if err != nil {
-		t.Error("Expected to get a good moveResult back.", err)
-	}
-	if moveResult.IsValid() {
-		t.Error("Expected the moveResult to be invalid")
-	}
-	if moveResult.ErrorCode() != FetchErrorNotFound {
-		t.Error("Should have gotten a not found error")
+	fetchedMove, err = FetchMove(suite.db, user1, uuid.Must(uuid.NewV4()))
+	if err != ErrFetchNotFound {
+		t.Error("Expected to get fetchnotfound.", err)
 	}
 
 	// Bad User
-	moveResult, err = GetMoveForUser(suite.db, user2.ID, move.ID)
-	if err != nil {
-		t.Error("Expected to get a good moveResult back.", err)
-	}
-	if moveResult.IsValid() {
-		t.Error("Expected the moveResult to be invalid")
-	}
-	if moveResult.ErrorCode() != FetchErrorForbidden {
-		t.Error("Should have gotten a forbidden error")
+	fetchedMove, err = FetchMove(suite.db, user2, move.ID)
+	if err != ErrFetchForbidden {
+		t.Error("Expected to get a Forbidden back.", err)
 	}
 
 }
