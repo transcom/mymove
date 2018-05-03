@@ -1,20 +1,24 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 
 import './index.css';
 
-const TextBoxWithEditButton = () => (
-  <form>
-    <textarea />
-    <a href="">Edit</a>
-  </form>
-);
+class TextBoxWithEditLink extends Component {
+  handleClick = e => {
+    e.preventDefault();
+    console.log('It worked!');
+  };
 
-TextBoxWithEditButton.propTypes = {
-  className: PropTypes.string,
-  children: PropTypes.node,
-  selected: PropTypes.bool,
-  onClick: PropTypes.func,
-};
+  render() {
+    return (
+      <form>
+        <textarea />
+        <a href="#" onClick={this.handleClick}>
+          Edit
+        </a>
+      </form>
+    );
+  }
+}
 
-export default TextBoxWithEditButton;
+export default TextBoxWithEditLink;

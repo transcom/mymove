@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import TextBoxWithEditButton from 'shared/TextBoxWithEditButton';
+import TextBoxWithEditLink from 'shared/TextBoxWithEditLink';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -16,7 +16,21 @@ import './office.css';
 const BasicsTabContent = () => {
   return (
     <div>
-      <TextBoxWithEditButton />
+      <div>
+        <h2>Customer Info</h2>
+        <TextBoxWithEditLink />
+        <h2>Backup Info</h2>
+        <TextBoxWithEditLink />
+        <h2>Orders</h2>
+        <TextBoxWithEditLink />
+        <h2>Accounting</h2>
+        <TextBoxWithEditLink />
+      </div>
+      <div>
+        <button>Approve</button>
+        <button>Troubleshoot</button>
+        <button>Cancel</button>
+      </div>
     </div>
   );
 };
