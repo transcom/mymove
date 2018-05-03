@@ -56,7 +56,7 @@ const validateOrdersForm = (values, form) => {
   const required_fields = ['has_dependents', 'new_duty_station'];
 
   required_fields.forEach(fieldName => {
-    if (!values[fieldName]) {
+    if (values[fieldName] === undefined || values[fieldName] === '') {
       errors[fieldName] = 'Required.';
     }
   });
