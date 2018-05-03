@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import TextBoxWithEditButton from 'shared/TextBoxWithEditButton';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -13,7 +14,11 @@ import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import './office.css';
 
 const BasicsTabContent = () => {
-  return <div>Basics</div>;
+  return (
+    <div>
+      <TextBoxWithEditButton />
+    </div>
+  );
 };
 
 const PPMTabContent = () => {
