@@ -1,24 +1,27 @@
+import { pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { reduxForm } from 'redux-form';
 
-import { loadMove } from '../ducks';
-import { loadPpm, createOrUpdatePpm } from './ducks';
 import {
   renderField,
   recursivelyAnnotateRequiredFields,
   validateRequiredFields,
   addUiSchemaRequiredFields,
 } from 'shared/JsonSchemaForm';
-import { reduxForm } from 'redux-form';
 import WizardPage from 'shared/WizardPage';
+
+import { loadMove } from '../ducks';
+import { loadPpm, createOrUpdatePpm } from './ducks';
+import { serviceMemberReducer } from '../../ServiceMembers/ducks';
 
 const formName = 'ppp_date_and_location';
 const uiSchema = {
   requiredFields: ['planned_move_date', 'pickup_zip', 'destination_zip'],
 };
-
+const subsetOfFields = ['planned_move_date', 'pickup_zip', 'destination_zip'];
 export class DateAndLocation extends React.Component {
   componentDidMount() {
     //todo: we should make sure this move matches the redux state
@@ -44,7 +47,7 @@ export class DateAndLocation extends React.Component {
       hasSubmitSuccess,
       error,
     } = this.props;
-    debugger;
+
     addUiSchemaRequiredFields(schema, uiSchema);
     recursivelyAnnotateRequiredFields(schema);
     const fields = schema.properties || {};
@@ -87,6 +90,9 @@ function mapStateToProps(state) {
     ...state.ppm,
     formData: state.form[formName],
   };
+  props.initialValues = props.currentPpm
+    ? pick(props.currentPpm, subsetOfFields)
+    : null; //todo: get pickup zip from service member
   if (state.swagger.spec) {
     props.schema =
       state.swagger.spec.definitions.UpdatePersonallyProcuredMovePayload;
