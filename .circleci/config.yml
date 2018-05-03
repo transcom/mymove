@@ -58,7 +58,8 @@ jobs:
           - POSTGRES_DB: test_db
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
@@ -121,7 +122,8 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: make db_build_docker
       - run:
           name: Tag and push migrations image
@@ -146,6 +148,22 @@ jobs:
           command: bin/ecs-run-app-migrations-container config/app-migrations.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app-migrations:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run: *announce_failure
 
+  deploy_staging_app_redirect:
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+    environment:
+      - APP_ENVIRONMENT: "staging"
+    steps: &deploy_app_redirect_steps
+      - checkout
+      - setup_remote_docker
+      - deploy:
+          name: Deploy https redirect service
+          command: bin/ecs-deploy-service-container app-redirect config/app-redirect.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/https-redirect $APP_ENVIRONMENT FARGATE
+      - run:
+          name: Health check https redirect
+          command: for retry in `seq 1 10`; do if [[ $(curl -f -sS -o /dev/null -w '%{http_code}' http://my.experimental.dp3.us) -eq 301 ]]; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+      - run: *announce_failure
+
   deploy_staging_app:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
@@ -155,17 +173,10 @@ jobs:
       - checkout
       - setup_remote_docker
       - deploy:
-          name: Deploy $APP_ENVIRONMENT site
-          command: bin/ecs-deploy-app-container config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
-      - run: *announce_failure
-
-  staging_health_check:
-    docker:
-      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
-    steps:
-      - checkout
+          name: Deploy app service
+          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run:
-          name: Health check staging site
+          name: Health check app site
           command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null https://my.staging.dp3.us; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
@@ -175,6 +186,13 @@ jobs:
     environment:
       - APP_ENVIRONMENT: "prod"
     steps: *deploy_migrations_steps
+
+  deploy_prod_app_redirect:
+    docker:
+      - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
+    environment:
+      - APP_ENVIRONMENT: "prod"
+    steps: *deploy_app_redirect_steps
 
   deploy_prod_app:
     docker:
@@ -248,24 +266,28 @@ workflows:
           filters:
             branches:
               only: master
+
+      - deploy_staging_app_redirect:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
           filters:
             branches:
               only: master
-      - staging_health_check:
+
+      - deploy_prod_migrations:
           requires:
+            - deploy_staging_app_redirect
             - deploy_staging_app
           filters:
             branches:
               only: master
-      - deploy_prod_migrations:
-          requires:
-            - staging_health_check
-          filters:
-            branches:
-              only: master
+
       - deploy_prod_app:
           requires:
             - deploy_prod_migrations
