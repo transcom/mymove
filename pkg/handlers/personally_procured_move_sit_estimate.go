@@ -32,10 +32,15 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		if err != models.ErrFetchNotFound {
 			return responseForError(h.logger, err)
 		}
+		h.logger.Info("Couldn't find SIT Discount for COS D, trying with COS 2.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.String("move_date", params.PlannedMoveDate), zap.Error(err))
 		_, sitDiscount, err = models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "2", time.Time(params.PlannedMoveDate))
 		if err != nil {
+			h.logger.Info("Couldn't find SIT Discount for COS 2.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.String("move_date", params.PlannedMoveDate), zap.Error(err))
 			return responseForError(h.logger, err)
 		}
+		h.logger.Info("Found SIT Discount for TDL with COS 2.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.String("move_date", params.PlannedMoveDate))
+	} else {
+		h.logger.Info("Found SIT Discount for TDL with COS D.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.String("move_date", params.PlannedMoveDate))
 	}
 
 	inverseDiscount := (100.00 - sitDiscount) / 100
