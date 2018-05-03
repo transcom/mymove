@@ -58,7 +58,8 @@ jobs:
           - POSTGRES_DB: test_db
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - restore_cache:
           keys:
             - v1-go-pkg-dep-{{ checksum "Gopkg.lock" }}
@@ -121,7 +122,8 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     steps:
       - checkout
-      - setup_remote_docker
+      - setup_remote_docker:
+          docker_layer_caching: true
       - run: make db_build_docker
       - run:
           name: Tag and push migrations image
