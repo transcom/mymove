@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	// date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDateTime(date),
+		PlannedMoveDate: *fmtDate(date),
 		OriginZip:       "94540",
 		DestinationZip:  "78626",
 		WeightEstimate:  7500,
