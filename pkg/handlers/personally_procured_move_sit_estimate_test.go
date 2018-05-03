@@ -13,7 +13,7 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func (suite *HandlerSuite) TestShowPpmSitEstimateHandler() {
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandler() {
 	t := suite.T()
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date

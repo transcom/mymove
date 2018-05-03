@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http/httptest"
-	"runtime"
 	"time"
 
 	"github.com/gobuffalo/uuid"
@@ -17,8 +16,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
-
-	runtime.Breakpoint()
 
 	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -50,6 +47,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	cost := okResponse.Payload
 
 	// And: Returned SIT cost to be as expected
-	suite.Equal(int64(605204), cost.RangeMin, "RangeMin was not equal")
-	suite.Equal(int64(668910), cost.RangeMax, "RangeMax was not equal")
+	suite.Equal(int64(605204), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(668910), *cost.RangeMax, "RangeMax was not equal")
 }
