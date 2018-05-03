@@ -5,6 +5,7 @@ import { history } from 'shared/store';
 
 import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
+import MoveInfo from './MoveInfo';
 
 class QueueTable extends Component {
   render() {
@@ -22,11 +23,11 @@ class QueueTable extends Component {
 class Queues extends Component {
   render() {
     return (
-      <div className="usa-grid">
-        <div className="usa-width-one-fourth">
+      <div className="usa-grid grid-wide">
+        <div className="usa-width-one-sixth">
           <QueueList />
         </div>
-        <div className="usa-width-three-fourths">
+        <div className="usa-width-five-sixths">
           <QueueTable queueType={this.props.match.params.queueType} />
         </div>
       </div>
@@ -46,9 +47,12 @@ class OfficeWrapper extends Component {
           <QueueHeader />
           <main className="site__content">
             <div>
-              <div className="usa-grid" />
               <Switch>
                 <Redirect from="/" to="/queues/new_moves" exact />
+                <Route
+                  path="/queues/:queueType/moves/:moveID"
+                  component={MoveInfo}
+                />
                 <Route path="/queues/:queueType" component={Queues} />
               </Switch>
             </div>
