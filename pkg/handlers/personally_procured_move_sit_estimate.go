@@ -20,7 +20,7 @@ type ShowPPMSitEstimateHandler HandlerContext
 // It returns the discount rate applied to relevant SIT charge.
 func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams) middleware.Responder {
 	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
-	sitZip3 := engine.Zip5ToZip3(params.DestinationZip)
+	sitZip3 := rateengine.Zip5ToZip3(params.DestinationZip)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
 	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
 	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
