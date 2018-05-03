@@ -91,10 +91,6 @@ const initialState = {
 };
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
-    // case SET_PENDING_ORDERS_TYPE:
-    //   return Object.assign({}, state, {
-    //     pendingOrdersType: action.payload,
-    //   });
     case UPDATE_ORDERS:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,

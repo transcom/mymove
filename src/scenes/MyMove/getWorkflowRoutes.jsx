@@ -108,18 +108,18 @@ const pages = {
       </WizardPage>
     ),
   },
-  '/orders/:serviceMemberId/': {
+  '/orders/': {
     isInFlow: incompleteServiceMember,
     render: (key, pages) => ({ match }) => (
       <Orders pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/orders/:serviceMemberId/upload': {
+  '/orders/upload': {
     isInFlow: incompleteServiceMember,
     render: stub,
     description: 'Upload your orders',
   },
-  '/orders/:serviceMemberId/transition': {
+  '/orders/transition': {
     isInFlow: incompleteServiceMember, //todo: this is probably not the right check
     render: (key, pages, description, props) => ({ match }) => (
       <WizardPage

@@ -83,21 +83,22 @@ const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName);
 
 export class Orders extends Component {
-  componentDidMount() {
-    if (this.props.currentOrders) {
-      this.props.loadOrders(this.props.match.params.orderId);
-    }
-  }
+  // componentDidMount() {
+  //   if (!this.props.currentOrders) {
+  //     console.log('WHy are we reloading this?');
+  //     this.props.loadOrders(this.props.match.params.orderId);
+  //   }
+  // }
 
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     // Update if orders object already extant
     if (pendingValues) {
-      const toCreateOrUpdate = pick(pendingValues, subsetOfFields);
+      pendingValues['service_member_id'] = this.props.currentServiceMember.id;
       if (this.props.currentOrders) {
-        this.props.updateOrders(this.props.currentOrders.id, toCreateOrUpdate);
+        this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
-        this.props.createOrders(toCreateOrUpdate);
+        this.props.createOrders(pendingValues);
       }
     }
   };
@@ -109,9 +110,8 @@ export class Orders extends Component {
       this.props.user.loggedInUser &&
       !this.props.currentServiceMember
     ) {
-      this.props.loadServiceMember(
-        this.props.user.loggedInUser.service_member.id,
-      );
+      const serviceMemberID = this.props.user.loggedInUser.service_member.id;
+      this.props.loadServiceMember(serviceMemberID);
     }
   }
 
@@ -137,7 +137,7 @@ export class Orders extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <h1 className="sm-heading">Your Contact Info</h1>
+        <h1 className="sm-heading">Your Orders</h1>
         <SwaggerField
           fieldName="orders_type"
           swagger={this.props.schema}
