@@ -136,7 +136,7 @@ db_dev_run:
 			-d \
 			-p 5432:5432 \
 			postgres:10.1 && \
-		bin/wait-for-db && \
+		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 # This is just an alias for backwards compatibility
 db_dev_init: db_dev_run
@@ -146,9 +146,13 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: server_deps db_dev_run
-	./bin/soda migrate up
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		./soda -c ../config/database.yml -p ../migrations migrate up
 db_dev_migrate_down: server_deps db_dev_run
-	./bin/soda migrate down
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		./soda -c ../config/database.yml -p ../migrations migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
@@ -160,7 +164,10 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	./bin/soda -e test migrate up
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+			./soda -e test migrate -c ../config/database.yml -p ../migrations up
 
 adr_update:
 	yarn run adr-log

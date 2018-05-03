@@ -268,6 +268,18 @@ definitions:
       - id
       - created_at
       - updated_at
+  PPMEstimateRange:
+    type: object
+    properties:
+      range_min:
+        type: integer
+        title: Low estimate
+      range_max:
+        type: integer
+        title: High estimate
+    required:
+      - range_min
+      - range_max
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1237,6 +1249,48 @@ definitions:
       - last_modified_name
       - created_at
 paths:
+  /estimates/ppm:
+    get:
+      summary: Return a PPM cost estimate
+      description: Calculates a reimbursement range for a PPM move (excluding SIT)
+      operationId: showEstimatePPM
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: pickup_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/PPMEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /issues:
     post:
       summary: Create a new issue
