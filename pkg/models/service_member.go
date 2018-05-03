@@ -240,3 +240,17 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	// All required fields have a set value
 	return true
 }
+
+// FetchLatestOrder gets the latest order for a service member
+func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
+	var order Order
+	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
+	err := query.Eager("ServiceMember.User", "NewDutyStation.Address").First(&order)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		return Order{}, err
+	}
+	return order, nil
+}

@@ -1,4 +1,10 @@
-import { CreateOrders, UpdateOrders, GetOrders } from './api.js';
+import {
+  CreateOrders,
+  UpdateOrders,
+  GetOrders,
+  ShowCurrentOrdersAPI,
+} from './api.js';
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
 export const SET_PENDING_ORDERS_TYPE = 'SET_PENDING_ORDERS_TYPE';
@@ -11,6 +17,17 @@ export const CREATE_OR_UPDATE_ORDERS_FAILURE =
 export const GET_ORDERS = 'GET_ORDERS';
 export const GET_ORDERS_SUCCESS = 'GET_ORDERS_SUCCESS';
 export const GET_ORDERS_FAILURE = 'GET_ORDERS_FAILURE';
+
+const showCurrentOrdersType = 'SHOW_CURRENT_ORDERS';
+
+export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(
+  showCurrentOrdersType,
+);
+
+export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
+  showCurrentOrdersType,
+  ShowCurrentOrdersAPI,
+);
 
 export const createOrdersRequest = () => ({
   type: CREATE_ORDERS,
@@ -44,11 +61,6 @@ export const getOrdersFailure = error => ({
   type: GET_ORDERS_FAILURE,
   error,
 });
-
-// // Action creation
-// export function setPendingOrdersType(value) {
-//   return { type: SET_PENDING_ORDERS_TYPE, payload: value };
-// }
 
 export function createOrders(orderPayload) {
   return function(dispatch) {
@@ -84,7 +96,6 @@ export function loadOrders(orderId) {
 // Reducer
 const initialState = {
   currentOrders: null,
-  // pendingOrdersType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
   error: null,
@@ -120,6 +131,26 @@ export function ordersReducer(state = initialState, action) {
     case GET_ORDERS_FAILURE:
       return Object.assign({}, state, {
         currentOrders: {},
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
+      });
+    case SHOW_CURRENT_ORDERS.start:
+      return Object.assign({}, state, {
+        currentOrders: null,
+        hasSubmitSuccess: false,
+      });
+    case SHOW_CURRENT_ORDERS.success:
+      console.log('HOHHOHOIiii');
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+      });
+    case SHOW_CURRENT_ORDERS.failure:
+      console.log('ERROROROR', action.error);
+      return Object.assign({}, state, {
+        currentOrders: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,

@@ -27,8 +27,17 @@ export async function UpdateOrders(ordersId, ordersPayload) {
   const client = await getClient();
   const response = await client.apis.orders.updateOrders({
     ordersId,
-    putOrdersPayload: ordersPayload,
+    updateOrdersPayload: ordersPayload,
   });
   checkResponse(response, 'failed to update orders due to server error');
+  return response.body;
+}
+
+export async function ShowCurrentOrdersAPI(serviceMemberId) {
+  const client = await getClient();
+  const response = await client.apis.service_members.showServiceMemberOrders({
+    serviceMemberId,
+  });
+  checkResponse(response, 'failed to get current orders due to server error');
   return response.body;
 }

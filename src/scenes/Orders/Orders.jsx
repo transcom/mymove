@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders, loadOrders } from './ducks';
+import { createOrders, updateOrders, showCurrentOrders } from './ducks';
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -83,13 +83,6 @@ const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName);
 
 export class Orders extends Component {
-  // componentDidMount() {
-  //   if (!this.props.currentOrders) {
-  //     console.log('WHy are we reloading this?');
-  //     this.props.loadOrders(this.props.match.params.orderId);
-  //   }
-  // }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     // Update if orders object already extant
@@ -112,6 +105,7 @@ export class Orders extends Component {
     ) {
       const serviceMemberID = this.props.user.loggedInUser.service_member.id;
       this.props.loadServiceMember(serviceMemberID);
+      this.props.showCurrentOrders(serviceMemberID);
     }
   }
 
@@ -124,9 +118,8 @@ export class Orders extends Component {
       currentOrders,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentOrders
-      ? pick(currentOrders, subsetOfFields)
-      : null;
+    const initialValues = currentOrders ? currentOrders : null;
+
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
@@ -178,7 +171,7 @@ Orders.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { updateOrders, createOrders, loadOrders, loadServiceMember },
+    { updateOrders, createOrders, showCurrentOrders, loadServiceMember },
     dispatch,
   );
 }
@@ -187,12 +180,18 @@ function mapStateToProps(state) {
   const affiliation = currentServiceMember
     ? currentServiceMember.affiliation
     : null;
+  const error = state.serviceMember.error || state.orders.error;
+  const hasSubmitSuccess =
+    state.serviceMember.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
     affiliation,
     schema: {},
     formData: state.form[formName],
     ...state.serviceMember,
     user: state.loggedInUser,
+    currentOrders: state.orders.currentOrders,
+    error,
+    hasSubmitSuccess,
   };
   if (state.swagger.spec) {
     props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;

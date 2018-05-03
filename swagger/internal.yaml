@@ -1328,7 +1328,7 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /orders/{orderId}:
+  /orders/{ordersId}:
     put:
       summary: Updates orders
       description: All fields sent in this request will be set on the orders referenced
@@ -1337,7 +1337,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -1370,7 +1370,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -1896,6 +1896,35 @@ paths:
           description: user is not authorized to see this backup contact
         404:
           description: contact not found
+        500:
+          description: internal server error
+  /service_members/{serviceMemberId}/current_orders:
+    get:
+      summary: Returns the latest orders for a given service member
+      description: Returns orders
+      operationId: showServiceMemberOrders
+      tags:
+        - service_members
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        200:
+          description: the instance of the service member
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: service member not found
         500:
           description: internal server error
   /backup_contacts/{backupContactId}:
