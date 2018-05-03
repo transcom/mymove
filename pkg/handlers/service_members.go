@@ -17,6 +17,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	if serviceMember.DutyStation != nil {
 		currentStation = payloadForDutyStationModel(*serviceMember.DutyStation)
 	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
@@ -32,6 +33,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Telephone:               serviceMember.Telephone,
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
+		PersonalEmail:           fmtEmailPtr(serviceMember.PersonalEmail),
 		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
