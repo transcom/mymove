@@ -86,7 +86,8 @@ func (re *RateEngine) SitCharge(cwt unit.CWT, daysInSIT int, zip3 string, date t
 func (re *RateEngine) nonLinehaulChargeTotalCents(weight unit.Pound, originZip5 string,
 	destinationZip5 string, date time.Time) (unit.Cents, error) {
 
-	originZip3, destinationZip3 := re.Zip5ToZip3(originZip5, destinationZip5)
+	originZip3 := Zip5ToZip3(originZip5)
+	destinationZip3 := Zip5ToZip3(destinationZip5)
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
 		return 0, err

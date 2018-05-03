@@ -56,16 +56,15 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	return nil
 }
 
-// Zip5ToZip3 takes two ZIP5 strings and returns the ZIP3 representation of them.
-func (re *RateEngine) Zip5ToZip3(originZip5 string, destinationZip5 string) (originZip3 string, destinationZip3 string) {
-	originZip3 = originZip5[0:3]
-	destinationZip3 = destinationZip5[0:3]
-	return originZip3, destinationZip3
+// Zip5ToZip3 takes a ZIP5 string and returns the ZIP3 representation of it.
+func Zip5ToZip3(zip5 string) string {
+	return zip5[0:3]
 }
 
 // ComputePPM Calculates the cost of a PPM move.
 func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhInvDiscount float64, sitInvDiscount float64) (cost CostComputation, err error) {
-	originZip3, destinationZip3 := re.Zip5ToZip3(originZip5, destinationZip5)
+	originZip3 := Zip5ToZip3(originZip5)
+	destinationZip3 := Zip5ToZip3(destinationZip5)
 
 	// Linehaul charges
 	mileage, err := re.determineMileage(originZip5, destinationZip5)

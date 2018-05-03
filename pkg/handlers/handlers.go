@@ -90,8 +90,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler(context)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
-	internalAPI.PpmShowPpmSitEstimateHandler = ShowPpmSitEstimateHandler(context)
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
