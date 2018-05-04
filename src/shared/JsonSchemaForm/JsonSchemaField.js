@@ -24,7 +24,7 @@ const createCheckbox = (fieldName, field, nameAttr) => {
 };
 
 const configureDropDown = (swaggerField, props) => {
-  props.componentOverride = 'select';
+  props.componentNameOverride = 'select';
 
   return props;
 };
@@ -105,7 +105,7 @@ const normalizeDates = value => {
 
 const configureDateField = (swaggerField, props) => {
   props.type = 'date';
-  props.component = SingleDatePicker;
+  props.customComponent = SingleDatePicker;
   props.normalize = normalizeDates;
   return props;
 };
@@ -149,17 +149,29 @@ const renderInputField = ({
   step,
   title,
   always_required,
-  componentOverride,
+  componentNameOverride,
+  customComponent,
   meta: { touched, error, warning },
   children,
 }) => {
-  let componentName = 'input';
-  if (componentOverride) {
-    componentName = componentOverride;
+  let component = 'input';
+  if (componentNameOverride) {
+    component = componentNameOverride;
+  }
+
+  if (customComponent) {
+    component = customComponent;
+  }
+
+  if (componentNameOverride && customComponent) {
+    console.error(
+      'You should not have specified a componentNameOverride as well as a customComponent. For: ',
+      title,
+    );
   }
 
   const FieldComponent = React.createElement(
-    componentName,
+    component,
     {
       ...input,
       type: type,
@@ -278,9 +290,9 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
           validator.patternMatches(swaggerField.pattern, swaggerField.example),
         );
       }
-      // The last case is the simple text field / textarea which are the same but the componentOverride
+      // The last case is the simple text field / textarea which are the same but the componentNameOverride
       if (swaggerField.format === 'textarea') {
-        fieldProps.componentOverride = 'textarea';
+        fieldProps.componentNameOverride = 'textarea';
       }
       fieldProps = configureTextField(swaggerField, fieldProps);
     }
