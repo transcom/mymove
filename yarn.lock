@@ -6673,6 +6673,13 @@ react-router-redux@^5.0.0-alpha.8:
     prop-types "^15.6.0"
     react-router "^4.2.0"
 
+react-router-tabs@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/react-router-tabs/-/react-router-tabs-1.1.1.tgz#564db9aae301e7ace46681bafed3018c7fda428f"
+  dependencies:
+    prop-types "^15.6.0"
+    react-router-dom "^4.2.2"
+
 react-router@^4.2.0:
   version "4.2.0"
   resolved "https://registry.yarnpkg.com/react-router/-/react-router-4.2.0.tgz#61f7b3e3770daeb24062dae3eedef1b054155986"
