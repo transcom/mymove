@@ -7,29 +7,40 @@ class TextBoxWithEditLink extends Component {
   constructor() {
     super();
     this.state = {
-      formState: 'textarea',
-      isToggleOn: false,
+      isTextEditable: false,
     };
   }
 
   handleClick = e => {
     e.preventDefault();
     this.setState({
-      formState: 'form',
-      isToggleOn: true,
+      isTextEditable: true,
     });
-    console.log('formState: ', this.state.formState);
+    console.log('isTextEditable: ', this.state.isTextEditable);
   };
 
   render() {
-    return (
-      <form>
-        <p>This is where informative service member move text will go.</p>
-        <a href="#" onClick={this.handleClick}>
-          {this.state.isToggleOn ? 'Edit' : 'Save'}
-        </a>
-      </form>
-    );
+    if (this.state.isTextEditable === false) {
+      return (
+        <form>
+          <p>This is where informative service member move text will go.</p>
+          <a href="#" onClick={this.handleClick}>
+            Edit
+          </a>
+        </form>
+      );
+    } else {
+      return (
+        <form>
+          <textarea>
+            This is where informative service member move text will go.
+          </textarea>
+          <a href="#" onClick={this.handleClick}>
+            Save
+          </a>
+        </form>
+      );
+    }
   }
 }
 
