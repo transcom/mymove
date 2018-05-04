@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -56,7 +55,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
+		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
 		LinehaulRate:                    50.5,
 		SITRate:                         50,
@@ -139,7 +138,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
+		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
 		LinehaulRate:                    50.5,
 		SITRate:                         50,
