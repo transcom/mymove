@@ -15,7 +15,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
-	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
@@ -67,7 +67,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	t := suite.T()
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
-	tsp, _ := testdatagen.MakeTSP(suite.db, "A Very Excellent TSP", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
