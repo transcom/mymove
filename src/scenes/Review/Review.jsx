@@ -14,13 +14,13 @@ import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
 import './Review.css';
 
 export class Review extends Component {
-  componentDidMount() {
+  componentWillMount() {
     this.props.loadPpm(this.props.match.params.moveId);
   }
-  componentDidUpdate() {
-    const service_member = get(this.props.loggedInUser, 'service_member');
-    if (service_member) {
-      // this.props.indexBackupContacts(service_member.id);
+  componentWillUpdate(newProps) {
+    const service_member = get(newProps.loggedInUser, 'service_member');
+    if (get(this.props.loggedInUser, 'service_member') != service_member) {
+      this.props.indexBackupContacts(service_member.id);
     }
   }
   render() {
@@ -209,9 +209,9 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Backup Contact: </td>
-                    <td>
-                      <p>{contact.name}</p>
-                      <p>{contact.permission}</p>
+                    <td className="Todo">
+                      {contact.name} <br />
+                      {contact.permission}
                     </td>
                   </tr>
                   <tr>
