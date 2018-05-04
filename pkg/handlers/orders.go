@@ -82,7 +82,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
-	orderID, _ := uuid.FromString(params.OrderID.String())
+	orderID, _ := uuid.FromString(params.OrdersID.String())
 	order, err := models.FetchOrder(h.db, user, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
@@ -100,7 +100,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
-	orderID, err := uuid.FromString(params.OrderID.String())
+	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
