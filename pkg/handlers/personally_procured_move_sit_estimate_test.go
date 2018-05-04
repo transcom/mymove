@@ -3,7 +3,6 @@ package handlers
 import (
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -18,7 +17,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "D") // Victoria, TX to Salina, KS
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
@@ -56,7 +55,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
+		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
 		LinehaulRate:                    50.5,
 		SITRate:                         50,
@@ -101,7 +100,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 
 	// Given: a TDL, TSP and TSP performance with SITRate for relevant location and date
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
 	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
@@ -139,7 +138,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		RateCycleEnd:                    testdatagen.PeakRateCycleEnd,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
-		QualityBand:                     swag.Int(1),
+		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
 		LinehaulRate:                    50.5,
 		SITRate:                         50,

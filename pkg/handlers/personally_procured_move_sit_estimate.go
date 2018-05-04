@@ -25,19 +25,42 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
 
 	// Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
-	_, sitDiscount, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "D", plannedMoveDateTime)
+	_, sitDiscount, err := models.FetchDiscountRates(h.db,
+		params.OriginZip,
+		params.DestinationZip,
+		"D",
+		plannedMoveDateTime)
+
 	if err != nil {
 		if err != models.ErrFetchNotFound {
 			return responseForError(h.logger, err)
 		}
-		_, sitDiscount, err = models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "2", time.Time(params.PlannedMoveDate))
+		_, sitDiscount, err = models.FetchDiscountRates(h.db,
+			params.OriginZip,
+			params.DestinationZip,
+			"2",
+			plannedMoveDateTime)
+
 		if err != nil {
-			h.logger.Info("Couldn't find SIT Discount for COS D or 2.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.Time("move_date", plannedMoveDateTime), zap.Error(err))
+			h.logger.Info("Couldn't find SIT Discount for COS D or 2.",
+				zap.String("origin_zip", params.OriginZip),
+				zap.String("destination_zip", params.DestinationZip),
+				zap.Time("move_date", plannedMoveDateTime),
+				zap.Error(err),
+			)
 			return responseForError(h.logger, err)
 		}
-		h.logger.Info("Found SIT Discount for TDL with COS 2.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.Time("move_date", plannedMoveDateTime))
+		h.logger.Info("Found SIT Discount for TDL with COS 2.",
+			zap.String("origin_zip", params.OriginZip),
+			zap.String("destination_zip", params.DestinationZip),
+			zap.Time("move_date", plannedMoveDateTime),
+		)
 	} else {
-		h.logger.Info("Found SIT Discount for TDL with COS D.", zap.String("origin_zip", params.OriginZip), zap.String("destination_zip", params.DestinationZip), zap.Time("move_date", plannedMoveDateTime))
+		h.logger.Info("Found SIT Discount for TDL with COS D.",
+			zap.String("origin_zip", params.OriginZip),
+			zap.String("destination_zip", params.DestinationZip),
+			zap.Time("move_date", plannedMoveDateTime),
+		)
 	}
 
 	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)

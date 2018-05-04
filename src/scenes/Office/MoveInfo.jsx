@@ -29,7 +29,7 @@ export default class MoveInfo extends Component {
             <h1>Move Info: Johnson, Casey</h1>
           </div>
           <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new_moves" activeClassName="usa-current">
+            <NavLink to="/queues/new" activeClassName="usa-current">
               <span>New Moves Queue</span>
             </NavLink>
           </div>

@@ -18,14 +18,12 @@ type TransportationServiceProvider struct {
 	CreatedAt                time.Time `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 	StandardCarrierAlphaCode string    `json:"standard_carrier_alpha_code" db:"standard_carrier_alpha_code"`
-	Name                     string    `json:"name" db:"name"`
 }
 
 // TSPWithBVSAndOfferCount represents a list of TSPs along with their BVS
 // and offered shipment counts.
 type TSPWithBVSAndOfferCount struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
-	Name                      string    `json:"name" db:"name"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
 	OfferCount                int       `json:"offer_count" db:"offer_count"`
@@ -34,7 +32,6 @@ type TSPWithBVSAndOfferCount struct {
 // TSPWithBVSCount represents a list of TSPs along with their BVS counts.
 type TSPWithBVSCount struct {
 	ID                        uuid.UUID `json:"id" db:"id"`
-	Name                      string    `json:"name" db:"name"`
 	TrafficDistributionListID uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	BestValueScore            int       `json:"best_value_score" db:"best_value_score"`
 }
@@ -58,13 +55,11 @@ func (t TransportationServiceProviders) String() string {
 func (t *TransportationServiceProvider) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.StandardCarrierAlphaCode, Name: "StandardCarrierAlphaCode"},
-		&validators.StringIsPresent{Field: t.Name, Name: "Name"},
 	), nil
 }
 
 // MarshalLogObject is required to control the logging of this
 func (t TransportationServiceProvider) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddString("id", t.ID.String())
-	encoder.AddString("name", t.Name)
 	return nil
 }

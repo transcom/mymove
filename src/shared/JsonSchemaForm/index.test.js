@@ -94,7 +94,7 @@ it('renders select when there is an enum', () => {
 });
 
 it('renders date when format is date', () => {
-  expect(wrapper.find('input[type="date"]').length).toBe(1);
+  expect(wrapper.find('div.DayPickerInput').length).toBe(1);
 });
 
 it('renders a referenced field group', () => {

@@ -69,3 +69,8 @@ func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
 	}
 	return upload, nil
 }
+
+// DeleteUpload deletes an upload from the database
+func DeleteUpload(db *pop.Connection, upload *Upload) error {
+	return db.Destroy(upload)
+}

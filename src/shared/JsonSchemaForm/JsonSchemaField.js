@@ -2,7 +2,8 @@ import React, { Fragment } from 'react';
 
 import validator from './validator';
 import { Field } from 'redux-form';
-
+import moment from 'moment';
+import SingleDatePicker from './SingleDatePicker';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -98,9 +99,14 @@ const configureZipField = (swaggerField, props) => {
   return props;
 };
 
+const normalizeDates = value => {
+  return value ? moment(value).format('YYYY-MM-DD') : value;
+};
+
 const configureDateField = (swaggerField, props) => {
   props.type = 'date';
-
+  props.component = SingleDatePicker;
+  props.normalize = normalizeDates;
   return props;
 };
 
@@ -188,6 +194,25 @@ const renderInputField = ({
   );
 };
 
+export const SwaggerField = props => {
+  const { fieldName, swagger, required } = props;
+
+  let swaggerField;
+  if (swagger.properties) {
+    swaggerField = swagger.properties[fieldName];
+  }
+
+  if (swaggerField === undefined) {
+    return null;
+  }
+
+  if (required) {
+    swaggerField[ALWAYS_REQUIRED_KEY] = true;
+  }
+
+  return createSchemaField(fieldName, swaggerField, undefined);
+};
+
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
 const createSchemaField = (fieldName, swaggerField, nameSpace) => {
@@ -212,6 +237,10 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
+
+  if (fieldProps.always_required) {
+    fieldProps.validate.push(validator.isRequired);
+  }
 
   let children = null;
   if (swaggerField.enum) {
