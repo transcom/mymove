@@ -20,7 +20,7 @@ export class Review extends Component {
   componentDidUpdate() {
     const service_member = get(this.props.loggedInUser, 'service_member');
     if (service_member) {
-      this.props.indexBackupContacts(service_member.id);
+      // this.props.indexBackupContacts(service_member.id);
     }
   }
   render() {
