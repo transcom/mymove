@@ -10,7 +10,6 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "scac",
-		Name: "Transportation Service Provider 1",
 	}
 	suite.mustSave(&tsp)
 

@@ -18,8 +18,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUploadModel(upload models.Upload, url string) internalmessages.UploadPayload {
-	return internalmessages.UploadPayload{
+func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
+	return &internalmessages.UploadPayload{
 		ID:       fmtUUID(upload.ID),
 		Filename: swag.String(upload.Filename),
 		URL:      fmtURI(url),
@@ -131,5 +131,33 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(newUpload, url)
-	return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
+	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
+}
+
+// DeleteUploadHandler deletes an upload
+type DeleteUploadHandler HandlerContext
+
+// Handle deletes an upload
+func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+
+	uploadID, _ := uuid.FromString(params.UploadID.String())
+	upload, err := models.FetchUpload(h.db, user, uploadID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+	err = h.storage.Delete(key)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = models.DeleteUpload(h.db, &upload)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	return uploadop.NewDeleteUploadCreated()
 }

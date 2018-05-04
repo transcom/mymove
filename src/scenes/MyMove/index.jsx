@@ -12,8 +12,6 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
-import Uploader from 'shared/Uploader';
-import PrivateRoute from 'shared/User/PrivateRoute';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
@@ -57,7 +55,6 @@ export class AppWrapper extends Component {
                   component={Shipments}
                 />
                 <Route path="/feedback" component={Feedback} />
-                <PrivateRoute path="/upload" component={Uploader} />
                 {getWorkflowRoutes(props)}
                 <Route component={NoMatch} />
               </Switch>

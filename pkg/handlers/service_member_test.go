@@ -320,3 +320,28 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
 }
+
+func (suite *HandlerSuite) TestShowServiceMemberOrders() {
+	order1, _ := testdatagen.MakeOrder(suite.db)
+	order2, _ := testdatagen.MakeOrderForServiceMember(suite.db, order1.ServiceMember)
+
+	user := order1.ServiceMember.User
+
+	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
+	req = suite.authenticateRequest(req, user)
+
+	params := servicememberop.ShowServiceMemberOrdersParams{
+		HTTPRequest:     req,
+		ServiceMemberID: strfmt.UUID(order1.ServiceMemberID.String()),
+	}
+
+	handler := ShowServiceMemberOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	suite.IsType(&servicememberop.ShowServiceMemberOrdersOK{}, response)
+	okResponse := response.(*servicememberop.ShowServiceMemberOrdersOK)
+	responsePayload := okResponse.Payload
+
+	// Should return the most recently created order
+	suite.Equal(order2.ID.String(), responsePayload.ID.String())
+}
