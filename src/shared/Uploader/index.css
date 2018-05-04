@@ -1,0 +1,9 @@
+/* use a hand cursor intead of arrow for the action buttons */
+.filepond--file-action-button {
+    cursor: pointer;
+}
+
+/* underline color for "Browse" button */
+.filepond--label-action {
+    text-decoration-color: #aaa;
+}
