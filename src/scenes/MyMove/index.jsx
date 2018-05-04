@@ -68,7 +68,7 @@ const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready
   selectedMoveType: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.selected_move_type
-    : null,
+    : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
   hasMove: Boolean(state.submittedMoves.currentMove),
   moveId: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.id

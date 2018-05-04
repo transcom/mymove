@@ -143,7 +143,7 @@ export const renderSchema = (schema, uiSchema, nameSpace = '') => {
   }
 };
 
-const addUiSchemaRequiredFields = (schema, uiSchema) => {
+export const addUiSchemaRequiredFields = (schema, uiSchema) => {
   if (!uiSchema.requiredFields) return;
   if (!schema.properties) return;
   if (!schema.required) schema.required = uiSchema.requiredFields;

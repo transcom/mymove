@@ -90,7 +90,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -133,7 +133,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -176,7 +176,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -223,7 +223,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
