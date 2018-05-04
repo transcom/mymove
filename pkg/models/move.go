@@ -64,7 +64,7 @@ func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager().Find(&move, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

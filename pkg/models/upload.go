@@ -56,7 +56,7 @@ func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Upload{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
