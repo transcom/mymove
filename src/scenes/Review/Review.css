@@ -31,6 +31,7 @@
 .review-section td {
 	border: 0px;
 	text-align: left;
+	vertical-align: top;
 	/*background-color: green;*/
 	padding: 0.3rem 0rem 0.3rem 0rem;
 	width: 50%;
