@@ -16,8 +16,6 @@ class TextBoxWithEditLink extends Component {
     this.setState({
       isTextEditable: !this.state.isTextEditable,
     });
-    console.log('isTextEditable: ', this.state.isTextEditable);
-    console.log('value: ', this.state.value);
   };
 
   handleChange = e => {
@@ -39,7 +37,7 @@ class TextBoxWithEditLink extends Component {
       return (
         <form onSubmit={this.onSubmit}>
           <textarea value={this.state.value} onChange={this.handleChange} />
-          <a href="#" onClick={this.handleClick}>
+          <a href="/save" onClick={this.handleClick}>
             Save
           </a>
         </form>
@@ -50,7 +48,7 @@ class TextBoxWithEditLink extends Component {
       return (
         <div>
           <p>This is where informative service member move text will go.</p>
-          <a href="#" onClick={this.handleClick}>
+          <a href="/edit" onClick={this.handleClick}>
             Edit
           </a>
         </div>
@@ -61,7 +59,7 @@ class TextBoxWithEditLink extends Component {
       return (
         <div>
           <p>{this.state.value}</p>
-          <a href="#" onClick={this.handleClick}>
+          <a href="/edit" onClick={this.handleClick}>
             Edit
           </a>
         </div>
