@@ -41,5 +41,6 @@ func main() {
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
+		testdatagen.MakeServiceMember(db)
 	}
 }
