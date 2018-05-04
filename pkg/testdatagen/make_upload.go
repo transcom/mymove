@@ -11,7 +11,7 @@ import (
 // MakeUpload creates a single User.
 func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, error) {
 	if document == nil {
-		newDocument, err := MakeDocument(db, nil)
+		newDocument, err := MakeDocument(db, nil, "")
 		if err != nil {
 			log.Panic(err)
 		}
@@ -20,7 +20,7 @@ func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, e
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
-		UploaderID:  document.UploaderID,
+		UploaderID:  document.ServiceMemberID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
 		ContentType: "application/pdf",
