@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { get } from 'lodash';
+import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -10,6 +11,7 @@ import WizardPage from 'shared/WizardPage';
 
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
+import { showCurrentOrders } from 'scenes/Orders/ducks';
 
 import './Review.css';
 
@@ -21,6 +23,7 @@ export class Review extends Component {
     const service_member = get(newProps.loggedInUser, 'service_member');
     if (get(this.props.loggedInUser, 'service_member') !== service_member) {
       this.props.indexBackupContacts(service_member.id);
+      this.props.showCurrentOrders(service_member.id);
     }
   }
   render() {
@@ -30,39 +33,20 @@ export class Review extends Component {
       currentPpm,
       currentBackupContacts,
       loggedInUser,
+      currentOrders,
     } = this.props;
+    const yesNoMap = { true: 'Yes', false: 'No' };
     function getFullName() {
       const service_member = get(loggedInUser, 'service_member');
       if (!service_member) return;
       return `${service_member.first_name} ${service_member.middle_name ||
         ''} ${service_member.last_name} ${service_member.suffix || ''}`;
     }
-    function getFullResAddress() {
-      const residential_address = get(
-        loggedInUser,
-        'service_member.residential_address',
-      );
-      if (residential_address) {
-        return `${
-          residential_address.street_address_1
-        } ${residential_address.street_address_2 || ''} ${
-          residential_address.city
-        } ${residential_address.state} ${residential_address.postal_code}`;
-      }
-    }
-    function getFullBackupAddress() {
-      const backup_mailing_address = get(
-        loggedInUser,
-        'service_member.backup_mailing_address',
-      );
-      if (backup_mailing_address) {
-        return `${
-          backup_mailing_address.street_address_1
-        } ${backup_mailing_address.street_address_2 || ''} ${
-          backup_mailing_address.city
-        } ${backup_mailing_address.state} ${
-          backup_mailing_address.postal_code
-        }`;
+    function getFullAddress(address) {
+      if (address) {
+        return `${address.street_address_1} ${address.street_address_2 || ''} ${
+          address.city
+        }, ${address.state} ${address.postal_code}`;
       }
     }
     function getFullContactPreferences() {
@@ -73,15 +57,13 @@ export class Review extends Component {
         text_message_is_preferred: 'Text',
         email_is_preferred: 'Email',
       };
-      return `${
-        service_member.phone_is_preferred ? prefs['phone_is_preferred'] : ''
-      } ${
-        service_member.text_message_is_preferred
-          ? prefs['text_message_is_preferred']
-          : ''
-      } ${
-        service_member.email_is_preferred ? prefs['email_is_preferred'] : ''
-      }`;
+      const preferredMethods = [];
+      Object.keys(prefs).forEach(propertyName => {
+        if (service_member[propertyName]) {
+          preferredMethods.push(prefs[propertyName]);
+        }
+      });
+      return preferredMethods.join(', ');
     }
     function getFullBackupPermission(backup_contact) {
       const perms = {
@@ -91,6 +73,10 @@ export class Review extends Component {
           'Authorized to represent me in all aspects of this move (letter of authorization)',
       };
       return `${perms[backup_contact.permission]}`;
+    }
+    function formatDate(date) {
+      if (!date) return;
+      return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
     return (
       <WizardPage
@@ -143,10 +129,10 @@ export class Review extends Component {
               </tbody>
             </table>
 
-            <table className="review-todo">
+            <table>
               <tbody>
                 <tr>
-                  <th className="review-todo">
+                  <th>
                     Orders{' '}
                     <span className="align-right">
                       <a href="about:blank">Edit</a>
@@ -155,27 +141,34 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td> Orders Type: </td>
-                  <td>Permanent Change of Station</td>
+                  <td>{get(currentOrders, 'orders_type')}</td>
                 </tr>
                 <tr>
                   <td> Orders Date: </td>
-                  <td> 06/01/2018 </td>
+                  <td> {formatDate(get(currentOrders, 'issue_date'))}</td>
                 </tr>
                 <tr>
-                  <td> Report-by Date:: </td>
-                  <td> 07/11/2018</td>
+                  <td> Report-by Date: </td>
+                  <td>{formatDate(get(currentOrders, 'report_by_date'))}</td>
                 </tr>
                 <tr>
                   <td> New Duty Station: </td>
-                  <td> Fort Carson </td>
+                  <td> {get(currentOrders, 'new_duty_station.name')}</td>
                 </tr>
                 <tr>
-                  <td> Dependents? </td>
-                  <td> Yes </td>
+                  <td> Dependents?: </td>
+                  <td>
+                    {' '}
+                    {get(currentOrders, 'has_dependents') &&
+                      yesNoMap[get(currentOrders, 'has_dependents').toString()]}
+                  </td>
                 </tr>
                 <tr>
                   <td> Orders Uploaded: </td>
-                  <td> 8 photos uploaded</td>
+                  <td>
+                    {get(currentOrders, 'uploaded_orders.uploads') &&
+                      get(currentOrders, 'uploaded_orders.uploads').length}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -212,11 +205,22 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td> Current Mailing Address: </td>
-                  <td>{getFullResAddress()}</td>
+                  <td>
+                    {getFullAddress(
+                      get(loggedInUser, 'service_member.residential_address'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Backup Mailing Address: </td>
-                  <td>{getFullBackupAddress()}</td>
+                  <td>
+                    {getFullAddress(
+                      get(
+                        loggedInUser,
+                        'service_member.backup_mailing_address',
+                      ),
+                    )}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -251,67 +255,65 @@ export class Review extends Component {
             ))}
           </div>
         </div>
-
-        <div className="usa-grid-full ppm-container">
-          <h3>
-            <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your
-            stuff (PPM)
-          </h3>
-          <div className="usa-width-one-half review-section ppm-review-section">
-            <table>
-              <tbody>
-                <tr>
-                  <th>
-                    Dates & Locations
-                    <span className="align-right">
-                      <a href="about:blank">Edit</a>
-                    </span>
-                  </th>
-                </tr>
-                <tr>
-                  <td className="Todo"> Move Date: </td>
-                  <td className="Todo">
-                    {' '}
-                    {currentPpm && currentPpm.planned_move_date}
-                  </td>
-                </tr>
-                <tr>
-                  <td> Pickup ZIP Code: </td>
-                  <td> {currentPpm && currentPpm.pickup_zip}</td>
-                </tr>
-                <tr>
-                  <td> Delivery ZIP Code: </td>
-                  <td> {currentPpm && currentPpm.destination_zip}</td>
-                </tr>
-              </tbody>
-            </table>
+        {currentPpm && (
+          <div className="usa-grid-full ppm-container">
+            <h3>
+              <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your
+              stuff (PPM)
+            </h3>
+            <div className="usa-width-one-half review-section ppm-review-section">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>
+                      Dates & Locations
+                      <span className="align-right">
+                        <a href="about:blank">Edit</a>
+                      </span>
+                    </th>
+                  </tr>
+                  <tr>
+                    <td> Move Date: </td>
+                    <td>{formatDate(get(currentPpm, 'planned_move_date'))}</td>
+                  </tr>
+                  <tr>
+                    <td> Pickup ZIP Code: </td>
+                    <td> {currentPpm && currentPpm.pickup_zip}</td>
+                  </tr>
+                  <tr>
+                    <td> Delivery ZIP Code: </td>
+                    <td> {currentPpm && currentPpm.destination_zip}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div className="usa-width-one-half review-section ppm-review-section">
+              <table>
+                <tbody>
+                  <tr>
+                    <th>
+                      Weight
+                      <span className="align-right">
+                        <a href="about:blank">Edit</a>
+                      </span>
+                    </th>
+                  </tr>
+                  <tr>
+                    <td> Estimated Weight: </td>
+                    <td> {currentPpm && currentPpm.weight_estimate} lbs</td>
+                  </tr>
+                  <tr>
+                    <td> Estimated PPM Incentive: </td>
+                    <td className="Todo">
+                      {' '}
+                      {currentPpm && currentPpm.estimated_incentive}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
-          <div className="usa-width-one-half review-section ppm-review-section">
-            <table>
-              <tbody>
-                <tr>
-                  <th>
-                    Weight
-                    <span className="align-right">
-                      <a href="about:blank">Edit</a>
-                    </span>
-                  </th>
-                </tr>
-                <tr>
-                  <td> Estimated Weight: </td>
-                  <td> {currentPpm && currentPpm.weight_estimate} lbs</td>
-                </tr>
-                <tr>
-                  <td> Estimated PPM Incentive: </td>
-                  <td className="Todo">
-                    {' '}
-                    {currentPpm && currentPpm.estimated_incentive}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
+        )}
       </WizardPage>
     );
   }
@@ -320,10 +322,14 @@ export class Review extends Component {
 Review.propTypes = {
   currentPpm: PropTypes.object,
   currentBackupContacts: PropTypes.array,
+  currentOrders: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadPpm, indexBackupContacts }, dispatch);
+  return bindActionCreators(
+    { loadPpm, indexBackupContacts, showCurrentOrders },
+    dispatch,
+  );
 }
 
 function mapStateToProps(state) {
@@ -331,6 +337,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
+    currentOrders: state.orders.currentOrders,
   };
   return props;
 }
