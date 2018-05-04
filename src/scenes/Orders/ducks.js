@@ -138,15 +138,19 @@ export function ordersReducer(state = initialState, action) {
     case SHOW_CURRENT_ORDERS.start:
       return Object.assign({}, state, {
         currentOrders: null,
+        showCurrentOrdersSuccess: false,
       });
     case SHOW_CURRENT_ORDERS.success:
       return Object.assign({}, state, {
         currentOrders: action.payload,
+        showCurrentOrdersSuccess: true,
+        showCurrentOrdersError: false,
       });
     case SHOW_CURRENT_ORDERS.failure:
       const error = action.error.statusCode === 404 ? null : action.error;
       return Object.assign({}, state, {
         currentOrders: null,
+        showCurrentOrdersError: true,
         error,
       });
     default:
