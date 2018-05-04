@@ -61,7 +61,6 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
-		Name: "Standard Moving",
 	}
 	if err := save(db, &tsp); err != nil {
 		return err
@@ -212,7 +211,6 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: "STDM",
-		Name: "Standard Moving",
 	}
 	if err := save(db, &tsp); err != nil {
 		return err
