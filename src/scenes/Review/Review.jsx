@@ -34,6 +34,7 @@ export class Review extends Component {
       currentBackupContacts,
       loggedInUser,
       currentOrders,
+      schemaRank,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
     function getFullName() {
@@ -114,14 +115,19 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
-                  <td>{get(loggedInUser, 'service_member.rank')}</td>
+                  <td>
+                    {get(
+                      schemaRank['x-display-value'],
+                      get(loggedInUser, 'service_member.rank'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> DoD ID#: </td>
                   <td>{get(loggedInUser, 'service_member.edipi')}</td>
                 </tr>
                 <tr>
-                  <td> Current Duty Station: </td>
+                  <td className="Todo"> Current Duty Station: </td>
                   <td>
                     {get(loggedInUser, 'service_member.current_station.name')}
                   </td>
@@ -323,6 +329,7 @@ Review.propTypes = {
   currentPpm: PropTypes.object,
   currentBackupContacts: PropTypes.array,
   currentOrders: PropTypes.object,
+  schemaRank: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -338,7 +345,11 @@ function mapStateToProps(state) {
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
+    schemaRank: {},
   };
+  if (state.swagger.spec) {
+    props.schemaRank = state.swagger.spec.definitions.ServiceMemberRank;
+  }
   return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Review);
