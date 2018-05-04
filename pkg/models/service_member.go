@@ -39,7 +39,8 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                            `belongs_to:"address"`
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
-	BackupContacts         BackupContacts                      `has_many:"backup_contacts"`
+	Orders                 Orders                              `has_many:"orders"`
+	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
 }
@@ -230,21 +231,6 @@ func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, repo
 	return newOrders, responseVErrors, responseError
 }
 
-// FetchLatestOrder gets the latest order for a service member
-func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
-	var order Order
-	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
-	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
-			return Order{}, ErrFetchNotFound
-		}
-		return Order{}, err
-	}
-
-	return order, nil
-}
-
 // IsProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) IsProfileComplete() bool {
 
@@ -279,4 +265,18 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	// TODO: add check for station, SSN, and backup contacts
 	// All required fields have a set value
 	return true
+}
+
+// FetchLatestOrder gets the latest order for a service member
+func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
+	var order Order
+	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
+	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
+	if err != nil {
+		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		return Order{}, err
+	}
+	return order, nil
 }

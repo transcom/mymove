@@ -18,6 +18,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	if serviceMember.DutyStation != nil {
 		stationID = fmtUUID(serviceMember.DutyStation.ID)
 	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
@@ -33,6 +34,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Telephone:               serviceMember.Telephone,
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
+		PersonalEmail:           fmtEmailPtr(serviceMember.PersonalEmail),
 		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
@@ -130,32 +132,6 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 
 	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
-}
-
-// ShowServiceMemberOrdersHandler returns latest orders for a serviceMember
-type ShowServiceMemberOrdersHandler HandlerContext
-
-// Handle retrieves orders for a service member
-func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-
-	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	order, err := serviceMember.FetchLatestOrder(h.db)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	orderPayload, err := payloadForOrdersModel(h.storage, order)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
 }
 
 // PatchServiceMemberHandler patches a serviceMember via PATCH /serviceMembers/{serviceMemberId}
@@ -263,4 +239,30 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	}
 
 	return validate.NewErrors(), nil
+}
+
+// ShowServiceMemberOrdersHandler returns latest orders for a serviceMember
+type ShowServiceMemberOrdersHandler HandlerContext
+
+// Handle retrieves orders for a service member
+func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+
+	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	order, err := serviceMember.FetchLatestOrder(h.db)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
 }

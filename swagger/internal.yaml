@@ -1090,6 +1090,7 @@ definitions:
       - postal_code
   OrdersType:
     type: string
+    title: Orders type
     enum:
       - accession
       - brac
@@ -1122,11 +1123,13 @@ definitions:
         description: The date and time that these orders were cut.
         format: date
         example: "2018-04-26"
+        title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
         example: "2018-04-26"
+        title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
@@ -1165,11 +1168,13 @@ definitions:
         description: The date and time that these orders were cut.
         format: date
         example: "2018-04-26"
+        title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
         example: "2018-04-26"
+        title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
@@ -1391,7 +1396,7 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /orders/{orderId}:
+  /orders/{ordersId}:
     put:
       summary: Updates orders
       description: All fields sent in this request will be set on the orders referenced
@@ -1400,7 +1405,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -1433,7 +1438,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
