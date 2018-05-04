@@ -36,7 +36,7 @@ class OfficeWrapper extends Component {
           <main className="site__content">
             <div>
               <Switch>
-                <Redirect from="/" to="/queues/new_moves" exact />
+                <Redirect from="/" to="/queues/new" exact />
                 <Route
                   path="/queues/:queueType/moves/:moveID"
                   component={MoveInfo}

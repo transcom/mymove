@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 	params := queueop.ShowQueueParams{
 		HTTPRequest: req,
-		QueueType:   "new_moves",
+		QueueType:   "new",
 	}
 	// And: show Queue is queried
 	showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
