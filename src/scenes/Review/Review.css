@@ -1,12 +1,10 @@
 .review-content {
-	/*background-color*/
-	:blue ;
+	/*background-color: blue;*/
 	border-top: 1px solid black;
 }
 
 .review-section table {
-	/*background-color*/
-	:red ;
+	/*background-color:red ;*/
 	border: 0px;
 	text-align: left;
 	border-collapse: collapse;
@@ -18,8 +16,7 @@
 	font-weight: bold;
 	border: 0px;
 	text-align: left;
-	/*background-color*/
-	:red ;
+	/*background-color: red;*/
 	padding: 1rem 0rem 1rem 0rem;
 }
 
@@ -49,8 +46,7 @@
 .ppm-container {
 	margin: 4rem 0rem 0rem 0rem;
 	border: solid 1px;
-	/*background-color*/
-	:blue ;
+	/*background-color: blue;*/
 }
 .ppm-container h3 {
 	background-color: rgb(209, 219, 233);
@@ -62,10 +58,8 @@
 }
 .ppm-review-section {
 	padding: 2.5rem;
-	/*background-color*/
-	:blue ;
+	/*background-color: blue;*/
 }
-.review-Todo td {
-	/*background-color*/
-	:yellow ;
+.review-todo {
+	background-color: yellow;
 }

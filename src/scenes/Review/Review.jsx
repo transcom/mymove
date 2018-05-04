@@ -66,6 +66,13 @@ export class Review extends Component {
         }`;
       }
     }
+    function getFullContactPermission() {
+      const service_member = get(loggedInUser, 'service_member');
+      if (!service_member) return;
+      return `${service_member.phone_is_preferred ||
+        ''} ${service_member.text_message_is_preferred ||
+        ''} ${service_member.email_is_preferred || ''}`;
+    }
     return (
       <WizardPage
         handleSubmit={no_op}
@@ -117,10 +124,10 @@ export class Review extends Component {
               </tbody>
             </table>
 
-            <table className="review-Todo Todo">
+            <table className="review-todo">
               <tbody>
                 <tr>
-                  <th className="Todo">
+                  <th className="review-todo">
                     Orders{' '}
                     <span className="align-right">
                       <a href="about:blank">Edit</a>
@@ -181,10 +188,8 @@ export class Review extends Component {
                   <td>{get(loggedInUser, 'service_member.personal_email')}</td>
                 </tr>
                 <tr>
-                  <td> Preferred Contact Method: </td>
-                  <td>
-                    {get(loggedInUser, 'service_member.current_station.name')}
-                  </td>
+                  <td className="Todo"> Preferred Contact Method: </td>
+                  <td className="Todo">{getFullContactPermission()}</td>
                 </tr>
                 <tr>
                   <td> Current Mailing Address: </td>
