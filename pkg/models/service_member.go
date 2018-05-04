@@ -247,7 +247,7 @@ func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User", "NewDutyStation.Address").First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err
