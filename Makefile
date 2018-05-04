@@ -107,11 +107,15 @@ server_test: server_deps server_generate db_dev_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen & pass `-short` to exclude long running tests
 	# Use -test.parallel 1 to test packages serially and avoid database collisions
 	# Disable test caching with `-count 1` - caching was masking local test failures
-	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	# Database name comes from the env_vars, so set that before running tests.
+	DB_NAME=test_db \
+		go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_all: server_deps server_generate db_dev_run db_test_reset
-	# Like server_test but
-	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
+	# Like server_test but runs extended tests that may hit external services.
+	# Database name comes from the env_vars, so set that before running tests.
+	DB_NAME=test_db \
+		go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	# Don't run tests in /cmd or /pkg/gen
