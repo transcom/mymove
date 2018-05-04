@@ -108,6 +108,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler(context)
 
 	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler(context)
 	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler(context)

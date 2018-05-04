@@ -53,7 +53,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
-		OrderID:     *fmtUUID(order.ID),
+		OrdersID:    *fmtUUID(order.ID),
 	}
 	showHandler := ShowOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
@@ -84,7 +84,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	params := ordersop.UpdateOrdersParams{
 		HTTPRequest:         req,
-		OrderID:             *fmtUUID(order.ID),
+		OrdersID:            *fmtUUID(order.ID),
 		UpdateOrdersPayload: payload,
 	}
 	updateHandler := UpdateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
