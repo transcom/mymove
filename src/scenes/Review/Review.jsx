@@ -31,7 +31,6 @@ export class Review extends Component {
       currentBackupContacts,
       loggedInUser,
     } = this.props;
-    // const backupContact = currentBackupContacts;
     function getFullName() {
       const service_member = get(loggedInUser, 'service_member');
       if (!service_member) return;
@@ -66,7 +65,7 @@ export class Review extends Component {
         }`;
       }
     }
-    function getFullContactPermission() {
+    function getFullContactPreferences() {
       const service_member = get(loggedInUser, 'service_member');
       if (!service_member) return;
       const prefs = {
@@ -83,6 +82,15 @@ export class Review extends Component {
       } ${
         service_member.email_is_preferred ? prefs['email_is_preferred'] : ''
       }`;
+    }
+    function getFullBackupPermission(backup_contact) {
+      const perms = {
+        NONE: '',
+        VIEW: 'View all aspects of this move',
+        EDIT:
+          'Authorized to represent me in all aspects of this move (letter of authorization)',
+      };
+      return `${perms[backup_contact.permission]}`;
     }
     return (
       <WizardPage
@@ -200,7 +208,7 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td> Preferred Contact Method: </td>
-                  <td>{getFullContactPermission()}</td>
+                  <td>{getFullContactPreferences()}</td>
                 </tr>
                 <tr>
                   <td> Current Mailing Address: </td>
@@ -225,9 +233,9 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Backup Contact: </td>
-                    <td className="Todo">
+                    <td>
                       {contact.name} <br />
-                      {contact.permission}
+                      {getFullBackupPermission(contact)}
                     </td>
                   </tr>
                   <tr>
