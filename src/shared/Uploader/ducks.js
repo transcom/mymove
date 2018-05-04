@@ -1,4 +1,4 @@
-import { CreateDocument } from './api.js';
+import { CreateDocument } from 'shared/api.js';
 
 // Types
 export const CREATE_DOCUMENT = 'CREATE_DOCUMENT';

@@ -9,7 +9,7 @@ import (
 )
 
 // MakeDocument creates a single Document.
-func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember) (models.Document, error) {
+func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember, name string) (models.Document, error) {
 	if serviceMember == nil {
 		newServiceMember, err := MakeServiceMember(db)
 		if err != nil {
@@ -19,9 +19,9 @@ func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember) (mode
 	}
 
 	document := models.Document{
-		UploaderID:      serviceMember.UserID,
 		ServiceMemberID: serviceMember.ID,
 		ServiceMember:   *serviceMember,
+		Name:            name,
 	}
 
 	verrs, err := db.ValidateAndSave(&document)

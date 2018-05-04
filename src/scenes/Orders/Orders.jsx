@@ -73,6 +73,7 @@ export class Orders extends Component {
     // Update if orders object already extant
     if (pendingValues) {
       pendingValues['service_member_id'] = this.props.currentServiceMember.id;
+      pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
