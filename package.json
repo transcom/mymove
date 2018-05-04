@@ -9,6 +9,7 @@
     "enzyme-adapter-react-16": "^1.1.1",
     "filepond-plugin-image-preview": "^1.0.9",
     "filepond-polyfill": "^1.0.2",
+    "jest-canvas-mock": "^1.0.2",
     "js-cookie": "^2.2.0",
     "js-yaml": "^3.10.0",
     "jwt-decode": "^2.2.0",
