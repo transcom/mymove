@@ -48,6 +48,12 @@ Regenerate with "bin/generate-md-toc.sh"
 
 As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android.
 
+## Client Network Dependencies
+
+The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
+
+* S3 for document downloads; exact domains TBD.
+
 ## Development
 
 ### Git
