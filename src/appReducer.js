@@ -9,6 +9,7 @@ import swaggerReducer from 'shared/Swagger/ducks';
 import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
+import { ordersReducer } from 'scenes/Orders/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
@@ -22,6 +23,7 @@ export const appReducer = combineReducers({
   submittedIssues: issuesReducer,
   submittedMoves: moveReducer,
   ppm: ppmReducer,
+  orders: ordersReducer,
   serviceMember: serviceMemberReducer,
   shipments: shipmentsReducer,
   router: routerReducer,

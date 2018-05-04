@@ -12,18 +12,25 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForOrdersModel(user models.User, order models.Order) *internalmessages.OrdersPayload {
-	return &internalmessages.OrdersPayload{
+func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.OrdersPayload, error) {
+	documentPayload, err := payloadForDocumentModel(storage, order.UploadedOrders)
+	if err != nil {
+		return nil, err
+	}
+	payload := &internalmessages.OrdersPayload{
 		ID:              fmtUUID(order.ID),
 		CreatedAt:       fmtDateTime(order.CreatedAt),
 		UpdatedAt:       fmtDateTime(order.UpdatedAt),
-		ServiceMemberID: fmtUUID(order.ServiceMember.ID),
+		ServiceMemberID: fmtUUID(order.ServiceMemberID),
 		IssueDate:       fmtDate(order.IssueDate),
 		ReportByDate:    fmtDate(order.ReportByDate),
 		OrdersType:      order.OrdersType,
 		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:   fmtBool(order.HasDependents),
+		UploadedOrders:  documentPayload,
 	}
+
+	return payload, nil
 }
 
 // CreateOrdersHandler creates new orders via POST /orders
@@ -45,7 +52,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	stationID, err := uuid.FromString(payload.NewDutyStation.ID.String())
+	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -54,23 +61,21 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	newOrder := models.Order{
-		ServiceMemberID:  serviceMember.ID,
-		ServiceMember:    serviceMember,
-		IssueDate:        time.Time(*payload.IssueDate),
-		ReportByDate:     time.Time(*payload.ReportByDate),
-		OrdersType:       payload.OrdersType,
-		HasDependents:    *payload.HasDependents,
-		NewDutyStationID: dutyStation.ID,
-		NewDutyStation:   dutyStation,
-	}
-
-	verrs, err := models.SaveOrder(h.db, &newOrder)
+	newOrder, verrs, err := serviceMember.CreateOrder(
+		h.db,
+		time.Time(*payload.IssueDate),
+		time.Time(*payload.ReportByDate),
+		payload.OrdersType,
+		*payload.HasDependents,
+		dutyStation)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	orderPayload := payloadForOrdersModel(user, newOrder)
+	orderPayload, err := payloadForOrdersModel(h.storage, newOrder)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	return ordersop.NewCreateOrdersCreated().WithPayload(orderPayload)
 }
 
@@ -88,7 +93,10 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 		return responseForError(h.logger, err)
 	}
 
-	orderPayload := payloadForOrdersModel(user, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	return ordersop.NewShowOrdersOK().WithPayload(orderPayload)
 }
 
@@ -110,7 +118,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	}
 
 	payload := params.UpdateOrdersPayload
-	stationID, err := uuid.FromString(payload.NewDutyStation.ID.String())
+	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -131,6 +139,9 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	orderPayload := payloadForOrdersModel(user, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	return ordersop.NewUpdateOrdersOK().WithPayload(orderPayload)
 }

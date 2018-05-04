@@ -400,8 +400,11 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -497,8 +500,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -579,8 +585,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -1125,6 +1134,8 @@ definitions:
         title: Are dependents included in your orders?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
+      uploaded_orders:
+        $ref: '#/definitions/DocumentPayload'
       created_at:
         type: string
         format: date-time
@@ -1139,6 +1150,7 @@ definitions:
       - orders_type
       - has_dependents
       - new_duty_station
+      - uploaded_orders
       - created_at
       - updated_at
   CreateUpdateOrdersPayload:
@@ -1163,15 +1175,17 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
-      new_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
+      new_duty_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - service_member_id
       - issue_date
       - report_by_date
       - orders_type
       - has_dependents
-      - new_duty_station
+      - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
     properties:
@@ -1795,6 +1809,33 @@ paths:
           description: not found
         500:
           description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        201:
+          description: deleted upload
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /service_members:
     post:
       summary: Creates service member for a logged-in user
@@ -1875,6 +1916,35 @@ paths:
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: service member not found
+        500:
+          description: internal server error
+  /service_members/{serviceMemberId}/current_orders:
+    get:
+      summary: Returns the latest orders for a given service member
+      description: Returns orders
+      operationId: showServiceMemberOrders
+      tags:
+        - service_members
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        200:
+          description: the instance of the service member
+          schema:
+            $ref: '#/definitions/OrdersPayload'
         400:
           description: invalid request
         401:
