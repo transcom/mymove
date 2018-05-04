@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import PropTypes from 'prop-types';
 
 import './index.css';
 
@@ -8,6 +7,7 @@ class TextBoxWithEditLink extends Component {
     super();
     this.state = {
       isTextEditable: false,
+      value: '',
     };
   }
 
@@ -17,30 +17,56 @@ class TextBoxWithEditLink extends Component {
       isTextEditable: !this.state.isTextEditable,
     });
     console.log('isTextEditable: ', this.state.isTextEditable);
+    console.log('value: ', this.state.value);
+  };
+
+  handleChange = e => {
+    this.setState({
+      value: e.target.value,
+    });
+  };
+
+  handleSubmit = e => {
+    e.preventDefault();
+    this.setState({
+      value: e.target.value,
+    });
   };
 
   render() {
-    if (this.state.isTextEditable === false) {
+    if (this.state.isTextEditable) {
+      // editable, something submitted or not
       return (
-        <form>
-          <p>This is where informative service member move text will go.</p>
-          <a href="#" onClick={this.handleClick}>
-            Edit
-          </a>
-        </form>
-      );
-    } else {
-      return (
-        <form>
-          <textarea>
-            This is where informative service member move text will go.
-          </textarea>
+        <form onSubmit={this.onSubmit}>
+          <textarea value={this.state.value} onChange={this.handleChange} />
           <a href="#" onClick={this.handleClick}>
             Save
           </a>
         </form>
       );
     }
+    if (!this.state.isTextEditable && !this.state.value) {
+      // not editable, nothing submitted
+      return (
+        <div>
+          <p>This is where informative service member move text will go.</p>
+          <a href="#" onClick={this.handleClick}>
+            Edit
+          </a>
+        </div>
+      );
+    }
+    if (!this.state.isTextEditable && this.state.value) {
+      // not editable, something submitted
+      return (
+        <div>
+          <p>{this.state.value}</p>
+          <a href="#" onClick={this.handleClick}>
+            Edit
+          </a>
+        </div>
+      );
+    } // else...
   }
 }
 
