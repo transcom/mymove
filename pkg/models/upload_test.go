@@ -10,11 +10,11 @@ import (
 func (suite *ModelSuite) Test_UploadCreate() {
 	t := suite.T()
 
-	document, _ := testdatagen.MakeDocument(suite.db, nil)
+	document, _ := testdatagen.MakeDocument(suite.db, nil, "")
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
-		UploaderID:  document.UploaderID,
+		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",
@@ -35,13 +35,13 @@ func (suite *ModelSuite) Test_UploadCreate() {
 func (suite *ModelSuite) Test_UploadCreateWithID() {
 	t := suite.T()
 
-	document, _ := testdatagen.MakeDocument(suite.db, nil)
+	document, _ := testdatagen.MakeDocument(suite.db, nil, "")
 
 	id := uuid.Must(uuid.NewV4())
 	upload := models.Upload{
 		ID:          id,
 		DocumentID:  document.ID,
-		UploaderID:  document.UploaderID,
+		UploaderID:  document.ServiceMemberID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
 		ContentType: "application/pdf",

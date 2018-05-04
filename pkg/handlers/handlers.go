@@ -24,6 +24,7 @@ import (
 // FileStorer is the set of methods needed to store and retrieve objects.
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
+	Delete(string) error
 	Key(...string) string
 	PresignedURL(string, string) (string, error)
 }
@@ -117,6 +118,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
+	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 
