@@ -18,7 +18,7 @@
 	border: 0px;
 	text-align: left;
 	/*background-color: red;*/
-	padding: 1rem 0rem 1rem 0rem;
+	padding: 1.5rem 0rem 1rem 0rem;
 	width: 50%;
 }
 
@@ -33,7 +33,7 @@
 	text-align: left;
 	vertical-align: top;
 	/*background-color: green;*/
-	padding: 0.3rem 0rem 0.3rem 0rem;
+	padding: 0.2rem 0rem 0.2rem 0rem;
 	width: 50%;
 }
 .review-section td:first-child {

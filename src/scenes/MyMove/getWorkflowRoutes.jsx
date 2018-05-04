@@ -14,6 +14,7 @@ import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
+import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
@@ -118,7 +119,9 @@ const pages = {
   },
   '/orders/upload': {
     isInFlow: incompleteServiceMember,
-    render: stub,
+    render: (key, pages) => ({ match }) => (
+      <UploadOrders pages={pages} pageKey={key} match={match} />
+    ),
     description: 'Upload your orders',
   },
   '/orders/transition': {

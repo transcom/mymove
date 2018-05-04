@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/satori/go.uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -21,13 +19,17 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 		t.Fatalf("could not create serviceMember: %s", err)
 	}
 
-	userID := serviceMember.UserID
+	user := serviceMember.User
 
 	params := documentop.NewCreateDocumentParams()
-	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "test document", ServiceMemberID: *fmtUUID(serviceMember.ID)}
+	params.DocumentPayload = &internalmessages.PostDocumentPayload{
+		Name:            "test document",
+		ServiceMemberID: *fmtUUID(serviceMember.ID),
+	}
 
-	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, user)
+	params.HTTPRequest = req
 
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
