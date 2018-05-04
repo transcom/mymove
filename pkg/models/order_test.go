@@ -34,6 +34,12 @@ func (suite *ModelSuite) TestFetchOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypeRotational
 	hasDependents := true
+	uploadedOrder := Document{
+		ServiceMember:   serviceMember1,
+		ServiceMemberID: serviceMember1.ID,
+		Name:            UploadedOrdersDocumentName,
+	}
+	suite.mustSave(&uploadedOrder)
 	order := Order{
 		ServiceMemberID:  serviceMember1.ID,
 		ServiceMember:    serviceMember1,
@@ -43,6 +49,8 @@ func (suite *ModelSuite) TestFetchOrder() {
 		HasDependents:    hasDependents,
 		NewDutyStationID: dutyStation.ID,
 		NewDutyStation:   dutyStation,
+		UploadedOrdersID: uploadedOrder.ID,
+		UploadedOrders:   uploadedOrder,
 	}
 	suite.mustSave(&order)
 

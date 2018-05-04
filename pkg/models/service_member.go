@@ -187,22 +187,48 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 
 // CreateOrder creates an order model tied to the service member
 func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType internalmessages.OrdersType, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
-	newOrders := Order{
-		ServiceMemberID:  s.ID,
-		ServiceMember:    s,
-		IssueDate:        issueDate,
-		ReportByDate:     reportByDate,
-		OrdersType:       ordersType,
-		HasDependents:    hasDependents,
-		NewDutyStationID: newDutyStation.ID,
-		NewDutyStation:   newDutyStation,
-	}
+	var newOrders Order
+	responseVErrors := validate.NewErrors()
+	var responseError error
 
-	verrs, err := db.ValidateAndCreate(&newOrders)
-	if err != nil || verrs.HasAny() {
-		newOrders = Order{}
-	}
-	return newOrders, verrs, err
+	db.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		uploadedOrders := Document{
+			ServiceMemberID: s.ID,
+			ServiceMember:   s,
+			Name:            UploadedOrdersDocumentName,
+		}
+		verrs, err := db.ValidateAndCreate(&uploadedOrders)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		newOrders = Order{
+			ServiceMemberID:  s.ID,
+			ServiceMember:    s,
+			IssueDate:        issueDate,
+			ReportByDate:     reportByDate,
+			OrdersType:       ordersType,
+			HasDependents:    hasDependents,
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+			UploadedOrders:   uploadedOrders,
+			UploadedOrdersID: uploadedOrders.ID,
+		}
+
+		verrs, err = db.ValidateAndCreate(&newOrders)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return newOrders, responseVErrors, responseError
 }
 
 // IsProfileComplete checks if the profile has been completely filled out
@@ -245,7 +271,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User", "NewDutyStation.Address").First(&order)
+	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

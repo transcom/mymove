@@ -22,12 +22,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypeRotational
 	payload := &internalmessages.CreateUpdateOrdersPayload{
-		HasDependents:   fmtBool(hasDependents),
-		IssueDate:       fmtDate(issueDate),
-		ReportByDate:    fmtDate(reportByDate),
-		OrdersType:      ordersType,
-		NewDutyStation:  payloadForDutyStationModel(station),
-		ServiceMemberID: fmtUUID(sm.ID),
+		HasDependents:    fmtBool(hasDependents),
+		IssueDate:        fmtDate(issueDate),
+		ReportByDate:     fmtDate(reportByDate),
+		OrdersType:       ordersType,
+		NewDutyStationID: fmtUUID(station.ID),
+		ServiceMemberID:  fmtUUID(sm.ID),
 	}
 
 	params := ordersop.CreateOrdersParams{
@@ -74,12 +74,12 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	newOrdersType := internalmessages.OrdersTypeRotational
 	payload := &internalmessages.CreateUpdateOrdersPayload{
-		HasDependents:   fmtBool(order.HasDependents),
-		IssueDate:       fmtDate(order.IssueDate),
-		ReportByDate:    fmtDate(order.ReportByDate),
-		OrdersType:      newOrdersType,
-		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
-		ServiceMemberID: fmtUUID(order.ServiceMember.ID),
+		HasDependents:    fmtBool(order.HasDependents),
+		IssueDate:        fmtDate(order.IssueDate),
+		ReportByDate:     fmtDate(order.ReportByDate),
+		OrdersType:       newOrdersType,
+		NewDutyStationID: fmtUUID(order.NewDutyStationID),
+		ServiceMemberID:  fmtUUID(order.ServiceMember.ID),
 	}
 
 	params := ordersop.UpdateOrdersParams{
