@@ -19,7 +19,7 @@ export class Review extends Component {
   }
   componentWillUpdate(newProps) {
     const service_member = get(newProps.loggedInUser, 'service_member');
-    if (get(this.props.loggedInUser, 'service_member') != service_member) {
+    if (get(this.props.loggedInUser, 'service_member') !== service_member) {
       this.props.indexBackupContacts(service_member.id);
     }
   }
@@ -31,7 +31,7 @@ export class Review extends Component {
       currentBackupContacts,
       loggedInUser,
     } = this.props;
-    const backupContact = currentBackupContacts;
+    // const backupContact = currentBackupContacts;
     function getFullName() {
       const service_member = get(loggedInUser, 'service_member');
       if (!service_member) return;
@@ -69,9 +69,20 @@ export class Review extends Component {
     function getFullContactPermission() {
       const service_member = get(loggedInUser, 'service_member');
       if (!service_member) return;
-      return `${service_member.phone_is_preferred ||
-        ''} ${service_member.text_message_is_preferred ||
-        ''} ${service_member.email_is_preferred || ''}`;
+      const prefs = {
+        phone_is_preferred: 'Phone',
+        text_message_is_preferred: 'Text',
+        email_is_preferred: 'Email',
+      };
+      return `${
+        service_member.phone_is_preferred ? prefs['phone_is_preferred'] : ''
+      } ${
+        service_member.text_message_is_preferred
+          ? prefs['text_message_is_preferred']
+          : ''
+      } ${
+        service_member.email_is_preferred ? prefs['email_is_preferred'] : ''
+      }`;
     }
     return (
       <WizardPage
@@ -188,8 +199,8 @@ export class Review extends Component {
                   <td>{get(loggedInUser, 'service_member.personal_email')}</td>
                 </tr>
                 <tr>
-                  <td className="Todo"> Preferred Contact Method: </td>
-                  <td className="Todo">{getFullContactPermission()}</td>
+                  <td> Preferred Contact Method: </td>
+                  <td>{getFullContactPermission()}</td>
                 </tr>
                 <tr>
                   <td> Current Mailing Address: </td>
@@ -202,7 +213,7 @@ export class Review extends Component {
               </tbody>
             </table>
             {currentBackupContacts.map(contact => (
-              <table>
+              <table key={contact.id}>
                 <tbody>
                   <tr>
                     <th>
