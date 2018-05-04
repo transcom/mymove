@@ -15,7 +15,7 @@
     "moment": "^2.22.1",
     "path-to-regexp": "^2.2.0",
     "react": "^16.2.0",
-    "react-datepicker": "^1.4.1",
+    "react-day-picker": "^7.1.6",
     "react-dom": "^16.2.0",
     "react-highlight-words": "^0.11.0",
     "react-loadable": "^5.3.1",

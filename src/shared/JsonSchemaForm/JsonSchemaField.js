@@ -99,17 +99,13 @@ const configureZipField = (swaggerField, props) => {
   return props;
 };
 
-const formatDates = value => {
-  return moment(value);
-};
 const normalizeDates = value => {
-  return value ? value.format('YYYY-MM-DD') : value;
+  return value ? moment(value).format('YYYY-MM-DD') : value;
 };
 
 const configureDateField = (swaggerField, props) => {
   props.type = 'date';
   props.component = SingleDatePicker;
-  props.format = formatDates;
   props.normalize = normalizeDates;
   return props;
 };
