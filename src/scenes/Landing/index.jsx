@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -40,9 +40,12 @@ export class Landing extends Component {
         <h1>Welcome! </h1>
         <div>
           {loggedInUserError && (
-            <Alert type="error" heading="An error occurred">
-              There was an error loading your user information.
-            </Alert>
+            <Fragment>
+              <Alert type="error" heading="An error occurred">
+                There was an error loading your user information.
+              </Alert>
+              <LoginButton />
+            </Fragment>
           )}
           {createdServiceMemberError && (
             <Alert type="error" heading="An error occurred">

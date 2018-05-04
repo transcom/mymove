@@ -81,8 +81,26 @@ export class Orders extends Component {
     }
   };
 
+  componentDidMount() {
+    // If we have a logged in user at mount time, do our loading then.
+    if (this.props.user.loggedInUser) {
+      let serviceMemberID;
+      if (this.props.currentServiceMember) {
+        serviceMemberID = this.props.currentServiceMember.id;
+      } else if (this.props.user.loggedInUser.service_member) {
+        serviceMemberID = this.props.user.loggedInUser.service_member.id;
+      }
+      if (!this.props.currentServiceMember) {
+        this.props.loadServiceMember(serviceMemberID);
+      }
+      if (!this.props.currentOrders) {
+        this.props.showCurrentOrders(serviceMemberID);
+      }
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    // If we don't have a service member yet, fetch one when loggedInUser loads.
+    // If we don't have a service member yet, fetch it and the current orders when loggedInUser loads.
     if (
       !prevProps.user.loggedInUser &&
       this.props.user.loggedInUser &&
@@ -101,10 +119,13 @@ export class Orders extends Component {
       hasSubmitSuccess,
       error,
       currentOrders,
+      currentServiceMember,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
-
+    const serviceMemberId = currentServiceMember
+      ? currentServiceMember.id
+      : null;
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
@@ -114,6 +135,7 @@ export class Orders extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
+        additionalParams={{ serviceMemberId }}
       >
         <h1 className="sm-heading">Your Orders</h1>
         <SwaggerField
@@ -169,6 +191,7 @@ function mapStateToProps(state) {
   const hasSubmitSuccess =
     state.serviceMember.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
+    currentServiceMember,
     affiliation,
     schema: {},
     formData: state.form[formName],
