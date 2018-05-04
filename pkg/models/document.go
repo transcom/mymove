@@ -51,7 +51,7 @@ func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error
 	var document Document
 	err := db.Q().Eager().Find(&document, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
