@@ -7,7 +7,6 @@ import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { showCurrentOrders } from './ducks';
 import { no_op } from 'shared/utils';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import WizardPage from 'shared/WizardPage';
 import Uploader from 'shared/Uploader';
 
 import './UploadOrders.css';
