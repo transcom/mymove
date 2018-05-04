@@ -17,15 +17,42 @@ export const getUserTypes = helpers.generateAsyncActionTypes(
   GET_LOGGED_IN_USER,
 );
 
-export const loadLoggedInUser = helpers.generateAsyncActionCreator(
-  GET_LOGGED_IN_USER,
-  GetLoggedInUser,
-);
+const getLoggedInActions = helpers.generateAsyncActions(GET_LOGGED_IN_USER);
+export const loadLoggedInUser = () => {
+  return function(dispatch) {
+    const userInfo = getUserInfo();
+    if (!userInfo.isLoggedIn) return;
+    dispatch(getLoggedInActions.start());
+    GetLoggedInUser()
+      .then(item => dispatch(getLoggedInActions.success(item)))
+      .catch(error => dispatch(getLoggedInActions.error(error)));
+  };
+};
 
-export const loggedInUserReducer = helpers.generateAsyncReducer(
+const generatedReducer = helpers.generateAsyncReducer(
   GET_LOGGED_IN_USER,
   u => ({ loggedInUser: u }),
 );
+
+export const loggedInUserReducer = (state, action) => {
+  const mutatedState = generatedReducer(state, action);
+  //we want the service member info in logged in user to be up to date.
+  // In the long run we may want to change the server member reducer to work here
+  switch (action.type) {
+    case 'CREATE_SERVICE_MEMBER_SUCCESS':
+    case 'UPDATE_SERVICE_MEMBER_SUCCESS':
+    case 'GET_SERVICE_MEMBER_SUCCESS':
+      return {
+        ...mutatedState,
+        loggedInUser: {
+          ...mutatedState.loggedInUser,
+          service_member: action.payload,
+        },
+      };
+    default:
+      return mutatedState;
+  }
+};
 
 function getUserInfo() {
   const cookie = Cookies.get('user_session');

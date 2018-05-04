@@ -4,11 +4,12 @@ set -euo pipefail
 payload=$(
 cat <<EOM
 {
+    "channel": "#dp3-engineering",
     "attachments": [
         {
-            "fallback": "The $CIRCLE_BRANCH branch is broken: $CIRCLE_BUILD_URL",
+            "fallback": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken: $CIRCLE_BUILD_URL",
             "color": "#ff0000",
-            "pretext": "The $CIRCLE_BRANCH branch is broken!",
+            "pretext": "The $CIRCLE_PROJECT_REPONAME $CIRCLE_BRANCH branch is broken!",
             "title": "CircleCI job #$CIRCLE_BUILD_NUM",
             "title_link": "$CIRCLE_BUILD_URL",
             "text": "$(git --no-pager show --format=format:'%s')",

@@ -3,12 +3,13 @@ package handlers
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	authctx "github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -49,10 +50,10 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user1.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 
-	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{WeightEstimate: swag.Int64(12)}
+	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{WeightEstimate: swag.Int64(12), PickupZip: swag.String("00112"), DaysInStorage: swag.Int64(3)}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
 		MoveID: strfmt.UUID(move.ID.String()),
@@ -62,7 +63,6 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 	handler := CreatePersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newPPMParams)
-
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
 	createdIssuePayload := createdResponse.Payload
@@ -70,23 +70,17 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	fmt.Println(createdIssuePayload)
 
 	// Next try the wrong user
-	ctx = authctx.PopulateAuthContext(ctx, user2.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user2)
 	request = request.WithContext(ctx)
 	newPPMParams.HTTPRequest = request
 
 	badUserResponse := handler.Handle(newPPMParams)
-	// assert we got unauthorized
-	notAuthorizedResponse := badUserResponse.(*ppmop.CreatePersonallyProcuredMoveForbidden)
-
-	fmt.Println(notAuthorizedResponse)
+	suite.checkResponseForbidden(badUserResponse)
 
 	// Now try a bad move
 	newPPMParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 	badMoveResponse := handler.Handle(newPPMParams)
-	// assert we get the 404
-	notFoundResponse := badMoveResponse.(*ppmop.CreatePersonallyProcuredMoveNotFound)
-
-	fmt.Println(notFoundResponse)
+	suite.checkResponseNotFound(badMoveResponse)
 
 }
 
@@ -152,7 +146,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user1.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
@@ -185,6 +179,9 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
+	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
+	newMoveDate := time.Now()
+	destinationZip := swag.String("00112")
 
 	user1 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -199,20 +196,23 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.mustSave(&move)
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:         move.ID,
-		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		MoveID:          move.ID,
+		Size:            &initialSize,
+		WeightEstimate:  initialWeight,
+		PlannedMoveDate: &initialMoveDate,
+		DestinationZip:  destinationZip,
 	}
 	suite.mustSave(&ppm1)
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user1.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:           &newSize,
-		WeightEstimate: newWeight,
+		Size:            &newSize,
+		WeightEstimate:  newWeight,
+		PlannedMoveDate: fmtDatePtr(&newMoveDate),
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -237,14 +237,23 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	if patchPPMPayload.WeightEstimate != newWeight {
 		t.Error("Weight should have been updated.")
 	}
+
+	if !(*time.Time)(patchPPMPayload.PlannedMoveDate).Equal(newMoveDate) {
+		t.Error("MoveDate should have been updated.")
+	}
+
+	if *patchPPMPayload.DestinationZip != *destinationZip {
+		t.Error("DestinationZip should have been updated.")
+	}
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
-	t := suite.T()
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
+	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
+	newMoveDate := time.Now()
 
 	user1 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -265,20 +274,22 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	suite.mustSave(&move)
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:         move.ID,
-		Size:           &initialSize,
-		WeightEstimate: initialWeight,
+		MoveID:          move.ID,
+		Size:            &initialSize,
+		WeightEstimate:  initialWeight,
+		PlannedMoveDate: &initialMoveDate,
 	}
 	suite.mustSave(&ppm1)
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user2.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user2)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:           &newSize,
-		WeightEstimate: newWeight,
+		Size:            &newSize,
+		WeightEstimate:  newWeight,
+		PlannedMoveDate: fmtDatePtr(&newMoveDate),
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -291,15 +302,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	// assert we got back the 403 response
-	_, ok := response.(*ppmop.PatchPersonallyProcuredMoveForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseForbidden(response)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
-	t := suite.T()
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
@@ -338,7 +344,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user1.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
@@ -356,15 +362,13 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	// assert we got back the 403 response
-	_, ok := response.(*ppmop.PatchPersonallyProcuredMoveBadRequest)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseForbidden(response)
+
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	t := suite.T()
+
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
@@ -400,7 +404,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = authctx.PopulateAuthContext(ctx, user1.ID, "faketoken")
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
@@ -418,9 +422,10 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	// assert we got back the 403 response
-	_, ok := response.(*ppmop.PatchPersonallyProcuredMoveNotFound)
+	// assert we got back the badrequest response
+	_, ok := response.(*ppmop.PatchPersonallyProcuredMoveBadRequest)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
+
 }

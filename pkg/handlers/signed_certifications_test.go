@@ -113,10 +113,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*certop.CreateSignedCertificationForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseForbidden(response)
 
 	certs := []models.SignedCertification{}
 	suite.db.All(&certs)
@@ -166,10 +163,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*certop.CreateSignedCertificationNotFound)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseNotFound(response)
 
 	var certs []models.SignedCertification
 	suite.db.All(&certs)

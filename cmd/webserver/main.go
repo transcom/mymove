@@ -60,6 +60,18 @@ func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func httpsComplianceMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("httpsComplianceMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// set the HSTS header using values recommended by OWASP
+		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
+		w.Header().Set("strict-transport-security", "max-age=31536000; includeSubdomains; preload")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
@@ -97,6 +109,7 @@ func main() {
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
+	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 
 	flag.Parse()
 
@@ -162,11 +175,14 @@ func main() {
 		if *s3Region == "" {
 			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
 		}
+		if *s3KeyNamespace == "" {
+			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
+		}
 		aws := awssession.Must(awssession.NewSession(&aws.Config{
 			Region: s3Region,
 		}))
 
-		storer = storage.NewS3(*s3Bucket, logger, aws)
+		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
 		absTmpPath, err := filepath.Abs("tmp")
@@ -186,6 +202,7 @@ func main() {
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
 	site.Use(requestLoggerMiddleware)
+	site.Use(httpsComplianceMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check

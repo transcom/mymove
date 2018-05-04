@@ -15,13 +15,10 @@ func fmtUUID(u uuid.UUID) *strfmt.UUID {
 }
 
 func fmtUUIDPtr(u *uuid.UUID) *strfmt.UUID {
-	var su *strfmt.UUID
 	if u == nil {
-		su = nil
-	} else {
-		su = fmtUUID(*u)
+		return nil
 	}
-	return su
+	return fmtUUID(*u)
 }
 
 func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
@@ -32,6 +29,13 @@ func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
 func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
+}
+
+func fmtDatePtr(date *time.Time) *strfmt.Date {
+	if date == nil {
+		return nil
+	}
+	return (*strfmt.Date)(date)
 }
 
 func fmtURI(uri string) *strfmt.URI {
@@ -51,6 +55,13 @@ func fmtBool(b bool) *bool {
 func fmtEmail(email string) *strfmt.Email {
 	fmtEmail := strfmt.Email(email)
 	return &fmtEmail
+}
+
+func fmtEmailPtr(email *string) *strfmt.Email {
+	if email == nil {
+		return nil
+	}
+	return fmtEmail(*email)
 }
 
 func stringFromEmail(email *strfmt.Email) *string {

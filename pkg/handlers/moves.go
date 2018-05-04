@@ -78,36 +78,19 @@ type ShowMoveHandler HandlerContext
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	moveID, err := uuid.FromString(params.MoveID.String())
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
-		response = moveop.NewShowMoveBadRequest()
-		return response
+		return responseForError(h.logger, err)
 	}
 
-	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
-	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = moveop.NewPatchMoveInternalServerError()
-	} else if !moveResult.IsValid() {
-		switch errCode := moveResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = moveop.NewShowMoveNotFound()
-		case models.FetchErrorForbidden:
-			response = moveop.NewShowMoveForbidden()
-		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
-		}
-		return response
+	movePayload := payloadForMoveModel(user, *move)
+	return moveop.NewShowMoveOK().WithPayload(&movePayload)
 
-	} else {
-		movePayload := payloadForMoveModel(user, moveResult.Move())
-		response = moveop.NewShowMoveOK().WithPayload(&movePayload)
-	}
-	return response
 }
 
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
@@ -115,50 +98,27 @@ type PatchMoveHandler HandlerContext
 
 // Handle ... patches a new Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	var response middleware.Responder
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
-
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		h.logger.Fatal("Invalid MoveID, this should never happen.")
-	}
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	moveResult, err := models.GetMoveForUser(h.db, user.ID, moveID)
+	move, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
-		h.logger.Error("DB Error checking on move validity", zap.Error(err))
-		response = moveop.NewPatchMoveInternalServerError()
-	} else if !moveResult.IsValid() {
-		switch errCode := moveResult.ErrorCode(); errCode {
-		case models.FetchErrorNotFound:
-			response = moveop.NewPatchMoveNotFound()
-		case models.FetchErrorForbidden:
-			response = moveop.NewPatchMoveForbidden()
-		default:
-			h.logger.Fatal("An error type has occurred that is unaccounted for in this case statement.")
-		}
-		return response
-	} else { // The given move does belong to the current user.
-		move := moveResult.Move()
-		payload := params.PatchMovePayload
-		newSelectedMoveType := payload.SelectedMoveType
-
-		if newSelectedMoveType != nil {
-			move.SelectedMoveType = newSelectedMoveType
-		}
-
-		if verrs, err := h.db.ValidateAndUpdate(&move); verrs.HasAny() || err != nil {
-			if verrs.HasAny() {
-				h.logger.Error("DB Validation", zap.Error(verrs))
-			} else {
-				h.logger.Error("DB Update", zap.Error(err))
-			}
-			response = moveop.NewPatchMoveBadRequest()
-		} else {
-			movePayload := payloadForMoveModel(user, move)
-			response = moveop.NewPatchMoveCreated().WithPayload(&movePayload)
-		}
+		return responseForError(h.logger, err)
 	}
-	return response
+
+	payload := params.PatchMovePayload
+	newSelectedMoveType := payload.SelectedMoveType
+
+	if newSelectedMoveType != nil {
+		move.SelectedMoveType = newSelectedMoveType
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	movePayload := payloadForMoveModel(user, *move)
+	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 }

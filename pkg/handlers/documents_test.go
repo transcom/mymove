@@ -16,16 +16,15 @@ import (
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
+	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
 	if err != nil {
-		t.Fatalf("could not create move: %s", err)
+		t.Fatalf("could not create serviceMember: %s", err)
 	}
 
-	userID := move.UserID
+	userID := serviceMember.UserID
 
 	params := documentop.NewCreateDocumentParams()
-	params.MoveID = *fmtUUID(move.ID)
-	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "test document"}
+	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "test document", ServiceMemberID: *fmtUUID(serviceMember.ID)}
 
 	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
 	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
@@ -41,6 +40,10 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 
 	if uuid.Must(uuid.FromString(documentPayload.ID.String())) == uuid.Nil {
 		t.Errorf("got empty document uuid")
+	}
+
+	if uuid.Must(uuid.FromString(documentPayload.ServiceMemberID.String())) == uuid.Nil {
+		t.Errorf("got empty serviceMember uuid")
 	}
 
 	if documentPayload.Name == nil {

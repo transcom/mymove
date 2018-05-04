@@ -76,7 +76,10 @@ const configureTelephoneField = (swaggerField, props) => {
 const configureSSNField = (swaggerField, props) => {
   props.normalize = validator.normalizeSSN;
   props.validate.push(
-    validator.patternMatches(/^\d{3}-\d{2}-\d{4}$/, 'SSN must have 9 digits.'),
+    validator.patternMatches(
+      '^\\d{3}-\\d{2}-\\d{4}$',
+      'SSN must have 9 digits.',
+    ),
   );
   props.type = 'text';
   return props;
@@ -117,7 +120,7 @@ const configureEmailField = (swaggerField, props) => {
     validator.patternMatches(
       // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
       // but that is pretty obnoxious so we will risk the difference and use this simpler one
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       'Must be a valid email address',
     ),
   );
@@ -185,6 +188,25 @@ const renderInputField = ({
   );
 };
 
+export const SwaggerField = props => {
+  const { fieldName, swagger, required } = props;
+
+  let swaggerField;
+  if (swagger.properties) {
+    swaggerField = swagger.properties[fieldName];
+  }
+
+  if (swaggerField === undefined) {
+    return null;
+  }
+
+  if (required) {
+    swaggerField[ALWAYS_REQUIRED_KEY] = true;
+  }
+
+  return createSchemaField(fieldName, swaggerField, undefined);
+};
+
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
 const createSchemaField = (fieldName, swaggerField, nameSpace) => {
@@ -209,6 +231,10 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
+
+  if (fieldProps.always_required) {
+    fieldProps.validate.push(validator.isRequired);
+  }
 
   let children = null;
   if (swaggerField.enum) {

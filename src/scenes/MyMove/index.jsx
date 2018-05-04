@@ -8,7 +8,7 @@ import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
-import Header from 'shared/Header';
+import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import Uploader from 'shared/Uploader';
@@ -68,7 +68,7 @@ const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready
   selectedMoveType: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.selected_move_type
-    : null,
+    : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
   hasMove: Boolean(state.submittedMoves.currentMove),
   moveId: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.id

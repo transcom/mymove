@@ -112,7 +112,7 @@ func (suite *ModelSuite) Test_LinehaulDistanceValidation() {
 	suite.verifyValidationErrors(&invalidLinehaulRate, expErrors)
 }
 
-func (suite *ModelSuite) Test_FetchLinehaulRate() {
+func (suite *ModelSuite) Test_FetchBaseLinehaulRate() {
 	t := suite.T()
 
 	mySpecificRate := unit.Cents(474747)
