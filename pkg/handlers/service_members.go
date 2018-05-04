@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -13,9 +14,9 @@ import (
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var currentStation *internalmessages.DutyStationPayload
+	var stationID *strfmt.UUID
 	if serviceMember.DutyStation != nil {
-		currentStation = payloadForDutyStationModel(*serviceMember.DutyStation)
+		stationID = fmtUUID(serviceMember.DutyStation.ID)
 	}
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
@@ -40,7 +41,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
-		CurrentStation:          currentStation,
+		CurrentStationID:        stationID,
 	}
 	return &serviceMemberPayload
 }
@@ -67,8 +68,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 
 	var stationID *uuid.UUID
 	var station *models.DutyStation
-	if params.CreateServiceMemberPayload.CurrentStation != nil {
-		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStation.ID.String())
+	if params.CreateServiceMemberPayload.CurrentStationID != nil {
+		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
@@ -199,8 +200,8 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 	if payload.EmailIsPreferred != nil {
 		serviceMember.EmailIsPreferred = payload.EmailIsPreferred
 	}
-	if payload.CurrentStation != nil {
-		stationID, err := uuid.FromString(payload.CurrentStation.ID.String())
+	if payload.CurrentStationID != nil {
+		stationID, err := uuid.FromString(payload.CurrentStationID.String())
 		if err != nil {
 			return validate.NewErrors(), err
 		}
@@ -259,6 +260,9 @@ func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServic
 		return responseForError(h.logger, err)
 	}
 
-	orderPayload := payloadForOrdersModel(user, order)
+	orderPayload, err := payloadForOrdersModel(h.storage, order)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	return servicememberop.NewShowServiceMemberOrdersOK().WithPayload(orderPayload)
 }

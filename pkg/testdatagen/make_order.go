@@ -12,17 +12,21 @@ import (
 
 // MakeOrder creates a single Move and associated User.
 func MakeOrder(db *pop.Connection) (models.Order, error) {
-	var order models.Order
-
 	sm, err := MakeServiceMember(db)
 	if err != nil {
-		return order, err
+		return models.Order{}, err
 	}
 
+	return MakeOrderForServiceMember(db, sm)
+}
+
+// MakeOrderForServiceMember makes an order for a given service member
+func MakeOrderForServiceMember(db *pop.Connection, sm models.ServiceMember) (models.Order, error) {
+	var order models.Order
+
 	station := MakeAnyDutyStation(db)
-	if err != nil {
-		return order, err
-	}
+
+	document, _ := MakeDocument(db, &sm, models.UploadedOrdersDocumentName)
 
 	order = models.Order{
 		ServiceMemberID:  sm.ID,
@@ -33,6 +37,8 @@ func MakeOrder(db *pop.Connection) (models.Order, error) {
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:       internalmessages.OrdersTypeAccession,
 		HasDependents:    true,
+		UploadedOrdersID: document.ID,
+		UploadedOrders:   document,
 	}
 
 	verrs, err := db.ValidateAndSave(&order)
