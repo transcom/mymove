@@ -16,6 +16,7 @@ import TransitionToMove from 'scenes/Orders/TransitionToMove';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
+import PppDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
@@ -160,8 +161,9 @@ const pages = {
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
-    render: stub,
-    description: 'pickup zip, destination zip, secondary pickup, temp storage',
+    render: (key, pages) => ({ match }) => (
+      <PppDateAndLocations pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/ppm-size': {
     isInFlow: hasPPM,
