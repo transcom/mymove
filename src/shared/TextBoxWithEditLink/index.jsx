@@ -4,17 +4,29 @@ import PropTypes from 'prop-types';
 import './index.css';
 
 class TextBoxWithEditLink extends Component {
+  constructor() {
+    super();
+    this.state = {
+      formState: 'textarea',
+      isToggleOn: false,
+    };
+  }
+
   handleClick = e => {
     e.preventDefault();
-    console.log('It worked!');
+    this.setState({
+      formState: 'form',
+      isToggleOn: true,
+    });
+    console.log('formState: ', this.state.formState);
   };
 
   render() {
     return (
       <form>
-        <textarea />
+        <p>This is where informative service member move text will go.</p>
         <a href="#" onClick={this.handleClick}>
-          Edit
+          {this.state.isToggleOn ? 'Edit' : 'Save'}
         </a>
       </form>
     );
