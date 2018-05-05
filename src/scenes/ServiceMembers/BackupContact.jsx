@@ -89,8 +89,7 @@ const permissionsField = props => {
         className={authorizedChecked ? '' : 'disabled'}
       >
         Represent me in all aspects of this move (this person will be invited to
-        login and will be authorized with with power of attorney on your
-        behalf).
+        login and will be authorized with power of attorney on your behalf).
       </label>
     </Fragment>
   );
