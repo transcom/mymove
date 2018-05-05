@@ -268,6 +268,14 @@ definitions:
       - id
       - created_at
       - updated_at
+  PPMSitEstimate:
+    type: object
+    properties:
+      estimate:
+        type: integer
+        title: Value in cents of SIT estimate for PPM
+    required:
+      - estimate
   PPMEstimateRange:
     type: object
     properties:
@@ -1267,7 +1275,7 @@ paths:
     get:
       summary: Return a PPM cost estimate
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
-      operationId: showEstimatePPM
+      operationId: showPPMEstimate
       tags:
         - ppm
       parameters:
@@ -1297,6 +1305,52 @@ paths:
           description: created instance of orders
           schema:
             $ref: '#/definitions/PPMEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /estimates/ppm_sit:
+    get:
+      summary: Return a PPM move's SIT cost estimate
+      description: Calculates a reimbursment for a PPM move's SIT
+      operationId: showPPMSitEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: days_in_storage
+          type: integer
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: show PPM SIT estimate
+          schema:
+            $ref: '#/definitions/PPMSitEstimate'
         400:
           description: invalid request
         401:

@@ -86,7 +86,7 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -273,7 +273,7 @@ func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
 	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		return Order{}, err
