@@ -21,3 +21,12 @@ func TestRateCreateFromDecimal(t *testing.T) {
 		t.Errorf("wrong rate returned: expected %v, got %v", expected, rate)
 	}
 }
+
+func TestRateInvert(t *testing.T) {
+	rate := NewRateFromDecimal(.75).Invert()
+
+	expected := Rate(.25)
+	if rate != expected {
+		t.Errorf("wrong rate returned: expected %v, got %v", expected, rate)
+	}
+}

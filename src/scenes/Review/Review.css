@@ -1,0 +1,70 @@
+.review-content {
+	/*background-color: blue;*/
+	border-top: 1px solid black;
+}
+
+.review-section table {
+	/*background-color:red ;*/
+	border: 0px;
+	text-align: left;
+	border-collapse: collapse;
+	width: 100%;
+	margin: 1.5rem 0rem 0rem 0rem;
+	table-layout: fixed;
+}
+
+.review-section th {
+	font-weight: bold;
+	border: 0px;
+	text-align: left;
+	/*background-color: red;*/
+	padding: 1.5rem 0rem 1rem 0rem;
+	width: 50%;
+}
+
+.review-section tr {
+	/*background-color: red;*/
+	border: 0px;
+	text-align: left;
+}
+
+.review-section td {
+	border: 0px;
+	text-align: left;
+	vertical-align: top;
+	/*background-color: green;*/
+	padding: 0.2rem 0rem 0.2rem 0rem;
+	width: 50%;
+}
+.review-section td:first-child {
+	color: grey;
+	border: 0px;
+	/*width: 100px;*/
+}
+.align-right a {
+	float: right;
+	text-align: right;
+	text-decoration: none;
+	font-weight: normal;
+	/*background-color: blue;*/
+}
+.ppm-container {
+	margin: 4rem 0rem 0rem 0rem;
+	border: solid 1px;
+	/*background-color: blue;*/
+}
+.ppm-container h3 {
+	background-color: rgb(209, 219, 233);
+	padding: 1.5rem 1rem 1.5rem 1rem;
+}
+
+.ppm-container img {
+	height: 20px;
+}
+.ppm-review-section {
+	padding: 2.5rem;
+	/*background-color: blue;*/
+}
+.review-todo {
+	background-color: yellow;
+}

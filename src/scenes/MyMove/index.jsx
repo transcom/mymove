@@ -4,6 +4,7 @@ import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
+import Alert from 'shared/Alert';
 import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
@@ -11,8 +12,6 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
-import Uploader from 'shared/Uploader';
-import PrivateRoute from 'shared/User/PrivateRoute';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
@@ -42,15 +41,24 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
-            <Switch>
-              <Route exact path="/" component={Landing} />
-              <Route path="/submitted" component={SubmittedFeedback} />
-              <Route path="/shipments/:shipmentsStatus" component={Shipments} />
-              <Route path="/feedback" component={Feedback} />
-              <PrivateRoute path="/upload" component={Uploader} />
-              {getWorkflowRoutes(props)}
-              <Route component={NoMatch} />
-            </Switch>
+            {props.swaggerError && (
+              <Alert type="error" heading="An error occurred">
+                There was an error contacting the server.
+              </Alert>
+            )}
+            {!props.swaggerError && (
+              <Switch>
+                <Route exact path="/" component={Landing} />
+                <Route path="/submitted" component={SubmittedFeedback} />
+                <Route
+                  path="/shipments/:shipmentsStatus"
+                  component={Shipments}
+                />
+                <Route path="/feedback" component={Feedback} />
+                {getWorkflowRoutes(props)}
+                <Route component={NoMatch} />
+              </Switch>
+            )}
           </main>
           <Footer />
         </div>
@@ -66,6 +74,7 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => ({
   hasCompleteProfile: false, //todo update this when user service is ready
+  swaggerError: state.swagger.hasErrored,
   selectedMoveType: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.selected_move_type
     : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.

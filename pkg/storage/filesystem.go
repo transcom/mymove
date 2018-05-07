@@ -48,6 +48,13 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, md5 string) (*StoreR
 	return &StoreResult{}, nil
 }
 
+// Delete deletes the file at the specified key
+func (fs *Filesystem) Delete(key string) error {
+	joined := filepath.Join(fs.root, key)
+
+	return os.Remove(joined)
+}
+
 // Key returns a joined key
 func (fs *Filesystem) Key(args ...string) string {
 	return path.Join(args...)

@@ -5,20 +5,8 @@ import { history } from 'shared/store';
 
 import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
+import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
-
-class QueueTable extends Component {
-  render() {
-    return (
-      <div style={{ background: 'rgb(200,255,200)' }}>
-        <h3>QueueTable</h3>
-        <p>
-          Now showing the <strong>{this.props.queueType}</strong> queue!
-        </p>
-      </div>
-    );
-  }
-}
 
 class Queues extends Component {
   render() {
@@ -48,7 +36,7 @@ class OfficeWrapper extends Component {
           <main className="site__content">
             <div>
               <Switch>
-                <Redirect from="/" to="/queues/new_moves" exact />
+                <Redirect from="/" to="/queues/new" exact />
                 <Route
                   path="/queues/:queueType/moves/:moveID"
                   component={MoveInfo}

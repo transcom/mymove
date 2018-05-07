@@ -93,7 +93,7 @@ func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
 
 	err := IncrementTSPPerformanceOfferCount(suite.db, perf.ID)
@@ -115,7 +115,7 @@ func (suite *ModelSuite) Test_AssignQualityBandToTSPPerformance() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .3)
 	band := 1
 
@@ -145,11 +145,11 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 
 	// Make 5 (not divisible by 4) TSPs in this TDL with BVSs above MPS threshold
 	for i := 0; i < tspsToMake; i++ {
-		tsp, _ := testdatagen.MakeTSP(suite.db, "Test Shipper", testdatagen.RandomSCAC())
+		tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, 15, 0, .5, .6)
 	}
 	// Make 1 TSP in this TDL with BVS below the MPS threshold
-	mpsTSP, _ := testdatagen.MakeTSP(suite.db, "Low BVS Test Shipper", testdatagen.RandomSCAC())
+	mpsTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	testdatagen.MakeTSPPerformance(suite.db, mpsTSP, tdl, nil, mps-1, 0, .2, .9)
 
 	// Fetch TSPs in TDL
@@ -172,9 +172,9 @@ func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
+	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+1, 0, .4, .4)
@@ -355,11 +355,11 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	t := suite.T()
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
-	tsp4, _ := testdatagen.MakeTSP(suite.db, "Test TSP 4", testdatagen.RandomSCAC())
-	tsp5, _ := testdatagen.MakeTSP(suite.db, "Test TSP 5", testdatagen.RandomSCAC())
+	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp4, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp5, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	// TSPs should be orderd by offer_count first, then BVS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
@@ -395,9 +395,9 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
-	tsp3, _ := testdatagen.MakeTSP(suite.db, "Test TSP 3", testdatagen.RandomSCAC())
+	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	// What matter is the BVS score order; offer count has no influence.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, 90, 0, .5, .5)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, 50, 1, .3, .9)
@@ -409,16 +409,15 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 		t.Errorf("Failed to find TSP: %v", err)
 	} else if len(tsps) != 3 {
 		t.Errorf("Failed to find TSPs. Expected to find 3, found %d", len(tsps))
-	} else if tsps[0].TransportationServiceProviderID != tsp1.ID &&
-		tsps[1].TransportationServiceProviderID != tsp2.ID &&
+	} else if tsps[0].TransportationServiceProviderID != tsp1.ID ||
+		tsps[1].TransportationServiceProviderID != tsp2.ID ||
 		tsps[2].TransportationServiceProviderID != tsp3.ID {
-
-		t.Errorf("TSPs returned out of expected order.\n"+
-			"\tExpected: [%s, %s, %s]\nFound:    [%s, %s, %s]",
+		t.Errorf("\tExpected: [%s, %s, %s]\nFound: [%s, %s, %s]",
 			tsp1.ID, tsp2.ID, tsp3.ID,
 			tsps[0].TransportationServiceProviderID,
 			tsps[1].TransportationServiceProviderID,
-			tsps[2].TransportationServiceProviderID)
+			tsps[2].TransportationServiceProviderID,
+		)
 	}
 }
 
@@ -428,8 +427,8 @@ func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
-	tsp1, _ := testdatagen.MakeTSP(suite.db, "Test TSP 1", testdatagen.RandomSCAC())
-	tsp2, _ := testdatagen.MakeTSP(suite.db, "Test TSP 2", testdatagen.RandomSCAC())
+	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
 	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, nil, mps+1, 0, .3, .4)
 	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, nil, mps-1, 1, .9, .7)
@@ -453,7 +452,7 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	t := suite.T()
 
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
-	tsp, _ := testdatagen.MakeTSP(suite.db, "Quality Moving", testdatagen.RandomSCAC())
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 320, Region: 6})
 	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
