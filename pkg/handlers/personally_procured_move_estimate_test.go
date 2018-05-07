@@ -28,7 +28,6 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	req = suite.authenticateRequest(req, user)
 
 	date := time.Date(2018, time.June, 18, 0, 0, 0, 0, time.UTC)
-	// date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
 	params := ppmop.ShowPPMEstimateParams{
 		HTTPRequest:     req,
 		PlannedMoveDate: *fmtDate(date),
