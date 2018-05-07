@@ -7,7 +7,6 @@ import (
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -19,7 +18,12 @@ type ShowPPMEstimateHandler HandlerContext
 func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middleware.Responder {
 	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 
-	lhDiscount, _, err := models.FetchDiscountRates(h.db, params.OriginZip, params.DestinationZip, "2", time.Time(params.PlannedMoveDate))
+	lhDiscount, _, err := PPMDiscountFetch(h.db,
+		h.logger,
+		params.OriginZip,
+		params.DestinationZip,
+		time.Time(params.PlannedMoveDate),
+	)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
