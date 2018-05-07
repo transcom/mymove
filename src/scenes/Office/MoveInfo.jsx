@@ -17,19 +17,34 @@ const BasicsTabContent = () => {
   return (
     <div>
       <div>
-        <h2>Customer Info</h2>
+        <button>Approve Basics</button>
+        <button>Troubleshoot</button>
+        <button>Cancel Move</button>
+      </div>
+      <div>
+        <div>
+          <h2>Customer Info</h2>
+        </div>
         <TextBoxWithEditLink />
         <h2>Backup Info</h2>
         <TextBoxWithEditLink />
         <h2>Orders</h2>
         <TextBoxWithEditLink />
-        <h2>Accounting</h2>
-        <TextBoxWithEditLink />
-      </div>
-      <div>
-        <button>Approve</button>
-        <button>Troubleshoot</button>
-        <button>Cancel</button>
+        <div>
+          <h2>Accounting</h2>
+          <div>
+            <form>
+              <label>
+                Dept. Indicator
+                <input type="text" />
+              </label>
+              <label>
+                TAC
+                <input type="text" />
+              </label>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
