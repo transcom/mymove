@@ -304,7 +304,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      orders_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -318,7 +318,7 @@ definitions:
         format: date-time
     required:
       - id
-      - user_id
+      - orders_id
       - created_at
       - updated_at
   PatchMovePayload:
@@ -1514,8 +1514,8 @@ paths:
           description: internal server error
   /moves:
     post:
-      summary: Submits move for a logged-in user
-      description: Creates an instance of a move tied to a user
+      summary: Creates move tied to service member orders
+      description: Creates an instance of a move tied to a service member's orders
       operationId: createMove
       tags:
         - moves
