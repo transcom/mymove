@@ -7,12 +7,14 @@ import (
 	"time"
 
 	"github.com/gobuffalo/pop"
+
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MakeTSPPerformance makes a single best_value_score record
 func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score float64, offerCount int, linehaulRate float64, SITRate float64) (models.TransportationServiceProviderPerformance, error) {
+	tdl models.TrafficDistributionList, qualityBand *int, score float64, offerCount int, linehaulRate unit.Rate, SITRate unit.Rate) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,
@@ -71,7 +73,8 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 		minBvs := (qualityBand - 1) * 25
 		bvs := float64(100 - (rand.Intn(25) + minBvs))
 		// Make linehaul and SIT rates a percentage of BVS--in this case we'll call both discountRate
-		discountRate := float64(bvs) * .3
+		// lhRate should end up between 0 and 1
+		lhRate := unit.NewRateFromDecimal(float64(bvs) * .006)
 
 		// Set rounds according to the flag passed in
 		if rounds == "half" {
@@ -94,8 +97,8 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 			&qualityBand,
 			bvs,
 			offers,
-			discountRate,
-			discountRate,
+			lhRate,
+			lhRate,
 		)
 	}
 }

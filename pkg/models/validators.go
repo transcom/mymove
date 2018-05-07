@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
@@ -55,6 +56,19 @@ type Int64IsPresent struct {
 func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	if v.Field == 0 {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// RateIsValid validates that a Rate contains a value between 0 and 1.
+type RateIsValid struct {
+	Name  string
+	Field unit.Rate
+}
+
+// IsValid adds an error if the value is not between 0 and 1.
+func (v *RateIsValid) IsValid(errors *validate.Errors) {
+	if v.Field.Decimal() < 0 || v.Field.Decimal() > 1 {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be between 0 and 1", v.Name))
 	}
 }
 
