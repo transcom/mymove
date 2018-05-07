@@ -110,7 +110,7 @@ server_test: server_deps server_generate db_dev_run db_test_reset
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_all: server_deps server_generate db_dev_run db_test_reset
-	# Like server_test but
+	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_coverage: server_deps server_generate db_dev_run db_test_reset
