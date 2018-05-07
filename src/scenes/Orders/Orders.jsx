@@ -34,18 +34,24 @@ const YesNoBoolean = props => {
     <Fragment>
       <input
         id="yes"
+        className="inline_radio"
         type="radio"
         onChange={localOnChange}
         checked={yesChecked}
       />
-      <label htmlFor="yes">Yes</label>
+      <label className="inline_radio" htmlFor="yes">
+        Yes
+      </label>
       <input
         id="no"
+        className="inline_radio"
         type="radio"
         onChange={localOnChange}
         checked={noChecked}
       />
-      <label htmlFor="no">No</label>
+      <label id="no_label" className="inline_radio" htmlFor="no">
+        No
+      </label>
     </Fragment>
   );
 };
@@ -82,15 +88,22 @@ export class Orders extends Component {
     }
   };
 
+  componentDidMount() {
+    // If we have a logged in user at mount time, do our loading then.
+    if (this.props.currentServiceMember) {
+      const serviceMemberID = this.props.currentServiceMember.id;
+      this.props.showCurrentOrders(serviceMemberID);
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
-    // If we don't have a service member yet, fetch one when loggedInUser loads.
+    // If we don't have a service member yet, fetch it and the current orders when loggedInUser loads.
     if (
-      !prevProps.user.loggedInUser &&
-      this.props.user.loggedInUser &&
-      !this.props.currentServiceMember
+      !prevProps.currentServiceMember &&
+      this.props.currentServiceMember &&
+      !this.props.currentOrders
     ) {
-      const serviceMemberID = this.props.user.loggedInUser.service_member.id;
-      this.props.loadServiceMember(serviceMemberID);
+      const serviceMemberID = this.props.currentServiceMember.id;
       this.props.showCurrentOrders(serviceMemberID);
     }
   }
@@ -102,10 +115,13 @@ export class Orders extends Component {
       hasSubmitSuccess,
       error,
       currentOrders,
+      currentServiceMember,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
-
+    const serviceMemberId = currentServiceMember
+      ? currentServiceMember.id
+      : null;
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
@@ -115,6 +131,7 @@ export class Orders extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
+        additionalParams={{ serviceMemberId }}
       >
         <h1 className="sm-heading">Your Orders</h1>
         <SwaggerField
@@ -162,19 +179,20 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const currentServiceMember = state.serviceMember.currentServiceMember;
+  const currentServiceMember = state.loggedInUser.loggedInUser
+    ? state.loggedInUser.loggedInUser.service_member
+    : null;
   const affiliation = currentServiceMember
     ? currentServiceMember.affiliation
     : null;
-  const error = state.serviceMember.error || state.orders.error;
+  const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =
-    state.serviceMember.hasSubmitSuccess || state.orders.hasSubmitSuccess;
+    state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
+    currentServiceMember,
     affiliation,
     schema: {},
     formData: state.form[formName],
-    ...state.serviceMember,
-    user: state.loggedInUser,
     currentOrders: state.orders.currentOrders,
     error,
     hasSubmitSuccess,
