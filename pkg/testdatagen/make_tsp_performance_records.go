@@ -74,7 +74,7 @@ func MakeTSPPerformanceData(db *pop.Connection, rounds string) {
 		bvs := float64(100 - (rand.Intn(25) + minBvs))
 		// Make linehaul and SIT rates a percentage of BVS--in this case we'll call both discountRate
 		// lhRate should end up between 0 and 1
-		lhRate := unit.NewRateFromDecimal(float64(bvs) * .006)
+		lhRate := unit.Rate(float64(bvs) * .006)
 
 		// Set rounds according to the flag passed in
 		if rounds == "half" {

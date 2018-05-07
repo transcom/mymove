@@ -26,7 +26,7 @@ func (c Cents) MultiplyFloat64(f float64) Cents {
 
 // ApplyRate returns the value of self multiplied by the rate parameter
 func (c Cents) ApplyRate(r Rate) Cents {
-	return Cents(math.Round(float64(c.Int()) * r.Decimal()))
+	return Cents(math.Round(float64(c.Int()) * r.Float64()))
 }
 
 func (c Cents) String() string {
