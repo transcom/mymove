@@ -59,3 +59,12 @@ var DateOutsidePerformancePeriod = time.Date(TestYear, time.August, 1, 0, 0, 0, 
 
 // RateEngineDate is a date for the rate engine to use on generation for tests.
 var RateEngineDate = time.Date(TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
+
+// RateEngineScenarioMay15_2018 to be used in RateEngine scenarios
+var RateEngineScenarioMay15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
+
+// RateEngineScenarioOct15_2018 to be used in RateEngine scenarios
+var RateEngineScenarioOct15_2018 = time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
+
+// RateEngineScenarioMay15_2019 to be used in RateEngine scenarios
+var RateEngineScenarioMay15_2019 = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
