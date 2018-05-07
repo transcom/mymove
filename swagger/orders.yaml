@@ -160,7 +160,7 @@ paths:
     post:
       tags:
         - orders
-      summary: Nake an amendment to or cancel an existing set of orders by UUID
+      summary: Make an amendment to or cancel an existing set of orders by UUID
       description: |
         Creates a Revision of a set of orders. The Orders to be amended or canceled must already exist with the supplied UUID.
 
@@ -279,7 +279,7 @@ definitions:
         description: |
           Permanent Change of Assignment without Permanent Change of Address. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
 
-          If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and do authorize move expenses.
+          If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and should authorize move expenses.
 
           It is not unheard of for the initial revision of orders to have this set to false and then later to be amended to true and vice-versa.
       tdyEnRoute:
