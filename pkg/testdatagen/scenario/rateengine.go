@@ -1,12 +1,11 @@
 package scenario
 
 import (
-	"time"
-
 	"github.com/pkg/errors"
 
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -80,8 +79,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		SIT185ARateCents:   unit.Cents(1691),
 		SIT185BRateCents:   unit.Cents(65),
 		SITPDSchedule:      3,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &originServiceArea); err != nil {
 		return err
@@ -96,8 +95,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		SIT185ARateCents:   unit.Cents(1378),
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      2,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &destinationServiceArea); err != nil {
 		return err
@@ -110,8 +109,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		WeightLbsLower:     4000,
 		WeightLbsUpper:     4200,
 		RateCents:          unit.Cents(458300),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &linehaulRate); err != nil {
 		return err
@@ -121,8 +120,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		CwtMilesLower:      0,
 		CwtMilesUpper:      16001,
 		RateCents:          32834,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &shorthaulRate); err != nil {
 		return err
@@ -133,8 +132,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(16001),
 		RateCents:          unit.Cents(6130),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &fullPackRate); err != nil {
 		return err
@@ -143,8 +142,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           2,
 		RateMillicents:     643650,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &fullUnpackRate); err != nil {
 		return err
@@ -152,10 +151,10 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          RateEngineScenarioMay15_2018,
-		PerformancePeriodEnd:            RateEngineScenarioOct15_2018,
-		RateCycleStart:                  RateEngineScenarioMay15_2018,
-		RateCycleEnd:                    RateEngineScenarioOct15_2018,
+		PerformancePeriodStart:          testdatagen.RateEngineScenarioMay15_2018,
+		PerformancePeriodEnd:            testdatagen.RateEngineScenarioOct15_2018,
+		RateCycleStart:                  testdatagen.RateEngineScenarioMay15_2018,
+		RateCycleEnd:                    testdatagen.RateEngineScenarioOct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
@@ -169,10 +168,6 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 // RunRateEngineScenario2 runs... scenario 2.
 func RunRateEngineScenario2(db *pop.Connection) error {
-	RateEngineScenarioMay15_2018 := time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
-	RateEngineScenarioOct15_2018 := time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
-	RateEngineScenarioMay15_2019 := time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
-
 	zip3_945 := models.Tariff400ngZip3{
 		Zip3:          "945",
 		BasepointCity: "Walnut Creek",
@@ -227,8 +222,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(263),
 		ServiceChargeCents: unit.Cents(489),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 		SIT185ARateCents:   unit.Cents(1447),
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      3,
@@ -243,8 +238,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(78),
 		ServiceChargeCents: unit.Cents(452),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 		SIT185ARateCents:   unit.Cents(1642),
 		SIT185BRateCents:   unit.Cents(70),
 		SITPDSchedule:      3,
@@ -260,8 +255,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		WeightLbsLower:     7400,
 		WeightLbsUpper:     7600,
 		RateCents:          unit.Cents(1277900),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &linehaulRate); err != nil {
 		return err
@@ -271,8 +266,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		CwtMilesLower:      96001,
 		CwtMilesUpper:      128001,
 		RateCents:          18242,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &shorthaulRate); err != nil {
 		return err
@@ -283,8 +278,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(16001),
 		RateCents:          unit.Cents(6714),
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &fullPackRate); err != nil {
 		return err
@@ -293,8 +288,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           3,
 		RateMillicents:     704970,
-		EffectiveDateLower: RateEngineScenarioMay15_2018,
-		EffectiveDateUpper: RateEngineScenarioMay15_2019,
+		EffectiveDateLower: testdatagen.RateEngineScenarioMay15_2018,
+		EffectiveDateUpper: testdatagen.RateEngineScenarioMay15_2019,
 	}
 	if err := save(db, &fullUnpackRate); err != nil {
 		return err
@@ -302,10 +297,10 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          RateEngineScenarioMay15_2018,
-		PerformancePeriodEnd:            RateEngineScenarioOct15_2018,
-		RateCycleStart:                  RateEngineScenarioMay15_2018,
-		RateCycleEnd:                    RateEngineScenarioOct15_2018,
+		PerformancePeriodStart:          testdatagen.RateEngineScenarioMay15_2018,
+		PerformancePeriodEnd:            testdatagen.RateEngineScenarioOct15_2018,
+		RateCycleStart:                  testdatagen.RateEngineScenarioMay15_2018,
+		RateCycleEnd:                    testdatagen.RateEngineScenarioOct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
