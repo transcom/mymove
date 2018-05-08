@@ -3,12 +3,12 @@ package models
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -58,35 +58,17 @@ func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// AllowedFiletype validates that a content-type is contained in our list of accepted
-// types.
-type AllowedFiletype struct {
-	Name  string
-	Field string
+// AllowedFileType validates that a content-type is contained in our list of accepted types.
+type AllowedFileType struct {
+	validators.StringInclusion
 }
 
-// AllowedFiletypes are the types of files that are accepted for upload.
-var AllowedFiletypes = map[string]string{
-	"JPG": "image/jpeg",
-	"PNG": "image/png",
-	"PDF": "application/pdf",
-}
-
-// IsValid adds an error if the value is equal to 0.
-func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
-	for _, filetype := range AllowedFiletypes {
-		if filetype == v.Field {
-			return
-		}
-	}
-
-	filetypes := []string{}
-	for name := range AllowedFiletypes {
-		filetypes = append(filetypes, name)
-	}
-	sort.Strings(filetypes)
-	list := strings.Join(filetypes, ", ")
-	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
+// NewAllowedFileTypeValidator constructs as StringInclusion Validator which checks for allowed file upload types
+func NewAllowedFileTypeValidator(field string, name string) *AllowedFileType {
+	return &AllowedFileType{
+		validators.StringInclusion{Name: name,
+			Field: field,
+			List:  []string{"image/jpeg", "image/png", "application/pdf"}}}
 }
 
 // AffiliationIsPresent validates that a branch is present
@@ -125,5 +107,35 @@ type OrdersTypeIsPresent struct {
 func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// ValidateableModel is here simply because `validateable` is private to `pop`
+type ValidateableModel interface {
+	Validate(*pop.Connection) (*validate.Errors, error)
+}
+
+// FieldValidator is used to chain validations when a field of a is, itself, a model
+type FieldValidator struct {
+	connection *pop.Connection
+	field      ValidateableModel
+	name       string
+	Error      error
+}
+
+// NewFieldValidator constructs and
+func NewFieldValidator(c *pop.Connection, f ValidateableModel, name string) *FieldValidator {
+	return &FieldValidator{c, f, name, nil}
+}
+
+// IsValid adds the field(model)'s validation errors to the Errors for the parent. Also sets v.Error appropriately
+func (v *FieldValidator) IsValid(errors *validate.Errors) {
+	var localErrors *validate.Errors
+	key := validators.GenerateKey(v.name)
+	localErrors, v.Error = v.field.Validate(v.connection)
+	for _, verr := range localErrors.Errors {
+		for _, msg := range verr {
+			errors.Add(key, fmt.Sprintf("%s.%s", v.name, msg))
+		}
 	}
 }
