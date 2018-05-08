@@ -13,6 +13,9 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+// UploadedOrdersDocumentName is the name of an uploaded orders document
+const UploadedOrdersDocumentName = "uploaded_orders"
+
 // Order is a set of orders received by a service member
 type Order struct {
 	ID               uuid.UUID                   `json:"id" db:"id"`
@@ -26,6 +29,8 @@ type Order struct {
 	HasDependents    bool                        `json:"has_dependents" db:"has_dependents"`
 	NewDutyStationID uuid.UUID                   `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation   DutyStation                 `belongs_to:"duty_stations"`
+	UploadedOrders   Document                    `belongs_to:"documents"`
+	UploadedOrdersID uuid.UUID                   `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 }
 
 // String is not required by pop and may be deleted
@@ -75,9 +80,9 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.
 func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address").Find(&order, id)
+	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

@@ -7,29 +7,10 @@ import { bindActionCreators } from 'redux';
 import { updateServiceMember, loadServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './ServiceMembers.css';
 
-const uiSchema = {
-  title: 'Your Contact Info',
-  order: [
-    'telephone',
-    'secondary_telephone',
-    'personal_email',
-    'contact_preferences',
-  ],
-  requiredFields: ['telephone', 'personal_email'],
-  groups: {
-    contact_preferences: {
-      title: 'Preferred contact method during your move:',
-      fields: [
-        'phone_is_preferred',
-        'text_message_is_preferred',
-        'email_is_preferred',
-      ],
-    },
-  },
-};
 const subsetOfFields = [
   'telephone',
   'secondary_telephone',
@@ -67,8 +48,7 @@ export class ContactInfo extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      this.props.updateServiceMember(patch);
+      this.props.updateServiceMember(pendingValues);
     }
   };
 
@@ -80,26 +60,42 @@ export class ContactInfo extends Component {
       error,
       currentServiceMember,
       userEmail,
+      schema,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
-    if (initialValues && !initialValues.personal_email)
+    if (initialValues && !initialValues.personal_email) {
       initialValues.personal_email = userEmail;
+    }
     return (
       <ContactWizardForm
         handleSubmit={this.handleSubmit}
         className={formName}
-        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
         initialValues={initialValues}
-        schema={this.props.schema}
-        uiSchema={uiSchema}
-      />
+      >
+        <h1 className="sm-heading">Your Contact Info</h1>
+        <SwaggerField fieldName="telephone" swagger={schema} required />
+        <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+        <SwaggerField fieldName="personal_email" swagger={schema} required />
+
+        <fieldset key="contact_preferences">
+          <legend htmlFor="contact_preferences">
+            Preferred contact method during your move:
+          </legend>
+          <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+          <SwaggerField
+            fieldName="text_message_is_preferred"
+            swagger={schema}
+          />
+          <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+        </fieldset>
+      </ContactWizardForm>
     );
   }
 }

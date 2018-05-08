@@ -7,10 +7,7 @@ import { push } from 'react-router-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
-import {
-  JsonSchemaFormBody,
-  validateRequiredFields,
-} from 'shared/JsonSchemaForm';
+import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
 
 import {
@@ -29,21 +26,17 @@ export class WizardFormPage extends Component {
   }
   componentDidUpdate() {
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
-    if (this.props.error) window.scrollTo(0, 0);
+    if (this.props.serverError) window.scrollTo(0, 0);
   }
   componentDidMount() {
     window.scrollTo(0, 0);
   }
   beforeTransition(func) {
-    const { isAsync, dirty, pageList, pageKey, handleSubmit } = this.props;
+    const { dirty, pageList, pageKey, handleSubmit } = this.props;
     const path = func(pageList, pageKey);
     if (dirty && handleSubmit) {
       handleSubmit();
-      if (isAsync) {
-        this.setState({ transitionFunc: func });
-      } else {
-        this.goto(path);
-      }
+      this.setState({ transitionFunc: func });
     } else {
       this.goto(path);
     }
@@ -79,31 +72,26 @@ export class WizardFormPage extends Component {
       className,
       pageKey,
       pageList,
-      error,
+      children,
+      serverError,
       valid,
       dirty,
-      schema,
-      uiSchema,
     } = this.props;
     const canMoveForward = valid;
     const canMoveBackward =
       (valid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
-        {error && (
+        {serverError && (
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
-              {error.message}
+              {serverError.message}
             </Alert>
           </div>
         )}
         <div className="usa-width-one-whole">
           <form className={className} onSubmit={handleSubmit}>
-            <JsonSchemaFormBody
-              schema={schema}
-              uiSchema={uiSchema}
-              handleSubmit={() => {}}
-            />
+            {children}
           </form>
         </div>
         <div className="usa-width-one-whole lower-nav-btns">
@@ -149,15 +137,8 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  isAsync: PropTypes.bool.isRequired,
-  hasSucceeded: (props, propName) => {
-    if (props['isAsync'] && typeof props[propName] !== 'boolean') {
-      return new Error(
-        'Async WizardFormPages must have hasSucceeded boolean prop',
-      );
-    }
-  },
-  error: PropTypes.object,
+  hasSucceeded: PropTypes.bool.isRequired,
+  serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
   valid: PropTypes.bool,
@@ -165,12 +146,6 @@ WizardFormPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
-};
-
-WizardFormPage.defaultProps = {
-  isAsync: false,
-  valid: true,
-  dirty: true,
 };
 
 function mapDispatchToProps(dispatch) {

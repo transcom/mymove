@@ -10,14 +10,18 @@ import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
+import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
 
 import TransitionToMove from 'scenes/Orders/TransitionToMove';
+import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
+import PppDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
 const Placeholder = props => {
@@ -107,17 +111,20 @@ const pages = {
       </WizardPage>
     ),
   },
-  '/orders/:serviceMemberId/': {
+  '/orders/': {
     isInFlow: incompleteServiceMember,
-    render: stub,
-    description: 'Tell us about your move orders',
+    render: (key, pages) => ({ match }) => (
+      <Orders pages={pages} pageKey={key} match={match} />
+    ),
   },
-  '/orders/:serviceMemberId/upload': {
+  '/orders/upload': {
     isInFlow: incompleteServiceMember,
-    render: stub,
+    render: (key, pages) => ({ match }) => (
+      <UploadOrders pages={pages} pageKey={key} match={match} />
+    ),
     description: 'Upload your orders',
   },
-  '/orders/:serviceMemberId/transition': {
+  '/orders/transition': {
     isInFlow: incompleteServiceMember, //todo: this is probably not the right check
     render: (key, pages, description, props) => ({ match }) => (
       <WizardPage
@@ -159,8 +166,9 @@ const pages = {
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
-    render: stub,
-    description: 'pickup zip, destination zip, secondary pickup, temp storage',
+    render: (key, pages) => ({ match }) => (
+      <PppDateAndLocations pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/ppm-size': {
     isInFlow: hasPPM,
@@ -176,8 +184,9 @@ const pages = {
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    render: stub,
-    description: 'Review',
+    render: (key, pages) => ({ match }) => (
+      <Review pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,

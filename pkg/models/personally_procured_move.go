@@ -54,7 +54,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager().Find(&ppm, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.

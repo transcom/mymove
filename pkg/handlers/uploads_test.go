@@ -32,6 +32,22 @@ func (fake *fakeS3Storage) Key(args ...string) string {
 	return path.Join(args...)
 }
 
+func (fake *fakeS3Storage) Delete(key string) error {
+	itemIndex := -1
+	for i, f := range fake.putFiles {
+		if f.key == key {
+			itemIndex = i
+			break
+		}
+	}
+	if itemIndex == -1 {
+		return errors.New("can't delete item that doesn't exist")
+	}
+	// Remove file from putFiles
+	fake.putFiles = append(fake.putFiles[:itemIndex], fake.putFiles[itemIndex+1:]...)
+	return nil
+}
+
 func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
 	file := putFile{
 		key:      key,
@@ -64,7 +80,7 @@ func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
 func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
 	t := suite.T()
 
-	document, err := testdatagen.MakeDocument(suite.db, nil)
+	document, err := testdatagen.MakeDocument(suite.db, nil, "")
 	if err != nil {
 		t.Fatalf("could not create document: %s", err)
 	}

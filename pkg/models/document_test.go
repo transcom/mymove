@@ -14,7 +14,6 @@ func (suite *ModelSuite) Test_DocumentCreate() {
 	}
 
 	document := models.Document{
-		UploaderID:      serviceMember.UserID,
 		ServiceMemberID: serviceMember.ID,
 	}
 
@@ -33,8 +32,7 @@ func (suite *ModelSuite) Test_DocumentValidations() {
 	document := &models.Document{}
 
 	var expErrors = map[string][]string{
-		"uploader_id":       []string{"UploaderID can not be blank."},
-		"service_member_id": []string{"ServiceMemberID can not be blank."},
+		"service_member_id": {"ServiceMemberID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(document, expErrors)
