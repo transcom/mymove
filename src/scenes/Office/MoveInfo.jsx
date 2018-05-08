@@ -13,14 +13,273 @@ import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclama
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
 import './office.css';
+import TextBoxWithEditLink from 'shared/TextBoxWithEditLink';
 
 const BasicsTabContent = () => {
   return (
     <div>
-      <EditablePanel title="Orders" />
-      <EditablePanel title="Accounting">
-        <EditableTextField title="Field Name" name="name" />
-      </EditablePanel>
+      <div>
+        <button>Approve Basics</button>
+        <button>Troubleshoot</button>
+        <button>Cancel Move</button>
+      </div>
+      <div>
+        <div>
+          <h2>Customer Info</h2>
+          <div className="form-column">
+            <label>Title (optional)</label>
+            <input type="text" name="title" />
+          </div>
+          <div className="form-column">
+            <label>First name</label>
+            <input type="text" name="first-name" />
+          </div>
+          <div className="form-column">
+            <label>Middle name (optional)</label>
+            <input type="text" name="middle-name" />
+          </div>
+          <div className="form-column">
+            <label>Last name</label>
+            <input type="text" name="last-name" />
+          </div>
+          <div className="form-column">
+            <label>Suffix (optional)</label>
+            <input type="text" name="name-suffix" />
+          </div>
+          <div className="form-column">
+            <label>DoD ID</label>
+            <input type="number" name="dod-id" />
+          </div>
+          <div className="form-column">
+            <label>Branch</label>
+            <select name="branch">
+              <option value="army">Army</option>
+              <option value="navy">Navy</option>
+              <option value="air-force">Air Force</option>
+              <option value="marines">Marines</option>
+              <option value="coast-guard">Coast Guard</option>
+            </select>
+          </div>
+          <div className="form-column">
+            <label>Rank</label>
+            <select name="rank">
+              <option value="E-7">E-7</option>
+              <option value="another-rank">Another rank</option>
+              <option value="and-another-rank">And another rank</option>
+            </select>
+          </div>
+          <div className="form-column">
+            <b>Contact</b>
+            <label>Phone</label>
+            <input type="tel" name="contact-phone-number" />
+          </div>
+          <div className="form-column">
+            <label>Alternate phone</label>
+            <input type="tel" name="alternate-contact-phone-number" />
+          </div>
+          <div className="form-column">
+            <label>Email</label>
+            <input type="text" name="contact-email" />
+          </div>
+          <div className="form-column">
+            <label>Preferred contact methods</label>
+            <input type="checkbox" name="preferred-contact-phone" />Phone<br />
+            <input type="checkbox" name="preferred-contact-text-message" />Text
+            message<br />
+            <input type="checkbox" name="preferred-contact-email" />Email<br />
+          </div>
+          <div className="form-column">
+            <b>Current Residence Address</b>
+            <label>Address 1</label>
+            <input type="text" name="contact-address-1" />
+          </div>
+          <div className="form-column">
+            <label>Address 2</label>
+            <input type="text" name="contact-address-2" />
+          </div>
+          <div className="form-column">
+            <label>City</label>
+            <input type="text" name="contact-city" />
+          </div>
+          <div className="form-column">
+            <label>State</label>
+            <input type="text" name="contact-state" />
+          </div>
+          <div className="form-column">
+            <label>Zip</label>
+            <input type="number" name="contact-zip" />
+          </div>
+        </div>
+        <div>
+          <h2>Backup Info</h2>
+          <form>
+            <div className="form-column">
+              <b>Backup Contact 1</b>
+              <label>Name</label>
+              <input type="text" name="backup-contact-1-name" />
+            </div>
+            <div className="form-column">
+              <label>Phone</label>
+              <input type="tel" name="backup-contact-1-phone" />
+            </div>
+            <div className="form-column">
+              <label>Email (optional)</label>
+              <input type="text" name="backup-contact-1-email" />
+            </div>
+            <div className="form-column">
+              <b>Authorization</b>
+              <input
+                type="radio"
+                name="authorization"
+                value="none"
+                defaultChecked
+              />
+              <label htmlFor="none">None</label>
+              <input
+                type="radio"
+                name="authorization"
+                value="letter-of-authorization"
+              />
+              <label htmlFor="letter-of-authorization">
+                Letter of Authorization
+              </label>
+              <input
+                type="radio"
+                name="authorization"
+                value="sign-for-pickup-delivery-only"
+              />
+              <label htmlFor="sign-for-pickup-delivery-only">
+                Sign for pickup/delivery only
+              </label>
+            </div>
+            <div className="form-column">
+              <b>Backup Mailing Address</b>
+              <label>Mailing address 1</label>
+              <input type="text" name="backup-contact-1-mailing-address-1" />
+            </div>
+            <div className="form-column">
+              <label>Mailing address 2</label>
+              <input type="text" name="backup-contact-1-mailing-address-2" />
+            </div>
+            <div className="form-column">
+              <label>City</label>
+              <input type="text" name="backup-contact-1-city" />
+            </div>
+            <div className="form-column">
+              <label>State</label>
+              <input type="text" name="backup-contact-1-state" />
+            </div>
+          </form>
+        </div>
+        <div>
+          <h2>Orders</h2>
+          <div className="form-group">
+            <form>
+              <div className="within-form-group">
+                <div className="form-column">
+                  <label>Orders number</label>
+                  <input type="text" name="orders-number" />
+                </div>
+                <div className="form-column">
+                  <label>Date issued</label>
+                  <input type="text" name="date-issued" />
+                </div>
+              </div>
+              <div className="form-column">
+                <label>Move type</label>
+                <select name="move-type">
+                  <option value="permanent-change-of-station">
+                    Permanent Change of Station
+                  </option>
+                  <option value="separation">Separation</option>
+                  <option value="retirement">Retirement</option>
+                  <option value="local-move">Local Move</option>
+                  <option value="tdy">Temporary Duty</option>
+                  <option value="dependent-travel">Dependent Travel</option>
+                  <option value="bluebark">Bluebark</option>
+                  <option value="various">Various</option>
+                </select>
+              </div>
+              <div className="form-column">
+                <label>Orders type</label>
+                <select name="orders-type">
+                  <option value="shipment-of-hhg-permitted">
+                    Shipment of HHG Permitted
+                  </option>
+                  <option value="pcs-with-tdy-en-route">
+                    PCS with TDY En Route
+                  </option>
+                  <option value="shipment-of-hhg-restricted-or-prohibited">
+                    Shipment of HHG Restricted or Prohibited
+                  </option>
+                  <option value="hhg-restricted-area-hhg-prohibited">
+                    HHG Restricted Area - HHG Prohibited
+                  </option>
+                  <option value="course-of-instruction-20-weeks-or-more">
+                    Course of Instruction 20 Weeks or More
+                  </option>
+                  <option value="shipment-of-hhg-prohibited-but-authorized-within-20-weeks">
+                    Shipment of HHG Prohibited but Authorized within 20 Weeks
+                  </option>
+                  <option value="delayed-approval-20-weeks-or-more">
+                    Delayed Approval 20 Weeks or More
+                  </option>
+                </select>
+              </div>
+              <div className="form-column">
+                <label>Report by</label>
+                <input type="date" name="report-by-date" />
+              </div>
+              <div className="form-column">
+                <label>Current duty station</label>
+                <input type="text" name="current-duty-station" />
+              </div>
+              <div className="form-column">
+                <label>New duty station</label>
+                <input type="text" name="new-duty-station" />
+              </div>
+              <div>
+                <div className="form-column">
+                  <b>Entitlements</b>
+                  <label>Household goods</label>
+                  <input type="number" name="household-goods-weight" /> lbs
+                </div>
+                <div className="form-column">
+                  <label>Pro-gear</label>
+                  <input type="number" name="pro-gear-weight" /> lbs
+                </div>
+                <div className="form-column">
+                  <label>Spouse pro-gear</label>
+                  <input type="number" name="spouse-pro-gear-weight" /> lbs
+                </div>
+                <div className="form-column">
+                  <label>Short-term storage</label>
+                  <input type="number" name="short-term-storage-days" /> days
+                </div>
+                <div className="form-column">
+                  <label>Long-term storage</label>
+                  <input type="number" name="long-term-storage-days" /> days
+                </div>
+                <div className="form-column">
+                  <input type="checkbox" name="dependents-authorized" />Dependents
+                  authorized
+                </div>
+              </div>
+              <button>Cancel</button>
+              <button>Save</button>
+            </form>
+          </div>
+        </div>
+
+        <EditablePanel title="Accounting">
+          <EditableTextField
+            title="Dept. Indicator"
+            name="dept_indicator"
+            value="this will be a select"
+          />
+          <EditableTextField title="TAC" name="tac" value="selected tac" />
+        </EditablePanel>
+      </div>
     </div>
   );
 };

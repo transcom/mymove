@@ -6,6 +6,12 @@
   cursor: pointer;
 }
 
+.editable-panel-field {
+  display: inline-block;
+  width: 45%;
+  margin-right: 5%;
+}
+
 .editable-panel-header {
   font-size: 1.7rem;
   font-weight: bold;
@@ -44,3 +50,7 @@
   border-color: rgb(176,176,176);
 }
 
+.field-value {
+  font-weight: bold;
+  margin-left: .5em;
+}

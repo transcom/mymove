@@ -4,12 +4,24 @@ import PropTypes from 'prop-types';
 import './index.css';
 
 export const EditableTextField = props => {
-  return (
-    <div className="editable-field">
-      {props.title}: {props.name}{' '}
-      <em>{props.isEditable ? 'edit' : 'display'} mode</em>
-    </div>
-  );
+  let content;
+
+  if (props.isEditable) {
+    content = (
+      <label>
+        {props.title}
+        <input type="text" value={props.value} />
+      </label>
+    );
+  } else {
+    content = (
+      <span>
+        {props.title}: <span className="field-value">{props.value}</span>
+      </span>
+    );
+  }
+
+  return <div className="editable-panel-field">{content}</div>;
 };
 
 EditableTextField.propTypes = {
