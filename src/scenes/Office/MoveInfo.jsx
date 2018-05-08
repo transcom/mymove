@@ -53,8 +53,9 @@ export default class MoveInfo extends Component {
             </ul>
           </div>
         </div>
+
         <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-one-whole Todo">
+          <div className="usa-width-three-fourths Todo">
             <p>Displaying move {this.props.match.params.moveID}.</p>
 
             <RoutedTabs startPathWith={this.props.match.url}>
@@ -97,6 +98,7 @@ export default class MoveInfo extends Component {
               </Switch>
             </div>
           </div>
+          <div className="usa-width-one-fourths Todo">Buttons and Log</div>
         </div>
       </div>
     );
