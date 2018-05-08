@@ -1287,6 +1287,7 @@ definitions:
     type: string
     properties:
       department_indicator:
+        title: Department Indicator
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
@@ -2264,7 +2265,7 @@ paths:
           description: internal server error
     patch:
       summary: Updates accounting information for a move
-      description: Any fields sent in this request will be set on the referenced move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
       operationId: patchAccounting
       tags:
         - office
@@ -2292,6 +2293,6 @@ paths:
         403:
           description: user is not authorized
         404:
-          description: service member not found
+          description: move not found
         500:
           description: internal server error
