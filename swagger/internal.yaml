@@ -912,15 +912,15 @@ definitions:
     type: string
     x-nullable: true
     enum:
-      - army
-      - navy-marines
-      - airforce
-      - coastguard
+      - ARMY
+      - NAVY_MARINES
+      - AIRFORCE
+      - COASTGUARD
     x-display-value:
-      army: 21 - United States Army
-      navy-marines: 17 - United States Navy/United States Marine Corps
-      airforce: 57 - United States Air Force
-      coastguard: 70 - United States Coast Guard
+      ARMY: 21 - United States Army
+      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
+      AIRFORCE: 57 - United States Air Force
+      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1284,19 +1284,18 @@ definitions:
       - last_modified_name
       - created_at
   Accounting:
-    type: string
+    type: object
     properties:
-      department_indicator:
-        title: Department Indicator
+      dept_indicator:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
         example: CAJ8
         title: TAC
   PatchAccounting:
-    type: string
+    type: object
     properties:
-      department_indicator:
+      dept_indicator:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
