@@ -61,9 +61,10 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if ppm.Move.UserID != authUser.ID {
-		return nil, ErrFetchForbidden
-	}
+	// TODO: Get orders from orders ID. Get SM from orders. Check that SM user id matches passed in user id.
+	// if ppm.Move.UserID != authUser.ID {
+	// 	return nil, ErrFetchForbidden
+	// }
 
 	return &ppm, nil
 }
