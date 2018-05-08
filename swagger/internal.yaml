@@ -2233,7 +2233,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
-  /moves/{moveId}/accounting:
+  /queues/{queueType}/moves/{moveId}/accounting:
     get:
       summary: Returns accounting information for a move
       description: Returns accounting information for a move
@@ -2247,6 +2247,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: path
+          name: queueType
+          type: string
+          enum:
+          - new
+          - troubleshooting
+          - ppm
+          required: true
+          description: Queue type for move
       responses:
         200:
           description: the accounting information for a move
@@ -2275,6 +2284,15 @@ paths:
           format: uuid
           required: true
           description: UUID of the associated move
+        - in: path
+          name: queueType
+          type: string
+          enum:
+          - new
+          - troubleshooting
+          - ppm
+          required: true
+          description: Queue type for move
         - in: body
           name: patchAccounting
           required: true
