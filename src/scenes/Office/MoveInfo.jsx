@@ -20,6 +20,8 @@ const BasicsTabContent = () => {
       <div>
         <div>
           <h2>Customer Info</h2>
+          <a href="#">Edit</a>
+          <br />
           <div className="form-column">
             <label>Title (optional)</label>
             <input type="text" name="title" />
@@ -126,6 +128,8 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Backup Info</h2>
+          <a href="#">Edit</a>
+          <br />
           <form>
             <div className="form-column">
               <b>Backup Contact 1</b>
@@ -187,6 +191,8 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Orders</h2>
+          <a href="#">Edit</a>
+          <br />
           <div className="form-group">
             <form>
               <div className="within-form-group">
@@ -384,7 +390,7 @@ export default class MoveInfo extends Component {
               </Switch>
             </div>
           </div>
-          <div className="usa-width-one-fourths Todo">
+          <div className="usa-width-one-fourths">
             <div>
               <button>Approve Basics</button>
               <button>Troubleshoot</button>
