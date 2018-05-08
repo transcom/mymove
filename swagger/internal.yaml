@@ -395,7 +395,8 @@ definitions:
         x-nullable: true
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: personal email address
@@ -492,7 +493,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -577,7 +579,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -623,7 +626,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Email
@@ -670,7 +674,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
@@ -695,7 +700,8 @@ definitions:
         x-nullable: true
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: email address

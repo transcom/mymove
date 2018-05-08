@@ -121,19 +121,6 @@ const configureTextField = (swaggerField, props) => {
   return props;
 };
 
-const configureEmailField = (swaggerField, props) => {
-  props.validate.push(
-    validator.patternMatches(
-      // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
-      // but that is pretty obnoxious so we will risk the difference and use this simpler one
-      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-      'Must be a valid email address',
-    ),
-  );
-  props.type = 'text';
-
-  return props;
-};
 const configureEdipiField = (swaggerField, props) => {
   props.validate.push(
     validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
@@ -270,8 +257,6 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureSSNField(swaggerField, fieldProps);
     } else if (fieldFormat === 'zip') {
       fieldProps = configureZipField(swaggerField, fieldProps);
-    } else if (fieldFormat === 'email') {
-      fieldProps = configureEmailField(swaggerField, fieldProps);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
       // more cases go here. Datetime, Date,
