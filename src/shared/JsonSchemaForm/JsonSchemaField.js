@@ -259,8 +259,6 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureZipField(swaggerField, fieldProps);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
-      // more cases go here. Datetime, Date,
-      // more cases go here. Datetime, Date,
     } else {
       if (swaggerField.pattern) {
         console.error(
