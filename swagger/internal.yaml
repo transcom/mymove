@@ -1520,7 +1520,7 @@ paths:
           description: internal server error
   /orders/{ordersId}/moves:
     post:
-      summary: Creates move tied to service member orders
+      summary: Creates a move tied to service member orders
       description: Creates an instance of a move tied to a service member's orders
       operationId: createMove
       tags:

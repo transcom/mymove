@@ -2,12 +2,12 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	// "github.com/gobuffalo/uuid"
-	// "github.com/transcom/mymove/pkg/auth"
+	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	// "go.uber.org/zap"
+	"go.uber.org/zap"
 )
 
 func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
@@ -27,25 +27,30 @@ type CreateMoveHandler HandlerContext
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	var response middleware.Responder
-	// User should always be populated by middleware
-	// user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// Get orders for authorized user
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	orderID, _ := uuid.FromString(params.OrdersID.String())
+	order, err := models.FetchOrder(h.db, user, orderID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 
-	// Create a new move for an authenticated user
-	// newMove := models.Move{
-	// 	UserID:           user.ID,
-	// 	SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
-	// }
-	// if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
-	// 	if verrs.HasAny() {
-	// 		h.logger.Error("DB Validation", zap.Error(verrs))
-	// 	} else {
-	// 		h.logger.Error("DB Insertion", zap.Error(err))
-	// 	}
-	// 	response = moveop.NewCreateMoveBadRequest()
-	// } else {
-	// 	movePayload := payloadForMoveModel(user, newMove)
-	// 	response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
-	// }
+	// Create a new move for authenticated orders
+	newMove := models.Move{
+		OrdersID:         order.ID,
+		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
+	}
+	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
+		if verrs.HasAny() {
+			h.logger.Error("DB Validation", zap.Error(verrs))
+		} else {
+			h.logger.Error("DB Insertion", zap.Error(err))
+		}
+		response = moveop.NewCreateMoveBadRequest()
+	} else {
+		movePayload := payloadForMoveModel(order, newMove)
+		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
+	}
 	return response
 }
 
