@@ -2233,7 +2233,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
-  /move/{moveId}/accounting:
+  /moves/{moveId}/accounting:
     get:
       summary: Returns accounting information for a move
       description: Returns accounting information for a move
