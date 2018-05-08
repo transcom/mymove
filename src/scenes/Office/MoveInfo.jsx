@@ -13,16 +13,10 @@ import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclama
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
 import './office.css';
-import TextBoxWithEditLink from 'shared/TextBoxWithEditLink';
 
 const BasicsTabContent = () => {
   return (
     <div>
-      <div>
-        <button>Approve Basics</button>
-        <button>Troubleshoot</button>
-        <button>Cancel Move</button>
-      </div>
       <div>
         <div>
           <h2>Customer Info</h2>
@@ -366,7 +360,13 @@ export default class MoveInfo extends Component {
               </Switch>
             </div>
           </div>
-          <div className="usa-width-one-fourths Todo">Buttons and Log</div>
+          <div className="usa-width-one-fourths Todo">
+            <div>
+              <button>Approve Basics</button>
+              <button>Troubleshoot</button>
+              <button>Cancel Move</button>
+            </div>
+          </div>
         </div>
       </div>
     );
