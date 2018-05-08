@@ -18,7 +18,7 @@
     "moment": "^2.22.1",
     "path-to-regexp": "^2.2.0",
     "react": "^16.2.0",
-    "react-day-picker": "^7.1.6",
+    "react-day-picker": "^7.1.8",
     "react-dom": "^16.2.0",
     "react-filepond": "^2.0.6",
     "react-highlight-words": "^0.11.0",
@@ -48,8 +48,10 @@
     "eject": "NODE_PATH=./src react-scripts eject",
     "start": "NODE_PATH=./src react-scripts start",
     "test": "NODE_PATH=./src react-scripts test --env=jsdom",
-    "test:debug": "NODE_PATH=./src react-scripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "NODE_PATH=./src react-scripts test --coverage --env=jsdom",
+    "test:debug":
+      "NODE_PATH=./src react-scripts --inspect-brk test --runInBand --env=jsdom",
+    "test:coverage":
+      "NODE_PATH=./src react-scripts test --coverage --env=jsdom",
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
