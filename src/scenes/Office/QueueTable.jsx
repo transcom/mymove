@@ -1,9 +1,10 @@
 import React, { Component } from 'react';
+import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
 
-export default class QueueTable extends Component {
+class QueueTable extends Component {
   constructor() {
     super();
     this.state = {
@@ -80,8 +81,9 @@ export default class QueueTable extends Component {
             onFetchData={this.fetchData} // Request new data when things change
             pageSize={this.state.data.length}
             className="-striped -highlight"
-            getTrProps={(state, rowInfo, column, instance) => ({
-              onDoubleClick: e => alert('A row was clicked!'),
+            getTrProps={(state, rowInfo) => ({
+              onDoubleClick: e =>
+                this.props.history.push(`new/moves/${rowInfo.original.id}}`),
             })}
           />
         </div>
@@ -89,3 +91,5 @@ export default class QueueTable extends Component {
     );
   }
 }
+
+export default withRouter(QueueTable);
