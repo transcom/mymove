@@ -63,15 +63,3 @@ func TestCentsToDollarString(t *testing.T) {
 		t.Errorf("wrong conversion of Cents: expected %s, got %s", expected, result)
 	}
 }
-
-func TestApplyRate(t *testing.T) {
-	cents := Cents(1234567) // $12,345.67
-	rate := NewRateFromPercent(65.7)
-
-	result := cents.ApplyRate(rate)
-
-	expected := Cents(811111) // $8,111.11
-	if result != expected {
-		t.Errorf("wrong number of Cents: expected %d, got %d", expected, result)
-	}
-}

@@ -466,8 +466,8 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewRateFromPercent(50.5),
-		SITRate:                         unit.NewRateFromPercent(50.0),
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50.0),
 	}
 	suite.mustSave(&tspPerformance)
 
@@ -480,8 +480,8 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  89,
-		LinehaulRate:                    unit.NewRateFromPercent(55.5),
-		SITRate:                         unit.NewRateFromPercent(52.0),
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(52.0),
 	}
 	suite.mustSave(&lowerTSPPerformance)
 
@@ -494,8 +494,8 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     swag.Int(1),
 		BestValueScore:                  91,
-		LinehaulRate:                    unit.NewRateFromPercent(55.5),
-		SITRate:                         unit.NewRateFromPercent(53.0),
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(55.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(53.0),
 	}
 	suite.mustSave(&otherRateCycleTSPPerformance)
 
@@ -504,12 +504,12 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 		t.Fatalf("Failed to find tsp performance: %s", err)
 	}
 
-	expectedLinehaul := unit.Rate(.505)
+	expectedLinehaul := unit.DiscountRate(.505)
 	if discountRate != expectedLinehaul {
 		t.Errorf("Wrong discount rate: expected %v, got %v", expectedLinehaul, discountRate)
 	}
 
-	expectedSIT := unit.Rate(.5)
+	expectedSIT := unit.DiscountRate(.5)
 	if sitRate != expectedSIT {
 		t.Errorf("Wrong discount rate: expected %v, got %v", expectedSIT, sitRate)
 	}

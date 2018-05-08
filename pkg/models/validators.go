@@ -59,14 +59,14 @@ func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// RateIsValid validates that a Rate contains a value between 0 and 1.
-type RateIsValid struct {
+// DiscountRateIsValid validates that a DiscountRate contains a value between 0 and 1.
+type DiscountRateIsValid struct {
 	Name  string
-	Field unit.Rate
+	Field unit.DiscountRate
 }
 
 // IsValid adds an error if the value is not between 0 and 1.
-func (v *RateIsValid) IsValid(errors *validate.Errors) {
+func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
 	if v.Field.Float64() < 0 || v.Field.Float64() > 1 {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be between 0 and 1", v.Name))
 	}

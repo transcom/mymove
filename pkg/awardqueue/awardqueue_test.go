@@ -396,7 +396,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 		tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 		score := float64(mps + i + 1)
 
-		rate := unit.NewRateFromPercent(45.3)
+		rate := unit.NewDiscountRateFromPercent(45.3)
 		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
 	}
 

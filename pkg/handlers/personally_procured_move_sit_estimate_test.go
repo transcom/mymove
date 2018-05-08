@@ -57,8 +57,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewRateFromPercent(50.5),
-		SITRate:                         unit.NewRateFromPercent(50),
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.mustSave(&tspPerformance)
 
@@ -140,8 +140,8 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
-		LinehaulRate:                    unit.NewRateFromPercent(50.5),
-		SITRate:                         unit.NewRateFromPercent(50),
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.mustSave(&tspPerformance)
 
