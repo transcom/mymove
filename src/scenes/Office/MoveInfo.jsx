@@ -22,10 +22,153 @@ const BasicsTabContent = () => {
         <button>Cancel Move</button>
       </div>
       <div>
-        <h2>Customer Info</h2>
-        <TextBoxWithEditLink />
-        <h2>Backup Info</h2>
-        <TextBoxWithEditLink />
+        <div>
+          <h2>Customer Info</h2>
+          <div className="form-column">
+            <label>Title (optional)</label>
+            <input type="text" name="title" />
+          </div>
+          <div className="form-column">
+            <label>First name</label>
+            <input type="text" name="first-name" />
+          </div>
+          <div className="form-column">
+            <label>Middle name (optional)</label>
+            <input type="text" name="middle-name" />
+          </div>
+          <div className="form-column">
+            <label>Last name</label>
+            <input type="text" name="last-name" />
+          </div>
+          <div className="form-column">
+            <label>Suffix (optional)</label>
+            <input type="text" name="name-suffix" />
+          </div>
+          <div className="form-column">
+            <label>DoD ID</label>
+            <input type="number" name="dod-id" />
+          </div>
+          <div className="form-column">
+            <label>Branch</label>
+            <select name="branch">
+              <option value="army">Army</option>
+              <option value="navy">Navy</option>
+              <option value="air-force">Air Force</option>
+              <option value="marines">Marines</option>
+              <option value="coast-guard">Coast Guard</option>
+            </select>
+          </div>
+          <div className="form-column">
+            <label>Rank</label>
+            <select name="rank">
+              <option value="E-7">E-7</option>
+              <option value="another-rank">Another rank</option>
+              <option value="and-another-rank">And another rank</option>
+            </select>
+          </div>
+          <div className="form-column">
+            <b>Contact</b>
+            <label>Phone</label>
+            <input type="tel" name="contact-phone-number" />
+          </div>
+          <div className="form-column">
+            <label>Alternate phone</label>
+            <input type="tel" name="alternate-contact-phone-number" />
+          </div>
+          <div className="form-column">
+            <label>Email</label>
+            <input type="text" name="contact-email" />
+          </div>
+          <div className="form-column">
+            <label>Preferred contact methods</label>
+            <input type="checkbox" name="preferred-contact-phone" />Phone<br />
+            <input type="checkbox" name="preferred-contact-text-message" />Text
+            message<br />
+            <input type="checkbox" name="preferred-contact-email" />Email<br />
+          </div>
+          <div className="form-column">
+            <b>Current Residence Address</b>
+            <label>Address 1</label>
+            <input type="text" name="contact-address-1" />
+          </div>
+          <div className="form-column">
+            <label>Address 2</label>
+            <input type="text" name="contact-address-2" />
+          </div>
+          <div className="form-column">
+            <label>City</label>
+            <input type="text" name="contact-city" />
+          </div>
+          <div className="form-column">
+            <label>State</label>
+            <input type="text" name="contact-state" />
+          </div>
+          <div className="form-column">
+            <label>Zip</label>
+            <input type="number" name="contact-zip" />
+          </div>
+        </div>
+        <div>
+          <h2>Backup Info</h2>
+          <form>
+            <div className="form-column">
+              <b>Backup Contact 1</b>
+              <label>Name</label>
+              <input type="text" name="backup-contact-1-name" />
+            </div>
+            <div className="form-column">
+              <label>Phone</label>
+              <input type="tel" name="backup-contact-1-phone" />
+            </div>
+            <div className="form-column">
+              <label>Email (optional)</label>
+              <input type="text" name="backup-contact-1-email" />
+            </div>
+            <div className="form-column">
+              <b>Authorization</b>
+              <input
+                type="radio"
+                name="authorization"
+                value="none"
+                defaultChecked
+              />
+              <label for="none">None</label>
+              <input
+                type="radio"
+                name="authorization"
+                value="letter-of-authorization"
+              />
+              <label for="letter-of-authorization">
+                Letter of Authorization
+              </label>
+              <input
+                type="radio"
+                name="authorization"
+                value="sign-for-pickup-delivery-only"
+              />
+              <label for="sign-for-pickup-delivery-only">
+                Sign for pickup/delivery only
+              </label>
+            </div>
+            <div className="form-column">
+              <b>Backup Mailing Address</b>
+              <label>Mailing address 1</label>
+              <input type="text" name="backup-contact-1-mailing-address-1" />
+            </div>
+            <div className="form-column">
+              <label>Mailing address 2</label>
+              <input type="text" name="backup-contact-1-mailing-address-2" />
+            </div>
+            <div className="form-column">
+              <label>City</label>
+              <input type="text" name="backup-contact-1-city" />
+            </div>
+            <div className="form-column">
+              <label>State</label>
+              <input type="text" name="backup-contact-1-state" />
+            </div>
+          </form>
+        </div>
         <div>
           <h2>Orders</h2>
           <div className="form-group">
@@ -33,11 +176,11 @@ const BasicsTabContent = () => {
               <div className="within-form-group">
                 <div className="form-column">
                   <label>Orders number</label>
-                  <input type="text" />
+                  <input type="text" name="orders-number" />
                 </div>
                 <div className="form-column">
                   <label>Date issued</label>
-                  <input type="text" />
+                  <input type="text" name="date-issued" />
                 </div>
               </div>
               <div className="form-column">
