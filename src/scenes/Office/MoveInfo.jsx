@@ -77,10 +77,30 @@ const BasicsTabContent = () => {
           </div>
           <div className="form-column">
             <label>Preferred contact methods</label>
-            <input type="checkbox" name="preferred-contact-phone" />Phone<br />
-            <input type="checkbox" name="preferred-contact-text-message" />Text
-            message<br />
-            <input type="checkbox" name="preferred-contact-email" />Email<br />
+            <div>
+              <input
+                type="checkbox"
+                id="phone-preference"
+                name="preferred-contact-phone"
+              />
+              <label for="phone-preference">Phone</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="text-preference"
+                name="preferred-contact-text-message"
+              />
+              <label for="text-preference">Text message</label>
+            </div>
+            <div>
+              <input
+                type="checkbox"
+                id="email-preference"
+                name="preferred-contact-email"
+              />
+              <label for="email-preference">Email</label>
+            </div>
           </div>
           <div className="form-column">
             <b>Current Residence Address</b>
@@ -255,8 +275,12 @@ const BasicsTabContent = () => {
                   <input type="number" name="long-term-storage-days" /> days
                 </div>
                 <div className="form-column">
-                  <input type="checkbox" name="dependents-authorized" />Dependents
-                  authorized
+                  <input
+                    type="checkbox"
+                    id="dependents-checkbox"
+                    name="dependents-authorized"
+                  />
+                  <label for="dependents-checkbox">Dependents authorized</label>
                 </div>
               </div>
               <button>Cancel</button>
