@@ -80,6 +80,9 @@ export default class QueueTable extends Component {
             onFetchData={this.fetchData} // Request new data when things change
             pageSize={this.state.data.length}
             className="-striped -highlight"
+            getTrProps={(state, rowInfo, column, instance) => ({
+              onDoubleClick: e => alert('A row was clicked!'),
+            })}
           />
         </div>
       </div>
