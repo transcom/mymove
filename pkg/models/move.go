@@ -19,7 +19,7 @@ type Move struct {
 	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
 	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
-	Order                   Order                              `belongs_to:"order"`
+	Orders                  Orders                             `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
 }
@@ -70,11 +70,12 @@ func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// Fetch orders from move.orders id. Get servicemember from orders. Make sure user id matches.
-	// TODO: Handle case where more than one user is authorized to modify move
-	// if move.UserID != authUser.ID {
-	// 	return nil, ErrFetchForbidden
-	// }
+
+	// Ensure that the logged-in user is authorized to access this move
+	_, authErr := FetchOrder(db, authUser, move.OrdersID)
+	if authErr != nil {
+		return nil, authErr
+	}
 
 	return &move, nil
 }

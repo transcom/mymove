@@ -29,15 +29,15 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	var response middleware.Responder
 	// Get orders for authorized user
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrder(h.db, user, orderID)
+	ordersID, _ := uuid.FromString(params.OrdersID.String())
+	orders, err := models.FetchOrder(h.db, user, ordersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	// Create a new move for authenticated orders
+	// Create a new move for authenticated user orders
 	newMove := models.Move{
-		OrdersID:         order.ID,
+		OrdersID:         orders.ID,
 		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
 	}
 	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
@@ -48,10 +48,68 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		}
 		response = moveop.NewCreateMoveBadRequest()
 	} else {
-		movePayload := payloadForMoveModel(order, newMove)
+		movePayload := payloadForMoveModel(orders, newMove)
 		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
 	}
 	return response
+}
+
+// ShowMoveHandler returns a move for a user and move ID
+type ShowMoveHandler HandlerContext
+
+// Handle retrieves a move in the system belonging to the logged in user given move ID
+func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, user, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	// Fetch orders for authorized user
+	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	movePayload := payloadForMoveModel(orders, *move)
+	return moveop.NewShowMoveOK().WithPayload(&movePayload)
+}
+
+// PatchMoveHandler patches a move via PATCH /moves/{moveId}
+type PatchMoveHandler HandlerContext
+
+// Handle ... patches a Move from a request payload
+func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, user, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	// Fetch orders for authorized user
+	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	payload := params.PatchMovePayload
+	newSelectedMoveType := payload.SelectedMoveType
+
+	if newSelectedMoveType != nil {
+		move.SelectedMoveType = newSelectedMoveType
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	movePayload := payloadForMoveModel(orders, *move)
+	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 }
 
 // IndexMovesHandler returns a list of all moves
@@ -75,62 +133,5 @@ func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Res
 	// 	}
 	// 	response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
 	// }
-	return response
-}
-
-// ShowMoveHandler returns a move for a user and move ID
-type ShowMoveHandler HandlerContext
-
-// Handle retrieves a move in the system belonging to the logged in user given move ID
-func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	// user, _ := auth.GetUser(params.HTTPRequest.Context())
-	// moveID, _ := uuid.FromString(params.MoveID.String())
-
-	var response middleware.Responder
-
-	// Validate that this move belongs to the current user
-	// move, err := models.FetchMove(h.db, user, moveID)
-	// if err != nil {
-	// 	return responseForError(h.logger, err)
-	// }
-
-	// movePayload := payloadForMoveModel(order, *move)
-	// return moveop.NewShowMoveOK().WithPayload(&movePayload)
-	return response
-
-}
-
-// PatchMoveHandler patches a move via PATCH /moves/{moveId}
-type PatchMoveHandler HandlerContext
-
-// Handle ... patches a Move from a request payload
-func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-
-	var response middleware.Responder
-
-	// // User should always be populated by middleware
-	// user, _ := auth.GetUser(params.HTTPRequest.Context())
-	// moveID, _ := uuid.FromString(params.MoveID.String())
-
-	// // Validate that this move belongs to the current user
-	// move, err := models.FetchMove(h.db, user, moveID)
-	// if err != nil {
-	// 	return responseForError(h.logger, err)
-	// }
-
-	// payload := params.PatchMovePayload
-	// newSelectedMoveType := payload.SelectedMoveType
-
-	// if newSelectedMoveType != nil {
-	// 	move.SelectedMoveType = newSelectedMoveType
-	// }
-
-	// verrs, err := h.db.ValidateAndUpdate(move)
-	// if err != nil || verrs.HasAny() {
-	// 	return responseForVErrors(h.logger, verrs, err)
-	// }
-	// movePayload := payloadForMoveModel(user, *move)
-	// return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 	return response
 }
