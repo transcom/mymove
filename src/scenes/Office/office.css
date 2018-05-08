@@ -45,7 +45,7 @@
   border: solid 1px black;
   border-radius: 4px 4px 0 0;
   padding: 4px 42px 8px 42px;
-  margin: 0 2px;
+  margin-left: 8px;
   display: inline-block;
   text-decoration: none;
   color: black;
@@ -78,4 +78,6 @@
 .tab-content {
   border-top: solid 1px black;
   margin-top: -1px;
+  padding-top: 2rem;
 }
+

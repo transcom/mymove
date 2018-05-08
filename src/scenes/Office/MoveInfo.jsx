@@ -4,6 +4,8 @@ import { NavLink } from 'react-router-dom';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
+import { EditablePanel, EditableTextField } from 'shared/EditablePanel';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
@@ -13,7 +15,14 @@ import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import './office.css';
 
 const BasicsTabContent = () => {
-  return <div>Basics</div>;
+  return (
+    <div>
+      <EditablePanel title="Orders" />
+      <EditablePanel title="Accounting">
+        <EditableTextField title="Field Name" name="name" />
+      </EditablePanel>
+    </div>
+  );
 };
 
 const PPMTabContent = () => {
@@ -55,7 +64,7 @@ export default class MoveInfo extends Component {
         </div>
 
         <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-three-fourths Todo">
+          <div className="usa-width-three-fourths">
             <p>Displaying move {this.props.match.params.moveID}.</p>
 
             <RoutedTabs startPathWith={this.props.match.url}>
