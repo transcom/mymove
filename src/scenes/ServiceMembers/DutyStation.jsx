@@ -52,7 +52,7 @@ export class DutyStation extends Component {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
       this.props.updateServiceMember({
-        current_station: pendingValues.current_station,
+        current_station_id: pendingValues.current_station.id,
       });
     }
   };
