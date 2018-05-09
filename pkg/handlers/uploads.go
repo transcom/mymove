@@ -12,21 +12,21 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUploadModel(upload models.Upload, url string) internalmessages.UploadPayload {
-	return internalmessages.UploadPayload{
+func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
+	return &internalmessages.UploadPayload{
 		ID:       fmtUUID(upload.ID),
 		Filename: swag.String(upload.Filename),
 		URL:      fmtURI(url),
 	}
 }
 
-// CreateUploadHandler creates a new upload via POST /moves/{moveID}/documents/{documentID}/uploads
+// CreateUploadHandler creates a new upload via POST /documents/{documentID}/uploads
 type CreateUploadHandler HandlerContext
 
 // Handle creates a new Upload from a request payload
@@ -39,17 +39,8 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("Missing User ID in context")
-		return uploadop.NewCreateUploadBadRequest()
-	}
-
-	moveID, err := uuid.FromString(params.MoveID.String())
-	if err != nil {
-		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadBadRequest()
-	}
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
@@ -57,15 +48,10 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	// Validate that the document and move exists in the db, and that they belong to user
-	exists, userOwns := models.ValidateDocumentOwnership(h.db, userID, moveID, documentID)
-	if !exists {
-		h.logger.Info("document or move does not exist", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadNotFound()
-	}
-	if !userOwns {
-		h.logger.Info("user does not own document or move", zap.String("document_id", params.DocumentID.String()), zap.String("move_id", params.MoveID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadForbidden()
+	//fetching document to ensure user has access to it
+	_, docErr := models.FetchDocument(h.db, user, documentID)
+	if docErr != nil {
+		return responseForError(h.logger, docErr)
 	}
 
 	hash := md5.New()
@@ -76,6 +62,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
 	if err != nil {
 		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
+	}
+
+	if file.Header.Size == 0 {
+		h.logger.Error("File has a length of 0, aborting.")
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
@@ -100,7 +91,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	newUpload := models.Upload{
 		ID:          id,
 		DocumentID:  documentID,
-		UploaderID:  userID,
+		UploaderID:  user.ID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: contentType,
@@ -118,7 +109,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	// Push file to S3
-	key := h.storage.Key("moves", moveID.String(), "documents", documentID.String(), "uploads", id.String())
+	key := h.storage.Key("documents", documentID.String(), "uploads", id.String())
 	_, err = h.storage.Store(key, file.Data, checksum)
 	if err != nil {
 		h.logger.Error("failed to store", zap.Error(err))
@@ -140,5 +131,33 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 	uploadPayload := payloadForUploadModel(newUpload, url)
-	return uploadop.NewCreateUploadCreated().WithPayload(&uploadPayload)
+	return uploadop.NewCreateUploadCreated().WithPayload(uploadPayload)
+}
+
+// DeleteUploadHandler deletes an upload
+type DeleteUploadHandler HandlerContext
+
+// Handle deletes an upload
+func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+
+	uploadID, _ := uuid.FromString(params.UploadID.String())
+	upload, err := models.FetchUpload(h.db, user, uploadID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+	err = h.storage.Delete(key)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = models.DeleteUpload(h.db, &upload)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	return uploadop.NewDeleteUploadCreated()
 }

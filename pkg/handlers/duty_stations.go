@@ -10,17 +10,15 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDutyStationModel(station models.DutyStation) internalmessages.DutyStationPayload {
-
-	stationPayload := internalmessages.DutyStationPayload{
-		ID:        fmtUUID(station.ID),
-		CreatedAt: fmtDateTime(station.CreatedAt),
-		UpdatedAt: fmtDateTime(station.UpdatedAt),
-		Name:      swag.String(station.Name),
-		Branch:    &station.Branch,
-		Address:   payloadForAddressModel(&station.Address),
+func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
+	return &internalmessages.DutyStationPayload{
+		ID:          fmtUUID(station.ID),
+		CreatedAt:   fmtDateTime(station.CreatedAt),
+		UpdatedAt:   fmtDateTime(station.UpdatedAt),
+		Name:        swag.String(station.Name),
+		Affiliation: &station.Affiliation,
+		Address:     payloadForAddressModel(&station.Address),
 	}
-	return stationPayload
 }
 
 // SearchDutyStationsHandler returns a list of all issues
@@ -32,7 +30,7 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 	var response middleware.Responder
 	var err error
 
-	stations, err = models.FindDutyStations(h.db, params.Search, params.Branch)
+	stations, err = models.FindDutyStations(h.db, params.Search, params.Affiliation)
 	if err != nil {
 		h.logger.Error("Finding duty stations", zap.Error(err))
 		response = stationop.NewSearchDutyStationsInternalServerError()
@@ -41,7 +39,7 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
 	for i, station := range stations {
 		stationPayload := payloadForDutyStationModel(station)
-		stationPayloads[i] = &stationPayload
+		stationPayloads[i] = stationPayload
 	}
 	response = stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
 

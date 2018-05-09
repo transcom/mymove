@@ -9,7 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -46,8 +46,8 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 
 	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = context.PopulateUserModel(ctx, user)
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
@@ -106,17 +106,14 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	// Uses a different user than is on the move object
 	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user2.ID, "fake token")
+	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*certop.CreateSignedCertificationForbidden)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseForbidden(response)
 
 	certs := []models.SignedCertification{}
 	suite.db.All(&certs)
@@ -159,17 +156,14 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	// Uses a different user than is on the move object
 	ctx := params.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
 
 	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*certop.CreateSignedCertificationNotFound)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.checkResponseNotFound(response)
 
 	var certs []models.SignedCertification
 	suite.db.All(&certs)

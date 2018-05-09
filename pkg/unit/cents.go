@@ -1,6 +1,7 @@
 package unit
 
 import (
+	"fmt"
 	"math"
 	"strconv"
 )
@@ -31,4 +32,16 @@ func (c Cents) String() string {
 // Int returns the value of self as an int
 func (c Cents) Int() int {
 	return int(c)
+}
+
+// Int64 returns the value of self as an int
+func (c Cents) Int64() int64 {
+	return int64(c)
+}
+
+// ToDollarString returns a dollar string representation of this value
+func (c Cents) ToDollarString() string {
+	d := float64(c) / 100.0
+	s := fmt.Sprintf("$%.2f", d)
+	return s
 }

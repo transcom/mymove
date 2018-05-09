@@ -18,6 +18,7 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/route"
@@ -28,11 +29,17 @@ var logger *zap.Logger
 
 // TODO(nick - 12/21/17) - this is a simple logger for debugging testing
 // It needs replacing with something we can use in production
-func requestLogger(h http.Handler) http.Handler {
-	zap.L().Info("Request logger installed")
+func requestLoggerMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("requestLoggerMiddleware installed")
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request", zap.String("method", r.Method), zap.String("url", r.URL.String()))
-		h.ServeHTTP(w, r)
+		zap.L().Info("Request",
+			zap.String("method", r.Method),
+			zap.String("url", r.URL.String()),
+			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
+			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
+			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
+		)
+		inner.ServeHTTP(w, r)
 	}
 	return http.HandlerFunc(wrapper)
 }
@@ -43,10 +50,34 @@ const maxBodySize int64 = 200 * 1000 * 1000
 // max request headers size is 1 mb
 const maxHeaderSize int = 1 * 1000 * 1000
 
-func limitBodySizeMiddleware(next http.Handler) http.Handler {
+func limitBodySizeMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("limitBodySizeMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
-		next.ServeHTTP(w, r)
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
+func noCacheMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("noCacheMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
+func httpsComplianceMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("httpsComplianceMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		// set the HSTS header using values recommended by OWASP
+		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
+		w.Header().Set("strict-transport-security", "max-age=31536000; includeSubdomains; preload")
+		inner.ServeHTTP(w, r)
 		return
 	}
 	return http.HandlerFunc(mw)
@@ -58,10 +89,9 @@ func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
-	protocol := flag.String("protocol", "https://", "Protocol for non local environments.")
-	hostname := flag.String("http_server_name", "localhost", "Hostname according to environment.")
-	httpPort := flag.String("http_port", "8080", "the `port` to listen on.")
-	callbackPort := flag.String("callback_port", "443", "The port for callback urls.")
+	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
+	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
+	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
@@ -72,8 +102,11 @@ func main() {
 	httpsCert := flag.String("https_cert", "", "TLS certificate.")
 	httpsKey := flag.String("https_key", "", "TLS private key.")
 
+	loginGovCallbackProtocol := flag.String("login_gov_callback_protocol", "https://", "Protocol for non local environments.")
+	loginGovCallbackPort := flag.String("login_gov_callback_port", "443", "The port for callback urls.")
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
-	loginGovClientID := flag.String("login_gov_client_id", "", "Client ID registered with login gov.")
+	loginGovMyClientID := flag.String("login_gov_my_client_id", "", "Client ID registered with login gov.")
+	loginGovOfficeClientID := flag.String("login_gov_office_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
 	/* For bing Maps use the following
@@ -87,6 +120,7 @@ func main() {
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
+	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 
 	flag.Parse()
 
@@ -102,6 +136,9 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
+
+	// Middleware to look at request hostname and work out which APP (my.move.mil, office.move.mil ..) we are serving
+	appDetectionMiddleware := app.DetectorMiddleware(logger, *myHostname, *officeHostname)
 
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
@@ -125,14 +162,9 @@ func main() {
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
-	// Register Login.gov authentication provider
-	if *env == "development" {
-		*protocol = "http://"
-		*callbackPort = "3000"
-	}
-	fullHostname := fmt.Sprintf("%s%s:%s", *protocol, *hostname, *callbackPort)
-	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, *loginGovClientID, logger)
-	loginGovProvider.RegisterProvider(fullHostname)
+	// Register Login.gov authentication provider for My.(move.mil)
+	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
+	loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
@@ -154,11 +186,14 @@ func main() {
 		if *s3Region == "" {
 			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
 		}
+		if *s3KeyNamespace == "" {
+			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
+		}
 		aws := awssession.Must(awssession.NewSession(&aws.Config{
 			Region: s3Region,
 		}))
 
-		storer = storage.NewS3(*s3Bucket, logger, aws)
+		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
 	} else {
 		zap.L().Info("Using filesystem storage backend")
 		absTmpPath, err := filepath.Abs("tmp")
@@ -166,24 +201,38 @@ func main() {
 			log.Fatalln(errors.New("could not get absolute path for tmp"))
 		}
 		storagePath := path.Join(absTmpPath, "storage")
-		webRoot := fullHostname + "/" + "storage"
+		webRoot := "/" + "storage"
 		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
 	handlerContext.SetFileStorer(storer)
 
 	// Base routes
-	root := goji.NewMux()
-	root.Use(limitBodySizeMiddleware)
-	root.Use(tokenMiddleware)
+	site := goji.NewMux()
+	// Add middleware: they are evaluated in the reverse order in which they
+	// are added, but the resulting http.Handlers execute in "normal" order
+	// (i.e., the http.Handler returned by the first Middleware added gets
+	// called first).
+	site.Use(requestLoggerMiddleware)
+	site.Use(httpsComplianceMiddleware)
+	site.Use(limitBodySizeMiddleware)
 
 	// Stub health check
-	root.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
+
+	root := goji.NewMux()
+	root.Use(appDetectionMiddleware)
+	root.Use(tokenMiddleware)
+	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-	apiMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
+
+	externalAPIMux := goji.SubMux()
+	apiMux.Handle(pat.New("/*"), externalAPIMux)
+	externalAPIMux.Use(noCacheMiddleware)
+	externalAPIMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -192,16 +241,17 @@ func main() {
 
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
-	internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
+	internalAPIMux.Use(userAuthMiddleware)
+	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
-	authContext := auth.NewAuthContext(fullHostname, logger, loginGovProvider)
+	authContext := auth.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler(authContext))
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(dbConnection, *clientAuthSecretKey, *noSessionTimeout, fullHostname, logger, loginGovProvider))
-	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler(authContext))
+	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler{AuthorizationContext: authContext})
+	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler{AuthorizationContext: authContext})
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
@@ -214,17 +264,14 @@ func main() {
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
 
-	// And request logging
-	root.Use(requestLogger)
-
 	// Start http/https listener(s)
 	errChan := make(chan error)
 	go func() { // start http listener
-		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpPort)
+		addr := fmt.Sprintf("%s:%s", *listenInterface, *port)
 		zap.L().Info("Starting http server listening", zap.String("address", addr))
 		s := &http.Server{
 			Addr:           addr,
-			Handler:        root,
+			Handler:        site,
 			MaxHeaderBytes: maxHeaderSize,
 		}
 		errChan <- s.ListenAndServe()
@@ -232,7 +279,7 @@ func main() {
 	go func() { // start https listener
 		addr := fmt.Sprintf("%s:%s", *listenInterface, *httpsPort)
 		zap.L().Info("Starting https server listening", zap.String("address", addr))
-		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), root)
+		errChan <- listenAndServeTLS(addr, []byte(*httpsCert), []byte(*httpsKey), site)
 	}()
 	log.Fatal(<-errChan)
 }

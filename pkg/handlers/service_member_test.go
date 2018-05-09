@@ -12,15 +12,12 @@ import (
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	newServiceMember := models.ServiceMember{
 		UserID: user.ID,
@@ -48,17 +45,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: A servicemember with a not-logged-in user and a separate logged-in user
-	notLoggedInUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&notLoggedInUser)
-
-	loggedInUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email2@example.com",
-	}
-	suite.mustSave(&loggedInUser)
+	notLoggedInUser, _ := testdatagen.MakeUser(suite.db)
+	loggedInUser, _ := testdatagen.MakeUser(suite.db)
 
 	// When: A servicemember is created for not-logged-in-user
 	newServiceMember := models.ServiceMember{
@@ -85,11 +73,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
@@ -105,8 +89,8 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		PhoneIsPreferred:       swag.Bool(false),
 		TextMessageIsPreferred: swag.Bool(false),
 		EmailIsPreferred:       swag.Bool(true),
-		ResidentialAddress:     fakeAddress(),
-		BackupMailingAddress:   fakeAddress(),
+		ResidentialAddress:     fakeAddressPayload(),
+		BackupMailingAddress:   fakeAddressPayload(),
 		SocialSecurityNumber:   (*strfmt.SSN)(swag.String("123-45-6789")),
 	}
 
@@ -133,11 +117,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	// When: a new ServiceMember is posted
 	ssn := "123-45-6789"
@@ -177,11 +157,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
@@ -192,16 +168,16 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	}
 	suite.mustSave(&newServiceMember)
 
-	branch := internalmessages.MilitaryBranchARMY
+	affiliation := internalmessages.AffiliationARMY
 	rank := internalmessages.ServiceMemberRankE1
 	ssn := fmtSSN("555-55-5555")
-	resAddress := fakeAddress()
-	backupAddress := fakeAddress()
+	resAddress := fakeAddressPayload()
+	backupAddress := fakeAddressPayload()
 	patchPayload := internalmessages.PatchServiceMemberPayload{
 		Edipi:                &newEdipi,
 		BackupMailingAddress: backupAddress,
 		ResidentialAddress:   resAddress,
-		Branch:               &branch,
+		Affiliation:          &affiliation,
 		EmailIsPreferred:     swag.Bool(true),
 		FirstName:            swag.String("Firstname"),
 		LastName:             swag.String("Lastname"),
@@ -234,7 +210,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	serviceMemberPayload := okResponse.Payload
 
 	suite.Assertions.Equal(*serviceMemberPayload.Edipi, newEdipi)
-	suite.Assertions.Equal(*serviceMemberPayload.Branch, branch)
+	suite.Assertions.Equal(*serviceMemberPayload.Affiliation, affiliation)
 	suite.Assertions.Equal(*serviceMemberPayload.HasSocialSecurityNumber, true)
 	suite.Assertions.Equal(*serviceMemberPayload.TextMessageIsPreferred, true)
 	suite.Assertions.Equal(*serviceMemberPayload.ResidentialAddress.StreetAddress1, *resAddress.StreetAddress1)
@@ -253,17 +229,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email2@example.com",
-	}
-	suite.mustSave(&user2)
+	user, _ := testdatagen.MakeUser(suite.db)
+	user2, _ := testdatagen.MakeUser(suite.db)
 
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
@@ -298,11 +265,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	servicememberUUID := uuid.Must(uuid.NewV4())
 
@@ -332,11 +295,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	// Given: a logged in user with a servicemember
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	var origEdipi = "4444444444"
 	newServiceMember := models.ServiceMember{
@@ -360,4 +319,29 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	response := handler.Handle(params)
 
 	suite.Assertions.IsType(&servicememberop.PatchServiceMemberOK{}, response)
+}
+
+func (suite *HandlerSuite) TestShowServiceMemberOrders() {
+	order1, _ := testdatagen.MakeOrder(suite.db)
+	order2, _ := testdatagen.MakeOrderForServiceMember(suite.db, order1.ServiceMember)
+
+	user := order1.ServiceMember.User
+
+	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
+	req = suite.authenticateRequest(req, user)
+
+	params := servicememberop.ShowServiceMemberOrdersParams{
+		HTTPRequest:     req,
+		ServiceMemberID: strfmt.UUID(order1.ServiceMemberID.String()),
+	}
+
+	handler := ShowServiceMemberOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	suite.IsType(&servicememberop.ShowServiceMemberOrdersOK{}, response)
+	okResponse := response.(*servicememberop.ShowServiceMemberOrdersOK)
+	responsePayload := okResponse.Payload
+
+	// Should return the most recently created order
+	suite.Equal(order2.ID.String(), responsePayload.ID.String())
 }

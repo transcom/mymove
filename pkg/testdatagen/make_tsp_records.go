@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 
@@ -21,10 +20,10 @@ func RandomSCAC() string {
 }
 
 // MakeTSP makes a single transportation service provider record.
-func MakeTSP(db *pop.Connection, name string, SCAC string) (models.TransportationServiceProvider, error) {
+func MakeTSP(db *pop.Connection, SCAC string) (models.TransportationServiceProvider, error) {
 	tsp := models.TransportationServiceProvider{
 		StandardCarrierAlphaCode: SCAC,
-		Name: name}
+	}
 
 	_, err := db.ValidateAndSave(&tsp)
 	if err != nil {
@@ -36,16 +35,15 @@ func MakeTSP(db *pop.Connection, name string, SCAC string) (models.Transportatio
 
 // MakeTSPData creates three TSP records
 func MakeTSPData(db *pop.Connection) {
-	MakeTSP(db, "Very Good TSP", RandomSCAC())
-	MakeTSP(db, "Pretty Alright TSP", RandomSCAC())
-	MakeTSP(db, "Serviceable and Adequate TSP", RandomSCAC())
+	MakeTSP(db, RandomSCAC())
+	MakeTSP(db, RandomSCAC())
+	MakeTSP(db, RandomSCAC())
 }
 
 // MakeTSPs creates numTSP number of TSP records
 // numTSP specifies how many TSPs to create
 func MakeTSPs(db *pop.Connection, numTSP int) {
 	for i := 0; i < numTSP; i++ {
-		tspName := fmt.Sprintf("Just another TSP %d", i)
-		MakeTSP(db, tspName, RandomSCAC())
+		MakeTSP(db, RandomSCAC())
 	}
 }

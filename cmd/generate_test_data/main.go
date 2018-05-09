@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	tdgs "github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
 // Hey, refactoring self: you can pull the UUIDs from the objects rather than
@@ -26,11 +27,11 @@ func main() {
 	}
 
 	if *scenario == 1 {
-		testdatagen.RunScenarioOne(db)
+		tdgs.RunAwardQueueScenario1(db)
 	} else if *scenario == 2 {
-		testdatagen.RunScenarioTwo(db)
+		tdgs.RunAwardQueueScenario2(db)
 	} else if *scenario == 3 {
-		testdatagen.RunScenarioThree(db)
+		tdgs.RunDutyStationScenario3(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)
@@ -40,6 +41,6 @@ func main() {
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
-		testdatagen.MakeDocumentData(db)
+		testdatagen.MakeServiceMember(db)
 	}
 }

@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/satori/go.uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -16,19 +14,22 @@ import (
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
+	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
 	if err != nil {
-		t.Fatalf("could not create move: %s", err)
+		t.Fatalf("could not create serviceMember: %s", err)
 	}
 
-	userID := move.UserID
+	user := serviceMember.User
 
 	params := documentop.NewCreateDocumentParams()
-	params.MoveID = *fmtUUID(move.ID)
-	params.DocumentPayload = &internalmessages.PostDocumentPayload{Name: "test document"}
+	params.DocumentPayload = &internalmessages.PostDocumentPayload{
+		Name:            "test document",
+		ServiceMemberID: *fmtUUID(serviceMember.ID),
+	}
 
-	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, user)
+	params.HTTPRequest = req
 
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -41,6 +42,10 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 
 	if uuid.Must(uuid.FromString(documentPayload.ID.String())) == uuid.Nil {
 		t.Errorf("got empty document uuid")
+	}
+
+	if uuid.Must(uuid.FromString(documentPayload.ServiceMemberID.String())) == uuid.Nil {
+		t.Errorf("got empty serviceMember uuid")
 	}
 
 	if documentPayload.Name == nil {

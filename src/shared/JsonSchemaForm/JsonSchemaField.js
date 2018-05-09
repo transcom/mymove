@@ -2,7 +2,8 @@ import React, { Fragment } from 'react';
 
 import validator from './validator';
 import { Field } from 'redux-form';
-
+import moment from 'moment';
+import SingleDatePicker from './SingleDatePicker';
 export const ALWAYS_REQUIRED_KEY = 'x-always-required';
 
 // ---- Parsers -----
@@ -23,7 +24,7 @@ const createCheckbox = (fieldName, field, nameAttr) => {
 };
 
 const configureDropDown = (swaggerField, props) => {
-  props.componentOverride = 'select';
+  props.componentNameOverride = 'select';
 
   return props;
 };
@@ -76,10 +77,12 @@ const configureTelephoneField = (swaggerField, props) => {
 const configureSSNField = (swaggerField, props) => {
   props.normalize = validator.normalizeSSN;
   props.validate.push(
-    validator.patternMatches(/^\d{3}-\d{2}-\d{4}$/, 'SSN must have 9 digits.'),
+    validator.patternMatches(
+      '^\\d{3}-\\d{2}-\\d{4}$',
+      'SSN must have 9 digits.',
+    ),
   );
   props.type = 'text';
-
   return props;
 };
 
@@ -96,9 +99,14 @@ const configureZipField = (swaggerField, props) => {
   return props;
 };
 
+const normalizeDates = value => {
+  return value ? moment(value).format('YYYY-MM-DD') : value;
+};
+
 const configureDateField = (swaggerField, props) => {
   props.type = 'date';
-
+  props.customComponent = SingleDatePicker;
+  props.normalize = normalizeDates;
   return props;
 };
 
@@ -118,7 +126,7 @@ const configureEmailField = (swaggerField, props) => {
     validator.patternMatches(
       // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
       // but that is pretty obnoxious so we will risk the difference and use this simpler one
-      /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       'Must be a valid email address',
     ),
   );
@@ -141,17 +149,29 @@ const renderInputField = ({
   step,
   title,
   always_required,
-  componentOverride,
+  componentNameOverride,
+  customComponent,
   meta: { touched, error, warning },
   children,
 }) => {
-  let componentName = 'input';
-  if (componentOverride) {
-    componentName = componentOverride;
+  let component = 'input';
+  if (componentNameOverride) {
+    component = componentNameOverride;
+  }
+
+  if (customComponent) {
+    component = customComponent;
+  }
+
+  if (componentNameOverride && customComponent) {
+    console.error(
+      'You should not have specified a componentNameOverride as well as a customComponent. For: ',
+      title,
+    );
   }
 
   const FieldComponent = React.createElement(
-    componentName,
+    component,
     {
       ...input,
       type: type,
@@ -186,6 +206,25 @@ const renderInputField = ({
   );
 };
 
+export const SwaggerField = props => {
+  const { fieldName, swagger, required } = props;
+
+  let swaggerField;
+  if (swagger.properties) {
+    swaggerField = swagger.properties[fieldName];
+  }
+
+  if (swaggerField === undefined) {
+    return null;
+  }
+
+  if (required) {
+    swaggerField[ALWAYS_REQUIRED_KEY] = true;
+  }
+
+  return createSchemaField(fieldName, swaggerField, undefined);
+};
+
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
 const createSchemaField = (fieldName, swaggerField, nameSpace) => {
@@ -210,6 +249,10 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
+
+  if (fieldProps.always_required) {
+    fieldProps.validate.push(validator.isRequired);
+  }
 
   let children = null;
   if (swaggerField.enum) {
@@ -241,21 +284,21 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
           swaggerField,
         );
         console.error(
-          "Since it's not feasable to generate a sensible error message from a regex, please add a new format and matching validator",
+          "Since it's not feasible to generate a sensible error message from a regex, please add a new format and matching validator",
         );
         fieldProps.validate.push(
           validator.patternMatches(swaggerField.pattern, swaggerField.example),
         );
       }
-      // The last case is the simple text field / textarea which are the same but the componentOverride
+      // The last case is the simple text field / textarea which are the same but the componentNameOverride
       if (swaggerField.format === 'textarea') {
-        fieldProps.componentOverride = 'textarea';
+        fieldProps.componentNameOverride = 'textarea';
       }
       fieldProps = configureTextField(swaggerField, fieldProps);
     }
   } else {
     console.error(
-      'ERROR: This is an unimplemented type in our JSONSchemaForm implmentation',
+      'ERROR: This is an unimplemented type in our JSONSchemaForm implementation',
     );
   }
   return (

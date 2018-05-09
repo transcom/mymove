@@ -1,72 +1,72 @@
 // eslint-disable-next-line no-unused-vars
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import 'filepond-polyfill/dist/filepond-polyfill.js';
+import { FilePond, registerPlugin } from 'react-filepond';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { createDocument } from './ducks';
-import Alert from 'shared/Alert';
+import { CreateUpload, DeleteUpload } from 'shared/api.js';
+
+import 'filepond/dist/filepond.min.css';
+import './index.css';
+
+// Register the image preview plugin
+import FilePondImagePreview from 'filepond-plugin-image-preview';
+import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+registerPlugin(FilePondImagePreview);
 
 export class Uploader extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Upload Document';
   }
 
-  constructor(props) {
-    super(props);
-    this.uploadFile = this.uploadFile.bind(this);
+  handlePondInit() {
+    this.pond._pond.setOptions({
+      allowMultiple: true,
+      server: {
+        url: '/',
+        process: this.processFile,
+        revert: this.revertFile,
+      },
+    });
   }
 
-  uploadFile() {
-    this.props.createDocument(this.fileInput.files[0], this.moveIdInput.value);
-  }
+  processFile = (fieldName, file, metadata, load, error, progress, abort) => {
+    CreateUpload(file, this.props.document.id)
+      .then(item => load(item.id))
+      .catch(error);
+
+    return { abort };
+  };
+
+  revertFile = (uploadId, load, error) => {
+    DeleteUpload(uploadId)
+      .then(load)
+      .catch(error);
+  };
 
   render() {
-    const { hasErrored, hasSucceeded } = this.props;
     return (
       <div className="usa-grid">
-        Enter Move ID:{' '}
-        <input
-          type="text"
-          ref={input => {
-            this.moveIdInput = input;
-          }}
+        <FilePond
+          ref={ref => (this.pond = ref)}
+          oninit={() => this.handlePondInit()}
         />
-        <input
-          type="file"
-          ref={input => {
-            this.fileInput = input;
-          }}
-        />
-        <button onClick={this.uploadFile}>Upload Now</button>
-        {hasErrored && (
-          <Alert type="error" heading="Submission Error">
-            Something went wrong with your upload
-          </Alert>
-        )}
-        {hasSucceeded && (
-          <Alert type="success" heading="Submission Successful">
-            Your document was successfully uploaded.{' '}
-            <a href={this.props.upload.url}>View on S3</a>.
-          </Alert>
-        )}
       </div>
     );
   }
 }
 
 Uploader.propTypes = {
-  createDocument: PropTypes.func.isRequired,
-  hasErrored: PropTypes.bool.isRequired,
-  hasSucceeded: PropTypes.bool.isRequired,
-  upload: PropTypes.object,
+  document: PropTypes.object.isRequired,
 };
 
 function mapStateToProps(state) {
-  return state.upload;
+  return {};
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createDocument }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Uploader);

@@ -44,6 +44,9 @@ client_test: client_deps
 client_test_coverage : client_deps
 	yarn test:coverage
 
+office_client_run: client_deps
+	HOST=officelocal yarn start
+
 server_deps_update: server_generate
 	dep ensure -v -update
 server_deps: go_version .server_deps.stamp
@@ -86,6 +89,7 @@ server_run_only_docker: db_dev_run
 tools_build: server_deps
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
+	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue
@@ -106,7 +110,7 @@ server_test: server_deps server_generate db_dev_run db_test_reset
 	go test -p 1 -count 1 -short $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_all: server_deps server_generate db_dev_run db_test_reset
-	# Like server_test but
+	# Like server_test but runs extended tests that may hit external services.
 	go test -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 
 server_test_coverage: server_deps server_generate db_dev_run db_test_reset
@@ -132,7 +136,7 @@ db_dev_run:
 			-d \
 			-p 5432:5432 \
 			postgres:10.1 && \
-		bin/wait-for-db && \
+		DB_NAME=postgres bin/wait-for-db && \
 		createdb -p 5432 -h localhost -U postgres dev_db)
 # This is just an alias for backwards compatibility
 db_dev_init: db_dev_run
@@ -142,9 +146,13 @@ db_dev_reset:
 		docker rm $(DB_DOCKER_CONTAINER) || \
 		echo "No dev database"
 db_dev_migrate: server_deps db_dev_run
-	./bin/soda migrate up
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		./soda -c ../config/database.yml -p ../migrations migrate up
 db_dev_migrate_down: server_deps db_dev_run
-	./bin/soda migrate down
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		./soda -c ../config/database.yml -p ../migrations migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
 
@@ -156,7 +164,10 @@ db_test_reset:
 		echo "Relying on CircleCI's test database setup."
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
-	./bin/soda -e test migrate up
+	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
+	cd bin && \
+		DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+			./soda -e test migrate -c ../config/database.yml -p ../migrations up
 
 adr_update:
 	yarn run adr-log

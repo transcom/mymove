@@ -7,49 +7,73 @@ import (
 	"net/url"
 	"time"
 
+	"net/http"
+
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
+	"github.com/transcom/mymove/pkg/app"
 	"go.uber.org/zap"
 )
 
-const gothProviderType = "openid-connect"
+const myProviderName = "myProvider"
+const officeProviderName = "officeProvider"
+
+func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, error) {
+	providerName := myProviderName
+	if app.IsOfficeApp(r) {
+		providerName = officeProviderName
+	}
+	gothProvider, err := goth.GetProvider(providerName)
+	if err != nil {
+		return nil, err
+	}
+	return gothProvider.(*openidConnect.Provider), nil
+}
 
 // LoginGovProvider facilitates generating URLs and parameters for interfacing with Login.gov
 type LoginGovProvider struct {
 	hostname  string
 	secretKey string
-	clientID  string
 	logger    *zap.Logger
 }
 
 // NewLoginGovProvider returns a new LoginGovProvider
-func NewLoginGovProvider(hostname string, secretKey string, clientID string, logger *zap.Logger) LoginGovProvider {
+func NewLoginGovProvider(hostname string, secretKey string, logger *zap.Logger) LoginGovProvider {
 	return LoginGovProvider{
 		hostname:  hostname,
 		secretKey: secretKey,
-		clientID:  clientID,
 		logger:    logger,
 	}
 }
 
+func (p LoginGovProvider) getOpenIDProvider(hostname string, clientID string, callbackProtocol string, callbackPort string) (goth.Provider, error) {
+	return openidConnect.New(
+		clientID,
+		p.secretKey,
+		fmt.Sprintf("%s%s:%s/auth/login-gov/callback", callbackProtocol, hostname, callbackPort),
+		fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname),
+	)
+}
+
 // RegisterProvider registers Login.gov with Goth, which uses
 // auto-discovery to get the OpenID configuration
-func (p LoginGovProvider) RegisterProvider(hostname string) {
-	provider, err := openidConnect.New(
-		p.clientID,
-		p.secretKey,
-		fmt.Sprintf("%s/auth/login-gov/callback", hostname),
-		p.ConfigURL(),
-	)
+func (p LoginGovProvider) RegisterProvider(myHostname string, myClientID string, officeHostname string, officeClientID string, callbackProtocol string, callbackPort string) error {
 
+	myProvider, err := p.getOpenIDProvider(myHostname, myClientID, callbackProtocol, callbackPort)
 	if err != nil {
-		p.logger.Error("Register Login.gov provider with Goth", zap.Error(err))
+		p.logger.Error("getting open_id provider", zap.String("host", myHostname), zap.Error(err))
+		return err
 	}
-
-	if provider != nil {
-		goth.UseProviders(provider)
+	myProvider.SetName(myProviderName)
+	officeProvider, err := p.getOpenIDProvider(officeHostname, officeClientID, callbackProtocol, callbackPort)
+	if err != nil {
+		p.logger.Error("getting open_id provider", zap.String("host", officeHostname), zap.Error(err))
+		return err
 	}
+	officeProvider.SetName(officeProviderName)
+	goth.UseProviders(myProvider, officeProvider)
+	return nil
 }
 
 func generateNonce() string {
@@ -62,8 +86,8 @@ func generateNonce() string {
 }
 
 // AuthorizationURL returns a URL for login.gov authorization with required params
-func (p LoginGovProvider) AuthorizationURL() (string, error) {
-	provider, err := goth.GetProvider(gothProviderType)
+func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
+	provider, err := getLoginGovProviderForRequest(r)
 	if err != nil {
 		p.logger.Error("Get Goth provider", zap.Error(err))
 		return "", err
@@ -118,8 +142,8 @@ func (p LoginGovProvider) TokenURL() string {
 }
 
 // TokenParams creates query params for use in the token endpoint
-func (p LoginGovProvider) TokenParams(code string, expiry time.Time) (url.Values, error) {
-	clientAssertion, err := p.createClientAssertionJWT(expiry)
+func (p LoginGovProvider) TokenParams(code string, clientID string, expiry time.Time) (url.Values, error) {
+	clientAssertion, err := p.createClientAssertionJWT(clientID, expiry)
 	params := url.Values{
 		"client_assertion":      {clientAssertion},
 		"client_assertion_type": {"urn:ietf:params:oauth:client-assertion-type:jwt-bearer"},
@@ -130,10 +154,10 @@ func (p LoginGovProvider) TokenParams(code string, expiry time.Time) (url.Values
 	return params, err
 }
 
-func (p LoginGovProvider) createClientAssertionJWT(expiry time.Time) (string, error) {
+func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.Time) (string, error) {
 	claims := &jwt.StandardClaims{
-		Issuer:    p.clientID,
-		Subject:   p.clientID,
+		Issuer:    clientID,
+		Subject:   clientID,
 		Audience:  p.TokenURL(),
 		Id:        generateNonce(),
 		ExpiresAt: expiry.Unix(),
@@ -158,9 +182,4 @@ type LoginGovTokenResponse struct {
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	IDToken     string `json:"id_token"`
-}
-
-// ConfigURL returns the URL string of the token endpoint
-func (p LoginGovProvider) ConfigURL() string {
-	return fmt.Sprintf("https://%s/.well-known/openid-configuration", p.hostname)
 }

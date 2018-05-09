@@ -8,18 +8,20 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // A Document represents a physical artifact such as a multipage form that was
 // filled out by hand. A Document can have many associated Uploads, which allows
 // for handling multiple files that belong to the same document.
 type Document struct {
-	ID         uuid.UUID `db:"id"`
-	UploaderID uuid.UUID `db:"uploader_id"`
-	MoveID     uuid.UUID `db:"move_id"`
-	Name       string    `db:"name"`
-	CreatedAt  time.Time `db:"created_at"`
-	UpdatedAt  time.Time `db:"updated_at"`
+	ID              uuid.UUID     `db:"id"`
+	ServiceMemberID uuid.UUID     `db:"service_member_id"`
+	ServiceMember   ServiceMember `belongs_to:"service_members"`
+	Name            string        `db:"name"`
+	CreatedAt       time.Time     `db:"created_at"`
+	UpdatedAt       time.Time     `db:"updated_at"`
+	Uploads         Uploads       `has_many:"uploads"`
 }
 
 // String is not required by pop and may be deleted
@@ -40,25 +42,25 @@ func (d Documents) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: d.UploaderID, Name: "UploaderID"},
-		&validators.UUIDIsPresent{Field: d.MoveID, Name: "MoveID"},
+		&validators.UUIDIsPresent{Field: d.ServiceMemberID, Name: "ServiceMemberID"},
 	), nil
 }
 
-// ValidateDocumentOwnership validates that a user owns the move that contains a document and that move and document both exist
-func ValidateDocumentOwnership(db *pop.Connection, userID uuid.UUID, moveID uuid.UUID, documentID uuid.UUID) (bool, bool) {
-	exists := false
-	userOwns := false
-	var move Move
+// FetchDocument returns a document if the user has access to that document
+func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error) {
 	var document Document
-	docErr := db.Find(&document, documentID)
-	moveErr := db.Find(&move, moveID)
-	if docErr == nil && moveErr == nil {
-		exists = true
-		// TODO: Handle case where more than one user is authorized to modify move
-		if uuid.Equal(move.UserID, userID) && uuid.Equal(document.MoveID, moveID) {
-			userOwns = true
+	err := db.Q().Eager().Find(&document, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return Document{}, ErrFetchNotFound
 		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Document{}, err
 	}
-	return exists, userOwns
+
+	_, smErr := FetchServiceMember(db, user, document.ServiceMemberID)
+	if smErr != nil {
+		return Document{}, smErr
+	}
+	return document, nil
 }

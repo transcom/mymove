@@ -10,12 +10,11 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
-	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -36,10 +35,6 @@ type UserClaims struct {
 	Email   string    `json:"email"`
 	IDToken string    `json:"id_token"`
 	jwt.StandardClaims
-}
-
-func landingURL(hostname string) string {
-	return fmt.Sprintf("%s", hostname)
 }
 
 func getExpiryTimeFromMinutes(min int64) time.Time {
@@ -123,7 +118,7 @@ func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 func UserAuthMiddleware(db *pop.Connection) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
-			userID, ok := context.GetUserID(r.Context())
+			userID, ok := GetUserID(r.Context())
 			if !ok {
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
@@ -136,7 +131,7 @@ func UserAuthMiddleware(db *pop.Connection) func(next http.Handler) http.Handler
 			}
 
 			// User is authenticated
-			ctx := context.PopulateUserModel(r.Context(), user)
+			ctx := PopulateUserModel(r.Context(), user)
 			next.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
@@ -175,7 +170,7 @@ func TokenParsingMiddleware(logger *zap.Logger, secret string, noSessionTimeout 
 			}
 
 			// And put the user info on the request context
-			ctx := context.PopulateAuthContext(r.Context(), claims.UserID, claims.IDToken)
+			ctx := PopulateAuthContext(r.Context(), claims.UserID, claims.IDToken)
 
 			next.ServeHTTP(w, r.WithContext(ctx))
 		}
@@ -183,30 +178,36 @@ func TokenParsingMiddleware(logger *zap.Logger, secret string, noSessionTimeout 
 	}
 }
 
+func (context AuthorizationContext) landingURL(r *http.Request) string {
+	return fmt.Sprintf(context.callbackTemplate, app.GetHostname(r))
+}
+
 // AuthorizationContext is the common handler type for auth handlers
 type AuthorizationContext struct {
-	hostname         string
 	logger           *zap.Logger
 	loginGovProvider LoginGovProvider
+	callbackTemplate string
 }
 
 // NewAuthContext creates an AuthorizationContext
-func NewAuthContext(hostname string, logger *zap.Logger, loginGovProvider LoginGovProvider) AuthorizationContext {
+func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callbackProtocol string, callbackPort string) AuthorizationContext {
 	context := AuthorizationContext{
-		hostname:         hostname,
 		logger:           logger,
 		loginGovProvider: loginGovProvider,
+		callbackTemplate: fmt.Sprintf("%s%%s:%s/", callbackProtocol, callbackPort),
 	}
 	return context
 }
 
 // AuthorizationLogoutHandler handles logging the user out of login.gov
-type AuthorizationLogoutHandler AuthorizationContext
+type AuthorizationLogoutHandler struct {
+	AuthorizationContext
+}
 
 func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	redirectURL := landingURL(h.hostname)
+	redirectURL := h.landingURL(r)
 
-	idToken, ok := context.GetIDToken(r.Context())
+	idToken, ok := GetIDToken(r.Context())
 	if !ok {
 		// Can't log out of login.gov without a token, redirect and let them re-auth
 		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
@@ -222,18 +223,20 @@ func (h AuthorizationLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Req
 }
 
 // AuthorizationRedirectHandler handles redirection
-type AuthorizationRedirectHandler AuthorizationContext
+type AuthorizationRedirectHandler struct {
+	AuthorizationContext
+}
 
 // AuthorizationRedirectHandler constructs the Login.gov authentication URL and redirects to it
 func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	_, ok := context.GetIDToken(r.Context())
+	_, ok := GetIDToken(r.Context())
 	if ok {
 		// User is already authed, redirect to landing page
-		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, h.landingURL(r), http.StatusTemporaryRedirect)
 		return
 	}
 
-	authURL, err := h.loginGovProvider.AuthorizationURL()
+	authURL, err := h.loginGovProvider.AuthorizationURL(r)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -244,23 +247,21 @@ func (h AuthorizationRedirectHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 
 // AuthorizationCallbackHandler processes a callback from login.gov
 type AuthorizationCallbackHandler struct {
-	db                  *pop.Connection
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-	hostname            string
-	logger              *zap.Logger
-	loginGovProvider    LoginGovProvider
+	AuthorizationContext
+	db                     *pop.Connection
+	clientAuthSecretKey    string
+	loginGovMyClientID     string
+	loginGovOfficeClientID string
+	noSessionTimeout       bool
 }
 
 // NewAuthorizationCallbackHandler creates a new AuthorizationCallbackHandler
-func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool, hostname string, logger *zap.Logger, loginGovProvider LoginGovProvider) AuthorizationCallbackHandler {
+func NewAuthorizationCallbackHandler(ac AuthorizationContext, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AuthorizationCallbackHandler {
 	handler := AuthorizationCallbackHandler{
-		db:                  db,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-		hostname:            hostname,
-		logger:              logger,
-		loginGovProvider:    loginGovProvider,
+		AuthorizationContext: ac,
+		db:                   db,
+		clientAuthSecretKey:  clientAuthSecretKey,
+		noSessionTimeout:     noSessionTimeout,
 	}
 	return handler
 }
@@ -269,10 +270,11 @@ func NewAuthorizationCallbackHandler(db *pop.Connection, clientAuthSecretKey str
 func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	authError := r.URL.Query().Get("error")
+	lURL := h.landingURL(r)
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
-		http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
+		http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -281,7 +283,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	provider, err := goth.GetProvider(gothProviderType)
+	provider, err := getLoginGovProviderForRequest(r)
 	if err != nil {
 		h.logger.Error("Get Goth provider", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
@@ -290,7 +292,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 
 	// TODO: validate the state is the same (pull from session)
 	code := r.URL.Query().Get("code")
-	session, err := fetchToken(h.logger, code, h.loginGovProvider)
+	session, err := fetchToken(h.logger, code, provider.ClientKey, h.loginGovProvider)
 	if err != nil {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
@@ -328,13 +330,13 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 	}
 	http.SetCookie(w, &cookie)
 
-	http.Redirect(w, r, landingURL(h.hostname), http.StatusTemporaryRedirect)
+	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 
-func fetchToken(logger *zap.Logger, code string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
+func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvider LoginGovProvider) (*openidConnect.Session, error) {
 	tokenURL := loginGovProvider.TokenURL()
 	expiry := getExpiryTimeFromMinutes(sessionExpiryInMinutes)
-	params, err := loginGovProvider.TokenParams(code, expiry)
+	params, err := loginGovProvider.TokenParams(code, clientID, expiry)
 	if err != nil {
 		logger.Error("Creating token endpoint params", zap.Error(err))
 		return nil, err

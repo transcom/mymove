@@ -10,7 +10,7 @@ import (
 )
 
 // MakeDutyStation creates a single DutyStation
-func MakeDutyStation(db *pop.Connection, name string, branch internalmessages.MilitaryBranch, address models.Address) (models.DutyStation, error) {
+func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessages.Affiliation, address models.Address) (models.DutyStation, error) {
 	var station models.DutyStation
 
 	verrs, err := db.ValidateAndSave(&address)
@@ -22,9 +22,10 @@ func MakeDutyStation(db *pop.Connection, name string, branch internalmessages.Mi
 	}
 
 	station = models.DutyStation{
-		Name:      name,
-		Branch:    branch,
-		AddressID: address.ID,
+		Name:        name,
+		Affiliation: affiliation,
+		AddressID:   address.ID,
+		Address:     address,
 	}
 
 	verrs, err = db.ValidateAndSave(&station)
@@ -36,4 +37,11 @@ func MakeDutyStation(db *pop.Connection, name string, branch internalmessages.Mi
 	}
 
 	return station, err
+}
+
+// MakeAnyDutyStation returns a duty station with dummy info
+func MakeAnyDutyStation(db *pop.Connection) models.DutyStation {
+	station, _ := MakeDutyStation(db, "Air Station Yuma", internalmessages.AffiliationMARINES,
+		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
+	return station
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -48,4 +49,28 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&AllowedFiletype{Field: u.ContentType, Name: "ContentType"},
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
+}
+
+// FetchUpload returns an Upload if the user has access to that upload
+func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
+	var upload Upload
+	err := db.Q().Eager().Find(&upload, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return Upload{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Upload{}, err
+	}
+
+	_, docErr := FetchDocument(db, user, upload.DocumentID)
+	if docErr != nil {
+		return Upload{}, docErr
+	}
+	return upload, nil
+}
+
+// DeleteUpload deletes an upload from the database
+func DeleteUpload(db *pop.Connection, upload *Upload) error {
+	return db.Destroy(upload)
 }

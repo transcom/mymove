@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"context"
 	"errors"
 	"fmt"
 	"io"
@@ -12,7 +11,6 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	authcontext "github.com/transcom/mymove/pkg/auth/context"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -32,6 +30,22 @@ type fakeS3Storage struct {
 
 func (fake *fakeS3Storage) Key(args ...string) string {
 	return path.Join(args...)
+}
+
+func (fake *fakeS3Storage) Delete(key string) error {
+	itemIndex := -1
+	for i, f := range fake.putFiles {
+		if f.key == key {
+			itemIndex = i
+			break
+		}
+	}
+	if itemIndex == -1 {
+		return errors.New("can't delete item that doesn't exist")
+	}
+	// Remove file from putFiles
+	fake.putFiles = append(fake.putFiles[:itemIndex], fake.putFiles[itemIndex+1:]...)
+	return nil
 }
 
 func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
@@ -63,45 +77,44 @@ func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
 	}
 }
 
-func createUpload(suite *HandlerSuite, fakeS3 *fakeS3Storage) (models.Move, models.Document, middleware.Responder) {
+func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %s", err)
-	}
-
-	document, err := testdatagen.MakeDocument(suite.db, &move)
+	document, err := testdatagen.MakeDocument(suite.db, nil, "")
 	if err != nil {
 		t.Fatalf("could not create document: %s", err)
 	}
 
-	userID := move.UserID
-
 	params := uploadop.NewCreateUploadParams()
-	params.MoveID = strfmt.UUID(move.ID.String())
 	params.DocumentID = strfmt.UUID(document.ID.String())
 	params.File = suite.fixture("test.pdf")
 
-	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+	return document, params
+}
+
+func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, user models.User, fakeS3 *fakeS3Storage) middleware.Responder {
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, user)
+
+	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
 	context.SetFileStorer(fakeS3)
 	handler := CreateUploadHandler(context)
 	response := handler.Handle(params)
 
-	return move, document, response
+	return response
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(true)
-	move, document, response := createUpload(suite, fakeS3)
+	document, params := createPrereqs(suite)
 
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
 	if !ok {
-		t.Fatalf("Request failed: %#v", response)
+		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
 	}
 
 	uploadPayload := createdResponse.Payload
@@ -120,7 +133,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
 	}
 
-	key := fmt.Sprintf("moves/%s/documents/%s/uploads/%s", move.ID, document.ID, upload.ID)
+	key := fmt.Sprintf("documents/%s/uploads/%s", document.ID, upload.ID)
 	if fakeS3.putFiles[0].key != key {
 		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.putFiles[0].key)
 	}
@@ -139,41 +152,21 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
+	fakeS3 := newFakeS3Storage(true)
+	_, params := createPrereqs(suite)
 
-	move, err := testdatagen.MakeMove(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %s", err)
-	}
-
-	document, err := testdatagen.MakeDocument(suite.db, &move)
-	if err != nil {
-		t.Fatalf("could not create document: %s", err)
-	}
-	fakeS3 := &fakeS3Storage{}
 	// Create a user that is not associated with the move
-	user := models.User{
+	otherUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
 	}
-	suite.mustSave(&user)
+	suite.mustSave(&otherUser)
 
-	params := uploadop.NewCreateUploadParams()
-	params.MoveID = strfmt.UUID(move.ID.String())
-	params.DocumentID = strfmt.UUID(document.ID.String())
-	params.File = suite.fixture("test.pdf")
+	response := makeRequest(suite, params, otherUser, fakeS3)
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
 
-	ctx := authcontext.PopulateAuthContext(context.Background(), user.ID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
-
-	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetFileStorer(fakeS3)
-	handler := CreateUploadHandler(context)
-	response := handler.Handle(params)
-
-	_, ok := response.(*uploadop.CreateUploadForbidden)
-	if !ok {
-		t.Fatalf("Request was success, expected failure. User should not have access.")
-	}
+	suite.Assertions.Equal(http.StatusForbidden, errResponse.code)
 
 	count, err := suite.db.Count(&models.Upload{})
 
@@ -189,32 +182,41 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %s", err)
-	}
+	fakeS3 := newFakeS3Storage(true)
+	document, params := createPrereqs(suite)
+
 	// Make a document ID that is not actually associated with a document
-	documentID := uuid.Must(uuid.NewV4())
-	fakeS3 := &fakeS3Storage{}
-	userID := move.UserID
+	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 
-	params := uploadop.NewCreateUploadParams()
-	params.MoveID = strfmt.UUID(move.ID.String())
-	// Include non existent document ID in params
-	params.DocumentID = strfmt.UUID(documentID.String())
-	params.File = suite.fixture("test.pdf")
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
 
-	ctx := authcontext.PopulateAuthContext(context.Background(), userID, "fake token")
-	params.HTTPRequest = (&http.Request{}).WithContext(ctx)
+	suite.Assertions.Equal(http.StatusNotFound, errResponse.code)
 
-	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetFileStorer(fakeS3)
-	handler := CreateUploadHandler(context)
-	response := handler.Handle(params)
+	count, err := suite.db.Count(&models.Upload{})
 
-	_, ok := response.(*uploadop.CreateUploadNotFound)
+	if err != nil {
+		t.Fatalf("Couldn't count uploads in database: %s", err)
+	}
+
+	if count != 0 {
+		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
+	}
+}
+
+func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
+	t := suite.T()
+
+	fakeS3 := newFakeS3Storage(true)
+	document, params := createPrereqs(suite)
+
+	params.File = suite.fixture("empty.pdf")
+
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	_, ok := response.(*uploadop.CreateUploadBadRequest)
 	if !ok {
-		t.Fatalf("Request was success, expected failure. Document doesn't exist.")
+		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
@@ -231,11 +233,12 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
 	fakeS3 := newFakeS3Storage(false)
-	_, _, response := createUpload(suite, fakeS3)
+	document, params := createPrereqs(suite)
 
+	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)
 	if !ok {
-		t.Fatalf("Request was success, expected failure")
+		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})

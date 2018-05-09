@@ -2,7 +2,6 @@ package storage
 
 import (
 	"io"
-	"os"
 	"path"
 	"time"
 
@@ -14,15 +13,16 @@ import (
 
 // S3 implements the file storage API using S3.
 type S3 struct {
-	bucket string
-	logger *zap.Logger
-	client *s3.S3
+	bucket       string
+	keyNamespace string
+	logger       *zap.Logger
+	client       *s3.S3
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
-func NewS3(bucket string, logger *zap.Logger, session *session.Session) *S3 {
+func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *session.Session) *S3 {
 	client := s3.New(session)
-	return &S3{bucket, logger, client}
+	return &S3{bucket, keyNamespace, logger, client}
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
@@ -41,10 +41,24 @@ func (s *S3) Store(key string, data io.ReadSeeker, md5 string) (*StoreResult, er
 	return &StoreResult{}, nil
 }
 
+// Delete deletes an object at a specified key
+func (s *S3) Delete(key string) error {
+	input := &s3.DeleteObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	}
+
+	_, err := s.client.DeleteObject(input)
+	if err != nil {
+		return errors.Wrap(err, "delete to S3 failed")
+	}
+
+	return nil
+}
+
 // Key returns a joined key plus any global namespace
 func (s *S3) Key(args ...string) string {
-	namespace := os.Getenv("AWS_S3_KEY_NAMESPACE")
-	args = append([]string{namespace}, args...)
+	args = append([]string{s.keyNamespace}, args...)
 	return path.Join(args...)
 }
 

@@ -13,13 +13,14 @@ import (
 func MakeMove(db *pop.Connection) (models.Move, error) {
 	var move models.Move
 
-	user, err := MakeUser(db)
+	serviceMember, err := MakeServiceMember(db)
 	if err != nil {
 		return move, err
 	}
+
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move = models.Move{
-		UserID:           user.ID,
+		UserID:           serviceMember.UserID,
 		SelectedMoveType: &selectedType,
 	}
 

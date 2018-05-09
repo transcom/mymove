@@ -13,9 +13,12 @@ Is there anything you would like reviewers to give additional scrutiny?
 * [ ] The requirements listed in
  [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely)
  have been satisfied.
+* [ ] Any migrations/schema changes also update the diagram in docs/schema/dp3.sqs
 * [ ] There are no [aXe](https://www.deque.com/products/aXe/) warnings for UI.
 * [ ] This works in IE.
-* [ ] Any new third party client side dependencies (e.g., login.gov, google analytics, CDN libraries, etc.) have been communicated to @willowbl00.
+* Any new client dependencies (Google Analytics, hosted libraries, CDNs, etc) have been:
+  * [ ] Communicated to @willowbl00
+  * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)
 * [ ] Request review from a member of a different team.
 * [ ] (TRIAL) Have the Pivotal acceptance criteria been met for this change?
 

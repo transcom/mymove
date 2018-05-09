@@ -8,14 +8,13 @@ import (
 func (suite *ModelSuite) Test_DocumentCreate() {
 	t := suite.T()
 
-	move, err := testdatagen.MakeMove(suite.db)
+	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
 	if err != nil {
 		t.Fatalf("could not create move: %v", err)
 	}
 
 	document := models.Document{
-		UploaderID: move.UserID,
-		MoveID:     move.ID,
+		ServiceMemberID: serviceMember.ID,
 	}
 
 	verrs, err := suite.db.ValidateAndSave(&document)
@@ -33,8 +32,7 @@ func (suite *ModelSuite) Test_DocumentValidations() {
 	document := &models.Document{}
 
 	var expErrors = map[string][]string{
-		"uploader_id": []string{"UploaderID can not be blank."},
-		"move_id":     []string{"MoveID can not be blank."},
+		"service_member_id": {"ServiceMemberID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(document, expErrors)

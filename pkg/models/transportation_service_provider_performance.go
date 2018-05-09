@@ -246,17 +246,17 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 	return start, end
 }
 
-// FetchLinehaulRate returns the discount rate for the TSP with the highest
+// FetchDiscountRates returns the discount linehaul and SIT rates for the TSP with the highest
 // BVS during the specified data, limited to those TSPs in the channel defined by the
 // originZip and destinationZip.
-func FetchLinehaulRate(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (float64, error) {
+func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount float64, sitDiscount float64, err error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
 	if err != nil {
-		return 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)
+		return 0.0, 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)
 	}
 	region, err := FetchRegionForZip5(db, destinationZip)
 	if err != nil {
-		return 0.0, errors.Wrapf(err, "could not find a region for zip %s", destinationZip)
+		return 0.0, 0.0, errors.Wrapf(err, "could not find a region for zip %s", destinationZip)
 	}
 
 	var tspPerformance TransportationServiceProviderPerformance
@@ -274,8 +274,12 @@ func FetchLinehaulRate(db *pop.Connection, originZip string, destinationZip stri
 	`
 
 	err = db.RawQuery(query, rateArea, region, cos, date).First(&tspPerformance)
+
 	if err != nil {
-		return 0.0, errors.Wrap(err, "could find the tsp performance")
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return 0.0, 0.0, ErrFetchNotFound
+		}
+		return 0.0, 0.0, errors.Wrap(err, "could find the tsp performance")
 	}
-	return tspPerformance.LinehaulRate, nil
+	return tspPerformance.LinehaulRate, tspPerformance.SITRate, nil
 }

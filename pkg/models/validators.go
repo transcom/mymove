@@ -89,14 +89,14 @@ func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
 	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
 }
 
-// BranchIsPresent validates that a branch is present
-type BranchIsPresent struct {
+// AffiliationIsPresent validates that a branch is present
+type AffiliationIsPresent struct {
 	Name  string
-	Field internalmessages.MilitaryBranch
+	Field internalmessages.Affiliation
 }
 
 // IsValid adds an error if the string value is blank.
-func (v *BranchIsPresent) IsValid(errors *validate.Errors) {
+func (v *AffiliationIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
@@ -110,6 +110,19 @@ type BackupContactPermissionIsPresent struct {
 
 // IsValid adds an error if the string value is blank.
 func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
+	if string(v.Field) == "" {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// OrdersTypeIsPresent validates that permission field is present
+type OrdersTypeIsPresent struct {
+	Name  string
+	Field internalmessages.OrdersType
+}
+
+// IsValid adds an error if the string value is blank.
+func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}

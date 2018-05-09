@@ -6,43 +6,57 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	authctx "github.com/transcom/mymove/pkg/auth/context"
+	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForDocumentModel(document models.Document) internalmessages.DocumentPayload {
-	documentPayload := internalmessages.DocumentPayload{
-		ID:      fmtUUID(document.ID),
-		Name:    swag.String(document.Name),
-		Uploads: []*internalmessages.UploadPayload{},
+func payloadForDocumentModel(storage FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
+	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
+	for i, upload := range document.Uploads {
+		key := storage.Key("documents", document.ID.String(), "uploads", upload.ID.String())
+		url, err := storage.PresignedURL(key, upload.ContentType)
+		if err != nil {
+			return nil, err
+		}
+
+		uploadPayload := payloadForUploadModel(upload, url)
+		uploads[i] = uploadPayload
 	}
-	return documentPayload
+
+	documentPayload := &internalmessages.DocumentPayload{
+		ID:              fmtUUID(document.ID),
+		ServiceMemberID: fmtUUID(document.ServiceMemberID),
+		Name:            swag.String(document.Name),
+		Uploads:         uploads,
+	}
+	return documentPayload, nil
 }
 
-// CreateDocumentHandler creates a new document via POST /moves/{moveID}/documents/
+// CreateDocumentHandler creates a new document via POST /documents/
 type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	userID, ok := authctx.GetUserID(params.HTTPRequest.Context())
-	if !ok {
-		h.logger.Error("Missing User ID in context")
-		return documentop.NewCreateDocumentBadRequest()
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+
+	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
+	if err != nil {
+		return responseForError(h.logger, err)
 	}
 
-	moveID, err := uuid.FromString(params.MoveID.String())
+	// Fetch to check auth
+	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
 	if err != nil {
-		h.logger.Info("Badly formed UUID for moveId", zap.String("move_id", params.MoveID.String()), zap.Error(err))
-		return documentop.NewCreateDocumentBadRequest()
+		return responseForError(h.logger, err)
 	}
 
 	newDocument := models.Document{
-		UploaderID: userID,
-		MoveID:     moveID,
-		Name:       params.DocumentPayload.Name,
+		ServiceMemberID: serviceMember.ID,
+		Name:            params.DocumentPayload.Name,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newDocument)
@@ -55,8 +69,11 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	h.logger.Info("created a document with id: ", zap.Any("new_document_id", newDocument.ID))
-	documentPayload := payloadForDocumentModel(newDocument)
-	return documentop.NewCreateDocumentCreated().WithPayload(&documentPayload)
+	documentPayload, err := payloadForDocumentModel(h.storage, newDocument)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
 
 /* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,

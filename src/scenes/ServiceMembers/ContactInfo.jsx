@@ -5,32 +5,12 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { updateServiceMember, loadServiceMember } from './ducks';
-import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './ServiceMembers.css';
 
-const uiSchema = {
-  title: 'Your Contact Info',
-  order: [
-    'telephone',
-    'secondary_telephone',
-    'personal_email',
-    'contact_preferences',
-  ],
-  requiredFields: ['telephone', 'personal_email'],
-  groups: {
-    contact_preferences: {
-      title: 'Preferred contact method during your move:',
-      fields: [
-        'phone_is_preferred',
-        'text_message_is_preferred',
-        'email_is_preferred',
-      ],
-    },
-  },
-};
 const subsetOfFields = [
   'telephone',
   'secondary_telephone',
@@ -39,8 +19,26 @@ const subsetOfFields = [
   'text_message_is_preferred',
   'email_is_preferred',
 ];
+
+const validateContactForm = (values, form) => {
+  let errors = {};
+
+  let prefSelected = false;
+  prefSelected = Boolean(
+    values.phone_is_preferred ||
+      values.text_message_is_preferred ||
+      values.email_is_preferred,
+  );
+  if (!prefSelected) {
+    const newError = {
+      phone_is_preferred: 'Please select a preferred method of contact.',
+    };
+    return newError;
+  }
+  return errors;
+};
 const formName = 'service_member_contact_info';
-const CurrentForm = reduxifyForm(formName);
+const ContactWizardForm = reduxifyWizardForm(formName, validateContactForm);
 
 export class ContactInfo extends Component {
   componentDidMount() {
@@ -50,8 +48,7 @@ export class ContactInfo extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      this.props.updateServiceMember(patch);
+      this.props.updateServiceMember(pendingValues);
     }
   };
 
@@ -63,45 +60,42 @@ export class ContactInfo extends Component {
       error,
       currentServiceMember,
       userEmail,
+      schema,
     } = this.props;
-    let prefSelected = false;
-    if (this.refs.currentForm && this.refs.currentForm.values) {
-      prefSelected = Boolean(
-        this.refs.currentForm.values.phone_is_preferred ||
-          this.refs.currentForm.values.text_message_is_preferred ||
-          this.refs.currentForm.values.email_is_preferred,
-      );
-    }
-    const isValid =
-      this.refs.currentForm && this.refs.currentForm.valid && prefSelected;
-    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
-    if (initialValues && !initialValues.personal_email)
+    if (initialValues && !initialValues.personal_email) {
       initialValues.personal_email = userEmail;
+    }
     return (
-      <WizardPage
+      <ContactWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
+        className={formName}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        pageIsDirty={isDirty}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
+        initialValues={initialValues}
       >
-        <CurrentForm
-          ref="currentForm"
-          className={formName}
-          handleSubmit={no_op}
-          schema={this.props.schema}
-          uiSchema={uiSchema}
-          showSubmit={false}
-          initialValues={initialValues}
-        />
-      </WizardPage>
+        <h1 className="sm-heading">Your Contact Info</h1>
+        <SwaggerField fieldName="telephone" swagger={schema} required />
+        <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+        <SwaggerField fieldName="personal_email" swagger={schema} required />
+
+        <fieldset key="contact_preferences">
+          <legend htmlFor="contact_preferences">
+            Preferred contact method during your move:
+          </legend>
+          <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+          <SwaggerField
+            fieldName="text_message_is_preferred"
+            swagger={schema}
+          />
+          <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+        </fieldset>
+      </ContactWizardForm>
     );
   }
 }

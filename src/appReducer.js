@@ -10,9 +10,9 @@ import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
 import { ppmReducer } from 'scenes/Moves/Ppm/ducks';
 import { serviceMemberReducer } from 'scenes/ServiceMembers/ducks';
+import { ordersReducer } from 'scenes/Orders/ducks';
 import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
-import dd1299Reducer from 'scenes/DD1299/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 
@@ -24,12 +24,12 @@ export const appReducer = combineReducers({
   submittedMoves: moveReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
+  orders: ordersReducer,
   shipments: shipmentsReducer,
   router: routerReducer,
   form: formReducer,
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
-  DD1299: dd1299Reducer,
   upload: documentReducer,
 });
 

@@ -28,38 +28,46 @@ export class Landing extends Component {
     }
   };
   render() {
-    const isLoggedOut =
-      this.props.loggedInUserError &&
-      this.props.loggedInUserError.statusCode === 401;
-    const unknownUserError = this.props.loggedInUserError && !isLoggedOut;
+    const {
+      isLoggedIn,
+      loggedInUserIsLoading,
+      loggedInUserSuccess,
+      loggedInUserError,
+      createdServiceMemberError,
+    } = this.props;
     return (
       <div className="usa-grid">
         <h1>Welcome! </h1>
         <div>
-          {unknownUserError && (
+          {loggedInUserError && (
             <Alert type="error" heading="An error occurred">
-              There was an error starting your move.
+              There was an error loading your user information.
             </Alert>
           )}
-          {this.props.loggedInUserIsLoading && <span> Loading... </span>}
-          {!this.props.loggedInUserIsLoading && isLoggedOut && <LoginButton />}
-          <div />
-        </div>
-        {!this.props.loggedInUserIsLoading &&
-          this.props.loggedInUser && (
+          {createdServiceMemberError && (
+            <Alert type="error" heading="An error occurred">
+              There was an error creating your move.
+            </Alert>
+          )}
+          {loggedInUserIsLoading && <span> Loading... </span>}
+          {!isLoggedIn && <LoginButton />}
+          {loggedInUserSuccess && (
             <button onClick={this.startMove}>Start a move</button>
           )}
+        </div>
       </div>
     );
   }
 }
 
 const mapStateToProps = state => ({
+  isLoggedIn: state.user.isLoggedIn,
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,
   loggedInUserSuccess: state.loggedInUser.hasSucceeded,
   createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
+  createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
 });
 

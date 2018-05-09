@@ -24,6 +24,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Database](#setup-database)
   * [Setup: Server](#setup-server)
   * [Setup: Client](#setup-client)
+  * [Setup: Office/admin client](#setup-officeadmin-client)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -46,6 +47,12 @@ Regenerate with "bin/generate-md-toc.sh"
 ## Supported clients
 
 As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Edge or newer versions. Currently, the intention is to encourage using Chrome and Firefox instead, with specific versions TBD. Research is incomplete on mobile browsers, but we are assuming support for iOS and Android.
+
+## Client Network Dependencies
+
+The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
+
+* S3 for document downloads; exact domains TBD.
 
 ## Development
 
@@ -147,6 +154,12 @@ The above will start the webpack dev server, serving the front-end on port 3000.
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
+### Setup: Office/admin client
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 officelocal`
+2. `make office_client_run`
+
 ### Setup: S3
 
 If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
@@ -178,7 +191,7 @@ There is also a package (`/pkg/testdatagen`) that can be imported to create arbi
 
 The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API. In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
 
-You can view the API's documentation (powered by Swagger UI) at <http://localhost:8081/api/v1/docs> when a local server is running.
+You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
 
 ### Testing
 
@@ -284,3 +297,4 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 * Random problems may arise if you have old Docker containers running. Run `docker ps` and if you see containers unrelated to our app, consider stopping them.
 * If you have problems connecting to PostgreSQL, or running related scripts, make sure you aren't already running a PostgreSQL daemon. You can check this by typing `ps aux | grep postgres` and looking for existing processes.
 * If you happen to have installed pre-commit in a virtual environment not with brew, running bin/prereqs will not alert you. You may run into issues when running `make deps`. To install pre-commit: `brew install pre-commit`.
+* If you're having trouble accessing the API docs or the server is otherwise misbehaving, try stopping the server, running `make client_build`, and then running `make client_run` and `make server_run`.

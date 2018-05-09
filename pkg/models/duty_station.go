@@ -14,15 +14,15 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
-// DutyStation represents a military duty station for a specific branch
+// DutyStation represents a military duty station for a specific affiliation
 type DutyStation struct {
-	ID        uuid.UUID                       `json:"id" db:"id"`
-	CreatedAt time.Time                       `json:"created_at" db:"created_at"`
-	UpdatedAt time.Time                       `json:"updated_at" db:"updated_at"`
-	Name      string                          `json:"name" db:"name"`
-	Branch    internalmessages.MilitaryBranch `json:"branch" db:"branch"`
-	AddressID uuid.UUID                       `json:"address_id" db:"address_id"`
-	Address   Address                         `belongs_to:"address"`
+	ID          uuid.UUID                    `json:"id" db:"id"`
+	CreatedAt   time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt   time.Time                    `json:"updated_at" db:"updated_at"`
+	Name        string                       `json:"name" db:"name"`
+	Affiliation internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
+	AddressID   uuid.UUID                    `json:"address_id" db:"address_id"`
+	Address     Address                      `belongs_to:"address"`
 }
 
 // String is not required by pop and may be deleted
@@ -45,7 +45,7 @@ func (d DutyStations) String() string {
 func (d *DutyStation) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: d.Name, Name: "Name"},
-		&BranchIsPresent{Field: d.Branch, Name: "Branch"},
+		&AffiliationIsPresent{Field: d.Affiliation, Name: "Affiliation"},
 		&validators.UUIDIsPresent{Field: d.AddressID, Name: "AddressID"},
 	), nil
 }
@@ -62,16 +62,23 @@ func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, erro
 	return validate.NewErrors(), nil
 }
 
-// FindDutyStations returns all duty stations matching a search query and military branch
-func FindDutyStations(tx *pop.Connection, search string, branch string) (DutyStations, error) {
+// FetchDutyStation returns a station for a given id
+func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
+	var station DutyStation
+	err := tx.Q().Eager().Find(&station, id)
+	return station, err
+}
+
+// FindDutyStations returns all duty stations matching a search query and military affiliation
+func FindDutyStations(tx *pop.Connection, search string, affiliation string) (DutyStations, error) {
 	var stations DutyStations
 
 	// ILIKE does case-insensitive pattern matching, "%" matches any string
 	searchQuery := fmt.Sprintf("%%%s%%", search)
-	query := tx.Where("branch = $1 AND name ILIKE $2", branch, searchQuery)
+	query := tx.Q().Eager().Where("affiliation = $1 AND name ILIKE $2", affiliation, searchQuery)
 
-	if err := query.Eager().All(&stations); err != nil {
-		if errors.Cause(err).Error() != RecordNotFoundErrorString {
+	if err := query.All(&stations); err != nil {
+		if errors.Cause(err).Error() != recordNotFoundErrorString {
 			return stations, err
 		}
 	}

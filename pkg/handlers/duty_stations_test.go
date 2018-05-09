@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth/context"
+	"github.com/transcom/mymove/pkg/auth"
 	stationop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/duty_stations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -30,29 +30,29 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	suite.mustSave(&address)
 
 	station1 := models.DutyStation{
-		Name:      "First Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "First Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station1)
 
 	station2 := models.DutyStation{
-		Name:      "Second Station",
-		Branch:    internalmessages.MilitaryBranchARMY,
-		AddressID: address.ID,
+		Name:        "Second Station",
+		Affiliation: internalmessages.AffiliationARMY,
+		AddressID:   address.ID,
 	}
 	suite.mustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 	newSearchParams := stationop.SearchDutyStationsParams{
 		HTTPRequest: req,
-		Branch:      string(internalmessages.MilitaryBranchARMY),
+		Affiliation: string(internalmessages.AffiliationARMY),
 		Search:      "first",
 	}
 
 	// Make sure the context contains the auth values
 	ctx := newSearchParams.HTTPRequest.Context()
-	ctx = context.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
 	newSearchParams.HTTPRequest = newSearchParams.HTTPRequest.WithContext(ctx)
 
 	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger))

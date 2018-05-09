@@ -21,7 +21,7 @@ type ServiceMember struct {
 	UserID                 uuid.UUID                           `json:"user_id" db:"user_id"`
 	User                   User                                `belongs_to:"user"`
 	Edipi                  *string                             `json:"edipi" db:"edipi"`
-	Branch                 *internalmessages.MilitaryBranch    `json:"branch" db:"branch"`
+	Affiliation            *internalmessages.Affiliation       `json:"affiliation" db:"affiliation"`
 	Rank                   *internalmessages.ServiceMemberRank `json:"rank" db:"rank"`
 	FirstName              *string                             `json:"first_name" db:"first_name"`
 	MiddleName             *string                             `json:"middle_name" db:"middle_name"`
@@ -39,7 +39,10 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                            `belongs_to:"address"`
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
+	Orders                 Orders                              `has_many:"orders"`
 	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
+	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
+	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
 }
 
 // String is not required by pop and may be deleted
@@ -78,11 +81,12 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
+// This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
-	err := db.Eager().Find(&serviceMember, id)
+	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -102,6 +106,13 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 	}
 	if serviceMember.SocialSecurityNumberID == nil {
 		serviceMember.SocialSecurityNumber = nil
+	}
+
+	if serviceMember.DutyStationID == nil {
+		serviceMember.DutyStation = nil
+	} else {
+		// Need to do this because Pop's nested eager loading seems to be broken
+		db.Q().Eager().Find(&serviceMember.DutyStation.Address, serviceMember.DutyStation.AddressID)
 	}
 
 	return serviceMember, nil
@@ -174,6 +185,52 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 	return newContact, verrs, err
 }
 
+// CreateOrder creates an order model tied to the service member
+func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType internalmessages.OrdersType, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
+	var newOrders Order
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(dbConnection *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+		uploadedOrders := Document{
+			ServiceMemberID: s.ID,
+			ServiceMember:   s,
+			Name:            UploadedOrdersDocumentName,
+		}
+		verrs, err := db.ValidateAndCreate(&uploadedOrders)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		newOrders = Order{
+			ServiceMemberID:  s.ID,
+			ServiceMember:    s,
+			IssueDate:        issueDate,
+			ReportByDate:     reportByDate,
+			OrdersType:       ordersType,
+			HasDependents:    hasDependents,
+			NewDutyStationID: newDutyStation.ID,
+			NewDutyStation:   newDutyStation,
+			UploadedOrders:   uploadedOrders,
+			UploadedOrdersID: uploadedOrders.ID,
+		}
+
+		verrs, err = db.ValidateAndCreate(&newOrders)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return newOrders, responseVErrors, responseError
+}
+
 // IsProfileComplete checks if the profile has been completely filled out
 func (s *ServiceMember) IsProfileComplete() bool {
 
@@ -181,7 +238,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.Edipi == nil {
 		return false
 	}
-	if s.Branch == nil {
+	if s.Affiliation == nil {
 		return false
 	}
 	if s.Rank == nil {
@@ -208,4 +265,18 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	// TODO: add check for station, SSN, and backup contacts
 	// All required fields have a set value
 	return true
+}
+
+// FetchLatestOrder gets the latest order for a service member
+func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
+	var order Order
+	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
+	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		return Order{}, err
+	}
+	return order, nil
 }

@@ -41,6 +41,10 @@
       "value": "master"
     },
     {
+      "name": "DB_NAME",
+      "value": "app"
+    },
+    {
       "name": "CHAMBER_KMS_KEY_ALIAS",
       "value": "alias/aws/ssm"
     },
@@ -49,8 +53,12 @@
       "value": "1"
     },
     {
-      "name": "HTTP_SERVER_NAME",
-      "value": "app.{{environment}}.dp3.us"
+      "name": "HTTP_MY_SERVER_NAME",
+      "value": "my.{{environment}}.dp3.us"
+    },
+    {
+      "name": "HTTP_OFFICE_SERVER_NAME",
+      "value": "office.{{environment}}.dp3.us"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",

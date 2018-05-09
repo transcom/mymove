@@ -34,11 +34,11 @@ definitions:
       - id
       - created_at
       - updated_at
-  MilitaryBranch:
+  Affiliation:
     type: string
     x-nullable: true
     title: Branch
-    enum: &MILITARYBRANCHES
+    enum: &AFFILIATION
       - ARMY
       - NAVY
       - MARINES
@@ -63,8 +63,8 @@ definitions:
         example: Fort Bragg North Station
       address:
         $ref: '#/definitions/Address'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       created_at:
         type: string
         format: date-time
@@ -75,7 +75,7 @@ definitions:
       - id
       - name
       - address
-      - branch
+      - affiliation
       - created_at
       - updated_at
   DutyStationsPayload:
@@ -87,27 +87,129 @@ definitions:
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: When do you plan to move?
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: When do you plan to move?
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: When do you plan to move?
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
   PersonallyProcuredMovePayload:
     type: object
@@ -118,9 +220,43 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       size:
         $ref: '#/definitions/TShirtSize'
+      planned_move_date:
+        type: string
+        format: date
+        title: When do you plan to move?
+        x-nullable: true
+      pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      additional_pickup_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      destination_zip:
+        type: string
+        format: zip
+        title: ZIP/Postal Code
+        example: "90210"
+        pattern: '^(\d{5}([\-]\d{4})?)$'
+        x-nullable: true
+      days_in_storage:
+        type: integer
+        title: Days in Temporary Storage
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
+        x-nullable: true
+      estimated_incentive:
+        type: string
+        title: Estimated Incentive
         x-nullable: true
       created_at:
         type: string
@@ -132,6 +268,26 @@ definitions:
       - id
       - created_at
       - updated_at
+  PPMSitEstimate:
+    type: object
+    properties:
+      estimate:
+        type: integer
+        title: Value in cents of SIT estimate for PPM
+    required:
+      - estimate
+  PPMEstimateRange:
+    type: object
+    properties:
+      range_min:
+        type: integer
+        title: Low estimate
+      range_max:
+        type: integer
+        title: High estimate
+    required:
+      - range_min
+      - range_max
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -203,8 +359,8 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       has_social_security_number:
@@ -252,8 +408,11 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -287,8 +446,8 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
@@ -349,8 +508,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -369,8 +531,8 @@ definitions:
         example: '5789345789'
         x-nullable: true
         title: 'DoD ID #'
-      branch:
-        $ref: '#/definitions/MilitaryBranch'
+      affiliation:
+        $ref: '#/definitions/Affiliation'
       rank:
         $ref: '#/definitions/ServiceMemberRank'
       social_security_number:
@@ -431,8 +593,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -483,6 +648,11 @@ definitions:
     - NONE
     - VIEW
     - EDIT
+    title: Permissions
+    x-display-value:
+      NONE: Contact Only
+      VIEW: View all move details
+      EDIT: View and edit all move details
   CreateServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -565,6 +735,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
       uploads:
         type: array
         items:
@@ -572,6 +746,7 @@ definitions:
     required:
       - id
       - name
+      - service_member_id
       - uploads
   PostDocumentPayload:
     type: object
@@ -579,6 +754,10 @@ definitions:
       name:
         type: string
         title: Human-understandable name for this document
+      service_member_id:
+        type: string
+        format: uuid
+        title: The service member this document belongs to
   UploadPayload:
     type: object
     properties:
@@ -657,562 +836,6 @@ definitions:
       - description
       - created_at
       - updated_at
-  CreateForm1299Payload:
-    type: object
-    title: Application For Shipment And Or Storage Of Personal Property (DD1299)
-    properties:
-      date_prepared:
-        type: string
-        format: date
-        example: 2018-01-03
-        x-nullable: true
-        title: Date Prepared
-      shipment_number:
-        type: string
-        example: "4550"
-        x-nullable: true
-        title: Shipment Number
-      name_of_preparing_office:
-        type: string
-        example: pumpernickel office
-        x-nullable: true
-        title: Name of Preparing Office
-      dest_office_name:
-        type: string
-        example: pecan office
-        title: Name of Destination Personal Property Shipping Office
-        x-nullable: true
-      origin_office_address_name:
-        type: string
-        example: Office manager John Dough
-        x-nullable: true
-        title: Name
-      origin_office_address:
-        $ref: '#/definitions/Address'
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-        title: First Name
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-        title: Middle Initial
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-        title: Last Name
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        format: ssn
-        example: 555-55-5555
-        x-nullable: true
-        title: SSN
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
-        title: Agency
-      hhg_total_pounds:
-        type: integer
-        example: 10000
-        x-nullable: true
-        title: Pounds
-      hhg_progear_pounds:
-        type: integer
-        example: 350
-        x-nullable: true
-        title: PBP&E Pounds
-      hhg_valuable_items_cartons:
-        type: integer
-        example: 3
-        x-nullable: true
-        title: Expensive And Valuable Items Number Of Cartons
-      mobile_home_serial_number:
-        type: string
-        example: 45kljs98kljlkwj5
-        x-nullable: true
-        title: Serial Number
-      mobile_home_length_ft:
-        type: integer
-        example: 72
-        x-nullable: true
-        title: Length (ft)
-      mobile_home_length_inches:
-        type: integer
-        example: 4
-        x-nullable: true
-        title: Length (in)
-      mobile_home_width_ft:
-        type: integer
-        example: 15
-        x-nullable: true
-        title: Width (ft)
-      mobile_home_width_inches:
-        type: integer
-        example: 4
-        x-nullable: true
-        title: Width (in)
-      mobile_home_height_ft:
-        type: integer
-        example: 10
-        x-nullable: true
-        title: Height (ft)
-      mobile_home_height_inches:
-        type: integer
-        example: 3
-        x-nullable: true
-        title: Height (in)
-      mobile_home_type_expando:
-        type: string
-        example: bathroom and shower unit
-        x-nullable: true
-        title: Type Expando
-      mobile_home_contents_packed_requested:
-        type: boolean
-        x-nullable: true
-        title: Mobile Home Contents Packed
-      mobile_home_blocked_requested:
-        type: boolean
-        x-nullable: true
-        title: Mobile Home Blocked
-      mobile_home_unblocked_requested:
-        type: boolean
-        x-nullable: true
-        title: Mobile Home Unblocked
-      mobile_home_stored_at_origin_requested:
-        type: boolean
-        x-nullable: true
-        title: Mobile Home Stored At Origin
-      mobile_home_stored_at_destination_requested:
-        type: boolean
-        x-nullable: true
-        title: Mobile Home Stored At Destination
-      station_orders_type:
-        type: string
-        enum:
-        - PERMANENT
-        - TEMPORARY
-        x-display-value:
-          PERMANENT: permanent
-          TEMPORARY: temporary
-        x-nullable: true
-        title: Type Orders
-      station_orders_issued_by:
-        type: string
-        example: Sergeant Naan
-        x-nullable: true
-        title: Issued By
-      station_orders_new_assignment:
-        type: string
-        example: ACCOUNTING OPS
-        x-nullable: true
-        title: New Duty Assignment
-      station_orders_date:
-        type: string
-        format: date
-        example: 2018-03-15
-        x-nullable: true
-        title: Date of Orders
-      station_orders_number:
-        type: string
-        example: "98374"
-        x-nullable: true
-        title: Orders Number
-      station_orders_paragraph_number:
-        type: string
-        example: "5"
-        x-nullable: true
-        title: Paragraph Number
-      station_orders_in_transit_telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-666-6666
-        x-nullable: true
-        title: In Transit Telephone No
-      in_transit_address:
-        $ref: '#/definitions/Address'
-      pickup_address:
-        $ref: '#/definitions/Address'
-      pickup_telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-        title: Pickup telephone
-      dest_address:
-        $ref: '#/definitions/Address'
-      agent_to_receive_hhg:
-        type: string
-        x-nullable: true
-        title: Agent Designated To Receive Property
-      extra_address:
-        $ref: '#/definitions/Address'
-      pack_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-08
-        x-nullable: true
-        title: Pack
-      pickup_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-09
-        x-nullable: true
-        title: Pickup
-      delivery_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-10
-        x-nullable: true
-        title: Delivery
-      remarks:
-        type: string
-        example: please be careful with my stuff
-        x-nullable: true
-        title: Remarks
-      other_move_1_from:
-        type: string
-        x-nullable: true
-        title: From
-      other_move_1_to:
-        type: string
-        x-nullable: true
-        title: To
-      other_move_1_net_pounds:
-        type: integer
-        example: 2000
-        x-nullable: true
-        title: Total Pounds
-      other_move_1_progear_pounds:
-        type: integer
-        example: 100
-        x-nullable: true
-        title: PBP&E Pounds
-      other_move_2_from:
-        type: string
-        x-nullable: true
-        title: From
-      other_move_2_to:
-        type: string
-        x-nullable: true
-        title: To
-      other_move_2_net_pounds:
-        type: integer
-        example: 2000
-        x-nullable: true
-        title: Total Pounds
-      other_move_2_progear_pounds:
-        type: integer
-        example: 100
-        x-nullable: true
-        title: PBP&E Pounds
-      service_member_signature:
-        type: string
-        example: Focaccia Roll
-        x-nullable: true
-        title: Signature Of Member/Employee
-      date_signed:
-        type: string
-        format: date
-        example: 2018-01-23
-        x-nullable: true
-        title: Date Signed
-      contractor_address:
-        $ref: '#/definitions/Address'
-      contractor_name:
-        type: string
-        example: Mayflower Transit
-        x-nullable: true
-        title: Name Of Contractor
-      nonavailability_of_signature_reason:
-        type: string
-        example: service member not present
-        x-nullable: true
-        title: Reason For Nonavailability Of Signature
-      certified_by_signature:
-        type: string
-        example: Sally Crumpet
-        x-nullable: true
-        title: Signature
-      title_of_certified_by_signature:
-        type: string
-        example: Colonel Crumpet
-        x-nullable: true
-        title: Title
-    required:
-      - mobile_home_contents_packed_requested
-      - mobile_home_blocked_requested
-      - mobile_home_unblocked_requested
-      - mobile_home_stored_at_origin_requested
-      - mobile_home_stored_at_destination_requested
-  IndexForm1299sPayload:
-    type: array
-    items:
-      $ref: '#/definitions/Form1299Payload'
-  Form1299Payload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-      form_completed:
-        type: boolean
-        example: false
-        x-nullable: true
-      date_prepared:
-        type: string
-        format: date
-        example: 2018-01-03
-        x-nullable: true
-      shipment_number:
-        type: string
-        example: "4550"
-        x-nullable: true
-      name_of_preparing_office:
-        type: string
-        example: pumpernickel office
-        x-nullable: true
-      dest_office_name:
-        type: string
-        x-nullable: true
-      origin_office_address_name:
-        type: string
-        example: Office manager John Dough
-        x-nullable: true
-      origin_office_address:
-        $ref: '#/definitions/Address'
-      service_member_first_name:
-        type: string
-        example: Focaccia
-        x-nullable: true
-      service_member_middle_initial:
-        type: string
-        example: L.
-        x-nullable: true
-      service_member_last_name:
-        type: string
-        example: Roll
-        x-nullable: true
-      service_member_rank:
-        $ref: '#/definitions/ServiceMemberRank'
-      service_member_ssn:
-        type: string
-        format: ssn
-        example: 555-55-5555
-        x-nullable: true
-      service_member_agency:
-        type: string
-        example: Air Force
-        x-nullable: true
-      hhg_total_pounds:
-        type: integer
-        example: 10000
-        x-nullable: true
-      hhg_progear_pounds:
-        type: integer
-        example: 3000
-        x-nullable: true
-      hhg_valuable_items_cartons:
-        type: integer
-        example: 3
-        x-nullable: true
-      mobile_home_serial_number:
-        type: string
-        example: 45kljs98kljlkwj5
-        x-nullable: true
-      mobile_home_length_ft:
-        type: integer
-        example: 72
-        x-nullable: true
-      mobile_home_length_inches:
-        type: integer
-        example: 4
-        x-nullable: true
-      mobile_home_width_ft:
-        type: integer
-        example: 15
-        x-nullable: true
-      mobile_home_width_inches:
-        type: integer
-        example: 4
-        x-nullable: true
-      mobile_home_height_ft:
-        type: integer
-        example: 10
-        x-nullable: true
-      mobile_home_height_inches:
-        type: integer
-        example: 3
-        x-nullable: true
-      mobile_home_type_expando:
-        type: string
-        example: bathroom and shower unit
-        x-nullable: true
-      mobile_home_contents_packed_requested:
-        type: boolean
-        title: Mobile Home Contents Packed
-      mobile_home_blocked_requested:
-        type: boolean
-        title: Mobile Home Blocked
-      mobile_home_unblocked_requested:
-        type: boolean
-        title: Mobile Home Unblocked
-      mobile_home_stored_at_origin_requested:
-        type: boolean
-        title: Mobile Home Stored At Origin
-      mobile_home_stored_at_destination_requested:
-        type: boolean
-        title: Mobile Home Stored At Destination
-      station_orders_type:
-        type: string
-        enum:
-        - PERMANENT
-        - TEMPORARY
-        x-display-value:
-          PERMANENT: permanent
-          TEMPORARY: temporary
-        x-nullable: true
-      station_orders_issued_by:
-        type: string
-        example: Sergeant Naan
-        x-nullable: true
-      station_orders_new_assignment:
-        type: string
-        example: ACCOUNTING OPS
-        x-nullable: true
-      station_orders_date:
-        type: string
-        format: date
-        example: 2018-03-15
-        x-nullable: true
-      station_orders_number:
-        type: string
-        example: '98374'
-        x-nullable: true
-      station_orders_paragraph_number:
-        type: string
-        example: '5'
-        x-nullable: true
-      station_orders_in_transit_telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-666-6666
-        x-nullable: true
-      in_transit_address:
-        $ref: '#/definitions/Address'
-      pickup_address:
-        $ref: '#/definitions/Address'
-      pickup_telephone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-5555
-        x-nullable: true
-      dest_address:
-        $ref: '#/definitions/Address'
-      agent_to_receive_hhg:
-        type: string
-        x-nullable: true
-      extra_address:
-        $ref: '#/definitions/Address'
-      pack_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-08
-        x-nullable: true
-      pickup_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-09
-        x-nullable: true
-      delivery_scheduled_date:
-        type: string
-        format: date
-        example: 2018-03-10
-        x-nullable: true
-      remarks:
-        type: string
-        example: please be careful with my stuff
-        x-nullable: true
-      other_move_1_from:
-        type: string
-        x-nullable: true
-      other_move_1_to:
-        type: string
-        x-nullable: true
-      other_move_1_net_pounds:
-        type: integer
-        example: 2000
-        x-nullable: true
-      other_move_1_progear_pounds:
-        type: integer
-        example: 100
-        x-nullable: true
-      other_move_2_from:
-        type: string
-        x-nullable: true
-      other_move_2_to:
-        type: string
-        x-nullable: true
-      other_move_2_net_pounds:
-        type: integer
-        example: 2000
-        x-nullable: true
-      other_move_2_progear_pounds:
-        type: integer
-        example: 100
-        x-nullable: true
-      service_member_signature:
-        type: string
-        example: Focaccia Roll
-        x-nullable: true
-      date_signed:
-        type: string
-        format: date
-        example: 2018-01-23
-        x-nullable: true
-      contractor_address:
-        $ref: '#/definitions/Address'
-      contractor_name:
-        type: string
-        example: Mayflower Transit
-        x-nullable: true
-      nonavailability_of_signature_reason:
-        type: string
-        example: service member not present
-        x-nullable: true
-      certified_by_signature:
-        type: string
-        example: Sally Crumpet
-        x-nullable: true
-      title_of_certified_by_signature:
-        type: string
-        example: Colonel Crumpet
-        x-nullable: true
-    required:
-      - id
-      - created_at
-      - updated_at
-      - mobile_home_contents_packed_requested
-      - mobile_home_blocked_requested
-      - mobile_home_unblocked_requested
-      - mobile_home_stored_at_origin_requested
-      - mobile_home_stored_at_destination_requested
   TShirtSize:
     type: string
     x-nullable: true
@@ -1285,6 +908,19 @@ definitions:
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
       MIDSHIPMAN: Midshipman
+  DeptIndicator:
+    type: string
+    x-nullable: true
+    enum:
+      - ARMY
+      - NAVY_MARINES
+      - AIRFORCE
+      - COASTGUARD
+    x-display-value:
+      ARMY: 21 - United States Army
+      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
+      AIRFORCE: 57 - United States Air Force
+      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1473,6 +1109,109 @@ definitions:
       - city
       - state
       - postal_code
+  OrdersType:
+    type: string
+    title: Orders type
+    enum:
+      - accession
+      - brac
+      - operational
+      - rotational
+      - separation
+      - training
+      - unit-move
+    x-display-value:
+      accession: accession
+      brac: brac
+      operational: operational
+      rotational: rotational
+      separation: separation
+      training: training
+      unit-move: unit-move
+  OrdersPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issue_date:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: "2018-04-26"
+        title: Orders date
+      report_by_date:
+        type: string
+        description: Report By Date
+        format: date
+        example: "2018-04-26"
+        title:  Report-by date
+      orders_type:
+        $ref: "#/definitions/OrdersType"
+      has_dependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      new_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+      uploaded_orders:
+        $ref: '#/definitions/DocumentPayload'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - service_member_id
+      - issue_date
+      - report_by_date
+      - orders_type
+      - has_dependents
+      - new_duty_station
+      - uploaded_orders
+      - created_at
+      - updated_at
+  CreateUpdateOrdersPayload:
+    type: object
+    properties:
+      service_member_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      issue_date:
+        type: string
+        description: The date and time that these orders were cut.
+        format: date
+        example: "2018-04-26"
+        title: Orders date
+      report_by_date:
+        type: string
+        description: Report By Date
+        format: date
+        example: "2018-04-26"
+        title:  Report-by date
+      orders_type:
+        $ref: "#/definitions/OrdersType"
+      has_dependents:
+        type: boolean
+        title: Are dependents included in your orders?
+      new_duty_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+    required:
+      - service_member_id
+      - issue_date
+      - report_by_date
+      - orders_type
+      - has_dependents
+      - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
     properties:
@@ -1480,7 +1219,177 @@ definitions:
         type: object
         additionalProperties:
           type: string
+  MoveQueueItem:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        type: string
+        example: Booked - Awaiting Review
+      locator:
+        type: string
+        example: "12432"
+      customer_name:
+        type: string
+        example: Thedog, Nino
+        title: Customer Name
+      edipi:
+        type: string
+        format: edipi
+        pattern: '^[0-9]{10}$'
+        example: '5789345789'
+        title: 'DoD ID #'
+      rank:
+        $ref: '#/definitions/ServiceMemberRank'
+      orders_type:
+        type: string
+        title: Move Type
+        enum:
+          - PCS - OCONUS
+          - PCS - CONUS
+          - PCS + TDY - OCONUS
+          - PCS + TDY - CONUS
+      move_date:
+        type: string
+        format: date
+        example: 2018-04-25
+      customer_deadline:
+        type: string
+        format: date
+        example: 2018-07-20
+      last_modified_date:
+        type: string
+        format: date-time
+        example: 2018-04-25 11:25
+      last_modified_name:
+        type: string
+        example: Bollinger, Sam
+      created_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - status
+      - locator
+      - customer_name
+      - edipi
+      - rank
+      - orders_type
+      - move_date
+      - customer_deadline
+      - last_modified_date
+      - last_modified_name
+      - created_at
+  Accounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
+  PatchAccounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
 paths:
+  /estimates/ppm:
+    get:
+      summary: Return a PPM cost estimate
+      description: Calculates a reimbursement range for a PPM move (excluding SIT)
+      operationId: showPPMEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/PPMEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /estimates/ppm_sit:
+    get:
+      summary: Return a PPM move's SIT cost estimate
+      description: Calculates a reimbursment for a PPM move's SIT
+      operationId: showPPMSitEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: days_in_storage
+          type: integer
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: show PPM SIT estimate
+          schema:
+            $ref: '#/definitions/PPMSitEstimate'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /issues:
     post:
       summary: Create a new issue
@@ -1514,39 +1423,6 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
-  /form1299s:
-    post:
-      summary: Create a new shipment or storage of personal property application
-      description: Create an instance of form 1299
-      operationId: createForm1299
-      tags:
-        - form1299s
-      parameters:
-        - in: body
-          name: createForm1299Payload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateForm1299Payload'
-      responses:
-        201:
-          description: created instance of form 1299
-          schema:
-            $ref: '#/definitions/Form1299Payload'
-        400:
-          description: invalid request
-    get:
-      summary: List all submitted 1299 forms
-      description: List all submitted 1299 forms
-      operationId: indexForm1299s
-      tags:
-        - form1299s
-      responses:
-        200:
-          description: list of submitted forms 1299
-          schema:
-            $ref: '#/definitions/IndexForm1299sPayload'
-        400:
-          description: invalid request
   /shipments:
     get:
       summary: List all shipments
@@ -1561,30 +1437,6 @@ paths:
             $ref: '#/definitions/IndexShipmentsPayload'
         400:
           description: invalid request
-  /form1299s/{form1299Id}:
-    get:
-      summary: Gets a 1299 form by Id
-      operationId: showForm1299
-      tags:
-        - form1299s
-      parameters:
-        - in: path
-          name: form1299Id
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the form to get
-      responses:
-        200:
-          description: a 1299 form
-          schema:
-            $ref: '#/definitions/Form1299Payload'
-        400:
-          description: invalid request
-        404:
-          description: unknown form1299Id
-        500:
-          description: server error
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -1603,6 +1455,94 @@ paths:
           description: request requires user authentication
         500:
           description: server error
+  /orders:
+    post:
+      summary: Creates an orders model for a logged-in user
+      description: Creates an instance of orders tied to a service member
+      operationId: createOrders
+      tags:
+        - orders
+      parameters:
+        - in: body
+          name: createOrdersPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrdersPayload'
+      responses:
+        201:
+          description: created instance of orders
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /orders/{ordersId}:
+    put:
+      summary: Updates orders
+      description: All fields sent in this request will be set on the orders referenced
+      operationId: updateOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the orders model
+        - in: body
+          name: updateOrdersPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrdersPayload'
+      responses:
+        200:
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: orders not found
+        500:
+          description: internal server error
+    get:
+      summary: Returns the given order
+      description: Returns the given order
+      operationId: showOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
+      responses:
+        200:
+          description: the instance of the order
+          schema:
+            $ref: '#/definitions/OrdersPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: order is not found
+        500:
+          description: internal server error
   /moves:
     post:
       summary: Submits move for a logged-in user
@@ -1901,7 +1841,7 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/documents:
+  /documents:
     post:
       summary: Create a new document
       description: Documents represent a physical artifact such as a scanned document or a PDF file
@@ -1909,12 +1849,6 @@ paths:
       tags:
         - documents
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: body
           name: documentPayload
           required: true
@@ -1929,7 +1863,7 @@ paths:
           description: invalid request
         500:
           description: server error
-  /moves/{moveId}/documents/{documentId}/uploads:
+  /documents/{documentId}/uploads:
     post:
       summary: Create a new upload
       description: Uploads represent a single digital file, such as a JPEG or PDF.
@@ -1939,12 +1873,6 @@ paths:
       consumes:
         - multipart/form-data
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
         - in: path
           name: documentId
           type: string
@@ -1961,6 +1889,33 @@ paths:
           description: created upload
           schema:
             $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        201:
+          description: deleted upload
         400:
           description: invalid request
           schema:
@@ -2051,6 +2006,35 @@ paths:
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: service member not found
+        500:
+          description: internal server error
+  /service_members/{serviceMemberId}/current_orders:
+    get:
+      summary: Returns the latest orders for a given service member
+      description: Returns orders
+      operationId: showServiceMemberOrders
+      tags:
+        - service_members
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        200:
+          description: the instance of the service member
+          schema:
+            $ref: '#/definitions/OrdersPayload'
         400:
           description: invalid request
         401:
@@ -2194,10 +2178,10 @@ paths:
         - duty_stations
       parameters:
         - in: query
-          name: branch
+          name: affiliation
           required: true
           type: string
-          enum: *MILITARYBRANCHES
+          enum: *AFFILIATION
         - in: query
           name: search
           type: string
@@ -2217,5 +2201,97 @@ paths:
           description: user is not authorized
         404:
           description: matching duty station not found
+        500:
+          description: internal server error
+  /queues/{queueType}:
+    get:
+      summary: Show all moves in a queue
+      description: Show all moves in a queue
+      operationId: showQueue
+      tags:
+        - queues
+      parameters:
+        - in: path
+          name: queueType
+          type: string
+          enum:
+          - new
+          - troubleshooting
+          - ppm
+          required: true
+          description: Queue type to show
+      responses:
+        200:
+          description: list all moves in the specified queue
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/MoveQueueItem'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized to access this queue
+  /move/{moveId}/accounting:
+    get:
+      summary: Returns accounting information for a move
+      description: Returns accounting information for a move
+      operationId: showAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the accounting information for a move
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates accounting information for a move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
+      operationId: patchAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchAccounting
+          required: true
+          schema:
+            $ref: '#/definitions/PatchAccounting'
+      responses:
+        200:
+          description: updated accounting information
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
         500:
           description: internal server error
