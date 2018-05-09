@@ -132,6 +132,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, ppmID)
 	if err != nil {
+		fmt.Println("ERROR ERORR", err)
 		return responseForError(h.logger, err)
 	}
 
@@ -150,6 +151,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
+	fmt.Println("AAAAAAAHHHHHHHHH", ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload))
 	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 
 }
