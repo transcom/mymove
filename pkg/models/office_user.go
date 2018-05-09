@@ -11,16 +11,18 @@ import (
 
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
-	ID                   uuid.UUID            `json:"id" db:"id"`
-	User                 User                 `belongs_to:"user"`
-	FamilyName           string               `json:"family_name" db:"family_name"`
-	GivenName            string               `json:"given_name" db:"given_name"`
-	MiddleInitials       *string              `json:"middle_initial" db:"middle_initial"`
-	Email                string               `json:"email" db:"email"`
-	Telephone            string               `json:"telephone" db:"telephone"`
-	TransportationOffice TransportationOffice `belongs_to:"transportation_office"`
-	CreatedAt            time.Time            `json:"created_at" db:"created_at"`
-	UpdatedAt            time.Time            `json:"updated_at" db:"updated_at"`
+	ID                     uuid.UUID            `json:"id" db:"id"`
+	UserID                 uuid.UUID            `json:"user_id" db:"user_id"`
+	User                   User                 `belongs_to:"user"`
+	FamilyName             string               `json:"family_name" db:"family_name"`
+	GivenName              string               `json:"given_name" db:"given_name"`
+	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
+	Email                  string               `json:"email" db:"email"`
+	Telephone              string               `json:"telephone" db:"telephone"`
+	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
+	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
+	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted
@@ -41,16 +43,14 @@ func (o OfficeUsers) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	userValidator := NewFieldValidator(tx, &o.User, "User")
-	officeValidator := NewFieldValidator(tx, &o.TransportationOffice, "TransportationOffice")
 
 	return validate.Validate(
-		userValidator,
+		&validators.UUIDIsPresent{Field: o.UserID, Name: "UserID"},
 		&validators.StringIsPresent{Field: o.FamilyName, Name: "FamilyName"},
 		&validators.StringIsPresent{Field: o.GivenName, Name: "GivenName"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.Telephone, Name: "Telephone"},
-		officeValidator,
+		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 	), nil
 }
 

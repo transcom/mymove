@@ -114,28 +114,3 @@ func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 type ValidateableModel interface {
 	Validate(*pop.Connection) (*validate.Errors, error)
 }
-
-// FieldValidator is used to chain validations when a field of a is, itself, a model
-type FieldValidator struct {
-	connection *pop.Connection
-	field      ValidateableModel
-	name       string
-	Error      error
-}
-
-// NewFieldValidator constructs and
-func NewFieldValidator(c *pop.Connection, f ValidateableModel, name string) *FieldValidator {
-	return &FieldValidator{c, f, name, nil}
-}
-
-// IsValid adds the field(model)'s validation errors to the Errors for the parent. Also sets v.Error appropriately
-func (v *FieldValidator) IsValid(errors *validate.Errors) {
-	var localErrors *validate.Errors
-	key := validators.GenerateKey(v.name)
-	localErrors, v.Error = v.field.Validate(v.connection)
-	for _, verr := range localErrors.Errors {
-		for _, msg := range verr {
-			errors.Add(key, fmt.Sprintf("%s.%s", v.name, msg))
-		}
-	}
-}

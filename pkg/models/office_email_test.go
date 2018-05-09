@@ -5,33 +5,34 @@ import . "github.com/transcom/mymove/pkg/models"
 func (suite *ModelSuite) Test_OfficeEmailInstantiation() {
 	office := &OfficeEmail{}
 	expErrors := map[string][]string{
-		"email": {"Email can not be blank."},
-		"transportation_office": {"TransportationOffice.Name can not be blank.",
-			"TransportationOffice.Address.StreetAddress1 can not be blank.",
-			"TransportationOffice.Address.City can not be blank.",
-			"TransportationOffice.Address.State can not be blank.",
-			"TransportationOffice.Address.PostalCode can not be blank."},
+		"email":                    {"Email can not be blank."},
+		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
 	suite.verifyValidationErrors(office, expErrors)
 }
 func (suite *ModelSuite) Test_BasicOfficeEmail() {
+	office := CreateTestShippingOffice(suite)
+	suite.mustSave(&office)
+
 	infoEmail := OfficeEmail{
-		TransportationOffice: NewTestShippingOffice(),
-		Email:                "info@ak_jppso.government.gov",
-		Label:                StringPointer("Information Only"),
+		TransportationOfficeID: office.ID,
+		Email: "info@ak_jppso.government.gov",
+		Label: StringPointer("Information Only"),
 	}
 
-	verrs, err := infoEmail.ValidateCreate(suite.db)
-	suite.Nil(err)
-	suite.False(verrs.HasAny())
+	suite.mustSave(&infoEmail)
 	suite.NotNil(infoEmail.ID)
 
 	appointmentsEmail := OfficeEmail{
-		TransportationOffice: infoEmail.TransportationOffice,
-		Email:                "appointments@ak_jppso.government.gov",
+		TransportationOfficeID: office.ID,
+		Email: "appointments@ak_jppso.government.gov",
 	}
-	verrs, err = appointmentsEmail.ValidateCreate(suite.db)
-	suite.Nil(err)
-	suite.False(verrs.HasAny())
+
+	suite.mustSave(&appointmentsEmail)
 	suite.NotNil(infoEmail.ID)
+
+	var eagerOffice TransportationOffice
+	err := suite.db.Eager().Find(&eagerOffice, office.ID)
+	suite.Nil(err, "Loading office with emails")
+	suite.Equal(2, len(eagerOffice.Emails), "Total email count")
 }

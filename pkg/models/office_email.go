@@ -11,12 +11,13 @@ import (
 
 // OfficeEmail is used to store Email addresses for the TransportationOffices
 type OfficeEmail struct {
-	ID                   uuid.UUID            `json:"id" db:"id"`
-	TransportationOffice TransportationOffice `belongs_to:"transportation_office"`
-	Email                string               `json:"email" db:"email"`
-	Label                *string              `json:"label" db:"label"`
-	CreatedAt            time.Time            `json:"created_at" db:"created_at"`
-	UpdatedAt            time.Time            `json:"updated_at" db:"updated_at"`
+	ID                     uuid.UUID            `json:"id" db:"id"`
+	TransportationOfficeID uuid.UUID            `json:"transportation_office_id" db:"transportation_office_id"`
+	TransportationOffice   TransportationOffice `belongs_to:"transportation_office"`
+	Email                  string               `json:"email" db:"email"`
+	Label                  *string              `json:"label" db:"label"`
+	CreatedAt              time.Time            `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time            `json:"updated_at" db:"updated_at"`
 }
 
 // String is not required by pop and may be deleted
@@ -37,9 +38,8 @@ func (o OfficeEmails) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (o *OfficeEmail) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	officeValidator := NewFieldValidator(tx, &o.TransportationOffice, "TransportationOffice")
 	return validate.Validate(
-		officeValidator,
+		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
 	), nil
 }
