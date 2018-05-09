@@ -13,7 +13,7 @@ import {
 import WizardPage from 'shared/WizardPage';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { loadPpm, createOrUpdatePpm } from './ducks';
-const NULL_ZIP = '00000'; //HACK: until we can figure out how to unset zip
+const NULL_ZIP = ''; //HACK: until we can figure out how to unset zip
 const formName = 'ppp_date_and_location';
 const subsetOfFields = [
   'planned_move_date',
@@ -36,14 +36,14 @@ export class DateAndLocation extends React.Component {
       result.showTempStorage = true;
     return result;
   }
-  setShowAdditionalPickup = value => {
-    this.setState({ showAdditionalPickup: value }, () => {
-      if (!value) this.props.change('additional_pickup_zip', NULL_ZIP);
+  setShowAdditionalPickup = show => {
+    this.setState({ showAdditionalPickup: show }, () => {
+      if (!show) this.props.change('additional_pickup_zip', NULL_ZIP);
     });
   };
-  setShowTempStorage = value => {
-    this.setState({ showTempStorage: value }, () => {
-      if (!value) this.props.change('days_in_storage', '0');
+  setShowTempStorage = show => {
+    this.setState({ showTempStorage: show }, () => {
+      if (!show) this.props.change('days_in_storage', '0');
     });
   };
   componentDidMount() {
@@ -53,7 +53,7 @@ export class DateAndLocation extends React.Component {
   }
   handleSubmit = () => {
     const { createOrUpdatePpm, dirty } = this.props;
-
+    debugger;
     if (dirty) {
       const moveId = this.props.match.params.moveId;
       const pendingValues = Object.assign({}, this.props.formData.values);
