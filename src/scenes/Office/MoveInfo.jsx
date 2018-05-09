@@ -20,7 +20,7 @@ const BasicsTabContent = () => {
       <div>
         <div>
           <h2>Customer Info</h2>
-          <a href="#">Edit</a>
+          <a href="javascript:void(0);">Edit</a>
           <br />
           <div className="form-column">
             <label>Title (optional)</label>
@@ -85,7 +85,7 @@ const BasicsTabContent = () => {
                 id="phone-preference"
                 name="preferred-contact-phone"
               />
-              <label for="phone-preference">Phone</label>
+              <label htmlFor="phone-preference">Phone</label>
             </div>
             <div>
               <input
@@ -93,7 +93,7 @@ const BasicsTabContent = () => {
                 id="text-preference"
                 name="preferred-contact-text-message"
               />
-              <label for="text-preference">Text message</label>
+              <label htmlFor="text-preference">Text message</label>
             </div>
             <div>
               <input
@@ -101,7 +101,7 @@ const BasicsTabContent = () => {
                 id="email-preference"
                 name="preferred-contact-email"
               />
-              <label for="email-preference">Email</label>
+              <label htmlFor="email-preference">Email</label>
             </div>
           </div>
           <div className="form-column">
@@ -128,7 +128,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Backup Info</h2>
-          <a href="#">Edit</a>
+          <a href="javascript:void(0);">Edit</a>
           <br />
           <form>
             <div className="form-column">
@@ -191,7 +191,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Orders</h2>
-          <a href="#">Edit</a>
+          <a href="javascript:void(0);">Edit</a>
           <br />
           <div className="form-group">
             <form>
@@ -286,7 +286,9 @@ const BasicsTabContent = () => {
                     id="dependents-checkbox"
                     name="dependents-authorized"
                   />
-                  <label for="dependents-checkbox">Dependents authorized</label>
+                  <label htmlFor="dependents-checkbox">
+                    Dependents authorized
+                  </label>
                 </div>
               </div>
               <button>Cancel</button>
