@@ -37,10 +37,8 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 		return responseForError(h.logger, err)
 	}
 
-	// TODO (rebecca): Settle how percentages are handled
-	inverseDiscount := (100.00 - sitDiscount) / 100
 	// Swagger returns int64 when using the integer type
-	sitCharge := int64(sitTotal.MultiplyFloat64(inverseDiscount))
+	sitCharge := int64(sitDiscount.Apply(sitTotal))
 
 	ppmSitEstimate := internalmessages.PPMSitEstimate{
 		Estimate: &sitCharge,

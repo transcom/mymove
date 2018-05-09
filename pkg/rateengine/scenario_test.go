@@ -25,9 +25,9 @@ func (suite *RateEngineSuite) Test_Scenario1() {
 	originZip5 := "32168"
 	destinationZip5 := "29429"
 	date := time.Date(2018, time.June, 18, 0, 0, 0, 0, time.UTC)
-	inverseDiscount := 0.33
+	lhDiscount := unit.DiscountRate(0.67)
 
-	cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
+	cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
 	suite.Assertions.Nil(err, "could not compute PPM")
 
 	suite.Equal(unit.Cents(163434), cost.LinehaulChargeTotal)
@@ -52,9 +52,9 @@ func (suite *RateEngineSuite) Test_Scenario2() {
 	originZip5 := "94540"
 	destinationZip5 := "78626"
 	date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
-	inverseDiscount := 0.33
+	lhDiscount := unit.DiscountRate(0.67)
 
-	cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
+	cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
 	suite.Assertions.Nil(err, "could not compute PPM")
 
 	suite.Equal(unit.Cents(430147), cost.LinehaulChargeTotal)
