@@ -3,13 +3,13 @@ package models_test
 import . "github.com/transcom/mymove/pkg/models"
 
 func (suite *ModelSuite) Test_OfficePhoneLineInstantiation() {
-	user := &OfficePhoneLine{}
+	phoneLine := &OfficePhoneLine{}
 	expErrors := map[string][]string{
 		"number": {"Number can not be blank."},
 		"type":   {"Type is not in the list [voice, fax]."},
 		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
-	suite.verifyValidationErrors(user, expErrors)
+	suite.verifyValidationErrors(phoneLine, expErrors)
 }
 
 func (suite *ModelSuite) Test_BasicOfficePhoneLine() {

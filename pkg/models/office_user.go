@@ -14,8 +14,8 @@ type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
 	UserID                 uuid.UUID            `json:"user_id" db:"user_id"`
 	User                   User                 `belongs_to:"user"`
-	FamilyName             string               `json:"family_name" db:"family_name"`
-	GivenName              string               `json:"given_name" db:"given_name"`
+	LastName               string               `json:"last_name" db:"last_name"`
+	FirstName              string               `json:"first_name" db:"first_name"`
 	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
 	Email                  string               `json:"email" db:"email"`
 	Telephone              string               `json:"telephone" db:"telephone"`
@@ -46,8 +46,8 @@ func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: o.UserID, Name: "UserID"},
-		&validators.StringIsPresent{Field: o.FamilyName, Name: "FamilyName"},
-		&validators.StringIsPresent{Field: o.GivenName, Name: "GivenName"},
+		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},
+		&validators.StringIsPresent{Field: o.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
 		&validators.StringIsPresent{Field: o.Telephone, Name: "Telephone"},
 		&validators.UUIDIsPresent{Field: o.TransportationOfficeID, Name: "TransportationOfficeID"},

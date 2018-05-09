@@ -8,8 +8,8 @@ import (
 func (suite *ModelSuite) Test_OfficeUserInstantiation() {
 	user := &OfficeUser{}
 	expErrors := map[string][]string{
-		"given_name":               {"GivenName can not be blank."},
-		"family_name":              {"FamilyName can not be blank."},
+		"first_name":               {"FirstName can not be blank."},
+		"last_name":                {"LastName can not be blank."},
 		"telephone":                {"Telephone can not be blank."},
 		"email":                    {"Email can not be blank."},
 		"user_id":                  {"UserID can not be blank."},
@@ -29,8 +29,8 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 	office := CreateTestShippingOffice(suite)
 
 	user := OfficeUser{
-		FamilyName:             "Tester",
-		GivenName:              "Sally",
+		LastName:               "Tester",
+		FirstName:              "Sally",
 		Email:                  "sally.work@government.gov",
 		Telephone:              "(907) 555-1212",
 		UserID:                 sally.ID,

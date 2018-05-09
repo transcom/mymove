@@ -1,8 +1,8 @@
 create_table("office_users", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("user_id", "uuid", {})
-	t.Column("family_name", "text", {})
-	t.Column("given_name", "text", {})
+	t.Column("last_name", "text", {})
+	t.Column("first_name", "text", {})
 	t.Column("middle_initials", "text", {"null": true})
 	t.Column("email", "text", {})
 	t.Column("telephone", "text", {})
