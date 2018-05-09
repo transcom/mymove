@@ -136,7 +136,6 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	if ppm.MoveID != moveID {
 		h.logger.Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
-		// Response is empty here.
 		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 

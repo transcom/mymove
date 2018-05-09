@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 	"github.com/transcom/mymove/pkg/auth"
@@ -48,7 +47,6 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 			h.logger.Error("DB Insertion", zap.Error(err))
 		}
 		response = moveop.NewCreateMoveBadRequest()
-		fmt.Println("create move back request response", response)
 	} else {
 		movePayload := payloadForMoveModel(orders, newMove)
 		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
@@ -61,7 +59,6 @@ type ShowMoveHandler HandlerContext
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	fmt.Println("params", params)
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	moveID, _ := uuid.FromString(params.MoveID.String())
