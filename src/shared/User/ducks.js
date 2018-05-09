@@ -74,6 +74,9 @@ export function loadUserAndToken() {
 }
 
 const userReducer = (state = getUserInfo(), action) => {
+  if (action.error && action.error.status === 401) {
+    return { ...state, isLoggedIn: false, authenticationError: true };
+  }
   switch (action.type) {
     case LOAD_USER_AND_TOKEN:
       return action.payload;
