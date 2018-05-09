@@ -48,6 +48,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 			h.logger.Error("DB Insertion", zap.Error(err))
 		}
 		response = moveop.NewCreateMoveBadRequest()
+		fmt.Println("create move back request response", response)
 	} else {
 		movePayload := payloadForMoveModel(orders, newMove)
 		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)

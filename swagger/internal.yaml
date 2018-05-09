@@ -89,6 +89,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -133,6 +134,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
+        example: "2018-04-26"
         title: When do you plan to move?
         x-nullable: true
       pickup_zip:
@@ -175,6 +177,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -224,6 +227,7 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
+        example: "2018-04-26"
         x-nullable: true
       pickup_zip:
         type: string
