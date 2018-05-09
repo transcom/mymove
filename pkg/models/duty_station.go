@@ -2,7 +2,6 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -74,8 +73,18 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
 	// ILIKE does case-insensitive pattern matching, "%" matches any string
-	searchQuery := fmt.Sprintf("%%%s%%", search)
-	query := tx.Q().Eager().Where("name ILIKE $1", searchQuery)
+	// We build a query by inserting '%' between each letter in the search string.
+	// This allows matching substrings as well as abbreviations.
+	// It would probably be worth ordering the results by similarity to the search string, one day.
+	searchQuery := []rune("%")
+
+	for _, runeChar := range search {
+		searchQuery = append(searchQuery, runeChar)
+		searchQuery = append(searchQuery, '%')
+	}
+	queryString := string(searchQuery)
+
+	query := tx.Q().Eager().Where("name ILIKE $1", queryString)
 
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {
