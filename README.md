@@ -193,7 +193,7 @@ Currently, scenarios have the following numbers:
 * `-scenario=1` for Award Queue Scenario 1
 * `-scenario=2` for Award Queue Scenario 2
 * `-scenario=3` for Duty Station Scenario
-* `-scenario=4` for PPM Sit Estimate Scenario
+* `-scenario=4` for PPM or PPM SIT Estimate Scenario (can also use Rate Engine Scenarios for Estimates)
 * `-scenario=5` for Rate Engine Scenario 1
 * `-scenario=6` for Rate Engine Scenario 2
 
