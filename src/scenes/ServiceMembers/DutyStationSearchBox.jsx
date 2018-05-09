@@ -20,13 +20,26 @@ export class DutyStationSearchBox extends Component {
 
     this.state = {
       inputValue: '',
+      initialValueSet: false,
     };
+
     this.loadOptions = this.loadOptions.bind(this);
     this.getDebouncedOptions = this.getDebouncedOptions.bind(this);
     this.debouncedLoadOptions = this.debouncedLoadOptions.bind(this);
     this.localOnChange = this.localOnChange.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.renderOption = this.renderOption.bind(this);
+  }
+
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (
+      prevState.inputValue === '' &&
+      nextProps.input.value &&
+      !prevState.initialValueSet
+    ) {
+      return { inputValue: nextProps.input.value.name, initialValueSet: true };
+    }
+    return null;
   }
 
   loadOptions(inputValue, callback) {
@@ -98,8 +111,9 @@ export class DutyStationSearchBox extends Component {
             </Alert>
           </div>
         )}
-        <label>Name of Duty Station</label>
+        <p>Name of Duty Station:</p>
         <AsyncSelect
+          className="duty-input-box"
           cacheOptions
           inputValue={this.state.inputValue}
           getOptionLabel={getOptionName}
@@ -111,14 +125,11 @@ export class DutyStationSearchBox extends Component {
           placeholder="Start typing a duty station..."
         />
         {this.props.input.value && (
-          <ul className="station-description">
-            <li>{this.props.input.value.name}</li>
-            <li>
-              {this.props.input.value.address.city},{' '}
-              {this.props.input.value.address.state}{' '}
-              {this.props.input.value.address.postal_code}
-            </li>
-          </ul>
+          <p>
+            {this.props.input.value.address.city},{' '}
+            {this.props.input.value.address.state}{' '}
+            {this.props.input.value.address.postal_code}
+          </p>
         )}
       </Fragment>
     );
