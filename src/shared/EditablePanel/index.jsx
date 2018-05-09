@@ -51,7 +51,8 @@ export class EditablePanel extends Component {
   }
 
   render() {
-    let className = 'editable-panel';
+    let className = this.props.className || '';
+    className += ' editable-panel';
     let controls;
 
     if (this.state.isEditable) {
