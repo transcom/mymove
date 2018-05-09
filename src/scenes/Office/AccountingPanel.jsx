@@ -38,7 +38,6 @@ class AccountingPanel extends Component {
 
     const editableContent = () => {
       const { schema } = this.props;
-      // const fields = schema.properties || {};
       return (
         <div>
           <SwaggerField fieldName="dept_indicator" swagger={schema} required />
@@ -61,7 +60,6 @@ class AccountingPanel extends Component {
 
 AccountingPanel.propTypes = {
   schema: PropTypes.object.isRequired,
-  // formData: PropTypes.object.isRequired,
 };
 
 const formName = 'office_move_info_accounting';
@@ -79,7 +77,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const props = {
     schema: {},
-    formData: state.form[formName],
   };
   if (state.swagger.spec) {
     props.schema = state.swagger.spec.definitions.PatchAccounting;
