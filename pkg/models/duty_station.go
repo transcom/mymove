@@ -70,12 +70,12 @@ func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 }
 
 // FindDutyStations returns all duty stations matching a search query and military affiliation
-func FindDutyStations(tx *pop.Connection, search string, affiliation string) (DutyStations, error) {
+func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	var stations DutyStations
 
 	// ILIKE does case-insensitive pattern matching, "%" matches any string
 	searchQuery := fmt.Sprintf("%%%s%%", search)
-	query := tx.Q().Eager().Where("affiliation = $1 AND name ILIKE $2", affiliation, searchQuery)
+	query := tx.Q().Eager().Where("name ILIKE $1", searchQuery)
 
 	if err := query.All(&stations); err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {

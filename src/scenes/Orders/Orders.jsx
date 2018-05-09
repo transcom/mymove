@@ -155,11 +155,7 @@ export class Orders extends Component {
           </legend>
           <Field name="has_dependents" component={YesNoBoolean} />
         </fieldset>
-        <Field
-          name="new_duty_station"
-          component={DutyStationSearchBox}
-          affiliation={this.props.affiliation}
-        />
+        <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
   }
@@ -182,15 +178,11 @@ function mapStateToProps(state) {
   const currentServiceMember = state.loggedInUser.loggedInUser
     ? state.loggedInUser.loggedInUser.service_member
     : null;
-  const affiliation = currentServiceMember
-    ? currentServiceMember.affiliation
-    : null;
   const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =
     state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
     currentServiceMember,
-    affiliation,
     schema: {},
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,

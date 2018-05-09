@@ -2,6 +2,7 @@ import { debounce, sortBy } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
+import Alert from 'shared/Alert';
 import { components } from 'react-select';
 import Highlighter from 'react-highlight-words';
 
@@ -29,12 +30,8 @@ export class DutyStationSearchBox extends Component {
   }
 
   loadOptions(inputValue, callback) {
-    if (
-      this.props.affiliation &&
-      inputValue &&
-      inputValue.length >= minSearchLength
-    ) {
-      return SearchDutyStations(this.props.affiliation, inputValue)
+    if (inputValue && inputValue.length >= minSearchLength) {
+      return SearchDutyStations(inputValue)
         .then(item => {
           this.setState({
             error: null,
@@ -94,6 +91,13 @@ export class DutyStationSearchBox extends Component {
   render() {
     return (
       <Fragment>
+        {this.state.error && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              {this.state.error.message}
+            </Alert>
+          </div>
+        )}
         <label>Name of Duty Station</label>
         <AsyncSelect
           cacheOptions
@@ -121,7 +125,6 @@ export class DutyStationSearchBox extends Component {
   }
 }
 DutyStationSearchBox.propTypes = {
-  affiliation: PropTypes.string,
   onChange: PropTypes.func,
   existingStation: PropTypes.object,
 };

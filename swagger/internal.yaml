@@ -2175,11 +2175,6 @@ paths:
         - duty_stations
       parameters:
         - in: query
-          name: affiliation
-          required: true
-          type: string
-          enum: *AFFILIATION
-        - in: query
           name: search
           type: string
           format: string
