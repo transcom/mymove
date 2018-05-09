@@ -6,8 +6,6 @@ import (
 )
 
 func (suite *ModelSuite) TestBasicAddressInstantiation() {
-	t := suite.T()
-
 	newAddress := Address{
 		StreetAddress1: "street 1",
 		StreetAddress2: swag.String("street 2"),
@@ -19,11 +17,18 @@ func (suite *ModelSuite) TestBasicAddressInstantiation() {
 
 	verrs, err := suite.db.ValidateAndCreate(&newAddress)
 
-	if err != nil {
-		t.Fatal("Error writing to the db.", err)
-	}
+	suite.Nil(err, "Error writing to the db.")
+	suite.False(verrs.HasAny(), "Error validating model")
+}
 
-	if verrs.HasAny() {
-		t.Fatal("Error validating model")
+func (suite *ModelSuite) TestEmptyAddressInstantiation() {
+	newAddress := Address{}
+
+	expErrors := map[string][]string{
+		"street_address1": {"StreetAddress1 can not be blank."},
+		"city":            {"City can not be blank."},
+		"state":           {"State can not be blank."},
+		"postal_code":     {"PostalCode can not be blank."},
 	}
+	suite.verifyValidationErrors(&newAddress, expErrors)
 }
