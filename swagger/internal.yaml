@@ -773,10 +773,21 @@ definitions:
         type: string
         format: string
         example: filename.pdf
+      bytes:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
       - id
       - url
       - filename
+      - bytes
+      - created_at
+      - updated_at
   CreateIssuePayload:
     type: object
     properties:
