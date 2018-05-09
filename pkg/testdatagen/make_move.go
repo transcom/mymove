@@ -11,16 +11,15 @@ import (
 
 // MakeMove creates a single Move and associated set of Orders
 func MakeMove(db *pop.Connection) (models.Move, error) {
-	var move models.Move
-
 	orders, err := MakeOrder(db)
 	if err != nil {
 		return models.Move{}, err
 	}
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move = models.Move{
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	move := models.Move{
 		OrdersID:         orders.ID,
+		Orders:           orders,
 		SelectedMoveType: &selectedType,
 	}
 
