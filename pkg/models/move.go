@@ -19,7 +19,7 @@ type Move struct {
 	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
 	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
-	Orders                  Orders                             `belongs_to:"orders"`
+	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
 }
