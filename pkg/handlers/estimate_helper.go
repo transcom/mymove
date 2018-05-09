@@ -7,11 +7,12 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // PPMDiscountFetch attempts to fetch the discount rates first for COS D, then 2
 // Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
-func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, destZip string, moveDate time.Time) (float64, float64, error) {
+func PPMDiscountFetch(db *pop.Connection, logger *zap.Logger, originZip string, destZip string, moveDate time.Time) (unit.DiscountRate, unit.DiscountRate, error) {
 	// Try to fetch with COS D.
 	lhDiscount, sitDiscount, err := models.FetchDiscountRates(db,
 		originZip,
