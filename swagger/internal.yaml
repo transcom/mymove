@@ -116,6 +116,8 @@ definitions:
       days_in_storage:
         type: integer
         title: Days in Temporary Storage
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -159,6 +161,8 @@ definitions:
       days_in_storage:
         type: integer
         title: Days in Temporary Storage
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -202,6 +206,8 @@ definitions:
       days_in_storage:
         type: integer
         title: Days in Temporary Storage
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -249,6 +255,8 @@ definitions:
       days_in_storage:
         type: integer
         title: Days in Temporary Storage
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
