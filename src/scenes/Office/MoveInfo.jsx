@@ -20,7 +20,7 @@ const BasicsTabContent = () => {
       <div>
         <div>
           <h2>Customer Info</h2>
-          <span class="fake-link">Edit</span>
+          <span className="fake-link">Edit</span>
           <br />
           <div className="form-column">
             <label>Title (optional)</label>
@@ -128,7 +128,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Backup Info</h2>
-          <span class="fake-link">Edit</span>
+          <span className="fake-link">Edit</span>
           <br />
           <form>
             <div className="form-column">
@@ -186,7 +186,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Orders</h2>
-          <span class="fake-link">Edit</span>
+          <span className="fake-link">Edit</span>
           <br />
           <div className="form-group">
             <form>
