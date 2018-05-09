@@ -132,14 +132,12 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, ppmID)
 	if err != nil {
-		fmt.Println("ERROR ERORR", err)
 		return responseForError(h.logger, err)
 	}
 
 	if ppm.MoveID != moveID {
 		h.logger.Info("Move ID for PPM does not match requested PPM Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", ppm.MoveID.String()))
 		// Response is empty here.
-		fmt.Println("bad request response", ppmop.NewPatchPersonallyProcuredMoveBadRequest())
 		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 
@@ -151,7 +149,6 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
-	fmt.Println("AAAAAAAHHHHHHHHH", ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload))
 	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
 
 }
