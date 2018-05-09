@@ -8,7 +8,7 @@ import { updateAccounting, getAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import { EditablePanel, EditableTextField } from 'shared/EditablePanel';
+import { EditablePanel } from 'shared/EditablePanel';
 
 class AccountingPanel extends Component {
   constructor(props) {
@@ -37,8 +37,8 @@ class AccountingPanel extends Component {
     };
 
     const editableContent = () => {
-      const schema = this.props.schema;
-      debugger;
+      const { schema } = this.props;
+      // const fields = schema.properties || {};
       return (
         <div>
           <SwaggerField fieldName="dept_indicator" swagger={schema} required />
@@ -59,19 +59,29 @@ class AccountingPanel extends Component {
   }
 }
 
-// TODO add proptypes
+AccountingPanel.propTypes = {
+  schema: PropTypes.object.isRequired,
+  // formData: PropTypes.object.isRequired,
+};
 
 const formName = 'office_move_info_accounting';
 AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ updateAccounting, getAccounting }, dispatch);
+  return bindActionCreators(
+    {
+      updateAccounting,
+      getAccounting,
+    },
+    dispatch,
+  );
 }
 function mapStateToProps(state) {
   const props = {
     schema: {},
     formData: state.form[formName],
   };
+  console.log(state.swagger.spec);
   if (state.swagger.spec) {
     props.schema = state.swagger.spec.definitions.PatchAccounting;
   }
