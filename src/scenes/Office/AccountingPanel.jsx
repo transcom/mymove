@@ -81,7 +81,6 @@ function mapStateToProps(state) {
     schema: {},
     formData: state.form[formName],
   };
-  console.log(state.swagger.spec);
   if (state.swagger.spec) {
     props.schema = state.swagger.spec.definitions.PatchAccounting;
   }
