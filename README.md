@@ -15,6 +15,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
 <!-- toc -->
 
 * [Supported clients](#supported-clients)
+* [Client Network Dependencies](#client-network-dependencies)
 * [Development](#development)
   * [Git](#git)
   * [Project location](#project-location)
@@ -186,6 +187,15 @@ When creating new features, it is helpful to have sample data for the feature to
 * `bin/generate_test_data` will run binary and create a preconfigured set of test data. To determine the data scenario you'd like to use, check out scenarios in the `testdatagen` package. Each scenario contains a description of what data will be created when the scenario is run. Pass the scenario in as a flag to the generate-test-data function. A sample command: `./bin/generate-test-data -scenario=2`. If you'd like to further specify how the data should look, you can specify the number of awards for each TSP performance by use the flag `rounds` with one of three arguments: 'none', 'half', and 'full'. This will create the TSP performance records with either no rounds of awards completed, half a round, or a full round. It will default to none if not specified. To specify how many TSPs should be created, use the flag `numTSP`. It will default to 15 if not specified. A sample command: `./bin/generate-test-data -rounds=half -numTSP=6`. You can use the `numTSP` and `rounds` in conjunction, but you cannot use them with the pre-packaged scenarios.
 
 There is also a package (`/pkg/testdatagen`) that can be imported to create arbitrary test data. This could be used in tests, so as not to duplicate functionality.
+
+Currently, scenarios have the following numbers:
+
+* `-scenario=1` for Award Queue Scenario 1
+* `-scenario=2` for Award Queue Scenario 2
+* `-scenario=3` for Duty Station Scenario
+* `-scenario=4` for PPM Sit Estimate Scenario
+* `-scenario=5` for Rate Engine Scenario 1
+* `-scenario=6` for Rate Engine Scenario 2
 
 ### API / Swagger
 
