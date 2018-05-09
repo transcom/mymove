@@ -20,7 +20,7 @@ const BasicsTabContent = () => {
       <div>
         <div>
           <h2>Customer Info</h2>
-          <a href="javascript:void(0);">Edit</a>
+          <span class="fake-link">Edit</span>
           <br />
           <div className="form-column">
             <label>Title (optional)</label>
@@ -128,7 +128,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Backup Info</h2>
-          <a href="javascript:void(0);">Edit</a>
+          <span class="fake-link">Edit</span>
           <br />
           <form>
             <div className="form-column">
@@ -146,12 +146,7 @@ const BasicsTabContent = () => {
             </div>
             <div className="form-column">
               <b>Authorization</b>
-              <input
-                type="radio"
-                name="authorization"
-                value="none"
-                defaultChecked
-              />
+              <input type="radio" name="authorization" value="none" />
               <label htmlFor="none">None</label>
               <input
                 type="radio"
@@ -191,7 +186,7 @@ const BasicsTabContent = () => {
         </div>
         <div>
           <h2>Orders</h2>
-          <a href="javascript:void(0);">Edit</a>
+          <span class="fake-link">Edit</span>
           <br />
           <div className="form-group">
             <form>

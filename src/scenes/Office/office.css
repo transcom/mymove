@@ -1,4 +1,9 @@
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
+.fake-link {
+  text-decoration: underline;
+  color: blue;
+}
+
 .form-column {
   display: inline-block;
   width: 45%;
