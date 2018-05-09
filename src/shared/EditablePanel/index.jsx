@@ -74,9 +74,9 @@ export class EditablePanel extends Component {
       );
     }
 
-    const ContentComponent = this.props.isEditable
-      ? this.props.editableComponent
-      : this.props.displayComponent;
+    const contentFunc = this.props.isEditable
+      ? this.props.editableContent
+      : this.props.displayContent;
 
     return (
       <div className={className}>
@@ -89,7 +89,7 @@ export class EditablePanel extends Component {
           )}
         </div>
         <div className="editable-panel-content">
-          <ContentComponent />
+          {contentFunc()}
           {controls}
         </div>
       </div>

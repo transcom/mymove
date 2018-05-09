@@ -10,7 +10,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import { EditablePanel, EditableTextField } from 'shared/EditablePanel';
 
-const formName = 'office_move_info_accounting';
 class AccountingPanel extends Component {
   constructor(props) {
     super(props);
@@ -29,11 +28,30 @@ class AccountingPanel extends Component {
   }
 
   render() {
+    const displayContent = () => {
+      return (
+        <div>
+          <p>TAC Value</p>
+        </div>
+      );
+    };
+
+    const editableContent = () => {
+      const schema = this.props.schema;
+      debugger;
+      return (
+        <div>
+          <SwaggerField fieldName="dept_indicator" swagger={schema} required />
+          <SwaggerField fieldName="tac" swagger={schema} required />
+        </div>
+      );
+    };
+
     return (
       <EditablePanel
         title="Accounting"
-        editableComponent={AccountingPanelEditable}
-        displayComponent={AccountingPanelDisplay}
+        editableContent={editableContent}
+        displayContent={displayContent}
         isEditable={this.state.isEditable}
         toggleEditable={this.toggleEditable}
       />
@@ -43,25 +61,7 @@ class AccountingPanel extends Component {
 
 // TODO add proptypes
 
-const AccountingPanelDisplay = props => {
-  return (
-    <div>
-      <p>TAC Value</p>
-    </div>
-  );
-};
-
-const AccountingPanelEditable = props => {
-  const schema = props.schema;
-
-  return (
-    <div>
-      <SwaggerField fieldName="dept_indicator" swagger={schema} required />
-      <SwaggerField fieldName="tac" swagger={schema} required />
-    </div>
-  );
-};
-
+const formName = 'office_move_info_accounting';
 AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
 
 function mapDispatchToProps(dispatch) {

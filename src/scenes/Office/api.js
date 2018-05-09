@@ -2,7 +2,6 @@ import { getClient, checkResponse } from 'shared/api';
 
 export async function GetSpec() {
   const client = await getClient();
-  debugger;
   return client.spec;
 }
 
@@ -29,7 +28,7 @@ export async function GetAccountingAPI(moveId) {
 
 export async function UpdateAccountingAPI(moveId, payload) {
   const client = await getClient();
-  const response = await client.apis.office.updateAccounting({
+  const response = await client.apis.office.patchAccounting({
     moveId,
     patchAccounting: payload,
   });
