@@ -4,11 +4,9 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -24,45 +22,15 @@ func (h ShowPPMSitEstimateHandler) Handle(params ppmop.ShowPPMSitEstimateParams)
 	cwtWeight := unit.Pound(params.WeightEstimate).ToCWT()
 	plannedMoveDateTime := time.Time(params.PlannedMoveDate)
 
-	// Most PPMs use COS D, but when there is no COS D rate, the calculation is based on Code 2
-	_, sitDiscount, err := models.FetchDiscountRates(h.db,
+	_, sitDiscount, err := PPMDiscountFetch(h.db,
+		h.logger,
 		params.OriginZip,
 		params.DestinationZip,
-		"D",
-		plannedMoveDateTime)
-
+		time.Time(params.PlannedMoveDate),
+	)
 	if err != nil {
-		if err != models.ErrFetchNotFound {
-			return responseForError(h.logger, err)
-		}
-		_, sitDiscount, err = models.FetchDiscountRates(h.db,
-			params.OriginZip,
-			params.DestinationZip,
-			"2",
-			plannedMoveDateTime)
-
-		if err != nil {
-			h.logger.Info("Couldn't find SIT Discount for COS D or 2.",
-				zap.String("origin_zip", params.OriginZip),
-				zap.String("destination_zip", params.DestinationZip),
-				zap.Time("move_date", plannedMoveDateTime),
-				zap.Error(err),
-			)
-			return responseForError(h.logger, err)
-		}
-		h.logger.Info("Found SIT Discount for TDL with COS 2.",
-			zap.String("origin_zip", params.OriginZip),
-			zap.String("destination_zip", params.DestinationZip),
-			zap.Time("move_date", plannedMoveDateTime),
-		)
-	} else {
-		h.logger.Info("Found SIT Discount for TDL with COS D.",
-			zap.String("origin_zip", params.OriginZip),
-			zap.String("destination_zip", params.DestinationZip),
-			zap.Time("move_date", plannedMoveDateTime),
-		)
+		return responseForError(h.logger, err)
 	}
-
 	sitTotal, err := engine.SitCharge(cwtWeight, int(params.DaysInStorage), sitZip3, plannedMoveDateTime, true)
 
 	if err != nil {
