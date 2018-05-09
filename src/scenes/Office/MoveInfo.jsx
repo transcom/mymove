@@ -4,7 +4,7 @@ import { NavLink } from 'react-router-dom';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
-import { EditablePanel, EditableTextField } from 'shared/EditablePanel';
+import AccountingPanel from './AccountingPanel';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -14,49 +14,7 @@ import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
 import './office.css';
 
-class AccountingEditablePanel extends Component {
-  constructor() {
-    super();
-    this.state = {
-      isEditable: false,
-    };
-    this.toggleEditable = this.toggleEditable.bind(this);
-  }
-
-  toggleEditable() {
-    this.setState({ isEditable: !this.state.isEditable });
-  }
-
-  render() {
-    return (
-      <EditablePanel
-        title="Accounting"
-        editableComponent={AccountingPanelEditable}
-        displayComponent={AccountingPanelDisplay}
-        isEditable={this.state.isEditable}
-        toggleEditable={this.toggleEditable}
-      />
-    );
-  }
-}
-
-const AccountingPanelDisplay = props => {
-  return (
-    <div>
-      <p>TAC Value</p>
-    </div>
-  );
-};
-
-const AccountingPanelEditable = props => {
-  return (
-    <div>
-      <EditableTextField title="TAC" name="tac" value="selected tac" />
-    </div>
-  );
-};
-
-const BasicsTabContent = () => {
+const BasicsTabContent = props => {
   return (
     <div>
       <div>
@@ -334,7 +292,7 @@ const BasicsTabContent = () => {
           </div>
         </div>
 
-        <AccountingEditablePanel />
+        <AccountingPanel moveID={props.match.params.moveID} />
       </div>
     </div>
   );
