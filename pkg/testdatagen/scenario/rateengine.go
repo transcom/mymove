@@ -10,6 +10,10 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+var may15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
+var oct15_2018 = time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
+var may15_2019 = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
+
 func save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
 	if err != nil {
@@ -23,10 +27,6 @@ func save(db *pop.Connection, model interface{}) error {
 
 // RunRateEngineScenario1 runs... scenario 1.
 func RunRateEngineScenario1(db *pop.Connection) error {
-	may15_2018 := time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
-	october15_2018 := time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
-	may15_2019 := time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
-
 	zip3_321 := models.Tariff400ngZip3{
 		Zip3:          "321",
 		BasepointCity: "Crescent City",
@@ -157,9 +157,9 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          may15_2018,
-		PerformancePeriodEnd:            october15_2018,
+		PerformancePeriodEnd:            oct15_2018,
 		RateCycleStart:                  may15_2018,
-		RateCycleEnd:                    october15_2018,
+		RateCycleEnd:                    oct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
@@ -173,10 +173,6 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 // RunRateEngineScenario2 runs... scenario 2.
 func RunRateEngineScenario2(db *pop.Connection) error {
-	may15_2018 := time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
-	october15_2018 := time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
-	may15_2019 := time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
-
 	zip3_945 := models.Tariff400ngZip3{
 		Zip3:          "945",
 		BasepointCity: "Walnut Creek",
@@ -307,9 +303,9 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          may15_2018,
-		PerformancePeriodEnd:            october15_2018,
+		PerformancePeriodEnd:            oct15_2018,
 		RateCycleStart:                  may15_2018,
-		RateCycleEnd:                    october15_2018,
+		RateCycleEnd:                    oct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
