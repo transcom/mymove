@@ -115,7 +115,7 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -160,7 +160,7 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -205,7 +205,7 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
         x-nullable: true
@@ -254,7 +254,7 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
         x-nullable: true

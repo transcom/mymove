@@ -13,6 +13,8 @@ import {
 import WizardPage from 'shared/WizardPage';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { loadPpm, createOrUpdatePpm } from './ducks';
+import './DateAndLocation.css';
+
 const NULL_ZIP = ''; //HACK: until we can figure out how to unset zip
 const formName = 'ppp_date_and_location';
 const subsetOfFields = [
@@ -53,7 +55,6 @@ export class DateAndLocation extends React.Component {
   }
   handleSubmit = () => {
     const { createOrUpdatePpm, dirty } = this.props;
-    debugger;
     if (dirty) {
       const moveId = this.props.match.params.moveId;
       const pendingValues = Object.assign({}, this.props.formData.values);
@@ -127,9 +128,8 @@ export class DateAndLocation extends React.Component {
           />
           {this.state.showTempStorage && (
             <Fragment>
-              <p>How many days do you plan to put your stuff in storage?</p>
-              <p className="explanatory">You can choose up to 90 days.</p>
               {renderField('days_in_storage', fields, '')}
+              <p>You can choose up to 90 days.</p>
             </Fragment>
           )}
         </form>
