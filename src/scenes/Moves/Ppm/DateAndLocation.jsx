@@ -13,11 +13,8 @@ import {
 import WizardPage from 'shared/WizardPage';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { loadPpm, createOrUpdatePpm } from './ducks';
-
+const NULL_ZIP = '00000'; //HACK: until we can figure out how to unset zip
 const formName = 'ppp_date_and_location';
-const uiSchema = {
-  requiredFields: ['planned_move_date', 'pickup_zip', 'destination_zip'],
-};
 const subsetOfFields = [
   'planned_move_date',
   'pickup_zip',
@@ -28,28 +25,41 @@ const subsetOfFields = [
 
 export class DateAndLocation extends React.Component {
   state = { showAdditionalPickup: false, showTempStorage: false };
-  // static getDerivedStateFromProps(nextProps, prevState) {
-  //   const result = {};
-  //   if (nextProps.additional_pickup_zip) result.showAdditionalPickup = true;
-  //   if (nextProps.days_in_storage > 0) result.showTempStorage = true;
-  //   return result;
-  // }
+  static getDerivedStateFromProps(nextProps, prevState) {
+    const result = {};
+    if (
+      get(nextProps, 'formData.values.additional_pickup_zip', NULL_ZIP) !==
+      NULL_ZIP
+    )
+      result.showAdditionalPickup = true;
+    if (get(nextProps, 'formData.values.days_in_storage', 0) > 0)
+      result.showTempStorage = true;
+    return result;
+  }
   setShowAdditionalPickup = value => {
-    this.setState({ showAdditionalPickup: value });
+    this.setState({ showAdditionalPickup: value }, () => {
+      if (!value) this.props.change('additional_pickup_zip', NULL_ZIP);
+    });
   };
   setShowTempStorage = value => {
-    this.setState({ showTempStorage: value });
+    this.setState({ showTempStorage: value }, () => {
+      if (!value) this.props.change('days_in_storage', '0');
+    });
   };
   componentDidMount() {
+    document.title = 'Transcom PPP: Date & Locations';
     const moveId = this.props.match.params.moveId;
     this.props.loadPpm(moveId);
   }
   handleSubmit = () => {
     const { createOrUpdatePpm, dirty } = this.props;
-    const moveId = this.props.match.params.moveId;
-    const pendingValues = this.props.formData.values;
+
     if (dirty) {
-      //don't update a ppm unless the size has changed
+      const moveId = this.props.match.params.moveId;
+      const pendingValues = Object.assign({}, this.props.formData.values);
+      //HACK: temp work around until we figure out how to unset additional_pickup_zip
+      if (pendingValues.additional_pickup_zip === NULL_ZIP)
+        delete pendingValues.additional_pickup_zip;
       createOrUpdatePpm(moveId, pendingValues);
     }
   };
@@ -63,6 +73,13 @@ export class DateAndLocation extends React.Component {
       hasSubmitSuccess,
       error,
     } = this.props;
+    const { showAdditionalPickup, showTempStorage } = this.state;
+    const uiSchema = {
+      requiredFields: ['planned_move_date', 'pickup_zip', 'destination_zip'],
+    };
+    if (showAdditionalPickup)
+      uiSchema.requiredFields.push('additional_pickup_zip');
+    if (showTempStorage) uiSchema.requiredFields.push('days_in_storage');
     addUiSchemaRequiredFields(schema, uiSchema);
     recursivelyAnnotateRequiredFields(schema);
     const fields = schema.properties || {};
@@ -85,7 +102,7 @@ export class DateAndLocation extends React.Component {
           {renderField('pickup_zip', fields, '')}
           <p>Do you have stuff at another pickup location?</p>
           <YesNoBoolean
-            value={this.state.showAdditionalPickup}
+            value={showAdditionalPickup}
             onChange={this.setShowAdditionalPickup}
           />
           {this.state.showAdditionalPickup && (
@@ -105,7 +122,7 @@ export class DateAndLocation extends React.Component {
             into your new home?
           </p>
           <YesNoBoolean
-            value={this.state.showTempStorage}
+            value={showTempStorage}
             onChange={this.setShowTempStorage}
           />
           {this.state.showTempStorage && (
@@ -165,31 +182,3 @@ const DateAndLocationForm = reduxForm({
 export default connect(mapStateToProps, mapDispatchToProps)(
   DateAndLocationForm,
 );
-
-/*
-          <p>
-            Are you going to put your stuff in temporary storage before moving
-            into your new home?
-          </p>
-          <label>
-            <input
-              type="radio"
-              checked={this.state.showTempStorage}
-              onChange={this.setShowTempStorage}
-            />Yes
-          </label>
-          <label>
-            <input
-              type="radio"
-              checked={!this.state.showTempStorage}
-              onChange={this.setShowTempStorage}
-            />No
-          </label>{' '}
-          {this.state.showTempStorage && (
-            <Fragment>
-              <p>How many days do you plan to put your stuff in storage?</p>
-              <p className="explanatory">You can choose up to 90 days.</p>
-              {renderField('days_in_storage', fields, '')}
-            </Fragment>
-          )}
-*/
