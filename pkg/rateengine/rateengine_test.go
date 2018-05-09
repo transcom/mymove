@@ -105,7 +105,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	suite.mustSave(&shorthaul)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate, 1, .40, .5)
+	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,
+		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)

@@ -62,7 +62,7 @@ func Zip5ToZip3(zip5 string) string {
 }
 
 // ComputePPM Calculates the cost of a PPM move.
-func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhInvDiscount float64, sitInvDiscount float64) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhDiscount unit.DiscountRate, sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
 	originZip3 := Zip5ToZip3(originZip5)
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 
@@ -100,7 +100,7 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	linehaulChargeSubtotal := cost.BaseLinehaul + cost.OriginLinehaulFactor +
 		cost.DestinationLinehaulFactor + cost.ShorthaulCharge
 
-	cost.LinehaulChargeTotal = linehaulChargeSubtotal.MultiplyFloat64(lhInvDiscount)
+	cost.LinehaulChargeTotal = lhDiscount.Apply(linehaulChargeSubtotal)
 
 	// Non linehaul charges
 	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
@@ -108,14 +108,14 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
 		return
 	}
-	cost.OriginServiceFee = originServiceFee.MultiplyFloat64(lhInvDiscount)
+	cost.OriginServiceFee = lhDiscount.Apply(originServiceFee)
 
 	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
 	if err != nil {
 		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
 		return
 	}
-	cost.DestinationServiceFee = destinationServiceFee.MultiplyFloat64(lhInvDiscount)
+	cost.DestinationServiceFee = lhDiscount.Apply(destinationServiceFee)
 
 	cost.PackFee, err = re.fullPackCents(weight.ToCWT(), originZip3, date)
 	if err != nil {
@@ -134,10 +134,10 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
-	cost.SITFee = sit.MultiplyFloat64(sitInvDiscount)
+	cost.SITFee = sitDiscount.Apply(sit)
 
 	// Totals
-	cost.FullPackUnpackFee = (cost.PackFee + cost.UnpackFee).MultiplyFloat64(lhInvDiscount)
+	cost.FullPackUnpackFee = lhDiscount.Apply(cost.PackFee + cost.UnpackFee)
 
 	cost.GCC = cost.LinehaulChargeTotal + cost.OriginServiceFee + cost.DestinationServiceFee +
 		cost.FullPackUnpackFee
