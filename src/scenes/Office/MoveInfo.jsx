@@ -14,6 +14,48 @@ import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
 import './office.css';
 
+class AccountingEditablePanel extends Component {
+  constructor() {
+    super();
+    this.state = {
+      isEditable: false,
+    };
+    this.toggleEditable = this.toggleEditable.bind(this);
+  }
+
+  toggleEditable() {
+    this.setState({ isEditable: !this.state.isEditable });
+  }
+
+  render() {
+    return (
+      <EditablePanel
+        title="Accounting"
+        editableComponent={AccountingPanelEditable}
+        displayComponent={AccountingPanelDisplay}
+        isEditable={this.state.isEditable}
+        toggleEditable={this.toggleEditable}
+      />
+    );
+  }
+}
+
+const AccountingPanelDisplay = props => {
+  return (
+    <div>
+      <p>TAC Value</p>
+    </div>
+  );
+};
+
+const AccountingPanelEditable = props => {
+  return (
+    <div>
+      <EditableTextField title="TAC" name="tac" value="selected tac" />
+    </div>
+  );
+};
+
 const BasicsTabContent = () => {
   return (
     <div>
@@ -292,14 +334,7 @@ const BasicsTabContent = () => {
           </div>
         </div>
 
-        <EditablePanel title="Accounting">
-          <EditableTextField
-            title="Dept. Indicator"
-            name="dept_indicator"
-            value="this will be a select"
-          />
-          <EditableTextField title="TAC" name="tac" value="selected tac" />
-        </EditablePanel>
+        <AccountingEditablePanel />
       </div>
     </div>
   );

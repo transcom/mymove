@@ -32,22 +32,18 @@ EditableTextField.propTypes = {
 export class EditablePanel extends Component {
   constructor() {
     super();
-    this.state = {
-      isEditable: false,
-    };
-    this.handleClick = this.handleClick.bind(this);
-    this.renderChild = this.renderChild.bind(this);
+    this.handleToggleClick = this.handleToggleClick.bind(this);
+    this.handleSaveClick = this.handleSaveClick.bind(this);
   }
 
-  handleClick(e) {
+  handleToggleClick(e) {
     e.preventDefault();
-    this.setState({
-      isEditable: !this.state.isEditable,
-    });
+    this.props.toggleEditable();
   }
 
-  renderChild(child) {
-    return React.cloneElement(child, { isEditable: this.state.isEditable });
+  handleSaveClick(e) {
+    e.preventDefault();
+    this.props.save();
   }
 
   render() {
@@ -55,18 +51,22 @@ export class EditablePanel extends Component {
     className += ' editable-panel';
     let controls;
 
-    if (this.state.isEditable) {
+    if (this.props.isEditable) {
       className += ' is-editable';
       controls = (
         <div>
           <p>
             <button
               className="usa-button-secondary editable-panel-cancel"
-              onClick={this.handleClick}
+              onClick={this.handleToggleClick}
             >
               Cancel
             </button>
-            <button className="usa-button editable-panel-save" disabled>
+            <button
+              className="usa-button editable-panel-save"
+              onClick={this.handleSaveClick}
+              disabled={this.props.canSave}
+            >
               Save
             </button>
           </p>
@@ -74,25 +74,25 @@ export class EditablePanel extends Component {
       );
     }
 
+    const ContentComponent = this.props.isEditable
+      ? this.props.editableComponent
+      : this.props.displayComponent;
+
     return (
       <div className={className}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.state.isEditable && (
-            <a className="editable-panel-edit" onClick={this.handleClick}>
+          {!this.props.isEditable && (
+            <a className="editable-panel-edit" onClick={this.handleToggleClick}>
               Edit
             </a>
           )}
         </div>
         <div className="editable-panel-content">
-          {React.Children.map(this.props.children, this.renderChild)}
+          <ContentComponent />
           {controls}
         </div>
       </div>
     );
   }
 }
-
-EditablePanel.propTypes = {
-  title: PropTypes.string.isRequired,
-};
