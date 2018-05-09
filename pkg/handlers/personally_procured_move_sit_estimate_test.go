@@ -80,7 +80,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		DestinationZip:  "67401",
 		WeightEstimate:  3000,
 	}
-	// And: show Queue is queried
+	// And: ShowPPMSitEstimateHandler is queried
 	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
@@ -163,7 +163,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		DestinationZip:  "67401",
 		WeightEstimate:  3000,
 	}
-	// And: show Queue is queried
+	// And: ShowPPMSitEstimateHandler is queried
 	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
@@ -176,4 +176,62 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	if *sitCost.Estimate != expectedSitCost {
 		t.Errorf("Expected move ppm SIT cost to be '%v', instead is '%v'", expectedSitCost, *sitCost.Estimate)
 	}
+}
+
+func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
+
+	// Given: A PPM Estimate request with all relevant records except TSP performance
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+
+	originServiceArea := models.Tariff400ngServiceArea{
+		Name:               "Victoria, TX",
+		ServiceArea:        748,
+		LinehaulFactor:     39,
+		ServiceChargeCents: 350,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(1402),
+		SIT185BRateCents:   unit.Cents(53),
+		SITPDSchedule:      3,
+	}
+	suite.mustSave(&originServiceArea)
+
+	destServiceArea := models.Tariff400ngServiceArea{
+		Name:               "Salina, KS",
+		ServiceArea:        320,
+		LinehaulFactor:     43,
+		ServiceChargeCents: 350,
+		EffectiveDateLower: testdatagen.PeakRateCycleStart,
+		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
+		SIT185ARateCents:   unit.Cents(1292),
+		SIT185BRateCents:   unit.Cents(51),
+		SITPDSchedule:      2,
+	}
+	suite.mustSave(&destServiceArea)
+
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// And: the context contains required auth values
+	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
+	req = suite.authenticateRequest(req, user)
+
+	params := ppmop.ShowPPMSitEstimateParams{
+		HTTPRequest:     req,
+		PlannedMoveDate: *fmtDate(testdatagen.DateInsidePeakRateCycle),
+		DaysInStorage:   4,
+		OriginZip:       "77901",
+		DestinationZip:  "67401",
+		WeightEstimate:  3000,
+	}
+	// And: ShowPPMSitEstimateHandler is queried
+	showHandler := ShowPPMSitEstimateHandler(NewHandlerContext(suite.db, suite.logger))
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect bad request response
+	suite.checkResponseNotFound(showResponse)
 }
