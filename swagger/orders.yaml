@@ -83,10 +83,8 @@ paths:
         ## Canceled, Rescinded, or Revoked Orders
         To cancel, rescind, or revoke Orders, POST a new Revision with the status set to "canceled".
 
-        ## Errors
-        It is an error to specify a non-existent UUID. If these are new Orders, or if you don't know the UUID of the Orders to amend but you do know the other parameters, just omit the uuid parameter.
-
-        It is an error to specify an existing UUID with either an ordersNum or an edipi that disagree with the values stored with the existing set of Orders.
+        # Errors
+        It is an error to specify an already-created seqNum in the provided Revision for an existing set of Orders.
       operationId: postRevision
       consumes:
         - application/json
@@ -125,8 +123,6 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: Forbidden
-        404:
-          description: Orders not found
         500:
           description: Server error
   /orders/{uuid}:
@@ -165,6 +161,11 @@ paths:
         Creates a Revision of a set of orders. The Orders to be amended or canceled must already exist with the supplied UUID.
 
         The seqNum in the supplied Revision must be unique, and not already present in the Orders. Nothing else is required to change in the Revision compared to any other Revision in the Orders.
+
+        ## Errors
+        It is an error to specify a non-existent UUID.
+
+        It is an error to specify an already-created seqNum in the Revision.
       operationId: postRevisionToOrders
       consumes:
         - application/json
@@ -277,7 +278,7 @@ definitions:
       pcaWithoutPcs:
         type: boolean
         description: |
-          Permanent Change of Assignment without Permanent Change of Address. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
+          Permanent Change of Assignment without Permanent Change of Station. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
 
           If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and should authorize move expenses.
 
