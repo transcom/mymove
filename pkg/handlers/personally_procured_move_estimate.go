@@ -28,14 +28,12 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return responseForError(h.logger, err)
 	}
 
-	lhInvDiscount := 1.0 - lhDiscount
-
 	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.PlannedMoveDate),
 		0, // We don't want any SIT charges
-		lhInvDiscount,
+		lhDiscount,
 		0.0,
 	)
 
