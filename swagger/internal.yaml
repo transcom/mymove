@@ -908,6 +908,19 @@ definitions:
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
       MIDSHIPMAN: Midshipman
+  DeptIndicator:
+    type: string
+    x-nullable: true
+    enum:
+      - ARMY
+      - NAVY_MARINES
+      - AIRFORCE
+      - COASTGUARD
+    x-display-value:
+      ARMY: 21 - United States Army
+      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
+      AIRFORCE: 57 - United States Air Force
+      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1270,6 +1283,24 @@ definitions:
       - last_modified_date
       - last_modified_name
       - created_at
+  Accounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
+  PatchAccounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
 paths:
   /estimates/ppm:
     get:
@@ -2202,3 +2233,65 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+  /move/{moveId}/accounting:
+    get:
+      summary: Returns accounting information for a move
+      description: Returns accounting information for a move
+      operationId: showAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the accounting information for a move
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates accounting information for a move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
+      operationId: patchAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchAccounting
+          required: true
+          schema:
+            $ref: '#/definitions/PatchAccounting'
+      responses:
+        200:
+          description: updated accounting information
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
