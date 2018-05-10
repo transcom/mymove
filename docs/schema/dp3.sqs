@@ -39,6 +39,20 @@
             <uid><![CDATA[A3641233-9F6A-4C0A-A3BB-831EC19957D9]]></uid>
         </SQLField>
         <SQLField>
+            <name><![CDATA[uploaded_orders_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.documents</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.documents]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[91358F14-9379-4D3C-886B-50EF14BDFF2F]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[2CA96DAD-69A2-4DD0-B7C2-90EB450320BD]]></referencesTableUID>
+            <notNull><![CDATA[1]]></notNull>
+            <uid><![CDATA[07056FAA-FF90-4209-98F9-57F017B9FE35]]></uid>
+        </SQLField>
+        <SQLField>
             <name><![CDATA[issue_date]]></name>
             <type><![CDATA[date]]></type>
             <notNull><![CDATA[1]]></notNull>
@@ -908,7 +922,7 @@
         </location>
         <size>
             <width>273.00</width>
-            <height>140.00</height>
+            <height>120.00</height>
         </size>
         <zorder>24</zorder>
         <SQLField>
@@ -918,25 +932,6 @@
             <forcedUnique><![CDATA[1]]></forcedUnique>
             <notNull><![CDATA[1]]></notNull>
             <uid><![CDATA[91358F14-9379-4D3C-886B-50EF14BDFF2F]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[uploader_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.users</referencesTable>
-            <deleteAction>12</deleteAction>
-            <updateAction>12</updateAction>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.users]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[7591E27C-36DF-408D-9484-CE183A3E8407]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[C34230C4-E2F9-4D62-B270-65B525048969]]></referencesTableUID>
-            <deferrable><![CDATA[0]]></deferrable>
-            <foreignKeyName><![CDATA[documents_uploader_id_fkey]]></foreignKeyName>
-            <initiallyDeferred><![CDATA[0]]></initiallyDeferred>
-            <notNull><![CDATA[1]]></notNull>
-            <uid><![CDATA[0D61B09A-967F-4189-91E9-49A36D102A39]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[name]]></name>
@@ -2959,17 +2954,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
-        <sidebarIndex><![CDATA[2]]></sidebarIndex>
+        <RightSidebarWidth><![CDATA[1679.000000]]></RightSidebarWidth>
+        <sidebarIndex><![CDATA[5]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[731.000000]]></windowHeight>
+        <windowHeight><![CDATA[938.000000]]></windowHeight>
         <windowLocationX><![CDATA[0.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[128.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{524.5, 2}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1440.000000]]></windowWidth>
+        <windowLocationY><![CDATA[89.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{0, 0}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1680.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>

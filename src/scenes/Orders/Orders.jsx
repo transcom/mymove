@@ -92,7 +92,7 @@ export class Orders extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Your Orders</h1>
+        <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField
           fieldName="orders_type"
           swagger={this.props.schema}
