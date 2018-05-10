@@ -1213,15 +1213,9 @@ definitions:
         type: integer
         title: Spouse Pro-gear
         x-nullable: true
-      shortterm_days_in_storage:
+      days_in_storage:
         type: integer
         title: Short-term Storage
-        minimum: 0
-        maximum: 90
-        x-nullable: true
-      longterm_days_in_storage:
-        type: integer
-        title: Long-term Storage
         minimum: 0
         maximum: 90
         x-nullable: true
