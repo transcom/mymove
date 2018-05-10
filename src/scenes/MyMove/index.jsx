@@ -33,7 +33,6 @@ export class AppWrapper extends Component {
     this.props.loadUserAndToken();
     this.props.loadLoggedInUser();
     this.props.loadSchema();
-    console.log(this.props);
   }
 
   render() {
