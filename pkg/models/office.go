@@ -22,6 +22,6 @@ func FetchAccountingInfo(db *pop.Connection, moveID uuid.UUID) (AccountingInfo, 
 		FROM moves
 		WHERE moves.id = $1
 	`
-	err := db.RawQuery(query, moveID).All(&accountingInfo)
+	err := db.RawQuery(query, moveID).First(&accountingInfo)
 	return accountingInfo, err
 }
