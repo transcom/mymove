@@ -88,7 +88,11 @@ DateAndLocation.propTypes = {
 
 function mapStateToProps(state) {
   const props = {
-    schema: {},
+    schema: get(
+      state,
+      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+      {},
+    ),
     ...state.ppm,
     formData: state.form[formName],
     enableReinitialize: true,
@@ -104,10 +108,6 @@ function mapStateToProps(state) {
           pickup_zip: defaultPickupZip,
         }
       : null;
-  if (state.swagger.spec) {
-    props.schema =
-      state.swagger.spec.definitions.UpdatePersonallyProcuredMovePayload;
-  }
   return props;
 }
 function mapDispatchToProps(dispatch) {
