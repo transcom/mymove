@@ -1286,6 +1286,9 @@ definitions:
         type: string
         example: F8J1
         title: TAC
+    required:
+      - dept_indicator
+      - tac
   PatchAccounting:
     type: object
     properties:

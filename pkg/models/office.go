@@ -1,11 +1,8 @@
 package models
 
 import (
-	"time"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // AccountingInfo represents a single move queue item within a queue.
@@ -15,7 +12,7 @@ type AccountingInfo struct {
 }
 
 // FetchAccountingInfo gets accounting information for a specific move
-func FetchAccountingInfo(db *pop.Connection, moveID string) (AccountingInfo, error) {
+func FetchAccountingInfo(db *pop.Connection, moveID uuid.UUID) (AccountingInfo, error) {
 	accountingInfo := AccountingInfo{}
 	// TODO: replace hardcoded values with actual query values once data is available
 	query := `
@@ -23,6 +20,6 @@ func FetchAccountingInfo(db *pop.Connection, moveID string) (AccountingInfo, err
 		FROM moves
 		WHERE moves.id = $1
 	`
-	err = db.RawQuery(query, moveID).All(&accountingInfo)
+	err := db.RawQuery(query, moveID).All(&accountingInfo)
 	return accountingInfo, err
 }

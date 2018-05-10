@@ -1,7 +1,7 @@
 package handlers
 
 import (
-	"github.com/gobuffalo/pop"
+	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -25,12 +25,17 @@ func (h ShowAccountingHandler) Handle(params officeop.ShowAccountingParams) midd
 		return responseForError(h.logger, err)
 	}
 
-	accountingInfo, err := FetchAccountingInfo(h.db, moveID)
+	accountingInfo, err := models.FetchAccountingInfo(h.db, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	return officeop.NewShowAccountingInfoOK().WithPayload(&ppmEstimate)
+	newAccountingInfo := internalmessages.AccountingPayload{
+		Tac:           accountingInfo.TAC,
+		DeptIndicator: accountingInfo.DeptIndicator,
+	}
+
+	return officeop.NewShowAccountingOK().WithPayload(&accountingInfo)
 }
 
 // PatchAccountingHandler patches a move's accounting information via PATCH /moves/{moveId}/accounting
@@ -48,11 +53,11 @@ func (h PatchAccountingHandler) Handle(params officeop.PatchAccountingParams) mi
 		return responseForError(h.logger, err)
 	}
 
-	accountingInfo, err := FetchAccountingInfo(h.db, moveID)
+	accountingInfo, err := models.FetchAccountingInfo(h.db, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	payload := params.PatchAccountingParams
+	payload := params.PatchAccounting
 	newTAC := payload.Tac
 	newDeptIndicator := payload.DeptIndicator
 
@@ -64,16 +69,16 @@ func (h PatchAccountingHandler) Handle(params officeop.PatchAccountingParams) mi
 		// TODO: Set DeptIndicator here
 	}
 
-	// TODO: Validate and update whatever obj holds these values
+	// TODO: Validate and update whatever objs hold these values
 	// verrs, err := h.db.ValidateAndUpdate(move)
 	// if err != nil || verrs.HasAny() {
 	// 	return responseForVErrors(h.logger, verrs, err)
 	// }
 
-	accountingInfo = internalmessages.AccountingInfo{
+	newAccountingInfo := internalmessages.Accounting{
 		Tac:           newTAC,
 		DeptIndicator: newDeptIndicator,
 	}
 
-	return officeop.NewShowAccountingOK().WithPayload(&accountingInfo)
+	return officeop.NewShowAccountingOK().WithPayload(&newAccountingInfo)
 }
