@@ -27,13 +27,13 @@ type SearchDutyStationsHandler HandlerContext
 // Handle returns a list of stations based on the search query
 func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsParams) middleware.Responder {
 	var stations models.DutyStations
-	var response middleware.Responder
 	var err error
 
-	stations, err = models.FindDutyStations(h.db, params.Search, params.Affiliation)
+	stations, err = models.FindDutyStations(h.db, params.Search)
 	if err != nil {
 		h.logger.Error("Finding duty stations", zap.Error(err))
-		response = stationop.NewSearchDutyStationsInternalServerError()
+		return stationop.NewSearchDutyStationsInternalServerError()
+
 	}
 
 	stationPayloads := make(internalmessages.DutyStationsPayload, len(stations))
@@ -41,7 +41,5 @@ func (h SearchDutyStationsHandler) Handle(params stationop.SearchDutyStationsPar
 		stationPayload := payloadForDutyStationModel(station)
 		stationPayloads[i] = stationPayload
 	}
-	response = stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
-
-	return response
+	return stationop.NewSearchDutyStationsOK().WithPayload(stationPayloads)
 }
