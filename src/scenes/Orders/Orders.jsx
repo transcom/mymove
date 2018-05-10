@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -137,27 +138,28 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const currentServiceMember = state.loggedInUser.loggedInUser
-    ? state.loggedInUser.loggedInUser.service_member
-    : null;
-  const affiliation = currentServiceMember
-    ? currentServiceMember.affiliation
-    : null;
   const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =
     state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
-    currentServiceMember,
-    affiliation,
-    schema: {},
+    currentServiceMember: get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    ),
+    affiliation: get(
+      state,
+      'loggedInUser.loggedInUser.service_member.affiliation',
+    ),
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateUpdateOrdersPayload',
+      {},
+    ),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
     error,
     hasSubmitSuccess,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;
-  }
   return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Orders);

@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -95,14 +95,14 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const props = {
-    schema: {},
+  return {
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateServiceMemberPayload',
+      {},
+    ),
     formData: state.form[formName],
     ...state.serviceMember,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateServiceMemberPayload;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);
