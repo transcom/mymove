@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { get } from 'lodash';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -82,6 +83,10 @@ const mapStateToProps = state => ({
   moveId: state.submittedMoves.currentMove
     ? state.submittedMoves.currentMove.id
     : null,
+  currentOrdersId: get(
+    state.loggedInUser,
+    'loggedInUser.service_member.orders[0].id', // should we get the latest or the first?
+  ),
 });
 const mapDispatchToProps = dispatch =>
   bindActionCreators(

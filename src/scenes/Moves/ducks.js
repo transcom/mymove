@@ -48,10 +48,10 @@ export function setPendingMoveType(value) {
   return { type: SET_PENDING_MOVE_TYPE, payload: value };
 }
 
-export function createMove(moveType) {
+export function createMove(ordersId, moveType) {
   return function(dispatch) {
     dispatch(createMoveRequest());
-    CreateMove(moveType)
+    CreateMove(ordersId, { selected_move_type: moveType })
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };

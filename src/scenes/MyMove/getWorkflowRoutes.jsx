@@ -49,7 +49,9 @@ const stub = (key, pages, description) => ({ match }) => (
 );
 
 const goHome = props => () => props.push('/');
-const createMove = props => () => props.hasMove || props.createMove({});
+const createMove = props => () =>
+  props.hasMove ||
+  props.createMove(props.currentOrdersId, props.selectedMoveType);
 const always = () => true;
 const incompleteServiceMember = props => !props.hasCompleteProfile;
 const hasHHG = ({ selectedMoveType }) =>

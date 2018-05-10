@@ -299,14 +299,8 @@ definitions:
   CreateMovePayload:
     type: object
     properties:
-      orders_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
-    required:
-      - orders_id
   MovePayload:
     type: object
     properties:
@@ -369,6 +363,10 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/OrdersPayload'
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
