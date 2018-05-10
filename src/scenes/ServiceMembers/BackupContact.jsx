@@ -1,4 +1,4 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -250,20 +250,19 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const props = {
+  return {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     hasSubmitSuccess:
       state.serviceMember.createBackupContactSuccess ||
       state.serviceMember.updateBackupContactSuccess,
     error: state.serviceMember.error,
     loggedInUser: state.loggedInUser.loggedInUser,
-    schema: {},
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
+      {},
+    ),
     formData: state.form[formName],
   };
-  if (state.swagger.spec) {
-    props.schema =
-      state.swagger.spec.definitions.CreateServiceMemberBackupContactPayload;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);

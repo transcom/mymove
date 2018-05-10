@@ -60,6 +60,16 @@ func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 	return http.HandlerFunc(mw)
 }
 
+func noCacheMiddleware(inner http.Handler) http.Handler {
+	zap.L().Info("noCacheMiddleware installed")
+	mw := func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
+		inner.ServeHTTP(w, r)
+		return
+	}
+	return http.HandlerFunc(mw)
+}
+
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 	zap.L().Info("httpsComplianceMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
@@ -217,7 +227,11 @@ func main() {
 	root.Handle(pat.New("/api/v1/*"), apiMux)
 	apiMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*apiSwagger))
 	apiMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "api.html")))
-	apiMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
+
+	externalAPIMux := goji.SubMux()
+	apiMux.Handle(pat.New("/*"), externalAPIMux)
+	externalAPIMux.Use(noCacheMiddleware)
+	externalAPIMux.Handle(pat.New("/*"), handlers.NewPublicAPIHandler(handlerContext))
 
 	internalMux := goji.SubMux()
 	root.Handle(pat.New("/internal/*"), internalMux)
@@ -226,8 +240,9 @@ func main() {
 
 	// Mux for internal API that enforces auth
 	internalAPIMux := goji.SubMux()
-	internalAPIMux.Use(userAuthMiddleware)
 	internalMux.Handle(pat.New("/*"), internalAPIMux)
+	internalAPIMux.Use(userAuthMiddleware)
+	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
 	authContext := auth.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)

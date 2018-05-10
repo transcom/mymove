@@ -3,13 +3,14 @@ package models
 import (
 	"fmt"
 	"regexp"
-	"sort"
 	"strings"
 
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 
+	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // StringIsNilOrNotBlank validates OptionalString fields, which we represent as *string.
@@ -58,35 +59,30 @@ func (v *Int64IsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// AllowedFiletype validates that a content-type is contained in our list of accepted
-// types.
-type AllowedFiletype struct {
+// DiscountRateIsValid validates that a DiscountRate contains a value between 0 and 1.
+type DiscountRateIsValid struct {
 	Name  string
-	Field string
+	Field unit.DiscountRate
 }
 
-// AllowedFiletypes are the types of files that are accepted for upload.
-var AllowedFiletypes = map[string]string{
-	"JPG": "image/jpeg",
-	"PNG": "image/png",
-	"PDF": "application/pdf",
+// IsValid adds an error if the value is not between 0 and 1.
+func (v *DiscountRateIsValid) IsValid(errors *validate.Errors) {
+	if v.Field.Float64() < 0 || v.Field.Float64() > 1 {
+		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be between 0 and 1", v.Name))
+	}
 }
 
-// IsValid adds an error if the value is equal to 0.
-func (v *AllowedFiletype) IsValid(errors *validate.Errors) {
-	for _, filetype := range AllowedFiletypes {
-		if filetype == v.Field {
-			return
-		}
-	}
+// AllowedFileType validates that a content-type is contained in our list of accepted types.
+type AllowedFileType struct {
+	validators.StringInclusion
+}
 
-	filetypes := []string{}
-	for name := range AllowedFiletypes {
-		filetypes = append(filetypes, name)
-	}
-	sort.Strings(filetypes)
-	list := strings.Join(filetypes, ", ")
-	errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s must be one of: %s.", v.Name, list))
+// NewAllowedFileTypeValidator constructs as StringInclusion Validator which checks for allowed file upload types
+func NewAllowedFileTypeValidator(field string, name string) *AllowedFileType {
+	return &AllowedFileType{
+		validators.StringInclusion{Name: name,
+			Field: field,
+			List:  []string{"image/jpeg", "image/png", "application/pdf"}}}
 }
 
 // AffiliationIsPresent validates that a branch is present
@@ -126,4 +122,9 @@ func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
 	}
+}
+
+// ValidateableModel is here simply because `validateable` is private to `pop`
+type ValidateableModel interface {
+	Validate(*pop.Connection) (*validate.Errors, error)
 }

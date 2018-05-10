@@ -13,15 +13,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
 
-	tsp, err := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	tdl, err := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, 4.3, 4.3)
+	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "5")
+	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
@@ -68,7 +69,7 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, 4.3, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
@@ -210,7 +211,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, 4.3, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
@@ -297,7 +298,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	// ... and give this TSP a performance record
-	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, 4.3, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, swag.Int(1), mps+1, 0, .3, .3)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -344,10 +345,10 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 	tsp5, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
 	// TSPs should be orderd by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, 4.4, 4.4)
-	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, 3.3, 3.3)
-	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, 2.2, 2.2)
-	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, 1.1, 1.1)
+	testdatagen.MakeTSPPerformance(suite.db, tsp1, tdl, swag.Int(1), mps+5, 0, .4, .4)
+	testdatagen.MakeTSPPerformance(suite.db, tsp2, tdl, swag.Int(1), mps+4, 0, .3, .3)
+	testdatagen.MakeTSPPerformance(suite.db, tsp3, tdl, swag.Int(2), mps+2, 0, .2, .2)
+	testdatagen.MakeTSPPerformance(suite.db, tsp4, tdl, swag.Int(3), mps+3, 0, .1, .1)
 	testdatagen.MakeTSPPerformance(suite.db, tsp5, tdl, swag.Int(4), mps+1, 0, .6, .6)
 
 	// Run the Award Queue
@@ -394,7 +395,9 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 	for i := 0; i < tspsToMake; i++ {
 		tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 		score := float64(mps + i + 1)
-		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, score*.5, float64(score)*.5)
+
+		rate := unit.NewDiscountRateFromPercent(45.3)
+		testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, score, 0, rate, rate)
 	}
 
 	err = queue.assignPerformanceBands()
