@@ -919,6 +919,7 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
+    title: Dept. indicator
     enum:
       - AIRFORCE
     x-display-value:

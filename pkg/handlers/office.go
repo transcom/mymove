@@ -17,14 +17,14 @@ type ShowAccountingHandler HandlerContext
 // Handle ... creates a new ServiceMember from a request payload
 func (h ShowAccountingHandler) Handle(params officeop.ShowAccountingParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// user, _ := auth.GetUser(params.HTTPRequest.Context())
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// TODO: Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.db, user, moveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
+	// _, err := models.FetchMove(h.db, user, moveID)
+	// if err != nil {
+	// 	return responseForError(h.logger, err)
+	// }
 
 	accountingInfo, err := models.FetchAccountingInfo(h.db, moveID)
 	if err != nil {

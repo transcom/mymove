@@ -46,7 +46,7 @@ class OfficeWrapper extends Component {
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <Route
-                  path="/queues/:queueType/moves/:moveID"
+                  path="/queues/:queueType/moves/:moveId"
                   component={MoveInfo}
                 />
                 <Route path="/queues/:queueType" component={Queues} />

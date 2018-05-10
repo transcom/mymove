@@ -1,19 +1,21 @@
-import { GetAccountingAPI, UpdateAccountingAPI } from './api.js';
+import { LoadAccountingAPI, UpdateAccountingAPI } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
-const getAccountingType = 'GET_ACCOUNTING';
+const loadAccountingType = 'LOAD_ACCOUNTING';
 const updateAccountingType = 'UPDATE_ACCOUNTING';
 
-const GET_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(getAccountingType);
+const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
+  loadAccountingType,
+);
 
 const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   updateAccountingType,
 );
 
-export const getAccounting = ReduxHelpers.generateAsyncActionCreator(
-  getAccountingType,
-  GetAccountingAPI,
+export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
+  loadAccountingType,
+  LoadAccountingAPI,
 );
 
 export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
@@ -30,22 +32,22 @@ const initialState = {
 
 export function accountingReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_ACCOUNTING.start:
+    case LOAD_ACCOUNTING.start:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
       });
-    case GET_ACCOUNTING.success:
+    case LOAD_ACCOUNTING.success:
       return Object.assign({}, state, {
         accounting: action.payload,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
-    case GET_ACCOUNTING.failure:
+    case LOAD_ACCOUNTING.failure:
       return Object.assign({}, state, {
         accounting: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
-        error: action.error,
+        error: action.error.message,
       });
 
     case UPDATE_ACCOUNTING.start:
