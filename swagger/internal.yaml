@@ -1312,6 +1312,77 @@ definitions:
         type: string
         example: CAJ8
         title: TAC
+  ShowMoveBackupContact:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+        title: Name
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+        title: Phone
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: Email
+      address:
+        $ref: '#/definitions/Address'
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - created_at
+      - updated_at
+      - name
+      - email
+      - permission
+  UpdateMoveBackupContact:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Susan Smith
+        x-nullable: true
+      telephone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-5555
+        x-nullable: true
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
+        x-nullable: true
+        title: email address
+      address:
+        $ref: '#/definitions/Address'
+      permission:
+        $ref: '#/definitions/BackupContactPermission'
+    required:
+      - name
+      - email
+      - permission
 paths:
   /estimates/ppm:
     get:
@@ -1653,6 +1724,66 @@ paths:
           description: user is not authorized
         404:
           description: move is not found
+        500:
+          description: internal server error
+  /moves/{moveId}/backup_contact:
+    get:
+      summary: Returns a service member's backup contact, for a move
+      description: Returns a service member's backup contact, for a move
+      operationId: showMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the backup contact's associated service member
+      responses:
+        200:
+          description: the instance of the service member backup contact
+          schema:
+            $ref: '#/definitions/ShowMoveBackupContact'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates a service member's backup contact, for a move
+      description: Any fields sent in this request will be set on the backup contact referenced
+      operationId: updateMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: body
+          name: updateMoveBackupContact
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveBackupContact'
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the backup contact's associated service member
+      responses:
+        201:
+          description: updated instance of backup contact
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
         500:
           description: internal server error
   /moves/{moveId}/signed_certification:
