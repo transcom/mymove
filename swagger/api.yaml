@@ -905,7 +905,8 @@ definitions:
         example: 212-555-1213
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
         example: jackson_flies@gmail.com
     required:
@@ -931,7 +932,8 @@ definitions:
         example: 212-555-1212
       primary_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email of primary contact person
         example: mjackson@gmail.com
       secondary_name:
@@ -947,7 +949,8 @@ definitions:
         example: 212-555-1213
       secondary_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email of secondary contact person
         example: jackson_flies@gmail.com
   ShipmentDates:
@@ -1060,4 +1063,6 @@ definitions:
         example: USPS
       contact_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
