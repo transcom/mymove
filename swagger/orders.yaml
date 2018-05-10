@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for my.move.mil.
-  version: 0.0.2
+  version: 0.0.3
   title: my.move.mil Orders Gateway
   license:
     name: MIT
@@ -392,14 +392,14 @@ definitions:
     enum:
       - air-force
       - army
-      - civilian
+      - civilian-agency
       - coast-guard
       - marine-corps
       - navy
     x-display-value:
       air-force: Air Force
       army: Army
-      civilian: Civilian
+      civilian: Civilian Agency
       coast-guard: Coast Guard
       marine-corps: Marine Corps
       navy: Navy
