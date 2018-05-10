@@ -64,7 +64,6 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 	zap.L().Info("noCacheMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		inner.ServeHTTP(w, r)
 		return
 	}

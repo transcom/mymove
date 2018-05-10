@@ -340,16 +340,12 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const props = {
+  return {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
-    schemaRank: {},
+    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
   };
-  if (state.swagger.spec) {
-    props.schemaRank = state.swagger.spec.definitions.ServiceMemberRank;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Review);
