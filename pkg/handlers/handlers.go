@@ -103,7 +103,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler(context)
 
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
-	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 

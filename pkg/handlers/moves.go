@@ -111,27 +111,3 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	movePayload := payloadForMoveModel(orders, *move)
 	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 }
-
-// IndexMovesHandler returns a list of all moves
-type IndexMovesHandler HandlerContext
-
-// Handle retrieves a list of all moves in the system belonging to the logged in user
-func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
-	var response middleware.Responder
-	// User should always be populated by middleware
-	// user, _ := auth.GetUser(params.HTTPRequest.Context())
-
-	// moves, err := models.GetMovesForUserID(h.db, user.ID)
-	// if err != nil {
-	// 	h.logger.Error("DB Query", zap.Error(err))
-	// 	response = moveop.NewIndexMovesBadRequest()
-	// } else {
-	// 	movePayloads := make(internalmessages.IndexMovesPayload, len(moves))
-	// 	for i, move := range moves {
-	// 		movePayload := payloadForMoveModel(user, move)
-	// 		movePayloads[i] = &movePayload
-	// 	}
-	// 	response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
-	// }
-	return response
-}

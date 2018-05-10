@@ -5,11 +5,9 @@ import (
 
 	"net/http/httptest"
 
-	// "github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
-	// "github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )

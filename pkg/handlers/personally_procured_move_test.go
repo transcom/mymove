@@ -253,7 +253,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
-	fmt.Println("wrong user response", response)
 
 	suite.checkResponseForbidden(response)
 }
