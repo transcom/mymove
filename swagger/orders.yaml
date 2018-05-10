@@ -289,63 +289,9 @@ definitions:
           TDY (Temporary Duty Yonder) en-route.
           If omitted, assume false.
       tourType:
-        type: string
-        description: |
-          Accompanied or Unaccompanied; i.e., are dependents authorized to accompany the service member on the move. For certain OCONUS destinations, the tour type affects the member's entitlement. Otherwise, it doesn't matter.
-
-          If omitted, assume accompanied.
-        enum:
-          - accompanied
-          - unaccompanied
-          - unaccompanied-dependents-restricted
-        x-display-value:
-          accompanied: Accompanied
-          unaccompanied: Unaccompanied
-          unaccompanied-dependents-restricted: Unaccompanied, Dependents Restricted
+        $ref: '#/definitions/TourType'
       ordersType:
-        type: string
-        description: |
-          The common types fit into the acronym ASTRO-UB.
-            * **A**ccession - Joining the military
-            * **S**eparation / Retirement - Leaving the military
-            * **T**raining
-            * **R**otational
-            * **O**perational
-            * **U**nit Move - When an entire unit is reassigned to another installation, often as a deployment
-            * **B**RAC - Base Realignment and Closure. As of this writing, the most recent iteration of BRAC has ended, but Congress may start another one in the future.
-
-          Consequences of this field include
-            * Separation and retirement moves currently require the member to go through in-person counseling at the TMO / PPPO.
-        enum:
-          - accession
-          - between-duty-stations
-          - brac
-          - cot
-          - emergency-evac
-          - ipcot
-          - low-cost-travel
-          - operational
-          - oteip
-          - rotational
-          - separation
-          - special-purpose
-          - training
-          - unit-move
-        x-display-value:
-          accession: Accession
-          between-duty-stations: Between Duty Stations
-          brac: BRAC (Base Realignment And Closure)
-          cot: COT (Consecutive Overseas Travel)
-          emergency-evac: Emergency Non-Member Evacuation
-          ipcot: IPCOT (In-Place Consecutive Overseas Travel)
-          low-cost-travel: Low Cost Travel
-          operational: Operational
-          oteip: OTEIP (Overseas Tour Extension Incentive Program)
-          rotational: Rotational
-          separation: Separation / Retirement
-          special-purpose: Special Purpose Reimbursable
-          training: Training
-          unit-move: Unit Move
+        $ref: '#/definitions/OrdersType'
       hasDependents:
         type: boolean
         description: |
@@ -433,6 +379,64 @@ definitions:
       - family-name
       - affiliation
       - rank
+  TourType:
+    type: string
+    description: |
+      Accompanied or Unaccompanied; i.e., are dependents authorized to accompany the service member on the move. For certain OCONUS destinations, the tour type affects the member's entitlement. Otherwise, it doesn't matter.
+
+      If omitted, assume accompanied.
+    enum:
+      - accompanied
+      - unaccompanied
+      - unaccompanied-dependents-restricted
+    x-display-value:
+      accompanied: Accompanied
+      unaccompanied: Unaccompanied
+      unaccompanied-dependents-restricted: Unaccompanied, Dependents Restricted
+  OrdersType:
+    type: string
+    description: |
+      The common types fit into the acronym ASTRO-UB.
+        * **A**ccession - Joining the military
+        * **S**eparation / Retirement - Leaving the military
+        * **T**raining
+        * **R**otational
+        * **O**perational
+        * **U**nit Move - When an entire unit is reassigned to another installation, often as a deployment
+        * **B**RAC - Base Realignment and Closure. As of this writing, the most recent iteration of BRAC has ended, but Congress may start another one in the future.
+
+      Consequences of this field include
+        * Separation and retirement moves currently require the member to go through in-person counseling at the TMO / PPPO.
+    enum:
+      - accession
+      - between-duty-stations
+      - brac
+      - cot
+      - emergency-evac
+      - ipcot
+      - low-cost-travel
+      - operational
+      - oteip
+      - rotational
+      - separation
+      - special-purpose
+      - training
+      - unit-move
+    x-display-value:
+      accession: Accession
+      between-duty-stations: Between Duty Stations
+      brac: BRAC (Base Realignment And Closure)
+      cot: COT (Consecutive Overseas Travel)
+      emergency-evac: Emergency Non-Member Evacuation
+      ipcot: IPCOT (In-Place Consecutive Overseas Travel)
+      low-cost-travel: Low Cost Travel
+      operational: Operational
+      oteip: OTEIP (Overseas Tour Extension Incentive Program)
+      rotational: Rotational
+      separation: Separation / Retirement
+      special-purpose: Special Purpose Reimbursable
+      training: Training
+      unit-move: Unit Move
   Rank:
     type: string
     description: Rank of the service member. Some of these ranks will have identical entitlements.
