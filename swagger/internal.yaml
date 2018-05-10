@@ -1136,7 +1136,26 @@ definitions:
       separation: separation
       training: training
       unit-move: unit-move
-  OrdersPayload:
+  OrdersTypeDetail:
+    type: string
+    title: Orders type details
+    enum:
+      - hhg_permitted
+      - pcs_tdy
+      - hhg_restricted_prohibited
+      - hhg_area_prohibited
+      - instruction_20_weeks
+      - hhg_prohibited_20_weeks
+      - delayed_approval
+    x-display-value:
+      hhg_permitted: Shipment of HHG Permitted
+      pcs_tdy: PCS with TDY Enroute
+      hhg_restricted_prohibited: Shipment of HHG Restricted or Prohibited
+      hhg_restricted_area: HHG Restricted Area-HHG Prohibited
+      instruction_20_weeks: Course of Instruction 20 Weeks or More
+      hhg_prohibited_20_weeks: Shipment of HHG Prohibited but Authorized within 20 weeks
+      delayed_approval: Delayed Approval 20 Weeks or More
+  Orders:
     type: object
     properties:
       id:
@@ -1161,13 +1180,48 @@ definitions:
         title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
+      orders_type_detail:
+        $ref: "#/definitions/OrdersTypeDetail"
+        x-nullable: true
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
+      current_duty_station:
+        $ref: '#/definitions/DutyStationPayload'
+        x-nullable: true
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      orders_number:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: "030-00362"
+      hhg_permitted:
+        type: integer
+        title: Household Goods
+        x-nullable: true
+      progear:
+        type: integer
+        title: Pro-gear
+        x-nullable: true
+      spouse_progear:
+        type: integer
+        title: Spouse Pro-gear
+        x-nullable: true
+      shortterm_days_in_storage:
+        type: integer
+        title: Short-term Storage
+        minimum: 0
+        maximum: 90
+        x-nullable: true
+      longterm_days_in_storage:
+        type: integer
+        title: Long-term Storage
+        minimum: 0
+        maximum: 90
+        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -1185,7 +1239,7 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
-  CreateUpdateOrdersPayload:
+  CreateUpdateOrders:
     type: object
     properties:
       service_member_id:
@@ -1206,6 +1260,8 @@ definitions:
         title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
+      orders_type_detail:
+        $ref: "#/definitions/OrdersTypeDetail"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1213,6 +1269,16 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      current_duty_station_id:
+        type: string
+        format: uuid
+        example: c53a4180-65aa-42ec-a945-5fd21dec0538
+      shortterm_days_in_storage:
+        type: integer
+        example: 15
+      longterm_days_in_storage:
+        type: integer
+        example: 40
     required:
       - service_member_id
       - issue_date
@@ -1472,15 +1538,15 @@ paths:
         - orders
       parameters:
         - in: body
-          name: createOrdersPayload
+          name: createOrders
           required: true
           schema:
-            $ref: '#/definitions/CreateUpdateOrdersPayload'
+            $ref: '#/definitions/CreateUpdateOrders'
       responses:
         201:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1504,15 +1570,15 @@ paths:
           required: true
           description: UUID of the orders model
         - in: body
-          name: updateOrdersPayload
+          name: updateOrders
           required: true
           schema:
-            $ref: '#/definitions/CreateUpdateOrdersPayload'
+            $ref: '#/definitions/CreateUpdateOrders'
       responses:
         200:
           description: updated instance of orders
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1540,7 +1606,7 @@ paths:
         200:
           description: the instance of the order
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1911,6 +1977,68 @@ paths:
           description: move not found
         500:
           description: internal server error
+  /moves/{moveId}/orders:
+    get:
+      summary: Returns orders information for a move for office use
+      description: Returns orders information for a move for office use
+      operationId: showOfficeOrders
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the orders information for a move for office use
+          schema:
+            $ref: '#/definitions/Orders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates orders information for a move for office use
+      description: Any fields sent in this request will be set for orders info on the referenced move
+      operationId: patchOrders
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchOrders
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrders'
+      responses:
+        200:
+          description: updated orders information for office use
+          schema:
+            $ref: '#/definitions/Orders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -2104,7 +2232,7 @@ paths:
         200:
           description: the instance of the service member
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
