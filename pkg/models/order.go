@@ -35,10 +35,6 @@ type Order struct {
 	UploadedOrders       Document                           `belongs_to:"documents"`
 	UploadedOrdersID     uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber         *string                            `json:"orders_number" db:"orders_number"`
-	HHGEntitlement       *int                               `json:"hhg_entitlement" db:"hhg_entitlement"`
-	Progear              *int                               `json:"progear" db:"progear"`
-	SpouseProgear        *int                               `json:"spouse_progear" db:"spouse_progear"`
-	DaysInStorage        *int                               `json:"days_in_storage" db:"days_in_storage"`
 }
 
 // String is not required by pop and may be deleted

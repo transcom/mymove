@@ -1203,24 +1203,6 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
-      hhg_entitlement:
-        type: integer
-        title: Household Goods
-        x-nullable: true
-      progear:
-        type: integer
-        title: Pro-gear
-        x-nullable: true
-      spouse_progear:
-        type: integer
-        title: Spouse Pro-gear
-        x-nullable: true
-      days_in_storage:
-        type: integer
-        title: Short-term Storage
-        minimum: 0
-        maximum: 90
-        x-nullable: true
       created_at:
         type: string
         format: date-time
@@ -1272,12 +1254,11 @@ definitions:
         type: string
         format: uuid
         example: c53a4180-65aa-42ec-a945-5fd21dec0538
-      shortterm_days_in_storage:
-        type: integer
-        example: 15
-      longterm_days_in_storage:
-        type: integer
-        example: 40
+      orders_number:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: "030-00362"
     required:
       - service_member_id
       - issue_date

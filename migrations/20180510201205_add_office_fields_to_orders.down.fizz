@@ -1,7 +1,3 @@
 drop_column("orders", "orders_number")
 drop_column("orders", "orders_type_detail")
 drop_column("orders", "current_duty_station_id")
-drop_column("orders", "hhg_entitlement")
-drop_column("orders", "progear")
-drop_column("orders", "spouse_progear")
-drop_column("orders", "days_in_storage")
