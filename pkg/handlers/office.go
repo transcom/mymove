@@ -5,7 +5,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
+	// "github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -45,20 +45,20 @@ type PatchAccountingHandler HandlerContext
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchAccountingHandler) Handle(params officeop.PatchAccountingParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	moveID, _ := uuid.FromString(params.MoveID.String())
+	// user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// TODO: Validate that this move belongs to the current user
-	_, err := models.FetchMove(h.db, user, moveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
+	// _, err := models.FetchMove(h.db, user, moveID)
+	// if err != nil {
+	// 	return responseForError(h.logger, err)
+	// }
 
 	// In the future, need to return accountingInfo, which you will validate
-	_, err = models.FetchAccountingInfo(h.db, moveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
+	// _, err := models.FetchAccountingInfo(h.db, moveID)
+	// if err != nil {
+	// 	return responseForError(h.logger, err)
+	// }
 
 	payload := params.PatchAccounting
 	newTAC := payload.Tac

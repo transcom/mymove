@@ -32,13 +32,20 @@ class AccountingPanel extends Component {
     this.props.loadAccounting(this.props.moveId);
   }
 
+  save = () => {
+    this.props.updateAccounting(this.props.moveId, this.props.formData.values);
+    this.toggleEditable();
+  };
+
   toggleEditable = () => {
-    this.setState({ isEditable: !this.state.isEditable });
+    this.setState({
+      isEditable: !this.state.isEditable,
+    });
   };
 
   render() {
     const displayContent = () => {
-      const values = this.props.accounting.accounting || {};
+      const values = this.props.accounting || {};
       return (
         <React.Fragment>
           <div className="editable-panel-column">
@@ -74,17 +81,18 @@ class AccountingPanel extends Component {
 
     return (
       <React.Fragment>
-        {this.props.hasSubmitError && (
+        {this.props.hasError && (
           <Alert type="error" heading="An error occurred">
-            There was an error: <em>{this.props.submitErrorMessage}</em>.
+            There was an error: <em>{this.props.errorMessage}</em>.
           </Alert>
         )}
         <EditablePanel
           title="Accounting"
           editableContent={editableContent}
           displayContent={displayContent}
-          isEditable={this.state.isEditable}
+          onSave={this.save}
           toggleEditable={this.toggleEditable}
+          isEditable={this.state.isEditable}
         />
       </React.Fragment>
     );
@@ -102,11 +110,11 @@ AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
-    hasSubmitError: state.accounting.hasSubmitError,
-    submitErrorMessage: state.accounting.error,
-    accounting: state.accounting,
+    hasError: state.accounting.hasLoadError || state.accounting.hasUpdateError,
+    errorMessage: state.accounting.error,
     formData: state.form[formName],
     initialValues: state.accounting.accounting,
+    ...state.accounting,
   };
 }
 

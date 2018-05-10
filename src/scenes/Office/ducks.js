@@ -34,37 +34,37 @@ export function accountingReducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_ACCOUNTING.start:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
+        hasLoadSuccess: false,
       });
     case LOAD_ACCOUNTING.success:
       return Object.assign({}, state, {
         accounting: action.payload,
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        hasLoadSuccess: true,
+        hasLoadError: false,
       });
     case LOAD_ACCOUNTING.failure:
       return Object.assign({}, state, {
         accounting: null,
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        hasLoadSuccess: false,
+        hasLoadError: true,
         error: action.error.message,
       });
 
     case UPDATE_ACCOUNTING.start:
       return Object.assign({}, state, {
-        updateAccountingSuccess: false,
+        hasUpdateSuccess: false,
       });
     case UPDATE_ACCOUNTING.success:
       return Object.assign({}, state, {
         accounting: action.payload,
-        updateAccountingSuccess: true,
-        updateAccountingError: false,
+        hasUpdateSuccess: true,
+        hasUpdateError: false,
       });
     case UPDATE_ACCOUNTING.failure:
       return Object.assign({}, state, {
-        updateAccountingSuccess: false,
-        updateAccountingError: true,
-        error: action.error,
+        hasUpdateSuccess: false,
+        hasUpdateError: true,
+        error: action.error.message,
       });
 
     default:

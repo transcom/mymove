@@ -10,9 +10,9 @@ export class EditablePanel extends Component {
     this.props.toggleEditable();
   };
 
-  // TODO: get save button working as more than just an editable toggle
   handleSaveClick = e => {
     e.preventDefault();
+    this.props.onSave();
   };
 
   render() {
@@ -30,8 +30,7 @@ export class EditablePanel extends Component {
             </button>
             <button
               className="usa-button editable-panel-save"
-              onClick={this.handleToggleClick}
-              disabled={this.props.canSave}
+              onClick={this.handleSaveClick}
             >
               Save
             </button>
@@ -72,7 +71,7 @@ export class EditablePanel extends Component {
 }
 
 EditablePanel.propTypes = {
-  isEditable: PropTypes.bool.isRequired,
   editableContent: PropTypes.func.isRequired,
   displayContent: PropTypes.func.isRequired,
+  isEditable: PropTypes.bool.isRequired,
 };
