@@ -115,7 +115,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -158,7 +160,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -201,7 +205,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -248,7 +254,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -1313,7 +1321,7 @@ paths:
           format: date
           required: true
         - in: query
-          name: pickup_zip
+          name: origin_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -1359,13 +1367,13 @@ paths:
           type: integer
           required: true
         - in: query
-          name: destination_zip
+          name: origin_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_zip
+          name: destination_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -1838,6 +1846,68 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/accounting:
+    get:
+      summary: Returns accounting information for a move
+      description: Returns accounting information for a move
+      operationId: showAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the accounting information for a move
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates accounting information for a move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
+      operationId: patchAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchAccounting
+          required: true
+          schema:
+            $ref: '#/definitions/PatchAccounting'
+      responses:
+        200:
+          description: updated accounting information
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -2225,65 +2295,3 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
-  /move/{moveId}/accounting:
-    get:
-      summary: Returns accounting information for a move
-      description: Returns accounting information for a move
-      operationId: showAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-      responses:
-        200:
-          description: the accounting information for a move
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
-    patch:
-      summary: Updates accounting information for a move
-      description: Any fields sent in this request will be set for accounting info on the referenced move
-      operationId: patchAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the associated move
-        - in: body
-          name: patchAccounting
-          required: true
-          schema:
-            $ref: '#/definitions/PatchAccounting'
-      responses:
-        200:
-          description: updated accounting information
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error

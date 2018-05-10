@@ -5,8 +5,10 @@ import (
 	"testing"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/validate"
 	"github.com/stretchr/testify/suite"
+	"github.com/transcom/mymove/pkg/models"
+	"reflect"
+	"sort"
 )
 
 type ModelSuite struct {
@@ -31,7 +33,7 @@ func (suite *ModelSuite) mustSave(model interface{}) {
 	}
 }
 
-func (suite *ModelSuite) verifyValidationErrors(model validatableModel, exp map[string][]string) {
+func (suite *ModelSuite) verifyValidationErrors(model models.ValidateableModel, exp map[string][]string) {
 	t := suite.T()
 	t.Helper()
 
@@ -44,11 +46,11 @@ func (suite *ModelSuite) verifyValidationErrors(model validatableModel, exp map[
 		t.Errorf("expected %d errors, got %d", len(exp), verrs.Count())
 	}
 
-	expKeys := []string{}
+	var expKeys []string
 	for key, errors := range exp {
 		e := verrs.Get(key)
 		expKeys = append(expKeys, key)
-		if !equalSlice(e, errors) {
+		if !sameStrings(e, errors) {
 			t.Errorf("expected errors on %s to be %v, got %v", key, errors, e)
 		}
 	}
@@ -73,10 +75,6 @@ func TestModelSuite(t *testing.T) {
 	suite.Run(t, hs)
 }
 
-type validatableModel interface {
-	Validate(*pop.Connection) (*validate.Errors, error)
-}
-
 func sliceContains(needle string, haystack []string) bool {
 	for _, s := range haystack {
 		if s == needle {
@@ -86,14 +84,8 @@ func sliceContains(needle string, haystack []string) bool {
 	return false
 }
 
-func equalSlice(a []string, b []string) bool {
-	if len(a) != len(b) {
-		return false
-	}
-	for i, v := range a {
-		if v != b[i] {
-			return false
-		}
-	}
-	return true
+func sameStrings(a []string, b []string) bool {
+	sort.Strings(a)
+	sort.Strings(b)
+	return reflect.DeepEqual(a, b)
 }

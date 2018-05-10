@@ -1,5 +1,6 @@
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -9,52 +10,10 @@ import { createOrders, updateOrders, showCurrentOrders } from './ducks';
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './Orders.css';
-
-const YesNoBoolean = props => {
-  const {
-    input: { value: rawValue, onChange },
-  } = props;
-  let value = rawValue;
-  const yesChecked = value === true;
-  const noChecked = value === false;
-
-  const localOnChange = event => {
-    if (event.target.id === 'yes') {
-      onChange(true);
-    } else {
-      onChange(false);
-    }
-  };
-
-  return (
-    <Fragment>
-      <input
-        id="yes"
-        className="inline_radio"
-        type="radio"
-        onChange={localOnChange}
-        checked={yesChecked}
-      />
-      <label className="inline_radio" htmlFor="yes">
-        Yes
-      </label>
-      <input
-        id="no"
-        className="inline_radio"
-        type="radio"
-        onChange={localOnChange}
-        checked={noChecked}
-      />
-      <label id="no_label" className="inline_radio" htmlFor="no">
-        No
-      </label>
-    </Fragment>
-  );
-};
 
 const validateOrdersForm = (values, form) => {
   let errors = {};
@@ -175,23 +134,24 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const currentServiceMember = state.loggedInUser.loggedInUser
-    ? state.loggedInUser.loggedInUser.service_member
-    : null;
   const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =
     state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
-    currentServiceMember,
-    schema: {},
+    currentServiceMember: get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    ),
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateUpdateOrdersPayload',
+      {},
+    ),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
     error,
     hasSubmitSuccess,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;
-  }
   return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Orders);
