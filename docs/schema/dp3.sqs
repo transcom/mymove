@@ -8,8 +8,8 @@
             <y>0.00</y>
         </location>
         <size>
-            <width>273.00</width>
-            <height>200.00</height>
+            <width>300.00</width>
+            <height>340.00</height>
         </size>
         <zorder>19</zorder>
         <SQLField>
@@ -92,6 +92,41 @@
             <type><![CDATA[timestamp without time zone]]></type>
             <notNull><![CDATA[1]]></notNull>
             <uid><![CDATA[16BB010E-E054-49D0-8BB3-BD12EA2CB59D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[orders_type_detail]]></name>
+            <type><![CDATA[CHARACTER VARYING(255)]]></type>
+            <uid><![CDATA[249D7CAC-75E8-478D-AB11-EBD0A8968335]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[current_duty_station_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <uid><![CDATA[7A738122-98DB-4AE3-94B8-8F548466C948]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[orders_number]]></name>
+            <type><![CDATA[CHARACTER VARYING(255)]]></type>
+            <uid><![CDATA[A88EC654-C0AA-4D83-AECE-0FF0F39E7243]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[hhg_entitlement]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[4B363A80-1125-480A-BA9D-3DD6409F311C]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[progear]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[02CABC64-5CF2-4753-8072-E25C4EBBD815]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[spouse_progear]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[3AF8E468-6FE5-4CD7-811B-D6E33F1B390E]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[days_in_storage]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[357A643E-D4A1-4924-934A-B76500B70C7B]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -1887,8 +1922,8 @@
         <name><![CDATA[public.addresses]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>1030.00</x>
-            <y>334.00</y>
+            <x>981.00</x>
+            <y>415.00</y>
         </location>
         <size>
             <width>273.00</width>
@@ -2924,17 +2959,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[2575.000000]]></RightSidebarWidth>
-        <sidebarIndex><![CDATA[5]]></sidebarIndex>
+        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
+        <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1263.000000]]></windowHeight>
-        <windowLocationX><![CDATA[1853.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[-217.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{0, 324}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[2852.000000]]></windowWidth>
+        <windowHeight><![CDATA[731.000000]]></windowHeight>
+        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[128.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{524.5, 2}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>
