@@ -1,17 +1,8 @@
-.station-description {
-  list-style-type: none;
-  padding-left: 20px;
+.duty-input-box {
+  margin-left: -10px;
 }
 
-.station-description li {
-  margin-left: 0;
-}
-
-.station-description li:first-child {
-  font-weight: bold;
-}
-
-div#react-select-2-listbox{
+div#react-select-2-listbox {
   height: 100%;
   max-height: 300px;
 }

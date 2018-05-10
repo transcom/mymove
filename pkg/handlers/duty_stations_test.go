@@ -46,7 +46,6 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
 	newSearchParams := stationop.SearchDutyStationsParams{
 		HTTPRequest: req,
-		Affiliation: string(internalmessages.AffiliationARMY),
 		Search:      "first",
 	}
 

@@ -416,11 +416,8 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      current_station:
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -2247,11 +2244,6 @@ paths:
       tags:
         - duty_stations
       parameters:
-        - in: query
-          name: affiliation
-          required: true
-          type: string
-          enum: *AFFILIATION
         - in: query
           name: search
           type: string
