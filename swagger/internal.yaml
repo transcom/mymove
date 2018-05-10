@@ -1118,21 +1118,23 @@ definitions:
     type: string
     title: Orders type
     enum:
-      - accession
-      - brac
-      - operational
-      - rotational
-      - separation
-      - training
-      - unit-move
+      - PERMANENT_CHANGE_OF_STATION
+      - SEPARATION
+      - RETIREMENT
+      - LOCAL_MOVE
+      - TEMPORARY_DUTY
+      - DEPENDENT_TRAVEL
+      - BLUEBARK
+      - VARIOUS
     x-display-value:
-      accession: accession
-      brac: brac
-      operational: operational
-      rotational: rotational
-      separation: separation
-      training: training
-      unit-move: unit-move
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      SEPARATION: Separation
+      RETIREMENT: Retirement
+      LOCAL_MOVE: Local Move
+      TEMPORARY_DUTY: Temporary Duty
+      DEPENDENT_TRAVEL: Dependent Travel
+      BLUEBARK: Bluebark
+      VARIOUS: Various
   OrdersPayload:
     type: object
     properties:

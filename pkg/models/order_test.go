@@ -32,7 +32,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeRotational
+	ordersType := internalmessages.OrdersTypeBLUEBARK
 	hasDependents := true
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
