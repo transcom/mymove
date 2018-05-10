@@ -1,5 +1,5 @@
 drop_foreign_key("moves", "orders_id", {"if_exists": true})
 drop_column("moves", "orders_id")
 
-add_column("moves", "user_id", "uuid", {"null": true})
+add_column("moves", "user_id", "uuid", {}})
 add_foreign_key("moves", "user_id", {"users": ["id"]}, {})

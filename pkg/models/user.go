@@ -67,7 +67,7 @@ func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 // GetServiceMemberProfile returns a service member profile if one is associated with this user, otherwise returns nil
 func (u User) GetServiceMemberProfile(db *pop.Connection) (*ServiceMember, error) {
 	serviceMembers := ServiceMembers{}
-	err := db.Where("user_id = $1", u.ID).Eager("Orders.NewDutyStation.Address", "Orders.UploadedOrders").All(&serviceMembers)
+	err := db.Where("user_id = $1", u.ID).Eager("DutyStation", "ResidentialAddress", "BackupMailingAddress", "Orders.NewDutyStation.Address", "Orders.UploadedOrders").All(&serviceMembers)
 	if err != nil {
 		return nil, err
 	}
