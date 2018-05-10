@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
@@ -40,7 +39,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Telephone:               serviceMember.Telephone,
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
-		PersonalEmail:           fmtEmailPtr(serviceMember.PersonalEmail),
+		PersonalEmail:           serviceMember.PersonalEmail,
 		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
@@ -102,7 +101,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		Suffix:                 params.CreateServiceMemberPayload.Suffix,
 		Telephone:              params.CreateServiceMemberPayload.Telephone,
 		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:          stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
+		PersonalEmail:          params.CreateServiceMemberPayload.PersonalEmail,
 		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
 		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
 		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
@@ -195,7 +194,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		serviceMember.SecondaryTelephone = payload.SecondaryTelephone
 	}
 	if payload.PersonalEmail != nil {
-		serviceMember.PersonalEmail = swag.String(payload.PersonalEmail.String())
+		serviceMember.PersonalEmail = payload.PersonalEmail
 	}
 	if payload.PhoneIsPreferred != nil {
 		serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
