@@ -15,6 +15,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"go.uber.org/zap"
+	"go.uber.org/zap/zapcore"
 	"goji.io"
 	"goji.io/pat"
 
@@ -32,9 +33,13 @@ var logger *zap.Logger
 func requestLoggerMiddleware(inner http.Handler) http.Handler {
 	zap.L().Info("requestLoggerMiddleware installed")
 	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request",
-			zap.String("method", r.Method),
+		zap.L().Info("Request", zap.String("method", r.Method),
 			zap.String("url", r.URL.String()),
+			zap.String("accepted-language", r.Header.Get("accepted-language")),
+			zap.Int64("content-length", r.ContentLength),
+			zap.String("host", r.Host),
+			zap.String("referrer", r.Header.Get("referrer")),
+			zap.String("user-agent", r.UserAgent()),
 			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
 			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
 			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
@@ -124,13 +129,20 @@ func main() {
 	flag.Parse()
 
 	// Set up logger for the system
-	var err error
-	if *debugLogging {
-		logger, err = zap.NewDevelopment()
+	var loggerConfig zap.Config
+	if *env == "dev" {
+		loggerConfig = zap.NewProductionConfig()
 	} else {
-		logger, err = zap.NewProduction()
+		loggerConfig = zap.NewDevelopmentConfig()
 	}
 
+	loggerConfig.EncoderConfig.EncodeTime = zapcore.ISO8601TimeEncoder
+	if *debugLogging {
+		debug := zap.NewAtomicLevel()
+		debug.SetLevel(zap.DebugLevel)
+		loggerConfig.Level = debug
+	}
+	logger, err := loggerConfig.Build()
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
