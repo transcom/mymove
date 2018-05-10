@@ -130,6 +130,18 @@ const configureEdipiField = (swaggerField, props) => {
   return props;
 };
 
+const configureEmailField = (swaggerField, props) => {
+  props.validate.push(
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Must be a valid email address',
+    ),
+  );
+  props.type = 'text';
+
+  return props;
+};
+
 const renderInputField = ({
   input,
   type,
@@ -259,6 +271,8 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureZipField(swaggerField, fieldProps);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
+    } else if (fieldFormat === 'x-email') {
+      fieldProps = configureEmailField(swaggerField, fieldProps);
     } else {
       if (swaggerField.pattern) {
         console.error(
