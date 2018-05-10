@@ -1,16 +1,13 @@
 package handlers
 
 import (
-	// "fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	// "github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	// "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 

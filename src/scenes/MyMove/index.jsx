@@ -33,6 +33,7 @@ export class AppWrapper extends Component {
     this.props.loadUserAndToken();
     this.props.loadLoggedInUser();
     this.props.loadSchema();
+    console.log(this.props);
   }
 
   render() {
@@ -73,21 +74,22 @@ AppWrapper.defaultProps = {
   loadLoggedInUser: no_op,
 };
 
-const mapStateToProps = state => ({
-  hasCompleteProfile: false, //todo update this when user service is ready
-  swaggerError: state.swagger.hasErrored,
-  selectedMoveType: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.selected_move_type
-    : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-  hasMove: Boolean(state.submittedMoves.currentMove),
-  moveId: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.id
-    : null,
-  currentOrdersId: get(
-    state.loggedInUser,
-    'loggedInUser.service_member.orders[0].id', // should we get the latest or the first?
-  ),
-});
+const mapStateToProps = state => {
+  return {
+    hasCompleteProfile: false, //todo update this when user service is ready
+    swaggerError: state.swagger.hasErrored,
+    selectedMoveType: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.selected_move_type
+      : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    hasMove: Boolean(state.submittedMoves.currentMove),
+    moveId: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.id
+      : null,
+    currentOrdersId:
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0].id') ||
+      get(state.orders, 'currentOrders.id'), // should we get the latest or the first?
+  };
+};
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
