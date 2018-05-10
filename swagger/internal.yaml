@@ -1356,13 +1356,13 @@ paths:
           type: integer
           required: true
         - in: query
-          name: destination_zip
+          name: origin_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_zip
+          name: destination_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
