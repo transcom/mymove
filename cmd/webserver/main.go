@@ -21,28 +21,12 @@ import (
 	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
 var logger *zap.Logger
-
-// TODO(nick - 12/21/17) - this is a simple logger for debugging testing
-// It needs replacing with something we can use in production
-func requestLoggerMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("requestLoggerMiddleware installed")
-	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request",
-			zap.String("method", r.Method),
-			zap.String("url", r.URL.String()),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
-		inner.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(wrapper)
-}
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
@@ -51,7 +35,7 @@ const maxBodySize int64 = 200 * 1000 * 1000
 const maxHeaderSize int = 1 * 1000 * 1000
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("limitBodySizeMiddleware installed")
+	zap.L().Debug("limitBodySizeMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		inner.ServeHTTP(w, r)
@@ -61,7 +45,7 @@ func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 }
 
 func noCacheMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("noCacheMiddleware installed")
+	zap.L().Debug("noCacheMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
 		inner.ServeHTTP(w, r)
@@ -71,7 +55,7 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("httpsComplianceMiddleware installed")
+	zap.L().Debug("httpsComplianceMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		// set the HSTS header using values recommended by OWASP
 		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
@@ -123,14 +107,7 @@ func main() {
 
 	flag.Parse()
 
-	// Set up logger for the system
-	var err error
-	if *debugLogging {
-		logger, err = zap.NewDevelopment()
-	} else {
-		logger, err = zap.NewProduction()
-	}
-
+	logger, err := logging.Config(*env, *debugLogging)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
@@ -211,7 +188,7 @@ func main() {
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(requestLoggerMiddleware)
+	site.Use(logging.LogRequestMiddleware)
 	site.Use(httpsComplianceMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
