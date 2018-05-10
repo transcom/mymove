@@ -15,9 +15,9 @@ var ErrFetchNotFound = errors.New("FETCH_NOT_FOUND")
 // ErrFetchForbidden means that the record exists but that the user does not have access to it
 var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
 
-// RecordNotFoundErrorString is the error string returned when no matching rows exist in the database
+// recordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
-const RecordNotFoundErrorString = "sql: no rows in result set"
+const recordNotFoundErrorString = "sql: no rows in result set"
 
 // UniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
 const UniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"

@@ -24,6 +24,7 @@ import (
 // FileStorer is the set of methods needed to store and retrieve objects.
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
+	Delete(string) error
 	Key(...string) string
 	PresignedURL(string, string) (string, error)
 }
@@ -90,6 +91,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler(context)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
+	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
+	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
@@ -107,6 +110,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
+	internalAPI.ServiceMembersShowServiceMemberOrdersHandler = ShowServiceMemberOrdersHandler(context)
 
 	internalAPI.BackupContactsIndexServiceMemberBackupContactsHandler = IndexBackupContactsHandler(context)
 	internalAPI.BackupContactsCreateServiceMemberBackupContactHandler = CreateBackupContactHandler(context)
@@ -116,6 +120,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
 
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
+	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 

@@ -90,7 +90,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -115,7 +115,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -133,7 +135,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -158,7 +160,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -176,7 +180,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -201,7 +205,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -223,7 +229,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
-        title: Move Date
+        title: When do you plan to move?
         x-nullable: true
       pickup_zip:
         type: string
@@ -248,7 +254,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -268,6 +276,14 @@ definitions:
       - id
       - created_at
       - updated_at
+  PPMSitEstimate:
+    type: object
+    properties:
+      estimate:
+        type: integer
+        title: Value in cents of SIT estimate for PPM
+    required:
+      - estimate
   PPMEstimateRange:
     type: object
     properties:
@@ -400,8 +416,11 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -497,8 +516,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -579,8 +601,11 @@ definitions:
         type: boolean
         x-nullable: true
         title: Email
-      current_station:
-        $ref: '#/definitions/DutyStationPayload'
+      current_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -891,6 +916,19 @@ definitions:
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
       MIDSHIPMAN: Midshipman
+  DeptIndicator:
+    type: string
+    x-nullable: true
+    enum:
+      - ARMY
+      - NAVY_MARINES
+      - AIRFORCE
+      - COASTGUARD
+    x-display-value:
+      ARMY: 21 - United States Army
+      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
+      AIRFORCE: 57 - United States Air Force
+      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1081,6 +1119,7 @@ definitions:
       - postal_code
   OrdersType:
     type: string
+    title: Orders type
     enum:
       - accession
       - brac
@@ -1113,11 +1152,13 @@ definitions:
         description: The date and time that these orders were cut.
         format: date
         example: "2018-04-26"
+        title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
         example: "2018-04-26"
+        title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
@@ -1125,6 +1166,8 @@ definitions:
         title: Are dependents included in your orders?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
+      uploaded_orders:
+        $ref: '#/definitions/DocumentPayload'
       created_at:
         type: string
         format: date-time
@@ -1139,6 +1182,7 @@ definitions:
       - orders_type
       - has_dependents
       - new_duty_station
+      - uploaded_orders
       - created_at
       - updated_at
   CreateUpdateOrdersPayload:
@@ -1153,25 +1197,29 @@ definitions:
         description: The date and time that these orders were cut.
         format: date
         example: "2018-04-26"
+        title: Orders date
       report_by_date:
         type: string
         description: Report By Date
         format: date
         example: "2018-04-26"
+        title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
-      new_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
+      new_duty_station_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
     required:
       - service_member_id
       - issue_date
       - report_by_date
       - orders_type
       - has_dependents
-      - new_duty_station
+      - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
     properties:
@@ -1243,12 +1291,30 @@ definitions:
       - last_modified_date
       - last_modified_name
       - created_at
+  Accounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
+  PatchAccounting:
+    type: object
+    properties:
+      dept_indicator:
+        $ref: '#/definitions/DeptIndicator'
+      tac:
+        type: string
+        example: CAJ8
+        title: TAC
 paths:
   /estimates/ppm:
     get:
       summary: Return a PPM cost estimate
       description: Calculates a reimbursement range for a PPM move (excluding SIT)
-      operationId: showEstimatePPM
+      operationId: showPPMEstimate
       tags:
         - ppm
       parameters:
@@ -1258,7 +1324,7 @@ paths:
           format: date
           required: true
         - in: query
-          name: pickup_zip
+          name: origin_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -1278,6 +1344,52 @@ paths:
           description: created instance of orders
           schema:
             $ref: '#/definitions/PPMEstimateRange'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /estimates/ppm_sit:
+    get:
+      summary: Return a PPM move's SIT cost estimate
+      description: Calculates a reimbursment for a PPM move's SIT
+      operationId: showPPMSitEstimate
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: days_in_storage
+          type: integer
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight_estimate
+          type: integer
+          required: true
+      responses:
+        200:
+          description: show PPM SIT estimate
+          schema:
+            $ref: '#/definitions/PPMSitEstimate'
         400:
           description: invalid request
         401:
@@ -1377,7 +1489,7 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /orders/{orderId}:
+  /orders/{ordersId}:
     put:
       summary: Updates orders
       description: All fields sent in this request will be set on the orders referenced
@@ -1386,7 +1498,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -1419,7 +1531,7 @@ paths:
         - orders
       parameters:
         - in: path
-          name: orderId
+          name: ordersId
           type: string
           format: uuid
           required: true
@@ -1737,6 +1849,68 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/accounting:
+    get:
+      summary: Returns accounting information for a move
+      description: Returns accounting information for a move
+      operationId: showAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the accounting information for a move
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates accounting information for a move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
+      operationId: patchAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchAccounting
+          required: true
+          schema:
+            $ref: '#/definitions/PatchAccounting'
+      responses:
+        200:
+          description: updated accounting information
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -1785,6 +1959,33 @@ paths:
           description: created upload
           schema:
             $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads/{uploadId}:
+    delete:
+      summary: Deletes an upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUpload
+      tags:
+        - uploads
+      parameters:
+        - in: path
+          name: uploadId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the upload to be deleted
+      responses:
+        201:
+          description: deleted upload
         400:
           description: invalid request
           schema:
@@ -1875,6 +2076,35 @@ paths:
           description: updated instance of service member
           schema:
             $ref: '#/definitions/ServiceMemberPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: service member not found
+        500:
+          description: internal server error
+  /service_members/{serviceMemberId}/current_orders:
+    get:
+      summary: Returns the latest orders for a given service member
+      description: Returns orders
+      operationId: showServiceMemberOrders
+      tags:
+        - service_members
+      parameters:
+        - in: path
+          name: serviceMemberId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member
+      responses:
+        200:
+          description: the instance of the service member
+          schema:
+            $ref: '#/definitions/OrdersPayload'
         400:
           description: invalid request
         401:

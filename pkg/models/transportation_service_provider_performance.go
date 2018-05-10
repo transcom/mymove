@@ -12,6 +12,8 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 var qualityBands = []int{1, 2, 3, 4}
@@ -27,20 +29,20 @@ var OffersPerQualityBand = map[int]int{
 // TransportationServiceProviderPerformance is a combination of all TSP
 // performance metrics (BVS, Quality Band) for a performance period.
 type TransportationServiceProviderPerformance struct {
-	ID                              uuid.UUID `db:"id"`
-	CreatedAt                       time.Time `db:"created_at"`
-	UpdatedAt                       time.Time `db:"updated_at"`
-	PerformancePeriodStart          time.Time `db:"performance_period_start"`
-	PerformancePeriodEnd            time.Time `db:"performance_period_end"`
-	RateCycleStart                  time.Time `db:"rate_cycle_start"`
-	RateCycleEnd                    time.Time `db:"rate_cycle_end"`
-	TrafficDistributionListID       uuid.UUID `db:"traffic_distribution_list_id"`
-	TransportationServiceProviderID uuid.UUID `db:"transportation_service_provider_id"`
-	QualityBand                     *int      `db:"quality_band"`
-	BestValueScore                  float64   `db:"best_value_score"`
-	LinehaulRate                    float64   `db:"linehaul_rate"`
-	SITRate                         float64   `db:"sit_rate"`
-	OfferCount                      int       `db:"offer_count"`
+	ID                              uuid.UUID         `db:"id"`
+	CreatedAt                       time.Time         `db:"created_at"`
+	UpdatedAt                       time.Time         `db:"updated_at"`
+	PerformancePeriodStart          time.Time         `db:"performance_period_start"`
+	PerformancePeriodEnd            time.Time         `db:"performance_period_end"`
+	RateCycleStart                  time.Time         `db:"rate_cycle_start"`
+	RateCycleEnd                    time.Time         `db:"rate_cycle_end"`
+	TrafficDistributionListID       uuid.UUID         `db:"traffic_distribution_list_id"`
+	TransportationServiceProviderID uuid.UUID         `db:"transportation_service_provider_id"`
+	QualityBand                     *int              `db:"quality_band"`
+	BestValueScore                  float64           `db:"best_value_score"`
+	LinehaulRate                    unit.DiscountRate `db:"linehaul_rate"`
+	SITRate                         unit.DiscountRate `db:"sit_rate"`
+	OfferCount                      int               `db:"offer_count"`
 }
 
 // String is not required by pop and may be deleted
@@ -83,6 +85,9 @@ func (t *TransportationServiceProviderPerformance) Validate(tx *pop.Connection) 
 		// in DTR403. See page 7 of https://www.ustranscom.mil/dtr/part-iv/dtr-part-4-403.pdf
 		&validators.IntIsGreaterThan{Field: int(t.BestValueScore), Name: "BestValueScore", Compared: -1},
 		&validators.IntIsLessThan{Field: int(t.BestValueScore), Name: "BestValueScore", Compared: 101},
+
+		&DiscountRateIsValid{Field: t.LinehaulRate, Name: "LinehaulRate"},
+		&DiscountRateIsValid{Field: t.SITRate, Name: "SITRate"},
 	), nil
 }
 
@@ -249,7 +254,7 @@ func GetRateCycle(year int, peak bool) (start time.Time, end time.Time) {
 // FetchDiscountRates returns the discount linehaul and SIT rates for the TSP with the highest
 // BVS during the specified data, limited to those TSPs in the channel defined by the
 // originZip and destinationZip.
-func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount float64, sitDiscount float64, err error) {
+func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip string, cos string, date time.Time) (linehaulDiscount unit.DiscountRate, sitDiscount unit.DiscountRate, err error) {
 	rateArea, err := FetchRateAreaForZip5(db, originZip)
 	if err != nil {
 		return 0.0, 0.0, errors.Wrapf(err, "could not find a rate area for zip %s", originZip)
@@ -274,7 +279,11 @@ func FetchDiscountRates(db *pop.Connection, originZip string, destinationZip str
 	`
 
 	err = db.RawQuery(query, rateArea, region, cos, date).First(&tspPerformance)
+
 	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return 0.0, 0.0, ErrFetchNotFound
+		}
 		return 0.0, 0.0, errors.Wrap(err, "could find the tsp performance")
 	}
 	return tspPerformance.LinehaulRate, tspPerformance.SITRate, nil

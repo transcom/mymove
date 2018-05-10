@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -53,11 +54,10 @@ Feedback.propTypes = {
 };
 
 function mapStateToProps(state) {
-  const props = { ...state.feedback, schema: {} };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateIssuePayload;
-  }
-  return props;
+  return {
+    ...state.feedback,
+    schema: get(state, 'swagger.spec.definitions.CreateIssuePayload', {}),
+  };
 }
 
 function mapDispatchToProps(dispatch) {

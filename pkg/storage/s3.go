@@ -41,6 +41,21 @@ func (s *S3) Store(key string, data io.ReadSeeker, md5 string) (*StoreResult, er
 	return &StoreResult{}, nil
 }
 
+// Delete deletes an object at a specified key
+func (s *S3) Delete(key string) error {
+	input := &s3.DeleteObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	}
+
+	_, err := s.client.DeleteObject(input)
+	if err != nil {
+		return errors.Wrap(err, "delete to S3 failed")
+	}
+
+	return nil
+}
+
 // Key returns a joined key plus any global namespace
 func (s *S3) Key(args ...string) string {
 	args = append([]string{s.keyNamespace}, args...)

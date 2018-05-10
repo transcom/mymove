@@ -8,7 +8,10 @@ development:
 
 test:
   dialect: "postgres"
-  database: {{ env "DB_NAME" }}
+  # Leave the test database name hardcoded, since we run tests in the same
+  # environment as development, and it's extra confusing to have to swap env
+  # variables before running tests.
+  database: "test_db"
   host: {{ env "DB_HOST" }}
   port: {{ env "DB_PORT" }}
   user: {{ env "DB_USER" }}

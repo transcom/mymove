@@ -46,7 +46,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
 		&Int64IsPresent{Field: u.Bytes, Name: "Bytes"},
-		&AllowedFiletype{Field: u.ContentType, Name: "ContentType"},
+		NewAllowedFileTypeValidator(u.ContentType, "ContentType"),
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
 }
@@ -56,7 +56,7 @@ func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Upload{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
@@ -68,4 +68,9 @@ func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
 		return Upload{}, docErr
 	}
 	return upload, nil
+}
+
+// DeleteUpload deletes an upload from the database
+func DeleteUpload(db *pop.Connection, upload *Upload) error {
+	return db.Destroy(upload)
 }

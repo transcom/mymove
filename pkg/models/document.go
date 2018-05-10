@@ -16,12 +16,12 @@ import (
 // for handling multiple files that belong to the same document.
 type Document struct {
 	ID              uuid.UUID     `db:"id"`
-	UploaderID      uuid.UUID     `db:"uploader_id"`
 	ServiceMemberID uuid.UUID     `db:"service_member_id"`
 	ServiceMember   ServiceMember `belongs_to:"service_members"`
 	Name            string        `db:"name"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
+	Uploads         Uploads       `has_many:"uploads"`
 }
 
 // String is not required by pop and may be deleted
@@ -42,7 +42,6 @@ func (d Documents) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: d.UploaderID, Name: "UploaderID"},
 		&validators.UUIDIsPresent{Field: d.ServiceMemberID, Name: "ServiceMemberID"},
 	), nil
 }
@@ -52,7 +51,7 @@ func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error
 	var document Document
 	err := db.Q().Eager().Find(&document, id)
 	if err != nil {
-		if errors.Cause(err).Error() == RecordNotFoundErrorString {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Document{}, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
