@@ -24,7 +24,6 @@ func (c Cents) MultiplyFloat64(f float64) Cents {
 	return Cents(math.Round(float64(c.Int()) * f))
 }
 
-// Multiply returns the value of self multiplied by multiplier
 func (c Cents) String() string {
 	return strconv.Itoa(int(c))
 }

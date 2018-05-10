@@ -16,7 +16,7 @@ func main() {
 	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
 	rounds := flag.String("rounds", "none", "If not using premade scenarios: Specify none (no awards), full (1 full round of awards), or half (partial round of awards)")
 	numTSP := flag.Int("numTSP", 15, "If not using premade scenarios: Specify the number of TSPs you'd like to create")
-	scenario := flag.Int("scenario", 0, "Specify which scenario you'd like to run. Current options: 1, 2.")
+	scenario := flag.Int("scenario", 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6.")
 	flag.Parse()
 
 	//DB connection
@@ -32,6 +32,12 @@ func main() {
 		tdgs.RunAwardQueueScenario2(db)
 	} else if *scenario == 3 {
 		tdgs.RunDutyStationScenario3(db)
+	} else if *scenario == 4 {
+		tdgs.RunPPMSITEstimateScenario1(db)
+	} else if *scenario == 5 {
+		tdgs.RunRateEngineScenario1(db)
+	} else if *scenario == 6 {
+		tdgs.RunRateEngineScenario2(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)

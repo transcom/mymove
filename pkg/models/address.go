@@ -2,12 +2,12 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -72,22 +72,12 @@ func (a Addresses) String() string {
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	verrs := validate.NewErrors()
-
-	stringFields := map[string]string{
-		"StreetAddress1": a.StreetAddress1,
-		"City":           a.City,
-		"State":          a.State,
-		"PostalCode":     a.PostalCode,
-	}
-
-	for key, field := range stringFields {
-		if field == "" {
-			verrs.Add(key, fmt.Sprintf("%s must not be blank!", key))
-		}
-	}
-
-	return verrs, nil
+	return validate.Validate(
+		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
+		&validators.StringIsPresent{Field: a.City, Name: "City"},
+		&validators.StringIsPresent{Field: a.State, Name: "State"},
+		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
+	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.
