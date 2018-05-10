@@ -1,58 +1,24 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 import './index.css';
 
-export const EditableTextField = props => {
-  let content;
-
-  if (props.isEditable) {
-    content = (
-      <label>
-        {props.title}
-        <input type="text" value={props.value} />
-      </label>
-    );
-  } else {
-    content = (
-      <span>
-        {props.title}: <span className="field-value">{props.value}</span>
-      </span>
-    );
-  }
-
-  return <div className="editable-panel-field">{content}</div>;
-};
-
-EditableTextField.propTypes = {
-  title: PropTypes.string.isRequired,
-  name: PropTypes.string.isRequired,
-};
-
 export class EditablePanel extends Component {
-  constructor() {
-    super();
-    this.handleToggleClick = this.handleToggleClick.bind(this);
-    this.handleSaveClick = this.handleSaveClick.bind(this);
-  }
-
-  handleToggleClick(e) {
+  handleToggleClick = e => {
     e.preventDefault();
     this.props.toggleEditable();
-  }
+  };
 
   // TODO: get save button working as more than just an editable toggle
-  handleSaveClick(e) {
+  handleSaveClick = e => {
     e.preventDefault();
-  }
+  };
 
   render() {
-    let className = this.props.className || '';
-    className += ' editable-panel';
     let controls;
 
     if (this.props.isEditable) {
-      className += ' is-editable';
       controls = (
         <div>
           <p>
@@ -74,12 +40,20 @@ export class EditablePanel extends Component {
       );
     }
 
+    const classes = classNames(
+      'editable-panel',
+      {
+        'is-editable': this.props.isEditable,
+      },
+      this.props.className,
+    );
+
     const contentFunc = this.props.isEditable
       ? this.props.editableContent
       : this.props.displayContent;
 
     return (
-      <div className={className}>
+      <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
           {!this.props.isEditable && (
@@ -96,3 +70,9 @@ export class EditablePanel extends Component {
     );
   }
 }
+
+EditablePanel.propTypes = {
+  isEditable: PropTypes.bool.isRequired,
+  editableContent: PropTypes.func.isRequired,
+  displayContent: PropTypes.func.isRequired,
+};
