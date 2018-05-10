@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -19,8 +20,8 @@ func (h ShowAccountingHandler) Handle(params officeop.ShowAccountingParams) midd
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	// TODO: Validate that this move belongs to the current user
+	_, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -30,12 +31,12 @@ func (h ShowAccountingHandler) Handle(params officeop.ShowAccountingParams) midd
 		return responseForError(h.logger, err)
 	}
 
-	newAccountingInfo := internalmessages.AccountingPayload{
-		Tac:           accountingInfo.TAC,
-		DeptIndicator: accountingInfo.DeptIndicator,
+	newAccountingInfo := internalmessages.Accounting{
+		Tac:           swag.String(accountingInfo.TAC),
+		DeptIndicator: &accountingInfo.DeptIndicator,
 	}
 
-	return officeop.NewShowAccountingOK().WithPayload(&accountingInfo)
+	return officeop.NewShowAccountingOK().WithPayload(&newAccountingInfo)
 }
 
 // PatchAccountingHandler patches a move's accounting information via PATCH /moves/{moveId}/accounting
@@ -47,36 +48,40 @@ func (h PatchAccountingHandler) Handle(params officeop.PatchAccountingParams) mi
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	// TODO: Validate that this move belongs to the current user
+	_, err := models.FetchMove(h.db, user, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	accountingInfo, err := models.FetchAccountingInfo(h.db, moveID)
+	// In the future, need to return accountingInfo, which you will validate
+	_, err = models.FetchAccountingInfo(h.db, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
+
 	payload := params.PatchAccounting
 	newTAC := payload.Tac
 	newDeptIndicator := payload.DeptIndicator
 
-	if newTAC != nil {
-		// TODO: Set TAC here
-	}
+	// if newTAC != nil {
+	// TODO: Set TAC here
+	// accountingInfo.Tac = newTAC
+	// }
 
-	if newDeptIndicator != nil {
-		// TODO: Set DeptIndicator here
-	}
+	// if newDeptIndicator != nil {
+	// TODO: Set DeptIndicator here
+	// accountingInfo.DeptIndicator = newDeptIndicator
+	// }
 
 	// TODO: Validate and update whatever objs hold these values
-	// verrs, err := h.db.ValidateAndUpdate(move)
+	// verrs, err := h.db.ValidateAndUpdate(accountingInfo)
 	// if err != nil || verrs.HasAny() {
 	// 	return responseForVErrors(h.logger, verrs, err)
 	// }
 
 	newAccountingInfo := internalmessages.Accounting{
-		Tac:           newTAC,
+		Tac:           swag.String(newTAC),
 		DeptIndicator: newDeptIndicator,
 	}
 
