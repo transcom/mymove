@@ -40,3 +40,20 @@ export async function UpdatePpm(
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
 }
+
+export async function GetPpmEstimate(
+  moveDate,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
+  const client = await getClient();
+  const response = await client.apis.ppm.showPPMEstimate({
+    planned_move_date: moveDate,
+    origin_zip: originZip,
+    destination_zip: destZip,
+    weight_estimate: weightEstimate,
+  });
+  checkResponse(response, 'failed to update ppm due to server error');
+  return response.body;
+}

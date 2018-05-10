@@ -1,4 +1,5 @@
-import { CreatePpm, UpdatePpm, GetPpm } from './api.js';
+import { get } from 'lodash';
+import { CreatePpm, UpdatePpm, GetPpm, GetPpmEstimate } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -9,6 +10,14 @@ export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
 );
 export const GET_INCENTIVE = 'GET_INCENTIVE'; //TOOD: this should be async when rate engine is available
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
+export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
+  'GET_PPM_ESTIMATE',
+);
+
+function formatPpmEstimate(estimate) {
+  // Range values arrive in cents, so convert to dollars
+  return `$${estimate.range_min / 100} - $${estimate.range_max / 100}`;
+}
 
 // Action creation
 export function setPendingPpmSize(value) {
@@ -19,13 +28,16 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getIncentive(weight) {
-  // todo: this will probably need more information for real rate engine
-  return {
-    type: GET_INCENTIVE,
-    payload: `$${0.75 * weight} - $${1.15 * weight}`,
+export function getPpmEstimate(moveDate, originZip, destZip, weightEstimate) {
+  const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
+  return function(dispatch, getState) {
+    dispatch(action.start);
+    GetPpmEstimate(moveDate, originZip, destZip, weightEstimate)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
   };
 }
+
 export function createOrUpdatePpm(moveId, ppm) {
   const action = ReduxHelpers.generateAsyncActions('CREATE_OR_UPDATE_PPM');
   return function(dispatch, getState) {
@@ -106,13 +118,33 @@ export function ppmReducer(state = initialState, action) {
       });
     case GET_PPM.success:
       return Object.assign({}, state, {
-        currentPpm: action.payload.length > 0 ? action.payload[0] : null,
+        currentPpm: get(action.payload, '0', null),
+        pendingPpmWeight: get(action.payload, '0.weight_estimate', null),
+        incentive: get(action.payload, '0.estimated_incentive', null),
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
     case GET_PPM.failure:
       return Object.assign({}, state, {
         currentPpm: null,
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
+      });
+    case GET_PPM_ESTIMATE.start:
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+      });
+    case GET_PPM_ESTIMATE.success:
+      return Object.assign({}, state, {
+        incentive: formatPpmEstimate(action.payload),
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+        error: null,
+      });
+    case GET_PPM_ESTIMATE.failure:
+      return Object.assign({}, state, {
+        incentive: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
