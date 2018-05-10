@@ -33,7 +33,6 @@ class OfficeWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
     this.props.loadUserAndToken();
-    this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
 
