@@ -15,7 +15,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		UpdatedAt:  fmtDateTime(contact.UpdatedAt),
 		CreatedAt:  fmtDateTime(contact.CreatedAt),
 		Name:       &contact.Name,
-		Email:      fmtEmail(contact.Email),
+		Email:      &contact.Email,
 		Telephone:  contact.Phone,
 		Permission: contact.Permission,
 	}
@@ -38,7 +38,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.db,
 		*params.CreateBackupContactPayload.Name,
-		*stringFromEmail(params.CreateBackupContactPayload.Email),
+		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
 		params.CreateBackupContactPayload.Permission)
 	if err != nil || verrs.HasAny() {
@@ -107,7 +107,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
-	contact.Email = *stringFromEmail(params.UpdateServiceMemberBackupContactPayload.Email)
+	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
 	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
 
