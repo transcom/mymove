@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
@@ -14,9 +13,10 @@ import (
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var stationID *strfmt.UUID
+
+	var dutyStationPayload *internalmessages.DutyStationPayload
 	if serviceMember.DutyStation != nil {
-		stationID = fmtUUID(serviceMember.DutyStation.ID)
+		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
 	}
 	orders := make([]*internalmessages.OrdersPayload, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
@@ -47,7 +47,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
-		CurrentStationID:        stationID,
+		CurrentStation:          dutyStationPayload,
 	}
 	return &serviceMemberPayload
 }

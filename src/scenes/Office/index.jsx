@@ -2,11 +2,17 @@ import React, { Component } from 'react';
 import { Redirect, Route, Switch } from 'react-router-dom';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'shared/store';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 
 import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
+import { loadUserAndToken } from 'shared/User/ducks';
+import { loadLoggedInUser } from 'shared/User/ducks';
+import { loadSchema } from 'shared/Swagger/ducks';
+import { no_op } from 'shared/utils';
 
 class Queues extends Component {
   render() {
@@ -26,6 +32,8 @@ class Queues extends Component {
 class OfficeWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
+    this.props.loadUserAndToken();
+    this.props.loadSchema();
   }
 
   render() {
@@ -51,4 +59,20 @@ class OfficeWrapper extends Component {
   }
 }
 
-export default OfficeWrapper;
+OfficeWrapper.defaultProps = {
+  loadSchema: no_op,
+  loadUserAndToken: no_op,
+  loadLoggedInUser: no_op,
+};
+
+const mapStateToProps = state => ({
+  swaggerError: state.swagger.hasErrored,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    { loadSchema, loadLoggedInUser, loadUserAndToken },
+    dispatch,
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);
