@@ -11,7 +11,6 @@ import WizardPage from 'shared/WizardPage';
 
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
-// import { showCurrentOrders } from 'scenes/Orders/ducks';
 
 import './Review.css';
 
@@ -23,7 +22,6 @@ export class Review extends Component {
     const service_member = get(newProps.loggedInUser, 'service_member');
     if (get(this.props.loggedInUser, 'service_member') !== service_member) {
       this.props.indexBackupContacts(service_member.id);
-      // this.props.showCurrentOrders(service_member.id);
     }
   }
   render() {
