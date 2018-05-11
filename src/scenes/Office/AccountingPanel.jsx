@@ -64,7 +64,8 @@ function editablePanel(DisplayComponent, EditComponent, reducerName) {
     };
 
     render() {
-      const Content = this.state.isEditable ? EditComponent : DisplayComponent;
+      const isEditable = this.state.isEditable || this.props.isUpdating;
+      const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (
         <React.Fragment>
@@ -76,8 +77,8 @@ function editablePanel(DisplayComponent, EditComponent, reducerName) {
           <EditablePanel
             title="Accounting"
             onSave={this.save}
-            toggleEditable={this.toggleEditable}
-            isEditable={this.state.isEditable || this.props.isUpdating}
+            onToggle={this.toggleEditable}
+            isEditable={isEditable}
           >
             <Content
               values={this.props.displayValues}

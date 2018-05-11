@@ -26,7 +26,7 @@ PanelField.propTypes = {
 export class EditablePanel extends Component {
   handleToggleClick = e => {
     e.preventDefault();
-    this.props.toggleEditable();
+    this.props.onToggle();
   };
 
   handleSaveClick = e => {
@@ -70,7 +70,7 @@ export class EditablePanel extends Component {
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.isEditable && (
+          {!this.props.showControls && (
             <a className="editable-panel-edit" onClick={this.handleToggleClick}>
               Edit
             </a>
@@ -89,6 +89,6 @@ EditablePanel.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
-  toggleEditable: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
 };
