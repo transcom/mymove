@@ -5,12 +5,11 @@ import (
 
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
@@ -24,26 +23,11 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	}
 	suite.mustSave(&officeUser)
 
-	//  A service member and a move belonging to that service member
-	smUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "servicemember@example.com",
-	}
-	suite.mustSave(&smUser)
-
-	rank := internalmessages.ServiceMemberRankE5
-
-	newServiceMember := models.ServiceMember{
-		UserID:    smUser.ID,
-		FirstName: swag.String("Nino"),
-		LastName:  swag.String("Panino"),
-		Rank:      &rank,
-		Edipi:     swag.String("5805291540"),
-	}
-	suite.mustSave(&newServiceMember)
+	//  A set of orders and a move belonging to those orders
+	order, _ := testdatagen.MakeOrder(suite.db)
 
 	newMove := models.Move{
-		UserID: smUser.ID,
+		OrdersID: order.ID,
 	}
 	suite.mustSave(&newMove)
 
@@ -64,7 +48,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	moveQueueItem := okResponse.Payload[0]
 
 	// And: Returned query to include our added move
-	expectedCustomerName := fmt.Sprintf("%v %v", *newServiceMember.FirstName, *newServiceMember.LastName)
+	expectedCustomerName := fmt.Sprintf("%v %v", *order.ServiceMember.FirstName, *order.ServiceMember.LastName)
 	if *moveQueueItem.CustomerName != expectedCustomerName {
 		t.Errorf("Expected move queue item to have service member name '%v', instead has '%v'", expectedCustomerName, *moveQueueItem.CustomerName)
 	}

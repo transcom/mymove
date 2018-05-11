@@ -92,7 +92,7 @@ export class Orders extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Your Orders</h1>
+        <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField
           fieldName="orders_type"
           swagger={this.props.schema}
@@ -114,11 +114,7 @@ export class Orders extends Component {
           </legend>
           <Field name="has_dependents" component={YesNoBoolean} />
         </fieldset>
-        <Field
-          name="new_duty_station"
-          component={DutyStationSearchBox}
-          affiliation={this.props.affiliation}
-        />
+        <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
   }
@@ -145,10 +141,6 @@ function mapStateToProps(state) {
     currentServiceMember: get(
       state,
       'loggedInUser.loggedInUser.service_member',
-    ),
-    affiliation: get(
-      state,
-      'loggedInUser.loggedInUser.service_member.affiliation',
     ),
     schema: get(
       state,

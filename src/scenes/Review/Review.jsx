@@ -127,7 +127,7 @@ export class Review extends Component {
                   <td>{get(loggedInUser, 'service_member.edipi')}</td>
                 </tr>
                 <tr>
-                  <td className="Todo"> Current Duty Station: </td>
+                  <td> Current Duty Station: </td>
                   <td>
                     {get(loggedInUser, 'service_member.current_station.name')}
                   </td>

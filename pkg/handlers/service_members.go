@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
@@ -14,17 +12,24 @@ import (
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var stationID *strfmt.UUID
-	if serviceMember.DutyStation != nil {
-		stationID = fmtUUID(serviceMember.DutyStation.ID)
-	}
 
+	var dutyStationPayload *internalmessages.DutyStationPayload
+	if serviceMember.DutyStation != nil {
+		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
+	}
+	orders := make([]*internalmessages.OrdersPayload, len(serviceMember.Orders))
+	for i, order := range serviceMember.Orders {
+		var h HandlerContext
+		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orders[i] = orderPayload
+	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                  fmtUUID(user.ID),
 		Edipi:                   serviceMember.Edipi,
+		Orders:                  orders,
 		Affiliation:             serviceMember.Affiliation,
 		Rank:                    serviceMember.Rank,
 		FirstName:               serviceMember.FirstName,
@@ -34,14 +39,14 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Telephone:               serviceMember.Telephone,
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
-		PersonalEmail:           fmtEmailPtr(serviceMember.PersonalEmail),
+		PersonalEmail:           serviceMember.PersonalEmail,
 		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
-		CurrentStationID:        stationID,
+		CurrentStation:          dutyStationPayload,
 	}
 	return &serviceMemberPayload
 }
@@ -96,7 +101,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		Suffix:                 params.CreateServiceMemberPayload.Suffix,
 		Telephone:              params.CreateServiceMemberPayload.Telephone,
 		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:          stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
+		PersonalEmail:          params.CreateServiceMemberPayload.PersonalEmail,
 		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
 		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
 		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
@@ -189,7 +194,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		serviceMember.SecondaryTelephone = payload.SecondaryTelephone
 	}
 	if payload.PersonalEmail != nil {
-		serviceMember.PersonalEmail = swag.String(payload.PersonalEmail.String())
+		serviceMember.PersonalEmail = payload.PersonalEmail
 	}
 	if payload.PhoneIsPreferred != nil {
 		serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
