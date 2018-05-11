@@ -6,7 +6,7 @@
   cursor: pointer;
 }
 
-.editable-panel-field {
+.editable-panel-column {
   display: inline-block;
   width: 45%;
   margin-right: 5%;
@@ -50,7 +50,22 @@
   border-color: rgb(176,176,176);
 }
 
+.panel-field {
+  border-bottom: solid 1px #f1f1f1;
+  font-size: 0.9em;
+}
+
+.panel-field:last-of-type {
+  border: 0;
+}
+
+.field-title {
+  width: 40%;
+  display: inline-block;
+}
+
 .field-value {
+  display: inline-block;
   font-weight: bold;
   margin-left: .5em;
 }

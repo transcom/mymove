@@ -1,19 +1,18 @@
 package models_test
 
 import (
-	"fmt"
-
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
 	move := &Move{}
 
 	expErrors := map[string][]string{
-		"user_id": {"UserID can not be blank."},
+		"orders_id": {"OrdersID can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)
@@ -22,38 +21,21 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 func (suite *ModelSuite) TestFetchMove() {
 	t := suite.T()
 
-	user1 := User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
+	order1, _ := testdatagen.MakeOrder(suite.db)
+	order2, _ := testdatagen.MakeOrder(suite.db)
 
-	user2 := User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "someoneelse@example.com",
-	}
-
-	verrs, err := suite.db.ValidateAndCreate(&user1)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
-	verrs, err = suite.db.ValidateAndCreate(&user2)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := Move{
-		UserID:           user1.ID,
+		OrdersID:         order1.ID,
 		SelectedMoveType: &selectedType,
 	}
-	verrs, err = suite.db.ValidateAndCreate(&move)
+	verrs, err := suite.db.ValidateAndCreate(&move)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
 
-	fmt.Println(user1.ID, user2.ID, move.UserID)
-
 	// All correct
-	fetchedMove, err := FetchMove(suite.db, user1, move.ID)
+	fetchedMove, err := FetchMove(suite.db, order1.ServiceMember.User, move.ID)
 	if err != nil {
 		t.Error("Expected to get moveResult back.", err)
 	}
@@ -62,13 +44,13 @@ func (suite *ModelSuite) TestFetchMove() {
 	}
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.db, user1, uuid.Must(uuid.NewV4()))
+	fetchedMove, err = FetchMove(suite.db, order1.ServiceMember.User, uuid.Must(uuid.NewV4()))
 	if err != ErrFetchNotFound {
 		t.Error("Expected to get fetchnotfound.", err)
 	}
 
 	// Bad User
-	fetchedMove, err = FetchMove(suite.db, user2, move.ID)
+	fetchedMove, err = FetchMove(suite.db, order2.ServiceMember.User, move.ID)
 	if err != ErrFetchForbidden {
 		t.Error("Expected to get a Forbidden back.", err)
 	}

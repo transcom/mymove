@@ -14,14 +14,14 @@ export async function RetrieveMovesForOffice(queueType) {
   return response.body;
 }
 
-export async function GetAccountingAPI(moveId) {
+export async function LoadAccountingAPI(moveId) {
   const client = await getClient();
   const response = await client.apis.office.showAccounting({
     moveId: moveId,
   });
   checkResponse(
     response,
-    'failed to get accounting for move due to server error',
+    'failed to load accounting for move due to server error',
   );
   return response.body;
 }
