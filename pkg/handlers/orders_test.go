@@ -21,7 +21,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypeBLUEBARK
-	payload := &internalmessages.CreateUpdateOrders{
+	payload := &internalmessages.CreateUpdateOrdersPayload{
 		HasDependents:    fmtBool(hasDependents),
 		IssueDate:        fmtDate(issueDate),
 		ReportByDate:     fmtDate(reportByDate),
@@ -31,8 +31,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	params := ordersop.CreateOrdersParams{
-		HTTPRequest:  req,
-		CreateOrders: payload,
+		HTTPRequest:         req,
+		CreateOrdersPayload: payload,
 	}
 	createHandler := CreateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := createHandler.Handle(params)
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
 	newOrdersType := internalmessages.OrdersTypeBLUEBARK
-	payload := &internalmessages.CreateUpdateOrders{
+	payload := &internalmessages.CreateUpdateOrdersPayload{
 		HasDependents:    fmtBool(order.HasDependents),
 		IssueDate:        fmtDate(order.IssueDate),
 		ReportByDate:     fmtDate(order.ReportByDate),
@@ -83,9 +83,9 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	params := ordersop.UpdateOrdersParams{
-		HTTPRequest:  req,
-		OrdersID:     *fmtUUID(order.ID),
-		UpdateOrders: payload,
+		HTTPRequest:         req,
+		OrdersID:            *fmtUUID(order.ID),
+		UpdateOrdersPayload: payload,
 	}
 	updateHandler := UpdateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := updateHandler.Handle(params)
