@@ -1668,6 +1668,68 @@ paths:
           description: move is not found
         500:
           description: internal server error
+  /moves/{moveId}/backup_contact:
+    get:
+      summary: Returns the backup contact for the service member connected to a move
+      description: Returns the backup contact for the service member connected to a move
+      operationId: showMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        200:
+          description: the instance of the service member backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates a backup contact connected to a move's associated service member
+      description: Any fields sent in this request will be set on the backup contact referenced
+      operationId: updateMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: body
+          name: updateServiceMemberBackupContactPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateServiceMemberBackupContactPayload'
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        201:
+          description: updated instance of backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
   /moves/{moveId}/signed_certification:
     post:
       summary: Submits signed certification for the given move ID
