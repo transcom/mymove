@@ -50,6 +50,7 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 func LogRequestMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		var protocol string
+		start := time.Now()
 
 		if r.TLS == nil {
 			protocol = "http"
@@ -58,20 +59,22 @@ func LogRequestMiddleware(inner http.Handler) http.Handler {
 		}
 
 		rec := responseRecorder{w, 200, 0}
-		before := time.Now()
 		inner.ServeHTTP(&rec, r)
 		zap.L().Info("Request",
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
-			zap.Float64("duration-ms", time.Since(before).Seconds()*1000),
+			zap.Float64("duration-ms", float64(time.Since(start))/float64(time.Millisecond)),
 			zap.String("host", r.Host),
 			zap.String("method", r.Method),
 			zap.String("protocol", protocol),
-			zap.String("referrer", r.Header.Get("referrer")),
+			zap.String("protocol-version", r.Proto),
+			zap.String("referer", r.Header.Get("referer")),
 			zap.Int("resp-size-bytes", rec.size),
 			zap.Int("resp-status", rec.status),
+			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
+			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
 			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
 			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
 			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
