@@ -24,6 +24,11 @@ type BackupContact struct {
 	Name            string                                   `json:"name" db:"name"`
 	Email           string                                   `json:"email" db:"email"`
 	Phone           *string                                  `json:"phone" db:"phone"`
+	Address1        *string                                  `json:"address_1" db:"address_1"`
+	Address2        *string                                  `json:"address_2" db:"address_2"`
+	City            *string                                  `json:"city" db:"city"`
+	State           *string                                  `json:"state" db:"state"`
+	Zip             *string                                  `json:"zip" db:"zip"`
 }
 
 // String is not required by pop and may be deleted

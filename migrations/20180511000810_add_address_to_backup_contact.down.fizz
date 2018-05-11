@@ -1,0 +1,5 @@
+drop_column("backup_contacts", "address_1")
+drop_column("backup_contacts", "address_2")
+drop_column("backup_contacts", "city")
+drop_column("backup_contacts", "state")
+drop_column("backup_contacts", "zip")
