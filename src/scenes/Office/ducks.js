@@ -29,7 +29,7 @@ function generatePanelReducer(loadActionType, updateActionType) {
       case loadAsyncActionType.success:
         return Object.assign({}, state, {
           isLoading: false,
-          accounting: action.payload,
+          data: action.payload,
           hasLoadSuccess: true,
           hasLoadError: false,
         });
