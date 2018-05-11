@@ -13,6 +13,7 @@ import (
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
@@ -22,23 +23,15 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "whoever@example.com",
 	}
-
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "someoneelse@example.com",
-	}
-
 	verrs, err := suite.db.ValidateAndCreate(&user1)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
-	verrs, err = suite.db.ValidateAndCreate(&user2)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
+
+	orders, _ := testdatagen.MakeOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
-		UserID:           user1.ID,
+		OrdersID:         orders.ID,
 		SelectedMoveType: &selectedType,
 	}
 	verrs, err = suite.db.ValidateAndCreate(&move)
@@ -46,11 +39,9 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 		t.Error(verrs, err)
 	}
 
-	fmt.Println(user1.ID, user2.ID, move.UserID)
-
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = auth.PopulateUserModel(ctx, user1)
+	ctx = auth.PopulateUserModel(ctx, orders.ServiceMember.User)
 	request = request.WithContext(ctx)
 
 	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{WeightEstimate: swag.Int64(12), PickupZip: swag.String("00112"), DaysInStorage: swag.Int64(3)}
@@ -66,11 +57,10 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
 	createdIssuePayload := createdResponse.Payload
-
 	fmt.Println(createdIssuePayload)
 
 	// Next try the wrong user
-	ctx = auth.PopulateUserModel(ctx, user2)
+	ctx = auth.PopulateUserModel(ctx, user1)
 	request = request.WithContext(ctx)
 	newPPMParams.HTTPRequest = request
 
@@ -85,51 +75,31 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 }
 
 func (suite *HandlerSuite) TestIndexPPMHandler() {
+
 	t := suite.T()
 
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-
-	verrs, err := suite.db.ValidateAndCreate(&user1)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		UserID:           user1.ID,
-		SelectedMoveType: &selectedType,
-	}
-	verrs, err = suite.db.ValidateAndCreate(&move)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
-
-	move2 := models.Move{
-		UserID:           user1.ID,
-		SelectedMoveType: &selectedType,
-	}
-	verrs, err = suite.db.ValidateAndCreate(&move2)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
+	// Given: moves and associated PPMs
+	move1, _ := testdatagen.MakeMove(suite.db)
+	move2, _ := testdatagen.MakeMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:             move.ID,
+		MoveID:             move1.ID,
+		Move:               move1,
 		WeightEstimate:     swag.Int64(1),
 		EstimatedIncentive: swag.String("$2681.25 - $4111.25"),
 	}
 	ppm2 := models.PersonallyProcuredMove{
-		MoveID:         move.ID,
+		MoveID:         move1.ID,
+		Move:           move1,
 		WeightEstimate: swag.Int64(2),
 	}
 	otherPPM := models.PersonallyProcuredMove{
 		MoveID:         move2.ID,
+		Move:           move2,
 		WeightEstimate: swag.Int64(4),
 	}
 
-	verrs, err = suite.db.ValidateAndCreate(&ppm1)
+	verrs, err := suite.db.ValidateAndCreate(&ppm1)
 	if verrs.HasAny() || err != nil {
 		t.Error(verrs, err)
 	}
@@ -146,11 +116,11 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = auth.PopulateUserModel(ctx, user1)
+	ctx = auth.PopulateUserModel(ctx, move1.Orders.ServiceMember.User)
 	request = request.WithContext(ctx)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
-		MoveID:      strfmt.UUID(move.ID.String()),
+		MoveID:      strfmt.UUID(move1.ID.String()),
 		HTTPRequest: request,
 	}
 
@@ -183,20 +153,11 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newMoveDate := time.Now()
 	destinationZip := swag.String("00112")
 
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user1)
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		UserID:           user1.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
+		Move:            move,
 		Size:            &initialSize,
 		WeightEstimate:  initialWeight,
 		PlannedMoveDate: &initialMoveDate,
@@ -206,7 +167,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = auth.PopulateUserModel(ctx, user1)
+	ctx = auth.PopulateUserModel(ctx, move.Orders.ServiceMember.User)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
@@ -255,33 +216,24 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
 	newMoveDate := time.Now()
 
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user1)
-
 	user2 := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "whoever@example.com",
 	}
 	suite.mustSave(&user2)
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		UserID:           user1.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
+
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
+		Move:            move,
 		Size:            &initialSize,
 		WeightEstimate:  initialWeight,
 		PlannedMoveDate: &initialMoveDate,
 	}
 	suite.mustSave(&ppm1)
 
-	request := httptest.NewRequest("GET", "/fake/path", nil)
+	request := httptest.NewRequest("PATCH", "/fake/path", nil)
 	ctx := request.Context()
 	ctx = auth.PopulateUserModel(ctx, user2)
 	request = request.WithContext(ctx)
@@ -305,38 +257,34 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	suite.checkResponseForbidden(response)
 }
 
+// TODO: no response is returned when the moveid doesn't match. How did this ever work?
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialSize := internalmessages.TShirtSize("S")
 	newSize := internalmessages.TShirtSize("L")
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user1)
+	orders, _ := testdatagen.MakeOrder(suite.db)
+	orders1, _ := testdatagen.MakeOrder(suite.db)
 
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user2)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 	move := models.Move{
-		UserID:           user1.ID,
+		OrdersID:         orders.ID,
+		Orders:           orders,
 		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move)
 
 	move2 := models.Move{
-		UserID:           user2.ID,
+		OrdersID:         orders1.ID,
+		Orders:           orders,
 		SelectedMoveType: &selectedType,
 	}
 	suite.mustSave(&move2)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move2.ID,
+		Move:           move2,
 		Size:           &initialSize,
 		WeightEstimate: initialWeight,
 	}
@@ -344,7 +292,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = auth.PopulateUserModel(ctx, user1)
+	ctx = auth.PopulateUserModel(ctx, orders.ServiceMember.User)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
@@ -361,7 +309,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
-
 	suite.checkResponseForbidden(response)
 
 }
@@ -374,29 +321,13 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user1)
-
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user2)
-
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		UserID:           user1.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
+		Move:           move,
 		Size:           &initialSize,
 		WeightEstimate: initialWeight,
 	}
@@ -404,7 +335,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 
 	request := httptest.NewRequest("GET", "/fake/path", nil)
 	ctx := request.Context()
-	ctx = auth.PopulateUserModel(ctx, user1)
+	ctx = auth.PopulateUserModel(ctx, move.Orders.ServiceMember.User)
 	request = request.WithContext(ctx)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{

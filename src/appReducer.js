@@ -16,7 +16,7 @@ import { shipmentsReducer } from 'scenes/Shipments/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
 
-import { accountingReducer } from 'scenes/Office/ducks';
+import { officeAccountingReducer } from 'scenes/Office/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -33,7 +33,7 @@ export const appReducer = combineReducers({
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
-  accounting: accountingReducer,
+  officeAccounting: officeAccountingReducer,
 });
 
 export default appReducer;

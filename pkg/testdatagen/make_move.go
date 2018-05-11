@@ -9,18 +9,17 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeMove creates a single Move and associated User.
+// MakeMove creates a single Move and associated set of Orders
 func MakeMove(db *pop.Connection) (models.Move, error) {
-	var move models.Move
-
-	serviceMember, err := MakeServiceMember(db)
+	orders, err := MakeOrder(db)
 	if err != nil {
-		return move, err
+		return models.Move{}, err
 	}
 
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move = models.Move{
-		UserID:           serviceMember.UserID,
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	move := models.Move{
+		OrdersID:         orders.ID,
+		Orders:           orders,
 		SelectedMoveType: &selectedType,
 	}
 
@@ -35,7 +34,7 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	return move, err
 }
 
-// MakeMoveData created 5 Moves (and in turn a User for each)
+// MakeMoveData created 5 Moves (and in turn a set of Orders for each)
 func MakeMoveData(db *pop.Connection) {
 	for i := 0; i < 5; i++ {
 		MakeMove(db)

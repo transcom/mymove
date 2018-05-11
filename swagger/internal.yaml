@@ -89,6 +89,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -135,6 +136,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
+        example: "2018-04-26"
         title: When do you plan to move?
         x-nullable: true
       pickup_zip:
@@ -179,6 +181,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -230,6 +233,7 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
+        example: "2018-04-26"
         x-nullable: true
       pickup_zip:
         type: string
@@ -312,7 +316,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      orders_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -326,7 +330,7 @@ definitions:
         format: date-time
     required:
       - id
-      - user_id
+      - orders_id
       - created_at
       - updated_at
   PatchMovePayload:
@@ -367,6 +371,10 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/OrdersPayload'
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -784,10 +792,21 @@ definitions:
         type: string
         format: string
         example: filename.pdf
+      bytes:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
       - id
       - url
       - filename
+      - bytes
+      - created_at
+      - updated_at
   CreateIssuePayload:
     type: object
     properties:
@@ -922,16 +941,11 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
+    title: Dept. indicator
     enum:
-      - ARMY
-      - NAVY_MARINES
       - AIRFORCE
-      - COASTGUARD
     x-display-value:
-      ARMY: 21 - United States Army
-      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
       AIRFORCE: 57 - United States Air Force
-      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1303,8 +1317,11 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
+    required:
+      - dept_indicator
+      - tac
   PatchAccounting:
     type: object
     properties:
@@ -1312,7 +1329,7 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
 paths:
   /estimates/ppm:
@@ -1556,14 +1573,20 @@ paths:
           description: order is not found
         500:
           description: internal server error
-  /moves:
+  /orders/{ordersId}/moves:
     post:
-      summary: Submits move for a logged-in user
-      description: Creates an instance of a move tied to a user
+      summary: Creates a move tied to service member orders
+      description: Creates an instance of a move tied to a service member's orders
       operationId: createMove
       tags:
         - moves
       parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
         - in: body
           name: createMovePayload
           required: true
@@ -1580,9 +1603,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+  /moves:
     get:
-      summary: List all moves
-      description: List all moves
+      summary: List all moves for a set of orders
+      description: List all moves for a set of orders
       operationId: indexMoves
       tags:
         - moves
@@ -1593,6 +1617,8 @@ paths:
             $ref: '#/definitions/IndexMovesPayload'
         400:
           description: invalid request
+        404:
+          description: moves not found for given orders
         401:
           description: request requires user authentication
   /moves/{moveId}:
