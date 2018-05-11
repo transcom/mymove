@@ -1,16 +1,26 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { get } from 'lodash';
 
 import './index.css';
 
 export const PanelField = props => {
+  const { fieldName, schema, values } = props;
+  const title = get(schema, `properties.${fieldName}.title`, '');
+  const value = values[fieldName];
+
   return (
     <div className="panel-field">
-      <span className="field-title">{props.title}</span>
-      <span className="field-value">{props.value}</span>
+      <span className="field-title">{title}</span>
+      <span className="field-value">{value}</span>
     </div>
   );
+};
+PanelField.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  values: PropTypes.object,
 };
 
 export class EditablePanel extends Component {

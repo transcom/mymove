@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
@@ -12,14 +12,14 @@ import Alert from 'shared/Alert';
 import { EditablePanel, PanelField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
-  const { values } = props;
+  const fieldProps = pick(props, ['schema', 'values']);
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelField title="Dept. indicator" value={values.dept_indicator} />
+        <PanelField fieldName="dept_indicator" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelField title="TAC" value={values.tac} />
+        <PanelField fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -114,10 +114,11 @@ function mapStateToProps(state) {
     // Wrapper
     schema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
     hasError:
-      state.office.accountingHasLoadError || state.office.hasUpdateError,
+      state.office.accountingHasLoadError ||
+      state.office.accountingHasUpdateError,
     errorMessage: state.office.error,
     displayValues: state.office.accounting || {},
-    isUpdating: state.isUpdating,
+    isUpdating: state.office.accountingIsUpdating,
   };
 }
 
