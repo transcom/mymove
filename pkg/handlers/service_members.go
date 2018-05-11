@@ -17,7 +17,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	if serviceMember.DutyStation != nil {
 		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
 	}
-	orders := make([]*internalmessages.OrdersPayload, len(serviceMember.Orders))
+	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		var h HandlerContext
 		orderPayload, _ := payloadForOrdersModel(h.storage, order)
