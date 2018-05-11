@@ -11,7 +11,7 @@ import WizardPage from 'shared/WizardPage';
 
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
-import { showCurrentOrders } from 'scenes/Orders/ducks';
+// import { showCurrentOrders } from 'scenes/Orders/ducks';
 
 import './Review.css';
 
@@ -23,7 +23,7 @@ export class Review extends Component {
     const service_member = get(newProps.loggedInUser, 'service_member');
     if (get(this.props.loggedInUser, 'service_member') !== service_member) {
       this.props.indexBackupContacts(service_member.id);
-      this.props.showCurrentOrders(service_member.id);
+      // this.props.showCurrentOrders(service_member.id);
     }
   }
   render() {
@@ -35,6 +35,7 @@ export class Review extends Component {
       loggedInUser,
       currentOrders,
       schemaRank,
+      schemaOrdersType,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
     function getFullName() {
@@ -147,7 +148,12 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td> Orders Type: </td>
-                  <td>{get(currentOrders, 'orders_type')}</td>
+                  <td>
+                    {get(
+                      schemaOrdersType['x-display-value'],
+                      get(currentOrders, 'orders_type'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Orders Date: </td>
@@ -330,13 +336,11 @@ Review.propTypes = {
   currentBackupContacts: PropTypes.array,
   currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,
+  schemaOrdersType: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { loadPpm, indexBackupContacts, showCurrentOrders },
-    dispatch,
-  );
+  return bindActionCreators({ loadPpm, indexBackupContacts }, dispatch);
 }
 
 function mapStateToProps(state) {
@@ -344,8 +348,11 @@ function mapStateToProps(state) {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders: state.orders.currentOrders,
+    currentOrders:
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
+      get(state.orders, 'currentOrders'),
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
+    schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Review);
