@@ -50,12 +50,12 @@
   border-color: rgb(176,176,176);
 }
 
-.editable-panel-field-display {
+.panel-field {
   border-bottom: solid 1px #f1f1f1;
   font-size: 0.9em;
 }
 
-.editable-panel-field-display:last-of-type {
+.panel-field:last-of-type {
   border: 0;
 }
 

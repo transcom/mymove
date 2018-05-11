@@ -11,9 +11,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Alert from 'shared/Alert';
 import { EditablePanel } from 'shared/EditablePanel';
 
-const EditablePanelFieldDisplay = props => {
+const PanelField = props => {
   return (
-    <div className="editable-panel-field-display">
+    <div className="panel-field">
       <span className="field-title">{props.title}</span>
       <span className="field-value">{props.value}</span>
     </div>
@@ -49,13 +49,10 @@ class AccountingPanel extends Component {
       return (
         <React.Fragment>
           <div className="editable-panel-column">
-            <EditablePanelFieldDisplay
-              title="Dept. indicator"
-              value={values.dept_indicator}
-            />
+            <PanelField title="Dept. indicator" value={values.dept_indicator} />
           </div>
           <div className="editable-panel-column">
-            <EditablePanelFieldDisplay title="TAC" value={values.tac} />
+            <PanelField title="TAC" value={values.tac} />
           </div>
         </React.Fragment>
       );
