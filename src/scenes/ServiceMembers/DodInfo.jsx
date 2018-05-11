@@ -49,7 +49,7 @@ class SSNField extends Component {
 
     let displayedValue = value;
     if (!this.state.focused && (value !== '' || ssnOnServer)) {
-      displayedValue = '•••••••••';
+      displayedValue = '•••-••-••••';
     }
     const displayError = touched && error;
 
