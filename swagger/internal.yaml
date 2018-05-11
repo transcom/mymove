@@ -636,6 +636,9 @@ definitions:
         example: john_bob@example.com
         x-nullable: true
         title: Email
+      address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
       permission:
         $ref: '#/definitions/BackupContactPermission'
       created_at:
@@ -677,6 +680,9 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Phone
+      address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
       email:
         type: string
         format: x-email
@@ -684,6 +690,8 @@ definitions:
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
+      address:
+        $ref: '#/definitions/Address'
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
@@ -702,6 +710,9 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+        x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
         x-nullable: true
       email:
         type: string
