@@ -1503,7 +1503,7 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
 
-bytes@3.0.0:
+bytes@3.0.0, bytes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
 
@@ -3221,9 +3221,17 @@ filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
 
-filepond-plugin-image-preview@^1.0.9:
+filepond-plugin-file-validate-type@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.0.3.tgz#7efb84fdedc86cb279a86a8712ed75ddaa1b5e74"
+
+filepond-plugin-image-exif-orientation@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-image-exif-orientation/-/filepond-plugin-image-exif-orientation-1.0.1.tgz#79a8204c47d218c8a3262b466f34e6af18ea231a"
+
+"filepond-plugin-image-preview@https://github.com/transcom/filepond-plugin-image-preview":
   version "1.0.9"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-image-preview/-/filepond-plugin-image-preview-1.0.9.tgz#e82032eac45be1c56efbe5bac19d137c5df908f3"
+  resolved "https://github.com/transcom/filepond-plugin-image-preview#3da8a0a7c27d76d5ae44dac2aa2b74b7c3b984f9"
 
 filepond-polyfill@^1.0.2:
   version "1.0.2"
@@ -4272,6 +4280,10 @@ is-installed-globally@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
+
+is-mobile@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-0.3.0.tgz#dcb8b7a4dd4227b0922c3b2a7cfdbfce1ae8d611"
 
 is-npm@^1.0.0:
   version "1.0.0"

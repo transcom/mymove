@@ -1,9 +1,11 @@
+import { reject, concat } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
   GetOrders,
   ShowCurrentOrdersAPI,
 } from './api.js';
+import { DeleteUpload } from 'shared/api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -17,11 +19,17 @@ export const CREATE_OR_UPDATE_ORDERS_FAILURE =
 export const GET_ORDERS = 'GET_ORDERS';
 export const GET_ORDERS_SUCCESS = 'GET_ORDERS_SUCCESS';
 export const GET_ORDERS_FAILURE = 'GET_ORDERS_FAILURE';
+export const ADD_UPLOADS_SUCCESS = 'ADD_UPLOADS_SUCCESS';
 
 const showCurrentOrdersType = 'SHOW_CURRENT_ORDERS';
+const deleteUploadType = 'DELETE_UPLOAD';
 
 export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(
   showCurrentOrdersType,
+);
+
+export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
+  deleteUploadType,
 );
 
 export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
@@ -62,6 +70,11 @@ export const getOrdersFailure = error => ({
   error,
 });
 
+export const addUploadsSuccess = item => ({
+  type: ADD_UPLOADS_SUCCESS,
+  item,
+});
+
 export function createOrders(orderPayload) {
   return function(dispatch) {
     dispatch(createOrdersRequest());
@@ -89,6 +102,39 @@ export function loadOrders(orderId) {
       GetOrders(orderId)
         .then(item => dispatch(getOrdersSuccess(item)))
         .catch(error => dispatch(getOrdersFailure(error)));
+    }
+  };
+}
+
+export function deleteUpload(uploadId) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
+    const state = getState();
+    const currentOrders = state.orders.currentOrders;
+    if (currentOrders) {
+      DeleteUpload(uploadId)
+        .then(() => {
+          const uploads = currentOrders.uploaded_orders.uploads;
+          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
+            return upload.id === uploadId;
+          });
+          dispatch(action.success(currentOrders));
+        })
+        .catch(err => action.error(err));
+    }
+  };
+}
+
+export function addUploads(uploads) {
+  return function(dispatch, getState) {
+    const state = getState();
+    const currentOrders = state.orders.currentOrders;
+    if (currentOrders) {
+      currentOrders.uploaded_orders.uploads = concat(
+        currentOrders.uploaded_orders.uploads,
+        ...uploads,
+      );
+      dispatch(addUploadsSuccess(currentOrders));
     }
   };
 }
@@ -152,6 +198,27 @@ export function ordersReducer(state = initialState, action) {
         currentOrders: null,
         showCurrentOrdersError: true,
         error,
+      });
+    case DELETE_UPLOAD.success:
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+        error: null,
+      });
+    case DELETE_UPLOAD.failure:
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
+      });
+    case ADD_UPLOADS_SUCCESS:
+      return Object.assign({}, state, {
+        currentOrders: action.item,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+        error: null,
       });
     default:
       return state;

@@ -6,17 +6,6 @@ import (
 
 // These are errors that are returned by various model functions
 
-// FetchError is a base type that can typecast for specific APIs,
-// It indicicates why an attempted db fetch failed.
-type FetchError string
-
-const (
-	// FetchErrorNotFound means that the requested record does not exist
-	FetchErrorNotFound FetchError = "FETCH_NOT_FOUND"
-	// FetchErrorForbidden means that the record exists but that the user does not have access to it
-	FetchErrorForbidden FetchError = "FETCH_FORBIDDEN"
-)
-
 // ErrCreateViolatesUniqueConstraint is returned if you call create and violate a unique constraint.
 var ErrCreateViolatesUniqueConstraint = errors.New("CREATE_VIOLATES_UNIQUE")
 
