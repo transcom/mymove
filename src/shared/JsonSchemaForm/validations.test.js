@@ -263,27 +263,6 @@ describe('SchemaField tests', () => {
     testField(emailField, stringTests);
   });
 
-  describe('ssn field', () => {
-    const ssnField = {
-      type: 'string',
-      format: 'ssn',
-      pattern: /^\d{3}-\d{2}-\d{4}$/,
-      example: '615-22-3323',
-      'x-nullable': true,
-      title: 'SSN No.',
-    };
-
-    const stringTests = [
-      ['615-22-3323', '615-22-3323', null],
-      ['615223323', '615-22-3323', null],
-      ['615-22-332sdfsdfsd3', '615-22-3323', null],
-      ['615-22-332', '615-22-332', 'SSN must have 9 digits.'],
-      ['615-22-33233', '615-22-3323', null],
-    ];
-
-    testField(ssnField, stringTests);
-  });
-
   describe('zip field', () => {
     const ssnField = {
       type: 'string',

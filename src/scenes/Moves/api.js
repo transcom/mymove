@@ -5,9 +5,10 @@ export async function GetSpec() {
   return client.spec;
 }
 
-export async function CreateMove(payload) {
+export async function CreateMove(ordersId, payload) {
   const client = await getClient();
   const response = await client.apis.moves.createMove({
+    ordersId: ordersId,
     createMovePayload: payload,
   });
   checkResponse(response, 'failed to create move due to server error');

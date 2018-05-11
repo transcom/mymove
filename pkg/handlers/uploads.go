@@ -20,9 +20,12 @@ import (
 
 func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
 	return &internalmessages.UploadPayload{
-		ID:       fmtUUID(upload.ID),
-		Filename: swag.String(upload.Filename),
-		URL:      fmtURI(url),
+		ID:        fmtUUID(upload.ID),
+		Filename:  swag.String(upload.Filename),
+		URL:       fmtURI(url),
+		Bytes:     &upload.Bytes,
+		CreatedAt: fmtDateTime(upload.CreatedAt),
+		UpdatedAt: fmtDateTime(upload.UpdatedAt),
 	}
 }
 

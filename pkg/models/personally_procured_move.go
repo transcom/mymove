@@ -52,7 +52,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager().Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -61,7 +61,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if ppm.Move.UserID != authUser.ID {
+	if ppm.Move.Orders.ServiceMember.UserID != authUser.ID {
 		return nil, ErrFetchForbidden
 	}
 

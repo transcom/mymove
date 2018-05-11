@@ -74,18 +74,6 @@ const configureTelephoneField = (swaggerField, props) => {
   return props;
 };
 
-const configureSSNField = (swaggerField, props) => {
-  props.normalize = validator.normalizeSSN;
-  props.validate.push(
-    validator.patternMatches(
-      '^\\d{3}-\\d{2}-\\d{4}$',
-      'SSN must have 9 digits.',
-    ),
-  );
-  props.type = 'text';
-  return props;
-};
-
 const configureZipField = (swaggerField, props) => {
   props.normalize = validator.normalizeZip;
   props.validate.push(
@@ -265,8 +253,6 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
-    } else if (fieldFormat === 'ssn') {
-      fieldProps = configureSSNField(swaggerField, fieldProps);
     } else if (fieldFormat === 'zip') {
       fieldProps = configureZipField(swaggerField, fieldProps);
     } else if (fieldFormat === 'edipi') {

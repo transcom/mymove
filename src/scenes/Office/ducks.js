@@ -1,19 +1,21 @@
-import { GetAccountingAPI, UpdateAccountingAPI } from './api.js';
+import { LoadAccountingAPI, UpdateAccountingAPI } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
-const getAccountingType = 'GET_ACCOUNTING';
+const loadAccountingType = 'LOAD_ACCOUNTING';
 const updateAccountingType = 'UPDATE_ACCOUNTING';
 
-const GET_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(getAccountingType);
+const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
+  loadAccountingType,
+);
 
 const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   updateAccountingType,
 );
 
-export const getAccounting = ReduxHelpers.generateAsyncActionCreator(
-  getAccountingType,
-  GetAccountingAPI,
+export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
+  loadAccountingType,
+  LoadAccountingAPI,
 );
 
 export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
@@ -23,46 +25,55 @@ export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
 
 // Reducer
 const initialState = {
-  hasSubmitError: false,
-  hasSubmitSuccess: false,
-  updateAccountingSuccess: false,
+  isLoading: false,
+  isUpdating: false,
+  hasLoadError: false,
+  hasLoadSuccess: null,
+  hasUpdateError: false,
+  hasUpdateSuccess: null,
 };
 
-export function accountingReducer(state = initialState, action) {
+export function officeAccountingReducer(state = initialState, action) {
   switch (action.type) {
-    case GET_ACCOUNTING.start:
+    case LOAD_ACCOUNTING.start:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
+        isLoading: true,
+        hasLoadSuccess: false,
       });
-    case GET_ACCOUNTING.success:
+    case LOAD_ACCOUNTING.success:
       return Object.assign({}, state, {
+        isLoading: false,
         accounting: action.payload,
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        hasLoadSuccess: true,
+        hasLoadError: false,
       });
-    case GET_ACCOUNTING.failure:
+    case LOAD_ACCOUNTING.failure:
       return Object.assign({}, state, {
+        isLoading: false,
         accounting: null,
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
-        error: action.error,
+        hasLoadSuccess: false,
+        hasLoadError: true,
+        error: action.error.message,
       });
 
     case UPDATE_ACCOUNTING.start:
       return Object.assign({}, state, {
-        updateAccountingSuccess: false,
+        isUpdating: true,
+        hasUpdateSuccess: false,
       });
     case UPDATE_ACCOUNTING.success:
       return Object.assign({}, state, {
+        isUpdating: false,
         accounting: action.payload,
-        updateAccountingSuccess: true,
-        updateAccountingError: false,
+        hasUpdateSuccess: true,
+        hasUpdateError: false,
       });
     case UPDATE_ACCOUNTING.failure:
       return Object.assign({}, state, {
-        updateAccountingSuccess: false,
-        updateAccountingError: true,
-        error: action.error,
+        isUpdating: false,
+        hasUpdateSuccess: false,
+        hasUpdateError: true,
+        error: action.error.message,
       });
 
     default:
