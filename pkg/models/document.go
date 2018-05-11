@@ -21,7 +21,7 @@ type Document struct {
 	Name            string        `db:"name"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
-	Uploads         Uploads       `has_many:"uploads"`
+	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
 // String is not required by pop and may be deleted
