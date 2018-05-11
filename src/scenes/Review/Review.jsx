@@ -127,7 +127,7 @@ export class Review extends Component {
                   <td>{get(loggedInUser, 'service_member.edipi')}</td>
                 </tr>
                 <tr>
-                  <td className="Todo"> Current Duty Station: </td>
+                  <td> Current Duty Station: </td>
                   <td>
                     {get(loggedInUser, 'service_member.current_station.name')}
                   </td>
@@ -340,16 +340,12 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const props = {
+  return {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
-    schemaRank: {},
+    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
   };
-  if (state.swagger.spec) {
-    props.schemaRank = state.swagger.spec.definitions.ServiceMemberRank;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Review);

@@ -52,7 +52,7 @@ export class DutyStation extends Component {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
       this.props.updateServiceMember({
-        current_station: pendingValues.current_station,
+        current_station_id: pendingValues.current_station.id,
       });
     }
   };
@@ -82,11 +82,7 @@ export class DutyStation extends Component {
         serverError={error}
       >
         <h1 className="sm-heading">Current Duty Station</h1>
-        <Field
-          name="current_station"
-          component={DutyStationSearchBox}
-          affiliation={this.props.affiliation}
-        />
+        <Field name="current_station" component={DutyStationSearchBox} />
       </DutyStationWizardForm>
     );
   }
@@ -109,11 +105,7 @@ function mapStateToProps(state) {
     currentServiceMember && currentServiceMember.current_station
       ? currentServiceMember.current_station
       : null;
-  const affiliation = currentServiceMember
-    ? currentServiceMember.affiliation
-    : null;
   const props = {
-    affiliation,
     formData: state.form[dutyStationFormName],
     existingStation: dutyStation,
     ...state.serviceMember,

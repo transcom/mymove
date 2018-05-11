@@ -1,4 +1,20 @@
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
+.fake-link {
+  text-decoration: underline;
+  color: blue;
+}
+
+.form-column {
+  display: inline-block;
+  width: 45%;
+  margin-right: 5%;
+}
+
+.within-form-group {
+  display: inline-block;
+  width: 50%;
+}
+
 .grid-wide {
   max-width: 2000px;
   margin: auto;
@@ -7,7 +23,7 @@
 
 .move-info-header-meta {
   list-style: none outside;
-  border-top: solid 1px rgb(222,222,222);
+  border-top: solid 1px rgb(222, 222, 222);
   margin: 0;
   padding: 2px 0 0;
 }
@@ -23,7 +39,7 @@
 
 .move-info-header-meta li:after {
   content: '-';
-  margin: 0 .8em;
+  margin: 0 0.8em;
 }
 
 .move-info-header-meta li:last-child:after {
@@ -33,7 +49,7 @@
 
 .nav-controls {
   text-align: right;
-  padding-top: .5em;
+  padding-top: 0.5em;
   font-size: 0.9em;
 }
 
@@ -45,7 +61,7 @@
   border: solid 1px black;
   border-radius: 4px 4px 0 0;
   padding: 4px 42px 8px 42px;
-  margin: 0 2px;
+  margin-left: 8px;
   display: inline-block;
   text-decoration: none;
   color: black;
@@ -78,4 +94,5 @@
 .tab-content {
   border-top: solid 1px black;
   margin-top: -1px;
+  padding-top: 2rem;
 }

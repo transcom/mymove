@@ -89,6 +89,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -115,7 +116,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -133,6 +136,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
+        example: "2018-04-26"
         title: When do you plan to move?
         x-nullable: true
       pickup_zip:
@@ -158,7 +162,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -175,6 +181,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -201,7 +208,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -224,6 +233,7 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
+        example: "2018-04-26"
         x-nullable: true
       pickup_zip:
         type: string
@@ -248,7 +258,9 @@ definitions:
         x-nullable: true
       days_in_storage:
         type: integer
-        title: Days in Temporary Storage
+        title: How many days do you plan to put your stuff in storage?
+        minimum: 0
+        maximum: 90
         x-nullable: true
       weight_estimate:
         type: integer
@@ -304,7 +316,7 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      orders_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
@@ -318,7 +330,7 @@ definitions:
         format: date-time
     required:
       - id
-      - user_id
+      - orders_id
       - created_at
       - updated_at
   PatchMovePayload:
@@ -359,6 +371,10 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/OrdersPayload'
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -395,7 +411,8 @@ definitions:
         x-nullable: true
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: personal email address
@@ -408,11 +425,8 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      current_station:
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -492,7 +506,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -577,7 +592,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -623,7 +639,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Email
@@ -670,7 +687,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
@@ -695,7 +713,8 @@ definitions:
         x-nullable: true
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: email address
@@ -922,16 +941,11 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
+    title: Dept. indicator
     enum:
-      - ARMY
-      - NAVY_MARINES
       - AIRFORCE
-      - COASTGUARD
     x-display-value:
-      ARMY: 21 - United States Army
-      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
       AIRFORCE: 57 - United States Air Force
-      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1124,21 +1138,23 @@ definitions:
     type: string
     title: Orders type
     enum:
-      - accession
-      - brac
-      - operational
-      - rotational
-      - separation
-      - training
-      - unit-move
+      - PERMANENT_CHANGE_OF_STATION
+      - SEPARATION
+      - RETIREMENT
+      - LOCAL_MOVE
+      - TEMPORARY_DUTY
+      - DEPENDENT_TRAVEL
+      - BLUEBARK
+      - VARIOUS
     x-display-value:
-      accession: accession
-      brac: brac
-      operational: operational
-      rotational: rotational
-      separation: separation
-      training: training
-      unit-move: unit-move
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      SEPARATION: Separation
+      RETIREMENT: Retirement
+      LOCAL_MOVE: Local Move
+      TEMPORARY_DUTY: Temporary Duty
+      DEPENDENT_TRAVEL: Dependent Travel
+      BLUEBARK: Bluebark
+      VARIOUS: Various
   OrdersPayload:
     type: object
     properties:
@@ -1301,8 +1317,11 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
+    required:
+      - dept_indicator
+      - tac
   PatchAccounting:
     type: object
     properties:
@@ -1310,7 +1329,7 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
 paths:
   /estimates/ppm:
@@ -1373,13 +1392,13 @@ paths:
           type: integer
           required: true
         - in: query
-          name: destination_zip
+          name: origin_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
           required: true
         - in: query
-          name: origin_zip
+          name: destination_zip
           type: string
           format: zip
           pattern: '^(\d{5}([\-]\d{4})?)$'
@@ -1554,14 +1573,20 @@ paths:
           description: order is not found
         500:
           description: internal server error
-  /moves:
+  /orders/{ordersId}/moves:
     post:
-      summary: Submits move for a logged-in user
-      description: Creates an instance of a move tied to a user
+      summary: Creates a move tied to service member orders
+      description: Creates an instance of a move tied to a service member's orders
       operationId: createMove
       tags:
         - moves
       parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
         - in: body
           name: createMovePayload
           required: true
@@ -1578,9 +1603,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+  /moves:
     get:
-      summary: List all moves
-      description: List all moves
+      summary: List all moves for a set of orders
+      description: List all moves for a set of orders
       operationId: indexMoves
       tags:
         - moves
@@ -1591,6 +1617,8 @@ paths:
             $ref: '#/definitions/IndexMovesPayload'
         400:
           description: invalid request
+        404:
+          description: moves not found for given orders
         401:
           description: request requires user authentication
   /moves/{moveId}:
@@ -1852,6 +1880,68 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/accounting:
+    get:
+      summary: Returns accounting information for a move
+      description: Returns accounting information for a move
+      operationId: showAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the accounting information for a move
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates accounting information for a move
+      description: Any fields sent in this request will be set for accounting info on the referenced move
+      operationId: patchAccounting
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the associated move
+        - in: body
+          name: patchAccounting
+          required: true
+          schema:
+            $ref: '#/definitions/PatchAccounting'
+      responses:
+        200:
+          description: updated accounting information
+          schema:
+            $ref: '#/definitions/Accounting'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -2189,11 +2279,6 @@ paths:
         - duty_stations
       parameters:
         - in: query
-          name: affiliation
-          required: true
-          type: string
-          enum: *AFFILIATION
-        - in: query
           name: search
           type: string
           format: string
@@ -2244,65 +2329,3 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
-  /move/{moveId}/accounting:
-    get:
-      summary: Returns accounting information for a move
-      description: Returns accounting information for a move
-      operationId: showAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-      responses:
-        200:
-          description: the accounting information for a move
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
-    patch:
-      summary: Updates accounting information for a move
-      description: Any fields sent in this request will be set for accounting info on the referenced move
-      operationId: patchAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the associated move
-        - in: body
-          name: patchAccounting
-          required: true
-          schema:
-            $ref: '#/definitions/PatchAccounting'
-      responses:
-        200:
-          description: updated accounting information
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
