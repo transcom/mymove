@@ -9,16 +9,7 @@ import { updateAccounting, loadAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Alert from 'shared/Alert';
-import { EditablePanel } from 'shared/EditablePanel';
-
-const PanelField = props => {
-  return (
-    <div className="panel-field">
-      <span className="field-title">{props.title}</span>
-      <span className="field-value">{props.value}</span>
-    </div>
-  );
-};
+import { EditablePanel, PanelField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const { values } = props;

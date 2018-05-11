@@ -4,6 +4,15 @@ import classNames from 'classnames';
 
 import './index.css';
 
+export const PanelField = props => {
+  return (
+    <div className="panel-field">
+      <span className="field-title">{props.title}</span>
+      <span className="field-value">{props.value}</span>
+    </div>
+  );
+};
+
 export class EditablePanel extends Component {
   handleToggleClick = e => {
     e.preventDefault();
