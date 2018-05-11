@@ -47,10 +47,6 @@ export class EditablePanel extends Component {
       this.props.className,
     );
 
-    const contentFunc = this.props.isEditable
-      ? this.props.editableContent
-      : this.props.displayContent;
-
     return (
       <div className={classes}>
         <div className="editable-panel-header">
@@ -62,7 +58,7 @@ export class EditablePanel extends Component {
           )}
         </div>
         <div className="editable-panel-content">
-          {contentFunc()}
+          {this.props.children}
           {controls}
         </div>
       </div>
@@ -71,7 +67,9 @@ export class EditablePanel extends Component {
 }
 
 EditablePanel.propTypes = {
-  editableContent: PropTypes.func.isRequired,
-  displayContent: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  toggleEditable: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
 };
