@@ -25,12 +25,13 @@ export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
 
 // Reducer
 const initialState = {
-  hasSubmitError: false,
-  hasSubmitSuccess: false,
-  updateAccountingSuccess: false,
+  hasLoadError: false,
+  hasLoadSuccess: null,
+  hasUpdateError: false,
+  hasUpdateSuccess: null,
 };
 
-export function accountingReducer(state = initialState, action) {
+export function officeAccountingReducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_ACCOUNTING.start:
       return Object.assign({}, state, {

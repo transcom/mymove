@@ -110,11 +110,13 @@ AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
-    hasError: state.accounting.hasLoadError || state.accounting.hasUpdateError,
-    errorMessage: state.accounting.error,
+    hasError:
+      state.officeAccounting.hasLoadError ||
+      state.officeAccounting.hasUpdateError,
+    errorMessage: state.officeAccounting.error,
     formData: state.form[formName],
-    initialValues: state.accounting.accounting,
-    ...state.accounting,
+    initialValues: state.officeAccounting.accounting,
+    ...state.officeAccounting,
   };
 }
 
