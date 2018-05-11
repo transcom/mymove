@@ -190,15 +190,13 @@ const BasicsTabContent = props => {
           <br />
           <div className="form-group">
             <form>
-              <div className="within-form-group">
-                <div className="form-column">
-                  <label>Orders number</label>
-                  <input type="text" name="orders-number" />
-                </div>
-                <div className="form-column">
-                  <label>Date issued</label>
-                  <input type="text" name="date-issued" />
-                </div>
+              <div className="form-column">
+                <label>Orders number</label>
+                <input type="text" name="orders-number" />
+              </div>
+              <div className="form-column">
+                <label>Date issued</label>
+                <input type="text" name="date-issued" />
               </div>
               <div className="form-column">
                 <label>Move type</label>
