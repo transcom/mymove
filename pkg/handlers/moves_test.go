@@ -1,243 +1,90 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
-	t := suite.T()
+	// Given: a set of orders, user and servicemember
+	orders, _ := testdatagen.MakeOrder(suite.db)
 
-	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
+	req = suite.authenticateRequest(req, orders.ServiceMember.User)
 
 	// When: a new Move is posted
-	newMovePayload := internalmessages.CreateMovePayload{}
-	req := httptest.NewRequest("GET", "/moves", nil)
-
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	newMovePayload := &internalmessages.CreateMovePayload{
+		SelectedMoveType: &selectedType,
+	}
 	params := moveop.CreateMoveParams{
-		CreateMovePayload: &newMovePayload,
+		OrdersID:          strfmt.UUID(orders.ID.String()),
+		CreateMovePayload: newMovePayload,
 		HTTPRequest:       req,
 	}
-
-	// And: the context contains the auth values
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
-
+	// Then: we expect a move to have been created based on orders
 	handler := CreateMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*moveop.CreateMoveCreated)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&moveop.CreateMoveCreated{}, response)
+	okResponse := response.(*moveop.CreateMoveCreated)
 
-	// Then: we expect a move to have been created for the user
-	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
-	moves := []models.Move{}
-	query.All(&moves)
-
-	if len(moves) != 1 {
-		t.Errorf("Expected to find 1 move but found %v", len(moves))
-	}
-
-}
-
-func (suite *HandlerSuite) TestIndexMovesHandler() {
-	t := suite.T()
-
-	// Given: A move and a user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
-
-	req := httptest.NewRequest("GET", "/moves", nil)
-
-	indexMovesParams := moveop.NewIndexMovesParams()
-
-	// And: the context contains the auth values
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	indexMovesParams.HTTPRequest = req.WithContext(ctx)
-
-	// And: All moves are queried
-	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
-	indexResponse := indexHandler.Handle(indexMovesParams)
-
-	// Then: Expect a 200 status code
-	okResponse := indexResponse.(*moveop.IndexMovesOK)
-	moves := okResponse.Payload
-
-	// And: Returned query to include our added move
-	moveExists := false
-	for _, move := range moves {
-		if move.UserID.String() == user.ID.String() {
-			moveExists = true
-			break
-		}
-	}
-
-	if !moveExists {
-		t.Errorf("Expected a move to have user ID '%v'. None do.", user.ID)
-	}
-}
-
-func (suite *HandlerSuite) TestIndexMovesWrongUser() {
-	t := suite.T()
-
-	// Given: A move with a user and a separate logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email2@example.com",
-	}
-	suite.mustSave(&user2)
-
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
-
-	req := httptest.NewRequest("GET", "/moves", nil)
-	indexMovesParams := moveop.NewIndexMovesParams()
-
-	// And: the context contains the auth values for user 2
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user2)
-	indexMovesParams.HTTPRequest = req.WithContext(ctx)
-
-	// And: All moves are queried
-	indexHandler := IndexMovesHandler(NewHandlerContext(suite.db, suite.logger))
-	indexResponse := indexHandler.Handle(indexMovesParams)
-
-	// Then: Expect a 200 status code
-	okResponse := indexResponse.(*moveop.IndexMovesOK)
-	moves := okResponse.Payload
-
-	// And: No moves should be returned
-	if len(moves) != 0 {
-		t.Errorf("Expected no moves to be found, but found %v", len(moves))
-	}
+	suite.Assertions.Equal(orders.ID.String(), okResponse.Payload.OrdersID.String())
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
-	t := suite.T()
-
-	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var origType = internalmessages.SelectedMoveTypeHHG
-	var newType = internalmessages.SelectedMoveTypeCOMBO
-	newMove := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &origType,
-	}
-	suite.mustSave(&newMove)
-
-	patchPayload := internalmessages.PatchMovePayload{
-		SelectedMoveType: &newType,
-	}
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
+	var newType = internalmessages.SelectedMoveTypeCOMBO
+	patchPayload := internalmessages.PatchMovePayload{
+		SelectedMoveType: &newType,
+	}
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(newMove.ID.String()),
+		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
-
+	// And: a move is patched
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	okResponse, ok := response.(*moveop.PatchMoveCreated)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
+	okResponse := response.(*moveop.PatchMoveCreated)
 
-	patchPPMPayload := okResponse.Payload
-
-	if *patchPPMPayload.SelectedMoveType != newType {
-		t.Fatalf("SelectedMoveType should have been updated.")
-	}
+	// And: Returned query to include our added move
+	suite.Assertions.Equal(&newType, okResponse.Payload.SelectedMoveType)
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
-	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
+	// And: a not logged in user
+	unAuthedUser, _ := testdatagen.MakeUser(suite.db)
 
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email2@example.com",
-	}
-	suite.mustSave(&user2)
+	// And: the context contains a different user
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req = suite.authenticateRequest(req, unAuthedUser)
 
-	var origType = internalmessages.SelectedMoveTypeHHG
 	var newType = internalmessages.SelectedMoveTypeCOMBO
-	newMove := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &origType,
-	}
-	suite.mustSave(&newMove)
-
 	patchPayload := internalmessages.PatchMovePayload{
 		SelectedMoveType: &newType,
 	}
 
-	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user2)
-	req = req.WithContext(ctx)
-
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(newMove.ID.String()),
+		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
 
@@ -248,27 +95,19 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
-	// Given: a logged in user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	// Given: a logged in user and no Move
+	user, _ := testdatagen.MakeUser(suite.db)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
-	var newType = internalmessages.SelectedMoveTypeCOMBO
+	// And: the context contains a logged in user
+	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
+	req = suite.authenticateRequest(req, user)
 
+	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
 		SelectedMoveType: &newType,
 	}
-
-	// And: the context contains the auth values
-	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
 
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
@@ -283,123 +122,73 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 }
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
-	t := suite.T()
-
-	// Given: a logged in user with a move
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var origType = internalmessages.SelectedMoveTypeHHG
-	newMove := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &origType,
-	}
-	suite.mustSave(&newMove)
-
-	patchPayload := internalmessages.PatchMovePayload{}
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
+	patchPayload := internalmessages.PatchMovePayload{}
 	params := moveop.PatchMoveParams{
 		HTTPRequest:      req,
-		MoveID:           strfmt.UUID(newMove.ID.String()),
+		MoveID:           strfmt.UUID(move.ID.String()),
 		PatchMovePayload: &patchPayload,
 	}
 
 	handler := PatchMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	_, ok := response.(*moveop.PatchMoveCreated)
-	if !ok {
-		t.Fatalf("Request failed: %#v", response)
-	}
+	suite.Assertions.IsType(&moveop.PatchMoveCreated{}, response)
+	okResponse := response.(*moveop.PatchMoveCreated)
+
+	suite.Assertions.Equal(move.ID.String(), okResponse.Payload.ID.String())
 }
 
 func (suite *HandlerSuite) TestShowMoveHandler() {
-	t := suite.T()
 
-	// Given: A move and a user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	newMove := models.Move{
-		UserID: user.ID,
-	}
-	suite.mustSave(&newMove)
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
 	params := moveop.ShowMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(newMove.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: show Move is queried
 	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(params)
 
 	// Then: Expect a 200 status code
+	suite.Assertions.IsType(&moveop.ShowMoveOK{}, showResponse)
 	okResponse := showResponse.(*moveop.ShowMoveOK)
-	move := okResponse.Payload
 
 	// And: Returned query to include our added move
-	if move.UserID.String() != user.ID.String() {
-		t.Errorf("Expected an move to have user ID '%v'. None do.", user.ID)
-	}
+	suite.Assertions.Equal(move.OrdersID.String(), okResponse.Payload.OrdersID.String())
 
 }
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
-	// Given: A move with a not-logged-in user and a separate logged-in user
-	notLoggedInUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&notLoggedInUser)
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
+	// And: a not logged in user
+	unAuthedUser, _ := testdatagen.MakeUser(suite.db)
 
-	loggedInUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email2@example.com",
-	}
-	suite.mustSave(&loggedInUser)
-
-	// When: A move is created for not-logged-in-user
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	newMove := models.Move{
-		UserID:           notLoggedInUser.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&newMove)
-
-	// And: the context contains the auth values for logged-in user
+	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, loggedInUser.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, loggedInUser)
-	req = req.WithContext(ctx)
+	req = suite.authenticateRequest(req, unAuthedUser)
+
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,
-		MoveID:      strfmt.UUID(newMove.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: Show move is queried
 	showHandler := ShowMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	showResponse := showHandler.Handle(showMoveParams)
-
+	// Then: expect a forbidden response
 	suite.checkResponseForbidden(showResponse)
 
 }

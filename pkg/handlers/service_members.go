@@ -17,13 +17,19 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	if serviceMember.DutyStation != nil {
 		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
 	}
-
+	orders := make([]*internalmessages.OrdersPayload, len(serviceMember.Orders))
+	for i, order := range serviceMember.Orders {
+		var h HandlerContext
+		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orders[i] = orderPayload
+	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                  fmtUUID(user.ID),
 		Edipi:                   serviceMember.Edipi,
+		Orders:                  orders,
 		Affiliation:             serviceMember.Affiliation,
 		Rank:                    serviceMember.Rank,
 		FirstName:               serviceMember.FirstName,

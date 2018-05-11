@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { get } from 'lodash';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -72,17 +73,22 @@ AppWrapper.defaultProps = {
   loadLoggedInUser: no_op,
 };
 
-const mapStateToProps = state => ({
-  hasCompleteProfile: false, //todo update this when user service is ready
-  swaggerError: state.swagger.hasErrored,
-  selectedMoveType: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.selected_move_type
-    : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-  hasMove: Boolean(state.submittedMoves.currentMove),
-  moveId: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.id
-    : null,
-});
+const mapStateToProps = state => {
+  return {
+    hasCompleteProfile: false, //todo update this when user service is ready
+    swaggerError: state.swagger.hasErrored,
+    selectedMoveType: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.selected_move_type
+      : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    hasMove: Boolean(state.submittedMoves.currentMove),
+    moveId: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.id
+      : null,
+    currentOrdersId:
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0].id') ||
+      get(state.orders, 'currentOrders.id'), // should we get the latest or the first?
+  };
+};
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
     { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
