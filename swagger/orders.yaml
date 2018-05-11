@@ -6,6 +6,7 @@ info:
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
+host: orders.move.mil
 basePath: /v0
 schemes:
   - http
@@ -221,12 +222,12 @@ definitions:
           On printed orders, this is typically the first line after "RMKS/".
 
           ### Transformation
-          Because the BUPERS Orders Number contains PII (the SSN) and could potentially not be unique (because it only allows a single digit for the year), this API expects the Orders number to be reformatted as "{Julian day}{4 digit year} {EDIPI}". The full 4 digit year can be found in the dateIssued field of the first revision, while the EDIPI can be copied from the edipi field.
-
-          Transforming this back to the BUPERS format can be achieved by removing the first three digits of the year field and replacing the EDIPI with the member's SSN. The SSN can be fetched using DMDC's Identity Web Services Real-time Broker Service.
+          Because the BUPERS Orders Number contains PII (the SSN) and could potentially not be unique (because it only allows a single digit for the year), this API expects the Orders number to be reformatted as "{4 digit year}{2 digit month}{2 digit day}-{EDIPI}". The full 4 digit year can be found in the dateIssued field of the first revision, while the EDIPI can be copied from the edipi field.
 
           ## Marine Corps
           Corresponds to the CT (Commercial Travel) SDN. On Web Orders, the CT SDN is found in the table at the bottom, in the last column of the row that begins with "Travel".
+
+          No-cost moves do not have a CT SDN (because they involve no travel). Without a CT SDN, USMC Orders have nothing to use for the unique Orders number, but such Orders won't authorize any PCS expenses either, so they do not need to be submitted to this API.
 
           ## Air Force
           Corresponds to the Special Order number. On AF Form 899, the "SPECIAL ORDERS NO" is found in box 27.
