@@ -291,8 +291,7 @@ const BasicsTabContent = props => {
             </form>
           </div>
         </div>
-
-        <AccountingPanel moveID={props.match.params.moveID} />
+        <AccountingPanel moveId={props.match.params.moveId} />
       </div>
     </div>
   );
@@ -370,11 +369,11 @@ export default class MoveInfo extends Component {
                   )}
                 />
                 <Route
-                  path={`${this.props.match.url}/basics`}
+                  path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
                 <Route
-                  path={`${this.props.match.url}/ppm`}
+                  path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
               </Switch>
