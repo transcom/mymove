@@ -1,17 +1,75 @@
 import { LoadAccountingAPI, UpdateAccountingAPI } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-// Types
+function generatePanelReducer(loadActionType, updateActionType) {
+  const loadAsyncActionType = ReduxHelpers.generateAsyncActionTypes(
+    loadActionType,
+  );
+
+  const updateAsyncActionType = ReduxHelpers.generateAsyncActionTypes(
+    updateActionType,
+  );
+
+  const initialState = {
+    isLoading: false,
+    isUpdating: false,
+    hasLoadError: false,
+    hasLoadSuccess: null,
+    hasUpdateError: false,
+    hasUpdateSuccess: null,
+  };
+
+  return function panelReducer(state = initialState, action) {
+    switch (action.type) {
+      case loadAsyncActionType.start:
+        return Object.assign({}, state, {
+          isLoading: true,
+          hasLoadSuccess: false,
+        });
+      case loadAsyncActionType.success:
+        return Object.assign({}, state, {
+          isLoading: false,
+          accounting: action.payload,
+          hasLoadSuccess: true,
+          hasLoadError: false,
+        });
+      case loadAsyncActionType.failure:
+        return Object.assign({}, state, {
+          isLoading: false,
+          data: null,
+          hasLoadSuccess: false,
+          hasLoadError: true,
+          error: action.error.message,
+        });
+
+      case updateAsyncActionType.start:
+        return Object.assign({}, state, {
+          isUpdating: true,
+          hasUpdateSuccess: false,
+        });
+      case updateAsyncActionType.success:
+        return Object.assign({}, state, {
+          isUpdating: false,
+          data: action.payload,
+          hasUpdateSuccess: true,
+          hasUpdateError: false,
+        });
+      case updateAsyncActionType.failure:
+        return Object.assign({}, state, {
+          isUpdating: false,
+          hasUpdateSuccess: false,
+          hasUpdateError: true,
+          error: action.error.message,
+        });
+
+      default:
+        return state;
+    }
+  };
+}
+
 const loadAccountingType = 'LOAD_ACCOUNTING';
 const updateAccountingType = 'UPDATE_ACCOUNTING';
-
-const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  loadAccountingType,
-);
-
-const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  updateAccountingType,
-);
 
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
   loadAccountingType,
@@ -23,60 +81,7 @@ export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
   UpdateAccountingAPI,
 );
 
-// Reducer
-const initialState = {
-  isLoading: false,
-  isUpdating: false,
-  hasLoadError: false,
-  hasLoadSuccess: null,
-  hasUpdateError: false,
-  hasUpdateSuccess: null,
-};
-
-export function officeAccountingReducer(state = initialState, action) {
-  switch (action.type) {
-    case LOAD_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        isLoading: true,
-        hasLoadSuccess: false,
-      });
-    case LOAD_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        isLoading: false,
-        accounting: action.payload,
-        hasLoadSuccess: true,
-        hasLoadError: false,
-      });
-    case LOAD_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        isLoading: false,
-        accounting: null,
-        hasLoadSuccess: false,
-        hasLoadError: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        isUpdating: true,
-        hasUpdateSuccess: false,
-      });
-    case UPDATE_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        isUpdating: false,
-        accounting: action.payload,
-        hasUpdateSuccess: true,
-        hasUpdateError: false,
-      });
-    case UPDATE_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        isUpdating: false,
-        hasUpdateSuccess: false,
-        hasUpdateError: true,
-        error: action.error.message,
-      });
-
-    default:
-      return state;
-  }
-}
+export const officeAccountingReducer = generatePanelReducer(
+  loadAccountingType,
+  updateAccountingType,
+);
