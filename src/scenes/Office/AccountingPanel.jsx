@@ -92,7 +92,7 @@ class AccountingPanel extends Component {
           displayContent={displayContent}
           onSave={this.save}
           toggleEditable={this.toggleEditable}
-          isEditable={this.state.isEditable}
+          isEditable={this.state.isEditable || this.props.isUpdating}
         />
       </React.Fragment>
     );
