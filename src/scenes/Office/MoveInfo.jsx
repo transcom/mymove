@@ -314,62 +314,62 @@ class MoveInfo extends Component {
 
   render() {
     return (
-      <div>
-        <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds Todo">
-            <h1>Move Info: Johnson, Casey</h1>
+      <ConnectedRouter history={history}>
+        <div>
+          <div className="usa-grid grid-wide">
+            <div className="usa-width-two-thirds Todo">
+              <h1>Move Info: Johnson, Casey</h1>
+            </div>
+            <div className="usa-width-one-third nav-controls">
+              <NavLink to="/queues/new" activeClassName="usa-current">
+                <span>New Moves Queue</span>
+              </NavLink>
+            </div>
           </div>
-          <div className="usa-width-one-third nav-controls">
-            <NavLink to="/queues/new" activeClassName="usa-current">
-              <span>New Moves Queue</span>
-            </NavLink>
-          </div>
-        </div>
-        <div className="usa-grid grid-wide">
-          <div className="usa-width-one-whole Todo">
-            <ul className="move-info-header-meta">
-              <li>ID# 3938593893</li>
-              <li>
-                (303) 936-8181
-                <FontAwesomeIcon
-                  className="icon"
-                  icon={faPhone}
-                  flip="horizontal"
-                />
-                <FontAwesomeIcon className="icon" icon={faComments} />
-              </li>
-              <li>Locator# ABC89</li>
-              <li>KKFA to HAFC</li>
-              <li>Requested Pickup 5/10/18</li>
-            </ul>
-          </div>
-        </div>
-
-        <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-three-fourths">
-            <p>Displaying move {this.props.match.params.moveID}.</p>
-
-            <RoutedTabs startPathWith={this.props.match.url}>
-              <NavTab to="/basics">
-                <span className="title">Basics</span>
-                <span className="status">
-                  <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  Status Goes Here
-                </span>
-              </NavTab>
-              <NavTab to="/ppm">
-                <span className="title">PPM</span>
-                <span className="status">
+          <div className="usa-grid grid-wide">
+            <div className="usa-width-one-whole Todo">
+              <ul className="move-info-header-meta">
+                <li>ID# 3938593893</li>
+                <li>
+                  (303) 936-8181
                   <FontAwesomeIcon
                     className="icon"
-                    icon={faExclamationTriangle}
+                    icon={faPhone}
+                    flip="horizontal"
                   />
-                  Status Goes Here
-                </span>
-              </NavTab>
-            </RoutedTabs>
+                  <FontAwesomeIcon className="icon" icon={faComments} />
+                </li>
+                <li>Locator# ABC89</li>
+                <li>KKFA to HAFC</li>
+                <li>Requested Pickup 5/10/18</li>
+              </ul>
+            </div>
+          </div>
 
-            <ConnectedRouter history={history}>
+          <div className="usa-grid grid-wide tabs">
+            <div className="usa-width-three-fourths">
+              <p>Displaying move {this.props.match.params.moveID}.</p>
+
+              <RoutedTabs startPathWith={this.props.match.url}>
+                <NavTab to="/basics">
+                  <span className="title">Basics</span>
+                  <span className="status">
+                    <FontAwesomeIcon className="icon" icon={faPlayCircle} />
+                    Status Goes Here
+                  </span>
+                </NavTab>
+                <NavTab to="/ppm">
+                  <span className="title">PPM</span>
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExclamationTriangle}
+                    />
+                    Status Goes Here
+                  </span>
+                </NavTab>
+              </RoutedTabs>
+
               <div className="tab-content">
                 <Switch>
                   <Route
@@ -389,17 +389,17 @@ class MoveInfo extends Component {
                   />
                 </Switch>
               </div>
-            </ConnectedRouter>
-          </div>
-          <div className="usa-width-one-fourths">
-            <div>
-              <button>Approve Basics</button>
-              <button>Troubleshoot</button>
-              <button>Cancel Move</button>
+            </div>
+            <div className="usa-width-one-fourths">
+              <div>
+                <button>Approve Basics</button>
+                <button>Troubleshoot</button>
+                <button>Cancel Move</button>
+              </div>
             </div>
           </div>
         </div>
-      </div>
+      </ConnectedRouter>
     );
   }
 }
