@@ -8,7 +8,6 @@ export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
   'CREATE_OR_UPDATE_PPM',
 );
-export const GET_INCENTIVE = 'GET_INCENTIVE'; //TOOD: this should be async when rate engine is available
 export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_PPM_ESTIMATE',
@@ -16,7 +15,9 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 
 function formatPpmEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
-  return `$${estimate.range_min / 100} - $${estimate.range_max / 100}`;
+  const range_min = (estimate.range_min / 100).toFixed(2);
+  const range_max = (estimate.range_max / 100).toFixed(2);
+  return `$${range_min} - $${range_max}`;
 }
 
 // Action creation
@@ -89,10 +90,6 @@ export function ppmReducer(state = initialState, action) {
     case SET_PENDING_PPM_WEIGHT:
       return Object.assign({}, state, {
         pendingPpmWeight: action.payload,
-      });
-    case GET_INCENTIVE:
-      return Object.assign({}, state, {
-        incentive: action.payload,
       });
     case CREATE_OR_UPDATE_PPM.start:
       return Object.assign({}, state, {
