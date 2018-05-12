@@ -1,4 +1,5 @@
 import React from 'react';
+import { NavLink } from 'react-router-dom';
 
 import magnifyingGlass from '../../../../node_modules/uswds/src/img/search.svg';
 import LoginButton from 'shared/User/LoginButton';
@@ -10,7 +11,13 @@ function QueueHeader() {
   return (
     <header role="banner" className="header">
       <div className="officeHeaderOne">
-        <h3>admin.move.mil</h3>
+        <div className="usa-logo" id="basic-logo">
+          <em className="usa-logo-text">
+            <NavLink to="/" title="Home" aria-label="Transcom PPP Office Home">
+              office.move.mil
+            </NavLink>
+          </em>
+        </div>
       </div>
       <div className="officeHeaderTwo">
         <button>Queues</button>
