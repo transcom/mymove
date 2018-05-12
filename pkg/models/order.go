@@ -18,19 +18,23 @@ const UploadedOrdersDocumentName = "uploaded_orders"
 
 // Order is a set of orders received by a service member
 type Order struct {
-	ID               uuid.UUID                   `json:"id" db:"id"`
-	CreatedAt        time.Time                   `json:"created_at" db:"created_at"`
-	UpdatedAt        time.Time                   `json:"updated_at" db:"updated_at"`
-	ServiceMemberID  uuid.UUID                   `json:"service_member_id" db:"service_member_id"`
-	ServiceMember    ServiceMember               `belongs_to:"service_members"`
-	IssueDate        time.Time                   `json:"issue_date" db:"issue_date"`
-	ReportByDate     time.Time                   `json:"report_by_date" db:"report_by_date"`
-	OrdersType       internalmessages.OrdersType `json:"orders_type" db:"orders_type"`
-	HasDependents    bool                        `json:"has_dependents" db:"has_dependents"`
-	NewDutyStationID uuid.UUID                   `json:"new_duty_station_id" db:"new_duty_station_id"`
-	NewDutyStation   DutyStation                 `belongs_to:"duty_stations"`
-	UploadedOrders   Document                    `belongs_to:"documents"`
-	UploadedOrdersID uuid.UUID                   `json:"uploaded_orders_id" db:"uploaded_orders_id"`
+	ID                   uuid.UUID                          `json:"id" db:"id"`
+	CreatedAt            time.Time                          `json:"created_at" db:"created_at"`
+	UpdatedAt            time.Time                          `json:"updated_at" db:"updated_at"`
+	ServiceMemberID      uuid.UUID                          `json:"service_member_id" db:"service_member_id"`
+	ServiceMember        ServiceMember                      `belongs_to:"service_members"`
+	IssueDate            time.Time                          `json:"issue_date" db:"issue_date"`
+	ReportByDate         time.Time                          `json:"report_by_date" db:"report_by_date"`
+	OrdersType           internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
+	OrdersTypeDetail     *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
+	HasDependents        bool                               `json:"has_dependents" db:"has_dependents"`
+	NewDutyStationID     uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
+	NewDutyStation       DutyStation                        `belongs_to:"duty_stations"`
+	CurrentDutyStationID *uuid.UUID                         `json:"current_duty_station_id" db:"current_duty_station_id"`
+	CurrentDutyStation   *DutyStation                       `belongs_to:"duty_stations"`
+	UploadedOrders       Document                           `belongs_to:"documents"`
+	UploadedOrdersID     uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
+	OrdersNumber         *string                            `json:"orders_number" db:"orders_number"`
 }
 
 // String is not required by pop and may be deleted
