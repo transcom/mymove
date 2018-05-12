@@ -6,9 +6,11 @@ import { connect } from 'react-redux';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
+import { ConnectedRouter } from 'react-router-redux';
 
 import AccountingPanel from './AccountingPanel';
 import { loadMove } from './ducks.js';
+import { history } from 'shared/store';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -367,25 +369,27 @@ class MoveInfo extends Component {
               </NavTab>
             </RoutedTabs>
 
-            <div className="tab-content">
-              <Switch>
-                <Route
-                  exact
-                  path={`${this.props.match.url}`}
-                  render={() => (
-                    <Redirect replace to={`${this.props.match.url}/basics`} />
-                  )}
-                />
-                <Route
-                  path={`${this.props.match.path}/basics`}
-                  component={BasicsTabContent}
-                />
-                <Route
-                  path={`${this.props.match.path}/ppm`}
-                  component={PPMTabContent}
-                />
-              </Switch>
-            </div>
+            <ConnectedRouter history={history}>
+              <div className="tab-content">
+                <Switch>
+                  <Route
+                    exact
+                    path={`${this.props.match.url}`}
+                    render={() => (
+                      <Redirect replace to={`${this.props.match.url}/basics`} />
+                    )}
+                  />
+                  <Route
+                    path={`${this.props.match.path}/basics`}
+                    component={BasicsTabContent}
+                  />
+                  <Route
+                    path={`${this.props.match.path}/ppm`}
+                    component={PPMTabContent}
+                  />
+                </Switch>
+              </div>
+            </ConnectedRouter>
           </div>
           <div className="usa-width-one-fourths">
             <div>
