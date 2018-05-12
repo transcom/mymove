@@ -12,12 +12,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.OrdersPayload, error) {
+func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.Orders, error) {
 	documentPayload, err := payloadForDocumentModel(storage, order.UploadedOrders)
 	if err != nil {
 		return nil, err
 	}
-	payload := &internalmessages.OrdersPayload{
+	payload := &internalmessages.Orders{
 		ID:              fmtUUID(order.ID),
 		CreatedAt:       fmtDateTime(order.CreatedAt),
 		UpdatedAt:       fmtDateTime(order.UpdatedAt),
@@ -41,7 +41,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 
-	payload := params.CreateOrdersPayload
+	payload := params.CreateOrders
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
@@ -117,7 +117,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	payload := params.UpdateOrdersPayload
+	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
