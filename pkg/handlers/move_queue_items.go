@@ -7,6 +7,7 @@ import (
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
 )
 
 func payloadForMoveQueueItem(MoveQueueItem models.MoveQueueItem) *internalmessages.MoveQueueItem {
@@ -37,6 +38,7 @@ func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Resp
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)
 	if err != nil {
+		h.logger.Error("Loading Queue", zap.String("State", lifecycleState), zap.Error(err))
 		return responseForError(h.logger, err)
 	}
 

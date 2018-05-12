@@ -39,7 +39,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			'*missing*' as locator,
 			ord.orders_type as orders_type,
 			current_date as move_date,
-			move.created_at as created_at,
+			moves.created_at as created_at,
 			'Awaiting review' as status,
 			current_time as last_modified_date
 		FROM moves
