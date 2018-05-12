@@ -2,6 +2,7 @@ import React from 'react';
 
 import magnifyingGlass from '../../../../node_modules/uswds/src/img/search.svg';
 import LoginButton from 'shared/User/LoginButton';
+import Email from 'shared/User/Email';
 
 import './index.css';
 
@@ -37,7 +38,9 @@ function QueueHeader() {
       </div>
       <div className="officeHeaderFour">
         <ul className="usa-nav-primary">
-          <li>Welcome, Janelle</li>
+          <li>
+            <Email />
+          </li>
           <li>
             <LoginButton />
           </li>
