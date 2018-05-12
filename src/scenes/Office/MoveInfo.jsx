@@ -1,10 +1,14 @@
 import React, { Component } from 'react';
 import { NavLink } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { bindActionCreators } from 'redux';
+import { connect } from 'react-redux';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import AccountingPanel from './AccountingPanel';
+import { loadMove } from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -301,7 +305,11 @@ const PPMTabContent = () => {
   return <div>PPM</div>;
 };
 
-export default class MoveInfo extends Component {
+class MoveInfo extends Component {
+  componentDidMount() {
+    this.props.loadMove(this.props.match.params.moveId);
+  }
+
   render() {
     return (
       <div>
@@ -391,3 +399,16 @@ export default class MoveInfo extends Component {
     );
   }
 }
+
+MoveInfo.propTypes = {
+  loadMove: PropTypes.func.isRequired,
+};
+
+const mapStateToProps = state => ({
+  swaggerError: state.swagger.hasErrored,
+});
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators({ loadMove }, dispatch);
+
+export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
