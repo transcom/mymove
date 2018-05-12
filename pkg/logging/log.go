@@ -2,28 +2,11 @@ package logging
 
 import (
 	"net/http"
-	"time"
 
+	"github.com/felixge/httpsnoop"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
-
-type responseRecorder struct {
-	http.ResponseWriter
-	status int
-	size   int
-}
-
-func (rec *responseRecorder) WriteHeader(code int) {
-	rec.status = code
-	rec.ResponseWriter.WriteHeader(code)
-}
-
-func (rec *responseRecorder) Write(b []byte) (int, error) {
-	size, err := rec.ResponseWriter.Write(b)
-	rec.size += size
-	return size, err
-}
 
 // Config configures a Zap logger based on the environment string and debugLevel
 func Config(env string, debugLogging bool) (*zap.Logger, error) {
@@ -50,7 +33,6 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 func LogRequestMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		var protocol string
-		start := time.Now()
 
 		if r.TLS == nil {
 			protocol = "http"
@@ -58,19 +40,18 @@ func LogRequestMiddleware(inner http.Handler) http.Handler {
 			protocol = "https"
 		}
 
-		rec := responseRecorder{w, 200, 0}
-		inner.ServeHTTP(&rec, r)
+		metrics := httpsnoop.CaptureMetrics(inner, w, r)
 		zap.L().Info("Request",
 			zap.String("accepted-language", r.Header.Get("accepted-language")),
 			zap.Int64("content-length", r.ContentLength),
-			zap.Float64("duration-ms", float64(time.Since(start))/float64(time.Millisecond)),
+			zap.Duration("duration", metrics.Duration),
 			zap.String("host", r.Host),
 			zap.String("method", r.Method),
 			zap.String("protocol", protocol),
 			zap.String("protocol-version", r.Proto),
 			zap.String("referer", r.Header.Get("referer")),
-			zap.Int("resp-size-bytes", rec.size),
-			zap.Int("resp-status", rec.status),
+			zap.Int64("resp-size-bytes", metrics.Written),
+			zap.Int("resp-status", metrics.Code),
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
