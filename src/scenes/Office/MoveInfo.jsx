@@ -6,11 +6,9 @@ import { connect } from 'react-redux';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import { ConnectedRouter } from 'react-router-redux';
 
 import AccountingPanel from './AccountingPanel';
 import { loadMove } from './ducks.js';
-import { history } from 'shared/store';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -314,92 +312,90 @@ class MoveInfo extends Component {
 
   render() {
     return (
-      <ConnectedRouter history={history}>
-        <div>
-          <div className="usa-grid grid-wide">
-            <div className="usa-width-two-thirds Todo">
-              <h1>Move Info: Johnson, Casey</h1>
-            </div>
-            <div className="usa-width-one-third nav-controls">
-              <NavLink to="/queues/new" activeClassName="usa-current">
-                <span>New Moves Queue</span>
-              </NavLink>
-            </div>
+      <div>
+        <div className="usa-grid grid-wide">
+          <div className="usa-width-two-thirds Todo">
+            <h1>Move Info: Johnson, Casey</h1>
           </div>
-          <div className="usa-grid grid-wide">
-            <div className="usa-width-one-whole Todo">
-              <ul className="move-info-header-meta">
-                <li>ID# 3938593893</li>
-                <li>
-                  (303) 936-8181
+          <div className="usa-width-one-third nav-controls">
+            <NavLink to="/queues/new" activeClassName="usa-current">
+              <span>New Moves Queue</span>
+            </NavLink>
+          </div>
+        </div>
+        <div className="usa-grid grid-wide">
+          <div className="usa-width-one-whole Todo">
+            <ul className="move-info-header-meta">
+              <li>ID# 3938593893</li>
+              <li>
+                (303) 936-8181
+                <FontAwesomeIcon
+                  className="icon"
+                  icon={faPhone}
+                  flip="horizontal"
+                />
+                <FontAwesomeIcon className="icon" icon={faComments} />
+              </li>
+              <li>Locator# ABC89</li>
+              <li>KKFA to HAFC</li>
+              <li>Requested Pickup 5/10/18</li>
+            </ul>
+          </div>
+        </div>
+
+        <div className="usa-grid grid-wide tabs">
+          <div className="usa-width-three-fourths">
+            <p>Displaying move {this.props.match.params.moveID}.</p>
+
+            <RoutedTabs startPathWith={this.props.match.url}>
+              <NavTab to="/basics">
+                <span className="title">Basics</span>
+                <span className="status">
+                  <FontAwesomeIcon className="icon" icon={faPlayCircle} />
+                  Status Goes Here
+                </span>
+              </NavTab>
+              <NavTab to="/ppm">
+                <span className="title">PPM</span>
+                <span className="status">
                   <FontAwesomeIcon
                     className="icon"
-                    icon={faPhone}
-                    flip="horizontal"
+                    icon={faExclamationTriangle}
                   />
-                  <FontAwesomeIcon className="icon" icon={faComments} />
-                </li>
-                <li>Locator# ABC89</li>
-                <li>KKFA to HAFC</li>
-                <li>Requested Pickup 5/10/18</li>
-              </ul>
+                  Status Goes Here
+                </span>
+              </NavTab>
+            </RoutedTabs>
+
+            <div className="tab-content">
+              <Switch>
+                <Route
+                  exact
+                  path={`${this.props.match.url}`}
+                  render={() => (
+                    <Redirect replace to={`${this.props.match.url}/basics`} />
+                  )}
+                />
+                <Route
+                  path={`${this.props.match.path}/basics`}
+                  component={BasicsTabContent}
+                />
+                <Route
+                  path={`${this.props.match.path}/ppm`}
+                  component={PPMTabContent}
+                />
+              </Switch>
             </div>
           </div>
-
-          <div className="usa-grid grid-wide tabs">
-            <div className="usa-width-three-fourths">
-              <p>Displaying move {this.props.match.params.moveID}.</p>
-
-              <RoutedTabs startPathWith={this.props.match.url}>
-                <NavTab to="/basics">
-                  <span className="title">Basics</span>
-                  <span className="status">
-                    <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                    Status Goes Here
-                  </span>
-                </NavTab>
-                <NavTab to="/ppm">
-                  <span className="title">PPM</span>
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon"
-                      icon={faExclamationTriangle}
-                    />
-                    Status Goes Here
-                  </span>
-                </NavTab>
-              </RoutedTabs>
-
-              <div className="tab-content">
-                <Switch>
-                  <Route
-                    exact
-                    path={`${this.props.match.url}`}
-                    render={() => (
-                      <Redirect replace to={`${this.props.match.url}/basics`} />
-                    )}
-                  />
-                  <Route
-                    path={`${this.props.match.path}/basics`}
-                    component={BasicsTabContent}
-                  />
-                  <Route
-                    path={`${this.props.match.path}/ppm`}
-                    component={PPMTabContent}
-                  />
-                </Switch>
-              </div>
-            </div>
-            <div className="usa-width-one-fourths">
-              <div>
-                <button>Approve Basics</button>
-                <button>Troubleshoot</button>
-                <button>Cancel Move</button>
-              </div>
+          <div className="usa-width-one-fourths">
+            <div>
+              <button>Approve Basics</button>
+              <button>Troubleshoot</button>
+              <button>Cancel Move</button>
             </div>
           </div>
         </div>
-      </ConnectedRouter>
+      </div>
     );
   }
 }
