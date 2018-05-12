@@ -406,6 +406,7 @@ MoveInfo.propTypes = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
+  officeMove: state.office.officeMove,
 });
 
 const mapDispatchToProps = dispatch =>

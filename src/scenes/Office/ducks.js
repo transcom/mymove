@@ -44,7 +44,7 @@ const initialState = {
   moveHasLoadSuccess: null,
 };
 
-export function officeAccountingReducer(state = initialState, action) {
+export function officeReducer(state = initialState, action) {
   switch (action.type) {
     case LOAD_ACCOUNTING.start:
       return Object.assign({}, state, {
@@ -94,14 +94,14 @@ export function officeAccountingReducer(state = initialState, action) {
     case LOAD_MOVE.success:
       return Object.assign({}, state, {
         moveIsLoading: false,
-        move: action.payload,
+        officeMove: action.payload,
         moveHasLoadSuccess: true,
         moveHasLoadError: false,
       });
     case LOAD_MOVE.failure:
       return Object.assign({}, state, {
         moveIsLoading: false,
-        move: null,
+        officeMove: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
         error: action.error.message,
