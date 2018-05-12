@@ -1,65 +1,59 @@
-import { GetCertificationText, CreateCertification } from './api.js';
-
-// Types
-
-export const LOAD_CERTIFICATION_TEXT = 'LOAD_CERTIFICATION_TEXT';
-export const LOAD_CERTIFICATION_TEXT_SUCCESS =
-  'LOAD_CERTIFICATION_TEXT_SUCCESS';
-export const LOAD_CERTIFICATION_TEXT_FAILURE =
-  'LOAD_CERTIFICATION_TEXT_FAILURE';
-
-export const CREATE_CERTIFICATION = 'CREATE_CERTIFICATION';
-export const CREATE_CERTIFICATION_SUCCESS = 'CREATE_CERTIFICATION_SUCCESS';
-export const CREATE_CERTIFICATION_FAILURE = 'CREATE_CERTIFICATION_FAILURE';
+import {
+  GetCertifications,
+  GetCertificationText,
+  CreateCertification,
+} from './api.js';
+import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { get } from 'lodash';
+import { push } from 'react-router-redux';
 
 // Actions
 
-// loading cert text
-export const createLoadCertificationTextRequest = () => ({
-  type: LOAD_CERTIFICATION_TEXT,
-});
+export const CREATE_SIGNED_CERT = ReduxHelpers.generateAsyncActionTypes(
+  'CREATE_SIGNED_CERT',
+);
 
-export const createLoadCertificationTextSuccess = certificationText => ({
-  type: LOAD_CERTIFICATION_TEXT_SUCCESS,
-  certificationText,
-});
+export const GET_LATEST_CERT = ReduxHelpers.generateAsyncActionTypes(
+  'GET_LATEST_CERT',
+);
 
-export const createLoadCertificationTextFailure = error => ({
-  type: LOAD_CERTIFICATION_TEXT_FAILURE,
-  error,
-});
-
-// creating certification
-export const createSignedCertificationRequest = () => ({
-  type: CREATE_CERTIFICATION,
-});
-
-export const createSignedCertificationSuccess = item => ({
-  type: CREATE_CERTIFICATION_SUCCESS,
-  item,
-});
-
-export const createSignedCertificationFailure = error => ({
-  type: CREATE_CERTIFICATION_FAILURE,
-  error,
-});
+export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes(
+  'GET_CERT_TEXT',
+);
 
 // Action creator
 export function loadCertificationText() {
-  return function(dispatch) {
-    dispatch(createLoadCertificationTextRequest());
+  const action = ReduxHelpers.generateAsyncActions('GET_CERT_TEXT');
+  return function(dispatch, getState) {
+    dispatch(action.start);
     GetCertificationText()
-      .then(spec => dispatch(createLoadCertificationTextSuccess(spec)))
-      .catch(error => dispatch(createLoadCertificationTextFailure(error)));
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
+}
+
+export function loadLatestCertification(moveId) {
+  const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
+  return function(dispatch, getState) {
+    dispatch(action.start);
+    const state = getState();
+    const latestSignedCertification =
+      state.signedCertification.latestSignedCertification;
+    if (!latestSignedCertification) {
+      GetCertifications(moveId, 1)
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
+    }
   };
 }
 
 export function createSignedCertification(value) {
+  const action = ReduxHelpers.generateAsyncActions('CREATE_SIGNED_CERT');
   return function(dispatch, getState) {
-    dispatch(createSignedCertificationRequest());
+    dispatch(action.start);
     CreateCertification(value)
-      .then(item => dispatch(createSignedCertificationSuccess(item)))
-      .catch(error => dispatch(createSignedCertificationFailure(error)));
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.failure(error)));
   };
 }
 
@@ -68,29 +62,54 @@ const initialState = {
   hasSubmitError: false,
   hasSubmitSuccess: false,
   confirmationText: '',
+  getCertificationSuccess: false,
+  getCertificationError: false,
+  latestSignedCertification: null,
+  certificationText: null,
+  error: null,
 };
 export function signedCertificationReducer(state = initialState, action) {
   switch (action.type) {
-    case LOAD_CERTIFICATION_TEXT_SUCCESS:
+    case GET_CERT_TEXT.success:
       return Object.assign({}, state, {
-        certificationText: action.certificationText,
+        certificationText: action.payload,
       });
-    case LOAD_CERTIFICATION_TEXT_FAILURE:
+    case GET_CERT_TEXT.failure:
       return Object.assign({}, state, {
         certificationText:
           '## Error retrieving legalese. Please reload the page.',
+        error: action.error,
       });
-    case CREATE_CERTIFICATION_SUCCESS:
+    case CREATE_SIGNED_CERT.success:
       return Object.assign({}, state, {
         hasSubmitSuccess: true,
         hasSubmitError: false,
         confirmationText: 'Feedback submitted!',
       });
-    case CREATE_CERTIFICATION_FAILURE:
+    case CREATE_SIGNED_CERT.failure:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
         hasSubmitError: true,
         confirmationText: 'Submission error.',
+      });
+    case GET_LATEST_CERT.start:
+      return Object.assign({}, state, {
+        getCertificationSuccess: false,
+      });
+    case GET_LATEST_CERT.success:
+      return Object.assign({}, state, {
+        getCertificationSuccess: true,
+        getCertificationError: false,
+        latestSignedCertification: get(action, 'payload.0', null),
+        certificationText: get(action, 'payload.0.certification_text', null),
+      });
+    case GET_LATEST_CERT.failure:
+      return Object.assign({}, state, {
+        getCertificationSuccess: false,
+        getCertificationError: true,
+        latestSignedCertification: null,
+        certificationText: null,
+        error: get(action, 'error', null),
       });
     default:
       return state;

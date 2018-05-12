@@ -10,6 +10,16 @@ export async function GetCertificationText() {
   return legaleseSample;
 }
 
+export async function GetCertifications(moveId, limit) {
+  const client = await getClient();
+  const response = await client.apis.certification.indexSignedCertifications({
+    moveId,
+    limit,
+  });
+  checkResponse(response, 'failed to find certs due to server error');
+  return response.body;
+}
+
 export async function CreateCertification(certificationRequest) {
   const client = await getClient();
   const response = await client.apis.certification.createSignedCertification(
