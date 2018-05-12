@@ -45,7 +45,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			current_time as last_modified_date
 		FROM moves
 		JOIN orders as ord ON moves.orders_id = ord.id
-		JOIN service_members AS sm ON ord.service_member_id = sm.user_id
+		JOIN service_members AS sm ON ord.service_member_id = sm.id
 	`
 	// TODO: add clause `WHERE moves.lifecycle_state = $1`
 	// err = db.RawQuery(query, lifecycleState).All(&moveQueueItems)
