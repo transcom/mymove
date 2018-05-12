@@ -644,6 +644,9 @@ definitions:
         example: john_bob@example.com
         x-nullable: true
         title: Email
+      address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
       permission:
         $ref: '#/definitions/BackupContactPermission'
       created_at:
@@ -685,6 +688,9 @@ definitions:
         example: 212-555-5555
         x-nullable: true
         title: Phone
+      address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
       email:
         type: string
         format: x-email
@@ -692,6 +698,8 @@ definitions:
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
+      address:
+        $ref: '#/definitions/Address'
       permission:
         $ref: '#/definitions/BackupContactPermission'
     required:
@@ -710,6 +718,9 @@ definitions:
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
+        x-nullable: true
+      address:
+        $ref: '#/definitions/Address'
         x-nullable: true
       email:
         type: string
@@ -1681,6 +1692,68 @@ paths:
           description: user is not authorized
         404:
           description: move is not found
+        500:
+          description: internal server error
+  /moves/{moveId}/backup_contact:
+    get:
+      summary: Returns the backup contact for the service member connected to a move
+      description: Returns the backup contact for the service member connected to a move
+      operationId: showMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        200:
+          description: the instance of the service member backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
+        500:
+          description: internal server error
+    patch:
+      summary: Updates a backup contact connected to a move's associated service member
+      description: Any fields sent in this request will be set on the backup contact referenced
+      operationId: updateMoveBackupContact
+      tags:
+        - backup_contacts
+      parameters:
+        - in: body
+          name: updateServiceMemberBackupContactPayload
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateServiceMemberBackupContactPayload'
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the service member backup contact
+      responses:
+        201:
+          description: updated instance of backup contact
+          schema:
+            $ref: '#/definitions/ServiceMemberBackupContactPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: backup contact not found
         500:
           description: internal server error
   /moves/{moveId}/signed_certification:

@@ -1,0 +1,5 @@
+add_column("backup_contacts", "address_1", "string", {"null": true})
+add_column("backup_contacts", "address_2", "string", {"null": true})
+add_column("backup_contacts", "city", "string", {"null": true})
+add_column("backup_contacts", "state", "string", {"null": true})
+add_column("backup_contacts", "zip", "string", {"null": true})
