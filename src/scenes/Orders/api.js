@@ -8,7 +8,7 @@ export async function GetSpec() {
 export async function CreateOrders(orders) {
   const client = await getClient();
   const response = await client.apis.orders.createOrders({
-    createOrdersPayload: orders,
+    createOrders: orders,
   });
   checkResponse(response, 'failed to create a orders due to server error');
   return response.body;
@@ -27,7 +27,7 @@ export async function UpdateOrders(ordersId, ordersPayload) {
   const client = await getClient();
   const response = await client.apis.orders.updateOrders({
     ordersId,
-    updateOrdersPayload: ordersPayload,
+    updateOrders: ordersPayload,
   });
   checkResponse(response, 'failed to update orders due to server error');
   return response.body;

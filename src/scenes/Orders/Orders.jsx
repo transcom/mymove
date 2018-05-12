@@ -142,11 +142,7 @@ function mapStateToProps(state) {
       state,
       'loggedInUser.loggedInUser.service_member',
     ),
-    schema: get(
-      state,
-      'swagger.spec.definitions.CreateUpdateOrdersPayload',
-      {},
-    ),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
     error,
