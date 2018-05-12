@@ -8,7 +8,7 @@ import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import AccountingPanel from './AccountingPanel';
-import { loadMove } from './ducks.js';
+import { loadMove, loadOrders } from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -402,14 +402,16 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMove: PropTypes.func.isRequired,
+  loadOrders: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   officeMove: state.office.officeMove,
+  officeOrders: state.office.officeOrders,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMove }, dispatch);
+  bindActionCreators({ loadMove, loadOrders }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);

@@ -1,10 +1,16 @@
-import { LoadAccountingAPI, UpdateAccountingAPI, LoadMove } from './api.js';
+import {
+  LoadAccountingAPI,
+  UpdateAccountingAPI,
+  LoadMove,
+  LoadOrders,
+} from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
 const loadAccountingType = 'LOAD_ACCOUNTING';
 const updateAccountingType = 'UPDATE_ACCOUNTING';
 const loadMoveType = 'LOAD_MOVE';
+const loadOrdersType = 'LOAD_ORDERS';
 
 const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   loadAccountingType,
@@ -15,6 +21,8 @@ const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
 );
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
+
+const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
   loadAccountingType,
@@ -31,17 +39,25 @@ export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   LoadMove,
 );
 
+export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
+  loadOrdersType,
+  LoadOrders,
+);
+
 // Reducer
 const initialState = {
   accountingIsLoading: false,
   accountingIsUpdating: false,
   moveIsLoading: false,
+  ordersAreLoading: false,
   accountingHasLoadError: false,
   accountingHasLoadSuccess: null,
   accountingHasUpdateError: false,
   accountingHasUpdateSuccess: null,
   moveHasLoadError: false,
   moveHasLoadSuccess: null,
+  ordersHaveLoadError: false,
+  ordersHaveLoadSuccess: null,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -86,6 +102,8 @@ export function officeReducer(state = initialState, action) {
         accountingHasUpdateError: true,
         error: action.error.message,
       });
+
+    // Moves
     case LOAD_MOVE.start:
       return Object.assign({}, state, {
         moveIsLoading: true,
@@ -104,6 +122,28 @@ export function officeReducer(state = initialState, action) {
         officeMove: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
+        error: action.error.message,
+      });
+
+    // ORDERS
+    case LOAD_ORDERS.start:
+      return Object.assign({}, state, {
+        ordersAreLoading: true,
+        ordersHaveLoadSuccess: false,
+      });
+    case LOAD_ORDERS.success:
+      return Object.assign({}, state, {
+        ordersAreLoading: false,
+        officeOrders: action.payload,
+        ordersHaveLoadSuccess: true,
+        ordersHaveLoadError: false,
+      });
+    case LOAD_ORDERS.failure:
+      return Object.assign({}, state, {
+        ordersAreLoading: false,
+        officeOrders: null,
+        ordersHaveLoadSuccess: false,
+        ordersHaveLoadError: true,
         error: action.error.message,
       });
     default:

@@ -5,6 +5,7 @@ export async function GetSpec() {
   return client.spec;
 }
 
+// MOVE QUEUE
 export async function RetrieveMovesForOffice(queueType) {
   const client = await getClient();
   const response = await client.apis.queues.showQueue({
@@ -14,6 +15,7 @@ export async function RetrieveMovesForOffice(queueType) {
   return response.body;
 }
 
+// ACCOUNTING
 export async function LoadAccountingAPI(moveId) {
   const client = await getClient();
   const response = await client.apis.office.showAccounting({
@@ -39,11 +41,22 @@ export async function UpdateAccountingAPI(moveId, payload) {
   return response.body;
 }
 
+// MOVE
 export async function LoadMove(moveId) {
   const client = await getClient();
   const response = await client.apis.moves.showMove({
     moveId,
   });
   checkResponse(response, 'failed to load move due to server error');
+  return LoadOrders(response.body.orders_id);
+}
+
+// ORDERS
+export async function LoadOrders(ordersId) {
+  const client = await getClient();
+  const response = await client.apis.orders.showOrders({
+    ordersId,
+  });
+  checkResponse(response, 'failed to load orders due to server error');
   return response.body;
 }
