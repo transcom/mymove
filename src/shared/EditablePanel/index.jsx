@@ -1,13 +1,32 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { get } from 'lodash';
 
 import './index.css';
+
+export const PanelField = props => {
+  const { fieldName, schema, values } = props;
+  const title = get(schema, `properties.${fieldName}.title`, '');
+  const value = values[fieldName];
+
+  return (
+    <div className="panel-field">
+      <span className="field-title">{title}</span>
+      <span className="field-value">{value}</span>
+    </div>
+  );
+};
+PanelField.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  values: PropTypes.object,
+};
 
 export class EditablePanel extends Component {
   handleToggleClick = e => {
     e.preventDefault();
-    this.props.toggleEditable();
+    this.props.onToggle();
   };
 
   handleSaveClick = e => {
@@ -47,22 +66,18 @@ export class EditablePanel extends Component {
       this.props.className,
     );
 
-    const contentFunc = this.props.isEditable
-      ? this.props.editableContent
-      : this.props.displayContent;
-
     return (
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.isEditable && (
+          {!this.props.showControls && (
             <a className="editable-panel-edit" onClick={this.handleToggleClick}>
               Edit
             </a>
           )}
         </div>
         <div className="editable-panel-content">
-          {contentFunc()}
+          {this.props.children}
           {controls}
         </div>
       </div>
@@ -71,7 +86,9 @@ export class EditablePanel extends Component {
 }
 
 EditablePanel.propTypes = {
-  editableContent: PropTypes.func.isRequired,
-  displayContent: PropTypes.func.isRequired,
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
 };
