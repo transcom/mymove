@@ -16,7 +16,6 @@ import Footer from 'shared/Footer';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -30,7 +29,6 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
-    this.props.loadUserAndToken();
     this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
@@ -69,7 +67,6 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadSchema: no_op,
-  loadUserAndToken: no_op,
   loadLoggedInUser: no_op,
 };
 
@@ -91,7 +88,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
+    { push, loadSchema, loadLoggedInUser, createMove },
     dispatch,
   );
 

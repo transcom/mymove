@@ -9,7 +9,6 @@ import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -32,7 +31,6 @@ class Queues extends Component {
 class OfficeWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Office';
-    this.props.loadUserAndToken();
     this.props.loadSchema();
   }
 
@@ -61,7 +59,6 @@ class OfficeWrapper extends Component {
 
 OfficeWrapper.defaultProps = {
   loadSchema: no_op,
-  loadUserAndToken: no_op,
   loadLoggedInUser: no_op,
 };
 
@@ -70,9 +67,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadSchema, loadLoggedInUser, loadUserAndToken },
-    dispatch,
-  );
+  bindActionCreators({ loadSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(OfficeWrapper);
