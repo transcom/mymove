@@ -9,7 +9,7 @@ import Alert from 'shared/Alert';
 import {
   setPendingPpmWeight,
   loadPpm,
-  getPpmEstimate,
+  getPpmWeightEstimate,
   createOrUpdatePpm,
 } from './ducks';
 
@@ -68,7 +68,7 @@ export class PpmWeight extends Component {
   };
   onWeightSelected = value => {
     const { currentPpm } = this.props;
-    this.props.getPpmEstimate(
+    this.props.getPpmWeightEstimate(
       currentPpm.planned_move_date,
       currentPpm.pickup_zip,
       currentPpm.destination_zip,
@@ -179,8 +179,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    //todo: will want to load move to get distance
-    { setPendingPpmWeight, loadPpm, getPpmEstimate, createOrUpdatePpm },
+    { setPendingPpmWeight, loadPpm, getPpmWeightEstimate, createOrUpdatePpm },
     dispatch,
   );
 }
