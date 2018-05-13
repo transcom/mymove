@@ -13,6 +13,7 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
+import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
@@ -28,15 +29,9 @@ const NoMatch = ({ location }) => (
   </div>
 );
 export class AppWrapper extends Component {
-  state = { showLoggedOutAlert: false };
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadSchema();
-  }
-  componentDidUpdate(prevProps) {
-    if (!this.props.isLoggedIn && prevProps.isLoggedIn) {
-      this.setState({ showLoggedOutAlert: true });
-    }
   }
   render() {
     const props = this.props;
@@ -45,13 +40,7 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
-            {this.state.showLoggedOutAlert && (
-              <div className="usa-grid">
-                <Alert type="error" heading="Logged out">
-                  You have been logged out due to inactivity.
-                </Alert>
-              </div>
-            )}
+            <LogoutOnInactivity />
             {props.swaggerError && (
               <div className="usa-grid">
                 <Alert type="error" heading="An error occurred">
@@ -86,7 +75,6 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    isLoggedIn: state.user.isLoggedIn,
     hasCompleteProfile: false, //todo update this when user service is ready
     swaggerError: state.swagger.hasErrored,
     selectedMoveType: state.submittedMoves.currentMove
