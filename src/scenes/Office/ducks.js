@@ -34,14 +34,14 @@ export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
   UpdateAccountingAPI,
 );
 
-export const loadMove = ReduxHelpers.generateAsyncActionCreator(
-  loadMoveType,
-  LoadMove,
-);
-
 export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
   loadOrdersType,
   LoadOrders,
+);
+
+export const loadMove = ReduxHelpers.generateOtherAsyncActionCreatorDispatch(
+  loadMoveType,
+  loadOrders,
 );
 
 // Reducer

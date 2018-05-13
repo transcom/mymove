@@ -66,6 +66,23 @@ export function generateAsyncActionCreator(resourceName, asyncAction) {
 }
 
 /**
+ *  This dispatches a different action creator.
+ * @param {*} resourceName the name of the resource included in the action type descriptions (for start, success, failure)
+ * @param {*} otherActionName is the name of the   the async action that is wrapped by this action creator
+ */
+export function generateOtherAsyncActionCreatorDispatch(
+  resourceName,
+  otherAction,
+) {
+  const actions = generateAsyncActions(resourceName);
+  return function actionCreator(...args) {
+    return function(dispatch) {
+      dispatch(otherAction());
+    };
+  };
+}
+
+/**
  * This produces a reducer for the provided resourceName
  * @param {*} resourceName the name of the resource the actions should be filtered by
  * @param {*} onSuccess a transform that is called on the payload of a successful action
