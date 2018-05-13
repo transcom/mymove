@@ -1,26 +1,4 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import { MoveInfo } from '.';
-import Header from 'shared/Header/Office';
-
-describe('MoveInfo tests', () => {
-  let _moveInfo;
-
-  beforeEach(() => {
-    _moveInfo = shallow(<MoveInfo />);
-  });
-
-  it('renders without crashing', () => {
-    const moveInfo = _moveInfo.find('div');
-    expect(moveInfo).toBeDefined;
-  });
-
-  it('renders Header component', () => {
-    expect(_moveInfo.find(Header)).toHaveLength(1);
-  });
-});
-
-import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 import MoveInfo from './MoveInfo';
