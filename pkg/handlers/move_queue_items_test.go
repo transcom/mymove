@@ -45,6 +45,8 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	moveQueueItem := okResponse.Payload[0]
 
 	// And: Returned query to include our added move
+	// The moveQueueItems are produced by joining Moves, Orders and ServiceMember to each other, so we check the
+	// furthest link in that chain
 	expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
 	suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
 }
