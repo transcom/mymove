@@ -28,11 +28,16 @@ const NoMatch = ({ location }) => (
   </div>
 );
 export class AppWrapper extends Component {
+  state = { showLoggedOutAlert: false };
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
-
+  componentDidUpdate(prevProps) {
+    if (!this.props.isLoggedIn && prevProps.isLoggedIn) {
+      this.setState({ showLoggedOutAlert: true });
+    }
+  }
   render() {
     const props = this.props;
     return (
@@ -40,10 +45,19 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
+            {this.state.showLoggedOutAlert && (
+              <div className="usa-grid">
+                <Alert type="error" heading="Logged out">
+                  You have been logged out due to inactivity.
+                </Alert>
+              </div>
+            )}
             {props.swaggerError && (
-              <Alert type="error" heading="An error occurred">
-                There was an error contacting the server.
-              </Alert>
+              <div className="usa-grid">
+                <Alert type="error" heading="An error occurred">
+                  There was an error contacting the server.
+                </Alert>
+              </div>
             )}
             {!props.swaggerError && (
               <Switch>
@@ -72,6 +86,7 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
+    isLoggedIn: state.user.isLoggedIn,
     hasCompleteProfile: false, //todo update this when user service is ready
     swaggerError: state.swagger.hasErrored,
     selectedMoveType: state.submittedMoves.currentMove
