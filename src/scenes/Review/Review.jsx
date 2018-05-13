@@ -314,10 +314,7 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
-                    <td className="Todo">
-                      {' '}
-                      {currentPpm && currentPpm.estimated_incentive}
-                    </td>
+                    <td> {currentPpm && currentPpm.estimated_incentive}</td>
                   </tr>
                 </tbody>
               </table>
