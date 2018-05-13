@@ -67,6 +67,18 @@ export async function LoadServiceMember(serviceMemberId) {
   const response = await client.apis.service_members.showServiceMember({
     serviceMemberId,
   });
-  checkResponse(response, 'failed to load orders due to server error');
+  checkResponse(response, 'failed to load service member due to server error');
+  return response.body;
+}
+
+// BACKUP CONTACT
+export async function LoadBackupContacts(serviceMemberId) {
+  const client = await getClient();
+  const response = await client.apis.backup_contacts.indexServiceMemberBackupContacts(
+    {
+      serviceMemberId,
+    },
+  );
+  checkResponse(response, 'failed to load backup contacts due to server error');
   return response.body;
 }

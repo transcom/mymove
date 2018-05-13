@@ -314,6 +314,7 @@ class MoveInfo extends Component {
     const officeMove = this.props.officeMove || {};
     const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
+    const officeBackupContact = this.props.officeBackupContact || {};
 
     return (
       <div>
@@ -336,17 +337,19 @@ class MoveInfo extends Component {
               <li>ID# {officeServiceMember.id}</li>
               <li>
                 {officeServiceMember.telephone}
-                <FontAwesomeIcon
-                  className="icon"
-                  icon={faPhone}
-                  flip="horizontal"
-                />
-                <FontAwesomeIcon className="icon" icon={faComments} />
+                {officeServiceMember && (
+                  <FontAwesomeIcon
+                    className="icon"
+                    icon={faPhone}
+                    flip="horizontal"
+                  />
+                )}
+                {officeServiceMember && (
+                  <FontAwesomeIcon className="icon" icon={faComments} />
+                )}
               </li>
               <li>Locator# ABC89</li>
-              <li>
-                {officeOrders.orders_type} to {officeOrders.new_duty_station_id}
-              </li>
+              <li>GBLOC/Channel to GBLOC/Channel</li>
               <li>Requested Pickup 5/10/18</li>
             </ul>
           </div>
@@ -418,6 +421,7 @@ const mapStateToProps = state => ({
   officeMove: state.office.officeMove,
   officeOrders: state.office.officeOrders,
   officeServiceMember: state.office.officeServiceMember,
+  officeBackupContact: state.office.officeBackupContact,
 });
 
 const mapDispatchToProps = dispatch =>

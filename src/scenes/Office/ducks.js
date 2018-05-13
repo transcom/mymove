@@ -4,6 +4,7 @@ import {
   LoadMove,
   LoadOrders,
   LoadServiceMember,
+  LoadBackupContacts,
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -13,6 +14,7 @@ const updateAccountingType = 'UPDATE_ACCOUNTING';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
+const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 
 const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   loadAccountingType,
@@ -28,6 +30,10 @@ const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
+);
+
+const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
+  loadBackupContactType,
 );
 
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
@@ -55,9 +61,14 @@ export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
   LoadServiceMember,
 );
 
+export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
+  loadBackupContactType,
+  LoadBackupContacts,
+);
+
 export function loadMoveDependencies(moveId) {
   const actions = ReduxHelpers.generateAsyncActions(
-    'loadMoveType | loadOrders | loadServiceMember',
+    'loadMoveType | loadOrders | loadServiceMember | loadBackupContacts',
   );
   return async function(dispatch, getState) {
     dispatch(actions.start());
@@ -67,6 +78,8 @@ export function loadMoveDependencies(moveId) {
       await dispatch(loadOrders(move.orders_id));
       const orders = getState().office.officeOrders;
       await dispatch(loadServiceMember(orders.service_member_id));
+      const sm = getState().office.officeServiceMember;
+      await dispatch(loadBackupContacts(sm.id));
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));
@@ -81,6 +94,7 @@ const initialState = {
   moveIsLoading: false,
   ordersAreLoading: false,
   serviceMemberIsLoading: false,
+  backupContactsAreLoading: false,
   accountingHasLoadError: false,
   accountingHasLoadSuccess: null,
   accountingHasUpdateError: false,
@@ -91,6 +105,8 @@ const initialState = {
   ordersHaveLoadSuccess: null,
   serviceMemberHasLoadError: false,
   serviceMemberHasLoadSuccess: null,
+  backupContactsHaveLoadError: false,
+  backupContactsHaveLoadSuccess: null,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -199,6 +215,28 @@ export function officeReducer(state = initialState, action) {
         officeServiceMember: null,
         serviceMemberHasLoadSuccess: false,
         serviceMemberHasLoadError: true,
+        error: action.error.message,
+      });
+
+    // BACKUP CONTACT
+    case LOAD_BACKUP_CONTACT.start:
+      return Object.assign({}, state, {
+        backupContactsAreLoading: true,
+        backupContactsHaveLoadSuccess: false,
+      });
+    case LOAD_BACKUP_CONTACT.success:
+      return Object.assign({}, state, {
+        backupContactsAreLoading: false,
+        officeBackupContacts: action.payload,
+        backupContactsHaveLoadSuccess: true,
+        backupContactsHaveLoadError: false,
+      });
+    case LOAD_BACKUP_CONTACT.failure:
+      return Object.assign({}, state, {
+        backupContactsAreLoading: false,
+        officeBackupContacts: null,
+        backupContactsHaveLoadSuccess: false,
+        backupContactsHaveLoadError: true,
         error: action.error.message,
       });
     default:

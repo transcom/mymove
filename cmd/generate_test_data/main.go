@@ -48,5 +48,6 @@ func main() {
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
 		testdatagen.MakeServiceMember(db)
+		testdatagen.MakeBackupContact(db)
 	}
 }
