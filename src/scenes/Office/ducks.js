@@ -3,6 +3,7 @@ import {
   UpdateAccountingAPI,
   LoadMove,
   LoadOrders,
+  LoadServiceMember,
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -11,6 +12,7 @@ const loadAccountingType = 'LOAD_ACCOUNTING';
 const updateAccountingType = 'UPDATE_ACCOUNTING';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
+const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 
 const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   loadAccountingType,
@@ -24,6 +26,10 @@ const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
+const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
+  loadServiceMemberType,
+);
+
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
   loadAccountingType,
   LoadAccountingAPI,
@@ -34,15 +40,39 @@ export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
   UpdateAccountingAPI,
 );
 
+export const loadMove = ReduxHelpers.generateAsyncActionCreator(
+  loadMoveType,
+  LoadMove,
+);
+
 export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
   loadOrdersType,
   LoadOrders,
 );
 
-export const loadMove = ReduxHelpers.generateOtherAsyncActionCreatorDispatch(
-  loadMoveType,
-  loadOrders,
+export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
+  loadServiceMemberType,
+  LoadServiceMember,
 );
+
+export function loadMoveDependencies(moveId) {
+  const actions = ReduxHelpers.generateAsyncActions(
+    'loadMoveType | loadOrders | loadServiceMember',
+  );
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    try {
+      await dispatch(loadMove(moveId));
+      const move = getState().office.officeMove;
+      await dispatch(loadOrders(move.orders_id));
+      const orders = getState().office.officeOrders;
+      await dispatch(loadServiceMember(orders.service_member_id));
+      return dispatch(actions.success());
+    } catch (ex) {
+      return dispatch(actions.error(ex));
+    }
+  };
+}
 
 // Reducer
 const initialState = {
@@ -50,6 +80,7 @@ const initialState = {
   accountingIsUpdating: false,
   moveIsLoading: false,
   ordersAreLoading: false,
+  serviceMemberIsLoading: false,
   accountingHasLoadError: false,
   accountingHasLoadSuccess: null,
   accountingHasUpdateError: false,
@@ -58,6 +89,8 @@ const initialState = {
   moveHasLoadSuccess: null,
   ordersHaveLoadError: false,
   ordersHaveLoadSuccess: null,
+  serviceMemberHasLoadError: false,
+  serviceMemberHasLoadSuccess: null,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -144,6 +177,28 @@ export function officeReducer(state = initialState, action) {
         officeOrders: null,
         ordersHaveLoadSuccess: false,
         ordersHaveLoadError: true,
+        error: action.error.message,
+      });
+
+    // SERVICE_MEMBER
+    case LOAD_SERVICE_MEMBER.start:
+      return Object.assign({}, state, {
+        serviceMemberIsLoading: true,
+        serviceMemberHasLoadSuccess: false,
+      });
+    case LOAD_SERVICE_MEMBER.success:
+      return Object.assign({}, state, {
+        serviceMemberIsLoading: false,
+        officeServiceMember: action.payload,
+        serviceMemberHasLoadSuccess: true,
+        serviceMemberHasLoadError: false,
+      });
+    case LOAD_SERVICE_MEMBER.failure:
+      return Object.assign({}, state, {
+        serviceMemberIsLoading: false,
+        officeServiceMember: null,
+        serviceMemberHasLoadSuccess: false,
+        serviceMemberHasLoadError: true,
         error: action.error.message,
       });
     default:

@@ -58,26 +58,9 @@ export function generateAsyncActionCreator(resourceName, asyncAction) {
   return function actionCreator(...args) {
     return function(dispatch) {
       dispatch(actions.start());
-      asyncAction(...args)
+      return asyncAction(...args)
         .then(item => dispatch(actions.success(item)))
         .catch(error => dispatch(actions.error(error)));
-    };
-  };
-}
-
-/**
- *  This dispatches a different action creator.
- * @param {*} resourceName the name of the resource included in the action type descriptions (for start, success, failure)
- * @param {*} otherActionName is the name of the   the async action that is wrapped by this action creator
- */
-export function generateOtherAsyncActionCreatorDispatch(
-  resourceName,
-  otherAction,
-) {
-  const actions = generateAsyncActions(resourceName);
-  return function actionCreator(...args) {
-    return function(dispatch) {
-      dispatch(otherAction());
     };
   };
 }

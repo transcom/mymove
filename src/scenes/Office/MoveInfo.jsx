@@ -8,7 +8,7 @@ import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
 import AccountingPanel from './AccountingPanel';
-import { loadMove, loadOrders } from './ducks.js';
+import { loadMoveDependencies } from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -307,15 +307,22 @@ const PPMTabContent = () => {
 
 class MoveInfo extends Component {
   componentDidMount() {
-    this.props.loadMove(this.props.match.params.moveId);
+    this.props.loadMoveDependencies(this.props.match.params.moveId);
   }
 
   render() {
+    const officeMove = this.props.officeMove || {};
+    const officeOrders = this.props.officeOrders || {};
+    const officeServiceMember = this.props.officeServiceMember || {};
+
     return (
       <div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-two-thirds Todo">
-            <h1>Move Info: Johnson, Casey</h1>
+            <h1>
+              Move Info: {officeServiceMember.last_name},{' '}
+              {officeServiceMember.first_name}
+            </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
             <NavLink to="/queues/new" activeClassName="usa-current">
@@ -326,9 +333,9 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole Todo">
             <ul className="move-info-header-meta">
-              <li>ID# 3938593893</li>
+              <li>ID# {officeServiceMember.id}</li>
               <li>
-                (303) 936-8181
+                {officeServiceMember.telephone}
                 <FontAwesomeIcon
                   className="icon"
                   icon={faPhone}
@@ -337,7 +344,9 @@ class MoveInfo extends Component {
                 <FontAwesomeIcon className="icon" icon={faComments} />
               </li>
               <li>Locator# ABC89</li>
-              <li>KKFA to HAFC</li>
+              <li>
+                {officeOrders.orders_type} to {officeOrders.new_duty_station_id}
+              </li>
               <li>Requested Pickup 5/10/18</li>
             </ul>
           </div>
@@ -345,7 +354,7 @@ class MoveInfo extends Component {
 
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-three-fourths">
-            <p>Displaying move {this.props.match.params.moveID}.</p>
+            <p>Displaying move {officeMove.id}.</p>
 
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
@@ -401,17 +410,17 @@ class MoveInfo extends Component {
 }
 
 MoveInfo.propTypes = {
-  loadMove: PropTypes.func.isRequired,
-  loadOrders: PropTypes.func.isRequired,
+  loadMoveDependencies: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   officeMove: state.office.officeMove,
   officeOrders: state.office.officeOrders,
+  officeServiceMember: state.office.officeServiceMember,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMove, loadOrders }, dispatch);
+  bindActionCreators({ loadMoveDependencies }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
