@@ -93,7 +93,7 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 
 	info, err := os.Stat(fixturePath)
 	if err != nil {
-		suite.T().Error(err)
+		suite.T().Fatal(err)
 	}
 	header := multipart.FileHeader{
 		Filename: name,
