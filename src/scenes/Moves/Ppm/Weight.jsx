@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 
@@ -44,7 +45,7 @@ function getWeightInfo(ppm) {
         altTag: 'truck-gray',
         defaultWeight: 800,
         min: 1000,
-        max: 5000,
+        max: 5000, //TODO: this should be max entitlement
         vehicle: 'a truck',
       };
   }
@@ -54,9 +55,23 @@ export class PpmWeight extends Component {
     document.title = 'Transcom PPP: Weight Selection';
     this.props.loadPpm(this.props.match.params.moveId);
   }
+  componentDidUpdate(prevProps, prevState) {
+    if (!prevProps.hasLoadSuccess && this.props.hasLoadSuccess) {
+      const { pendingPpmWeight, currentWeight, currentPpm } = this.props;
+      const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
+      if (![pendingPpmWeight, weight_estimate].includes(currentWeight)) {
+        this.onWeightSelecting(currentWeight);
+        this.props.getPpmWeightEstimate(
+          currentPpm.planned_move_date,
+          currentPpm.pickup_zip,
+          currentPpm.destination_zip,
+          currentWeight,
+        );
+      }
+    }
+  }
   handleSubmit = () => {
     const { pendingPpmWeight, incentive, createOrUpdatePpm } = this.props;
-    //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
     createOrUpdatePpm(moveId, {
       weight_estimate: pendingPpmWeight,
@@ -83,21 +98,18 @@ export class PpmWeight extends Component {
       pages,
       pageKey,
       hasSubmitSuccess,
+      currentWeight,
       error,
     } = this.props;
     const currentInfo = getWeightInfo(currentPpm);
-    const setOrPendingWeight =
-      pendingPpmWeight || (currentPpm && currentPpm.weight);
-    const currentWeight =
-      setOrPendingWeight ||
-      currentInfo.min + (currentInfo.max - currentInfo.min) / 2;
+
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={Boolean(setOrPendingWeight)}
+        pageIsValid={true}
         pageIsDirty={Boolean(pendingPpmWeight)}
         hasSucceeded={hasSubmitSuccess}
       >
@@ -162,6 +174,7 @@ export class PpmWeight extends Component {
 
 PpmWeight.propTypes = {
   pendingPpmWeight: PropTypes.number,
+  currentWeight: PropTypes.number,
   currentPpm: PropTypes.shape({
     id: PropTypes.string,
     size: PropTypes.string,
@@ -169,12 +182,28 @@ PpmWeight.propTypes = {
     incentive: PropTypes.string,
   }),
   hasSubmitSuccess: PropTypes.bool.isRequired,
-  moveDistance: PropTypes.number,
+  hasLoadSuccess: PropTypes.bool.isRequired,
   setPendingPpmWeight: PropTypes.func.isRequired,
 };
 
+function getMiddleWeight(ppm) {
+  const currentInfo = getWeightInfo(ppm);
+  return currentInfo.min + (currentInfo.max - currentInfo.min) / 2;
+}
 function mapStateToProps(state) {
-  return { ...state.ppm, moveDistance: 666 };
+  const currentWeight =
+    state.ppm.pendingPpmWeight ||
+    get(
+      state,
+      'ppm.currentPpm.weight_estimate',
+      getMiddleWeight(state.ppm.currentPpm),
+    );
+  const props = {
+    ...state.ppm,
+    currentWeight,
+  };
+
+  return props;
 }
 
 function mapDispatchToProps(dispatch) {
