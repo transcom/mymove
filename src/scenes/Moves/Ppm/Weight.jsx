@@ -5,10 +5,11 @@ import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 
 import WizardPage from 'shared/WizardPage';
+import Alert from 'shared/Alert';
 import {
   setPendingPpmWeight,
   loadPpm,
-  getIncentive,
+  getPpmEstimate,
   createOrUpdatePpm,
 } from './ducks';
 
@@ -66,17 +67,23 @@ export class PpmWeight extends Component {
     this.props.setPendingPpmWeight(value);
   };
   onWeightSelected = value => {
-    this.props.getIncentive(this.props.pendingPpmWeight);
+    const { currentPpm } = this.props;
+    this.props.getPpmEstimate(
+      currentPpm.planned_move_date,
+      currentPpm.pickup_zip,
+      currentPpm.destination_zip,
+      this.props.pendingPpmWeight,
+    );
   };
   render() {
     const {
       pendingPpmWeight,
       currentPpm,
-      moveDistance,
       incentive,
       pages,
       pageKey,
       hasSubmitSuccess,
+      error,
     } = this.props;
     const currentInfo = getWeightInfo(currentPpm);
     const setOrPendingWeight =
@@ -94,6 +101,13 @@ export class PpmWeight extends Component {
         pageIsDirty={Boolean(pendingPpmWeight)}
         hasSucceeded={hasSubmitSuccess}
       >
+        {error && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              {error.message}
+            </Alert>
+          </div>
+        )}
         <h2>
           <img
             className="icon"
@@ -122,23 +136,23 @@ export class PpmWeight extends Component {
         </div>
         <h4>
           {' '}
-          Your PPM Incentive:{' '}
-          <span className="incentive Todo">{incentive}</span>
+          Your PPM Incentive: <span className="incentive">{incentive}</span>
         </h4>
         <div className="info">
           <h3> How is my PPM Incentive calculated?</h3>
           <p>
             The government gives you 95% of what they would pay a mover when you
             move your own belongings, based on weight and distance. You pay
-            taxes on this income.
+            taxes on this income. You can reduce the amount taxable incentive by
+            saving receipts for approved expenses.
           </p>
-          <p className="Todo">Your move Distance: {moveDistance} miles </p>
+
           <p>
-            This estimator just presents a range of possible incentives. You’ll
-            need to inventory and weigh the stuff you’re carrying, and submit
-            weight tickets to get an accurate incentive. The amount you receive
-            also depends on the date you move. We’ll let you know later how to
-            weigh the stuff you carry.
+            This estimator just presents a range of possible incentives based on
+            your anticipated shipment weight, anticipated moving date, and the
+            specific route that you will be traveling. During your move, you
+            will need to weigh the stuff you’re carrying, and submit weight
+            tickets. We’ll let you know later how to weigh the stuff you carry.
           </p>
         </div>
       </WizardPage>
@@ -166,7 +180,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     //todo: will want to load move to get distance
-    { setPendingPpmWeight, loadPpm, getIncentive, createOrUpdatePpm },
+    { setPendingPpmWeight, loadPpm, getPpmEstimate, createOrUpdatePpm },
     dispatch,
   );
 }
