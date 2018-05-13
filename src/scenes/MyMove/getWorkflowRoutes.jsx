@@ -1,4 +1,5 @@
 import React from 'react';
+import { Route } from 'react-router-dom';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import { no_op } from 'shared/utils';
@@ -23,6 +24,14 @@ import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
+
+const PageNotInFlow = ({ location }) => (
+  <div className="usa-grid">
+    <h3>Missing Context</h3>
+    You are trying to load a page that the system does not have context for.
+    Please go to the home page and try again.
+  </div>
+);
 
 const Placeholder = props => {
   return (
@@ -200,17 +209,26 @@ const pages = {
     },
   },
 };
-export const getPageList = state =>
+export const getPagesInFlow = state =>
   Object.keys(pages).filter(pageKey => {
     const page = pages[pageKey];
     return page.isInFlow(state);
   });
 
 export const getWorkflowRoutes = props => {
-  const pageList = getPageList(props);
-  return pageList.map(key => {
+  const pageList = getPagesInFlow(props);
+  return Object.keys(pages).map(key => {
     const currPage = pages[key];
-    const render = currPage.render(key, pageList, currPage.description, props);
-    return <PrivateRoute exact path={key} key={key} render={render} />;
+    if (currPage.isInFlow(props)) {
+      const render = currPage.render(
+        key,
+        pageList,
+        currPage.description,
+        props,
+      );
+      return <PrivateRoute exact path={key} key={key} render={render} />;
+    } else {
+      return <Route exact path={key} key={key} component={PageNotInFlow} />;
+    }
   });
 };
