@@ -16,6 +16,7 @@ import { loadMoveDependencies } from './ducks.js';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
@@ -315,7 +316,7 @@ class MoveInfo extends Component {
 
   render() {
     const officeMove = this.props.officeMove || {};
-    const officeOrders = this.props.officeOrders || {};
+    // const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
     // const officeBackupContacts = this.props.officeBackupContacts || []
     const officePPMs = this.props.officePPMs || [];
@@ -351,7 +352,7 @@ class MoveInfo extends Component {
           </div>
         </div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-one-whole Todo">
+          <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
               <li>ID# {officeServiceMember.id}</li>
               <li>
@@ -363,11 +364,14 @@ class MoveInfo extends Component {
                     flip="horizontal"
                   />
                 )}
-                {officeServiceMember.text_is_preferred && (
+                {officeServiceMember.text_message_is_preferred && (
                   <FontAwesomeIcon className="icon" icon={faComments} />
                 )}
+                {officeServiceMember.email_is_preferred && (
+                  <FontAwesomeIcon className="icon" icon={faEmail} />
+                )}
               </li>
-              <li>Locator# ABC89</li>
+              <li className="Todo">Locator# ABC89</li>
               <li>KKFA to HAFC</li>
               <li>
                 Requested Pickup {get(officePPMs, '[0].planned_move_date')}
@@ -378,8 +382,6 @@ class MoveInfo extends Component {
 
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-three-fourths">
-            <p>Displaying move {officeMove.id}.</p>
-
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
                 <span className="title">Basics</span>

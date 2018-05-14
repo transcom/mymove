@@ -92,6 +92,7 @@ export function loadMoveDependencies(moveId) {
       await dispatch(loadServiceMember(orders.service_member_id));
       const sm = getState().office.officeServiceMember;
       await dispatch(loadBackupContacts(sm.id));
+      // TODO: load PPMs in parallel to move using moveId
       await dispatch(loadPPMs(moveId));
       return dispatch(actions.success());
     } catch (ex) {
