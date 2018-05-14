@@ -38,3 +38,12 @@ export async function UpdateAccountingAPI(moveId, payload) {
   );
   return response.body;
 }
+
+export async function LoadMove(moveId) {
+  const client = await getClient();
+  const response = await client.apis.moves.showMove({
+    moveId,
+  });
+  checkResponse(response, 'failed to load move due to server error');
+  return response.body;
+}
