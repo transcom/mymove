@@ -6,6 +6,7 @@ import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
 
 const fifteenMinutesinMilliseconds = 900000;
+const tenMinutesInMilliseconds = 600000;
 const oneMinuteInMilliseconds = 60000;
 export class LogoutOnInactivity extends React.Component {
   state = {
@@ -14,8 +15,8 @@ export class LogoutOnInactivity extends React.Component {
   };
   componentDidMount() {
     this.interval = setInterval(
-      () => fetch('/internal/swagger.yaml'),
-      tenMinutesInMilliseconds,
+      () => fetch(this.props.keepAliveEndpoint),
+      this.props.keepAliveInterval,
     );
   }
   componentWillUnmount() {
@@ -33,8 +34,8 @@ export class LogoutOnInactivity extends React.Component {
   onIdle = () => {
     this.setState({ isIdle: true });
     this.timeout = setTimeout(() => {
-      if (this.state.isIdle) window.location = '/auth/logout';
-    }, oneMinuteInMilliseconds);
+      if (this.state.isIdle) window.location = this.props.logoutEndpoint;
+    }, this.props.logoutAfterWarningTimeout);
   };
   render() {
     const props = this.props;
@@ -47,7 +48,7 @@ export class LogoutOnInactivity extends React.Component {
               element={document}
               activeAction={this.onActive}
               idleAction={this.onIdle}
-              timeout={fifteenMinutesinMilliseconds}
+              timeout={this.props.idleTimeout}
             >
               {this.state.isIdle && (
                 <Alert type="warning" heading="Inactive user">
@@ -68,9 +69,17 @@ export class LogoutOnInactivity extends React.Component {
 }
 LogoutOnInactivity.defaultProps = {
   idleTimeout: fifteenMinutesinMilliseconds,
+  keepAliveInterval: tenMinutesInMilliseconds,
+  logoutAfterWarningTimeout: oneMinuteInMilliseconds,
+  keepAliveEndpoint: '/internal/swagger.yaml',
+  logoutEndpoint: '/auth/logout',
 };
 LogoutOnInactivity.propTypes = {
   idleTimeout: PropTypes.number.isRequired,
+  keepAliveInterval: PropTypes.number.isRequired,
+  logoutAfterWarning: PropTypes.number.isRequired,
+  keepAliveEndpoint: PropTypes.string.isRequired,
+  logoutEndpoint: PropTypes.string.isRequired,
 };
 
 const mapStateToProps = state => {
