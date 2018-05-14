@@ -41,21 +41,17 @@ export class LogoutOnInactivity extends React.Component {
               timeout={fifteenMinutesinMilliseconds}
             >
               {this.state.isIdle && (
-                <div className="usa-grid">
-                  <Alert type="warning" heading="Inactive user">
-                    You have been inactive and will be logged out shortly.
-                  </Alert>
-                </div>
+                <Alert type="warning" heading="Inactive user">
+                  You have been inactive and will be logged out shortly.
+                </Alert>
               )}
             </IdleTimer>
           )}
 
         {this.state.showLoggedOutAlert && (
-          <div className="usa-grid">
-            <Alert type="error" heading="Logged out">
-              You have been logged out due to inactivity.
-            </Alert>
-          </div>
+          <Alert type="error" heading="Logged out">
+            You have been logged out due to inactivity.
+          </Alert>
         )}
       </React.Fragment>
     );

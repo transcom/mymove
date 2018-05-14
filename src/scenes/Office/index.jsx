@@ -12,6 +12,7 @@ import MoveInfo from './MoveInfo';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
+import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 class Queues extends Component {
   render() {
@@ -41,6 +42,7 @@ class OfficeWrapper extends Component {
           <QueueHeader />
           <main className="site__content">
             <div>
+              <LogoutOnInactivity />
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
                 <Route

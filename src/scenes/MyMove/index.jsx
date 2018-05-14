@@ -40,14 +40,14 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
-            <LogoutOnInactivity />
-            {props.swaggerError && (
-              <div className="usa-grid">
+            <div className="usa-grid">
+              <LogoutOnInactivity />
+              {props.swaggerError && (
                 <Alert type="error" heading="An error occurred">
                   There was an error contacting the server.
                 </Alert>
-              </div>
-            )}
+              )}
+            </div>
             {!props.swaggerError && (
               <Switch>
                 <Route exact path="/" component={Landing} />
