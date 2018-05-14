@@ -1,0 +1,3 @@
+add_column("moves", "status", "string", {"default": "draft"})
+add_column("orders", "status", "string", {"default": "draft"})
+add_column("personally_procured_moves", "status", "string", {"default": "draft"})
