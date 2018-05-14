@@ -1148,12 +1148,12 @@ definitions:
     title: Move status
     enum:
       - DRAFT
-      - AWAITING_REVIEW
+      - SUBMITTED
       - APPROVED
       - COMPLETED
     x-display-value:
       DRAFT: Draft
-      AWAITING_REVIEW: Awaiting Review
+      SUBMITTED: Submitted
       APPROVED: Approved
       COMPLETED: Completed
   PPMStatus:
@@ -1161,13 +1161,13 @@ definitions:
     title: Move status
     enum:
       - DRAFT
-      - AWAITING_REVIEW
+      - SUBMITTED
       - APPROVED
       - IN_PROGRESS
       - COMPLETED
     x-display-value:
       DRAFT: Draft
-      AWAITING_REVIEW: Awaiting Review
+      SUBMITTED: Submitted
       APPROVED: Approved
       IN_PROGRESS: In Progress
       COMPLETED: Completed
@@ -1176,11 +1176,11 @@ definitions:
     title: Move status
     enum:
       - DRAFT
-      - AWAITING_REVIEW
+      - SUBMITTED
       - APPROVED
     x-display-value:
       DRAFT: Draft
-      AWAITING_REVIEW: Awaiting Review
+      SUBMITTED: Submitted
       APPROVED: Approved
   OrdersType:
     type: string
