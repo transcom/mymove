@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
@@ -317,7 +318,7 @@ class MoveInfo extends Component {
     const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
     // const officeBackupContacts = this.props.officeBackupContacts || []
-    // const officePPMs = this.props.officePPMs || []
+    const officePPMs = this.props.officePPMs || [];
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -368,7 +369,9 @@ class MoveInfo extends Component {
               </li>
               <li>Locator# ABC89</li>
               <li>KKFA to HAFC</li>
-              <li>Requested Pickup **{officeOrders.report_by_date}**</li>
+              <li>
+                Requested Pickup {get(officePPMs, '[0].planned_move_date')}
+              </li>
             </ul>
           </div>
         </div>
