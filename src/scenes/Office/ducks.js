@@ -5,6 +5,7 @@ import {
   LoadOrders,
   LoadServiceMember,
   LoadBackupContacts,
+  LoadPPMs,
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -15,6 +16,8 @@ const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
+const loadPPMsType = 'LOAD_PPMS';
+const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
 const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   loadAccountingType,
@@ -34,6 +37,12 @@ const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
 
 const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   loadBackupContactType,
+);
+
+const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
+
+const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
+  loadDependenciesType,
 );
 
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
@@ -66,10 +75,13 @@ export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
   LoadBackupContacts,
 );
 
+export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
+  loadPPMsType,
+  LoadPPMs,
+);
+
 export function loadMoveDependencies(moveId) {
-  const actions = ReduxHelpers.generateAsyncActions(
-    'loadMoveType | loadOrders | loadServiceMember | loadBackupContacts',
-  );
+  const actions = ReduxHelpers.generateAsyncActions(loadDependenciesType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
     try {
@@ -80,6 +92,7 @@ export function loadMoveDependencies(moveId) {
       await dispatch(loadServiceMember(orders.service_member_id));
       const sm = getState().office.officeServiceMember;
       await dispatch(loadBackupContacts(sm.id));
+      await dispatch(loadPPMs(moveId));
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));
@@ -95,18 +108,23 @@ const initialState = {
   ordersAreLoading: false,
   serviceMemberIsLoading: false,
   backupContactsAreLoading: false,
-  accountingHasLoadError: false,
-  accountingHasLoadSuccess: null,
-  accountingHasUpdateError: false,
-  accountingHasUpdateSuccess: null,
-  moveHasLoadError: false,
-  moveHasLoadSuccess: null,
-  ordersHaveLoadError: false,
-  ordersHaveLoadSuccess: null,
-  serviceMemberHasLoadError: false,
-  serviceMemberHasLoadSuccess: null,
-  backupContactsHaveLoadError: false,
-  backupContactsHaveLoadSuccess: null,
+  ppmsAreLoading: false,
+  accountingHasLoadError: null,
+  accountingHasLoadSuccess: false,
+  accountingHasUpdateError: null,
+  accountingHasUpdateSuccess: false,
+  moveHasLoadError: null,
+  moveHasLoadSuccess: false,
+  ordersHaveLoadError: null,
+  ordersHaveLoadSuccess: false,
+  serviceMemberHasLoadError: null,
+  serviceMemberHasLoadSuccess: false,
+  backupContactsHaveLoadError: null,
+  backupContactsHaveLoadSuccess: false,
+  ppmsHaveLoadError: null,
+  ppmsHaveLoadSuccess: false,
+  loadDependenciesHasError: null,
+  loadDependenciesHasSuccess: false,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -237,6 +255,46 @@ export function officeReducer(state = initialState, action) {
         officeBackupContacts: null,
         backupContactsHaveLoadSuccess: false,
         backupContactsHaveLoadError: true,
+        error: action.error.message,
+      });
+
+    // PPMs
+    case LOAD_PPMS.start:
+      return Object.assign({}, state, {
+        PPMsAreLoading: true,
+        PPMsHaveLoadSuccess: false,
+      });
+    case LOAD_PPMS.success:
+      return Object.assign({}, state, {
+        PPMsAreLoading: false,
+        officePPMs: action.payload,
+        PPMsHaveLoadSuccess: true,
+        PPMsHaveLoadError: false,
+      });
+    case LOAD_PPMS.failure:
+      return Object.assign({}, state, {
+        PPMsAreLoading: false,
+        officePPMs: null,
+        PPMsHaveLoadSuccess: false,
+        PPMsHaveLoadError: true,
+        error: action.error.message,
+      });
+
+    // ALL DEPENDENCIES
+    case LOAD_DEPENDENCIES.start:
+      return Object.assign({}, state, {
+        loadDependenciesHasSuccess: false,
+        loadDependenciesHasError: false,
+      });
+    case LOAD_DEPENDENCIES.success:
+      return Object.assign({}, state, {
+        loadDependenciesHasSuccess: true,
+        loadDependenciesHasError: false,
+      });
+    case LOAD_DEPENDENCIES.failure:
+      return Object.assign({}, state, {
+        loadDependenciesHasSuccess: false,
+        loadDependenciesHasError: true,
         error: action.error.message,
       });
     default:

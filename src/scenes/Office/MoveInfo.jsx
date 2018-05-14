@@ -7,6 +7,8 @@ import { connect } from 'react-redux';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Alert from 'shared/Alert'; // eslint-disable-line
 import AccountingPanel from './AccountingPanel';
 import { loadMoveDependencies } from './ducks.js';
 
@@ -314,12 +316,28 @@ class MoveInfo extends Component {
     const officeMove = this.props.officeMove || {};
     const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
-    const officeBackupContact = this.props.officeBackupContact || {};
+    // const officeBackupContacts = this.props.officeBackupContacts || []
+    // const officePPMs = this.props.officePPMs || []
 
+    if (
+      !this.props.loadDependenciesHasSuccess &&
+      !this.props.loadDependenciesHasError
+    )
+      return <LoadingPlaceholder />;
+    if (this.props.loadDependenciesHasError)
+      return (
+        <div className="usa-grid">
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              Something went wrong contacting the server.
+            </Alert>
+          </div>
+        </div>
+      );
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds Todo">
+          <div className="usa-width-two-thirds">
             <h1>
               Move Info: {officeServiceMember.last_name},{' '}
               {officeServiceMember.first_name}
@@ -337,20 +355,20 @@ class MoveInfo extends Component {
               <li>ID# {officeServiceMember.id}</li>
               <li>
                 {officeServiceMember.telephone}
-                {officeServiceMember && (
+                {officeServiceMember.phone_is_preferred && (
                   <FontAwesomeIcon
                     className="icon"
                     icon={faPhone}
                     flip="horizontal"
                   />
                 )}
-                {officeServiceMember && (
+                {officeServiceMember.text_is_preferred && (
                   <FontAwesomeIcon className="icon" icon={faComments} />
                 )}
               </li>
               <li>Locator# ABC89</li>
-              <li>GBLOC/Channel to GBLOC/Channel</li>
-              <li>Requested Pickup 5/10/18</li>
+              <li>KKFA to HAFC</li>
+              <li>Requested Pickup **{officeOrders.report_by_date}**</li>
             </ul>
           </div>
         </div>
@@ -421,7 +439,10 @@ const mapStateToProps = state => ({
   officeMove: state.office.officeMove,
   officeOrders: state.office.officeOrders,
   officeServiceMember: state.office.officeServiceMember,
-  officeBackupContact: state.office.officeBackupContact,
+  officeBackupContacts: state.office.officeBackupContacts,
+  officePPMs: state.office.officePPMs,
+  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+  loadDependenciesHasError: state.office.loadDependenciesHasError,
 });
 
 const mapDispatchToProps = dispatch =>

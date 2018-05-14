@@ -1,10 +1,5 @@
 import { getClient, checkResponse } from 'shared/api';
 
-export async function GetSpec() {
-  const client = await getClient();
-  return client.spec;
-}
-
 // MOVE QUEUE
 export async function RetrieveMovesForOffice(queueType) {
   const client = await getClient();
@@ -80,5 +75,15 @@ export async function LoadBackupContacts(serviceMemberId) {
     },
   );
   checkResponse(response, 'failed to load backup contacts due to server error');
+  return response.body;
+}
+
+// PPM
+export async function LoadPPMs(moveId) {
+  const client = await getClient();
+  const response = await client.apis.ppm.indexPersonallyProcuredMoves({
+    moveId,
+  });
+  checkResponse(response, 'failed to load PPMs due to server error');
   return response.body;
 }
