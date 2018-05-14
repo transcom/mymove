@@ -1,9 +1,10 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
+import MockRouter from 'react-mock-router';
+
 import MoveInfo from './MoveInfo';
 import store from 'shared/store';
-import MockRouter from 'react-mock-router';
 
 const dummyFunc = () => {};
 const moveIsLoading = false;
