@@ -77,7 +77,7 @@ LogoutOnInactivity.defaultProps = {
 LogoutOnInactivity.propTypes = {
   idleTimeout: PropTypes.number.isRequired,
   keepAliveInterval: PropTypes.number.isRequired,
-  logoutAfterWarning: PropTypes.number.isRequired,
+  logoutAfterWarningTimeout: PropTypes.number.isRequired,
   keepAliveEndpoint: PropTypes.string.isRequired,
   logoutEndpoint: PropTypes.string.isRequired,
 };
