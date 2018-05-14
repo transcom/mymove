@@ -315,7 +315,8 @@ class MoveInfo extends Component {
   }
 
   render() {
-    const officeMove = this.props.officeMove || {};
+    // TODO: If the following vars are not used to load data, remove them.
+    // const officeMove = this.props.officeMove || {};
     // const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
     // const officeBackupContacts = this.props.officeBackupContacts || []
