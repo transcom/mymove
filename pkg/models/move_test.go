@@ -6,7 +6,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"go.uber.org/zap"
 )
 
 func (suite *ModelSuite) TestBasicMoveInstantiation() {
@@ -24,8 +23,8 @@ func (suite *ModelSuite) TestFetchMove() {
 	order2, _ := testdatagen.MakeOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, ok := order1.CreateNewMove(suite.db, zap.L(), &selectedType)
-	suite.True(ok)
+	move, err := order1.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
 	suite.Equal(6, len(move.Locator))
 
 	// All correct

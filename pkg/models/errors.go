@@ -15,6 +15,9 @@ var ErrFetchNotFound = errors.New("FETCH_NOT_FOUND")
 // ErrFetchForbidden means that the record exists but that the user does not have access to it
 var ErrFetchForbidden = errors.New("FETCH_FORBIDDEN")
 
+// ErrLocatorGeneration means that we got errors generating the Locator
+var ErrLocatorGeneration = errors.New("LOCATOR_ERRORS")
+
 // recordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
 const recordNotFoundErrorString = "sql: no rows in result set"

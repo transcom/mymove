@@ -12,7 +12,6 @@ import (
 
 	"crypto/sha256"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"go.uber.org/zap"
 )
 
 const maxLocatorAttempts = 3
@@ -171,20 +170,17 @@ func generateLocator() string {
 
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
-func createNewMove(db *pop.Connection, logger *zap.Logger, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, bool) {
+func createNewMove(db *pop.Connection, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, error) {
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{OrdersID: ordersID, Locator: generateLocator(), SelectedMoveType: selectedType}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
-			logger.Error("DB Validation", zap.Error(verrs))
-			return nil, false
+			return nil, errors.New(verrs.String())
 		}
 		if err == nil {
-			return &move, true
+			return &move, nil
 		}
-		logger.Error("Error creating move", zap.Error(err))
 	}
-	logger.Error("Too many attempts to create Move")
-	return nil, false
+	return nil, ErrLocatorGeneration
 }

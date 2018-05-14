@@ -268,12 +268,12 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	orders1, _ := testdatagen.MakeOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, ok := orders.CreateNewMove(suite.db, suite.logger, &selectedType)
-	suite.True(ok, "Failed to save move")
+	move, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err, "Failed to save move")
 	move.Orders = orders
 
-	move2, ok := orders1.CreateNewMove(suite.db, suite.logger, &selectedType)
-	suite.True(ok, "Failed to save move")
+	move2, err := orders1.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err, "Failed to save move")
 	move2.Orders = orders1
 
 	ppm1 := models.PersonallyProcuredMove{

@@ -7,6 +7,7 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
 )
 
 func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
@@ -34,11 +35,12 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		return responseForError(h.logger, err)
 	}
 
-	move, ok := orders.CreateNewMove(h.db, h.logger, params.CreateMovePayload.SelectedMoveType)
-	if ok {
+	move, err := orders.CreateNewMove(h.db, params.CreateMovePayload.SelectedMoveType)
+	if err == nil {
 		movePayload := payloadForMoveModel(orders, *move)
 		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
 	} else {
+		h.logger.Error("Creating move", zap.Error(err))
 		response = moveop.NewCreateMoveBadRequest()
 	}
 	return response
