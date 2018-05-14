@@ -70,7 +70,7 @@ export class EditablePanel extends Component {
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.showControls && (
+          {!this.props.isEditable && (
             <a className="editable-panel-edit" onClick={this.handleToggleClick}>
               Edit
             </a>

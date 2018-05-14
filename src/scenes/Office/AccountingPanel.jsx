@@ -1,15 +1,14 @@
 import { get, pick } from 'lodash';
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
+import editablePanel from './editablePanel';
 
-import { updateAccounting, loadAccounting } from './ducks';
+import { updateAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import Alert from 'shared/Alert';
-import { EditablePanel, PanelField } from 'shared/EditablePanel';
+import { PanelField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
@@ -39,68 +38,6 @@ const AccountingEdit = props => {
   );
 };
 
-function editablePanel(DisplayComponent, EditComponent) {
-  let Wrapper = class extends Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        isEditable: false,
-      };
-    }
-
-    componentDidMount() {
-      this.props.load(this.props.moveId);
-    }
-
-    save = () => {
-      this.props.update(this.props.moveId, this.props.formData.values);
-      this.toggleEditable();
-    };
-
-    toggleEditable = () => {
-      this.setState({
-        isEditable: !this.state.isEditable,
-      });
-    };
-
-    render() {
-      const isEditable = this.state.isEditable || this.props.isUpdating;
-      const Content = isEditable ? EditComponent : DisplayComponent;
-
-      return (
-        <React.Fragment>
-          {this.props.hasError && (
-            <Alert type="error" heading="An error occurred">
-              There was an error: <em>{this.props.errorMessage}</em>.
-            </Alert>
-          )}
-          <EditablePanel
-            title="Accounting"
-            onSave={this.save}
-            onToggle={this.toggleEditable}
-            isEditable={isEditable}
-          >
-            <Content
-              values={this.props.displayValues}
-              schema={this.props.schema}
-            />
-          </EditablePanel>
-        </React.Fragment>
-      );
-    }
-  };
-
-  Wrapper.propTypes = {
-    schema: PropTypes.object.isRequired,
-    displayValues: PropTypes.object.isRequired,
-    load: PropTypes.func.isRequired,
-    update: PropTypes.func.isRequired,
-    moveId: PropTypes.string.isRequired,
-  };
-
-  return Wrapper;
-}
-
 const formName = 'office_move_info_accounting';
 
 let AccountingPanel = editablePanel(AccountingDisplay, AccountingEdit);
@@ -127,7 +64,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       update: updateAccounting,
-      load: loadAccounting,
     },
     dispatch,
   );
