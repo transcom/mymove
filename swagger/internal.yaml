@@ -1139,6 +1139,45 @@ definitions:
       - city
       - state
       - postal_code
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - AWAITING_REVIEW
+      - APPROVED
+      - COMPLETED
+    x-display-value:
+      DRAFT: Draft
+      AWAITING_REVIEW: Awaiting Review
+      APPROVED: Approved
+      COMPLETED: Completed
+  PPMStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - AWAITING_REVIEW
+      - APPROVED
+      - IN_PROGRESS
+      - COMPLETED
+    x-display-value:
+      DRAFT: Draft
+      AWAITING_REVIEW: Awaiting Review
+      APPROVED: Approved
+      IN_PROGRESS: In Progress
+      COMPLETED: Completed
+  OrdersStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - AWAITING_REVIEW
+      - APPROVED
+    x-display-value:
+      DRAFT: Draft
+      AWAITING_REVIEW: Awaiting Review
+      APPROVED: Approved
   OrdersType:
     type: string
     title: Orders type
