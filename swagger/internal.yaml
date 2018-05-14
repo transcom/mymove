@@ -792,6 +792,10 @@ definitions:
         type: string
         format: string
         example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
       bytes:
         type: integer
       created_at:
@@ -804,6 +808,7 @@ definitions:
       - id
       - url
       - filename
+      - content_type
       - bytes
       - created_at
       - updated_at

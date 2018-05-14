@@ -468,12 +468,6 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
-
-[[projects]]
   name = "github.com/segmentio/chamber"
   packages = [
     ".",
@@ -707,6 +701,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8cb7046c4c3c794717c8ece9c6aeea5ad26443847455a6122f3e7aaac5c60c44"
+  inputs-digest = "5df2463d040fc676f69d25224e87ec13fab2487760e8214e53c49aae6c56e40b"
   solver-name = "gps-cdcl"
   solver-version = 1
