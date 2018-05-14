@@ -11,14 +11,18 @@ const moveIsLoading = false;
 const ordersAreLoading = false;
 const serviceMemberIsLoading = false;
 const backupContactsAreLoading = false;
-const moveHasLoadError = false;
-const moveHasLoadSuccess = null;
-const ordersHaveLoadError = false;
-const ordersHaveLoadSuccess = null;
-const serviceMemberHasLoadError = false;
-const serviceMemberHasLoadSuccess = null;
-const backupContactsHaveLoadError = false;
-const backupContactsHaveLoadSuccess = null;
+const moveHasLoadError = null;
+const moveHasLoadSuccess = false;
+const ordersHaveLoadError = null;
+const ordersHaveLoadSuccess = false;
+const serviceMemberHasLoadError = null;
+const serviceMemberHasLoadSuccess = false;
+const backupContactsHaveLoadError = null;
+const backupContactsHaveLoadSuccess = false;
+const PPMsHaveLoadError = null;
+const PPMsHaveLoadSuccess = false;
+const loadDependenciesHasError = null;
+const loadDependenciesHasSuccess = false;
 const match = {
   params: { moveID: '123456' },
   url: 'www.nino.com',
@@ -46,6 +50,10 @@ describe('Loads MoveInfo', () => {
             backupContactsAreLoading={backupContactsAreLoading}
             backupContactsHaveLoadError={backupContactsHaveLoadError}
             backupContactsHaveLoadSuccess={backupContactsHaveLoadSuccess}
+            PPMsHaveLoadError={PPMsHaveLoadError}
+            PPMsHaveLoadSuccess={PPMsHaveLoadSuccess}
+            loadDependenciesHasError={loadDependenciesHasError}
+            loadDependenciesHasSuccess={loadDependenciesHasSuccess}
             match={match}
             loadMoveDependencies={dummyFunc}
           />
