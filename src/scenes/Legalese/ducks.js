@@ -21,15 +21,15 @@ export const GET_CERT_TEXT = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // Action creator
-export function loadCertificationText() {
-  const action = ReduxHelpers.generateAsyncActions('GET_CERT_TEXT');
-  return function(dispatch, getState) {
-    dispatch(action.start);
-    GetCertificationText()
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
-  };
-}
+export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator(
+  'GET_CERT_TEXT',
+  GetCertificationText,
+);
+
+export const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
+  'CREATE_SIGNED_CERT',
+  CreateCertification,
+);
 
 export function loadLatestCertification(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
@@ -43,16 +43,6 @@ export function loadLatestCertification(moveId) {
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
     }
-  };
-}
-
-export function createSignedCertification(value) {
-  const action = ReduxHelpers.generateAsyncActions('CREATE_SIGNED_CERT');
-  return function(dispatch, getState) {
-    dispatch(action.start);
-    CreateCertification(value)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.failure(error)));
   };
 }
 
