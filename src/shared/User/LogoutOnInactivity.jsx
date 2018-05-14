@@ -12,6 +12,9 @@ export class LogoutOnInactivity extends React.Component {
     isIdle: false,
     showLoggedOutAlert: false,
   };
+  componentWillUnmount() {
+    if (this.timeout) clearTimeout(this.timeout);
+  }
   componentDidUpdate(prevProps) {
     if (!this.props.isLoggedIn && prevProps.isLoggedIn) {
       this.setState({ showLoggedOutAlert: true });
@@ -22,10 +25,9 @@ export class LogoutOnInactivity extends React.Component {
   };
   onIdle = () => {
     this.setState({ isIdle: true });
-    setInterval(
-      () => (window.location = '/auth/logout'),
-      oneMinuteInMilliseconds,
-    );
+    this.timeout = setTimeout(() => {
+      if (this.state.isIdle) window.location = '/auth/logout';
+    }, oneMinuteInMilliseconds);
   };
   render() {
     const props = this.props;
