@@ -18,15 +18,9 @@ func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, e
 		document = &newDocument
 	}
 
-	var serviceMember models.ServiceMember
-	err := db.Find(&serviceMember, document.ServiceMemberID)
-	if err != nil {
-		log.Panic(err)
-	}
-
 	upload := models.Upload{
 		DocumentID:  document.ID,
-		UploaderID:  serviceMember.UserID,
+		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
 		ContentType: "application/pdf",
