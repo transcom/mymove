@@ -3,20 +3,23 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
 
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import Alert from 'shared/Alert'; // eslint-disable-line
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-
-import { loadMove, loadAccounting } from './ducks.js';
+import { loadMoveDependencies, loadAccounting } from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 
@@ -42,16 +45,41 @@ const PPMTabContent = () => {
 
 class MoveInfo extends Component {
   componentDidMount() {
-    this.props.loadMove(this.props.match.params.moveId);
+    this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.loadAccounting(this.props.match.params.moveId);
   }
 
   render() {
+    // TODO: If the following vars are not used to load data, remove them.
+    // const officeMove = this.props.officeMove || {};
+    // const officeOrders = this.props.officeOrders || {};
+    const officeServiceMember = this.props.officeServiceMember || {};
+    // const officeBackupContacts = this.props.officeBackupContacts || []
+    const officePPMs = this.props.officePPMs || [];
+
+    if (
+      !this.props.loadDependenciesHasSuccess &&
+      !this.props.loadDependenciesHasError
+    )
+      return <LoadingPlaceholder />;
+    if (this.props.loadDependenciesHasError)
+      return (
+        <div className="usa-grid">
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              Something went wrong contacting the server.
+            </Alert>
+          </div>
+        </div>
+      );
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds Todo">
-            <h1>Move Info: Johnson, Casey</h1>
+          <div className="usa-width-two-thirds">
+            <h1>
+              Move Info: {officeServiceMember.last_name},{' '}
+              {officeServiceMember.first_name}
+            </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
             <NavLink to="/queues/new" activeClassName="usa-current">
@@ -60,29 +88,36 @@ class MoveInfo extends Component {
           </div>
         </div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-one-whole Todo">
+          <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# 3938593893</li>
+              <li>ID# {officeServiceMember.id}</li>
               <li>
-                (303) 936-8181
-                <FontAwesomeIcon
-                  className="icon"
-                  icon={faPhone}
-                  flip="horizontal"
-                />
-                <FontAwesomeIcon className="icon" icon={faComments} />
+                {officeServiceMember.telephone}
+                {officeServiceMember.phone_is_preferred && (
+                  <FontAwesomeIcon
+                    className="icon"
+                    icon={faPhone}
+                    flip="horizontal"
+                  />
+                )}
+                {officeServiceMember.text_message_is_preferred && (
+                  <FontAwesomeIcon className="icon" icon={faComments} />
+                )}
+                {officeServiceMember.email_is_preferred && (
+                  <FontAwesomeIcon className="icon" icon={faEmail} />
+                )}
               </li>
-              <li>Locator# ABC89</li>
+              <li className="Todo">Locator# ABC89</li>
               <li>KKFA to HAFC</li>
-              <li>Requested Pickup 5/10/18</li>
+              <li>
+                Requested Pickup {get(officePPMs, '[0].planned_move_date')}
+              </li>
             </ul>
           </div>
         </div>
 
         <div className="usa-grid grid-wide tabs">
           <div className="usa-width-three-fourths">
-            <p>Displaying move {this.props.match.params.moveID}.</p>
-
             <RoutedTabs startPathWith={this.props.match.url}>
               <NavTab to="/basics">
                 <span className="title">Basics</span>
@@ -137,16 +172,22 @@ class MoveInfo extends Component {
 }
 
 MoveInfo.propTypes = {
-  loadMove: PropTypes.func.isRequired,
+  loadMoveDependencies: PropTypes.func.isRequired,
   loadAccounting: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   officeMove: state.office.officeMove,
+  officeOrders: state.office.officeOrders,
+  officeServiceMember: state.office.officeServiceMember,
+  officeBackupContacts: state.office.officeBackupContacts,
+  officePPMs: state.office.officePPMs,
+  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
+  loadDependenciesHasError: state.office.loadDependenciesHasError,
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMove, loadAccounting }, dispatch);
+  bindActionCreators({ loadMoveDependencies, loadAccounting }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
