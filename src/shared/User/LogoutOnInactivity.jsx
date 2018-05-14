@@ -12,7 +12,14 @@ export class LogoutOnInactivity extends React.Component {
     isIdle: false,
     showLoggedOutAlert: false,
   };
+  componentDidMount() {
+    this.interval = setInterval(
+      () => fetch('/internal/swagger.yaml'),
+      tenMinutesInMilliseconds,
+    );
+  }
   componentWillUnmount() {
+    clearInterval(this.interval);
     if (this.timeout) clearTimeout(this.timeout);
   }
   componentDidUpdate(prevProps) {
