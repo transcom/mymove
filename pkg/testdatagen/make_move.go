@@ -1,12 +1,12 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
+	"errors"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"go.uber.org/zap"
 )
 
 // MakeMove creates a single Move and associated set of Orders
@@ -17,21 +17,12 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	}
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move := models.Move{
-		OrdersID:         orders.ID,
-		Orders:           orders,
-		SelectedMoveType: &selectedType,
+	move, ok := orders.CreateNewMove(db, zap.L(), &selectedType)
+	if !ok {
+		return models.Move{}, errors.New("failed to create move")
 	}
-
-	verrs, err := db.ValidateAndSave(&move)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
-
-	return move, err
+	move.Orders = orders
+	return *move, nil
 }
 
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)

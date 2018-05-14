@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"go.uber.org/zap"
 )
 
 // UploadedOrdersDocumentName is the name of an uploaded orders document
@@ -98,4 +99,9 @@ func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
 	}
 
 	return order, nil
+}
+
+// CreateNewMove creates a move associated with these Orders
+func (o *Order) CreateNewMove(db *pop.Connection, logger *zap.Logger, moveType *internalmessages.SelectedMoveType) (*Move, bool) {
+	return createNewMove(db, logger, o.ID, moveType)
 }

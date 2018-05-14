@@ -10,12 +10,20 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"crypto/sha256"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"go.uber.org/zap"
 )
+
+const maxLocatorAttempts = 3
+const locatorLength = 6
+
+var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
 // Move is an object representing a move
 type Move struct {
 	ID                      uuid.UUID                          `json:"id" db:"id"`
+	Locator                 string                             `json:"locator" db:"locator"`
 	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
 	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
@@ -141,4 +149,42 @@ func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
 	query := db.Where("user_id = $1", userID)
 	err := query.All(&moves)
 	return moves, err
+}
+
+// generateLocator constructs a record locator - a unique 6 character alphanumeric string
+func generateLocator() string {
+	// Get a UUID as a source of (almost certainly) unique bytes
+	seed, err := uuid.NewV4()
+	if err != nil {
+		return ""
+	}
+	// Scramble them via SHA256 in case UUID has structure
+	scrambledBytes := sha256.Sum256(seed.Bytes())
+	// Now convert bytes to letters
+	locatorRunes := make([]rune, locatorLength)
+	for idx := 0; idx < locatorLength; idx++ {
+		j := int(scrambledBytes[idx]) % len(locatorLetters)
+		locatorRunes[idx] = locatorLetters[j]
+	}
+	return string(locatorRunes)
+}
+
+// createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
+// retry with a new record locator.
+func createNewMove(db *pop.Connection, logger *zap.Logger, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, bool) {
+
+	for i := 0; i < maxLocatorAttempts; i++ {
+		move := Move{OrdersID: ordersID, Locator: generateLocator(), SelectedMoveType: selectedType}
+		verrs, err := db.ValidateAndCreate(&move)
+		if verrs.HasAny() {
+			logger.Error("DB Validation", zap.Error(verrs))
+			return nil, false
+		}
+		if err == nil {
+			return &move, true
+		}
+		logger.Error("Error creating move", zap.Error(err))
+	}
+	logger.Error("Too many attempts to create Move")
+	return nil, false
 }
