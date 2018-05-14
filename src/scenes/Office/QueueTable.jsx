@@ -31,11 +31,15 @@ class QueueTable extends Component {
   }
 
   render() {
+    const titles = {
+      new: 'New Moves',
+      troubleshooting: 'Troubleshooting',
+      ppms: 'PPMs',
+    };
+
     return (
       <div>
-        <h1 style={{ textTransform: 'capitalize' }}>
-          {this.props.queueType} Moves Queue
-        </h1>
+        <h1>Queue: {titles[this.props.queueType]}</h1>
         <div>
           <ReactTable
             columns={[
