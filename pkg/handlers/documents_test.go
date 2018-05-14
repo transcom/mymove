@@ -1,9 +1,11 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/satori/go.uuid"
+	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/uuid"
 
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -62,5 +64,59 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	err = suite.db.Find(&document, documentPayload.ID)
 	if err != nil {
 		t.Errorf("Couldn't find expected document.")
+	}
+}
+
+func (suite *HandlerSuite) TestShowDocumentHandler() {
+	t := suite.T()
+
+	upload, err := testdatagen.MakeUpload(suite.db, nil)
+	if err != nil {
+		t.Fatalf("could not create upload: %s", err)
+	}
+
+	documentID := upload.DocumentID
+	var document models.Document
+
+	err = suite.db.Eager("ServiceMember.User").Find(&document, documentID)
+	if err != nil {
+		t.Fatalf("could not load document: %s", err)
+	}
+
+	user := document.ServiceMember.User
+
+	params := documentop.NewShowDocumentParams()
+	params.DocumentID = strfmt.UUID(documentID.String())
+
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, user)
+	params.HTTPRequest = req
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	fakeS3 := newFakeS3Storage(true)
+	context.SetFileStorer(fakeS3)
+	handler := ShowDocumentHandler(context)
+	response := handler.Handle(params)
+
+	showResponse, ok := response.(*documentop.ShowDocumentOK)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+	documentPayload := showResponse.Payload
+
+	responseDocumentUUID := documentPayload.ID.String()
+	if responseDocumentUUID != documentID.String() {
+		t.Errorf("wrong document uuid, expected %v, got %v", documentID, responseDocumentUUID)
+	}
+
+	if len(documentPayload.Uploads) != 1 {
+		t.Errorf("wrong number of uploads, expected 1, got %d", len(documentPayload.Uploads))
+	}
+
+	uploadPayload := documentPayload.Uploads[0]
+	uploadID := (*uploadPayload.ID).String()
+	expectedURL := fmt.Sprintf("https://example.com/dir/documents/%s/uploads/%s?contentType=application/pdf&signed=test", documentID, uploadID)
+	if (*uploadPayload.URL).String() != expectedURL {
+		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}
 }

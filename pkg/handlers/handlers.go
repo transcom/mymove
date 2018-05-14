@@ -117,7 +117,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler(context)
 
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
-
+	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler(context)
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler(context)
 

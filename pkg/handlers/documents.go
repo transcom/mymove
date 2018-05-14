@@ -76,6 +76,32 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
 }
 
+// ShowDocumentHandler shows a document via GETT /documents/:document_id
+type ShowDocumentHandler HandlerContext
+
+// Handle creates a new Document from a request payload
+func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+
+	documentID, err := uuid.FromString(params.DocumentID.String())
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	document, err := models.FetchDocument(h.db, user, documentID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	documentPayload, err := payloadForDocumentModel(h.storage, document)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
+}
+
 /* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,
 need to be reconciled. This will be done when the NotImplemented code below is Implemented
 */
