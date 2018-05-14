@@ -270,6 +270,8 @@ definitions:
         type: string
         title: Estimated Incentive
         x-nullable: true
+      status:
+        $ref: '#/definitions/PPMStatus'
       created_at:
         type: string
         format: date-time
@@ -322,6 +324,8 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
+      status:
+        $ref: '#/definitions/MoveStatus'
       created_at:
         type: string
         format: date-time
@@ -1241,6 +1245,8 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report-by date
+      orders_status:
+        $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
       orders_type_detail:
@@ -2089,6 +2095,37 @@ paths:
           description: move not found
         500:
           description: internal server error
+  /moves/{moveId}/approve:
+    post:
+      summary: Approves a move to proceed
+      description: Approves the basic details of a move. The status of the move will be updated to APPROVED
+      operationId: approveMove
+      tags:
+        - office
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns updated (approved) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this move
+        409:
+          description: the move is not in a state to be approved
+          schema:
+            $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
   /documents:
     post:
       summary: Create a new document
