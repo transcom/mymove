@@ -26,29 +26,31 @@ const match = {
 
 const push = jest.fn();
 
-it('renders without crashing', () => {
-  const div = document.createElement('div');
-  ReactDOM.render(
-    <Provider store={store}>
-      <MockRouter push={push}>
-        <MoveInfo
-          moveIsLoading={moveIsLoading}
-          moveHasLoadError={moveHasLoadError}
-          moveHasLoadSuccess={moveHasLoadSuccess}
-          serviceMemberIsLoading={serviceMemberIsLoading}
-          serviceMemberHasLoadError={serviceMemberHasLoadError}
-          serviceMemberHasLoadSuccess={serviceMemberHasLoadSuccess}
-          ordersAreLoading={ordersAreLoading}
-          ordersHaveLoadError={ordersHaveLoadError}
-          ordersHaveLoadSuccess={ordersHaveLoadSuccess}
-          backupContactsAreLoading={backupContactsAreLoading}
-          backupContactsHaveLoadError={backupContactsHaveLoadError}
-          backupContactsHaveLoadSuccess={backupContactsHaveLoadSuccess}
-          match={match}
-          loadMoveDependencies={dummyFunc}
-        />
-      </MockRouter>
-    </Provider>,
-    div,
-  );
+describe('Loads MoveInfo', () => {
+  it('renders without crashing', () => {
+    const div = document.createElement('div');
+    ReactDOM.render(
+      <Provider store={store}>
+        <MockRouter push={push}>
+          <MoveInfo
+            moveIsLoading={moveIsLoading}
+            moveHasLoadError={moveHasLoadError}
+            moveHasLoadSuccess={moveHasLoadSuccess}
+            serviceMemberIsLoading={serviceMemberIsLoading}
+            serviceMemberHasLoadError={serviceMemberHasLoadError}
+            serviceMemberHasLoadSuccess={serviceMemberHasLoadSuccess}
+            ordersAreLoading={ordersAreLoading}
+            ordersHaveLoadError={ordersHaveLoadError}
+            ordersHaveLoadSuccess={ordersHaveLoadSuccess}
+            backupContactsAreLoading={backupContactsAreLoading}
+            backupContactsHaveLoadError={backupContactsHaveLoadError}
+            backupContactsHaveLoadSuccess={backupContactsHaveLoadSuccess}
+            match={match}
+            loadMoveDependencies={dummyFunc}
+          />
+        </MockRouter>
+      </Provider>,
+      div,
+    );
+  });
 });
