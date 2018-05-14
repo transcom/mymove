@@ -67,6 +67,7 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/s3",
+    "service/ses",
     "service/ssm",
     "service/ssm/ssmiface",
     "service/sts"
