@@ -41,11 +41,7 @@ export class SignedCertification extends Component {
   }
 
   componentDidUpdate() {
-    const {
-      getCertificationSuccess,
-      certificationText,
-      hasSubmitSuccess,
-    } = this.props;
+    const { getCertificationSuccess, certificationText } = this.props;
     if (getCertificationSuccess && !certificationText) {
       this.props.loadCertificationText();
       return;

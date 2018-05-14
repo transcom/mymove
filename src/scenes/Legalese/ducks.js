@@ -5,7 +5,6 @@ import {
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { get } from 'lodash';
-import { push } from 'react-router-redux';
 
 // Actions
 

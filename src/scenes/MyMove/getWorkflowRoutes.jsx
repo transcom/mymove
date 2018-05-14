@@ -48,7 +48,6 @@ const stub = (key, pages, description) => ({ match }) => (
   />
 );
 
-const goHome = props => () => props.push('/');
 const createMove = props => () =>
   props.hasMove || props.createMove(props.currentOrdersId);
 const always = () => true;
