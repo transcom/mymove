@@ -3,6 +3,8 @@ import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
+import { MoveSummary } from './MoveSummary';
+
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
@@ -12,21 +14,36 @@ export class Landing extends Component {
     document.title = 'Transcom PPP: Landing Page';
   }
   componentDidUpdate() {
-    if (this.props.createdServiceMemberSuccess) {
-      this.props.push(
-        `service-member/${this.props.createdServiceMember.id}/create`,
-      );
+    if (this.props.loggedInUserSuccess) {
+      if (
+        !this.props.createdServiceMemberIsLoading &&
+        !this.props.loggedInUser.service_member
+      ) {
+        this.props.createServiceMember({});
+      } else if (
+        (!this.props.createdServiceMemberIsLoading &&
+          !this.props.loggedInUser.service_member.is_profile_complete) ||
+        this.props.createdServiceMemberSuccess
+      ) {
+        this.props.push(
+          `service-member/${this.props.loggedInUser.service_member.id}/create`,
+        );
+      }
     }
   }
   startMove = values => {
-    if (this.props.loggedInUser.service_member) {
-      this.props.push(
-        `service-member/${this.props.loggedInUser.service_member.id}/create`,
+    if (!this.props.loggedInUser.service_member) {
+      console.error(
+        'With no service member, you should have been redirected already.',
       );
-    } else {
-      this.props.createServiceMember({});
     }
+    this.props.push(`orders`);
   };
+
+  editMove = move => {
+    this.props.push(`moves/${move.id}`);
+  };
+
   render() {
     const {
       isLoggedIn,
@@ -34,10 +51,28 @@ export class Landing extends Component {
       loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
+      loggedInUser,
     } = this.props;
+
+    let profile, orders, move, ppm;
+
+    if (loggedInUser) {
+      profile = loggedInUser.service_member;
+      if (profile) {
+        orders = profile.orders[0];
+      }
+      if (orders) {
+        move = orders.moves[0];
+      }
+      if (move) {
+        ppm = move.personally_procured_moves[0];
+      }
+    }
+
+    const displayMove = !!ppm;
+
     return (
       <div className="usa-grid">
-        <h1>Welcome! </h1>
         <div>
           {loggedInUserError && (
             <Alert type="error" heading="An error occurred">
@@ -55,6 +90,15 @@ export class Landing extends Component {
             <button onClick={this.startMove}>Start a move</button>
           )}
         </div>
+        {displayMove ? (
+          <MoveSummary
+            profile={profile}
+            orders={orders}
+            move={move}
+            ppm={ppm}
+            editMove={this.editMove}
+          />
+        ) : null}
       </div>
     );
   }
@@ -66,6 +110,7 @@ const mapStateToProps = state => ({
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,
   loggedInUserSuccess: state.loggedInUser.hasSucceeded,
+  createdServiceMemberIsLoading: state.serviceMember.isLoading,
   createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
   createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
