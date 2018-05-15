@@ -271,7 +271,6 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 
 	authError := r.URL.Query().Get("error")
 	lURL := h.landingURL(r)
-	h.logger.Info("CB")
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
@@ -291,7 +290,6 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	h.logger.Info("FETCH TOKEN")
 	// TODO: validate the state is the same (pull from session)
 	code := r.URL.Query().Get("code")
 	session, err := fetchToken(h.logger, code, provider.ClientKey, h.loginGovProvider)
@@ -300,7 +298,6 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
-	h.logger.Info("SESSION", zap.Any("session", session))
 	openIDuser, err := provider.FetchUser(session)
 	if err != nil {
 		h.logger.Error("Login.gov user info request", zap.Error(err))
@@ -358,10 +355,12 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		return nil, err
 	}
 
-	logger.Info("Token response Body", zap.String("body", string(responseBody)))
 	var parsedResponse LoginGovTokenResponse
 	json.Unmarshal(responseBody, &parsedResponse)
-	logger.Info("Parsed token response Body", zap.Any("body", parsedResponse))
+	if parsedResponse.Error != "" {
+		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
+		return nil, errors.New(parsedResponse.Error)
+	}
 
 	// TODO: get goth session from storage instead of constructing a new one
 	session := openidConnect.Session{
@@ -369,6 +368,5 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		ExpiresAt:   time.Now().Add(time.Second * time.Duration(parsedResponse.ExpiresIn)),
 		IDToken:     parsedResponse.IDToken,
 	}
-
 	return &session, err
 }
