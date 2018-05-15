@@ -14,7 +14,7 @@ import LoginButton from 'shared/User/LoginButton';
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
-    if (!this.props.loggedInUserIsLoading) {
+    if (!this.props.loggedInUserIsLoading && this.props.isLoggedIn) {
       this.props.loadLoggedInUser().then(() => {});
     }
   }

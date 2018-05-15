@@ -21,7 +21,7 @@ const getLoggedInActions = helpers.generateAsyncActions(GET_LOGGED_IN_USER);
 export const loadLoggedInUser = () => {
   return function(dispatch) {
     const userInfo = getUserInfo();
-    if (!userInfo.isLoggedIn) return;
+    if (!userInfo.isLoggedIn) return Promise.resolve();
     dispatch(getLoggedInActions.start());
     return GetLoggedInUser()
       .then(item => dispatch(getLoggedInActions.success(item)))
