@@ -15,6 +15,20 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+// MoveStatus represents the status of an order record's lifecycle
+type MoveStatus string
+
+const (
+	// MoveStatusDRAFT captures enum value "DRAFT"
+	MoveStatusDRAFT MoveStatus = "DRAFT"
+	// MoveStatusSUBMITTED captures enum value "SUBMITTED"
+	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
+	// MoveStatusAPPROVED captures enum value "APPROVED"
+	MoveStatusAPPROVED MoveStatus = "APPROVED"
+	// MoveStatusCOMPLETED captures enum value "COMPLETED"
+	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+)
+
 const maxLocatorAttempts = 3
 const locatorLength = 6
 
@@ -30,6 +44,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
+	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 }
 
@@ -53,6 +68,7 @@ func (m Moves) String() string {
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
+		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
 }
 
@@ -111,6 +127,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 		AdditionalPickupZip: additionalPickupZip,
 		DestinationZip:      destinationZip,
 		DaysInStorage:       daysInStorage,
+		Status:              PPMStatusDRAFT,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newPPM)
@@ -172,10 +189,17 @@ func generateLocator() string {
 
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
-func createNewMove(db *pop.Connection, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+func createNewMove(db *pop.Connection,
+	ordersID uuid.UUID,
+	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
 	for i := 0; i < maxLocatorAttempts; i++ {
-		move := Move{OrdersID: ordersID, Locator: generateLocator(), SelectedMoveType: selectedType}
+		move := Move{
+			OrdersID:         ordersID,
+			Locator:          generateLocator(),
+			SelectedMoveType: selectedType,
+			Status:           MoveStatusDRAFT,
+		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
 			return nil, verrs, nil

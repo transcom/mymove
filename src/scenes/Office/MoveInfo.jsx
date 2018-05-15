@@ -4,6 +4,7 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
+import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Route, Switch, Redirect } from 'react-router-dom';
@@ -25,7 +26,9 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 import './office.css';
 
@@ -64,6 +67,13 @@ class MoveInfo extends Component {
     const officeServiceMember = this.props.officeServiceMember || {};
     // const officeBackupContacts = this.props.officeBackupContacts || []
     const officePPMs = this.props.officePPMs || [];
+
+    let uploads;
+    if (this.props.officeOrders) {
+      uploads = this.props.officeOrders.uploaded_orders.uploads;
+    } else {
+      uploads = [];
+    }
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -166,11 +176,32 @@ class MoveInfo extends Component {
               </Switch>
             </div>
           </div>
-          <div className="usa-width-one-fourths">
+          <div className="usa-width-one-fourth">
             <div>
               <button onClick={this.approveBasics}>Approve Basics</button>
               <button>Troubleshoot</button>
               <button>Cancel Move</button>
+            </div>
+            <div className="documents">
+              <h2 className="usa-heading">
+                Documents
+                <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+              </h2>
+              {uploads.length === 0 && <p>No orders have been uploaded.</p>}
+              {uploads.map(upload => {
+                return (
+                  <div key={upload.url} className="document">
+                    <FontAwesomeIcon
+                      style={{ color: 'red' }}
+                      className="icon"
+                      icon={faExclamationCircle}
+                    />
+                    <a href={upload.url} target="_blank">
+                      Orders ({moment(upload.created_at).format('D-MMM-YY')})
+                    </a>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>

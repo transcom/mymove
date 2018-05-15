@@ -14,6 +14,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 	expErrors := map[string][]string{
 		"orders_id": {"OrdersID can not be blank."},
+		"status":    {"Status can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)
@@ -25,6 +26,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	reqApp := app.MyApp
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
 	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
