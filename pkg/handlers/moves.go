@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+
 	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -14,6 +16,7 @@ func payloadForMoveModel(order models.Order, move models.Move) internalmessages.
 	movePayload := internalmessages.MovePayload{
 		CreatedAt:        fmtDateTime(move.CreatedAt),
 		SelectedMoveType: move.SelectedMoveType,
+		Locator:          swag.String(move.Locator),
 		ID:               fmtUUID(move.ID),
 		UpdatedAt:        fmtDateTime(move.UpdatedAt),
 		OrdersID:         fmtUUID(order.ID),
