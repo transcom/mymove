@@ -10,7 +10,7 @@ import (
 )
 
 // MakeMove creates a single Move and associated set of Orders
-func MakeMove(db *pop.Connection) (models.Move, error) {
+func MakeMove(db *pop.Connection, status string) (models.Move, error) {
 	orders, err := MakeOrder(db)
 	if err != nil {
 		return models.Move{}, err
@@ -21,6 +21,7 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 		OrdersID:         orders.ID,
 		Orders:           orders,
 		SelectedMoveType: &selectedType,
+		Status:           status,
 	}
 
 	verrs, err := db.ValidateAndSave(&move)
@@ -36,7 +37,11 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)
 func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
-		MakeMove(db)
+	for i := 0; i < 3; i++ {
+		MakeMove(db, "DRAFT")
+	}
+
+	for i := 0; i < 2; i++ {
+		MakeMove(db, "SUBMITTED")
 	}
 }

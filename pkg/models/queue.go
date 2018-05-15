@@ -27,25 +27,44 @@ type MoveQueueItem struct {
 // GetMoveQueueItems gets all moveQueueItems for a specific lifecycleState
 func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueItem, error) {
 	moveQueueItems := []MoveQueueItem{}
-	// TODO: Add clause `SELECT moves.ID, sm.edipi, sm.rank, CONCAT(sm.last_name, ', ', sm.first_name) AS customer_name`
 	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
+	var query string
 
-	// TODO: replace hardcoded values with actual query values once data is available
-	query := `
-		SELECT moves.ID,
-			COALESCE(sm.edipi, '*missing*') as edipi,
-			COALESCE(sm.rank, '*missing*') as rank,
-			CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-			'*missing*' as locator,
-			ord.orders_type as orders_type,
-			current_date as move_date,
-			moves.created_at as created_at,
-			'Awaiting review' as status,
-			current_time as last_modified_date
-		FROM moves
-		JOIN orders as ord ON moves.orders_id = ord.id
-		JOIN service_members AS sm ON ord.service_member_id = sm.id
-	`
+	// TODO: update mapping of new/draft and ppm/approved to reflect expanding functionality of queue, once troubleshooting is enabled
+	if lifecycleState == "new" {
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				'*missing*' as locator,
+				ord.orders_type as orders_type,
+				current_date as move_date,
+				moves.created_at as created_at,
+				current_time as last_modified_date
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			WHERE moves.status = 'DRAFT'
+		`
+	} else {
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				'*missing*' as locator,
+				ord.orders_type as orders_type,
+				current_date as move_date,
+				moves.created_at as created_at,
+				current_time as last_modified_date
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			WHERE moves.status = 'APPROVED'
+		`
+	}
+
 	// TODO: add clause `WHERE moves.lifecycle_state = $1`
 	// err = db.RawQuery(query, lifecycleState).All(&moveQueueItems)
 	err := db.RawQuery(query).All(&moveQueueItems)

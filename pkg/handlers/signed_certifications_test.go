@@ -18,7 +18,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	t := suite.T()
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -65,7 +65,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -102,7 +102,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	t := suite.T()
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),

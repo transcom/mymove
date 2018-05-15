@@ -79,8 +79,8 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	t := suite.T()
 
 	// Given: moves and associated PPMs
-	move1, _ := testdatagen.MakeMove(suite.db)
-	move2, _ := testdatagen.MakeMove(suite.db)
+	move1, _ := testdatagen.MakeMove(suite.db, "DRAFT")
+	move2, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:             move1.ID,
@@ -153,7 +153,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newMoveDate := time.Now()
 	destinationZip := swag.String("00112")
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
@@ -222,7 +222,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	}
 	suite.mustSave(&user2)
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
@@ -321,7 +321,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move, _ := testdatagen.MakeMove(suite.db, "DRAFT")
 
 	badMoveID := uuid.Must(uuid.NewV4())
 

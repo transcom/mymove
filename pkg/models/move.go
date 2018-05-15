@@ -22,6 +22,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
+	Status                  string                             `json:"status" db:"status"`
 }
 
 // String is not required by pop and may be deleted
