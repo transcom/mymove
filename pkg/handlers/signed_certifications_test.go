@@ -9,7 +9,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -26,18 +25,15 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		Date:              (*strfmt.Date)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      *fmtUUID(move.ID),
-		HTTPRequest: req,
+		MoveID: *fmtUUID(move.ID),
 	}
 
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, move.Orders.ServiceMember.User.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, move.Orders.ServiceMember.User)
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -73,18 +69,16 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		Date:              (*strfmt.Date)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      *fmtUUID(move.ID),
-		HTTPRequest: req,
+		MoveID: *fmtUUID(move.ID),
 	}
 
 	// Uses a different user than is on the move object
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, user2)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -111,18 +105,16 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	}
 
 	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      badMoveID,
-		HTTPRequest: req,
+		MoveID: badMoveID,
 	}
 
 	// Uses a different user than is on the move object
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, move.Orders.ServiceMember.User.ID, "fake token")
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)

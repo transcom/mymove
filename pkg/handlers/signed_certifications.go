@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/models"
@@ -18,9 +19,10 @@ type CreateSignedCertificationHandler HandlerContext
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

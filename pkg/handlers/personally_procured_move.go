@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -38,10 +39,11 @@ type CreatePersonallyProcuredMoveHandler HandlerContext
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -72,10 +74,11 @@ type IndexPersonallyProcuredMovesHandler HandlerContext
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -126,10 +129,11 @@ type PatchPersonallyProcuredMoveHandler HandlerContext
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, reqApp, ppmID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
