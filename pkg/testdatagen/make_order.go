@@ -39,6 +39,7 @@ func MakeOrderForServiceMember(db *pop.Connection, sm models.ServiceMember) (mod
 		HasDependents:    true,
 		UploadedOrdersID: document.ID,
 		UploadedOrders:   document,
+		Status:           models.OrderStatusDRAFT,
 	}
 
 	verrs, err := db.ValidateAndSave(&order)

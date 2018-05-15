@@ -6,3 +6,50 @@
 .instructions {
   margin: 0;
 }
+
+.signature-form {
+  padding: 2rem;
+  margin-top: 1em;
+}
+
+.signature-box {
+  background-color: #E8E8E8;
+  margin-top: 1em;
+  padding: 1em;
+}
+
+.signature-box > h3 {
+  margin-top: .5em;
+}
+
+.signature-fields {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin: 0 -10px; /* This trick stolen from https://stackoverflow.com/a/48450531/559073 */
+}
+
+.signature-fields > * {
+  margin-top: 0;
+  margin: 0 10px;
+}
+
+div.signature {
+  flex-grow: 1;
+}
+
+div.signature-date  {
+  flex-grow: 1;
+  max-width: 200px;
+}
+
+/* This matches the width at which submit buttons go full-width for mobile devices */
+@media only screen and (max-width: 481px) {
+    input[name="date"] {
+        max-width: none;
+    }
+}
+
+.signature_form h3 {
+  margin-top: 10px;
+}

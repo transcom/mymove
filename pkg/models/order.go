@@ -10,11 +10,24 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
+
+// OrderStatus represents the status of an order record's lifecycle
+type OrderStatus string
+
+const (
+	// OrderStatusDRAFT captures enum value "DRAFT"
+	OrderStatusDRAFT OrderStatus = "DRAFT"
+	// OrderStatusSUBMITTED captures enum value "SUBMITTED"
+	OrderStatusSUBMITTED OrderStatus = "SUBMITTED"
+	// OrderStatusAPPROVED captures enum value "APPROVED"
+	OrderStatusAPPROVED OrderStatus = "APPROVED"
+)
 
 // Order is a set of orders received by a service member
 type Order struct {
@@ -35,6 +48,7 @@ type Order struct {
 	UploadedOrders       Document                           `belongs_to:"documents"`
 	UploadedOrdersID     uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber         *string                            `json:"orders_number" db:"orders_number"`
+	Status               OrderStatus                        `json:"status" db:"status"`
 }
 
 // String is not required by pop and may be deleted
@@ -61,6 +75,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: o.ReportByDate, Name: "ReportByDate"},
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
 		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
+		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 	), nil
 }
 
@@ -82,7 +97,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 }
 
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.
-func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
+func FetchOrder(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
@@ -93,9 +108,14 @@ func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
 		return Order{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify orders
-	if order.ServiceMember.UserID != user.ID {
+	if reqApp == app.MyApp && order.ServiceMember.UserID != user.ID {
 		return Order{}, ErrFetchForbidden
 	}
 
 	return order, nil
+}
+
+// CreateNewMove creates a move associated with these Orders
+func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+	return createNewMove(db, o.ID, moveType)
 }

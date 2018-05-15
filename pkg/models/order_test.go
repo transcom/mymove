@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,6 +20,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"report_by_date":      {"ReportByDate can not be blank."},
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
+		"status":              {"Status can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
@@ -28,6 +30,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 
 	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
 	serviceMember2, _ := testdatagen.MakeServiceMember(suite.db)
+	reqApp := app.MyApp
 
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -51,11 +54,12 @@ func (suite *ModelSuite) TestFetchOrder() {
 		NewDutyStation:   dutyStation,
 		UploadedOrdersID: uploadedOrder.ID,
 		UploadedOrders:   uploadedOrder,
+		Status:           OrderStatusSUBMITTED,
 	}
 	suite.mustSave(&order)
 
 	// User is authorized to fetch order
-	goodOrder, err := FetchOrder(suite.db, serviceMember1.User, order.ID)
+	goodOrder, err := FetchOrder(suite.db, serviceMember1.User, reqApp, order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -65,14 +69,14 @@ func (suite *ModelSuite) TestFetchOrder() {
 	}
 
 	// User is forbidden from fetching order
-	_, err = FetchOrder(suite.db, serviceMember2.User, order.ID)
+	_, err = FetchOrder(suite.db, serviceMember2.User, reqApp, order.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
 	// Wrong Order ID
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrder(suite.db, serviceMember1.User, wrongID)
+	_, err = FetchOrder(suite.db, serviceMember1.User, reqApp, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
