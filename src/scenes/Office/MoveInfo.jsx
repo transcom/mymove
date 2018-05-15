@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, capitalize } from 'lodash';
 import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
@@ -141,9 +141,7 @@ class MoveInfo extends Component {
                 <span className="title">Basics</span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  <span style={{ textTransform: 'capitalize' }}>
-                    {(officeMove.status || '').toLowerCase()}
-                  </span>
+                  {capitalize(officeMove.status)}
                 </span>
               </NavTab>
               <NavTab to="/ppm">
