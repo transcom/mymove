@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -82,7 +83,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMember(db *pop.Connection, user User, reqApp string, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
@@ -93,7 +94,7 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 		return ServiceMember{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
-	if serviceMember.UserID != user.ID {
+	if reqApp == app.MyApp && serviceMember.UserID != user.ID {
 		return ServiceMember{}, ErrFetchForbidden
 	}
 

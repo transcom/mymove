@@ -69,7 +69,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchMove fetches and validates a Move for this User
-func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
+func FetchMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager().Find(&move, id)
 	if err != nil {
@@ -81,7 +81,7 @@ func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrder(db, authUser, move.OrdersID)
+	_, authErr := FetchOrder(db, authUser, reqApp, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}

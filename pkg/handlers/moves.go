@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -27,8 +28,9 @@ type CreateMoveHandler HandlerContext
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
 	// Get orders for authorized user
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
-	orders, err := models.FetchOrder(h.db, user, ordersID)
+	orders, err := models.FetchOrder(h.db, user, reqApp, ordersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -51,15 +53,16 @@ type ShowMoveHandler HandlerContext
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	orders, err := models.FetchOrder(h.db, user, reqApp, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -75,15 +78,16 @@ type PatchMoveHandler HandlerContext
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	orders, err := models.FetchOrder(h.db, user, reqApp, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
