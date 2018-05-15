@@ -141,7 +141,9 @@ class MoveInfo extends Component {
                 <span className="title">Basics</span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  Status Goes Here
+                  <span style={{ textTransform: 'capitalize' }}>
+                    {(officeMove.status || '').toLowerCase()}
+                  </span>
                 </span>
               </NavTab>
               <NavTab to="/ppm">
@@ -178,7 +180,12 @@ class MoveInfo extends Component {
           </div>
           <div className="usa-width-one-fourth">
             <div>
-              <button onClick={this.approveBasics}>Approve Basics</button>
+              <button
+                onClick={this.approveBasics}
+                disabled={officeMove.status === 'APPROVED'}
+              >
+                Approve Basics
+              </button>
               <button>Troubleshoot</button>
               <button>Cancel Move</button>
             </div>
