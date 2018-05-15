@@ -7,7 +7,6 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
@@ -26,7 +25,6 @@ type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	var response middleware.Responder
 	// Get orders for authorized user
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
@@ -35,23 +33,15 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		return responseForError(h.logger, err)
 	}
 
-	// Create a new move for authenticated user orders
-	newMove := models.Move{
-		OrdersID:         orders.ID,
-		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
-	}
-	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
-		if verrs.HasAny() {
-			h.logger.Error("DB Validation", zap.Error(verrs))
-		} else {
-			h.logger.Error("DB Insertion", zap.Error(err))
+	move, verrs, err := orders.CreateNewMove(h.db, params.CreateMovePayload.SelectedMoveType)
+	if verrs.HasAny() || err != nil {
+		if err == models.ErrCreateViolatesUniqueConstraint {
+			h.logger.Error("Failed to create Unique Record Locator")
 		}
-		response = moveop.NewCreateMoveBadRequest()
-	} else {
-		movePayload := payloadForMoveModel(orders, newMove)
-		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
+		return responseForVErrors(h.logger, verrs, err)
 	}
-	return response
+	movePayload := payloadForMoveModel(orders, *move)
+	return moveop.NewCreateMoveCreated().WithPayload(&movePayload)
 }
 
 // ShowMoveHandler returns a move for a user and move ID

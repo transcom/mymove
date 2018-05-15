@@ -99,3 +99,8 @@ func FetchOrder(db *pop.Connection, user User, id uuid.UUID) (Order, error) {
 
 	return order, nil
 }
+
+// CreateNewMove creates a move associated with these Orders
+func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+	return createNewMove(db, o.ID, moveType)
+}
