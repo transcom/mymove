@@ -37,7 +37,8 @@ export const MoveSummary = props => {
           </div>
           <div className="shipment_box_contents">
             {/* Submitted Move */}
-            {move.status === 'SUBMITTED' && (
+            {/* TODO: Change status to SUBMITTED when moves get that status on submit */}
+            {move.status === 'DRAFT' && (
               <div>
                 <img src={ppmSubmitted} alt="status" />
                 <div className="step-contents">
