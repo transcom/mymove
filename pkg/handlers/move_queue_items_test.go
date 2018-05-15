@@ -29,6 +29,10 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	}
 	suite.mustSave(&newMove)
 
+	_, verrs, locErr := order.CreateNewMove(suite.db, nil)
+	suite.False(verrs.HasAny(), "failed to create new move")
+	suite.Nil(locErr)
+
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/queues/new", nil)
 	req = suite.authenticateRequest(req, officeUser)

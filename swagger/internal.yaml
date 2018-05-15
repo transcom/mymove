@@ -322,6 +322,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      locator:
+        type: string
+        example: "12432"
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
       status:
@@ -335,6 +338,7 @@ definitions:
     required:
       - id
       - orders_id
+      - locator
       - created_at
       - updated_at
   PatchMovePayload:
@@ -732,6 +736,35 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberBackupContactPayload'
+  SignedCertificationPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      date:
+        type: string
+        format: date
+        title: Date
+      signature:
+        type: string
+        title: Signature
+      certification_text:
+        type: string
+    required:
+      - id
+      - created_at
+      - updated_at
+      - date
+      - signature
+      - certification_text
   CreateSignedCertificationPayload:
     type: object
     properties:
@@ -748,6 +781,10 @@ definitions:
       - date
       - signature
       - certification_text
+  IndexSignedCertificationsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/SignedCertificationPayload'
   DocumentPayload:
     type: object
     properties:
@@ -1807,7 +1844,40 @@ paths:
           description: move is not found
         500:
           description: internal server error
-  /moves/{moveId}/signed_certification:
+  /moves/{moveId}/signed_certifications:
+    get:
+      summary: Returns signed certifications for the given move
+      description: Returns signed certifications for the given move
+      operationId: indexSignedCertifications
+      tags:
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: query
+          name: limit
+          type: integer
+          required: false
+          description: Number of certifications to return
+      responses:
+        200:
+          description: the instance of the move
+          schema:
+            $ref: '#/definitions/IndexSignedCertificationsPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move is not found
+        500:
+          description: internal server error
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID

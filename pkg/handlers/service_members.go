@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -128,9 +129,10 @@ type ShowServiceMemberHandler HandlerContext
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -146,9 +148,10 @@ type PatchServiceMemberHandler HandlerContext
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -253,9 +256,10 @@ type ShowServiceMemberOrdersHandler HandlerContext
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

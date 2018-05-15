@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/app"
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -42,6 +43,7 @@ type CreateDocumentHandler HandlerContext
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	app := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
@@ -49,7 +51,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, app, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -83,13 +85,14 @@ type ShowDocumentHandler HandlerContext
 func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	app := app.GetAppFromContext(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	document, err := models.FetchDocument(h.db, user, documentID)
+	document, err := models.FetchDocument(h.db, user, app, documentID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

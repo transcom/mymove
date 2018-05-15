@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
-
-	"io"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
@@ -87,6 +86,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler(context)
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler(context)
+	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler(context)
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler(context)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
