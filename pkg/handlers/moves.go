@@ -13,13 +13,21 @@ import (
 )
 
 func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
+
+	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
+	for _, ppm := range move.PersonallyProcuredMoves {
+		payload := payloadForPPMModel(ppm)
+		ppmPayloads = append(ppmPayloads, &payload)
+	}
+
 	movePayload := internalmessages.MovePayload{
-		CreatedAt:        fmtDateTime(move.CreatedAt),
-		SelectedMoveType: move.SelectedMoveType,
-		Locator:          swag.String(move.Locator),
-		ID:               fmtUUID(move.ID),
-		UpdatedAt:        fmtDateTime(move.UpdatedAt),
-		OrdersID:         fmtUUID(order.ID),
+		CreatedAt:               fmtDateTime(move.CreatedAt),
+		SelectedMoveType:        move.SelectedMoveType,
+		Locator:                 swag.String(move.Locator),
+		ID:                      fmtUUID(move.ID),
+		UpdatedAt:               fmtDateTime(move.UpdatedAt),
+		PersonallyProcuredMoves: ppmPayloads,
+		OrdersID:                fmtUUID(order.ID),
 	}
 	return movePayload
 }
