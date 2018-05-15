@@ -15,11 +15,13 @@ class QueueTable extends Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
-  // componentDidMount() {
-  //   this.fetchData();
-  // }
+  componentDidUpdate(prevProps) {
+    if (this.props.queueType !== prevProps.queueType) {
+      this.fetchData();
+    }
+  }
 
-  fetchData(state, instance) {
+  fetchData() {
     RetrieveMovesForOffice(this.props.queueType).then(
       response => {
         this.setState({

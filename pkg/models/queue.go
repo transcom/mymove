@@ -47,6 +47,22 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
 			WHERE moves.status = 'DRAFT'
 		`
+	} else if lifecycleState == "ppm" { // TODO: this should eventually only be APPROVED, not including SUBMITTED
+		query = `
+			SELECT moves.ID,
+				COALESCE(sm.edipi, '*missing*') as edipi,
+				COALESCE(sm.rank, '*missing*') as rank,
+				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+				'*missing*' as locator,
+				ord.orders_type as orders_type,
+				current_date as move_date,
+				moves.created_at as created_at,
+				current_time as last_modified_date
+			FROM moves
+			JOIN orders as ord ON moves.orders_id = ord.id
+			JOIN service_members AS sm ON ord.service_member_id = sm.id
+			WHERE moves.status IN ('SUBMITTED', 'APPROVED')
+		`
 	} else {
 		query = `
 			SELECT moves.ID,
@@ -61,7 +77,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			WHERE moves.status = 'APPROVED'
 		`
 	}
 
