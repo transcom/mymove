@@ -5,7 +5,8 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	// "github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -110,9 +111,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForError(h.logger, err)
 	}
 
-	if newStatus != nil {
-		move.Status = "APPROVED"
-	}
+	move.Status = models.MoveStatusAPPROVED
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
@@ -120,5 +119,5 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	}
 
 	movePayload := payloadForMoveModel(orders, *move)
-	return officeop.NewApproveMoveOK().withPayload
+	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
 }

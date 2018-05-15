@@ -20,7 +20,7 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	if verrs.HasAny() || err != nil {
 		return models.Move{}, err
 	}
-	move.Orders = orders
+
 	return *move, nil
 }
 
