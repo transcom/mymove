@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -17,22 +15,13 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	}
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move := models.Move{
-		OrdersID:         orders.ID,
-		Orders:           orders,
-		SelectedMoveType: &selectedType,
-		Status:           models.MoveStatusSUBMITTED,
-	}
 
-	verrs, err := db.ValidateAndSave(&move)
-	if err != nil {
-		log.Panic(err)
+	move, verrs, err := orders.CreateNewMove(db, &selectedType)
+	if verrs.HasAny() || err != nil {
+		return models.Move{}, err
 	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
-
-	return move, err
+	move.Orders = orders
+	return *move, nil
 }
 
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)
