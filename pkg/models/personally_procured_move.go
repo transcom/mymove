@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -52,7 +53,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
-func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID) (*PersonallyProcuredMove, error) {
+func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
 	err := db.Q().Eager("Move.Orders.ServiceMember").Find(&ppm, id)
 	if err != nil {
@@ -63,7 +64,7 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, id uuid.UUID
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if ppm.Move.Orders.ServiceMember.UserID != authUser.ID {
+	if reqApp == app.MyApp && ppm.Move.Orders.ServiceMember.UserID != authUser.ID {
 		return nil, ErrFetchForbidden
 	}
 

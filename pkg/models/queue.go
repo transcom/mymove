@@ -36,7 +36,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			COALESCE(sm.edipi, '*missing*') as edipi,
 			COALESCE(sm.rank, '*missing*') as rank,
 			CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-			'*missing*' as locator,
+			moves.locator as locator,
 			ord.orders_type as orders_type,
 			current_date as move_date,
 			moves.created_at as created_at,

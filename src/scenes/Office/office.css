@@ -1,4 +1,3 @@
-/* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .fake-link {
   text-decoration: underline;
   color: blue;
@@ -10,11 +9,7 @@
   margin-right: 5%;
 }
 
-.within-form-group {
-  display: inline-block;
-  width: 50%;
-}
-
+/* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .grid-wide {
   max-width: 2000px;
   margin: auto;
@@ -95,4 +90,25 @@
   border-top: solid 1px black;
   margin-top: -1px;
   padding-top: 2rem;
+}
+
+.documents {
+  border: solid 1px black;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents .usa-heading {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.documents .usa-heading .icon {
+  margin-left: .5em;
+  font-size: 1.7rem;
+  vertical-align: baseline;
+}
+
+.documents .document .icon {
+  margin-right: .3em;
 }

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, Field } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import {
   renderField,
   recursivelyAnnotateRequiredFields,
@@ -121,10 +121,18 @@ export class DateAndLocation extends React.Component {
           )}
           <h3>Destination Location</h3>
           <p>
-            Enter the ZIP for your new home if you know it, or for destination
-            duty station if you don't
+            Enter the ZIP for your new home if you know it, or for{' '}
+            {this.props.currentOrders &&
+              this.props.currentOrders.new_duty_station.name}{' '}
+            if you don't.
           </p>
           {renderField('destination_postal_code', fields, '')}
+          The ZIP code for{' '}
+          {this.props.currentOrders &&
+            this.props.currentOrders.new_duty_station.name}{' '}
+          is{' '}
+          {this.props.currentOrders &&
+            this.props.currentOrders.new_duty_station.address.postal_code}{' '}
           <p>
             Are you going to put your stuff in temporary storage before moving
             into your new home?
@@ -162,6 +170,10 @@ function mapStateToProps(state) {
       {},
     ),
     ...state.ppm,
+    ...state.loggedInUser,
+    currentOrders:
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
+      get(state.orders, 'currentOrders'),
     formData: state.form[formName],
     enableReinitialize: true,
   };
