@@ -8,6 +8,7 @@ import store from 'shared/store';
 const dummyFunc = () => {};
 const schema = {};
 const uiSchema = {};
+const match = { params: { moveId: 'someID' } };
 const hasSchemaError = false;
 const hasSubmitError = false;
 const hasSubmitSuccess = false;
@@ -24,7 +25,7 @@ it('renders without crashing', () => {
         uiSchema={uiSchema}
         confirmationText=""
         createIssue={dummyFunc}
-        match={{ match: 'match' }}
+        match={match}
       />
     </Provider>,
     div,
