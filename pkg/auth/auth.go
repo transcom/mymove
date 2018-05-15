@@ -355,8 +355,10 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 		return nil, err
 	}
 
+	logger.Info("Token response Body", zap.String("body", string(responseBody)))
 	var parsedResponse LoginGovTokenResponse
 	json.Unmarshal(responseBody, &parsedResponse)
+	logger.Info("Parsed token response Body", zap.Any("body", parsedResponse))
 
 	// TODO: get goth session from storage instead of constructing a new one
 	session := openidConnect.Session{
