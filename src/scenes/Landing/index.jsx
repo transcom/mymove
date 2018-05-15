@@ -16,19 +16,19 @@ export class Landing extends Component {
   }
   componentDidUpdate() {
     if (this.props.loggedInUserSuccess) {
+      // Once the logged in user loads, if the service member doesn't
+      // exist we need to dispatch creating one, once.
       if (
         !this.props.createdServiceMemberIsLoading &&
         !this.props.loggedInUser.service_member
       ) {
-        this.props.createServiceMember({});
-      } else if (
-        (!this.props.createdServiceMemberIsLoading &&
-          !this.props.loggedInUser.service_member.is_profile_complete) ||
-        this.props.createdServiceMemberSuccess
-      ) {
-        this.props.push(
-          `service-member/${this.props.loggedInUser.service_member.id}/create`,
-        );
+        this.props.createServiceMember({}).then(something => {
+          this.props.push(
+            `service-member/${
+              this.props.loggedInUser.service_member.id
+            }/create`,
+          );
+        });
       }
     }
   }
