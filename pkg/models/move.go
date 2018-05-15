@@ -114,8 +114,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 	pickupZip *string,
 	additionalPickupZip *string,
 	destinationZip *string,
-	daysInStorage *int64,
-	status PPMStatus) (*PersonallyProcuredMove, *validate.Errors, error) {
+	daysInStorage *int64) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
 		MoveID:              m.ID,
@@ -128,7 +127,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 		AdditionalPickupZip: additionalPickupZip,
 		DestinationZip:      destinationZip,
 		DaysInStorage:       daysInStorage,
-		Status:              status,
+		Status:              PPMStatusDRAFT,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newPPM)
