@@ -7,20 +7,29 @@
   margin: 0;
 }
 
-.signature_form {
-  background-color: #aeb0b5;
+.signature-form {
   padding: 2rem;
   margin-top: 1em;
 }
 
-.signing_box {
+.signature-box {
+  background-color: #E8E8E8;
+  margin-top: 1em;
+  padding: 1em;
+}
+
+.signature-box > h3 {
+  margin-top: .5em;
+}
+
+.signature-fields {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
   margin: 0 -10px; /* This trick stolen from https://stackoverflow.com/a/48450531/559073 */
 }
 
-.signing_box > * {
+.signature-fields > * {
   margin-top: 0;
   margin: 0 10px;
 }
@@ -29,7 +38,7 @@ div.signature {
   flex-grow: 1;
 }
 
-div.signature_date  {
+div.signature-date  {
   flex-grow: 1;
   max-width: 200px;
 }
