@@ -20,7 +20,9 @@ function QueueHeader() {
         </div>
       </div>
       <div className="officeHeaderTwo">
-        <button>Queues</button>
+        <NavLink to="/">
+          <button>Queues</button>
+        </NavLink>
       </div>
       <div className="officeHeaderThree">
         <div className="forms-shared">
