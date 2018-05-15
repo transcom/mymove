@@ -7,12 +7,16 @@ import { bindActionCreators } from 'redux';
 import { MoveSummary } from './MoveSummary';
 
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
+import { loadLoggedInUser } from 'shared/User/ducks';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
+    if (!this.props.loggedInUserIsLoading) {
+      this.props.loadLoggedInUser().then(() => {});
+    }
   }
   componentDidUpdate() {
     if (this.props.loggedInUserSuccess) {
@@ -76,12 +80,8 @@ export class Landing extends Component {
             </Alert>
           )}
           {loggedInUserIsLoading && <span> Loading... </span>}
-          {!isLoggedIn && <LoginButton />}
-          {loggedInUserSuccess && (
-            <button onClick={this.startMove}>Start a move</button>
-          )}
         </div>
-        {displayMove ? (
+        {displayMove && (
           <MoveSummary
             profile={profile}
             orders={orders}
@@ -89,7 +89,12 @@ export class Landing extends Component {
             ppm={ppm}
             editMove={this.editMove}
           />
-        ) : null}
+        )}
+
+        {!isLoggedIn && <LoginButton />}
+        {loggedInUserSuccess && (
+          <button onClick={this.startMove}>Start a move</button>
+        )}
       </div>
     );
   }
@@ -108,7 +113,10 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember }, dispatch);
+  return bindActionCreators(
+    { push, createServiceMember, loadLoggedInUser },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
