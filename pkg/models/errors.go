@@ -22,5 +22,5 @@ var ErrLocatorGeneration = errors.New("LOCATOR_ERRORS")
 // This is ugly, but the best we can do with go's Postgresql adapter
 const recordNotFoundErrorString = "sql: no rows in result set"
 
-// UniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
-const UniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"
+// uniqueConstraintViolationErrorPrefix This is the error we get back from dbConnection.Create()
+const uniqueConstraintViolationErrorPrefix = "pq: duplicate key value violates unique constraint"

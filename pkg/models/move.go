@@ -2,6 +2,7 @@ package models
 
 import (
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -170,17 +171,25 @@ func generateLocator() string {
 
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
-func createNewMove(db *pop.Connection, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, error) {
+func createNewMove(db *pop.Connection, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{OrdersID: ordersID, Locator: generateLocator(), SelectedMoveType: selectedType}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
-			return nil, errors.New(verrs.String())
+			return nil, verrs, nil
 		}
-		if err == nil {
-			return &move, nil
+		if err != nil {
+			if strings.HasPrefix(errors.Cause(err).Error(), uniqueConstraintViolationErrorPrefix) {
+				// If we have a collision, try again for maxLocatorAttempts
+				continue
+			}
+			return nil, verrs, err
 		}
+
+		return &move, verrs, nil
 	}
-	return nil, ErrLocatorGeneration
+	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
+	verrs := validate.NewErrors()
+	return nil, verrs, ErrLocatorGeneration
 }

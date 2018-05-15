@@ -23,8 +23,9 @@ func (suite *ModelSuite) TestFetchMove() {
 	order2, _ := testdatagen.MakeOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move, err := order1.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
 	suite.Equal(6, len(move.Locator))
 
 	// All correct

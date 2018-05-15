@@ -15,8 +15,8 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	}
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move, err := orders.CreateNewMove(db, &selectedType)
-	if err != nil {
+	move, verrs, err := orders.CreateNewMove(db, &selectedType)
+	if verrs.HasAny() || err != nil {
 		return models.Move{}, err
 	}
 	move.Orders = orders
