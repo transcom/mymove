@@ -37,6 +37,7 @@ type Move struct {
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
+	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 }
 
 // String is not required by pop and may be deleted

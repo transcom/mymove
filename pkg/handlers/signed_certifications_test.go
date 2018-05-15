@@ -136,3 +136,54 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 		t.Errorf("Expected to find no signed certifications but found %v", len(certs))
 	}
 }
+
+func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	time1 := time.Date(2018, time.January, 1, 1, 1, 1, 1, time.UTC)
+	cert1 := models.SignedCertification{
+		SubmittingUserID:  move.Orders.ServiceMember.UserID,
+		MoveID:            move.ID,
+		CertificationText: "You agree, yes?",
+		Signature:         "name",
+		Date:              time1,
+	}
+	suite.mustSave(&cert1)
+
+	time2 := time.Date(2018, time.February, 1, 1, 1, 1, 1, time.UTC)
+	cert2 := models.SignedCertification{
+		SubmittingUserID:  move.Orders.ServiceMember.UserID,
+		MoveID:            move.ID,
+		CertificationText: "You agree, yes?",
+		Signature:         "name",
+		Date:              time2,
+	}
+	suite.mustSave(&cert2)
+
+	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
+	params := certop.IndexSignedCertificationsParams{
+		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember.User),
+		MoveID:      *fmtUUID(move.ID),
+	}
+
+	handler := IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	okResponse := response.(*certop.IndexSignedCertificationsOK)
+
+	suite.Len(okResponse.Payload, 2)
+	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+
+	// Now test that a limit works
+	params.Limit = fmtInt64(1)
+
+	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	okResponse = response.(*certop.IndexSignedCertificationsOK)
+
+	suite.Len(okResponse.Payload, 1)
+	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+}
