@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -118,6 +119,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
 	user, _ := testdatagen.MakeUser(suite.db)
+	reqApp := app.MyApp
 
 	// When: a new ServiceMember is posted
 	ssn := "123-45-6789"
@@ -149,7 +151,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	suite.Assertions.Len(servicemembers, 1)
 
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
-	serviceMember, err := models.FetchServiceMember(suite.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(suite.db, user, reqApp, serviceMemberID)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))

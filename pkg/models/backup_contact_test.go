@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -55,6 +56,7 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 
 	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
 	serviceMember2, _ := testdatagen.MakeServiceMember(suite.db)
+	reqApp := app.MyApp
 
 	backupContact := models.BackupContact{
 		ServiceMemberID: serviceMember1.ID,
@@ -64,12 +66,12 @@ func (suite *ModelSuite) Test_FetchBackupContact() {
 	}
 	suite.mustSave(&backupContact)
 
-	shouldSucceed, err := models.FetchBackupContact(suite.db, serviceMember1.User, backupContact.ID)
+	shouldSucceed, err := models.FetchBackupContact(suite.db, serviceMember1.User, reqApp, backupContact.ID)
 	if err != nil || !uuid.Equal(backupContact.ID, shouldSucceed.ID) {
 		t.Errorf("failed retrieving own backup contact: %v", err)
 	}
 
-	_, err = models.FetchBackupContact(suite.db, serviceMember2.User, backupContact.ID)
+	_, err = models.FetchBackupContact(suite.db, serviceMember2.User, reqApp, backupContact.ID)
 	if err == nil {
 		t.Error("should have failed getting other user's contact")
 	}

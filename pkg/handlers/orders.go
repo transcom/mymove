@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -48,6 +49,7 @@ type CreateOrdersHandler HandlerContext
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	payload := params.CreateOrders
 
@@ -55,7 +57,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -94,9 +96,10 @@ type ShowOrdersHandler HandlerContext
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrder(h.db, user, orderID)
+	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -115,12 +118,13 @@ type UpdateOrdersHandler HandlerContext
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	order, err := models.FetchOrder(h.db, user, orderID)
+	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
