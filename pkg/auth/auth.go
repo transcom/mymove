@@ -271,6 +271,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 
 	authError := r.URL.Query().Get("error")
 	lURL := h.landingURL(r)
+	h.logger.Info("CB")
 
 	// The user has either cancelled or declined to authorize the client
 	if authError == "access_denied" {
@@ -290,6 +291,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	h.logger.Info("FETCH TOKEN")
 	// TODO: validate the state is the same (pull from session)
 	code := r.URL.Query().Get("code")
 	session, err := fetchToken(h.logger, code, provider.ClientKey, h.loginGovProvider)
@@ -298,6 +300,7 @@ func (h AuthorizationCallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.R
 		return
 	}
 
+	h.logger.Info("SESSION", zap.Any("session", session))
 	openIDuser, err := provider.FetchUser(session)
 	if err != nil {
 		h.logger.Error("Login.gov user info request", zap.Error(err))
