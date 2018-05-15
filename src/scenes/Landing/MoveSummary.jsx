@@ -25,9 +25,7 @@ export const MoveSummary = props => {
         {orders.new_duty_station.name} (from {profile.current_station.name})
       </h2>
       <div className="usa-width-three-fourths">
-        <div>
-          Move Locator: <span className="Todo">{move.id}</span>
-        </div>
+        <div>Move Locator: {move.locator}</div>
         <div>
           Weight Entitlement: <span className="Todo">10,500 lbs</span>
         </div>
