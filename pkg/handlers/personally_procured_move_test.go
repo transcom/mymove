@@ -29,15 +29,10 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 	orders, _ := testdatagen.MakeOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		OrdersID:         orders.ID,
-		SelectedMoveType: &selectedType,
-		Status:           models.MoveStatusSUBMITTED,
-	}
-	verrs, err = suite.db.ValidateAndCreate(&move)
-	if verrs.HasAny() || err != nil {
-		t.Fatal(verrs, err)
-	}
+
+	move, verrs, locErr := orders.CreateNewMove(suite.db, &selectedType)
+	suite.False(verrs.HasAny(), "failed to create new move")
+	suite.Nil(locErr)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, orders.ServiceMember.User)

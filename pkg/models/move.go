@@ -189,7 +189,9 @@ func generateLocator() string {
 
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
-func createNewMove(db *pop.Connection, ordersID uuid.UUID, selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+func createNewMove(db *pop.Connection,
+	ordersID uuid.UUID,
+	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
