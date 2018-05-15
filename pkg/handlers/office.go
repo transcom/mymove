@@ -87,3 +87,37 @@ func (h PatchAccountingHandler) Handle(params officeop.PatchAccountingParams) mi
 
 	return officeop.NewShowAccountingOK().WithPayload(&newAccountingInfo)
 }
+
+// ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
+type ApproveMoveHandler HandlerContext
+
+// Handle ... patches a new ServiceMember from a request payload
+func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// TODO: Validate that this move belongs to the office user
+	move, err := models.FetchMove(h.db, user, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	// Fetch orders for authorized user
+	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	if newStatus != nil {
+		move.Status = "APPROVED"
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	movePayload := payloadForMoveModel(orders, *move)
+	return officeop.NewApproveMoveOK().withPayload
+}
