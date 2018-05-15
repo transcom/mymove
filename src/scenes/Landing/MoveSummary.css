@@ -1,0 +1,43 @@
+h2 {
+  margin-bottom: 0;
+}
+
+.shipment_box {
+  border: 3px solid lightgrey;
+  overflow: hidden;
+  margin-top: 1em;
+}
+
+img.move_sm {
+  height: 0.75em;
+  display: inline;
+  margin-bottom: 0;
+  margin-right: 0.3em;
+}
+
+.shipment_type {
+  background-color: lightgrey;
+  font-size: 1.5em;
+  font-weight: bold;
+  padding: 0.33em;
+}
+
+.shipment_box_contents {
+  padding: 0.5em;
+}
+
+.title {
+  font-weight: bold;
+}
+
+.titled_block {
+  margin-top: 0.5em;
+}
+
+a {
+  text-decoration: none;
+}
+
+.contact_block {
+  margin-top: 2em;
+}

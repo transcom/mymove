@@ -29,19 +29,19 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 
 	orders, _ := testdatagen.MakeOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		OrdersID:         orders.ID,
-		SelectedMoveType: &selectedType,
-	}
-	verrs, err = suite.db.ValidateAndCreate(&move)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
+
+	move, verrs, locErr := orders.CreateNewMove(suite.db, &selectedType)
+	suite.False(verrs.HasAny(), "failed to create new move")
+	suite.Nil(locErr)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, orders.ServiceMember.User)
 
-	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{WeightEstimate: swag.Int64(12), PickupPostalCode: swag.String("00112"), DaysInStorage: swag.Int64(3)}
+	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{
+		WeightEstimate:   swag.Int64(12),
+		PickupPostalCode: swag.String("00112"),
+		DaysInStorage:    swag.Int64(3),
+	}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
 		MoveID: strfmt.UUID(move.ID.String()),
@@ -83,16 +83,19 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 		Move:               move1,
 		WeightEstimate:     swag.Int64(1),
 		EstimatedIncentive: swag.String("$2681.25 - $4111.25"),
+		Status:             models.PPMStatusDRAFT,
 	}
 	ppm2 := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
 		Move:           move1,
 		WeightEstimate: swag.Int64(2),
+		Status:         models.PPMStatusDRAFT,
 	}
 	otherPPM := models.PersonallyProcuredMove{
 		MoveID:         move2.ID,
 		Move:           move2,
 		WeightEstimate: swag.Int64(4),
+		Status:         models.PPMStatusDRAFT,
 	}
 
 	verrs, err := suite.db.ValidateAndCreate(&ppm1)
@@ -125,7 +128,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	okResponse := response.(*ppmop.IndexPersonallyProcuredMovesOK)
 	indexPPMPayload := okResponse.Payload
 
-	fmt.Println(indexPPMPayload)
 	for _, ppm := range indexPPMPayload {
 		if *ppm.ID == *fmtUUID(otherPPM.ID) {
 			t.Error("We should only have got back ppms associated with this move")
@@ -166,6 +168,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
 		HasSit:        hasSit,
 		DaysInStorage: daysInStorage,
+		Status:        models.PPMStatusDRAFT,
 	}
 	suite.mustSave(&ppm1)
 
@@ -194,7 +197,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
 	patchPPMPayload := okResponse.Payload
 
-	// fmt.Println(patchPPMPayload)
 	if *patchPPMPayload.Size != newSize {
 		t.Error("Size should have been updated.")
 	}
@@ -242,6 +244,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 		Size:            &initialSize,
 		WeightEstimate:  initialWeight,
 		PlannedMoveDate: &initialMoveDate,
+		Status:          models.PPMStatusDRAFT,
 	}
 	suite.mustSave(&ppm1)
 
@@ -278,6 +281,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	orders1, _ := testdatagen.MakeOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err, "Failed to save move")
 	suite.False(verrs.HasAny(), "failed to validate move")
@@ -293,6 +297,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 		Move:           *move2,
 		Size:           &initialSize,
 		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
 	}
 	suite.mustSave(&ppm1)
 
@@ -334,6 +339,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 		Move:           move,
 		Size:           &initialSize,
 		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
 	}
 	suite.mustSave(&ppm1)
 

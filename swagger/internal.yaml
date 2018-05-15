@@ -354,6 +354,9 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      locator:
+        type: string
+        example: "12432"
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
       status:
@@ -364,9 +367,12 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      personally_procured_moves:
+        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
     required:
       - id
       - orders_id
+      - locator
       - created_at
       - updated_at
   PatchMovePayload:
@@ -1327,6 +1333,8 @@ definitions:
         x-nullable: true
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      moves:
+        $ref: '#/definitions/IndexMovesPayload'
       orders_number:
         type: string
         title: Orders Number

@@ -23,7 +23,7 @@ export const loadLoggedInUser = () => {
     const userInfo = getUserInfo();
     if (!userInfo.isLoggedIn) return;
     dispatch(getLoggedInActions.start());
-    GetLoggedInUser()
+    return GetLoggedInUser()
       .then(item => dispatch(getLoggedInActions.success(item)))
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };

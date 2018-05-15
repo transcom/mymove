@@ -103,16 +103,19 @@ export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
     case CREATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
+        isLoading: true,
         hasSubmitSuccess: false,
       });
     case CREATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
         currentServiceMember: action.payload,
+        isLoading: false,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
     case CREATE_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
+        isLoading: false,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
