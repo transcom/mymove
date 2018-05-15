@@ -18,6 +18,13 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 	if err != nil {
 		return nil, err
 	}
+
+	var moves internalmessages.IndexMovesPayload
+	for _, move := range order.Moves {
+		payload := payloadForMoveModel(order, move)
+		moves = append(moves, &payload)
+	}
+
 	payload := &internalmessages.Orders{
 		ID:              fmtUUID(order.ID),
 		CreatedAt:       fmtDateTime(order.CreatedAt),
@@ -29,6 +36,7 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:   fmtBool(order.HasDependents),
 		UploadedOrders:  documentPayload,
+		Moves:           moves,
 	}
 
 	return payload, nil
