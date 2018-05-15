@@ -20,6 +20,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"report_by_date":      {"ReportByDate can not be blank."},
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
+		"status":              {"Status can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
@@ -53,6 +54,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 		NewDutyStation:   dutyStation,
 		UploadedOrdersID: uploadedOrder.ID,
 		UploadedOrders:   uploadedOrder,
+		Status:           OrderStatusSUBMITTED,
 	}
 	suite.mustSave(&order)
 

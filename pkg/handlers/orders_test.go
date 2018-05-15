@@ -20,7 +20,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	hasDependents := true
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeBLUEBARK
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:    fmtBool(hasDependents),
 		IssueDate:        fmtDate(issueDate),
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req := httptest.NewRequest("PUT", path, nil)
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
-	newOrdersType := internalmessages.OrdersTypeBLUEBARK
+	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:    fmtBool(order.HasDependents),
 		IssueDate:        fmtDate(order.IssueDate),
