@@ -65,8 +65,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 		`
 	}
 
-	// TODO: add clause `WHERE moves.lifecycle_state = $1`
-	// err = db.RawQuery(query, lifecycleState).All(&moveQueueItems)
 	err := db.RawQuery(query).All(&moveQueueItems)
 	return moveQueueItems, err
 }

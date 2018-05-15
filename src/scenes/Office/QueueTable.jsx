@@ -15,6 +15,10 @@ class QueueTable extends Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
+  // componentDidMount() {
+  //   this.fetchData();
+  // }
+
   fetchData(state, instance) {
     RetrieveMovesForOffice(this.props.queueType).then(
       response => {
@@ -43,10 +47,6 @@ class QueueTable extends Component {
         <div>
           <ReactTable
             columns={[
-              {
-                Header: 'Status',
-                accessor: 'status',
-              },
               {
                 Header: 'Locator #',
                 accessor: 'locator',
