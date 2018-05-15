@@ -37,11 +37,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.edipi, '*missing*') as edipi,
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				'*missing*' as locator,
+				moves.locator as locator,
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date
+				current_time as last_modified_date,
+				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -53,11 +54,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.edipi, '*missing*') as edipi,
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				'*missing*' as locator,
+				moves.locator as locator,
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date
+				current_time as last_modified_date,
+				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -69,11 +71,12 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				COALESCE(sm.edipi, '*missing*') as edipi,
 				COALESCE(sm.rank, '*missing*') as rank,
 				CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
-				'*missing*' as locator,
+				moves.locator as locator,
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date
+				current_time as last_modified_date,
+				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id

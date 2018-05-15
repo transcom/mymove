@@ -50,6 +50,10 @@ class QueueTable extends Component {
           <ReactTable
             columns={[
               {
+                Header: 'Status',
+                accessor: 'status',
+              },
+              {
                 Header: 'Locator #',
                 accessor: 'locator',
               },
