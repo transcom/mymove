@@ -8,19 +8,13 @@ import (
 )
 
 // MakeMove creates a single Move and associated set of Orders
-func MakeMove(db *pop.Connection, status string) (models.Move, error) {
+func MakeMove(db *pop.Connection) (models.Move, error) {
 	orders, err := MakeOrder(db)
 	if err != nil {
 		return models.Move{}, err
 	}
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move := models.Move{
-		OrdersID:         orders.ID,
-		Orders:           orders,
-		SelectedMoveType: &selectedType,
-		Status:           status,
-	}
 
 	move, verrs, err := orders.CreateNewMove(db, &selectedType)
 	if verrs.HasAny() || err != nil {
@@ -36,10 +30,12 @@ func MakeMove(db *pop.Connection, status string) (models.Move, error) {
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)
 func MakeMoveData(db *pop.Connection) {
 	for i := 0; i < 3; i++ {
-		MakeMove(db, "DRAFT")
+		MakeMove(db)
 	}
 
 	for i := 0; i < 2; i++ {
-		MakeMove(db, "SUBMITTED")
+		move, _ := MakeMove(db)
+		move.Status = models.MoveStatusAPPROVED
+		db.ValidateAndUpdate(&move)
 	}
 }
