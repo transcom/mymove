@@ -13,6 +13,7 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 
 	expErrors := map[string][]string{
 		"orders_id": {"OrdersID can not be blank."},
+		"status":    {"Status can not be blank."},
 	}
 
 	suite.verifyValidationErrors(move, expErrors)
@@ -28,6 +29,7 @@ func (suite *ModelSuite) TestFetchMove() {
 	move := Move{
 		OrdersID:         order1.ID,
 		SelectedMoveType: &selectedType,
+		Status:           MoveStatusSUBMITTED,
 	}
 	verrs, err := suite.db.ValidateAndCreate(&move)
 	if verrs.HasAny() || err != nil {

@@ -13,6 +13,20 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
+// MoveStatus represents the status of an order record's lifecycle
+type MoveStatus string
+
+const (
+	// MoveStatusDRAFT captures enum value "DRAFT"
+	MoveStatusDRAFT MoveStatus = "DRAFT"
+	// MoveStatusSUBMITTED captures enum value "SUBMITTED"
+	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
+	// MoveStatusAPPROVED captures enum value "APPROVED"
+	MoveStatusAPPROVED MoveStatus = "APPROVED"
+	// MoveStatusCOMPLETED captures enum value "COMPLETED"
+	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+)
+
 // Move is an object representing a move
 type Move struct {
 	ID                      uuid.UUID                          `json:"id" db:"id"`
@@ -22,6 +36,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
+	Status                  MoveStatus                         `json:"status" db:"status"`
 }
 
 // String is not required by pop and may be deleted
@@ -44,6 +59,7 @@ func (m Moves) String() string {
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
+		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
 }
 
@@ -89,7 +105,8 @@ func (m Move) CreatePPM(db *pop.Connection,
 	pickupZip *string,
 	additionalPickupZip *string,
 	destinationZip *string,
-	daysInStorage *int64) (*PersonallyProcuredMove, *validate.Errors, error) {
+	daysInStorage *int64,
+	status PPMStatus) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
 		MoveID:              m.ID,
@@ -102,6 +119,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 		AdditionalPickupZip: additionalPickupZip,
 		DestinationZip:      destinationZip,
 		DaysInStorage:       daysInStorage,
+		Status:              status,
 	}
 
 	verrs, err := db.ValidateAndCreate(&newPPM)

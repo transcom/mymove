@@ -6,9 +6,24 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+)
+
+// PPMStatus represents the status of an order record's lifecycle
+type PPMStatus string
+
+const (
+	// PPMStatusDRAFT captures enum value "DRAFT"
+	PPMStatusDRAFT PPMStatus = "DRAFT"
+	// PPMStatusSUBMITTED captures enum value "SUBMITTED"
+	PPMStatusSUBMITTED PPMStatus = "SUBMITTED"
+	// PPMStatusAPPROVED captures enum value "APPROVED"
+	PPMStatusAPPROVED PPMStatus = "APPROVED"
+	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
+	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
 )
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
@@ -26,6 +41,7 @@ type PersonallyProcuredMove struct {
 	AdditionalPickupZip *string                      `json:"additional_pickup_zip" db:"additional_pickup_zip"`
 	DestinationZip      *string                      `json:"destination_zip" db:"destination_zip"`
 	DaysInStorage       *int64                       `json:"days_in_storage" db:"days_in_storage"`
+	Status              PPMStatus                    `json:"status" db:"status"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -34,7 +50,9 @@ type PersonallyProcuredMoves []PersonallyProcuredMove
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (p *PersonallyProcuredMove) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	return validate.Validate(), nil
+	return validate.Validate(
+		&validators.StringIsPresent{Field: string(p.Status), Name: "Status"},
+	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.

@@ -61,13 +61,19 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
+	// TODO: Should this be an API parameter? I don't think so, because it
+	// doesn't seem like the client should be able to create "approved"
+	// orders on its own.
+	orderStatus := models.OrderStatusDRAFT
+
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.db,
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
 		payload.OrdersType,
 		*payload.HasDependents,
-		dutyStation)
+		dutyStation,
+		orderStatus)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}

@@ -25,6 +25,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 	newMove := models.Move{
 		OrdersID: order.ID,
+		Status:   models.MoveStatusDRAFT,
 	}
 	suite.mustSave(&newMove)
 

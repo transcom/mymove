@@ -21,6 +21,7 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 		OrdersID:         orders.ID,
 		Orders:           orders,
 		SelectedMoveType: &selectedType,
+		Status:           models.MoveStatusSUBMITTED,
 	}
 
 	verrs, err := db.ValidateAndSave(&move)

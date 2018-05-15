@@ -35,10 +35,15 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		return responseForError(h.logger, err)
 	}
 
+	// Moves will default to the DRAFT status. We only want back office to
+	// set them to APPROVED, etc.
+	status := models.MoveStatusDRAFT
+
 	// Create a new move for authenticated user orders
 	newMove := models.Move{
 		OrdersID:         orders.ID,
 		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
+		Status:           status,
 	}
 	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
 		if verrs.HasAny() {

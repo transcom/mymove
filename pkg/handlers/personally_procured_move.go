@@ -46,6 +46,10 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		return responseForError(h.logger, err)
 	}
 
+	// New PPMs will have the status of 'DRAFT' hardcoded, as we don't want the
+	// client to be able to override approval
+	status := models.PPMStatusDRAFT
+
 	payload := params.CreatePersonallyProcuredMovePayload
 	newPPM, verrs, err := move.CreatePPM(h.db,
 		payload.Size,
@@ -55,7 +59,9 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.PickupZip,
 		payload.AdditionalPickupZip,
 		payload.DestinationZip,
-		payload.DaysInStorage)
+		payload.DaysInStorage,
+		status,
+	)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
