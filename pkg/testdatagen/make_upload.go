@@ -8,7 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeUpload creates a single User.
+// MakeUpload creates a single Upload.
 func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, error) {
 	if document == nil {
 		newDocument, err := MakeDocument(db, nil, "")
@@ -20,7 +20,7 @@ func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, e
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
-		UploaderID:  document.ServiceMemberID,
+		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
 		ContentType: "application/pdf",
