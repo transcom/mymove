@@ -31,7 +31,7 @@ const validateSignatureForm = (values, form) => {
   return errors;
 };
 
-const formName = 'signature_form';
+const formName = 'signature-form';
 const SignatureWizardForm = reduxifyWizardForm(formName, validateSignatureForm);
 
 export class SignedCertification extends Component {
@@ -111,29 +111,31 @@ export class SignedCertification extends Component {
                 certificationText={this.props.certificationText}
               />
 
-              <h3>SIGNATURE</h3>
-              <p>
-                In consideration of said household goods or mobile homes being
-                shipped at Government expense,{' '}
-                <strong>
-                  I hereby agree to the certifications stated above.
-                </strong>
-              </p>
-              <div className="signing_box">
-                <SwaggerField
-                  className="signature"
-                  fieldName="signature"
-                  swagger={this.props.schema}
-                  required
-                  disabled={!!initialValues.signature}
-                />
-                <SwaggerField
-                  className="signature_date"
-                  fieldName="date"
-                  swagger={this.props.schema}
-                  required
-                  disabled
-                />
+              <div className="signature-box">
+                <h3>SIGNATURE</h3>
+                <p>
+                  In consideration of said household goods or mobile homes being
+                  shipped at Government expense,{' '}
+                  <strong>
+                    I hereby agree to the certifications stated above.
+                  </strong>
+                </p>
+                <div className="signature-fields">
+                  <SwaggerField
+                    className="signature"
+                    fieldName="signature"
+                    swagger={this.props.schema}
+                    required
+                    disabled={!!initialValues.signature}
+                  />
+                  <SwaggerField
+                    className="signature-date"
+                    fieldName="date"
+                    swagger={this.props.schema}
+                    required
+                    disabled
+                  />
+                </div>
               </div>
 
               {hasSubmitError && (
