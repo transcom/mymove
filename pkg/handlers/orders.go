@@ -61,9 +61,8 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	// TODO: Should this be an API parameter? I don't think so, because it
-	// doesn't seem like the client should be able to create "approved"
-	// orders on its own.
+	// We only want the status to be changed by people who have authorization
+	// to the /approve, etc endpoints.
 	orderStatus := models.OrderStatusDRAFT
 
 	newOrder, verrs, err := serviceMember.CreateOrder(
