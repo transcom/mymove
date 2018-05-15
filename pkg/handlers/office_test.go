@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -18,7 +17,6 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
 	req = suite.authenticateOfficeRequest(req, move.Orders.ServiceMember.User)
-	fmt.Printf("request: %v", req)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,
