@@ -2,7 +2,9 @@ import React from 'react';
 
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
-import ppmStatus from './images/progress.png';
+import ppmSubmitted from './images/ppm-submitted.png';
+import ppmApproved from './images/ppm-approved.png';
+import ppmInProgress from './images/ppm-in-progress.png';
 
 const DutyStationContactInfo = props => {
   const { dutyStation } = props;
@@ -18,7 +20,6 @@ const DutyStationContactInfo = props => {
 
 export const MoveSummary = props => {
   const { profile, move, orders, ppm, editMove } = props;
-
   return (
     <div className="whole_box">
       <h2>
@@ -35,40 +36,151 @@ export const MoveSummary = props => {
             Move your own stuff (PPM)
           </div>
           <div className="shipment_box_contents">
-            <img src={ppmStatus} alt="status" />
-            <div className="status_box usa-width-two-thirds">
-              <div className="title">Awaiting Approval</div>
+            {/* Submitted Move */}
+            {move.status === 'SUBMITTED' && (
               <div>
-                Your shipment is awaiting approval from the transporation
-                office. This process can take up to 3 business days. If you have
-                questions or need expedited processing contact contact your
-                local Transportation Office (PPPO) at Lackland AFB at (210)
-                671-2821.
-              </div>
-              <p>
-                <a>Find Weight Scales</a> | <a>Report a Problem</a> |{' '}
-                <a>Cancel Shipment</a>
-              </p>
-            </div>
-            <div className="usa-width-one-third">
-              <div className="titled_block">
-                <div className="title">Details</div>
-                <div>Incentive (est.): {ppm.estimated_incentive}</div>
-              </div>
-              <div className="titled_block">
-                <div className="title">Documents</div>
-                <div>
-                  <a>PPM Info Packet</a>
+                <img src={ppmSubmitted} alt="status" />
+                <div className="step-contents">
+                  <div className="status_box usa-width-two-thirds">
+                    <div className="step">
+                      <div className="title">Awaiting Approval</div>
+                      <div>
+                        Your shipment is awaiting approval. This can take up to
+                        3 business days. Questions or need help? Contact your
+                        local Transportation Office (PPPO) at{' '}
+                        {profile.current_station.name}.
+                      </div>
+                    </div>
+                  </div>
+                  <div className="usa-width-one-third">
+                    <div className="titled_block">
+                      <div className="title">Details</div>
+                      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                    </div>
+                    <div className="titled_block">
+                      <div className="title">Documents</div>
+                      <div className="details-links">
+                        <a>PPM Info Packet</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="step-links">
+                  <span>
+                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
+                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                  </span>
                 </div>
               </div>
-            </div>
+            )}
+
+            {/* Approved Move */}
+            {move.status === 'APPROVED' && (
+              <div>
+                <img src={ppmApproved} alt="status" />
+                <div className="step-contents">
+                  <div className="status_box usa-width-two-thirds">
+                    <div className="step">
+                      <div className="title">Next step: Get ready to move</div>
+                      <div>
+                        Remember to save your weight tickets and expense
+                        receipts. For more information, read the PPM info
+                        packet.
+                      </div>
+                      <button className="usa-button-secondary">
+                        Read PPM Info Packet
+                      </button>
+                    </div>
+                    <div className="step">
+                      <div className="title">Next step: Request Payment</div>
+                      <div>
+                        Request a PPM payment, a storage payment, or an advance
+                        against your PPM payment before your move is done.
+                      </div>
+                      <button className="usa-button-secondary">
+                        Request Payment
+                      </button>
+                    </div>
+                  </div>
+                  <div className="usa-width-one-third">
+                    <div className="titled_block">
+                      <div className="title">Details</div>
+                      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                    </div>
+                    <div className="titled_block">
+                      <div className="title">Documents</div>
+                      <div className="details-links">
+                        <a>PPM Info Packet</a>
+                        <a>Advance paperwork</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="step-links">
+                  <span>
+                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
+                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* In Progress Move */}
+            {/* NOTE: The above blocks rely on move.status. This in progress block
+                is unviewable until we start editing PPM statuses. */}
+            {ppm.status === 'IN_PROGRESS' && (
+              <div>
+                <img src={ppmInProgress} alt="status" />
+                <div className="step-contents">
+                  <div className="status_box usa-width-two-thirds">
+                    <div className="step">
+                      <div className="title">Next step: Request payment</div>
+                      <div>
+                        Request a PPM payment, a storage payment, or an advance
+                        against your PPM payment before your move is done.
+                      </div>
+                      <button className="usa-button-secondary">
+                        Request Payment
+                      </button>
+                    </div>
+                  </div>
+                  <div className="usa-width-one-third">
+                    <div className="titled_block">
+                      <div className="title">Details</div>
+                      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                    </div>
+                    <div className="titled_block">
+                      <div className="title">Documents</div>
+                      <div className="details-links">
+                        <a>PPM Info Packet</a>
+                        <a>Advance paperwork</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div className="step-links">
+                  <span>
+                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
+                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                  </span>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
 
       <div className="sidebar usa-width-one-fourth">
         <div>
-          <button onClick={() => editMove(move)}>Edit Move Details</button>
+          <button
+            className="usa-button-secondary"
+            onClick={() => editMove(move)}
+          >
+            Edit Move Details
+          </button>
         </div>
         <a>✚ Add Amended Orders</a>
         <hr />
