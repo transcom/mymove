@@ -140,6 +140,8 @@ const renderInputField = ({
   customComponent,
   meta: { touched, error, warning },
   children,
+  className,
+  inputProps,
 }) => {
   let component = 'input';
   if (componentNameOverride) {
@@ -164,13 +166,17 @@ const renderInputField = ({
       type: type,
       step: step,
       'aria-describedby': input.name + '-error',
+      ...inputProps,
     },
     children,
   );
 
   const displayError = touched && error;
+  const classes = `${
+    displayError ? 'usa-input-error' : 'usa-input'
+  } ${className}`;
   return (
-    <div className={displayError ? 'usa-input-error' : 'usa-input'}>
+    <div className={classes}>
       <label
         className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
         htmlFor={input.name}
@@ -194,7 +200,7 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const { fieldName, swagger, required } = props;
+  const { fieldName, swagger, required, className, disabled } = props;
 
   let swaggerField;
   if (swagger.properties) {
@@ -209,12 +215,24 @@ export const SwaggerField = props => {
     swaggerField[ALWAYS_REQUIRED_KEY] = true;
   }
 
-  return createSchemaField(fieldName, swaggerField, undefined);
+  return createSchemaField(
+    fieldName,
+    swaggerField,
+    undefined,
+    className,
+    disabled,
+  );
 };
 
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
-const createSchemaField = (fieldName, swaggerField, nameSpace) => {
+const createSchemaField = (
+  fieldName,
+  swaggerField,
+  nameSpace,
+  className = '',
+  disabled = false,
+) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
   const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
@@ -236,6 +254,10 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
+
+  let inputProps = {
+    disabled: disabled,
+  };
 
   if (fieldProps.always_required) {
     fieldProps.validate.push(validator.isRequired);
@@ -285,7 +307,12 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     );
   }
   return (
-    <Field key={fieldName} {...fieldProps}>
+    <Field
+      key={fieldName}
+      className={className}
+      inputProps={inputProps}
+      {...fieldProps}
+    >
       {children}
     </Field>
   );
