@@ -179,7 +179,7 @@ class MoveInfo extends Component {
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
-              {uploads.length == 0 && <p>No orders have been uploaded.</p>}
+              {uploads.length === 0 && <p>No orders have been uploaded.</p>}
               {uploads.map(upload => {
                 return (
                   <div key={upload.url} className="document">
