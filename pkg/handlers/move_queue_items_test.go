@@ -13,9 +13,6 @@ import (
 )
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
-	t := suite.T()
-	t.Skip("don't test stubbed out endpoint")
-
 	// Given: An office user
 	officeUser := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
@@ -32,7 +29,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	suite.mustSave(&newMove)
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("GET", "/queues/some_queue", nil)
+	req := httptest.NewRequest("GET", "/queues/new", nil)
 	req = suite.authenticateRequest(req, officeUser)
 
 	params := queueop.ShowQueueParams{
@@ -48,8 +45,8 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	moveQueueItem := okResponse.Payload[0]
 
 	// And: Returned query to include our added move
-	expectedCustomerName := fmt.Sprintf("%v %v", *order.ServiceMember.FirstName, *order.ServiceMember.LastName)
-	if *moveQueueItem.CustomerName != expectedCustomerName {
-		t.Errorf("Expected move queue item to have service member name '%v', instead has '%v'", expectedCustomerName, *moveQueueItem.CustomerName)
-	}
+	// The moveQueueItems are produced by joining Moves, Orders and ServiceMember to each other, so we check the
+	// furthest link in that chain
+	expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
+	suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
 }

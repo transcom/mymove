@@ -49,6 +49,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         pendingValue: '',
         currentPpm: samplePpm,
+        incentive: null,
+        pendingPpmWeight: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
       });

@@ -18,7 +18,7 @@ import './Orders.css';
 const validateOrdersForm = (values, form) => {
   let errors = {};
 
-  const required_fields = ['has_dependents', 'new_duty_station'];
+  const required_fields = ['new_duty_station'];
 
   required_fields.forEach(fieldName => {
     if (values[fieldName] === undefined || values[fieldName] === '') {
@@ -34,11 +34,12 @@ const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = Object.assign({}, this.props.formData.values);
     // Update if orders object already extant
     if (pendingValues) {
       pendingValues['service_member_id'] = this.props.currentServiceMember.id;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
+      pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
@@ -142,11 +143,7 @@ function mapStateToProps(state) {
       state,
       'loggedInUser.loggedInUser.service_member',
     ),
-    schema: get(
-      state,
-      'swagger.spec.definitions.CreateUpdateOrdersPayload',
-      {},
-    ),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
     error,

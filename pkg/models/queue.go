@@ -29,22 +29,22 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 	moveQueueItems := []MoveQueueItem{}
 	// TODO: Add clause `SELECT moves.ID, sm.edipi, sm.rank, CONCAT(sm.last_name, ', ', sm.first_name) AS customer_name`
 	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
-	// TODO: add `CONCAT(sm.last_name, ', ', sm.first_name)` back to query, once data is in place
 
 	// TODO: replace hardcoded values with actual query values once data is available
 	query := `
 		SELECT moves.ID,
-			COALESCE(sm.edipi, 'test ID') as edipi,
-			COALESCE(sm.rank, 'major') as rank,
-			'Tester, Telly' AS customer_name,
-			'12345' as locator,
-			COALESCE(moves.selected_move_type, 'COMBO') as orders_type,
+			COALESCE(sm.edipi, '*missing*') as edipi,
+			COALESCE(sm.rank, '*missing*') as rank,
+			CONCAT(COALESCE(sm.last_name, '*missing*'), ', ', COALESCE(sm.first_name, '*missing*')) AS customer_name,
+			'*missing*' as locator,
+			ord.orders_type as orders_type,
 			current_date as move_date,
-			current_time as created_at,
+			moves.created_at as created_at,
 			'Awaiting review' as status,
 			current_time as last_modified_date
 		FROM moves
-		INNER JOIN service_members AS sm ON moves.user_id = sm.user_id
+		JOIN orders as ord ON moves.orders_id = ord.id
+		JOIN service_members AS sm ON ord.service_member_id = sm.id
 	`
 	// TODO: add clause `WHERE moves.lifecycle_state = $1`
 	// err = db.RawQuery(query, lifecycleState).All(&moveQueueItems)
