@@ -63,18 +63,13 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	// We only want the status to be changed by people who have authorization
-	// to the /approve, etc endpoints.
-	orderStatus := models.OrderStatusDRAFT
-
 	newOrder, verrs, err := serviceMember.CreateOrder(
 		h.db,
 		time.Time(*payload.IssueDate),
 		time.Time(*payload.ReportByDate),
 		payload.OrdersType,
 		*payload.HasDependents,
-		dutyStation,
-		orderStatus)
+		dutyStation)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
