@@ -38,7 +38,7 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves',
       troubleshooting: 'Troubleshooting',
-      ppms: 'PPMs',
+      ppm: 'PPMs',
     };
 
     return (
