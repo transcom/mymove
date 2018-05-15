@@ -2195,6 +2195,37 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /moves/{moveId}/submit:
+    post:
+      summary: Submits a move for approval
+      description: Submits a move for approval by the office. The status of the move will be updated to SUBMITTED
+      operationId: submitMoveForApproval
+      tags:
+        - moves
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns updated (submitted) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this move
+        409:
+          description: the move is not in a state to be approved
+          schema:
+            $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
   /documents:
     post:
       summary: Create a new document
