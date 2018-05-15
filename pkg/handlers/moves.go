@@ -28,6 +28,7 @@ func payloadForMoveModel(order models.Order, move models.Move) internalmessages.
 		UpdatedAt:               fmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                fmtUUID(order.ID),
+		Status:                  internalmessages.MoveStatus(move.Status),
 	}
 	return movePayload
 }

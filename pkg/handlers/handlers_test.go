@@ -84,6 +84,14 @@ func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.Us
 	return req.WithContext(ctx)
 }
 
+func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.User) *http.Request {
+	ctx := req.Context()
+	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	ctx = auth.PopulateUserModel(ctx, user)
+	ctx = app.PopulateAppContext(ctx, app.OfficeApp)
+	return req.WithContext(ctx)
+}
+
 func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()
