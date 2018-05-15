@@ -17,6 +17,18 @@ import (
 // UploadedOrdersDocumentName is the name of an uploaded orders document
 const UploadedOrdersDocumentName = "uploaded_orders"
 
+// OrderStatus represents the status of an order record's lifecycle
+type OrderStatus string
+
+const (
+	// OrderStatusDRAFT captures enum value "DRAFT"
+	OrderStatusDRAFT OrderStatus = "DRAFT"
+	// OrderStatusSUBMITTED captures enum value "SUBMITTED"
+	OrderStatusSUBMITTED OrderStatus = "SUBMITTED"
+	// OrderStatusAPPROVED captures enum value "APPROVED"
+	OrderStatusAPPROVED OrderStatus = "APPROVED"
+)
+
 // Order is a set of orders received by a service member
 type Order struct {
 	ID                   uuid.UUID                          `json:"id" db:"id"`
@@ -37,6 +49,7 @@ type Order struct {
 	UploadedOrdersID     uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber         *string                            `json:"orders_number" db:"orders_number"`
 	Moves                Moves                              `has_many:"moves" fk_id:"orders_id"`
+	Status               OrderStatus                        `json:"status" db:"status"`
 }
 
 // String is not required by pop and may be deleted
@@ -63,6 +76,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.TimeIsPresent{Field: o.ReportByDate, Name: "ReportByDate"},
 		&validators.UUIDIsPresent{Field: o.ServiceMemberID, Name: "ServiceMemberID"},
 		&validators.UUIDIsPresent{Field: o.NewDutyStationID, Name: "NewDutyStationID"},
+		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 	), nil
 }
 
