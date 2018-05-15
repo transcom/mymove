@@ -14,7 +14,11 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import { loadMoveDependencies, loadAccounting } from './ducks.js';
+import {
+  loadMoveDependencies,
+  loadAccounting,
+  approveBasics,
+} from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -48,6 +52,10 @@ class MoveInfo extends Component {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.loadAccounting(this.props.match.params.moveId);
   }
+
+  approveBasics = () => {
+    this.props.approveBasics(this.props.match.params.moveId);
+  };
 
   render() {
     // TODO: If the following vars are not used to load data, remove them.
@@ -160,7 +168,7 @@ class MoveInfo extends Component {
           </div>
           <div className="usa-width-one-fourths">
             <div>
-              <button>Approve Basics</button>
+              <button onClick={this.approveBasics}>Approve Basics</button>
               <button>Troubleshoot</button>
               <button>Cancel Move</button>
             </div>
@@ -188,6 +196,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies, loadAccounting }, dispatch);
+  bindActionCreators(
+    { loadMoveDependencies, loadAccounting, approveBasics },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
