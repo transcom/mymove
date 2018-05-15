@@ -26,7 +26,10 @@ func MakeMove(db *pop.Connection, status string) (models.Move, error) {
 	if verrs.HasAny() || err != nil {
 		return models.Move{}, err
 	}
+	// Can we move this into CreateNewMove
+	// (pivotal: https://www.pivotaltracker.com/story/show/157610355)
 	move.Orders = orders
+
 	return *move, nil
 }
 

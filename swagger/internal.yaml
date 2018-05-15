@@ -335,6 +335,8 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      personally_procured_moves:
+        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
     required:
       - id
       - orders_id
@@ -1299,6 +1301,8 @@ definitions:
         x-nullable: true
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      moves:
+        $ref: '#/definitions/IndexMovesPayload'
       orders_number:
         type: string
         title: Orders Number
