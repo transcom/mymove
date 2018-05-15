@@ -54,7 +54,7 @@ class MoveInfo extends Component {
 
   render() {
     // TODO: If the following vars are not used to load data, remove them.
-    // const officeMove = this.props.officeMove || {};
+    const officeMove = this.props.officeMove || {};
     // const officeOrders = this.props.officeOrders || {};
     const officeServiceMember = this.props.officeServiceMember || {};
     // const officeBackupContacts = this.props.officeBackupContacts || []
@@ -117,7 +117,7 @@ class MoveInfo extends Component {
                   <FontAwesomeIcon className="icon" icon={faEmail} />
                 )}
               </li>
-              <li className="Todo">Locator# ABC89</li>
+              <li className="Todo">Locator# {officeMove.locator}</li>
               <li>KKFA to HAFC</li>
               <li>
                 Requested Pickup {get(officePPMs, '[0].planned_move_date')}
