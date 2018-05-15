@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
-import { no_op } from 'shared/utils';
+import { no_op_action } from 'shared/utils';
 
 // import { updateOrders, loadOrders } from './ducks';
 // import { PanelField } from 'shared/EditablePanel';
@@ -139,7 +139,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op,
+      update: no_op_action,
     },
     dispatch,
   );

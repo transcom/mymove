@@ -10,6 +10,8 @@ export default function editablePanel(DisplayComponent, EditComponent) {
       this.state = {
         isEditable: false,
       };
+      // TODO: Figure out why bind is still needed when ostensibly it's not
+      this.save = this.save.bind(this);
     }
 
     save = () => {
