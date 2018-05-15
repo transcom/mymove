@@ -54,11 +54,11 @@
     },
     {
       "name": "HTTP_MY_SERVER_NAME",
-      "value": "my.{{environment}}.dp3.us"
+      "value": "my.{{domain}}"
     },
     {
       "name": "HTTP_OFFICE_SERVER_NAME",
-      "value": "office.{{environment}}.dp3.us"
+      "value": "office.{{domain}}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
