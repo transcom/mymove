@@ -42,11 +42,13 @@ export class Landing extends Component {
         'With no service member, you should have been redirected already.',
       );
     }
-    this.props.push(`orders`);
+    this.props.push(
+      `service-member/${this.props.loggedInUser.service_member.id}/create`,
+    );
   };
 
   editMove = move => {
-    this.props.push(`moves/${move.id}`);
+    this.props.push(`moves/${move.id}/review`);
   };
 
   render() {

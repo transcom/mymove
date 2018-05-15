@@ -33,13 +33,13 @@ export const MoveSummary = props => {
         </div>
         <div className="shipment_box">
           <div className="shipment_type">
-            <img className="sm" src={ppmCar} alt="ppm-car" />
+            <img className="move_sm" src={ppmCar} alt="ppm-car" />
             Move your own stuff (PPM)
           </div>
           <div className="shipment_box_contents">
             <img src={ppmStatus} alt="status" />
             <div className="status_box usa-width-two-thirds">
-              <div className="title">STATUS TEXT GOES HERE</div>
+              <div className="title">Awaiting Approval</div>
               <div>
                 Your shipment is awaiting approval from the transporation
                 office. This process can take up to 3 business days. If you have
