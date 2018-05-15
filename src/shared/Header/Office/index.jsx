@@ -20,7 +20,7 @@ function QueueHeader() {
         </div>
       </div>
       <div className="officeHeaderTwo">
-        <NavLink to="/">
+        <NavLink to="/" aria-label="Transcom PPP Office Home">
           <button>Queues</button>
         </NavLink>
       </div>
