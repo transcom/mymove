@@ -96,15 +96,16 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	// TODO: Validate that this move belongs to the office user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, user, move.OrdersID)
+	orders, err := models.FetchOrder(h.db, user, reqApp, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
