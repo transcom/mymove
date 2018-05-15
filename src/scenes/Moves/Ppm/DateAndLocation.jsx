@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, Field } from 'redux-form';
 import {
   renderField,
   recursivelyAnnotateRequiredFields,
@@ -19,9 +19,9 @@ const NULL_ZIP = ''; //HACK: until we can figure out how to unset zip
 const formName = 'ppp_date_and_location';
 const subsetOfFields = [
   'planned_move_date',
-  'pickup_zip',
-  'destination_zip',
-  'additional_pickup_zip',
+  'pickup_postal_code',
+  'destination_postal_code',
+  'additional_pickup_postal_code',
   'days_in_storage',
 ];
 
@@ -30,8 +30,11 @@ export class DateAndLocation extends React.Component {
   static getDerivedStateFromProps(nextProps, prevState) {
     const result = {};
     if (
-      get(nextProps, 'formData.values.additional_pickup_zip', NULL_ZIP) !==
-      NULL_ZIP
+      get(
+        nextProps,
+        'formData.values.additional_pickup_postal_code',
+        NULL_ZIP,
+      ) !== NULL_ZIP
     )
       result.showAdditionalPickup = true;
     if (get(nextProps, 'formData.values.days_in_storage', 0) > 0)
@@ -40,7 +43,7 @@ export class DateAndLocation extends React.Component {
   }
   setShowAdditionalPickup = show => {
     this.setState({ showAdditionalPickup: show }, () => {
-      if (!show) this.props.change('additional_pickup_zip', NULL_ZIP);
+      if (!show) this.props.change('additional_pickup_postal_code', NULL_ZIP);
     });
   };
   setShowTempStorage = show => {
@@ -58,9 +61,9 @@ export class DateAndLocation extends React.Component {
     if (dirty) {
       const moveId = this.props.match.params.moveId;
       const pendingValues = Object.assign({}, this.props.formData.values);
-      //HACK: temp work around until we figure out how to unset additional_pickup_zip
-      if (pendingValues.additional_pickup_zip === NULL_ZIP)
-        delete pendingValues.additional_pickup_zip;
+      //HACK: temp work around until we figure out how to unset additional_pickup_postal_code
+      if (pendingValues.additional_pickup_postal_code === NULL_ZIP)
+        delete pendingValues.additional_pickup_postal_code;
       createOrUpdatePpm(moveId, pendingValues);
     }
   };
@@ -76,10 +79,14 @@ export class DateAndLocation extends React.Component {
     } = this.props;
     const { showAdditionalPickup, showTempStorage } = this.state;
     const uiSchema = {
-      requiredFields: ['planned_move_date', 'pickup_zip', 'destination_zip'],
+      requiredFields: [
+        'planned_move_date',
+        'pickup_postal_code',
+        'destination_postal_code',
+      ],
     };
     if (showAdditionalPickup)
-      uiSchema.requiredFields.push('additional_pickup_zip');
+      uiSchema.requiredFields.push('additional_pickup_postal_code');
     if (showTempStorage) uiSchema.requiredFields.push('days_in_storage');
     addUiSchemaRequiredFields(schema, uiSchema);
     recursivelyAnnotateRequiredFields(schema);
@@ -100,7 +107,7 @@ export class DateAndLocation extends React.Component {
           <h3> Move Date </h3>
           {renderField('planned_move_date', fields, '')}
           <h3>Pickup Location</h3>
-          {renderField('pickup_zip', fields, '')}
+          {renderField('pickup_postal_code', fields, '')}
           <p>Do you have stuff at another pickup location?</p>
           <YesNoBoolean
             value={showAdditionalPickup}
@@ -108,7 +115,7 @@ export class DateAndLocation extends React.Component {
           />
           {this.state.showAdditionalPickup && (
             <Fragment>
-              {renderField('additional_pickup_zip', fields, '')}
+              {renderField('additional_pickup_postal_code', fields, '')}
               <p>Making additional stops may decrease your PPM incentive.</p>
             </Fragment>
           )}
@@ -117,7 +124,7 @@ export class DateAndLocation extends React.Component {
             Enter the ZIP for your new home if you know it, or for destination
             duty station if you don't
           </p>
-          {renderField('destination_zip', fields, '')}
+          {renderField('destination_postal_code', fields, '')}
           <p>
             Are you going to put your stuff in temporary storage before moving
             into your new home?
@@ -166,7 +173,7 @@ function mapStateToProps(state) {
     ? pick(props.currentPpm, subsetOfFields)
     : defaultPickupZip
       ? {
-          pickup_zip: defaultPickupZip,
+          pickup_postal_code: defaultPickupZip,
         }
       : null;
   return props;
