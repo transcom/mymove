@@ -94,6 +94,6 @@ export async function ApproveBasics(moveId) {
   const response = await client.apis.office.approveMove({
     moveId,
   });
-  checkResponse(response, 'failed to approve move gdue to server error');
+  checkResponse(response, 'failed to approve move due to server error');
   return response.body;
 }
