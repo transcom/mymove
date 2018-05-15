@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { get } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -54,20 +55,10 @@ export class Landing extends Component {
       loggedInUser,
     } = this.props;
 
-    let profile, orders, move, ppm;
-
-    if (loggedInUser) {
-      profile = loggedInUser.service_member;
-      if (profile) {
-        orders = profile.orders[0];
-      }
-      if (orders) {
-        move = orders.moves[0];
-      }
-      if (move) {
-        ppm = move.personally_procured_moves[0];
-      }
-    }
+    let profile = get(loggedInUser, 'service_member');
+    let orders = get(profile, 'orders.0');
+    let move = get(orders, 'moves.0');
+    let ppm = get(move, 'personally_procured_moves.0');
 
     const displayMove = !!ppm;
 
