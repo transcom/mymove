@@ -7,11 +7,13 @@ import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
 
 const DutyStationContactInfo = props => {
-  const { dutyStation } = props;
+  const { dutyStation, origin } = props;
   return (
     <div className="titled_block">
       <a>{dutyStation.name}</a>
-      <div className="Todo">Origin Transportation Office</div>
+      <div className="Todo">
+        {origin ? 'Origin' : 'Destination'} Transportation Office
+      </div>
       <div className="Todo">PPPO</div>
       <div className="Todo">(210) 671-2821</div>
     </div>
@@ -191,8 +193,11 @@ export const MoveSummary = props => {
 
         <div className="contact_block">
           <div className="title">Contacts</div>
+          <DutyStationContactInfo
+            dutyStation={profile.current_station}
+            origin
+          />
           <DutyStationContactInfo dutyStation={orders.new_duty_station} />
-          <DutyStationContactInfo dutyStation={profile.current_station} />
         </div>
       </div>
     </div>
