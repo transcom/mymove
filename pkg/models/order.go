@@ -100,7 +100,9 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.
 func FetchOrder(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").Find(&order, id)
+	err := db.Q().Eager("ServiceMember.User",
+		"NewDutyStation.Address",
+		"UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

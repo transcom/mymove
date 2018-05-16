@@ -8,7 +8,14 @@ import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
 
 // import { updateOrders } from './ducks';
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  SwaggerValue,
+} from 'shared/EditablePanel';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 const OrdersDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
@@ -16,7 +23,10 @@ const OrdersDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="orders_number" {...fieldProps} />
+        <PanelField title="Orders Number">
+          <SwaggerValue fieldName="orders_number" {...fieldProps} />
+          <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+        </PanelField>
         <PanelSwaggerField
           title="Date issued"
           fieldName="issue_date"
@@ -146,6 +156,7 @@ function mapStateToProps(state) {
   return {
     // reduxForm
     formData: state.form[formName],
+    initialValues: {},
 
     // Wrapper
     schema: get(state, 'swagger.spec.definitions.Orders'),
