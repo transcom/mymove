@@ -6,6 +6,7 @@ import {
   LoadServiceMember,
   LoadBackupContacts,
   LoadPPMs,
+  ApproveBasics,
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -18,6 +19,7 @@ const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
+const approveBasicsType = 'APPROVE_BASICS';
 
 const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
   loadAccountingType,
@@ -44,6 +46,8 @@ const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
   loadDependenciesType,
 );
+
+const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
   loadAccountingType,
@@ -78,6 +82,11 @@ export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
   loadPPMsType,
   LoadPPMs,
+);
+
+export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
+  approveBasicsType,
+  ApproveBasics,
 );
 
 export function loadMoveDependencies(moveId) {
@@ -278,6 +287,21 @@ export function officeReducer(state = initialState, action) {
         officePPMs: null,
         PPMsHaveLoadSuccess: false,
         PPMsHaveLoadError: true,
+        error: action.error.message,
+      });
+
+    case APPROVE_BASICS.start:
+      return Object.assign({}, state, {
+        basicsAreUpdating: true,
+      });
+    case APPROVE_BASICS.success:
+      return Object.assign({}, state, {
+        basicsAreUpdating: false,
+        officeMove: action.payload,
+      });
+    case APPROVE_BASICS.failure:
+      return Object.assign({}, state, {
+        basicsAreUpdating: false,
         error: action.error.message,
       });
 
