@@ -13,10 +13,10 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
+import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -30,11 +30,9 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
-    this.props.loadUserAndToken();
     this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
-
   render() {
     const props = this.props;
     return (
@@ -42,11 +40,14 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
-            {props.swaggerError && (
-              <Alert type="error" heading="An error occurred">
-                There was an error contacting the server.
-              </Alert>
-            )}
+            <div className="usa-grid">
+              <LogoutOnInactivity />
+              {props.swaggerError && (
+                <Alert type="error" heading="An error occurred">
+                  There was an error contacting the server.
+                </Alert>
+              )}
+            </div>
             {!props.swaggerError && (
               <Switch>
                 <Route exact path="/" component={Landing} />
@@ -69,7 +70,6 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadSchema: no_op,
-  loadUserAndToken: no_op,
   loadLoggedInUser: no_op,
 };
 
@@ -91,7 +91,7 @@ const mapStateToProps = state => {
 };
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
+    { push, loadSchema, loadLoggedInUser, createMove },
     dispatch,
   );
 
