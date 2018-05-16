@@ -1,8 +1,8 @@
 swagger: '2.0'
 info:
-  description: API to submit, amend, and cancel orders for my.move.mil.
-  version: 0.0.3
-  title: my.move.mil Orders Gateway
+  description: API to submit, amend, and cancel orders for move.mil.
+  version: 0.0.4
+  title: MyMove Orders Gateway
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
@@ -97,12 +97,13 @@ paths:
           description: The Orders number as it appears on the Orders
           required: true
           type: string
-        - name: edipi
+        - name: memberId
           in: query
-          description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
+          description: |
+            Electronic Data Interchange Personal Identifier of the member (preferred). If the member's EDIPI is unknown, then the Social Security Number may be provided instead. The Orders Gateway will then fetch the member's EDIPI using DMDC's Identity Web Services. Calls using the 9 digit SSN instead of the 10 digit EDIPI will take longer to respond due to the additional overhead.
           required: true
           type: string
-          pattern: '^\d{10}$'
+          pattern: '^\d{9}\d?$'
         - name: issuingAuthority
           in: query
           required: true
@@ -542,8 +543,7 @@ definitions:
           Unit Identification Code - a six character alphanumeric code that uniquely identifies each United States Department of Defense entity. Used in Army, Air Force, and Navy orders.
 
           Note that the Navy has the habit of omitting the leading character, which is always "N" for them.
-        minLength: 6
-        maxLength: 6
+        pattern: '^[A-Z][A-Z0-9]{5}$'
       city:
         type: string
         description: May be FPO or APO for OCONUS commands.
