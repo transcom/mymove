@@ -18,7 +18,7 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
-import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocationWizardFormPage';
+import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';

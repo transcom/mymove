@@ -183,9 +183,8 @@ const renderInputField = ({
       >
         {title}
         {!always_required &&
-          type !== 'boolean' && (
-            <span className="label-optional">Optional</span>
-          )}
+          type !== 'boolean' &&
+          !component && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
