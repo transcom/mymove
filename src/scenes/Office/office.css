@@ -120,3 +120,11 @@
 .orders-page-column .page {
   padding: 1em;
 }
+
+.panel-field.contact-prefs .field-value span {
+  margin-right: 1em;
+}
+.panel-field.contact-prefs .field-value svg {
+  margin-right: 4px;
+  font-size: 0.8em;
+}
