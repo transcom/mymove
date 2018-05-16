@@ -179,6 +179,7 @@ func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.
 
 // LoginGovTokenResponse is a struct for parsing responses from the token endpoint
 type LoginGovTokenResponse struct {
+	Error       string `json:"error"`
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	IDToken     string `json:"id_token"`
