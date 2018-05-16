@@ -48,7 +48,7 @@ type Order struct {
 	UploadedOrders       Document                           `belongs_to:"documents"`
 	UploadedOrdersID     uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber         *string                            `json:"orders_number" db:"orders_number"`
-	Moves                Moves                              `has_many:"moves" fk_id:"orders_id"`
+	Moves                Moves                              `has_many:"moves" fk_id:"orders_id" order_by:"created_at desc"`
 	Status               OrderStatus                        `json:"status" db:"status"`
 }
 
