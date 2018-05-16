@@ -50,7 +50,7 @@ export class DateAndLocation extends Component {
         initialValues={initialValues}
         enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
       >
-        <h1 className="sm-heading">PPM Dates & Locations</h1>
+        <h2 className="sm-heading">PPM Dates & Locations</h2>
         <h3> Move Date </h3>
         <SwaggerField
           fieldName="planned_move_date"
@@ -75,7 +75,9 @@ export class DateAndLocation extends Component {
               swagger={this.props.schema}
               required
             />
-            Making additional stops may decrease your PPM incentive.
+            <span className="grey">
+              Making additional stops may decrease your PPM incentive.
+            </span>
           </Fragment>
         )}
         <h3>Destination Location</h3>
@@ -90,8 +92,11 @@ export class DateAndLocation extends Component {
           swagger={this.props.schema}
           required
         />
-        The ZIP code for {currentOrders && currentOrders.new_duty_station.name}{' '}
-        is {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+        <span className="grey">
+          The ZIP code for{' '}
+          {currentOrders && currentOrders.new_duty_station.name} is{' '}
+          {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
+        </span>
         <SwaggerField
           fieldName="has_sit"
           swagger={this.props.schema}
@@ -104,7 +109,7 @@ export class DateAndLocation extends Component {
               swagger={this.props.schema}
               required
             />{' '}
-            You can choose up to 90 days.
+            <span className="grey">You can choose up to 90 days.</span>
           </Fragment>
         )}
       </DateAndLocationWizardForm>
