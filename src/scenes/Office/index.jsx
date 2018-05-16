@@ -15,7 +15,6 @@ import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 
-
 class Queues extends Component {
   render() {
     return (
