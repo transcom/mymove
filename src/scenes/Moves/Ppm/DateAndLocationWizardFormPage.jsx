@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { loadPpm, createOrUpdatePpm } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -20,7 +21,7 @@ export class DateAndLocation extends Component {
     this.props.loadPpm(moveId);
   }
   handleSubmit = () => {
-    const pendingValues = Object.assign({}, this.props.formData.values);
+    const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues['has_additional_postal_code'] =
         pendingValues.has_additional_postal_code || false;
@@ -131,8 +132,7 @@ function mapStateToProps(state) {
       get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
       get(state.orders, 'currentOrders'),
     currentPpm: get(state.ppm, 'currentPpm'),
-    formData: state.form[formName],
-    enableReinitialize: true,
+    formValues: getFormValues(formName)(state),
   };
   return props;
 }
