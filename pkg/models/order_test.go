@@ -42,6 +42,8 @@ func (suite *ModelSuite) TestFetchOrder() {
 		ServiceMemberID: serviceMember1.ID,
 		Name:            UploadedOrdersDocumentName,
 	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
 	suite.mustSave(&uploadedOrder)
 	order := Order{
 		ServiceMemberID:  serviceMember1.ID,
@@ -55,6 +57,8 @@ func (suite *ModelSuite) TestFetchOrder() {
 		UploadedOrdersID: uploadedOrder.ID,
 		UploadedOrders:   uploadedOrder,
 		Status:           OrderStatusSUBMITTED,
+		TransportationAccountingCode: &TAC,
+		DepartmentIndicator:          &deptIndicator,
 	}
 	suite.mustSave(&order)
 

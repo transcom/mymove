@@ -1,0 +1,2 @@
+drop_column("orders", "transportation_accounting_code")
+drop_column("orders", "department_indicator")

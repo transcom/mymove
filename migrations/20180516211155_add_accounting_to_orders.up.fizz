@@ -1,0 +1,2 @@
+add_column("orders", "transportation_accounting_code", "string", {"null": true})
+add_column("orders", "department_indicator", "string", {"null": true})
