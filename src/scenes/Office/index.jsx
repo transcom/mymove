@@ -9,6 +9,7 @@ import QueueHeader from 'shared/Header/Office';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
 import MoveInfo from './MoveInfo';
+import OrdersInfo from './OrdersInfo';
 import { loadUserAndToken } from 'shared/User/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
@@ -51,6 +52,10 @@ class OfficeWrapper extends Component {
                   component={MoveInfo}
                 />
                 <PrivateRoute path="/queues/:queueType" component={Queues} />
+                <PrivateRoute
+                  path="/moves/:moveId/orders"
+                  component={OrdersInfo}
+                />
               </Switch>
             </div>
           </main>

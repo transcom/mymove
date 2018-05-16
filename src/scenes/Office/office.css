@@ -112,3 +112,11 @@
 .documents .document .icon {
   margin-right: .3em;
 }
+
+.orders-page-column {
+  background: lightgray;
+}
+
+.orders-page-column .page {
+  padding: 1em;
+}
