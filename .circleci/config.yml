@@ -153,6 +153,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.staging.dp3.us/"
     steps: &deploy_app_redirect_steps
       - checkout
       - setup_remote_docker
@@ -161,7 +162,7 @@ jobs:
           command: bin/ecs-deploy-service-container app-redirect config/app-redirect.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/https-redirect $APP_ENVIRONMENT FARGATE
       - run:
           name: Health check https redirect
-          command: for retry in `seq 1 10`; do if [[ $(curl -f -sS -o /dev/null -w '%{http_code}' http://my.experimental.dp3.us) -eq 301 ]]; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+          command: for retry in `seq 1 10`; do if [[ $(curl -f -sS -o /dev/null -w '%{http_code}' $APP_REDIRECT_HEALTH_CHECK_URL) -eq 301 ]]; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
   deploy_staging_app:
@@ -169,6 +170,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
+      - APP_HEALTH_CHECK_URL: "https://my.staging.dp3.us/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
@@ -177,7 +179,7 @@ jobs:
           command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
       - run:
           name: Health check app site
-          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null https://my.staging.dp3.us; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
+          command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1
       - run: *announce_failure
 
   deploy_prod_migrations:
@@ -192,6 +194,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "prod"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.dp3.us/"
     steps: *deploy_app_redirect_steps
 
   deploy_prod_app:
@@ -199,6 +202,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "prod"
+      - APP_HEALTH_CHECK_URL: "https://my.dp3.us/health"
     steps: *deploy_app_steps
 
   integration_tests:
@@ -257,50 +261,6 @@ workflows:
       - pre_test
       - build_app
       - build_migrations
-
-      - deploy_staging_migrations:
-          requires:
-            - pre_test
-            - build_app
-            - build_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_staging_app_redirect:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-      - deploy_staging_app:
-          requires:
-            - deploy_staging_migrations
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_migrations:
-          requires:
-            - deploy_staging_app_redirect
-            - deploy_staging_app
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_app_redirect:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-      - deploy_prod_app:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-
 
   dependency_updater:
     triggers:

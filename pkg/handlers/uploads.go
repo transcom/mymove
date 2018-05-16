@@ -12,6 +12,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -20,12 +21,13 @@ import (
 
 func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
 	return &internalmessages.UploadPayload{
-		ID:        fmtUUID(upload.ID),
-		Filename:  swag.String(upload.Filename),
-		URL:       fmtURI(url),
-		Bytes:     &upload.Bytes,
-		CreatedAt: fmtDateTime(upload.CreatedAt),
-		UpdatedAt: fmtDateTime(upload.UpdatedAt),
+		ID:          fmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         fmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   fmtDateTime(upload.CreatedAt),
+		UpdatedAt:   fmtDateTime(upload.UpdatedAt),
 	}
 }
 
@@ -44,6 +46,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
@@ -52,7 +55,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	//fetching document to ensure user has access to it
-	_, docErr := models.FetchDocument(h.db, user, documentID)
+	_, docErr := models.FetchDocument(h.db, user, reqApp, documentID)
 	if docErr != nil {
 		return responseForError(h.logger, docErr)
 	}
@@ -144,9 +147,10 @@ type DeleteUploadHandler HandlerContext
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	app := app.GetAppFromContext(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.db, user, uploadID)
+	upload, err := models.FetchUpload(h.db, user, app, uploadID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
