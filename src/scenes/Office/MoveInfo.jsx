@@ -7,7 +7,7 @@ import { get, capitalize } from 'lodash';
 import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
