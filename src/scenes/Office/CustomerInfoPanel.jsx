@@ -23,8 +23,9 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 const CustomerInfoDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
   const values = props.values;
-
   const name = `${values.last_name}, ${values.first_name}`;
+  const address = values.residential_address || {};
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -72,22 +73,21 @@ const CustomerInfoDisplay = props => {
           )}
         </PanelField>
         <PanelField title="Current Address">
-          {values.residential_address.street_address_1}
+          {address.street_address_1}
           <br />
-          {values.residential_address.street_address_2 && (
+          {address.street_address_2 && (
             <span>
-              {values.residential_address.street_address_2}
+              {address.street_address_2}
               <br />
             </span>
           )}
-          {values.residential_address.street_address_3 && (
+          {address.street_address_3 && (
             <span>
-              {values.residential_address.street_address_3}
+              {address.street_address_3}
               <br />
             </span>
           )}
-          {values.residential_address.city}, {values.residential_address.state}{' '}
-          {values.residential_address.postal_code}
+          {address.city}, {address.state} {address.postal_code}
         </PanelField>
       </div>
     </React.Fragment>
