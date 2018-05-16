@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get, pick, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -23,7 +23,7 @@ import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 const CustomerInfoDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
   const values = props.values;
-  const name = `${values.last_name}, ${values.first_name}`;
+  const name = compact([values.last_name, values.first_name]).join(', ');
   const address = values.residential_address || {};
 
   return (
