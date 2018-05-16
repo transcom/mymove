@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -38,8 +38,8 @@ export class DateAndLocation extends Component {
       error,
       currentOrders,
       currentPpm,
+      initialValues,
     } = this.props;
-    const initialValues = currentPpm ? currentPpm : null;
     return (
       <DateAndLocationWizardForm
         handleSubmit={this.handleSubmit}
@@ -48,6 +48,7 @@ export class DateAndLocation extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
+        enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
       >
         <h1 className="sm-heading">PPM Dates & Locations</h1>
         <h3> Move Date </h3>
@@ -134,6 +135,17 @@ function mapStateToProps(state) {
     currentPpm: get(state.ppm, 'currentPpm'),
     formValues: getFormValues(formName)(state),
   };
+  const defaultPickupZip = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.residential_address.postal_code',
+  );
+  props.initialValues = props.currentPpm
+    ? props.currentPpm
+    : defaultPickupZip
+      ? {
+          pickup_postal_code: defaultPickupZip,
+        }
+      : null;
   return props;
 }
 function mapDispatchToProps(dispatch) {
