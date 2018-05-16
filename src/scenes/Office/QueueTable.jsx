@@ -15,7 +15,13 @@ class QueueTable extends Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
-  fetchData(state, instance) {
+  componentDidUpdate(prevProps) {
+    if (this.props.queueType !== prevProps.queueType) {
+      this.fetchData();
+    }
+  }
+
+  fetchData() {
     RetrieveMovesForOffice(this.props.queueType).then(
       response => {
         this.setState({
@@ -34,7 +40,7 @@ class QueueTable extends Component {
     const titles = {
       new: 'New Moves',
       troubleshooting: 'Troubleshooting',
-      ppms: 'PPMs',
+      ppm: 'PPMs',
     };
 
     return (
