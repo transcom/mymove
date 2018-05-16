@@ -10,39 +10,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './DateAndLocation.css';
 
-const NULL_ZIP = ''; //HACK: until we can figure out how to unset zip
 const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  state = { showAdditionalPickup: false, showTempStorage: false };
-  static getDerivedStateFromProps(nextProps, prevState) {
-    const result = {};
-    if (
-      get(
-        nextProps,
-        'formData.values.additional_pickup_postal_code',
-        NULL_ZIP,
-      ) !== NULL_ZIP
-    )
-      result.showAdditionalPickup = true;
-    if (get(nextProps, 'formData.values.days_in_storage', 0) > 0)
-      result.showTempStorage = true;
-    return result;
-  }
-  setShowAdditionalPickup = show => {
-    this.setState({ showAdditionalPickup: show }, () => {
-      if (!show) console.log(show);
-      // Redux form isn't being connected to reducer, can't access change prop
-      // this.props.change('additional_pickup_postal_code', NULL_ZIP);
-    });
-  };
-  setShowTempStorage = show => {
-    this.setState({ showTempStorage: show }, () => {
-      if (!show) console.log(show);
-      // if (!show) this.props.change('days_in_storage', '0');
-    });
-  };
   componentDidMount() {
     document.title = 'Transcom PPP: Date & Locations';
     const moveId = this.props.match.params.moveId;
@@ -51,11 +22,10 @@ export class DateAndLocation extends Component {
   handleSubmit = () => {
     const pendingValues = Object.assign({}, this.props.formData.values);
     if (pendingValues) {
+      pendingValues['has_additional_postal_code'] =
+        pendingValues.has_additional_postal_code || false;
+      pendingValues['has_sit'] = pendingValues.has_sit || false;
       const moveId = this.props.match.params.moveId;
-      pendingValues[
-        'has_additional_postal_code'
-      ] = this.state.showAdditionalPickup;
-      pendingValues['has_sit'] = this.state.showTempStorage;
       this.props.createOrUpdatePpm(moveId, pendingValues);
     }
   };
@@ -69,7 +39,6 @@ export class DateAndLocation extends Component {
       currentPpm,
     } = this.props;
     const initialValues = currentPpm ? currentPpm : null;
-    const { showAdditionalPickup, showTempStorage } = this.state;
     return (
       <DateAndLocationWizardForm
         handleSubmit={this.handleSubmit}
@@ -92,12 +61,12 @@ export class DateAndLocation extends Component {
           swagger={this.props.schema}
           required
         />
-        <p>Do you have stuff at another pickup location?</p>
-        <YesNoBoolean
-          value={showAdditionalPickup}
-          onChange={this.setShowAdditionalPickup}
+        <SwaggerField
+          fieldName="has_additional_postal_code"
+          swagger={this.props.schema}
+          component={YesNoBoolean}
         />
-        {this.state.showAdditionalPickup && (
+        {get(this.props, 'formValues.has_additional_postal_code', false) && (
           <Fragment>
             <SwaggerField
               fieldName="additional_pickup_postal_code"
@@ -121,15 +90,12 @@ export class DateAndLocation extends Component {
         />
         The ZIP code for {currentOrders && currentOrders.new_duty_station.name}{' '}
         is {currentOrders && currentOrders.new_duty_station.address.postal_code}{' '}
-        <p>
-          Are you going to put your stuff in temporary storage before moving
-          into your new home?
-        </p>
-        <YesNoBoolean
-          value={showTempStorage}
-          onChange={this.setShowTempStorage}
+        <SwaggerField
+          fieldName="has_sit"
+          swagger={this.props.schema}
+          component={YesNoBoolean}
         />
-        {this.state.showTempStorage && (
+        {get(this.props, 'formValues.has_sit', false) && (
           <Fragment>
             <SwaggerField
               fieldName="days_in_storage"
