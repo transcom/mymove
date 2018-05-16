@@ -18,7 +18,7 @@ import UploadOrders from 'scenes/Orders/UploadOrders';
 
 import MoveType from 'scenes/Moves/MoveTypeWizard';
 import Transition from 'scenes/Moves/Transition';
-import PppDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
+import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocationWizardFormPage';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
@@ -167,7 +167,7 @@ const pages = {
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
     render: (key, pages) => ({ match }) => (
-      <PppDateAndLocations pages={pages} pageKey={key} match={match} />
+      <PpmDateAndLocations pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/ppm-size': {
