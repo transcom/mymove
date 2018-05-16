@@ -1244,7 +1244,7 @@ definitions:
       VARIOUS: Various
   OrdersTypeDetail:
     type: string
-    title: Orders type details
+    title: Orders type detail
     enum:
       - HHG_PERMITTED
       - PCS_TDY

@@ -22,16 +22,8 @@ const OrdersDisplay = props => {
           fieldName="issue_date"
           {...fieldProps}
         />
-        <PanelSwaggerField
-          title="Move type"
-          fieldName="orders_type"
-          {...fieldProps}
-        />
-        <PanelSwaggerField
-          title="Orders type"
-          fieldName="orders_type_detail"
-          {...fieldProps}
-        />
+        <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
+        <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
         <PanelSwaggerField
           title="Report by"
           fieldName="report_by_date"
