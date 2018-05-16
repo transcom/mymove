@@ -1,4 +1,4 @@
-// import { get, pick } from 'lodash';
+import { get, pick } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -7,15 +7,44 @@ import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
 
-// import { updateOrders, loadOrders } from './ducks';
-// import { PanelField } from 'shared/EditablePanel';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+// import { updateOrders } from './ducks';
+import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
 const OrdersDisplay = props => {
-  // const fieldProps = pick(props, ['schema', 'values']);
+  const fieldProps = pick(props, ['schema', 'values']);
+  const values = props.values;
   return (
     <React.Fragment>
-      <div className="editable-panel-column" />
+      <div className="editable-panel-column">
+        <PanelSwaggerField fieldName="orders_number" {...fieldProps} />
+        <PanelSwaggerField
+          title="Date issued"
+          fieldName="issue_date"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Move type"
+          fieldName="orders_type"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Orders type"
+          fieldName="orders_type_detail"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Report by"
+          fieldName="report_by_date"
+          {...fieldProps}
+        />
+        <PanelField title="Current Duty Station">
+          {values.current_duty_station && `${values.current_duty_station.name}`}
+        </PanelField>
+        <PanelField title="New Duty Station">
+          {values.new_duty_station && `${values.new_duty_station.name}`}
+        </PanelField>
+      </div>
+      <div className="editable-panel-column">Entitlements</div>
     </React.Fragment>
   );
 };
@@ -125,13 +154,12 @@ function mapStateToProps(state) {
   return {
     // reduxForm
     formData: state.form[formName],
-    initialValues: {},
 
     // Wrapper
-    schema: {},
+    schema: get(state, 'swagger.spec.definitions.Orders'),
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: {},
+    displayValues: get(state, 'office.officeOrders'),
     isUpdating: false,
   };
 }
