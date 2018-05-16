@@ -353,13 +353,13 @@ definitions:
   Member:
     type: object
     properties:
-      given-name:
+      givenName:
         type: string
         description: In languages that use Western order, like English, this is the first name.
-      family-name:
+      familyName:
         type: string
         description: 'In languages that use Western order, like English, this is the last name. NOTE: some services lump suffixes (like Jr. or Sr.) in with the family name!'
-      middle-name:
+      middleName:
         type: string
         description: Middle name or middle initial
       suffix:
@@ -376,8 +376,8 @@ definitions:
 
           If omitted, use the default name for the rank for the provided affiliation.
     required:
-      - given-name
-      - family-name
+      - givenName
+      - familyName
       - affiliation
       - rank
   TourType:
