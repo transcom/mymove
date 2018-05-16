@@ -26,11 +26,11 @@ export const SwaggerValue = props => {
   const { fieldName, schema, values } = props;
   const swaggerProps = schema.properties[fieldName];
 
-  let value = values[fieldName] || null;
+  let value = values[fieldName];
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
   }
-  return <React.Fragment>{value}</React.Fragment>;
+  return <React.Fragment>{value || null}</React.Fragment>;
 };
 SwaggerValue.propTypes = {
   fieldName: PropTypes.string.isRequired,
