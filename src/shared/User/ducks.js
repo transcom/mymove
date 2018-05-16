@@ -1,7 +1,12 @@
+import { concat, filter, orderBy } from 'lodash';
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { GetLoggedInUser } from './api.js';
+import {
+  CREATE_OR_UPDATE_ORDERS,
+  SHOW_CURRENT_ORDERS,
+} from 'scenes/Orders/ducks.js';
 
 const LOAD_USER_AND_TOKEN = 'USER|LOAD_USER_AND_TOKEN';
 
@@ -47,6 +52,25 @@ export const loggedInUserReducer = (state, action) => {
         loggedInUser: {
           ...mutatedState.loggedInUser,
           service_member: action.payload,
+        },
+      };
+    case CREATE_OR_UPDATE_ORDERS.success:
+    case SHOW_CURRENT_ORDERS.success:
+      let oldOrders = mutatedState.loggedInUser.service_member.orders;
+      // Remove existing orders with same ID and add new orders
+      let newOrders = orderBy(
+        concat(filter(oldOrders, ['id', action.payload.id]), action.payload),
+        'created_at',
+        'desc',
+      );
+      return {
+        ...mutatedState,
+        loggedInUser: {
+          ...mutatedState.loggedInUser,
+          service_member: {
+            ...mutatedState.loggedInUser.service_member,
+            orders: newOrders,
+          },
         },
       };
     default:
