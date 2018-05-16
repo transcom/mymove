@@ -7,9 +7,10 @@ import { get, capitalize } from 'lodash';
 import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import PrivateRoute from 'shared/User/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
@@ -158,18 +159,18 @@ class MoveInfo extends Component {
 
             <div className="tab-content">
               <Switch>
-                <Route
+                <PrivateRoute
                   exact
                   path={`${this.props.match.url}`}
                   render={() => (
                     <Redirect replace to={`${this.props.match.url}/basics`} />
                   )}
                 />
-                <Route
+                <PrivateRoute
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
-                <Route
+                <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />

@@ -1,4 +1,4 @@
-import { getPageList } from './getWorkflowRoutes';
+import { getPagesInFlow } from './getWorkflowRoutes';
 
 describe('when getting the routes for the current workflow', () => {
   let profileIsComplete;
@@ -10,7 +10,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'PPM',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -28,7 +28,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'HHG',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -45,7 +45,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'COMBO',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('just returns move pages', () => {
         expect(pages).toEqual([
           '/moves/:moveId',
@@ -68,7 +68,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: null,
         hasMove: false,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
           '/service-member/:serviceMemberId/create',
@@ -94,7 +94,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'PPM',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('returns service member, order and PPM-specific move pages', () => {
         expect(pages).toEqual([
           '/service-member/:serviceMemberId/create',
@@ -123,7 +123,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'HHG',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('returns service member, order and HHG-specific move pages', () => {
         expect(pages).toEqual([
           '/service-member/:serviceMemberId/create',
@@ -151,7 +151,7 @@ describe('when getting the routes for the current workflow', () => {
         selectedMoveType: 'COMBO',
         hasMove: true,
       };
-      const pages = getPageList(props);
+      const pages = getPagesInFlow(props);
       it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
           '/service-member/:serviceMemberId/create',
