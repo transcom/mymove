@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
@@ -37,7 +37,6 @@ export class DateAndLocation extends Component {
       hasSubmitSuccess,
       error,
       currentOrders,
-      currentPpm,
       initialValues,
     } = this.props;
     return (
