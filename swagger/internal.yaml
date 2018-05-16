@@ -121,7 +121,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: How many days do you plan to put your stuff in storage?
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -175,7 +175,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: How many days do you plan to put your stuff in storage?
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -229,7 +229,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: How many days do you plan to put your stuff in storage?
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -287,7 +287,7 @@ definitions:
       has_sit:
         type: boolean
         x-nullable: true
-        title: How many days do you plan to put your stuff in storage?
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?

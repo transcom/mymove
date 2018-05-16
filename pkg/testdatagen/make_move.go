@@ -20,13 +20,22 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 	if verrs.HasAny() || err != nil {
 		return models.Move{}, err
 	}
+	// Can we move this into CreateNewMove
+	// (pivotal: https://www.pivotaltracker.com/story/show/157610355)
 	move.Orders = orders
+
 	return *move, nil
 }
 
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)
 func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 3; i++ {
 		MakeMove(db)
+	}
+
+	for i := 0; i < 2; i++ {
+		move, _ := MakeMove(db)
+		move.Status = models.MoveStatusAPPROVED
+		db.ValidateAndUpdate(&move)
 	}
 }

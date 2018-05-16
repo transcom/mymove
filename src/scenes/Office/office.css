@@ -63,7 +63,7 @@
   background-color: #ececec;
 }
 
-.tabs .nav-tab span {
+.tabs .nav-tab .status, .tabs .nav-tab .title {
   display: block;
   text-align: center;
 }

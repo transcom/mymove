@@ -121,6 +121,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		} else if *payload.HasAdditionalPostalCode == true {
 			ppm.AdditionalPickupPostalCode = payload.AdditionalPickupPostalCode
 		}
+		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
 	}
 	if payload.DestinationPostalCode != nil {
 		ppm.DestinationPostalCode = payload.DestinationPostalCode
@@ -131,7 +132,9 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		} else if *payload.HasSit == true {
 			ppm.DaysInStorage = payload.DaysInStorage
 		}
+		ppm.HasSit = payload.HasSit
 	}
+
 }
 
 // PatchPersonallyProcuredMoveHandler Patchs a PPM
