@@ -6635,7 +6635,7 @@ react-dev-utils@^4.2.1:
     strip-ansi "3.0.1"
     text-table "0.2.0"
 
-react-dom@^16.2.0:
+react-dom@^16.0.0, react-dom@^16.2.0:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.3.2.tgz#cb90f107e09536d683d84ed5d4888e9640e0e4df"
   dependencies:
@@ -6660,6 +6660,14 @@ react-highlight-words@^0.11.0:
   dependencies:
     highlight-words-core "^1.2.0"
     prop-types "^15.5.8"
+
+react-idle-timer@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-3.0.0.tgz#716cbe7cb3678255604b4e2bee9149fd45f25e77"
+  dependencies:
+    prop-types "^15.5.10"
+    react "^16.0.0"
+    react-dom "^16.0.0"
 
 react-input-autosize@^2.2.1:
   version "2.2.1"
@@ -6829,7 +6837,7 @@ react-window-size@^1.0.1:
   dependencies:
     babel-runtime "^6.6.1"
 
-react@^16.2.0:
+react@^16.0.0, react@^16.2.0:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react/-/react-16.3.2.tgz#fdc8420398533a1e58872f59091b272ce2f91ea9"
   dependencies:
