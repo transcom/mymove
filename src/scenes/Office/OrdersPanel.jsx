@@ -18,43 +18,37 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 const OrdersDisplay = props => {
-  const ordersFieldProps = {
+  const fieldProps = {
     schema: props.ordersSchema,
-    values: props.displayOrdersValues,
+    values: props.orders,
   };
 
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <a
-            href={props.displayOrdersValues.uploaded_orders.uploads.url}
-            target="_blank"
-          >
-            <SwaggerValue fieldName="orders_number" {...ordersFieldProps} />&nbsp;
+          <a href={props.orders.uploaded_orders.uploads.url} target="_blank">
+            <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
             <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
           </a>
         </PanelField>
         <PanelSwaggerField
           title="Date issued"
           fieldName="issue_date"
-          {...ordersFieldProps}
+          {...fieldProps}
         />
-        <PanelSwaggerField fieldName="orders_type" {...ordersFieldProps} />
-        <PanelSwaggerField
-          fieldName="orders_type_detail"
-          {...ordersFieldProps}
-        />
+        <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
+        <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
         <PanelSwaggerField
           title="Report by"
           fieldName="report_by_date"
-          {...ordersFieldProps}
+          {...fieldProps}
         />
         <PanelField title="Current Duty Station">
-          {get(props.displayServiceMemberValues, 'current_station.name', '')}
+          {get(props.serviceMember, 'current_station.name', '')}
         </PanelField>
         <PanelField title="New Duty Station">
-          {get(props.displayOrdersValues, 'new_duty_station.name', '')}
+          {get(props.orders, 'new_duty_station.name', '')}
         </PanelField>
       </div>
       <div className="editable-panel-column">
@@ -71,14 +65,9 @@ const OrdersDisplay = props => {
         <PanelField className="Todo" title="Short-term storage">
           90 days
         </PanelField>
-        <PanelField
-          title="Dependents"
-          value={
-            props.displayOrdersValues.has_dependents
-              ? 'Authorized'
-              : 'Unauthorized'
-          }
-        />
+        {props.orders.has_dependents && (
+          <PanelField title="Dependents" value="Authorized" />
+        )}
       </div>
     </React.Fragment>
   );
@@ -196,8 +185,8 @@ function mapStateToProps(state) {
 
     hasError: false,
     errorMessage: state.office.error,
-    displayOrdersValues: get(state, 'office.officeOrders'),
-    displayServiceMemberValues: get(state, 'office.officeServiceMember'),
+    orders: get(state, 'office.officeOrders'),
+    serviceMember: get(state, 'office.officeServiceMember'),
     entitlements: loadEntitlements(state),
     isUpdating: false,
   };

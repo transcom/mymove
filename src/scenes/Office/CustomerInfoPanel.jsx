@@ -21,11 +21,11 @@ import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const CustomerInfoDisplay = props => {
-  const serviceMemberFieldProps = {
+  const fieldProps = {
     schema: props.serviceMemberSchema,
-    values: props.displayServiceMemberValues,
+    values: props.serviceMember,
   };
-  const values = props.displayServiceMemberValues;
+  const values = props.serviceMember;
   const name = compact([values.last_name, values.first_name]).join(', ');
   const address = values.residential_address || {};
 
@@ -33,31 +33,27 @@ const CustomerInfoDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Name" value={name} />
-        <PanelSwaggerField
-          title="DoD ID"
-          fieldName="edipi"
-          {...serviceMemberFieldProps}
-        />
+        <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
         <PanelField title="Branch & rank">
-          <SwaggerValue fieldName="affiliation" {...serviceMemberFieldProps} />{' '}
-          - <SwaggerValue fieldName="rank" {...serviceMemberFieldProps} />
+          <SwaggerValue fieldName="affiliation" {...fieldProps} /> -{' '}
+          <SwaggerValue fieldName="rank" {...fieldProps} />
         </PanelField>
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField
           title="Phone"
           fieldName="telephone"
-          {...serviceMemberFieldProps}
+          {...fieldProps}
         />
         <PanelSwaggerField
           title="Alt. Phone"
           fieldName="secondary_telephone"
-          {...serviceMemberFieldProps}
+          {...fieldProps}
         />
         <PanelSwaggerField
           title="Email"
           fieldName="personal_email"
-          {...serviceMemberFieldProps}
+          {...fieldProps}
         />
         <PanelField title="Pref. contact" className="contact-prefs">
           {values.phone_is_preferred && (
@@ -230,7 +226,7 @@ function mapStateToProps(state) {
     ),
     hasError: false,
     errorMessage: state.office.error,
-    displayServiceMemberValues: state.office.officeServiceMember,
+    serviceMember: state.office.officeServiceMember,
     isUpdating: false,
   };
 }

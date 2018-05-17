@@ -11,18 +11,18 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
-  const ordersFieldProps = {
+  const fieldProps = {
     schema: props.ordersSchema,
-    values: props.displayOrdersValues,
+    values: props.orders,
   };
 
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="dept_indicator" {...ordersFieldProps} />
+        <PanelSwaggerField fieldName="dept_indicator" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="tac" {...ordersFieldProps} />
+        <PanelSwaggerField fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -59,7 +59,7 @@ function mapStateToProps(state) {
       state.office.accountingHasLoadError ||
       state.office.accountingHasUpdateError,
     errorMessage: state.office.error,
-    displayOrdersValues: state.office.accounting || {},
+    orders: state.office.accounting || {},
     isUpdating: state.office.accountingIsUpdating,
   };
 }
