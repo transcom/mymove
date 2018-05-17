@@ -58,6 +58,9 @@ export class WizardFormPage extends Component {
     const { pageKey, pageList } = this.props;
     if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
   }
+  cancelFlow = () => {
+    this.props.push(`/`);
+  };
   nextPage() {
     this.beforeTransition(getNextPagePath);
   }
@@ -96,20 +99,18 @@ export class WizardFormPage extends Component {
         </div>
         <div className="usa-width-one-whole lower-nav-btns">
           <div className="usa-width-one-third">
+            <button className="usa-button-secondary" onClick={this.cancelFlow}>
+              Cancel
+            </button>
+          </div>
+          <div className="usa-width-two-thirds">
             <button
               className="usa-button-secondary"
               onClick={this.previousPage}
               disabled={!canMoveBackward}
             >
-              Prev
+              Back
             </button>
-          </div>
-          <div className="usa-width-one-third center">
-            <button className="usa-button-secondary" disabled={true}>
-              Save for later
-            </button>
-          </div>
-          <div className="usa-width-one-third right-align">
             {!isLastPage(pageList, pageKey) && (
               <button
                 className="usa-button-primary"

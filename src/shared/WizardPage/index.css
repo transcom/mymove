@@ -1,14 +1,16 @@
-.error-message {
-  margin-bottom: 1em;
+/*.error-message {
+	margin-bottom: 1em;
 }
 .center {
-  text-align: center;
+	text-align: center;
 }
 
 .right-align {
-  text-align: right;
+	float: right;
 }
 
 .lower-nav-btns {
-  margin-top: 5rem;
+	margin-top: 5rem;
+	display: inline-block;
 }
+*/
