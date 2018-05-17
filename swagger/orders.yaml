@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.4
+  version: 0.0.5
   title: MyMove Orders Gateway
   license:
     name: MIT
@@ -45,9 +45,9 @@ paths:
           enum:
             - authorized
             - canceled
-        - name: issuingAuthority
+        - name: issuer
           in: query
-          description: Name of the Issuing Authority of the Orders.
+          description: Name of the organization that issued the Orders.
           type: string
       responses:
         200:
@@ -104,11 +104,6 @@ paths:
           required: true
           type: string
           pattern: '^\d{9}\d?$'
-        - name: issuingAuthority
-          in: query
-          required: true
-          description: Name of the Issuing Authority of the Orders.
-          type: string
         - in: body
           name: revision
           required: true
@@ -168,6 +163,8 @@ paths:
         It is an error to specify a non-existent UUID.
 
         It is an error to specify an already-created seqNum in the Revision.
+
+        It is an error to specify a UUID for orders originally created by a different issuer.
       operationId: postRevisionToOrders
       consumes:
         - application/json
@@ -242,9 +239,9 @@ definitions:
         type: string
         description: Electronic Data Interchange Personal Identifier, AKA the 10 digit DoD ID Number of the member
         pattern: '^\d{10}$'
-      issuingAuthority:
+      issuer:
         type: string
-        description: Military Department or Civilian Agency that authorized these orders; e.g., Department of the Army, Department of the Navy, Defense Information Systems Agency (DISA), etc.
+        description: Military Department or Civilian Agency that authorized these orders; e.g., Department of the Army, Department of the Navy, Defense Information Systems Agency (DISA), etc. The issuer is inferred by the system when the Orders are first created, based on the authenticated client certificate.
       revisions:
         type: array
         items:
@@ -252,7 +249,7 @@ definitions:
     required:
       - ordersNum
       - edipi
-      - issuingAuthority
+      - issuer
       - revisions
   Revision:
     type: object
@@ -261,20 +258,20 @@ definitions:
         type: integer
         minimum: 0
         description: |
-          Sequence number. When an order is amended, it should get a higher sequence number than all previous revisions of the same orders. The orders with the highest sequence number is considered the current, authoritative version, even if its dateIssued is earlier.
+          Sequence number. As Orders are amended, the Revision with the highest sequence number is considered the current, authoritative version of the Orders, even if its dateIssued is earlier.
 
           The sequence number is NOT required to increase monotonically or sequentially; in other words, if a set of orders is modified twice, the sequence numbers could be 1, 5858300, and 30.
       member:
         $ref: '#/definitions/Member'
       status:
         type: string
-        description: Indicates whether these Orders are authorized or canceled.
+        description: Indicates whether these Orders are authorized or canceled. If omitted, then these Orders are assumed to be authorized.
         enum:
           - authorized
           - canceled
       dateIssued:
         type: string
-        description: The date and time that these orders were cut.
+        description: The date and time that these orders were cut. If omitted, the current date and time will be used.
         format: date-time
       pcaWithoutPcs:
         type: boolean
@@ -286,9 +283,7 @@ definitions:
           It is not unheard of for the initial revision of orders to have this set to false and then later to be amended to true and vice-versa.
       tdyEnRoute:
         type: boolean
-        description: |
-          TDY (Temporary Duty Yonder) en-route.
-          If omitted, assume false.
+        description: TDY (Temporary Duty Yonder) en-route. If omitted, assume false.
       tourType:
         $ref: '#/definitions/TourType'
       ordersType:
@@ -296,7 +291,7 @@ definitions:
       hasDependents:
         type: boolean
         description: |
-          True if the service member has dependents (e.g., spouse, children, caring for an elderly parent, etc.), False otherwise.
+          True if the service member has any dependents (e.g., spouse, children, caring for an elderly parent, etc.), False otherwise.
 
           When the member has dependents, it usually raises their weight entitlement.
       losingUnit:
@@ -305,7 +300,7 @@ definitions:
         $ref: '#/definitions/Unit'
       reportNoEarlierThan:
         type: string
-        description: Earliest date that the service member is allowed to report for duty at the new duty station.
+        description: Earliest date that the service member is allowed to report for duty at the new duty station. If omitted, the member is allowed to report as early as desired.
         format: date
       reportNoLaterThan:
         type: string
@@ -327,7 +322,6 @@ definitions:
     required:
       - seqNum
       - member
-      - status
       - ordersType
       - hasDependents
       - losingUnit
@@ -358,7 +352,7 @@ definitions:
         description: In languages that use Western order, like English, this is the first name.
       familyName:
         type: string
-        description: 'In languages that use Western order, like English, this is the last name. NOTE: some services lump suffixes (like Jr. or Sr.) in with the family name!'
+        description: In languages that use Western order, like English, this is the last name.
       middleName:
         type: string
         description: Middle name or middle initial
@@ -372,9 +366,9 @@ definitions:
       title:
         type: string
         description: |
-          If supplied, this is the preferred form of address or preferred human-readable rank. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
+          If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
 
-          If omitted, use the default name for the rank for the provided affiliation.
+          If omitted, MyMove will show the member the default name for the provided rank and affiliation.
     required:
       - givenName
       - familyName
@@ -440,7 +434,7 @@ definitions:
       unit-move: Unit Move
   Rank:
     type: string
-    description: Rank of the service member. Some of these ranks will have identical entitlements.
+    description: DoD paygrade or rank of the service member. Some of these ranks will have identical entitlements.
     enum:
       - aviation-cadet
       - cadet
