@@ -1,3 +1,3 @@
-drop_column("orders", "transportation_accounting_code")
+drop_column("orders", "tac")
 drop_column("orders", "department_indicator")
 add_column("orders", "current_duty_station_id", "uuid", {"null": true})
