@@ -8,17 +8,17 @@ import editablePanel from './editablePanel';
 import { updateAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelField } from 'shared/EditablePanel';
+import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelField fieldName="dept_indicator" {...fieldProps} />
+        <PanelSwaggerField fieldName="dept_indicator" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelField fieldName="tac" {...fieldProps} />
+        <PanelSwaggerField fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
