@@ -63,11 +63,14 @@ const OrdersDisplay = props => {
         <PanelField title="Spouse pro-gear">
           {get(props.entitlements, 'pro_gear_spouse', '')} lbs
         </PanelField>
-        <PanelSwaggerField
-          title="Dependents"
-          fieldName="has_dependents"
-          {...ordersFieldProps}
-        />
+        <PanelField className="Todo" title="Short-term storage">
+          TODO
+        </PanelField>
+        <PanelField title="Dependents" fieldName="has_dependents">
+          {props.displayOrdersValues.has_dependents
+            ? 'Authorized'
+            : 'Unauthorized'}
+        </PanelField>
       </div>
     </React.Fragment>
   );
