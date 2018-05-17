@@ -27,8 +27,13 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <SwaggerValue fieldName="orders_number" {...ordersFieldProps} />&nbsp;
-          <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+          <a
+            href={props.displayOrdersValues.uploaded_orders.uploads.url}
+            target="_blank"
+          >
+            <SwaggerValue fieldName="orders_number" {...ordersFieldProps} />&nbsp;
+            <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+          </a>
         </PanelField>
         <PanelSwaggerField
           title="Date issued"
@@ -64,13 +69,16 @@ const OrdersDisplay = props => {
           {get(props.entitlements, 'pro_gear_spouse', '')} lbs
         </PanelField>
         <PanelField className="Todo" title="Short-term storage">
-          TODO
+          90 days
         </PanelField>
-        <PanelField title="Dependents" fieldName="has_dependents">
-          {props.displayOrdersValues.has_dependents
-            ? 'Authorized'
-            : 'Unauthorized'}
-        </PanelField>
+        <PanelField
+          title="Dependents"
+          value={
+            props.displayOrdersValues.has_dependents
+              ? 'Authorized'
+              : 'Unauthorized'
+          }
+        />
       </div>
     </React.Fragment>
   );
