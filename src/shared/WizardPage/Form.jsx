@@ -1,6 +1,7 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'react-router-redux';
@@ -9,6 +10,7 @@ import generatePath from './generatePath';
 import './index.css';
 import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { reduxForm } from 'redux-form';
+import { mobileSize } from 'shared/constants';
 
 import {
   getNextPagePath,
@@ -22,6 +24,7 @@ export class WizardFormPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
+    this.cancelFlow = this.cancelFlow.bind(this);
     this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
@@ -58,9 +61,9 @@ export class WizardFormPage extends Component {
     const { pageKey, pageList } = this.props;
     if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
   }
-  cancelFlow = () => {
+  cancelFlow() {
     this.props.push(`/`);
-  };
+  }
   nextPage() {
     this.beforeTransition(getNextPagePath);
   }
@@ -70,6 +73,8 @@ export class WizardFormPage extends Component {
   }
 
   render() {
+    const isMobile = this.props.windowWidth < mobileSize;
+    console.log('ismobile', this.props.windowWidth);
     const {
       handleSubmit,
       className,
@@ -98,14 +103,19 @@ export class WizardFormPage extends Component {
           </form>
         </div>
         <div className="usa-width-one-whole lower-nav-btns">
-          <div className="usa-width-one-third">
-            <button className="usa-button-secondary" onClick={this.cancelFlow}>
-              Cancel
-            </button>
-          </div>
-          <div className="usa-width-two-thirds">
+          {!isMobile && (
+            <div className="left cancel">
+              <button
+                className="usa-button-secondary"
+                onClick={this.cancelFlow}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div className="prev-next">
             <button
-              className="usa-button-secondary"
+              className="usa-button-secondary prev"
               onClick={this.previousPage}
               disabled={!canMoveBackward}
             >
@@ -113,7 +123,7 @@ export class WizardFormPage extends Component {
             </button>
             {!isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary"
+                className="usa-button-primary next"
                 onClick={this.nextPage}
                 disabled={!canMoveForward}
               >
@@ -122,7 +132,7 @@ export class WizardFormPage extends Component {
             )}
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary"
+                className="usa-button-primary next"
                 onClick={handleSubmit}
                 disabled={!canMoveForward}
               >
@@ -147,6 +157,7 @@ WizardFormPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
+  windowWidth: PropTypes.number,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -165,6 +176,8 @@ function composeValidations(initialValidations, additionalValidations) {
   };
 }
 
+const wizardFormPageWithSize = windowSize(WizardFormPage);
+
 export const reduxifyWizardForm = (name, additionalValidations) => {
   let validations = validateRequiredFields;
   if (additionalValidations) {
@@ -174,6 +187,6 @@ export const reduxifyWizardForm = (name, additionalValidations) => {
     );
   }
   return reduxForm({ form: name, validate: validations })(
-    withRouter(connect(null, mapDispatchToProps)(WizardFormPage)),
+    withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)),
   );
 };
