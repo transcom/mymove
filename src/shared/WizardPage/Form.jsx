@@ -74,7 +74,6 @@ export class WizardFormPage extends Component {
 
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
-    console.log('ismobile', this.props.windowWidth);
     const {
       handleSubmit,
       className,
