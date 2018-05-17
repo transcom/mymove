@@ -4,7 +4,6 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
-import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { Switch, Redirect } from 'react-router-dom';
@@ -21,6 +20,7 @@ import {
   loadAccounting,
   approveBasics,
 } from './ducks.js';
+import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -203,7 +203,7 @@ class MoveInfo extends Component {
                       icon={faExclamationCircle}
                     />
                     <a href={upload.url} target="_blank">
-                      Orders ({moment(upload.created_at).format('D-MMM-YY')})
+                      Orders ({formatDate(upload.created_at)})
                     </a>
                   </div>
                 );

@@ -3,11 +3,11 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { compact, get } from 'lodash';
-import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Alert from 'shared/Alert'; // eslint-disable-line
+import Alert from 'shared/Alert';
 import { loadMoveDependencies } from './ducks.js';
+import { formatDate, formatDateTime } from './helpers';
 
 // import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 // import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
@@ -33,18 +33,6 @@ const Page = function(props) {
   }
   return <div className="page">{content}</div>;
 };
-
-function formatDate(date) {
-  if (date) {
-    return moment(date).format('D-MMM-YY');
-  }
-}
-
-function formatDateTime(date) {
-  if (date) {
-    return moment(date).format('D-MMM-YY HH:mm');
-  }
-}
 
 class OrdersInfo extends Component {
   componentDidMount() {
