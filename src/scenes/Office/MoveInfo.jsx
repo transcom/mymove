@@ -16,11 +16,7 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import {
-  loadMoveDependencies,
-  loadAccounting,
-  approveBasics,
-} from './ducks.js';
+import { loadMoveDependencies, approveBasics } from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -54,7 +50,6 @@ const PPMTabContent = () => {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.loadAccounting(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -218,7 +213,6 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  loadAccounting: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -233,9 +227,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadMoveDependencies, loadAccounting, approveBasics },
-    dispatch,
-  );
+  bindActionCreators({ loadMoveDependencies, approveBasics }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);

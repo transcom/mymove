@@ -3,6 +3,7 @@ import {
   UpdateAccountingAPI,
   LoadMove,
   LoadOrders,
+  UpdateOrders,
   LoadServiceMember,
   LoadBackupContacts,
   LoadPPMs,
@@ -11,27 +12,20 @@ import {
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
-const loadAccountingType = 'LOAD_ACCOUNTING';
-const updateAccountingType = 'UPDATE_ACCOUNTING';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
+const updateOrdersType = 'UPDATE_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 const approveBasicsType = 'APPROVE_BASICS';
 
-const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  loadAccountingType,
-);
-
-const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  updateAccountingType,
-);
-
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
+
+const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
@@ -49,16 +43,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
-export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
-  loadAccountingType,
-  LoadAccountingAPI,
-);
-
-export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
-  updateAccountingType,
-  UpdateAccountingAPI,
-);
-
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
   LoadMove,
@@ -67,6 +51,11 @@ export const loadMove = ReduxHelpers.generateAsyncActionCreator(
 export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
   loadOrdersType,
   LoadOrders,
+);
+
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
+  updateOrdersType,
+  UpdateOrders,
 );
 
 export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
@@ -112,21 +101,18 @@ export function loadMoveDependencies(moveId) {
 
 // Reducer
 const initialState = {
-  accountingIsLoading: false,
-  accountingIsUpdating: false,
   moveIsLoading: false,
   ordersAreLoading: false,
+  ordersAreUpdating: false,
   serviceMemberIsLoading: false,
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
-  accountingHasLoadError: null,
-  accountingHasLoadSuccess: false,
-  accountingHasUpdateError: null,
-  accountingHasUpdateSuccess: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   ordersHaveLoadError: null,
   ordersHaveLoadSuccess: false,
+  ordersHaveUploadError: null,
+  ordersHaveUploadSuccess: false,
   serviceMemberHasLoadError: null,
   serviceMemberHasLoadSuccess: false,
   backupContactsHaveLoadError: null,
@@ -139,48 +125,7 @@ const initialState = {
 
 export function officeReducer(state = initialState, action) {
   switch (action.type) {
-    case LOAD_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        accountingIsLoading: true,
-        accountingHasLoadSuccess: false,
-      });
-    case LOAD_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        accountingIsLoading: false,
-        accounting: action.payload,
-        accountingHasLoadSuccess: true,
-        accountingHasLoadError: false,
-      });
-    case LOAD_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        accountingIsLoading: false,
-        accounting: null,
-        accountingHasLoadSuccess: false,
-        accountingHasLoadError: true,
-        error: action.error.message,
-      });
-
-    case UPDATE_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        accountingIsUpdating: true,
-        accountingHasUpdateSuccess: false,
-      });
-    case UPDATE_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        accountingIsUpdating: false,
-        accounting: action.payload,
-        accountingHasUpdateSuccess: true,
-        accountingHasUpdateError: false,
-      });
-    case UPDATE_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        accountingIsUpdating: false,
-        accountingHasUpdateSuccess: false,
-        accountingHasUpdateError: true,
-        error: action.error.message,
-      });
-
-    // Moves
+    // MOVES
     case LOAD_MOVE.start:
       return Object.assign({}, state, {
         moveIsLoading: true,
@@ -221,6 +166,26 @@ export function officeReducer(state = initialState, action) {
         officeOrders: null,
         ordersHaveLoadSuccess: false,
         ordersHaveLoadError: true,
+        error: action.error.message,
+      });
+    case UPDATE_ORDERS.start:
+      return Object.assign({}, state, {
+        ordersAreUpdating: true,
+        ordersHaveUpdateSuccess: false,
+      });
+    case UPDATE_ORDERS.success:
+      return Object.assign({}, state, {
+        ordersAreUpdating: false,
+        officeOrders: action.payload,
+        ordersHaveUpdateSuccess: true,
+        ordersHaveUpdateError: false,
+      });
+    case UPDATE_ORDERS.failure:
+      return Object.assign({}, state, {
+        ordersAreUpdating: false,
+        officeOrders: null,
+        ordersHaveUpdateSuccess: false,
+        ordersHaveUpdateError: true,
         error: action.error.message,
       });
 

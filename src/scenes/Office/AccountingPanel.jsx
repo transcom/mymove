@@ -5,13 +5,14 @@ import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
-import { updateAccounting } from './ducks';
+import { updateOrders } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -47,23 +48,22 @@ function mapStateToProps(state) {
   return {
     // reduxForm
     formData: state.form[formName],
-    initialValues: state.office.accounting,
+    initialValues: state.office.officeOrders,
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
+    schema: get(state, 'swagger.spec.definitions.Orders', {}),
     hasError:
-      state.office.accountingHasLoadError ||
-      state.office.accountingHasUpdateError,
+      state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
     errorMessage: state.office.error,
-    displayValues: state.office.accounting || {},
-    isUpdating: state.office.accountingIsUpdating,
+    displayValues: state.office.officeOrders || {},
+    isUpdating: state.office.ordersAreUpdating,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: updateAccounting,
+      update: updateOrders,
     },
     dispatch,
   );
