@@ -16,3 +16,7 @@
 .filepond--root {
     max-width: 500px;
 }
+
+.filepond--panel-root {
+  border: 1px dashed #B0B0B0;
+}
