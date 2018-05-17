@@ -1,4 +1,4 @@
-import { concat, filter, orderBy } from 'lodash';
+import { concat, reject, orderBy } from 'lodash';
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
@@ -51,7 +51,7 @@ export const loggedInUserReducer = (state, action) => {
       let oldOrders = mutatedState.loggedInUser.service_member.orders;
       // Remove existing orders with same ID and add new orders
       let newOrders = orderBy(
-        concat(filter(oldOrders, ['id', action.payload.id]), action.payload),
+        concat(reject(oldOrders, ['id', action.payload.id]), action.payload),
         'created_at',
         'desc',
       );
