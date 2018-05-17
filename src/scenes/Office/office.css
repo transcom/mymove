@@ -63,7 +63,7 @@
   background-color: #ececec;
 }
 
-.tabs .nav-tab span {
+.tabs .nav-tab .status, .tabs .nav-tab .title {
   display: block;
   text-align: center;
 }
@@ -111,4 +111,14 @@
 
 .documents .document .icon {
   margin-right: .3em;
+}
+
+
+
+.panel-field.contact-prefs .field-value span {
+  margin-right: 1em;
+}
+.panel-field.contact-prefs .field-value svg {
+  margin-right: 4px;
+  font-size: 0.8em;
 }

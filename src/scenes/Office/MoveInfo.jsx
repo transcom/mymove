@@ -3,19 +3,24 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, capitalize } from 'lodash';
 import moment from 'moment';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
+import PrivateRoute from 'shared/User/PrivateRoute';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import { loadMoveDependencies, loadAccounting } from './ducks.js';
+import {
+  loadMoveDependencies,
+  loadAccounting,
+  approveBasics,
+} from './ducks.js';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -51,6 +56,10 @@ class MoveInfo extends Component {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
     this.props.loadAccounting(this.props.match.params.moveId);
   }
+
+  approveBasics = () => {
+    this.props.approveBasics(this.props.match.params.moveId);
+  };
 
   render() {
     // TODO: If the following vars are not used to load data, remove them.
@@ -133,7 +142,7 @@ class MoveInfo extends Component {
                 <span className="title">Basics</span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  Status Goes Here
+                  {capitalize(officeMove.status)}
                 </span>
               </NavTab>
               <NavTab to="/ppm">
@@ -150,18 +159,18 @@ class MoveInfo extends Component {
 
             <div className="tab-content">
               <Switch>
-                <Route
+                <PrivateRoute
                   exact
                   path={`${this.props.match.url}`}
                   render={() => (
                     <Redirect replace to={`${this.props.match.url}/basics`} />
                   )}
                 />
-                <Route
+                <PrivateRoute
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
-                <Route
+                <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
@@ -170,7 +179,12 @@ class MoveInfo extends Component {
           </div>
           <div className="usa-width-one-fourth">
             <div>
-              <button>Approve Basics</button>
+              <button
+                onClick={this.approveBasics}
+                disabled={officeMove.status === 'APPROVED'}
+              >
+                Approve Basics
+              </button>
               <button>Troubleshoot</button>
               <button>Cancel Move</button>
             </div>
@@ -219,6 +233,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies, loadAccounting }, dispatch);
+  bindActionCreators(
+    { loadMoveDependencies, loadAccounting, approveBasics },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);

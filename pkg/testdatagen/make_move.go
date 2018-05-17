@@ -29,7 +29,13 @@ func MakeMove(db *pop.Connection) (models.Move, error) {
 
 // MakeMoveData created 5 Moves (and in turn a set of Orders for each)
 func MakeMoveData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
+	for i := 0; i < 3; i++ {
 		MakeMove(db)
+	}
+
+	for i := 0; i < 2; i++ {
+		move, _ := MakeMove(db)
+		move.Status = models.MoveStatusAPPROVED
+		db.ValidateAndUpdate(&move)
 	}
 }

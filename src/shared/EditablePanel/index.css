@@ -10,6 +10,7 @@
   display: inline-block;
   width: 45%;
   margin-right: 5%;
+  vertical-align: top;
 }
 
 .editable-panel-header {
@@ -52,7 +53,10 @@
 
 .panel-field {
   border-bottom: solid 1px #f1f1f1;
-  font-size: 0.9em;
+  font-size: 0.8em;
+  padding: .1em 0;
+  margin-bottom: 0.3em;
+  line-height: 1.3em;
 }
 
 .panel-field:last-of-type {
@@ -62,6 +66,7 @@
 .field-title {
   width: 40%;
   display: inline-block;
+  vertical-align: top;
 }
 
 .field-value {
