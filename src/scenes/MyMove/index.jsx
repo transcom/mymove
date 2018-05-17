@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { get } from 'lodash';
+import PrivateRoute from 'shared/User/PrivateRoute';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -10,6 +11,7 @@ import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
+import EditProfile from 'scenes/Review/EditProfile';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -57,6 +59,11 @@ export class AppWrapper extends Component {
                 />
                 <Route path="/feedback" component={Feedback} />
                 {getWorkflowRoutes(props)}
+                <PrivateRoute
+                  exact
+                  path="/moves/:moveId/review/edit-profile"
+                  component={EditProfile}
+                />
                 <Route component={NoMatch} />
               </Switch>
             )}
