@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -8,17 +8,21 @@ import editablePanel from './editablePanel';
 import { updateAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelField } from 'shared/EditablePanel';
+import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
-  const fieldProps = pick(props, ['schema', 'values']);
+  const fieldProps = {
+    schema: props.ordersSchema,
+    values: props.orders,
+  };
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelField fieldName="dept_indicator" {...fieldProps} />
+        <PanelSwaggerField fieldName="dept_indicator" {...fieldProps} />
       </div>
       <div className="editable-panel-column">
-        <PanelField fieldName="tac" {...fieldProps} />
+        <PanelSwaggerField fieldName="tac" {...fieldProps} />
       </div>
     </React.Fragment>
   );
@@ -50,12 +54,12 @@ function mapStateToProps(state) {
     initialValues: state.office.accounting,
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
+    ordersSchema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
     hasError:
       state.office.accountingHasLoadError ||
       state.office.accountingHasUpdateError,
     errorMessage: state.office.error,
-    displayValues: state.office.accounting || {},
+    orders: state.office.accounting || {},
     isUpdating: state.office.accountingIsUpdating,
   };
 }
