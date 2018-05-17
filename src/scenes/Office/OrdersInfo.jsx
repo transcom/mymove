@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { compact, get } from 'lodash';
+import moment from 'moment';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -10,13 +12,17 @@ import { loadMoveDependencies } from './ducks.js';
 // import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 // import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 
+import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+
 import './office.css';
 
+// Page displays an image or PDF.
 const Page = function(props) {
   let content;
   if (props.contentType === 'application/pdf') {
     content = (
-      <div>
+      <div className="pdf-placeholder">
+        {props.filename && <span className="filename">{props.filename}</span>}
         This PDF can be <a href={props.url}>viewed here</a>.
       </div>
     );
@@ -28,6 +34,18 @@ const Page = function(props) {
   return <div className="page">{content}</div>;
 };
 
+function formatDate(date) {
+  if (date) {
+    return moment(date).format('D-MMM-YY');
+  }
+}
+
+function formatDateTime(date) {
+  if (date) {
+    return moment(date).format('D-MMM-YY HH:mm');
+  }
+}
+
 class OrdersInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -35,20 +53,25 @@ class OrdersInfo extends Component {
 
   render() {
     const ordersFieldsProps = {
-      values: this.props.officeOrders,
-      schema: this.props.officeSchema,
+      values: this.props.orders,
+      schema: this.props.ordersSchema,
     };
 
-    const officeMove = this.props.officeMove || {};
-    const officeOrders = this.props.officeOrders || {};
-    const officeServiceMember = this.props.officeServiceMember || {};
+    const move = this.props.move;
+    const orders = this.props.orders;
+    const serviceMember = this.props.serviceMember;
+    const name = compact([
+      serviceMember.last_name,
+      serviceMember.first_name,
+    ]).join(', ');
 
     let uploads;
-    if (officeOrders && officeOrders.uploaded_orders) {
-      uploads = officeOrders.uploaded_orders.uploads.map(upload => (
+    if (orders && orders.uploaded_orders) {
+      uploads = orders.uploaded_orders.uploads.map(upload => (
         <Page
           key={upload.url}
           url={upload.url}
+          filename={upload.filename}
           contentType={upload.content_type}
         />
       ));
@@ -77,34 +100,58 @@ class OrdersInfo extends Component {
           <div className="usa-width-two-thirds orders-page-column">
             {uploads}
           </div>
-          <div className="usa-width-one-third nav-controls">
+          <div className="usa-width-one-third orders-page-fields">
+            <h2 className="usa-heading">{name}</h2>
+
+            <PanelField title="Move Locator">{move.locator}</PanelField>
+            <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
+
+            <h3>
+              Orders {orders.orders_number} ({formatDate(orders.issue_date)})
+            </h3>
+            {uploads.length > 0 && (
+              <p className="uploaded-at">
+                Uploaded{' '}
+                {formatDateTime(orders.uploaded_orders.uploads[0].created_at)}
+              </p>
+            )}
+
             <PanelSwaggerField
               fieldName="orders_number"
               {...ordersFieldsProps}
             />
-            <PanelSwaggerField
+
+            <PanelField
               title="Date issued"
-              fieldName="issue_date"
-              {...fieldProps}
+              value={formatDate(orders.issue_date)}
             />
+
             <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
             <PanelSwaggerField
               fieldName="orders_type_detail"
               {...ordersFieldsProps}
             />
-            <PanelSwaggerField
+
+            <PanelField
               title="Report by"
-              fieldName="report_by_date"
-              {...ordersFieldsProps}
+              value={formatDate(orders.report_by_date)}
             />
+
             <PanelField title="Current Duty Station">
-              {officeOrders.current_duty_station &&
-                officeOrders.current_duty_station.name}
+              {orders.current_duty_station && orders.current_duty_station.name}
             </PanelField>
             <PanelField title="New Duty Station">
-              {officeOrders.new_duty_station &&
-                officeOrders.new_duty_station.name}
+              {orders.new_duty_station && orders.new_duty_station.name}
             </PanelField>
+
+            <PanelField
+              className="Todo"
+              title="Dependents"
+              value={orders.has_dependents ? 'Authorized' : 'Not authorized'}
+            />
+            <PanelField className="Todo" title="Dept. Indicator" />
+            <PanelField className="Todo" title="TAC" />
+            <PanelField className="Todo" title="Doc status" />
           </div>
         </div>
       </div>
@@ -118,9 +165,10 @@ OrdersInfo.propTypes = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
-  officeMove: state.office.officeMove,
-  officeOrders: state.office.officeOrders,
-  officeServiceMember: state.office.officeServiceMember,
+  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+  move: state.office.officeMove || {},
+  orders: state.office.officeOrders || {},
+  serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
 });

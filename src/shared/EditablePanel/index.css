@@ -72,5 +72,6 @@
 .field-value {
   display: inline-block;
   font-weight: bold;
-  margin-left: .5em;
+  margin-left: 8%;
+  width: 51%;
 }
