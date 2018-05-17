@@ -1282,8 +1282,6 @@ definitions:
         title: Are dependents included in your orders?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
-      current_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
       moves:

@@ -22,10 +22,6 @@ const OrdersDisplay = props => {
     schema: props.ordersSchema,
     values: props.displayOrdersValues,
   };
-  const serviceMemberFieldProps = {
-    schema: props.serviceMemberSchema,
-    values: props.displayServiceMemberValues,
-  };
 
   return (
     <React.Fragment>
@@ -58,6 +54,20 @@ const OrdersDisplay = props => {
       </div>
       <div className="editable-panel-column">
         <span className="editable-panel-column subheader">Entitlements</span>
+        <PanelField title="Household Goods">
+          {get(props.entitlements, 'total', '')} lbs
+        </PanelField>
+        <PanelField title="Pro-gear">
+          {get(props.entitlements, 'pro_gear', '')} lbs
+        </PanelField>
+        <PanelField title="Spouse pro-gear">
+          {get(props.entitlements, 'pro_gear_spouse', '')} lbs
+        </PanelField>
+        <PanelSwaggerField
+          title="Dependents"
+          fieldName="has_dependents"
+          {...ordersFieldProps}
+        />
       </div>
     </React.Fragment>
   );
@@ -172,16 +182,12 @@ function mapStateToProps(state) {
 
     // Wrapper
     ordersSchema: get(state, 'swagger.spec.definitions.Orders'),
-    serviceMemberSchema: get(
-      state,
-      'swagger.spec.definitions.ServiceMemberPayload',
-    ),
 
     hasError: false,
     errorMessage: state.office.error,
     displayOrdersValues: get(state, 'office.officeOrders'),
     displayServiceMemberValues: get(state, 'office.officeServiceMember'),
-    entitlements: loadEntitlements(state.orders),
+    entitlements: loadEntitlements(state),
     isUpdating: false,
   };
 }

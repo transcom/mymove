@@ -43,7 +43,6 @@ type Order struct {
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations"`
-	CurrentDutyStation  *DutyStation                       `belongs_to:"duty_stations"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
