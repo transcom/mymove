@@ -37,7 +37,7 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 		NewDutyStation:   payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:    fmtBool(order.HasDependents),
 		UploadedOrders:   documentPayload,
-		OrdersNumber:     fmtString(*order.OrdersNumber),
+		OrdersNumber:     order.OrdersNumber,
 		Moves:            moves,
 	}
 

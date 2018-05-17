@@ -24,7 +24,7 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <SwaggerValue fieldName="orders_number" {...fieldProps} />
+          <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
           <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
         </PanelField>
         <PanelSwaggerField
@@ -46,7 +46,9 @@ const OrdersDisplay = props => {
           {values.new_duty_station && `${values.new_duty_station.name}`}
         </PanelField>
       </div>
-      <div className="editable-panel-column">Entitlements</div>
+      <div className="editable-panel-column">
+        <span className="editable-panel-column subheader">Entitlements</span>
+      </div>
     </React.Fragment>
   );
 };
@@ -160,9 +162,11 @@ function mapStateToProps(state) {
 
     // Wrapper
     schema: get(state, 'swagger.spec.definitions.Orders'),
+    serviceMemberSchema: get(state, 'swagger.spec.definitions.ServiceMember'),
     hasError: false,
     errorMessage: state.office.error,
     displayValues: get(state, 'office.officeOrders'),
+    displayServiceMember: get(state, 'office.officeServiceMember'),
     isUpdating: false,
   };
 }
