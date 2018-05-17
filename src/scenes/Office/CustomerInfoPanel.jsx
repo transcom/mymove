@@ -1,4 +1,4 @@
-import { get, pick, compact } from 'lodash';
+import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,8 +21,11 @@ import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const CustomerInfoDisplay = props => {
-  const fieldProps = pick(props, ['schema', 'values']);
-  const values = props.values;
+  const serviceMemberFieldProps = {
+    schema: props.serviceMemberSchema,
+    values: props.displayServiceMemberValues,
+  };
+  const values = props.displayServiceMemberValues;
   const name = compact([values.last_name, values.first_name]).join(', ');
   const address = values.residential_address || {};
 
@@ -30,27 +33,31 @@ const CustomerInfoDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Name" value={name} />
-        <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
+        <PanelSwaggerField
+          title="DoD ID"
+          fieldName="edipi"
+          {...serviceMemberFieldProps}
+        />
         <PanelField title="Branch & rank">
-          <SwaggerValue fieldName="affiliation" {...fieldProps} /> -{' '}
-          <SwaggerValue fieldName="rank" {...fieldProps} />
+          <SwaggerValue fieldName="affiliation" {...serviceMemberFieldProps} />{' '}
+          - <SwaggerValue fieldName="rank" {...serviceMemberFieldProps} />
         </PanelField>
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField
           title="Phone"
           fieldName="telephone"
-          {...fieldProps}
+          {...serviceMemberFieldProps}
         />
         <PanelSwaggerField
           title="Alt. Phone"
           fieldName="secondary_telephone"
-          {...fieldProps}
+          {...serviceMemberFieldProps}
         />
         <PanelSwaggerField
           title="Email"
           fieldName="personal_email"
-          {...fieldProps}
+          {...serviceMemberFieldProps}
         />
         <PanelField title="Pref. contact" className="contact-prefs">
           {values.phone_is_preferred && (
@@ -217,10 +224,13 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.ServiceMemberPayload'),
+    serviceMemberSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberPayload',
+    ),
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: state.office.officeServiceMember,
+    displayServiceMemberValues: state.office.officeServiceMember,
     isUpdating: false,
   };
 }

@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,7 +6,7 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
-
+import { loadEntitlements } from 'scenes/Orders/ducks';
 // import { updateOrders } from './ducks';
 import {
   PanelSwaggerField,
@@ -18,32 +18,42 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 const OrdersDisplay = props => {
-  const fieldProps = pick(props, ['schema', 'values']);
-  const values = props.values;
+  const ordersFieldProps = {
+    schema: props.ordersSchema,
+    values: props.displayOrdersValues,
+  };
+  const serviceMemberFieldProps = {
+    schema: props.serviceMemberSchema,
+    values: props.displayServiceMemberValues,
+  };
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+          <SwaggerValue fieldName="orders_number" {...ordersFieldProps} />&nbsp;
           <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
         </PanelField>
         <PanelSwaggerField
           title="Date issued"
           fieldName="issue_date"
-          {...fieldProps}
+          {...ordersFieldProps}
         />
-        <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
-        <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
+        <PanelSwaggerField fieldName="orders_type" {...ordersFieldProps} />
+        <PanelSwaggerField
+          fieldName="orders_type_detail"
+          {...ordersFieldProps}
+        />
         <PanelSwaggerField
           title="Report by"
           fieldName="report_by_date"
-          {...fieldProps}
+          {...ordersFieldProps}
         />
         <PanelField title="Current Duty Station">
-          {values.current_duty_station && `${values.current_duty_station.name}`}
+          {get(props.displayServiceMemberValues, 'current_station.name', '')}
         </PanelField>
         <PanelField title="New Duty Station">
-          {values.new_duty_station && `${values.new_duty_station.name}`}
+          {get(props.displayOrdersValues, 'new_duty_station.name', '')}
         </PanelField>
       </div>
       <div className="editable-panel-column">
@@ -161,12 +171,17 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.Orders'),
-    serviceMemberSchema: get(state, 'swagger.spec.definitions.ServiceMember'),
+    ordersSchema: get(state, 'swagger.spec.definitions.Orders'),
+    serviceMemberSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberPayload',
+    ),
+
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: get(state, 'office.officeOrders'),
-    displayServiceMember: get(state, 'office.officeServiceMember'),
+    displayOrdersValues: get(state, 'office.officeOrders'),
+    displayServiceMemberValues: get(state, 'office.officeServiceMember'),
+    entitlements: loadEntitlements(state.orders),
     isUpdating: false,
   };
 }
