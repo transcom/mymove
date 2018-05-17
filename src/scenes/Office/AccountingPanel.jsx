@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -11,7 +11,10 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const AccountingDisplay = props => {
-  const fieldProps = pick(props, ['schema', 'values']);
+  const fieldProps = {
+    schema: props.ordersSchema,
+    values: props.orders,
+  };
 
   return (
     <React.Fragment>
@@ -51,11 +54,11 @@ function mapStateToProps(state) {
     initialValues: state.office.officeOrders,
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.Orders', {}),
+    ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
     hasError:
       state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
     errorMessage: state.office.error,
-    displayValues: state.office.officeOrders || {},
+    orders: state.office.officeOrders || {},
     isUpdating: state.office.ordersAreUpdating,
   };
 }
