@@ -14,7 +14,7 @@ import { PanelField } from 'shared/EditablePanel';
 const BackupInfoDisplay = props => {
   const backupAddress = props.serviceMember.backup_mailing_address || {};
   const backupContact = get(props, 'backupContacts[0]', '');
-  debugger;
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -38,7 +38,12 @@ const BackupInfoDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <PanelField title={'Backup contact with ' + backupContact.permission}>
+        <PanelField
+          title={
+            'Backup contact with permissions:' +
+            props.backupContactAuth[backupContact.permission]
+          }
+        >
           {backupContact.name}
           <br />
           {backupContact.telephone && (
@@ -133,6 +138,12 @@ function mapStateToProps(state) {
     serviceMember: state.office.officeServiceMember,
     backupContacts: state.office.officeBackupContacts,
     isUpdating: false,
+
+    backupContactAuth: get(
+      state,
+      'swagger.spec.definitions.BackupContactPermission[x-display-value]',
+      {},
+    ),
   };
 }
 
