@@ -32,8 +32,8 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "Move Approved",
-		htmlBody:       "Your move has been approved!",
-		textBody:       "Your move has been approved!",
+		htmlBody:       "Congrats!<br>Your move has been approved!",
+		textBody:       "Congrats! Your move has been approved!",
 	}
 
 	// TODO: Send email to trusted contacts when that's supported
