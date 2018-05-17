@@ -1,4 +1,4 @@
-//import { pick } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,16 +6,55 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
+import { PanelField } from 'shared/EditablePanel';
 
 // import { updateBackupInfo, loadBackupInfo } from './ducks';
-// import { PanelField } from 'shared/EditablePanel';
 // import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const BackupInfoDisplay = props => {
-  //const fieldProps = pick(props, ['schema', 'values']);
+  const backupAddress = props.serviceMember.backup_mailing_address || {};
+  const backupContact = get(props, 'backupContacts[0]', '');
+
   return (
     <React.Fragment>
-      <div className="editable-panel-column" />
+      <div className="editable-panel-column">
+        <PanelField title="Backup mailing address">
+          {backupAddress.street_address_1}
+          <br />
+          {backupAddress.street_address_2 && (
+            <span>
+              {backupAddress.street_address_2}
+              <br />
+            </span>
+          )}
+          {backupAddress.street_address_3 && (
+            <span>
+              {backupAddress.street_address_3}
+              <br />
+            </span>
+          )}
+          {backupAddress.city}, {backupAddress.state}{' '}
+          {backupAddress.postal_code}
+        </PanelField>
+      </div>
+      <div className="editable-panel-column">
+        <PanelField title="Backup contact with {backupContact.permission}">
+          {backupContact.name}
+          <br />
+          {backupContact.telephone && (
+            <span>
+              {backupContact.telephone}
+              <br />
+            </span>
+          )}
+          {backupContact.email && (
+            <span>
+              {backupContact.email}
+              <br />
+            </span>
+          )}
+        </PanelField>
+      </div>
     </React.Fragment>
   );
 };
@@ -89,10 +128,10 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: {},
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: {},
+    serviceMember: state.office.officeServiceMember,
+    backupContacts: state.office.officeBackupContacts,
     isUpdating: false,
   };
 }
