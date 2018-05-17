@@ -1,4 +1,4 @@
-// import { get, pick } from 'lodash';
+import { get, pick, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -8,14 +8,88 @@ import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
 
 // import { updateCustomerInfo, loadCustomerInfo } from './ducks';
-// import { PanelField } from 'shared/EditablePanel';
+import {
+  PanelSwaggerField,
+  PanelField,
+  SwaggerValue,
+} from 'shared/EditablePanel';
 // import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faComments from '@fortawesome/fontawesome-free-solid/faComments';
+import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
+
 const CustomerInfoDisplay = props => {
-  // const fieldProps = pick(props, ['schema', 'values']);
+  const fieldProps = pick(props, ['schema', 'values']);
+  const values = props.values;
+  const name = compact([values.last_name, values.first_name]).join(', ');
+  const address = values.residential_address || {};
+
   return (
     <React.Fragment>
-      <div className="editable-panel-column" />
+      <div className="editable-panel-column">
+        <PanelField title="Name" value={name} />
+        <PanelSwaggerField title="DoD ID" fieldName="edipi" {...fieldProps} />
+        <PanelField title="Branch & rank">
+          <SwaggerValue fieldName="affiliation" {...fieldProps} /> -{' '}
+          <SwaggerValue fieldName="rank" {...fieldProps} />
+        </PanelField>
+      </div>
+      <div className="editable-panel-column">
+        <PanelSwaggerField
+          title="Phone"
+          fieldName="telephone"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Alt. Phone"
+          fieldName="secondary_telephone"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Email"
+          fieldName="personal_email"
+          {...fieldProps}
+        />
+        <PanelField title="Pref. contact" className="contact-prefs">
+          {values.phone_is_preferred && (
+            <span>
+              <FontAwesomeIcon icon={faPhone} flip="horizontal" />
+              phone
+            </span>
+          )}
+          {values.text_message_is_preferred && (
+            <span>
+              <FontAwesomeIcon icon={faComments} />
+              text
+            </span>
+          )}
+          {values.email_is_preferred && (
+            <span>
+              <FontAwesomeIcon icon={faEmail} />
+              email
+            </span>
+          )}
+        </PanelField>
+        <PanelField title="Current Address">
+          {address.street_address_1}
+          <br />
+          {address.street_address_2 && (
+            <span>
+              {address.street_address_2}
+              <br />
+            </span>
+          )}
+          {address.street_address_3 && (
+            <span>
+              {address.street_address_3}
+              <br />
+            </span>
+          )}
+          {address.city}, {address.state} {address.postal_code}
+        </PanelField>
+      </div>
     </React.Fragment>
   );
 };
@@ -143,10 +217,10 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: {},
+    schema: get(state, 'swagger.spec.definitions.ServiceMemberPayload'),
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: {},
+    displayValues: state.office.officeServiceMember,
     isUpdating: false,
   };
 }
