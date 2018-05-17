@@ -26,19 +26,21 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 	}
 
 	payload := &internalmessages.Orders{
-		ID:               fmtUUID(order.ID),
-		CreatedAt:        fmtDateTime(order.CreatedAt),
-		UpdatedAt:        fmtDateTime(order.UpdatedAt),
-		ServiceMemberID:  fmtUUID(order.ServiceMemberID),
-		IssueDate:        fmtDate(order.IssueDate),
-		ReportByDate:     fmtDate(order.ReportByDate),
-		OrdersType:       order.OrdersType,
-		OrdersTypeDetail: order.OrdersTypeDetail,
-		NewDutyStation:   payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:    fmtBool(order.HasDependents),
-		UploadedOrders:   documentPayload,
-		OrdersNumber:     order.OrdersNumber,
-		Moves:            moves,
+		ID:                  fmtUUID(order.ID),
+		CreatedAt:           fmtDateTime(order.CreatedAt),
+		UpdatedAt:           fmtDateTime(order.UpdatedAt),
+		ServiceMemberID:     fmtUUID(order.ServiceMemberID),
+		IssueDate:           fmtDate(order.IssueDate),
+		ReportByDate:        fmtDate(order.ReportByDate),
+		OrdersType:          order.OrdersType,
+		OrdersTypeDetail:    order.OrdersTypeDetail,
+		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
+		HasDependents:       fmtBool(order.HasDependents),
+		UploadedOrders:      documentPayload,
+		OrdersNumber:        order.OrdersNumber,
+		Moves:               moves,
+		Tac:                 order.TAC,
+		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 	}
 
 	return payload, nil

@@ -1313,6 +1313,12 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - id
       - service_member_id
@@ -1363,6 +1369,12 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - service_member_id
       - issue_date

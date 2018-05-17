@@ -42,19 +42,23 @@ func (suite *ModelSuite) TestFetchOrder() {
 		ServiceMemberID: serviceMember1.ID,
 		Name:            UploadedOrdersDocumentName,
 	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
 	suite.mustSave(&uploadedOrder)
 	order := Order{
-		ServiceMemberID:  serviceMember1.ID,
-		ServiceMember:    serviceMember1,
-		IssueDate:        issueDate,
-		ReportByDate:     reportByDate,
-		OrdersType:       ordersType,
-		HasDependents:    hasDependents,
-		NewDutyStationID: dutyStation.ID,
-		NewDutyStation:   dutyStation,
-		UploadedOrdersID: uploadedOrder.ID,
-		UploadedOrders:   uploadedOrder,
-		Status:           OrderStatusSUBMITTED,
+		ServiceMemberID:     serviceMember1.ID,
+		ServiceMember:       serviceMember1,
+		IssueDate:           issueDate,
+		ReportByDate:        reportByDate,
+		OrdersType:          ordersType,
+		HasDependents:       hasDependents,
+		NewDutyStationID:    dutyStation.ID,
+		NewDutyStation:      dutyStation,
+		UploadedOrdersID:    uploadedOrder.ID,
+		UploadedOrders:      uploadedOrder,
+		Status:              OrderStatusSUBMITTED,
+		TAC:                 &TAC,
+		DepartmentIndicator: &deptIndicator,
 	}
 	suite.mustSave(&order)
 
