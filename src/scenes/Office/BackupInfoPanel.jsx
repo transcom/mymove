@@ -14,7 +14,7 @@ import { PanelField } from 'shared/EditablePanel';
 const BackupInfoDisplay = props => {
   const backupAddress = props.serviceMember.backup_mailing_address || {};
   const backupContact = get(props, 'backupContacts[0]', '');
-
+  debugger;
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -38,7 +38,7 @@ const BackupInfoDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <PanelField title="Backup contact with {backupContact.permission}">
+        <PanelField title={'Backup contact with ' + backupContact.permission}>
           {backupContact.name}
           <br />
           {backupContact.telephone && (
