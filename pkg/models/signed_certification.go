@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -22,20 +21,8 @@ type SignedCertification struct {
 	Date              time.Time `json:"date" db:"date"`
 }
 
-// String is not required by pop and may be deleted
-func (s SignedCertification) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
-
 // SignedCertifications is not required by pop and may be deleted
 type SignedCertifications []SignedCertification
-
-// String is not required by pop and may be deleted
-func (s SignedCertifications) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
