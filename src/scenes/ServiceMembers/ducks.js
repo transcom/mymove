@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -63,7 +64,10 @@ export function updateServiceMember(serviceMember) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    const currentServiceMember = state.serviceMember.currentServiceMember;
+    const currentServiceMember = get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    );
     if (currentServiceMember) {
       return UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>

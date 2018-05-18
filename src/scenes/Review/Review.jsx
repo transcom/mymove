@@ -81,6 +81,10 @@ export class Review extends Component {
       if (!date) return;
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
+
+    const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
+    const editProfileAddress = thisAddress + '/edit-profile';
+
     return (
       <WizardPage
         handleSubmit={no_op}
@@ -103,7 +107,7 @@ export class Review extends Component {
                   <th>
                     Profile{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editProfileAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
