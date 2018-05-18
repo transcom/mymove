@@ -2,7 +2,7 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -19,24 +19,6 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-
-const subsetOfFields = [
-  'title',
-  'first_name',
-  'middle_name',
-  'last_name',
-  'suffix',
-  'edipi',
-  'affiliation',
-  'rank',
-  'telephone',
-  'secondary_telephone',
-  'personal_email',
-  'residential_address',
-  'phone_is_preferred',
-  'text_message_is_preferred',
-  'email_is_preferred',
-];
 
 const CustomerInfoDisplay = props => {
   const fieldProps = {
@@ -115,57 +97,59 @@ const CustomerInfoDisplay = props => {
 };
 
 const CustomerInfoEdit = props => {
-  const initialValues = currentServiceMember
-    ? pick(this.props.currentServiceMember, subsetOfFields)
-    : null;
+  const schema = props.serviceMemberSchema;
+  let customerInfoProps = {
+    swagger: props.serviceMemberSchema,
+    values: props.serviceMember,
+  };
 
-  const schema = props.schema;
+  let addressSwagger = props.addressSchema;
+
   return (
     <React.Fragment>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="title" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="first_name" swagger={schema} required />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="middle_name" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="last_name" swagger={schema} required />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="suffix" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="edipi" swagger={schema} required />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="affiliation" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="rank" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="telephone" swagger={schema} required />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="personal_email" swagger={schema} required />
-      </div>
-      <div className="editable-panel-column">
-        <SwaggerField fieldName="residential_address" swagger={schema} />
-      </div>
-      <fieldset key="contact_preferences">
-        <legend htmlFor="contact_preferences">
-          Preferred contact method during your move:
-        </legend>
-        <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-        <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
-        <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-      </fieldset>
+      <FormSection name="serviceMember">
+        <div className="editable-panel-column">
+          <SwaggerField fieldName="title" swagger={schema} />
+          <SwaggerField fieldName="first_name" swagger={schema} required />
+          <SwaggerField fieldName="middle_name" swagger={schema} />
+          <SwaggerField fieldName="last_name" swagger={schema} required />
+          <SwaggerField fieldName="suffix" swagger={schema} />
+        </div>
+        <div className="editable-panel-column">
+          <SwaggerField fieldName="edipi" swagger={schema} required />
+          <SwaggerField fieldName="affiliation" swagger={schema} />
+          <SwaggerField fieldName="rank" swagger={schema} />
+        </div>
+        <div className="editable-panel-column">
+          <div className="panel-subhead">Contact</div>
+          <SwaggerField fieldName="telephone" swagger={schema} required />
+          <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+          <SwaggerField fieldName="personal_email" swagger={schema} required />
+          <fieldset key="contact_preferences">
+            <legend htmlFor="contact_preferences">
+              Preferred contact method during your move:
+            </legend>
+            <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+            <SwaggerField
+              fieldName="text_message_is_preferred"
+              swagger={schema}
+            />
+            <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+          </fieldset>
+        </div>
+      </FormSection>
+      <FormSection name="address">
+        <div className="panel-subhead">Current Residence Address</div>
+        <div className="editable-panel-column">
+          <SwaggerField fieldName="street_address_1" swagger={addressSwagger} />
+          <SwaggerField fieldName="street_address_2" swagger={addressSwagger} />
+          <SwaggerField fieldName="street_address_3" swagger={addressSwagger} />
+          <SwaggerField fieldName="city" swagger={addressSwagger} />
+          <SwaggerField fieldName="state" swagger={addressSwagger} />
+          <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
+          <SwaggerField fieldName="country" swagger={addressSwagger} />
+        </div>
+      </FormSection>
     </React.Fragment>
   );
 };
@@ -176,10 +160,15 @@ let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
 CustomerInfoPanel = reduxForm({ form: formName })(CustomerInfoPanel);
 
 function mapStateToProps(state) {
+  let customerInfo = get(state, 'office.officeServiceMember');
   return {
     // reduxForm
-    formData: state.form[formName],
-    initialValues: {},
+    initialValues: {
+      serviceMember: customerInfo,
+      address: customerInfo.residential_address,
+    },
+
+    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
 
     // Wrapper
     serviceMemberSchema: get(
@@ -188,13 +177,15 @@ function mapStateToProps(state) {
     ),
     hasError: false,
     errorMessage: state.office.error,
-    currentServiceMember: state.office.officeServiceMember,
-    displayValues: state.office.officeServiceMember || {},
+    serviceMember: state.office.officeServiceMember,
     isUpdating: false,
     // formValues: getFormValues(formName)(state),
     getUpdateArgs: function() {
+      // Will need to do some nesting to make the address pull make sense, matching Swagger object shape
+      let values = getFormValues(formName)(state);
       return [
         state.office.officeServiceMember.id,
+        // Need to nest the address value here...
         getFormValues(formName)(state),
       ];
     },
