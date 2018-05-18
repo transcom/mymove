@@ -1,4 +1,4 @@
-import { get, reject, concat } from 'lodash';
+import { reject, concat } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -91,19 +91,10 @@ export function addUploads(uploads) {
 }
 
 // Selectors
-export function loadEntitlements(state) {
-  if (state.currentOrders || state.office) {
-    var rank;
-    var hasDependents;
-    if (state.currentOrders) {
-      rank = get(state, 'currentOrders.service_member.rank');
-      hasDependents = get(state, 'currentOrders.has_dependents');
-    } else if (state.office.officeOrders) {
-      rank = get(state, 'office.officeServiceMember.rank');
-      hasDependents = get(state, 'office.officeOrders.has_dependents');
-    }
-    return getEntitlements(rank, hasDependents);
-  }
+export function loadEntitlements(orders, service_member) {
+  var rank = service_member.rank;
+  var hasDependents = orders.has_dependents;
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer
