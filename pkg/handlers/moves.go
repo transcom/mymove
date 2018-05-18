@@ -117,3 +117,31 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	movePayload := payloadForMoveModel(orders, *move)
 	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 }
+
+// SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
+type SubmitMoveHandler HandlerContext
+
+// Handle ... submit a move for approval
+func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
+
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	//TODO: update PPM status too
+
+	move.Status = models.MoveStatusSUBMITTED
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	movePayload := payloadForMoveModel(move.Orders, *move)
+	return moveop.NewSubmitMoveForApprovalOK().WithPayload(&movePayload)
+}
