@@ -79,3 +79,12 @@
   font-weight: bold;
   margin-left: .5em;
 }
+
+.panel-subhead {
+  font-weight: bold;
+  margin-top: 2rem;
+}
+
+.panel-subhead + .usa-input .usa-input-label {
+  margin-top: 1rem;
+}
