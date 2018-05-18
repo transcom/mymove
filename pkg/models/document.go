@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,20 +23,8 @@ type Document struct {
 	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
-// String is not required by pop and may be deleted
-func (d Document) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
-}
-
 // Documents is not required by pop and may be deleted
 type Documents []Document
-
-// String is not required by pop and may be deleted
-func (d Documents) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {

@@ -7,14 +7,53 @@ import editablePanel from './editablePanel';
 
 import { updateBackupInfo } from './ducks';
 
-// import { PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { PanelField } from 'shared/EditablePanel';
 
 const BackupInfoDisplay = props => {
-  //const fieldProps = pick(props, ['schema', 'values']);
+  const backupAddress = props.backupMailingAddress;
+  const backupContact = props.backupContact;
+
   return (
     <React.Fragment>
-      <div className="editable-panel-column" />
+      <div className="editable-panel-column">
+        <PanelField title="Backup mailing address">
+          {backupAddress.street_address_1}
+          <br />
+          {backupAddress.street_address_2 && (
+            <span>
+              {backupAddress.street_address_2}
+              <br />
+            </span>
+          )}
+          {backupAddress.street_address_3 && (
+            <span>
+              {backupAddress.street_address_3}
+              <br />
+            </span>
+          )}
+          {backupAddress.city}, {backupAddress.state}{' '}
+          {backupAddress.postal_code}
+        </PanelField>
+      </div>
+      <div className="editable-panel-column">
+        <PanelField title="Backup contact">
+          {backupContact.name}
+          <br />
+          {backupContact.telephone && (
+            <span>
+              {backupContact.telephone}
+              <br />
+            </span>
+          )}
+          {backupContact.email && (
+            <span>
+              {backupContact.email}
+              <br />
+            </span>
+          )}
+        </PanelField>
+      </div>
     </React.Fragment>
   );
 };
@@ -82,7 +121,6 @@ function mapStateToProps(state) {
 
   return {
     // reduxForm
-    formData: state.form[formName],
     initialValues: {
       backupContact: backupContact,
       backupMailingAddress: serviceMember.backup_mailing_address,
@@ -109,7 +147,6 @@ function mapStateToProps(state) {
 
     hasError: false,
     errorMessage: state.office.error,
-    isUpdating: false,
   };
 }
 

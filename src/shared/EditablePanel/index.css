@@ -77,7 +77,14 @@
 .field-value {
   display: inline-block;
   font-weight: bold;
-  margin-left: .5em;
+  margin-left: 8%;
+  width: 51%;
+}
+
+.field-value-unbold {
+  display: inline-block;
+  margin-left: 8%;
+  width: 51%;
 }
 
 .panel-subhead {

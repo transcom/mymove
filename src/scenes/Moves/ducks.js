@@ -1,5 +1,11 @@
-import { CreateMove, UpdateMove, GetMove } from './api.js';
+import {
+  CreateMove,
+  UpdateMove,
+  GetMove,
+  SubmitMoveForApproval,
+} from './api.js';
 
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
 export const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
 export const CREATE_MOVE = 'CREATE_MOVE';
@@ -51,7 +57,7 @@ export function setPendingMoveType(value) {
 export function createMove(ordersId, movePayload = {}) {
   return function(dispatch) {
     dispatch(createMoveRequest());
-    CreateMove(ordersId, movePayload)
+    return CreateMove(ordersId, movePayload)
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };
@@ -60,7 +66,7 @@ export function createMove(ordersId, movePayload = {}) {
 export function updateMove(moveId, moveType) {
   return function(dispatch) {
     dispatch(updateMoveRequest());
-    UpdateMove(moveId, { selected_move_type: moveType })
+    return UpdateMove(moveId, { selected_move_type: moveType })
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };
@@ -68,16 +74,21 @@ export function updateMove(moveId, moveType) {
 
 export function loadMove(moveId) {
   return function(dispatch, getState) {
-    const state = getState();
-    const currentMove = state.submittedMoves.currentMove;
-    if (!currentMove) {
-      dispatch(getMoveRequest());
-      GetMove(moveId)
-        .then(item => dispatch(getMoveSuccess(item)))
-        .catch(error => dispatch(getMoveFailure(error)));
-    }
+    dispatch(getMoveRequest());
+    return GetMove(moveId)
+      .then(item => dispatch(getMoveSuccess(item)))
+      .catch(error => dispatch(getMoveFailure(error)));
   };
 }
+
+const SUBMIT_FOR_APPROVAL = 'SUBMIT_FOR_APPROVAL';
+export const SUBMIT_FOR_APPROVAL_TYPES = ReduxHelpers.generateAsyncActionTypes(
+  SUBMIT_FOR_APPROVAL,
+);
+export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
+  SUBMIT_FOR_APPROVAL,
+  SubmitMoveForApproval,
+);
 
 // Reducer
 const initialState = {
@@ -124,6 +135,20 @@ export function moveReducer(state = initialState, action) {
         currentMove: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
+        error: action.error,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.start:
+      return Object.assign({}, state, {
+        submittedForApproval: false,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.success:
+      return Object.assign({}, state, {
+        currentMove: action.item,
+        submittedForApproval: true,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.failure:
+      return Object.assign({}, state, {
+        submittedForApproval: false,
         error: action.error,
       });
     default:
