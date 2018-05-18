@@ -37,7 +37,7 @@ export async function UpdatePpm(
   return response.body;
 }
 
-export async function GetPpmEstimate(
+export async function GetPpmWeightEstimate(
   moveDate,
   originZip,
   destZip,

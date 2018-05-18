@@ -53,7 +53,7 @@ class BigButtonGroup extends Component {
             {isDisabled && <h4>Not currently available, coming soon...</h4>}
             <p className="restrict-left">{description}</p>
             <img src={icon} alt={altTag} />
-            {!isMobile && <p className="font-2">{title}</p>}
+            {!isMobile && <p className="grey-title">{title}</p>}
             {isMobile && (
               <div className="collapse-btn" onClick={this.toggleHidden}>
                 &gt; &nbsp; Pros and Cons:
@@ -66,7 +66,7 @@ class BigButtonGroup extends Component {
                   return (
                     <div key={key.toString()}>
                       <p>{key}</p>
-                      <ul className="font-3">
+                      <ul className="smaller-text">
                         {pros.map(item => <li key={item}>{item}</li>)}
                       </ul>
                     </div>
