@@ -92,10 +92,16 @@ export function addUploads(uploads) {
 
 // Selectors
 export function loadEntitlements(state) {
-  if (state.currentOrders) {
-    const rank = get(state, 'currentOrders.service_member.rank');
-    const hasDependents = get(state, 'currentOrders.has_dependents');
-
+  if (state.currentOrders || state.office) {
+    var rank;
+    var hasDependents;
+    if (state.currentOrders) {
+      rank = get(state, 'currentOrders.service_member.rank');
+      hasDependents = get(state, 'currentOrders.has_dependents');
+    } else if (state.office.officeOrders) {
+      rank = get(state, 'office.officeServiceMember.rank');
+      hasDependents = get(state, 'office.officeOrders.has_dependents');
+    }
     return getEntitlements(rank, hasDependents);
   }
 }
