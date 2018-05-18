@@ -9,9 +9,6 @@ import Alert from 'shared/Alert';
 import { loadMoveDependencies } from './ducks.js';
 import { formatDate, formatDateTime } from './helpers';
 
-// import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-// import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
-
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
 import './office.css';
@@ -132,13 +129,25 @@ class OrdersInfo extends Component {
               {orders.new_duty_station && orders.new_duty_station.name}
             </PanelField>
 
-            <PanelField
-              className="Todo"
-              title="Dependents"
-              value={orders.has_dependents ? 'Authorized' : 'Not authorized'}
+            {orders.has_dependents && (
+              <PanelField
+                className="Todo"
+                title="Dependents"
+                value="Authorized"
+              />
+            )}
+
+            <PanelSwaggerField
+              title="Dept. Indicator"
+              fieldName="department_indicator"
+              {...ordersFieldsProps}
             />
-            <PanelField className="Todo" title="Dept. Indicator" />
-            <PanelField className="Todo" title="TAC" />
+            <PanelSwaggerField
+              title="TAC"
+              fieldName="tac"
+              {...ordersFieldsProps}
+            />
+
             <PanelField className="Todo" title="Doc status" />
           </div>
         </div>
