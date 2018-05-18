@@ -23,6 +23,12 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	//  A set of orders and a move belonging to those orders
 	order, _ := testdatagen.MakeOrder(suite.db)
 
+	newMove := models.Move{
+		OrdersID: order.ID,
+		Status:   "DRAFT",
+	}
+	suite.mustSave(&newMove)
+
 	_, verrs, locErr := order.CreateNewMove(suite.db, nil)
 	suite.False(verrs.HasAny(), "failed to create new move")
 	suite.Nil(locErr)

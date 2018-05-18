@@ -1,0 +1,3 @@
+add_column("orders", "tac", "string", {"null": true})
+add_column("orders", "department_indicator", "string", {"null": true})
+drop_column("orders", "current_duty_station_id")

@@ -15,7 +15,7 @@ export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
     if (!this.props.loggedInUserIsLoading) {
-      this.props.loadLoggedInUser().then(() => {});
+      this.props.loadLoggedInUser();
     }
   }
   componentDidUpdate() {

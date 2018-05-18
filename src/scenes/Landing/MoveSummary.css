@@ -30,6 +30,23 @@ img.move_sm {
   font-weight: bold;
 }
 
+.step{
+  margin-bottom: 1em;
+}
+
+.step-contents{
+  overflow: hidden;
+  margin-top: 1em;
+}
+
+.step-links{
+  margin-top: 1em;
+}
+
+.details-links a{
+  display: block;
+}
+
 .titled_block {
   margin-top: 0.5em;
 }
