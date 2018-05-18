@@ -37,7 +37,6 @@ const BackupInfoDisplay = props => {
       <div className="editable-panel-column">
         <PanelField title="Backup contact">
           {backupContact.name}
-          ({props.backupContactAuth[backupContact.permission]})
           <br />
           {backupContact.telephone && (
             <span>
@@ -131,12 +130,6 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     backupContacts: get(state, 'office.officeBackupContacts', []),
     isUpdating: false,
-
-    backupContactAuth: get(
-      state,
-      'swagger.spec.definitions.BackupContactPermission[x-display-value]',
-      {},
-    ),
   };
 }
 
