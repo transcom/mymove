@@ -73,6 +73,7 @@ export const MoveSummary = props => {
                     <a
                       href="https://www.move.mil/resources/locator-maps"
                       target="_blank"
+                      rel="noopener noreferrer"
                     >
                       Find Weight Scales
                     </a>
