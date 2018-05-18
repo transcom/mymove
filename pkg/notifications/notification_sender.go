@@ -1,10 +1,13 @@
 package notifications
 
 import (
+	"bytes"
+
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
+	"github.com/go-gomail/gomail"
 )
 
 type notification interface {
@@ -12,6 +15,7 @@ type notification interface {
 }
 
 type emailContent struct {
+	attachments    []string
 	recipientEmail string
 	subject        string
 	htmlBody       string
@@ -20,7 +24,7 @@ type emailContent struct {
 
 const sesRegion = "us-west-2"
 const senderEmail = "noreply@dp3.us"
-const charset = "UTF-8"
+const emailCharset = "UTF-8"
 
 // SendNotification sends a one or more notifications for all supported mediums
 func SendNotification(notification notification, svc sesiface.SESAPI) error {
@@ -44,38 +48,43 @@ func SendNotification(notification notification, svc sesiface.SESAPI) error {
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 	for _, email := range emails {
-		input := &ses.SendEmailInput{
-			Destination: &ses.Destination{
-				ToAddresses: []*string{
-					aws.String(email.recipientEmail),
-				},
-			},
-			Message: &ses.Message{
-				Body: &ses.Body{
-					Html: &ses.Content{
-						Charset: aws.String(charset),
-						Data:    aws.String(email.htmlBody),
-					},
-					Text: &ses.Content{
-						Charset: aws.String(charset),
-						Data:    aws.String(email.textBody),
-					},
-				},
-				Subject: &ses.Content{
-					Charset: aws.String(charset),
-					Data:    aws.String(email.subject),
-				},
-			},
-			Source: aws.String(senderEmail),
+		rawMessage, err := formatRawEmailMessage(email)
+		if err != nil {
+			return err
+		}
+
+		input := ses.SendRawEmailInput{
+			Destinations: []*string{aws.String(email.recipientEmail)},
+			RawMessage:   &ses.RawMessage{Data: rawMessage},
+			Source:       aws.String(senderEmail),
 		}
 
 		// Returns the message ID. Should we store that somewhere?
-		_, err := svc.SendEmail(input)
-
+		_, err = svc.SendRawEmail(&input)
 		if err != nil {
 			return err
 		}
 	}
 
 	return nil
+}
+
+func formatRawEmailMessage(email emailContent) ([]byte, error) {
+	m := gomail.NewMessage()
+	m.SetHeader("From", senderEmail)
+	m.SetHeader("To", email.recipientEmail)
+	m.SetHeader("Subject", email.subject)
+	m.SetBody("text/plain", email.textBody)
+	m.AddAlternative("text/html", email.htmlBody)
+	for _, attachment := range email.attachments {
+		m.Attach(attachment)
+	}
+
+	buf := new(bytes.Buffer)
+	_, err := m.WriteTo(buf)
+	if err != nil {
+		return buf.Bytes(), err
+	}
+
+	return buf.Bytes(), nil
 }

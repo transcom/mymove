@@ -134,6 +134,12 @@
   version = "v1.4.7"
 
 [[projects]]
+  name = "github.com/go-gomail/gomail"
+  packages = ["."]
+  revision = "41f3572897373c5538c50a2402db15db079fa4fd"
+  version = "2.0.0"
+
+[[projects]]
   name = "github.com/go-ini/ini"
   packages = ["."]
   revision = "6529cf7c58879c08d927016dde4477f18a0634cb"
@@ -727,6 +733,12 @@
   ]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "v3"
+  name = "gopkg.in/alexcesaro/quotedprintable.v3"
+  packages = ["."]
+  revision = "2caba252f4dc53eaf6b553000885530023f54623"
 
 [[projects]]
   branch = "v2"

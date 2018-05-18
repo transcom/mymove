@@ -22,18 +22,32 @@ type NotificationSuite struct {
 type mockSESClient struct {
 	sesiface.SESAPI
 	mock.Mock
-	suite *NotificationSuite
+	Suite *NotificationSuite
 }
 
-func (m *mockSESClient) SendEmail(input *ses.SendEmailInput) (*ses.SendEmailOutput, error) {
+func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
 	args := m.Called(input)
 
-	m.suite.NotEmpty(input.Destination.ToAddresses)
-	m.suite.NotEmpty(input.Message.Subject.Data)
-	m.suite.NotEmpty(input.Message.Body.Html.Data)
-	m.suite.NotEmpty(input.Message.Body.Text.Data)
+	testEmail := m.Suite.GetTestEmailContent()
+	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
+	m.Suite.Equal(senderEmail, *input.Source)
 
-	return args.Get(0).(*ses.SendEmailOutput), args.Error(1)
+	message := string(input.RawMessage.Data)
+	m.Suite.Contains(message, testEmail.subject)
+	m.Suite.Contains(message, testEmail.htmlBody)
+	m.Suite.Contains(message, testEmail.textBody)
+	m.Suite.Contains(message, testEmail.recipientEmail)
+	m.Suite.Contains(message, senderEmail)
+
+	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
+}
+
+type testNotification struct {
+	email emailContent
+}
+
+func (n testNotification) emails() ([]emailContent, error) {
+	return []emailContent{n.email}, nil
 }
 
 func (suite *NotificationSuite) TestMoveApproved() {
@@ -67,26 +81,25 @@ func (suite *NotificationSuite) TestMoveApproved() {
 func (suite *NotificationSuite) TestSendNotification() {
 	t := suite.T()
 
-	approver, _ := testdatagen.MakeUser(suite.db)
-	move, _ := testdatagen.MakeMove(suite.db)
-
-	notification := MoveApproved{
-		db:     suite.db,
-		moveID: move.ID,
-		reqApp: app.OfficeApp,
-		user:   approver,
-	}
-
 	messageID := "a"
-	mockSVC := mockSESClient{suite: suite}
-	mockSVC.On("SendEmail", mock.Anything).Return(&ses.SendEmailOutput{MessageId: &messageID}, nil)
+	mockSVC := mockSESClient{Suite: suite}
+	mockSVC.On("SendRawEmail", mock.Anything).Return(&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
 
-	err := SendNotification(notification, &mockSVC)
+	err := SendNotification(testNotification{email: suite.GetTestEmailContent()}, &mockSVC)
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	mockSVC.AssertNumberOfCalls(t, "SendEmail", 1)
+	mockSVC.AssertNumberOfCalls(t, "SendRawEmail", 1)
+}
+
+func (suite *NotificationSuite) GetTestEmailContent() emailContent {
+	return emailContent{
+		recipientEmail: "lucky@winner.com",
+		subject:        "This is a Test",
+		htmlBody:       "Congrats!<br>You win!",
+		textBody:       "Congrats! You win!",
+	}
 }
 
 func TestNotificationSuite(t *testing.T) {
