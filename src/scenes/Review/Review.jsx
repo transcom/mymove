@@ -65,19 +65,24 @@ export class Review extends Component {
       });
       return preferredMethods.join(', ');
     }
-    function getFullBackupPermission(backup_contact) {
-      const perms = {
-        NONE: '',
-        VIEW: 'View all aspects of this move',
-        EDIT:
-          'Authorized to represent me in all aspects of this move (letter of authorization)',
-      };
-      return `${perms[backup_contact.permission]}`;
-    }
+    // TODO: Uncomment function below after backup contact auth is implemented.
+    // function getFullBackupPermission(backup_contact) {
+    //   const perms = {
+    //     NONE: '',
+    //     VIEW: 'View all aspects of this move',
+    //     EDIT:
+    //       'Authorized to represent me in all aspects of this move (letter of authorization)',
+    //   };
+    //   return `${perms[backup_contact.permission]}`;
+    // }
     function formatDate(date) {
       if (!date) return;
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
+
+    const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
+    const editProfileAddress = thisAddress + '/edit-profile';
+
     return (
       <WizardPage
         handleSubmit={no_op}
@@ -100,7 +105,7 @@ export class Review extends Component {
                   <th>
                     Profile{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editProfileAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
@@ -249,7 +254,7 @@ export class Review extends Component {
                     <td> Backup Contact: </td>
                     <td>
                       {contact.name} <br />
-                      {getFullBackupPermission(contact)}
+                      {/* getFullBackupPermission(contact) */}
                     </td>
                   </tr>
                   <tr>
@@ -288,11 +293,11 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Pickup ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.pickup_zip}</td>
+                    <td> {currentPpm && currentPpm.pickup_postal_code}</td>
                   </tr>
                   <tr>
                     <td> Delivery ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.destination_zip}</td>
+                    <td> {currentPpm && currentPpm.destination_postal_code}</td>
                   </tr>
                 </tbody>
               </table>

@@ -13,6 +13,11 @@
   vertical-align: top;
 }
 
+.editable-panel-column.subheader {
+  font-weight: bold;
+  font-size: .9em;
+}
+
 .editable-panel-header {
   font-size: 1.7rem;
   font-weight: bold;
@@ -72,5 +77,6 @@
 .field-value {
   display: inline-block;
   font-weight: bold;
-  margin-left: .5em;
+  margin-left: 8%;
+  width: 51%;
 }

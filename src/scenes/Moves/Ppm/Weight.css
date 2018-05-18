@@ -1,5 +1,5 @@
 div.info {
-  background-color: rgb(250,250,250);
+  background-color: rgb(250, 250, 250);
   padding: 2rem;
   margin-top: 1em;
   border: 1px solid #808080;
@@ -14,10 +14,8 @@ div.slider-container {
   margin: 4em;
 }
 
-span.incentive {
-  outline: solid black 1px;
-  padding: 5px;
-  margin-left: 3em;
+table.numeric-info th {
+  border: none;
 }
 
 .slider-container .rangeslider__fill {

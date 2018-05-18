@@ -124,6 +124,24 @@ export const validateRequiredFields = (values, form) => {
   return requiredErrors;
 };
 
+export const validateAdditionalFields = additionalFields => {
+  return (values, form) => {
+    let errors = {};
+
+    additionalFields.forEach(fieldName => {
+      if (
+        values[fieldName] === undefined ||
+        values[fieldName] === '' ||
+        values[fieldName] === null
+      ) {
+        errors[fieldName] = 'Required.';
+      }
+    });
+
+    return errors;
+  };
+};
+
 // Always Required Fields are fields that are marked as required in swagger, and if they are objects, their sub-required fields.
 // Fields like Addresses may not be required, so even though they have required subfields they are not annotated.
 export const recursivelyAnnotateRequiredFields = schema => {

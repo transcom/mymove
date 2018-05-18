@@ -12,22 +12,11 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
 import './Orders.css';
 
-const validateOrdersForm = (values, form) => {
-  let errors = {};
-
-  const required_fields = ['new_duty_station'];
-
-  required_fields.forEach(fieldName => {
-    if (values[fieldName] === undefined || values[fieldName] === '') {
-      errors[fieldName] = 'Required.';
-    }
-  });
-
-  return errors;
-};
+const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
 const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
@@ -109,12 +98,11 @@ export class Orders extends Component {
           swagger={this.props.schema}
           required
         />
-        <fieldset key="dependents">
-          <legend htmlFor="dependents">
-            Are dependents included in your orders?
-          </legend>
-          <Field name="has_dependents" component={YesNoBoolean} />
-        </fieldset>
+        <SwaggerField
+          fieldName="has_dependents"
+          swagger={this.props.schema}
+          component={YesNoBoolean}
+        />
         <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
