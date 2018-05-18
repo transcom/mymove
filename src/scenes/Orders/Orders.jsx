@@ -12,22 +12,11 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
 import './Orders.css';
 
-const validateOrdersForm = (values, form) => {
-  let errors = {};
-
-  const required_fields = ['new_duty_station'];
-
-  required_fields.forEach(fieldName => {
-    if (values[fieldName] === undefined || values[fieldName] === '') {
-      errors[fieldName] = 'Required.';
-    }
-  });
-
-  return errors;
-};
+const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
 const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
