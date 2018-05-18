@@ -39,6 +39,7 @@ func (t Tariff400ngZip5RateAreas) String() string {
 func (t *Tariff400ngZip5RateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.RateArea, Name: "RateArea"},
+		&validators.RegexMatch{Field: t.RateArea, Name: "RateArea", Expr: "^(ZIP|US[0-9]+)$"},
 		&validators.StringLengthInRange{Field: t.Zip5, Name: "Zip5", Min: 5, Max: 5},
 	), nil
 }

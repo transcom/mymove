@@ -13,6 +13,12 @@ var DefaultSrcGBLOC = "OHAI"
 // DefaultMarket is the default market for testing.
 var DefaultMarket = "dHHG"
 
+// DefaultServiceArea is the default Service Area for testing.
+var DefaultServiceArea = "4"
+
+// DefaultCOS is the default Code of Service for testing.
+var DefaultCOS = "2"
+
 // DefaultSrcRateArea is a default rate area (California) for testing.
 var DefaultSrcRateArea = "US87"
 

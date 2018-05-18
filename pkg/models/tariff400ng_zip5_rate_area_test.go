@@ -7,7 +7,7 @@ import (
 func (suite *ModelSuite) Test_Zip5RateAreaValidation() {
 	validZip5RateArea := Tariff400ngZip5RateArea{
 		Zip5:     "13945",
-		RateArea: "14",
+		RateArea: "US14",
 	}
 
 	expErrors := map[string][]string{}
@@ -15,7 +15,7 @@ func (suite *ModelSuite) Test_Zip5RateAreaValidation() {
 
 	invalidZip5RateArea := Tariff400ngZip5RateArea{
 		Zip5:     "2914",
-		RateArea: "14",
+		RateArea: "US14",
 	}
 
 	expErrors = map[string][]string{
@@ -27,7 +27,7 @@ func (suite *ModelSuite) Test_Zip5RateAreaValidation() {
 func (suite *ModelSuite) Test_Zip5RateAreaCreateAndSave() {
 	validZip5RateArea := Tariff400ngZip5RateArea{
 		Zip5:     "72014",
-		RateArea: "13",
+		RateArea: "US13",
 	}
 
 	suite.mustSave(&validZip5RateArea)

@@ -44,7 +44,9 @@ func (t TrafficDistributionLists) String() string {
 func (t *TrafficDistributionList) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.SourceRateArea, Name: "SourceRateArea"},
+		&validators.RegexMatch{Field: t.SourceRateArea, Name: "SourceRateArea", Expr: "^US.*$"},
 		&validators.StringIsPresent{Field: t.DestinationRegion, Name: "DestinationRegion"},
+		&validators.RegexMatch{Field: t.DestinationRegion, Name: "DestinationRegion", Expr: "^[0-9]+"},
 		&validators.StringIsPresent{Field: t.CodeOfService, Name: "CodeOfService"},
 	), nil
 }
