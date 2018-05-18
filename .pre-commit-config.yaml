@@ -68,6 +68,15 @@ repos:
 
   - repo: local
     hooks:
+      - id: gas
+        name: go abstract syntax (gas) scanner
+        entry: bin/gas -fmt text -quiet ./...
+        language: script
+        description: Inspects source code for security problems by scanning the Go AST.
+        files: \.go$
+
+  - repo: local
+    hooks:
       - id: mdspell
         name: mdspell
         entry: bin/pre-commit-spellcheck
