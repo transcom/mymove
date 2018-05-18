@@ -20,7 +20,7 @@ func MakeServiceMember(db *pop.Connection) (models.ServiceMember, error) {
 		User:          user,
 		FirstName:     models.StringPointer("Leo"),
 		LastName:      models.StringPointer("Spacemen"),
-		PersonalEmail: models.StringPointer("leo@spacement.com"),
+		PersonalEmail: models.StringPointer("leo@spacemen.com"),
 	}
 
 	verrs, err := db.ValidateAndSave(&serviceMember)

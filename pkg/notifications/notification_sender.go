@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
+	"github.com/pkg/errors"
 )
 
 type notification interface {
@@ -24,29 +25,29 @@ type emailContent struct {
 
 const sesRegion = "us-west-2"
 const senderEmail = "noreply@dp3.us"
-const emailCharset = "UTF-8"
 
 // SendNotification sends a one or more notifications for all supported mediums
+// nil should be passed in for svc outside of tests
 func SendNotification(notification notification, svc sesiface.SESAPI) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err
 	}
 
+	return sendEmails(emails, svc)
+}
+
+func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 	if svc == nil {
 		session, err := session.NewSession(&aws.Config{
 			Region: aws.String(sesRegion),
 		})
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Failed to create a new AWS client config provider")
 		}
 		svc = ses.New(session)
 	}
 
-	return sendEmails(emails, svc)
-}
-
-func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email)
 		if err != nil {
@@ -62,7 +63,7 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 		// Returns the message ID. Should we store that somewhere?
 		_, err = svc.SendRawEmail(&input)
 		if err != nil {
-			return err
+			return errors.Wrap(err, "Failed to send email using SES")
 		}
 	}
 
@@ -83,7 +84,7 @@ func formatRawEmailMessage(email emailContent) ([]byte, error) {
 	buf := new(bytes.Buffer)
 	_, err := m.WriteTo(buf)
 	if err != nil {
-		return buf.Bytes(), err
+		return buf.Bytes(), errors.Wrap(err, "Failed to generate raw email notification message")
 	}
 
 	return buf.Bytes(), nil

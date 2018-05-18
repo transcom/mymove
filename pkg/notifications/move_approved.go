@@ -28,6 +28,9 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 	}
 
 	serviceMember, err := models.FetchServiceMember(m.db, m.user, m.reqApp, orders.ServiceMemberID)
+	if err != nil {
+		return emails, err
+	}
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
