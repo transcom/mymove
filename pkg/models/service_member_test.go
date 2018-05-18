@@ -40,16 +40,22 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
 	fakeAddress, _ := testdatagen.MakeAddress(suite.db)
+	fakeBackupAddress, _ := testdatagen.MakeAddress(suite.db)
+	fakeID := uuid.Must(uuid.NewV4())
+
 	servicemember := ServiceMember{
-		UserID:             user1.ID,
-		Edipi:              &edipi,
-		Affiliation:        &affiliation,
-		Rank:               &rank,
-		FirstName:          &firstName,
-		LastName:           &lastName,
-		Telephone:          &telephone,
-		PersonalEmail:      &email,
-		ResidentialAddress: &fakeAddress,
+		UserID:                 user1.ID,
+		Edipi:                  &edipi,
+		Affiliation:            &affiliation,
+		Rank:                   &rank,
+		FirstName:              &firstName,
+		LastName:               &lastName,
+		Telephone:              &telephone,
+		PersonalEmail:          &email,
+		ResidentialAddress:     &fakeAddress,
+		BackupMailingAddress:   &fakeBackupAddress,
+		SocialSecurityNumberID: &fakeID,
+		DutyStationID:          &fakeID,
 	}
 
 	// Then: IsProfileComplete should return false
