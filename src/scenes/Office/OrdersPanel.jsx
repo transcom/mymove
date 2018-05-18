@@ -7,7 +7,7 @@ import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
 import { loadEntitlements } from 'scenes/Orders/ducks';
-// import { updateOrders } from './ducks';
+
 import {
   PanelSwaggerField,
   PanelField,
@@ -27,10 +27,8 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <a href={props.orders.uploaded_orders.uploads.url} target="_blank">
-            <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
-            <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-          </a>
+          <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+          <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
         </PanelField>
         <PanelSwaggerField
           title="Date issued"
@@ -187,7 +185,10 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     orders: get(state, 'office.officeOrders'),
     serviceMember: get(state, 'office.officeServiceMember'),
-    entitlements: loadEntitlements(state),
+    entitlements: loadEntitlements(
+      get(state, 'office.officeOrders'),
+      get(state, 'office.officeServiceMember'),
+    ),
     isUpdating: false,
   };
 }

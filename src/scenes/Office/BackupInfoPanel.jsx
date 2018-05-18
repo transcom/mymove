@@ -8,11 +8,8 @@ import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
 import { PanelField } from 'shared/EditablePanel';
 
-// import { updateBackupInfo, loadBackupInfo } from './ducks';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
 const BackupInfoDisplay = props => {
-  const backupAddress = props.serviceMember.backup_mailing_address || {};
+  const backupAddress = get(props, 'serviceMember.backup_mailing_address', {});
   const backupContact = get(props, 'backupContacts[0]', '');
 
   return (
@@ -38,13 +35,9 @@ const BackupInfoDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <PanelField
-          title={
-            'Backup contact with permissions:' +
-            props.backupContactAuth[backupContact.permission]
-          }
-        >
+        <PanelField title="Backup contact">
           {backupContact.name}
+          ({props.backupContactAuth[backupContact.permission]})
           <br />
           {backupContact.telephone && (
             <span>
@@ -129,14 +122,14 @@ BackupInfoPanel = reduxForm({ form: formName })(BackupInfoPanel);
 function mapStateToProps(state) {
   return {
     // reduxForm
-    formData: state.form[formName],
+    formData: get(state, 'form[formName]', ''),
     initialValues: {},
 
     // Wrapper
     hasError: false,
-    errorMessage: state.office.error,
-    serviceMember: state.office.officeServiceMember,
-    backupContacts: state.office.officeBackupContacts,
+    errorMessage: get(state, 'office.error', {}),
+    serviceMember: get(state, 'office.officeServiceMember', {}),
+    backupContacts: get(state, 'office.officeBackupContacts', []),
     isUpdating: false,
 
     backupContactAuth: get(
