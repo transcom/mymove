@@ -70,8 +70,13 @@ export const MoveSummary = props => {
                 </div>
                 <div className="step-links">
                   <span>
-                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                    <a
+                      href="https://www.move.mil/resources/locator-maps"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Find Weight Scales
+                    </a>
                   </span>
                 </div>
               </div>
@@ -184,11 +189,6 @@ export const MoveSummary = props => {
             Edit Move Details
           </button>
         </div>
-        <a>✚ Add Amended Orders</a>
-        <hr />
-        <a>✚ Add Shipment</a>
-        <hr />
-        <a>𝗫 Cancel Move</a>
 
         <div className="contact_block">
           <div className="title">Contacts</div>

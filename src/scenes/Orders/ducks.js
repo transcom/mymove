@@ -60,7 +60,7 @@ export function deleteUpload(uploadId) {
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (currentOrders) {
-      DeleteUpload(uploadId)
+      return DeleteUpload(uploadId)
         .then(() => {
           const uploads = currentOrders.uploaded_orders.uploads;
           currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
@@ -69,6 +69,8 @@ export function deleteUpload(uploadId) {
           dispatch(action.success(currentOrders));
         })
         .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
     }
   };
 }

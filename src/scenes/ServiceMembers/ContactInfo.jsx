@@ -86,7 +86,7 @@ export class ContactInfo extends Component {
 
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">
-            Preferred contact method during your move:
+            Preferred contact method(s) during your move:
           </legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
           <SwaggerField
