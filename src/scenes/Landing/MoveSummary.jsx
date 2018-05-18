@@ -39,8 +39,7 @@ export const MoveSummary = props => {
           </div>
           <div className="shipment_box_contents">
             {/* Submitted Move */}
-            {/* TODO: Change status to SUBMITTED when moves get that status on submit */}
-            {move.status === 'DRAFT' && (
+            {move.status === 'SUBMITTED' && (
               <div>
                 <img src={ppmSubmitted} alt="status" />
                 <div className="step-contents">
@@ -71,8 +70,13 @@ export const MoveSummary = props => {
                 </div>
                 <div className="step-links">
                   <span>
-                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                    <a
+                      href="https://www.move.mil/resources/locator-maps"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      Find Weight Scales
+                    </a>
                   </span>
                 </div>
               </div>
@@ -185,11 +189,6 @@ export const MoveSummary = props => {
             Edit Move Details
           </button>
         </div>
-        <a>✚ Add Amended Orders</a>
-        <hr />
-        <a>✚ Add Shipment</a>
-        <hr />
-        <a>𝗫 Cancel Move</a>
 
         <div className="contact_block">
           <div className="title">Contacts</div>

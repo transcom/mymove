@@ -1,4 +1,4 @@
-// import { get, pick } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,16 +6,72 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
+import { loadEntitlements } from 'scenes/Orders/ducks';
 
-// import { updateOrders, loadOrders } from './ducks';
-// import { PanelField } from 'shared/EditablePanel';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import {
+  PanelSwaggerField,
+  PanelField,
+  SwaggerValue,
+} from 'shared/EditablePanel';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
 const OrdersDisplay = props => {
-  // const fieldProps = pick(props, ['schema', 'values']);
+  const fieldProps = {
+    schema: props.ordersSchema,
+    values: props.orders,
+  };
+
   return (
     <React.Fragment>
-      <div className="editable-panel-column" />
+      <div className="editable-panel-column">
+        <PanelField title="Orders Number">
+          <a
+            href={get(props.orders, 'uploaded_orders.uploads[0].url')}
+            target="_blank"
+          >
+            <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+            <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+          </a>
+        </PanelField>
+        <PanelSwaggerField
+          title="Date issued"
+          fieldName="issue_date"
+          {...fieldProps}
+        />
+        <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
+        <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
+        <PanelSwaggerField
+          title="Report by"
+          fieldName="report_by_date"
+          {...fieldProps}
+        />
+        <PanelField title="Current Duty Station">
+          {get(props.serviceMember, 'current_station.name', '')}
+        </PanelField>
+        <PanelField title="New Duty Station">
+          {get(props.orders, 'new_duty_station.name', '')}
+        </PanelField>
+      </div>
+      <div className="editable-panel-column">
+        <span className="editable-panel-column subheader">Entitlements</span>
+        <PanelField title="Household Goods">
+          {get(props.entitlements, 'total', '')} lbs
+        </PanelField>
+        <PanelField title="Pro-gear">
+          {get(props.entitlements, 'pro_gear', '')} lbs
+        </PanelField>
+        <PanelField title="Spouse pro-gear">
+          {get(props.entitlements, 'pro_gear_spouse', '')} lbs
+        </PanelField>
+        <PanelField className="Todo" title="Short-term storage">
+          90 days
+        </PanelField>
+        {props.orders.has_dependents && (
+          <PanelField title="Dependents" value="Authorized" />
+        )}
+      </div>
     </React.Fragment>
   );
 };
@@ -128,10 +184,16 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: {},
+    ordersSchema: get(state, 'swagger.spec.definitions.Orders'),
+
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: {},
+    orders: get(state, 'office.officeOrders'),
+    serviceMember: get(state, 'office.officeServiceMember'),
+    entitlements: loadEntitlements(
+      get(state, 'office.officeOrders'),
+      get(state, 'office.officeServiceMember'),
+    ),
     isUpdating: false,
   };
 }

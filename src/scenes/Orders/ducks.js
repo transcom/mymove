@@ -1,4 +1,4 @@
-import { get, reject, concat } from 'lodash';
+import { reject, concat } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -60,7 +60,7 @@ export function deleteUpload(uploadId) {
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (currentOrders) {
-      DeleteUpload(uploadId)
+      return DeleteUpload(uploadId)
         .then(() => {
           const uploads = currentOrders.uploaded_orders.uploads;
           currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
@@ -69,6 +69,8 @@ export function deleteUpload(uploadId) {
           dispatch(action.success(currentOrders));
         })
         .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -89,13 +91,10 @@ export function addUploads(uploads) {
 }
 
 // Selectors
-export function loadEntitlements(state) {
-  if (state.currentOrders) {
-    const rank = get(state, 'currentOrders.service_member.rank');
-    const hasDependents = get(state, 'currentOrders.has_dependents');
-
-    return getEntitlements(rank, hasDependents);
-  }
+export function loadEntitlements(orders, service_member) {
+  var rank = service_member.rank;
+  var hasDependents = orders.has_dependents;
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer

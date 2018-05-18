@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -46,20 +45,8 @@ type ServiceMember struct {
 	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
 }
 
-// String is not required by pop and may be deleted
-func (s ServiceMember) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
-
 // ServiceMembers is not required by pop and may be deleted
 type ServiceMembers []ServiceMember
-
-// String is not required by pop and may be deleted
-func (s ServiceMembers) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -270,7 +257,16 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.ResidentialAddress == nil {
 		return false
 	}
-	// TODO: add check for station, SSN, and backup contacts
+	if s.BackupMailingAddress == nil {
+		return false
+	}
+	if s.SocialSecurityNumberID == nil {
+		return false
+	}
+	if s.DutyStationID == nil {
+		return false
+	}
+
 	// All required fields have a set value
 	return true
 }

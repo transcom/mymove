@@ -8,7 +8,9 @@ import PpmSize from './Size';
 
 export class PpmSizeWizardPage extends Component {
   componentDidMount() {
-    this.props.loadPpm(this.props.match.params.moveId);
+    if (!this.props.currentPpm) {
+      this.props.loadPpm(this.props.match.params.moveId);
+    }
   }
   handleSubmit = () => {
     const { pendingPpmSize, createOrUpdatePpm } = this.props;

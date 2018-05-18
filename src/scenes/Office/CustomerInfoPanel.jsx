@@ -1,4 +1,4 @@
-import { get, pick, compact } from 'lodash';
+import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -21,10 +21,13 @@ import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
 const CustomerInfoDisplay = props => {
-  const fieldProps = pick(props, ['schema', 'values']);
-  const values = props.values;
+  const fieldProps = {
+    schema: props.serviceMemberSchema,
+    values: props.serviceMember,
+  };
+  const values = props.serviceMember;
   const name = compact([values.last_name, values.first_name]).join(', ');
-  const address = values.residential_address || {};
+  const address = get(values, 'residential_address', {});
 
   return (
     <React.Fragment>
@@ -217,10 +220,13 @@ function mapStateToProps(state) {
     initialValues: {},
 
     // Wrapper
-    schema: get(state, 'swagger.spec.definitions.ServiceMemberPayload'),
+    serviceMemberSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberPayload',
+    ),
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: state.office.officeServiceMember,
+    serviceMember: state.office.officeServiceMember,
     isUpdating: false,
   };
 }

@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -25,20 +24,8 @@ type Tariff400ngShorthaulRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// String is not required by pop and may be deleted
-func (t Tariff400ngShorthaulRate) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // Tariff400ngShorthaulRates is not required by pop and may be deleted
 type Tariff400ngShorthaulRates []Tariff400ngShorthaulRate
-
-// String is not required by pop and may be deleted
-func (t Tariff400ngShorthaulRates) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

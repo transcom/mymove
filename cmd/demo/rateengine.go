@@ -25,7 +25,10 @@ func main() {
 	scenarioNumber := flag.Int("scenario", 1, "Specify which scenario you'd like to run. Current options: 1, 2.")
 	flag.Parse()
 
-	pop.AddLookupPaths("config")
+	err := pop.AddLookupPaths("config")
+	if err != nil {
+		log.Fatalf("failed to add config to pop paths: %+v", err)
+	}
 	db, err := pop.Connect("development")
 	if err != nil {
 		log.Fatalf("could not connect to database: %+v", err)
@@ -39,8 +42,8 @@ func main() {
 	for {
 		fmt.Println("Running this tool will delete everything in your development database.")
 		fmt.Print("Do you wish to proceed? (y)es or (n)o: ")
-		fmt.Scanln(&input)
-		if input == "n" || input == "no" {
+		count, err := fmt.Scanln(&input)
+		if err != nil || count == 0 || input == "n" || input == "no" {
 			os.Exit(1)
 		} else if input == "y" || input == "yes" {
 			break

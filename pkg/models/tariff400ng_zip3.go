@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,20 +23,8 @@ type Tariff400ngZip3 struct {
 	Region        string    `json:"region" db:"region"`
 }
 
-// String is not required by pop and may be deleted
-func (t Tariff400ngZip3) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // Tariff400ngZip3s is not required by pop and may be deleted
 type Tariff400ngZip3s []Tariff400ngZip3
-
-// String is not required by pop and may be deleted
-func (t Tariff400ngZip3s) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

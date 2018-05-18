@@ -41,6 +41,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	// Get orders for authorized user
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
 	orders, err := models.FetchOrder(h.db, user, reqApp, ordersID)
 	if err != nil {
@@ -66,6 +67,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -88,9 +90,10 @@ type PatchMoveHandler HandlerContext
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	// User should always be populated by middleware
+	/* #nosec User is always be populated by middleware */
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -116,4 +119,33 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	}
 	movePayload := payloadForMoveModel(orders, *move)
 	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+}
+
+// SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
+type SubmitMoveHandler HandlerContext
+
+// Handle ... submit a move for approval
+func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
+	/* #nosec User is always be populated by middleware */
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	/* #nosec UUID is pattern matched by swagger which checks the format */
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
+
+	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	//TODO: update PPM status too
+
+	move.Status = models.MoveStatusSUBMITTED
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	movePayload := payloadForMoveModel(move.Orders, *move)
+	return moveop.NewSubmitMoveForApprovalOK().WithPayload(&movePayload)
 }

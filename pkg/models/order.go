@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -43,7 +42,6 @@ type Order struct {
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations"`
-	CurrentDutyStation  *DutyStation                       `belongs_to:"duty_stations"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
 	UploadedOrdersID    uuid.UUID                          `json:"uploaded_orders_id" db:"uploaded_orders_id"`
 	OrdersNumber        *string                            `json:"orders_number" db:"orders_number"`
@@ -53,20 +51,8 @@ type Order struct {
 	DepartmentIndicator *string                            `json:"department_indicator" db:"department_indicator"`
 }
 
-// String is not required by pop and may be deleted
-func (o Order) String() string {
-	jo, _ := json.Marshal(o)
-	return string(jo)
-}
-
 // Orders is not required by pop and may be deleted
 type Orders []Order
-
-// String is not required by pop and may be deleted
-func (o Orders) String() string {
-	jo, _ := json.Marshal(o)
-	return string(jo)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -103,7 +89,9 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.
 func FetchOrder(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Order, error) {
 	var order Order
-	err := db.Q().Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").Find(&order, id)
+	err := db.Q().Eager("ServiceMember.User",
+		"NewDutyStation.Address",
+		"UploadedOrders.Uploads").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

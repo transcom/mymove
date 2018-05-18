@@ -1,4 +1,8 @@
 label.inline_radio {
-  margin-top: 1px;
-  margin-bottom: 1px;
+	margin-top: 1px;
+	margin-bottom: 1px;
+}
+
+.grey {
+	color: rgb(120, 120, 120);
 }
