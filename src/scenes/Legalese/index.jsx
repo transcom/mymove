@@ -14,21 +14,12 @@ import './index.css';
 import {
   loadCertificationText,
   loadLatestCertification,
-  createSignedCertification,
+  signAndSubmitForApproval,
 } from './ducks';
 
 const validateSignatureForm = (values, form) => {
-  let errors = {};
-
-  const required_fields = ['signature', 'date'];
-
-  required_fields.forEach(fieldName => {
-    if (values[fieldName] === undefined || values[fieldName] === '') {
-      errors[fieldName] = 'Required.';
-    }
-  });
-
-  return errors;
+  // all the validation is taken care of by the schema fields
+  return {};
 };
 
 const formName = 'signature-form';
@@ -46,10 +37,6 @@ export class SignedCertification extends Component {
       this.props.loadCertificationText();
       return;
     }
-
-    if (this.props.hasSubmitSuccess) {
-      this.props.push('/');
-    }
   }
 
   handleSubmit = () => {
@@ -61,15 +48,16 @@ export class SignedCertification extends Component {
     }
 
     if (pendingValues) {
-      const certRequest = {
-        moveId: this.props.match.params.moveId,
-        createSignedCertificationPayload: {
-          certification_text: this.props.certificationText,
-          signature: pendingValues.signature,
-          date: pendingValues.date,
-        },
-      };
-      this.props.createSignedCertification(certRequest);
+      const moveId = this.props.match.params.moveId;
+
+      this.props
+        .signAndSubmitForApproval(
+          moveId,
+          this.props.certificationText,
+          pendingValues.signature,
+          pendingValues.date,
+        )
+        .then(() => this.props.push('/'));
     }
   };
 
@@ -78,7 +66,6 @@ export class SignedCertification extends Component {
       hasSubmitError,
       pages,
       pageKey,
-      hasSubmitSuccess,
       latestSignedCertification,
     } = this.props;
     const today = new Date(Date.now()).toISOString().split('T')[0];
@@ -94,7 +81,7 @@ export class SignedCertification extends Component {
             className={formName}
             pageList={pages}
             pageKey={pageKey}
-            hasSucceeded={hasSubmitSuccess}
+            hasSucceeded={false}
             initialValues={initialValues}
           >
             <div className="usa-grid">
@@ -153,7 +140,7 @@ export class SignedCertification extends Component {
 }
 
 SignedCertification.propTypes = {
-  createSignedCertification: PropTypes.func.isRequired,
+  signAndSubmitForApproval: PropTypes.func.isRequired,
   loadLatestCertification: PropTypes.func.isRequired,
   match: PropTypes.object.isRequired,
   handleSubmit: PropTypes.func,
@@ -178,7 +165,7 @@ function mapDispatchToProps(dispatch) {
     {
       loadCertificationText,
       loadLatestCertification,
-      createSignedCertification,
+      signAndSubmitForApproval,
       push,
     },
     dispatch,

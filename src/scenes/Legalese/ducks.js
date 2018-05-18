@@ -29,7 +29,7 @@ export const loadCertificationText = ReduxHelpers.generateAsyncActionCreator(
   GetCertificationText,
 );
 
-export const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
+const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
   'CREATE_SIGNED_CERT',
   CreateCertification,
 );
