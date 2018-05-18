@@ -142,14 +142,16 @@ export class PpmWeight extends Component {
               />
             </div>
             <table className="numeric-info">
-              <tr>
-                <th>Your PPM Weight Estimate:</th>
-                <td className="current-weight"> {currentWeight}</td>
-              </tr>
-              <tr>
-                <th>Your PPM Incentive:</th>
-                <td className="incentive">{incentive}</td>
-              </tr>
+              <tbody>
+                <tr>
+                  <th>Your PPM Weight Estimate:</th>
+                  <td className="current-weight"> {currentWeight}</td>
+                </tr>
+                <tr>
+                  <th>Your PPM Incentive:</th>
+                  <td className="incentive">{incentive}</td>
+                </tr>
+              </tbody>
             </table>
 
             <div className="info">
