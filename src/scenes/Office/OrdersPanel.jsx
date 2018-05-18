@@ -27,8 +27,13 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
-          <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+          <a
+            href={get(props.orders, 'uploaded_orders.uploads[0].url')}
+            target="_blank"
+          >
+            <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
+            <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+          </a>
         </PanelField>
         <PanelSwaggerField
           title="Date issued"
