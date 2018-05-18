@@ -38,9 +38,9 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	request = suite.authenticateRequest(request, orders.ServiceMember.User)
 
 	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{
-		WeightEstimate: swag.Int64(12),
-		PickupZip:      swag.String("00112"),
-		DaysInStorage:  swag.Int64(3),
+		WeightEstimate:   swag.Int64(12),
+		PickupPostalCode: swag.String("00112"),
+		DaysInStorage:    swag.Int64(3),
 	}
 
 	newPPMParams := ppmop.CreatePersonallyProcuredMoveParams{
@@ -147,18 +147,28 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newWeight := swag.Int64(5)
 	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
 	newMoveDate := time.Now()
-	destinationZip := swag.String("00112")
+	destinationPostalCode := swag.String("00112")
+	hasAdditionalPostalCode := swag.Bool(true)
+	additionalPickupPostalCode := swag.String("90210")
+	hasSit := swag.Bool(true)
+	daysInStorage := swag.Int64(3)
+	newHasAdditionalPostalCode := swag.Bool(false)
+	newHasSit := swag.Bool(false)
 
 	move, _ := testdatagen.MakeMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
-		MoveID:          move.ID,
-		Move:            move,
-		Size:            &initialSize,
-		WeightEstimate:  initialWeight,
-		PlannedMoveDate: &initialMoveDate,
-		DestinationZip:  destinationZip,
-		Status:          models.PPMStatusDRAFT,
+		MoveID:                     move.ID,
+		Move:                       move,
+		Size:                       &initialSize,
+		WeightEstimate:             initialWeight,
+		PlannedMoveDate:            &initialMoveDate,
+		DestinationPostalCode:      destinationPostalCode,
+		HasAdditionalPostalCode:    hasAdditionalPostalCode,
+		AdditionalPickupPostalCode: additionalPickupPostalCode,
+		HasSit:        hasSit,
+		DaysInStorage: daysInStorage,
+		Status:        models.PPMStatusDRAFT,
 	}
 	suite.mustSave(&ppm1)
 
@@ -166,9 +176,11 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
-		Size:            &newSize,
-		WeightEstimate:  newWeight,
-		PlannedMoveDate: fmtDatePtr(&newMoveDate),
+		Size:                    &newSize,
+		WeightEstimate:          newWeight,
+		PlannedMoveDate:         fmtDatePtr(&newMoveDate),
+		HasAdditionalPostalCode: newHasAdditionalPostalCode,
+		HasSit:                  newHasSit,
 	}
 
 	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
@@ -197,8 +209,16 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		t.Error("MoveDate should have been updated.")
 	}
 
-	if *patchPPMPayload.DestinationZip != *destinationZip {
-		t.Error("DestinationZip should have been updated.")
+	if *patchPPMPayload.DestinationPostalCode != *destinationPostalCode {
+		t.Error("DestinationPostalCode should have been updated.")
+	}
+
+	if patchPPMPayload.AdditionalPickupPostalCode != nil {
+		t.Error("AdditionalPickupPostalCode should have been updated to nil.")
+	}
+
+	if patchPPMPayload.DaysInStorage != nil {
+		t.Error("AdditionalPostalCode should have been updated to nil.")
 	}
 }
 
