@@ -42,10 +42,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
             onToggle={this.toggleEditable}
             isEditable={isEditable}
           >
-            <Content
-              values={this.props.displayValues}
-              schema={this.props.schema}
-            />
+            <Content {...this.props} />
           </EditablePanel>
         </React.Fragment>
       );
@@ -53,8 +50,6 @@ export default function editablePanel(DisplayComponent, EditComponent) {
   };
 
   Wrapper.propTypes = {
-    schema: PropTypes.object.isRequired,
-    displayValues: PropTypes.object.isRequired,
     update: PropTypes.func.isRequired,
     moveId: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,

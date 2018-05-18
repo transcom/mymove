@@ -93,27 +93,35 @@ definitions:
         format: date
         title: When do you plan to move?
         x-nullable: true
-      pickup_zip:
+      pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      additional_pickup_zip:
+      has_additional_postal_code:
+        type: boolean
+        x-nullable: true
+        title: Do you have stuff at another pickup location?
+      additional_pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_zip:
+      destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
+      has_sit:
+        type: boolean
+        x-nullable: true
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -139,27 +147,35 @@ definitions:
         example: "2018-04-26"
         title: When do you plan to move?
         x-nullable: true
-      pickup_zip:
+      pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      additional_pickup_zip:
+      has_additional_postal_code:
+        type: boolean
+        x-nullable: true
+        title: Do you have stuff at another pickup location?
+      additional_pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_zip:
+      destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
+      has_sit:
+        type: boolean
+        x-nullable: true
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -185,27 +201,35 @@ definitions:
         format: date
         title: When do you plan to move?
         x-nullable: true
-      pickup_zip:
+      pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      additional_pickup_zip:
+      has_additional_postal_code:
+        type: boolean
+        x-nullable: true
+        title: Do you have stuff at another pickup location?
+      additional_pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_zip:
+      destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
+      has_sit:
+        type: boolean
+        x-nullable: true
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -235,27 +259,35 @@ definitions:
         title: When do you plan to move?
         example: "2018-04-26"
         x-nullable: true
-      pickup_zip:
+      pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      additional_pickup_zip:
+      has_additional_postal_code:
+        type: boolean
+        x-nullable: true
+        title: Do you have stuff at another pickup location?
+      additional_pickup_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
-      destination_zip:
+      destination_postal_code:
         type: string
         format: zip
         title: ZIP/Postal Code
         example: "90210"
         pattern: '^(\d{5}([\-]\d{4})?)$'
         x-nullable: true
+      has_sit:
+        type: boolean
+        x-nullable: true
+        title: Are you going to put your stuff in temporary storage before moving into your new home?
       days_in_storage:
         type: integer
         title: How many days do you plan to put your stuff in storage?
@@ -936,26 +968,19 @@ definitions:
       - E_7
       - E_8
       - E_9
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - O_1
-      - O_2
-      - O_3
-      - O_4
-      - O_5
+      - O_1_W_1_ACADEMY_GRADUATE
+      - O_2_W_2
+      - O_3_W_3
+      - O_4_W_4
+      - O_5_W_5
       - O_6
       - O_7
       - O_8
       - O_9
       - O_10
-      - ACADEMY_CADET
-      - ACADEMY_GRADUATE
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
-      - MIDSHIPMAN
+      - ACADEMY_CADET_MIDSHIPMAN
     x-display-value:
       E_1: E-1
       E_2: E-2
@@ -966,26 +991,19 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      O_1: O-1
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
+      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
+      O_2_W_2: O-2/W-2
+      O_3_W_3: O-3/W-3
+      O_4_W_4: O-4/W-4
+      O_5_W_5: O-5/W-5
       O_6: O-6
       O_7: O-7
       O_8: O-8
       O_9: O-9
       O_10: O-10
-      ACADEMY_CADET: Service Academy Cadet
-      ACADEMY_GRADUATE: Service Academy Graduate
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
-      MIDSHIPMAN: Midshipman
+      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
   DeptIndicator:
     type: string
     x-nullable: true
@@ -1244,7 +1262,7 @@ definitions:
       VARIOUS: Various
   OrdersTypeDetail:
     type: string
-    title: Orders type details
+    title: Orders type detail
     enum:
       - HHG_PERMITTED
       - PCS_TDY
@@ -1261,6 +1279,7 @@ definitions:
       INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
       HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
       DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
+    x-nullable: true
   Orders:
     type: object
     properties:
@@ -1290,15 +1309,11 @@ definitions:
         $ref: "#/definitions/OrdersType"
       orders_type_detail:
         $ref: "#/definitions/OrdersTypeDetail"
-        x-nullable: true
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
-      current_duty_station:
-        $ref: '#/definitions/DutyStationPayload'
-        x-nullable: true
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
       moves:
@@ -1314,6 +1329,12 @@ definitions:
       updated_at:
         type: string
         format: date-time
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - id
       - service_member_id
@@ -1364,6 +1385,12 @@ definitions:
         title: Orders Number
         x-nullable: true
         example: "030-00362"
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - service_member_id
       - issue_date

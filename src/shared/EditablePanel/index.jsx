@@ -6,21 +6,54 @@ import { get } from 'lodash';
 import './index.css';
 
 export const PanelField = props => {
-  const { fieldName, schema, values } = props;
-  const title = get(schema, `properties.${fieldName}.title`, '');
-  const value = values[fieldName];
-
+  const { title, value } = props;
+  const classes = classNames('panel-field', props.className);
   return (
-    <div className="panel-field">
+    <div className={classes}>
       <span className="field-title">{title}</span>
-      <span className="field-value">{value}</span>
+      <span className="field-value">{value || props.children}</span>
     </div>
   );
 };
 PanelField.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+export const SwaggerValue = props => {
+  const { fieldName, schema, values } = props;
+  const swaggerProps = schema.properties[fieldName];
+
+  let value = values[fieldName];
+  if (swaggerProps.enum) {
+    value = swaggerProps['x-display-value'][value];
+  }
+  return <React.Fragment>{value || null}</React.Fragment>;
+};
+SwaggerValue.propTypes = {
   fieldName: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
   values: PropTypes.object,
+};
+
+export const PanelSwaggerField = props => {
+  const { fieldName, schema } = props;
+  const title =
+    props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+
+  return (
+    <PanelField title={title}>
+      <SwaggerValue {...props} />
+    </PanelField>
+  );
+};
+PanelSwaggerField.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  values: PropTypes.object,
+  title: PropTypes.string,
 };
 
 export class EditablePanel extends Component {
