@@ -20,6 +20,24 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 
+const subsetOfFields = [
+  'title',
+  'first_name',
+  'middle_name',
+  'last_name',
+  'suffix',
+  'edipi',
+  'affiliation',
+  'rank',
+  'telephone',
+  'secondary_telephone',
+  'personal_email',
+  'residential_address',
+  'phone_is_preferred',
+  'text_message_is_preferred',
+  'email_is_preferred',
+];
+
 const CustomerInfoDisplay = props => {
   const fieldProps = pick(props, ['schema', 'values']);
   const values = props.values;
@@ -94,6 +112,10 @@ const CustomerInfoDisplay = props => {
 };
 
 const CustomerInfoEdit = props => {
+  const initialValues = currentServiceMember
+    ? pick(this.props.currentServiceMember, subsetOfFields)
+    : null;
+
   const schema = props.schema;
   return (
     <React.Fragment>
@@ -160,6 +182,7 @@ function mapStateToProps(state) {
     schema: get(state, 'swagger.spec.definitions.ServiceMemberPayload'),
     hasError: false,
     errorMessage: state.office.error,
+    currentServiceMember: state.office.officeServiceMember,
     displayValues: state.office.officeServiceMember || {},
     isUpdating: false,
     // formValues: getFormValues(formName)(state),
