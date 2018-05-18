@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestSubmitMoveHandlerAllValues() {
+func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
 	orders, _ := testdatagen.MakeOrder(suite.db)
 
@@ -191,4 +191,28 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Then: expect a forbidden response
 	suite.checkResponseForbidden(showResponse)
 
+}
+
+func (suite *HandlerSuite) TestSummitMoveForApprovalHandler() {
+	// Given: a set of orders, a move, user and servicemember
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+
+	params := moveop.SubmitMoveForApprovalParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+	// And: a move is submitted
+	handler := SubmitMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&moveop.SubmitMoveForApprovalOK{}, response)
+	okResponse := response.(*moveop.SubmitMoveForApprovalOK)
+
+	// And: Returned query to have an approved status
+	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
 }

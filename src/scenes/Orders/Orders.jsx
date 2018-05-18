@@ -109,12 +109,11 @@ export class Orders extends Component {
           swagger={this.props.schema}
           required
         />
-        <fieldset key="dependents">
-          <legend htmlFor="dependents">
-            Are dependents included in your orders?
-          </legend>
-          <Field name="has_dependents" component={YesNoBoolean} />
-        </fieldset>
+        <SwaggerField
+          fieldName="has_dependents"
+          swagger={this.props.schema}
+          component={YesNoBoolean}
+        />
         <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
