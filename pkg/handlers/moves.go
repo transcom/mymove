@@ -118,10 +118,10 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
 }
 
-// SubmitMoveHandler approves a move via POST /moves/{moveId}/approve
+// SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
 type SubmitMoveHandler HandlerContext
 
-// Handle ... patches a new ServiceMember from a request payload
+// Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
