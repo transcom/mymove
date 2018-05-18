@@ -6,28 +6,41 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.OrdersPayload, error) {
+func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.Orders, error) {
 	documentPayload, err := payloadForDocumentModel(storage, order.UploadedOrders)
 	if err != nil {
 		return nil, err
 	}
-	payload := &internalmessages.OrdersPayload{
-		ID:              fmtUUID(order.ID),
-		CreatedAt:       fmtDateTime(order.CreatedAt),
-		UpdatedAt:       fmtDateTime(order.UpdatedAt),
-		ServiceMemberID: fmtUUID(order.ServiceMemberID),
-		IssueDate:       fmtDate(order.IssueDate),
-		ReportByDate:    fmtDate(order.ReportByDate),
-		OrdersType:      order.OrdersType,
-		NewDutyStation:  payloadForDutyStationModel(order.NewDutyStation),
-		HasDependents:   fmtBool(order.HasDependents),
-		UploadedOrders:  documentPayload,
+
+	var moves internalmessages.IndexMovesPayload
+	for _, move := range order.Moves {
+		payload := payloadForMoveModel(order, move)
+		moves = append(moves, &payload)
+	}
+
+	payload := &internalmessages.Orders{
+		ID:                  fmtUUID(order.ID),
+		CreatedAt:           fmtDateTime(order.CreatedAt),
+		UpdatedAt:           fmtDateTime(order.UpdatedAt),
+		ServiceMemberID:     fmtUUID(order.ServiceMemberID),
+		IssueDate:           fmtDate(order.IssueDate),
+		ReportByDate:        fmtDate(order.ReportByDate),
+		OrdersType:          order.OrdersType,
+		OrdersTypeDetail:    order.OrdersTypeDetail,
+		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
+		HasDependents:       fmtBool(order.HasDependents),
+		UploadedOrders:      documentPayload,
+		OrdersNumber:        order.OrdersNumber,
+		Moves:               moves,
+		Tac:                 order.TAC,
+		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
 	}
 
 	return payload, nil
@@ -40,14 +53,15 @@ type CreateOrdersHandler HandlerContext
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
-	payload := params.CreateOrdersPayload
+	payload := params.CreateOrders
 
 	serviceMemberID, err := uuid.FromString(payload.ServiceMemberID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -86,9 +100,10 @@ type ShowOrdersHandler HandlerContext
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrder(h.db, user, orderID)
+	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -107,17 +122,18 @@ type UpdateOrdersHandler HandlerContext
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	order, err := models.FetchOrder(h.db, user, orderID)
+	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	payload := params.UpdateOrdersPayload
+	payload := params.UpdateOrders
 	stationID, err := uuid.FromString(payload.NewDutyStationID.String())
 	if err != nil {
 		return responseForError(h.logger, err)

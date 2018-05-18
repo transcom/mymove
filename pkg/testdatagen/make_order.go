@@ -35,10 +35,11 @@ func MakeOrderForServiceMember(db *pop.Connection, sm models.ServiceMember) (mod
 		NewDutyStation:   station,
 		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
-		OrdersType:       internalmessages.OrdersTypeAccession,
+		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		HasDependents:    true,
 		UploadedOrdersID: document.ID,
 		UploadedOrders:   document,
+		Status:           models.OrderStatusDRAFT,
 	}
 
 	verrs, err := db.ValidateAndSave(&order)

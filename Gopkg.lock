@@ -8,6 +8,17 @@
   revision = "88d57ee9043ba88d6a62e437fa15dda1ca0d2b59"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/GoASTScanner/gas"
+  packages = [
+    ".",
+    "cmd/gas",
+    "output",
+    "rules"
+  ]
+  revision = "4ae8c95b4097691ea5b2b0c5060f4ca0413dfcef"
+
+[[projects]]
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
   revision = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4"
@@ -107,6 +118,12 @@
   packages = ["."]
   revision = "507f6050b8568533fb3f5504de8e5205fa62a114"
   version = "v1.6.0"
+
+[[projects]]
+  name = "github.com/felixge/httpsnoop"
+  packages = ["."]
+  revision = "eadd4fad6aac69ae62379194fe0219f3dbc80fd3"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/fsnotify/fsnotify"
@@ -335,6 +352,15 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/kisielk/gotool"
+  packages = [
+    ".",
+    "internal/load"
+  ]
+  revision = "80517062f582ea3340cd4baf70e86d539ae7d84d"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/kr/pretty"
   packages = ["."]
@@ -444,6 +470,22 @@
   version = "v1.7.4-pre"
 
 [[projects]]
+  name = "github.com/nbutton23/zxcvbn-go"
+  packages = [
+    ".",
+    "adjacency",
+    "data",
+    "entropy",
+    "frequency",
+    "match",
+    "matching",
+    "scoring",
+    "utils/math"
+  ]
+  revision = "eafdab6b0663b4b528c35975c8b0e78be6e25261"
+  version = "v0.1"
+
+[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
@@ -462,10 +504,10 @@
   version = "v1.0.0"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
+  branch = "master"
+  name = "github.com/ryanuber/go-glob"
   packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
+  revision = "256dc444b735e061061cf46c809487313d5b0065"
 
 [[projects]]
   name = "github.com/segmentio/chamber"
@@ -701,6 +743,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "fe9753bcda25f1208b114002374336fde7d38e04381107946ed0f3049f1e8bee"
+  inputs-digest = "8af3dae6e8a385b9411e62e8442d568ec372023df0fc5a4e528a8fc729b1e0ee"
   solver-name = "gps-cdcl"
   solver-version = 1

@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -85,7 +86,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 		Suffix:                 swag.String("random string bla"),
 		Telephone:              swag.String("random string bla"),
 		SecondaryTelephone:     swag.String("random string bla"),
-		PersonalEmail:          fmtEmail("wml@example.com"),
+		PersonalEmail:          swag.String("wml@example.com"),
 		PhoneIsPreferred:       swag.Bool(false),
 		TextMessageIsPreferred: swag.Bool(false),
 		EmailIsPreferred:       swag.Bool(true),
@@ -118,6 +119,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
 	user, _ := testdatagen.MakeUser(suite.db)
+	reqApp := app.MyApp
 
 	// When: a new ServiceMember is posted
 	ssn := "123-45-6789"
@@ -149,7 +151,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	suite.Assertions.Len(servicemembers, 1)
 
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
-	serviceMember, err := models.FetchServiceMember(suite.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(suite.db, user, reqApp, serviceMemberID)
 	suite.Assertions.NoError(err)
 
 	suite.Assertions.True(serviceMember.SocialSecurityNumber.Matches(ssn))
@@ -182,7 +184,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 		FirstName:            swag.String("Firstname"),
 		LastName:             swag.String("Lastname"),
 		MiddleName:           swag.String("Middlename"),
-		PersonalEmail:        fmtEmail("name@domain.com"),
+		PersonalEmail:        swag.String("name@domain.com"),
 		PhoneIsPreferred:     swag.Bool(true),
 		Rank:                 &rank,
 		TextMessageIsPreferred: swag.Bool(true),

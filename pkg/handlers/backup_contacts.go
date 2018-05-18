@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	backupop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/backup_contacts"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -15,7 +16,7 @@ func payloadForBackupContactModel(contact models.BackupContact) internalmessages
 		UpdatedAt:  fmtDateTime(contact.UpdatedAt),
 		CreatedAt:  fmtDateTime(contact.CreatedAt),
 		Name:       &contact.Name,
-		Email:      fmtEmail(contact.Email),
+		Email:      &contact.Email,
 		Telephone:  contact.Phone,
 		Permission: contact.Permission,
 	}
@@ -29,16 +30,17 @@ type CreateBackupContactHandler HandlerContext
 func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
 	newContact, verrs, err := serviceMember.CreateBackupContact(h.db,
 		*params.CreateBackupContactPayload.Name,
-		*stringFromEmail(params.CreateBackupContactPayload.Email),
+		*params.CreateBackupContactPayload.Email,
 		params.CreateBackupContactPayload.Telephone,
 		params.CreateBackupContactPayload.Permission)
 	if err != nil || verrs.HasAny() {
@@ -56,9 +58,10 @@ type IndexBackupContactsHandler HandlerContext
 func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBackupContactsParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -81,9 +84,10 @@ type ShowBackupContactHandler HandlerContext
 func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(h.db, user, contactID)
+	contact, err := models.FetchBackupContact(h.db, user, reqApp, contactID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -99,15 +103,16 @@ type UpdateBackupContactHandler HandlerContext
 func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBackupContactParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
-	contact, err := models.FetchBackupContact(h.db, user, contactID)
+	contact, err := models.FetchBackupContact(h.db, user, reqApp, contactID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
 	contact.Name = *params.UpdateServiceMemberBackupContactPayload.Name
-	contact.Email = *stringFromEmail(params.UpdateServiceMemberBackupContactPayload.Email)
+	contact.Email = *params.UpdateServiceMemberBackupContactPayload.Email
 	contact.Phone = params.UpdateServiceMemberBackupContactPayload.Telephone
 	contact.Permission = params.UpdateServiceMemberBackupContactPayload.Permission
 

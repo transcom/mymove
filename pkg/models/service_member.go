@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -39,7 +40,7 @@ type ServiceMember struct {
 	BackupMailingAddress   *Address                            `belongs_to:"address"`
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
-	Orders                 Orders                              `has_many:"orders"`
+	Orders                 Orders                              `has_many:"orders" order_by:"created_at desc"`
 	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
@@ -82,7 +83,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 
 // FetchServiceMember returns a service member only if it is allowed for the given user to access that service member.
 // This method is thereby a useful way of performing access control checks.
-func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMember, error) {
+func FetchServiceMember(db *pop.Connection, user User, reqApp string, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
 	err := db.Q().Eager().Find(&serviceMember, id)
 	if err != nil {
@@ -93,7 +94,7 @@ func FetchServiceMember(db *pop.Connection, user User, id uuid.UUID) (ServiceMem
 		return ServiceMember{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify serviceMember
-	if serviceMember.UserID != user.ID {
+	if reqApp == app.MyApp && serviceMember.UserID != user.ID {
 		return ServiceMember{}, ErrFetchForbidden
 	}
 
@@ -186,7 +187,13 @@ func (s ServiceMember) CreateBackupContact(db *pop.Connection, name string, emai
 }
 
 // CreateOrder creates an order model tied to the service member
-func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, reportByDate time.Time, ordersType internalmessages.OrdersType, hasDependents bool, newDutyStation DutyStation) (Order, *validate.Errors, error) {
+func (s ServiceMember) CreateOrder(db *pop.Connection,
+	issueDate time.Time,
+	reportByDate time.Time,
+	ordersType internalmessages.OrdersType,
+	hasDependents bool,
+	newDutyStation DutyStation) (Order, *validate.Errors, error) {
+
 	var newOrders Order
 	responseVErrors := validate.NewErrors()
 	var responseError error
@@ -216,6 +223,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection, issueDate time.Time, repo
 			NewDutyStation:   newDutyStation,
 			UploadedOrders:   uploadedOrders,
 			UploadedOrdersID: uploadedOrders.ID,
+			Status:           OrderStatusDRAFT,
 		}
 
 		verrs, err = db.ValidateAndCreate(&newOrders)
@@ -262,7 +270,16 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.ResidentialAddress == nil {
 		return false
 	}
-	// TODO: add check for station, SSN, and backup contacts
+	if s.BackupMailingAddress == nil {
+		return false
+	}
+	if s.SocialSecurityNumberID == nil {
+		return false
+	}
+	if s.DutyStationID == nil {
+		return false
+	}
+
 	// All required fields have a set value
 	return true
 }

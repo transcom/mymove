@@ -89,6 +89,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -135,6 +136,7 @@ definitions:
       planned_move_date:
         type: string
         format: date
+        example: "2018-04-26"
         title: When do you plan to move?
         x-nullable: true
       pickup_zip:
@@ -179,6 +181,7 @@ definitions:
         $ref: '#/definitions/TShirtSize'
       planned_move_date:
         type: string
+        example: "2018-04-26"
         format: date
         title: When do you plan to move?
         x-nullable: true
@@ -230,6 +233,7 @@ definitions:
         type: string
         format: date
         title: When do you plan to move?
+        example: "2018-04-26"
         x-nullable: true
       pickup_zip:
         type: string
@@ -266,6 +270,8 @@ definitions:
         type: string
         title: Estimated Incentive
         x-nullable: true
+      status:
+        $ref: '#/definitions/PPMStatus'
       created_at:
         type: string
         format: date-time
@@ -312,21 +318,29 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      user_id:
+      orders_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      locator:
+        type: string
+        example: "12432"
       selected_move_type:
         $ref: '#/definitions/SelectedMoveType'
+      status:
+        $ref: '#/definitions/MoveStatus'
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
+      personally_procured_moves:
+        $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
     required:
       - id
-      - user_id
+      - orders_id
+      - locator
       - created_at
       - updated_at
   PatchMovePayload:
@@ -367,6 +381,10 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+      orders:
+        type: array
+        items:
+          $ref: '#/definitions/Orders'
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -403,7 +421,8 @@ definitions:
         x-nullable: true
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: personal email address
@@ -416,11 +435,8 @@ definitions:
       email_is_preferred:
         type: boolean
         x-nullable: true
-      current_station_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      current_station:
+        $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
       backup_mailing_address:
@@ -500,7 +516,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -585,7 +602,8 @@ definitions:
         title: Alternate phone
       personal_email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Personal email
@@ -631,7 +649,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: Email
@@ -678,7 +697,8 @@ definitions:
         title: Phone
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@exmaple.com
         x-nullable: true
         title: Email
@@ -703,7 +723,8 @@ definitions:
         x-nullable: true
       email:
         type: string
-        format: email
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
         title: email address
@@ -717,6 +738,35 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/ServiceMemberBackupContactPayload'
+  SignedCertificationPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      date:
+        type: string
+        format: date
+        title: Date
+      signature:
+        type: string
+        title: Signature
+      certification_text:
+        type: string
+    required:
+      - id
+      - created_at
+      - updated_at
+      - date
+      - signature
+      - certification_text
   CreateSignedCertificationPayload:
     type: object
     properties:
@@ -733,6 +783,10 @@ definitions:
       - date
       - signature
       - certification_text
+  IndexSignedCertificationsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/SignedCertificationPayload'
   DocumentPayload:
     type: object
     properties:
@@ -781,10 +835,26 @@ definitions:
         type: string
         format: string
         example: filename.pdf
+      content_type:
+        type: string
+        format: mime-type
+        example: application/pdf
+      bytes:
+        type: integer
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
     required:
       - id
       - url
       - filename
+      - content_type
+      - bytes
+      - created_at
+      - updated_at
   CreateIssuePayload:
     type: object
     properties:
@@ -866,26 +936,19 @@ definitions:
       - E_7
       - E_8
       - E_9
-      - W_1
-      - W_2
-      - W_3
-      - W_4
-      - W_5
-      - O_1
-      - O_2
-      - O_3
-      - O_4
-      - O_5
+      - O_1_W_1_ACADEMY_GRADUATE
+      - O_2_W_2
+      - O_3_W_3
+      - O_4_W_4
+      - O_5_W_5
       - O_6
       - O_7
       - O_8
       - O_9
       - O_10
-      - ACADEMY_CADET
-      - ACADEMY_GRADUATE
       - AVIATION_CADET
       - CIVILIAN_EMPLOYEE
-      - MIDSHIPMAN
+      - ACADEMY_CADET_MIDSHIPMAN
     x-display-value:
       E_1: E-1
       E_2: E-2
@@ -896,39 +959,27 @@ definitions:
       E_7: E-7
       E_8: E-8
       E_9: E-9
-      W_1: W-1
-      W_2: W-2
-      W_3: W-3
-      W_4: W-4
-      W_5: W-5
-      O_1: O-1
-      O_2: O-2
-      O_3: O-3
-      O_4: O-4
-      O_5: O-5
+      O_1_W_1_ACADEMY_GRADUATE: O-1/W-1/Service Academy Graduate
+      O_2_W_2: O-2/W-2
+      O_3_W_3: O-3/W-3
+      O_4_W_4: O-4/W-4
+      O_5_W_5: O-5/W-5
       O_6: O-6
       O_7: O-7
       O_8: O-8
       O_9: O-9
       O_10: O-10
-      ACADEMY_CADET: Service Academy Cadet
-      ACADEMY_GRADUATE: Service Academy Graduate
       AVIATION_CADET: Aviation Cadet
       CIVILIAN_EMPLOYEE: Civilian Employee
-      MIDSHIPMAN: Midshipman
+      ACADEMY_CADET_MIDSHIPMAN: Service Academy Cadet/Midshipman
   DeptIndicator:
     type: string
     x-nullable: true
+    title: Dept. indicator
     enum:
-      - ARMY
-      - NAVY_MARINES
       - AIRFORCE
-      - COASTGUARD
     x-display-value:
-      ARMY: 21 - United States Army
-      NAVY_MARINES: 17 - United States Navy/United States Marine Corps
       AIRFORCE: 57 - United States Air Force
-      COASTGUARD: 70 - United States Coast Guard
   IndexShipmentsPayload:
     type: array
     items:
@@ -1117,26 +1168,87 @@ definitions:
       - city
       - state
       - postal_code
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - COMPLETED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      COMPLETED: Completed
+  PPMStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - IN_PROGRESS
+      - COMPLETED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      IN_PROGRESS: In Progress
+      COMPLETED: Completed
+  OrdersStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
   OrdersType:
     type: string
     title: Orders type
     enum:
-      - accession
-      - brac
-      - operational
-      - rotational
-      - separation
-      - training
-      - unit-move
+      - PERMANENT_CHANGE_OF_STATION
+      - SEPARATION
+      - RETIREMENT
+      - LOCAL_MOVE
+      - TEMPORARY_DUTY
+      - DEPENDENT_TRAVEL
+      - BLUEBARK
+      - VARIOUS
     x-display-value:
-      accession: accession
-      brac: brac
-      operational: operational
-      rotational: rotational
-      separation: separation
-      training: training
-      unit-move: unit-move
-  OrdersPayload:
+      PERMANENT_CHANGE_OF_STATION: Permanent Change Of Station
+      SEPARATION: Separation
+      RETIREMENT: Retirement
+      LOCAL_MOVE: Local Move
+      TEMPORARY_DUTY: Temporary Duty
+      DEPENDENT_TRAVEL: Dependent Travel
+      BLUEBARK: Bluebark
+      VARIOUS: Various
+  OrdersTypeDetail:
+    type: string
+    title: Orders type detail
+    enum:
+      - HHG_PERMITTED
+      - PCS_TDY
+      - HHG_RESTRICTED_PROHIBITED
+      - HHG_RESTRICTED_AREA
+      - INSTRUCTION_20_WEEKS
+      - HHG_PROHIBITED_20_WEEKS
+      - DELAYED_APPROVAL
+    x-display-value:
+      HHG_PERMITTED: Shipment of HHG Permitted
+      PCS_TDY: PCS with TDY Enroute
+      HHG_RESTRICTED_PROHIBITED: Shipment of HHG Restricted or Prohibited
+      HHG_RESTRICTED_AREA: HHG Restricted Area-HHG Prohibited
+      INSTRUCTION_20_WEEKS: Course of Instruction 20 Weeks or More
+      HHG_PROHIBITED_20_WEEKS: Shipment of HHG Prohibited but Authorized within 20 weeks
+      DELAYED_APPROVAL: Delayed Approval 20 Weeks or More
+    x-nullable: true
+  Orders:
     type: object
     properties:
       id:
@@ -1159,8 +1271,12 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report-by date
+      orders_status:
+        $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
+      orders_type_detail:
+        $ref: "#/definitions/OrdersTypeDetail"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1168,12 +1284,25 @@ definitions:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
         $ref: '#/definitions/DocumentPayload'
+      moves:
+        $ref: '#/definitions/IndexMovesPayload'
+      orders_number:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: "030-00362"
       created_at:
         type: string
         format: date-time
       updated_at:
         type: string
         format: date-time
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - id
       - service_member_id
@@ -1185,7 +1314,7 @@ definitions:
       - uploaded_orders
       - created_at
       - updated_at
-  CreateUpdateOrdersPayload:
+  CreateUpdateOrders:
     type: object
     properties:
       service_member_id:
@@ -1206,6 +1335,8 @@ definitions:
         title:  Report-by date
       orders_type:
         $ref: "#/definitions/OrdersType"
+      orders_type_detail:
+        $ref: "#/definitions/OrdersTypeDetail"
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
@@ -1213,6 +1344,21 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      current_duty_station_id:
+        type: string
+        format: uuid
+        example: c53a4180-65aa-42ec-a945-5fd21dec0538
+      orders_number:
+        type: string
+        title: Orders Number
+        x-nullable: true
+        example: "030-00362"
+      tac:
+        type: string
+        example: "F8J1"
+        x-nullable: true
+      department_indicator:
+        $ref: '#/definitions/DeptIndicator'
     required:
       - service_member_id
       - issue_date
@@ -1298,8 +1444,11 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
+    required:
+      - dept_indicator
+      - tac
   PatchAccounting:
     type: object
     properties:
@@ -1307,7 +1456,7 @@ definitions:
         $ref: '#/definitions/DeptIndicator'
       tac:
         type: string
-        example: CAJ8
+        example: F8J1
         title: TAC
 paths:
   /estimates/ppm:
@@ -1341,7 +1490,7 @@ paths:
           required: true
       responses:
         200:
-          description: created instance of orders
+          description: Made estimate of PPM cost range
           schema:
             $ref: '#/definitions/PPMEstimateRange'
         400:
@@ -1472,15 +1621,15 @@ paths:
         - orders
       parameters:
         - in: body
-          name: createOrdersPayload
+          name: createOrders
           required: true
           schema:
-            $ref: '#/definitions/CreateUpdateOrdersPayload'
+            $ref: '#/definitions/CreateUpdateOrders'
       responses:
         201:
           description: created instance of orders
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1504,15 +1653,15 @@ paths:
           required: true
           description: UUID of the orders model
         - in: body
-          name: updateOrdersPayload
+          name: updateOrders
           required: true
           schema:
-            $ref: '#/definitions/CreateUpdateOrdersPayload'
+            $ref: '#/definitions/CreateUpdateOrders'
       responses:
         200:
           description: updated instance of orders
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1540,7 +1689,7 @@ paths:
         200:
           description: the instance of the order
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -1551,14 +1700,53 @@ paths:
           description: order is not found
         500:
           description: internal server error
-  /moves:
+    patch:
+      summary: Updates orders information
+      description: All fields sent in this request will be set on the orders referenced
+      operationId: patchOrders
+      tags:
+        - orders
+      parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the orders model
+        - in: body
+          name: patchOrders
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUpdateOrders'
+      responses:
+        200:
+          description: updated instance of orders
+          schema:
+            $ref: '#/definitions/Orders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+  /orders/{ordersId}/moves:
     post:
-      summary: Submits move for a logged-in user
-      description: Creates an instance of a move tied to a user
+      summary: Creates a move tied to service member orders
+      description: Creates an instance of a move tied to a service member's orders
       operationId: createMove
       tags:
         - moves
       parameters:
+        - in: path
+          name: ordersId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the order
         - in: body
           name: createMovePayload
           required: true
@@ -1575,9 +1763,10 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to sign for this move
+  /moves:
     get:
-      summary: List all moves
-      description: List all moves
+      summary: List all moves for a set of orders
+      description: List all moves for a set of orders
       operationId: indexMoves
       tags:
         - moves
@@ -1588,6 +1777,8 @@ paths:
             $ref: '#/definitions/IndexMovesPayload'
         400:
           description: invalid request
+        404:
+          description: moves not found for given orders
         401:
           description: request requires user authentication
   /moves/{moveId}:
@@ -1652,7 +1843,40 @@ paths:
           description: move is not found
         500:
           description: internal server error
-  /moves/{moveId}/signed_certification:
+  /moves/{moveId}/signed_certifications:
+    get:
+      summary: Returns signed certifications for the given move
+      description: Returns signed certifications for the given move
+      operationId: indexSignedCertifications
+      tags:
+        - certification
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: query
+          name: limit
+          type: integer
+          required: false
+          description: Number of certifications to return
+      responses:
+        200:
+          description: the instance of the move
+          schema:
+            $ref: '#/definitions/IndexSignedCertificationsPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move is not found
+        500:
+          description: internal server error
     post:
       summary: Submits signed certification for the given move ID
       description: Create an instance of signed_certification tied to the move ID
@@ -1911,6 +2135,66 @@ paths:
           description: move not found
         500:
           description: internal server error
+  /moves/{moveId}/orders:
+    get:
+      summary: Returns orders information for a move for office use
+      description: Returns orders information for a move for office use
+      operationId: showOfficeOrders
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: the orders information for a move for office use
+          schema:
+            $ref: '#/definitions/Orders'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: internal server error
+  /moves/{moveId}/approve:
+    post:
+      summary: Approves a move to proceed
+      description: Approves the basic details of a move. The status of the move will be updated to APPROVED
+      operationId: approveMove
+      tags:
+        - office
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns updated (approved) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to approve this move
+        409:
+          description: the move is not in a state to be approved
+          schema:
+            $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
   /documents:
     post:
       summary: Create a new document
@@ -1931,6 +2215,35 @@ paths:
             $ref: '#/definitions/DocumentPayload'
         400:
           description: invalid request
+        500:
+          description: server error
+  /documents/{documentId}:
+    get:
+      summary: Returns a document
+      description: Returns a document and its uploads
+      operationId: showDocument
+      tags:
+        - documents
+      parameters:
+        - in: path
+          name: documentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to return
+      responses:
+        200:
+          description: the requested document
+          schema:
+            $ref: '#/definitions/DocumentPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
         500:
           description: server error
   /documents/{documentId}/uploads:
@@ -2104,7 +2417,7 @@ paths:
         200:
           description: the instance of the service member
           schema:
-            $ref: '#/definitions/OrdersPayload'
+            $ref: '#/definitions/Orders'
         400:
           description: invalid request
         401:
@@ -2247,11 +2560,6 @@ paths:
       tags:
         - duty_stations
       parameters:
-        - in: query
-          name: affiliation
-          required: true
-          type: string
-          enum: *AFFILIATION
         - in: query
           name: search
           type: string

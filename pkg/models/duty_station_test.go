@@ -30,7 +30,7 @@ func (suite *ModelSuite) TestFindDutyStations() {
 	}
 	suite.mustSave(&station2)
 
-	stations, err := models.FindDutyStations(suite.db, "first", string(internalmessages.AffiliationARMY))
+	stations, err := models.FindDutyStations(suite.db, "first")
 	if err != nil {
 		t.Errorf("Find duty stations error: %v", err)
 	}

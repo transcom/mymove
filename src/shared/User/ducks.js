@@ -1,15 +1,12 @@
+import { concat, reject, orderBy } from 'lodash';
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { GetLoggedInUser } from './api.js';
-
-const LOAD_USER_AND_TOKEN = 'USER|LOAD_USER_AND_TOKEN';
-
-const loggedOutUser = {
-  isLoggedIn: false,
-  email: null,
-  jwt: null,
-};
+import {
+  CREATE_OR_UPDATE_ORDERS,
+  SHOW_CURRENT_ORDERS,
+} from 'scenes/Orders/ducks.js';
 
 const GET_LOGGED_IN_USER = 'GET_LOGGED_IN_USER';
 
@@ -23,7 +20,7 @@ export const loadLoggedInUser = () => {
     const userInfo = getUserInfo();
     if (!userInfo.isLoggedIn) return;
     dispatch(getLoggedInActions.start());
-    GetLoggedInUser()
+    return GetLoggedInUser()
       .then(item => dispatch(getLoggedInActions.success(item)))
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };
@@ -49,38 +46,49 @@ export const loggedInUserReducer = (state, action) => {
           service_member: action.payload,
         },
       };
+    case CREATE_OR_UPDATE_ORDERS.success:
+    case SHOW_CURRENT_ORDERS.success:
+      let oldOrders = mutatedState.loggedInUser.service_member.orders;
+      // Remove existing orders with same ID and add new orders
+      let newOrders = orderBy(
+        concat(reject(oldOrders, ['id', action.payload.id]), action.payload),
+        'created_at',
+        'desc',
+      );
+      return {
+        ...mutatedState,
+        loggedInUser: {
+          ...mutatedState.loggedInUser,
+          service_member: {
+            ...mutatedState.loggedInUser.service_member,
+            orders: newOrders,
+          },
+        },
+      };
     default:
       return mutatedState;
   }
+};
+
+const loggedOutUser = {
+  isLoggedIn: false,
+  email: null,
+  userId: null,
 };
 
 function getUserInfo() {
   const cookie = Cookies.get('user_session');
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
-  //if (jwt.exp <  Date.now().valueOf() / 1000) return loggedOutUser;
   return {
-    jwt: cookie,
     email: jwt.email,
     userId: jwt.user_id,
-    expires: Date(jwt.exp),
     isLoggedIn: true,
   };
 }
 
-export function loadUserAndToken() {
-  const jwt = getUserInfo();
-  return { type: LOAD_USER_AND_TOKEN, payload: jwt };
-}
-
 const userReducer = (state = getUserInfo(), action) => {
-  switch (action.type) {
-    case LOAD_USER_AND_TOKEN:
-      return action.payload;
-    default: {
-      return state;
-    }
-  }
+  return getUserInfo();
 };
 
 export default userReducer;

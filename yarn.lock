@@ -1503,7 +1503,7 @@ builtin-status-codes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/builtin-status-codes/-/builtin-status-codes-3.0.0.tgz#85982878e21b98e1c66425e03d0174788f569ee8"
 
-bytes@3.0.0:
+bytes@3.0.0, bytes@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/bytes/-/bytes-3.0.0.tgz#d32815404d689699f85a4ea4fa8755dd13a96048"
 
@@ -3221,9 +3221,17 @@ filename-regex@^2.0.0:
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/filename-regex/-/filename-regex-2.0.1.tgz#c1c4b9bee3e09725ddb106b75c1e301fe2f18b26"
 
-filepond-plugin-image-preview@^1.0.9:
+filepond-plugin-file-validate-type@^1.0.3:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-file-validate-type/-/filepond-plugin-file-validate-type-1.0.3.tgz#7efb84fdedc86cb279a86a8712ed75ddaa1b5e74"
+
+filepond-plugin-image-exif-orientation@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/filepond-plugin-image-exif-orientation/-/filepond-plugin-image-exif-orientation-1.0.1.tgz#79a8204c47d218c8a3262b466f34e6af18ea231a"
+
+"filepond-plugin-image-preview@https://github.com/transcom/filepond-plugin-image-preview":
   version "1.0.9"
-  resolved "https://registry.yarnpkg.com/filepond-plugin-image-preview/-/filepond-plugin-image-preview-1.0.9.tgz#e82032eac45be1c56efbe5bac19d137c5df908f3"
+  resolved "https://github.com/transcom/filepond-plugin-image-preview#3da8a0a7c27d76d5ae44dac2aa2b74b7c3b984f9"
 
 filepond-polyfill@^1.0.2:
   version "1.0.2"
@@ -4272,6 +4280,10 @@ is-installed-globally@^0.1.0:
   dependencies:
     global-dirs "^0.1.0"
     is-path-inside "^1.0.0"
+
+is-mobile@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/is-mobile/-/is-mobile-0.3.0.tgz#dcb8b7a4dd4227b0922c3b2a7cfdbfce1ae8d611"
 
 is-npm@^1.0.0:
   version "1.0.0"
@@ -6623,7 +6635,7 @@ react-dev-utils@^4.2.1:
     strip-ansi "3.0.1"
     text-table "0.2.0"
 
-react-dom@^16.2.0:
+react-dom@^16.0.0, react-dom@^16.2.0:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react-dom/-/react-dom-16.3.2.tgz#cb90f107e09536d683d84ed5d4888e9640e0e4df"
   dependencies:
@@ -6649,6 +6661,14 @@ react-highlight-words@^0.11.0:
     highlight-words-core "^1.2.0"
     prop-types "^15.5.8"
 
+react-idle-timer@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/react-idle-timer/-/react-idle-timer-3.0.0.tgz#716cbe7cb3678255604b4e2bee9149fd45f25e77"
+  dependencies:
+    prop-types "^15.5.10"
+    react "^16.0.0"
+    react-dom "^16.0.0"
+
 react-input-autosize@^2.2.1:
   version "2.2.1"
   resolved "https://registry.yarnpkg.com/react-input-autosize/-/react-input-autosize-2.2.1.tgz#ec428fa15b1592994fb5f9aa15bb1eb6baf420f8"
@@ -6664,6 +6684,10 @@ react-loadable@^5.3.1:
   resolved "https://registry.yarnpkg.com/react-loadable/-/react-loadable-5.3.1.tgz#9699e9a08fed49bacd69caaa282034b62a76bcdd"
   dependencies:
     prop-types "^15.5.0"
+
+react-mock-router@^1.0.15:
+  version "1.0.15"
+  resolved "https://registry.yarnpkg.com/react-mock-router/-/react-mock-router-1.0.15.tgz#01c823a7ed366e7e834565e879bc72443131b4e1"
 
 react-rangeslider@^2.2.0:
   version "2.2.0"
@@ -6813,7 +6837,7 @@ react-window-size@^1.0.1:
   dependencies:
     babel-runtime "^6.6.1"
 
-react@^16.2.0:
+react@^16.0.0, react@^16.2.0:
   version "16.3.2"
   resolved "https://registry.yarnpkg.com/react/-/react-16.3.2.tgz#fdc8420398533a1e58872f59091b272ce2f91ea9"
   dependencies:

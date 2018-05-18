@@ -1,15 +1,11 @@
-import {
-  CREATE_CERTIFICATION_SUCCESS,
-  CREATE_CERTIFICATION_FAILURE,
-  signedCertificationReducer,
-} from './ducks';
+import { CREATE_SIGNED_CERT, signedCertificationReducer } from './ducks';
 
 describe('Feedback Reducer', () => {
   it('Should handle CREATE_CERTIFICATION_SUCCESS', () => {
     const initialState = { pendingValue: '', confirmationText: '' };
 
     const newState = signedCertificationReducer(initialState, {
-      type: CREATE_CERTIFICATION_SUCCESS,
+      type: CREATE_SIGNED_CERT.success,
       item: 'Successful item!',
     });
 
@@ -25,7 +21,7 @@ describe('Feedback Reducer', () => {
     const initialState = { pendingValue: '', confirmationText: '' };
 
     const newState = signedCertificationReducer(initialState, {
-      type: CREATE_CERTIFICATION_FAILURE,
+      type: CREATE_SIGNED_CERT.failure,
       error: 'No bueno.',
     });
 

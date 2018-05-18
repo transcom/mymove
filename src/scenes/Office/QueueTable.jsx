@@ -15,7 +15,13 @@ class QueueTable extends Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
-  fetchData(state, instance) {
+  componentDidUpdate(prevProps) {
+    if (this.props.queueType !== prevProps.queueType) {
+      this.fetchData();
+    }
+  }
+
+  fetchData() {
     RetrieveMovesForOffice(this.props.queueType).then(
       response => {
         this.setState({
@@ -31,11 +37,15 @@ class QueueTable extends Component {
   }
 
   render() {
+    const titles = {
+      new: 'New Moves',
+      troubleshooting: 'Troubleshooting',
+      ppm: 'PPMs',
+    };
+
     return (
       <div>
-        <h1 style={{ textTransform: 'capitalize' }}>
-          {this.props.queueType} Moves Queue
-        </h1>
+        <h1>Queue: {titles[this.props.queueType]}</h1>
         <div>
           <ReactTable
             columns={[
@@ -83,7 +93,7 @@ class QueueTable extends Component {
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e =>
-                this.props.history.push(`new/moves/${rowInfo.original.id}}`),
+                this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}
           />
         </div>

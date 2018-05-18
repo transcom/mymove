@@ -6,16 +6,30 @@ import { FilePond, registerPlugin } from 'react-filepond';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { CreateUpload, DeleteUpload } from 'shared/api.js';
+import isMobile from 'is-mobile';
+import { concat, reject } from 'lodash';
 
 import 'filepond/dist/filepond.min.css';
 import './index.css';
 
-// Register the image preview plugin
+import FilepondPluginFileValidateType from 'filepond-plugin-file-validate-type';
+import FilepondPluginImageExifOrientation from 'filepond-plugin-image-exif-orientation';
 import FilePondImagePreview from 'filepond-plugin-image-preview';
 import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.css';
+
+registerPlugin(FilepondPluginFileValidateType);
+registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
 export class Uploader extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      files: [],
+    };
+  }
+
   componentDidMount() {
     document.title = 'Transcom PPP: Upload Document';
   }
@@ -28,12 +42,38 @@ export class Uploader extends Component {
         process: this.processFile,
         revert: this.revertFile,
       },
+      iconUndo: this.pond._pond.iconRemove,
+      imagePreviewMaxHeight: 100,
+      labelIdle:
+        'Drag & drop or <span class="filepond--label-action">click to upload orders</span>',
+      labelTapToUndo: 'tap to delete',
+      acceptedFileTypes: ['image/*', 'application/pdf'],
     });
+
+    // Don't mention drag and drop if on mobile device
+    if (isMobile()) {
+      this.pond._pond.setOptions({
+        labelIdle: '<span class="filepond--label-action">Upload</span>',
+      });
+    }
   }
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
+    const self = this;
     CreateUpload(file, this.props.document.id)
-      .then(item => load(item.id))
+      .then(item => {
+        load(item.id);
+        const newFiles = concat(self.state.files, item);
+        self.setState({
+          files: newFiles,
+        });
+        // Call onChange after the upload completes
+        self.pond._pond.onOnce('processfile', e => {
+          if (self.props.onChange) {
+            self.props.onChange(newFiles);
+          }
+        });
+      })
       .catch(error);
 
     return { abort };
@@ -41,13 +81,25 @@ export class Uploader extends Component {
 
   revertFile = (uploadId, load, error) => {
     DeleteUpload(uploadId)
-      .then(load)
+      .then(item => {
+        load(item);
+        const newFiles = reject(
+          this.state.files,
+          upload => upload.id === uploadId,
+        );
+        this.setState({
+          files: newFiles,
+        });
+        if (this.props.onChange) {
+          this.props.onChange(newFiles);
+        }
+      })
       .catch(error);
   };
 
   render() {
     return (
-      <div className="usa-grid">
+      <div>
         <FilePond
           ref={ref => (this.pond = ref)}
           oninit={() => this.handlePondInit()}
@@ -59,6 +111,7 @@ export class Uploader extends Component {
 
 Uploader.propTypes = {
   document: PropTypes.object.isRequired,
+  onChange: PropTypes.func,
 };
 
 function mapStateToProps(state) {

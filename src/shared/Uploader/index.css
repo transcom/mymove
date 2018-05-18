@@ -7,3 +7,16 @@
 .filepond--label-action {
     text-decoration-color: #aaa;
 }
+
+[data-filepond-item-state=processing-complete] .filepond--item-panel {
+  /* primary blue via USDS standard: https://designsystem.digital.gov/components/colors/ */
+  background-color: #0071bc
+}
+
+.filepond--root {
+    max-width: 500px;
+}
+
+.filepond--panel-root {
+  border: 1px dashed #B0B0B0;
+}

@@ -20,8 +20,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	hasDependents := true
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeRotational
-	payload := &internalmessages.CreateUpdateOrdersPayload{
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:    fmtBool(hasDependents),
 		IssueDate:        fmtDate(issueDate),
 		ReportByDate:     fmtDate(reportByDate),
@@ -31,8 +31,8 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	}
 
 	params := ordersop.CreateOrdersParams{
-		HTTPRequest:         req,
-		CreateOrdersPayload: payload,
+		HTTPRequest:  req,
+		CreateOrders: payload,
 	}
 	createHandler := CreateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := createHandler.Handle(params)
@@ -72,8 +72,8 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req := httptest.NewRequest("PUT", path, nil)
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
-	newOrdersType := internalmessages.OrdersTypeRotational
-	payload := &internalmessages.CreateUpdateOrdersPayload{
+	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:    fmtBool(order.HasDependents),
 		IssueDate:        fmtDate(order.IssueDate),
 		ReportByDate:     fmtDate(order.ReportByDate),
@@ -83,9 +83,9 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	}
 
 	params := ordersop.UpdateOrdersParams{
-		HTTPRequest:         req,
-		OrdersID:            *fmtUUID(order.ID),
-		UpdateOrdersPayload: payload,
+		HTTPRequest:  req,
+		OrdersID:     *fmtUUID(order.ID),
+		UpdateOrders: payload,
 	}
 	updateHandler := UpdateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := updateHandler.Handle(params)

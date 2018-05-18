@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -9,8 +10,6 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
-
-	"io"
 
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
@@ -87,6 +86,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.IssuesIndexIssuesHandler = IndexIssuesHandler(context)
 
 	internalAPI.CertificationCreateSignedCertificationHandler = CreateSignedCertificationHandler(context)
+	internalAPI.CertificationIndexSignedCertificationsHandler = IndexSignedCertificationsHandler(context)
 
 	internalAPI.PpmCreatePersonallyProcuredMoveHandler = CreatePersonallyProcuredMoveHandler(context)
 	internalAPI.PpmIndexPersonallyProcuredMovesHandler = IndexPersonallyProcuredMovesHandler(context)
@@ -103,7 +103,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler(context)
 
 	internalAPI.MovesCreateMoveHandler = CreateMoveHandler(context)
-	internalAPI.MovesIndexMovesHandler = IndexMovesHandler(context)
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 
@@ -118,11 +117,15 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.BackupContactsShowServiceMemberBackupContactHandler = ShowBackupContactHandler(context)
 
 	internalAPI.DocumentsCreateDocumentHandler = CreateDocumentHandler(context)
-
+	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler(context)
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
+
+	internalAPI.OfficeShowAccountingHandler = ShowAccountingHandler(context)
+	internalAPI.OfficePatchAccountingHandler = PatchAccountingHandler(context)
+	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 
 	return internalAPI.Serve(nil)
 }

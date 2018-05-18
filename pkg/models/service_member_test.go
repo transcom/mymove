@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -39,16 +40,22 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
 	fakeAddress, _ := testdatagen.MakeAddress(suite.db)
+	fakeBackupAddress, _ := testdatagen.MakeAddress(suite.db)
+	fakeID := uuid.Must(uuid.NewV4())
+
 	servicemember := ServiceMember{
-		UserID:             user1.ID,
-		Edipi:              &edipi,
-		Affiliation:        &affiliation,
-		Rank:               &rank,
-		FirstName:          &firstName,
-		LastName:           &lastName,
-		Telephone:          &telephone,
-		PersonalEmail:      &email,
-		ResidentialAddress: &fakeAddress,
+		UserID:                 user1.ID,
+		Edipi:                  &edipi,
+		Affiliation:            &affiliation,
+		Rank:                   &rank,
+		FirstName:              &firstName,
+		LastName:               &lastName,
+		Telephone:              &telephone,
+		PersonalEmail:          &email,
+		ResidentialAddress:     &fakeAddress,
+		BackupMailingAddress:   &fakeBackupAddress,
+		SocialSecurityNumberID: &fakeID,
+		DutyStationID:          &fakeID,
 	}
 
 	// Then: IsProfileComplete should return false
@@ -68,6 +75,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 func (suite *ModelSuite) TestFetchServiceMember() {
 	user1, _ := testdatagen.MakeUser(suite.db)
 	user2, _ := testdatagen.MakeUser(suite.db)
+	reqApp := app.MyApp
 
 	firstName := "Oliver"
 	resAddress, _ := testdatagen.MakeAddress(suite.db)
@@ -81,21 +89,21 @@ func (suite *ModelSuite) TestFetchServiceMember() {
 	suite.mustSave(&sm)
 
 	// User is authorized to fetch order
-	goodSm, err := FetchServiceMember(suite.db, user1, sm.ID)
+	goodSm, err := FetchServiceMember(suite.db, user1, reqApp, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
 	}
 
 	// User is forbidden from fetching order
-	_, err = FetchServiceMember(suite.db, user2, sm.ID)
+	_, err = FetchServiceMember(suite.db, user2, reqApp, sm.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
 	// Wrong Order ID
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMember(suite.db, user1, wrongID)
+	_, err = FetchServiceMember(suite.db, user1, reqApp, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}

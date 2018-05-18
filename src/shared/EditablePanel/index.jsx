@@ -1,18 +1,70 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { get } from 'lodash';
 
 import './index.css';
+
+export const PanelField = props => {
+  const { title, value } = props;
+  const classes = classNames('panel-field', props.className);
+  return (
+    <div className={classes}>
+      <span className="field-title">{title}</span>
+      <span className="field-value">{value || props.children}</span>
+    </div>
+  );
+};
+PanelField.propTypes = {
+  title: PropTypes.string.isRequired,
+  value: PropTypes.string,
+  children: PropTypes.node,
+  className: PropTypes.string,
+};
+
+export const SwaggerValue = props => {
+  const { fieldName, schema, values } = props;
+  const swaggerProps = schema.properties[fieldName];
+
+  let value = values[fieldName];
+  if (swaggerProps.enum) {
+    value = swaggerProps['x-display-value'][value];
+  }
+  return <React.Fragment>{value || null}</React.Fragment>;
+};
+SwaggerValue.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  values: PropTypes.object,
+};
+
+export const PanelSwaggerField = props => {
+  const { fieldName, schema } = props;
+  const title =
+    props.title || get(schema, `properties.${fieldName}.title`, fieldName);
+
+  return (
+    <PanelField title={title}>
+      <SwaggerValue {...props} />
+    </PanelField>
+  );
+};
+PanelSwaggerField.propTypes = {
+  fieldName: PropTypes.string.isRequired,
+  schema: PropTypes.object.isRequired,
+  values: PropTypes.object,
+  title: PropTypes.string,
+};
 
 export class EditablePanel extends Component {
   handleToggleClick = e => {
     e.preventDefault();
-    this.props.toggleEditable();
+    this.props.onToggle();
   };
 
-  // TODO: get save button working as more than just an editable toggle
   handleSaveClick = e => {
     e.preventDefault();
+    this.props.onSave();
   };
 
   render() {
@@ -30,8 +82,7 @@ export class EditablePanel extends Component {
             </button>
             <button
               className="usa-button editable-panel-save"
-              onClick={this.handleToggleClick}
-              disabled={this.props.canSave}
+              onClick={this.handleSaveClick}
             >
               Save
             </button>
@@ -48,10 +99,6 @@ export class EditablePanel extends Component {
       this.props.className,
     );
 
-    const contentFunc = this.props.isEditable
-      ? this.props.editableContent
-      : this.props.displayContent;
-
     return (
       <div className={classes}>
         <div className="editable-panel-header">
@@ -63,7 +110,7 @@ export class EditablePanel extends Component {
           )}
         </div>
         <div className="editable-panel-content">
-          {contentFunc()}
+          {this.props.children}
           {controls}
         </div>
       </div>
@@ -72,7 +119,9 @@ export class EditablePanel extends Component {
 }
 
 EditablePanel.propTypes = {
+  title: PropTypes.string.isRequired,
+  children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
-  editableContent: PropTypes.func.isRequired,
-  displayContent: PropTypes.func.isRequired,
+  onToggle: PropTypes.func.isRequired,
+  onSave: PropTypes.func.isRequired,
 };

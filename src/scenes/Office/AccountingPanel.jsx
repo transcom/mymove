@@ -1,86 +1,76 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import { get } from 'lodash';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
+import editablePanel from './editablePanel';
 
-import { updateAccounting, getAccounting } from './ducks';
+import { updateAccounting } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { PanelSwaggerField } from 'shared/EditablePanel';
 
-import { EditablePanel } from 'shared/EditablePanel';
+const AccountingDisplay = props => {
+  const fieldProps = {
+    schema: props.ordersSchema,
+    values: props.orders,
+  };
 
-class AccountingPanel extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isEditable: false,
-    };
-    this.toggleEditable = this.toggleEditable.bind(this);
-  }
+  return (
+    <React.Fragment>
+      <div className="editable-panel-column">
+        <PanelSwaggerField fieldName="dept_indicator" {...fieldProps} />
+      </div>
+      <div className="editable-panel-column">
+        <PanelSwaggerField fieldName="tac" {...fieldProps} />
+      </div>
+    </React.Fragment>
+  );
+};
 
-  componentDidMount() {
-    this.props.getAccounting(this.props.moveID);
-  }
-
-  toggleEditable() {
-    this.setState({ isEditable: !this.state.isEditable });
-  }
-
-  render() {
-    const displayContent = () => {
-      return (
-        <div>
-          <p>TAC Value</p>
-        </div>
-      );
-    };
-
-    const editableContent = () => {
-      const { schema } = this.props;
-      return (
-        <div>
-          <SwaggerField fieldName="dept_indicator" swagger={schema} required />
-          <SwaggerField fieldName="tac" swagger={schema} required />
-        </div>
-      );
-    };
-
-    return (
-      <EditablePanel
-        title="Accounting"
-        editableContent={editableContent}
-        displayContent={displayContent}
-        isEditable={this.state.isEditable}
-        toggleEditable={this.toggleEditable}
-      />
-    );
-  }
-}
-
-AccountingPanel.propTypes = {
-  schema: PropTypes.object.isRequired,
+const AccountingEdit = props => {
+  const { schema } = props;
+  return (
+    <React.Fragment>
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="dept_indicator" swagger={schema} required />
+      </div>
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="tac" swagger={schema} required />
+      </div>
+    </React.Fragment>
+  );
 };
 
 const formName = 'office_move_info_accounting';
+
+let AccountingPanel = editablePanel(AccountingDisplay, AccountingEdit);
 AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
+
+function mapStateToProps(state) {
+  return {
+    // reduxForm
+    formData: state.form[formName],
+    initialValues: state.office.accounting,
+
+    // Wrapper
+    ordersSchema: get(state, 'swagger.spec.definitions.PatchAccounting', {}),
+    hasError:
+      state.office.accountingHasLoadError ||
+      state.office.accountingHasUpdateError,
+    errorMessage: state.office.error,
+    orders: state.office.accounting || {},
+    isUpdating: state.office.accountingIsUpdating,
+  };
+}
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      updateAccounting,
-      getAccounting,
+      update: updateAccounting,
     },
     dispatch,
   );
 }
-function mapStateToProps(state) {
-  const props = {
-    schema: {},
-  };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.PatchAccounting;
-  }
-  return props;
-}
+
 export default connect(mapStateToProps, mapDispatchToProps)(AccountingPanel);

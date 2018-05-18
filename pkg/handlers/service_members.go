@@ -2,11 +2,10 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/strfmt"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
+	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -14,17 +13,24 @@ import (
 )
 
 func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
-	var stationID *strfmt.UUID
-	if serviceMember.DutyStation != nil {
-		stationID = fmtUUID(serviceMember.DutyStation.ID)
-	}
 
+	var dutyStationPayload *internalmessages.DutyStationPayload
+	if serviceMember.DutyStation != nil {
+		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
+	}
+	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
+	for i, order := range serviceMember.Orders {
+		var h HandlerContext
+		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orders[i] = orderPayload
+	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
 		UserID:                  fmtUUID(user.ID),
 		Edipi:                   serviceMember.Edipi,
+		Orders:                  orders,
 		Affiliation:             serviceMember.Affiliation,
 		Rank:                    serviceMember.Rank,
 		FirstName:               serviceMember.FirstName,
@@ -34,14 +40,14 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		Telephone:               serviceMember.Telephone,
 		SecondaryTelephone:      serviceMember.SecondaryTelephone,
 		PhoneIsPreferred:        serviceMember.PhoneIsPreferred,
-		PersonalEmail:           fmtEmailPtr(serviceMember.PersonalEmail),
+		PersonalEmail:           serviceMember.PersonalEmail,
 		TextMessageIsPreferred:  serviceMember.TextMessageIsPreferred,
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
-		CurrentStationID:        stationID,
+		CurrentStation:          dutyStationPayload,
 	}
 	return &serviceMemberPayload
 }
@@ -96,7 +102,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		Suffix:                 params.CreateServiceMemberPayload.Suffix,
 		Telephone:              params.CreateServiceMemberPayload.Telephone,
 		SecondaryTelephone:     params.CreateServiceMemberPayload.SecondaryTelephone,
-		PersonalEmail:          stringFromEmail(params.CreateServiceMemberPayload.PersonalEmail),
+		PersonalEmail:          params.CreateServiceMemberPayload.PersonalEmail,
 		PhoneIsPreferred:       params.CreateServiceMemberPayload.PhoneIsPreferred,
 		TextMessageIsPreferred: params.CreateServiceMemberPayload.TextMessageIsPreferred,
 		EmailIsPreferred:       params.CreateServiceMemberPayload.EmailIsPreferred,
@@ -123,9 +129,10 @@ type ShowServiceMemberHandler HandlerContext
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -141,9 +148,10 @@ type PatchServiceMemberHandler HandlerContext
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -189,7 +197,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		serviceMember.SecondaryTelephone = payload.SecondaryTelephone
 	}
 	if payload.PersonalEmail != nil {
-		serviceMember.PersonalEmail = swag.String(payload.PersonalEmail.String())
+		serviceMember.PersonalEmail = payload.PersonalEmail
 	}
 	if payload.PhoneIsPreferred != nil {
 		serviceMember.PhoneIsPreferred = payload.PhoneIsPreferred
@@ -248,9 +256,10 @@ type ShowServiceMemberOrdersHandler HandlerContext
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

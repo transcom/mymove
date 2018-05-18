@@ -9,28 +9,15 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	t := suite.T()
-
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  userUUID,
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
-	var selectedType = internalmessages.SelectedMoveTypeCOMBO
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -38,18 +25,15 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		Date:              (*strfmt.Date)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      *fmtUUID(move.ID),
-		HTTPRequest: req,
+		MoveID: *fmtUUID(move.ID),
 	}
 
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -59,7 +43,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
-	query := suite.db.Where(fmt.Sprintf("submitting_user_id='%v'", user.ID)).Where(fmt.Sprintf("move_id='%v'", move.ID))
+	query := suite.db.Where(fmt.Sprintf("submitting_user_id='%v'", move.Orders.ServiceMember.User.ID)).Where(fmt.Sprintf("move_id='%v'", move.ID))
 	certs := []models.SignedCertification{}
 	query.All(&certs)
 
@@ -71,25 +55,13 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() {
 	t := suite.T()
 
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  userUUID,
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-
 	userUUID2, _ := uuid.FromString("3511d4d6-019d-4031-9c27-8a553e055543")
 	user2 := models.User{
 		LoginGovUUID:  userUUID2,
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
+	move, _ := testdatagen.MakeMove(suite.db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -97,18 +69,16 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		Date:              (*strfmt.Date)(&date),
 		Signature:         swag.String("Scruff McGruff"),
 	}
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      *fmtUUID(move.ID),
-		HTTPRequest: req,
+		MoveID: *fmtUUID(move.ID),
 	}
 
 	// Uses a different user than is on the move object
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user2.ID, "fake token")
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, user2)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -126,19 +96,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	t := suite.T()
 
-	userUUID, _ := uuid.FromString("2400c3c5-019d-4031-9c27-8a553e022297")
-	user := models.User{
-		LoginGovUUID:  userUUID,
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
-	var selectedType = internalmessages.SelectedMoveTypeHHG
-	move := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: &selectedType,
-	}
-	suite.mustSave(&move)
-
+	move, _ := testdatagen.MakeMove(suite.db)
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
@@ -147,18 +105,16 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	}
 
 	badMoveID := strfmt.UUID("3511d4d6-019d-4031-9c27-8a553e055543")
-	req := httptest.NewRequest("GET", "/move/id/thing", nil)
 	params := certop.CreateSignedCertificationParams{
 		CreateSignedCertificationPayload: &certPayload,
-		MoveID:      badMoveID,
-		HTTPRequest: req,
+		MoveID: badMoveID,
 	}
 
 	// Uses a different user than is on the move object
-	ctx := params.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
+	req := httptest.NewRequest("GET", "/move/id/thing", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
 
-	params.HTTPRequest = params.HTTPRequest.WithContext(ctx)
+	params.HTTPRequest = req
 
 	handler := CreateSignedCertificationHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -171,4 +127,55 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	if len(certs) > 0 {
 		t.Errorf("Expected to find no signed certifications but found %v", len(certs))
 	}
+}
+
+func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	time1 := time.Date(2018, time.January, 1, 1, 1, 1, 1, time.UTC)
+	cert1 := models.SignedCertification{
+		SubmittingUserID:  move.Orders.ServiceMember.UserID,
+		MoveID:            move.ID,
+		CertificationText: "You agree, yes?",
+		Signature:         "name",
+		Date:              time1,
+	}
+	suite.mustSave(&cert1)
+
+	time2 := time.Date(2018, time.February, 1, 1, 1, 1, 1, time.UTC)
+	cert2 := models.SignedCertification{
+		SubmittingUserID:  move.Orders.ServiceMember.UserID,
+		MoveID:            move.ID,
+		CertificationText: "You agree, yes?",
+		Signature:         "name",
+		Date:              time2,
+	}
+	suite.mustSave(&cert2)
+
+	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
+	params := certop.IndexSignedCertificationsParams{
+		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember.User),
+		MoveID:      *fmtUUID(move.ID),
+	}
+
+	handler := IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	okResponse := response.(*certop.IndexSignedCertificationsOK)
+
+	suite.Len(okResponse.Payload, 2)
+	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+
+	// Now test that a limit works
+	params.Limit = fmtInt64(1)
+
+	handler = IndexSignedCertificationsHandler(NewHandlerContext(suite.db, suite.logger))
+	response = handler.Handle(params)
+
+	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
+	okResponse = response.(*certop.IndexSignedCertificationsOK)
+
+	suite.Len(okResponse.Payload, 1)
+	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 }

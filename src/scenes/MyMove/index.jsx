@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { get } from 'lodash';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push } from 'react-router-redux';
 import { connect } from 'react-redux';
@@ -12,10 +13,10 @@ import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
+import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { createMove } from 'scenes/Moves/ducks';
-import { loadUserAndToken } from 'shared/User/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -29,11 +30,9 @@ const NoMatch = ({ location }) => (
 );
 export class AppWrapper extends Component {
   componentDidMount() {
-    this.props.loadUserAndToken();
     this.props.loadLoggedInUser();
     this.props.loadSchema();
   }
-
   render() {
     const props = this.props;
     return (
@@ -41,11 +40,14 @@ export class AppWrapper extends Component {
         <div className="App site">
           <Header />
           <main className="site__content">
-            {props.swaggerError && (
-              <Alert type="error" heading="An error occurred">
-                There was an error contacting the server.
-              </Alert>
-            )}
+            <div className="usa-grid">
+              <LogoutOnInactivity />
+              {props.swaggerError && (
+                <Alert type="error" heading="An error occurred">
+                  There was an error contacting the server.
+                </Alert>
+              )}
+            </div>
             {!props.swaggerError && (
               <Switch>
                 <Route exact path="/" component={Landing} />
@@ -68,24 +70,28 @@ export class AppWrapper extends Component {
 }
 AppWrapper.defaultProps = {
   loadSchema: no_op,
-  loadUserAndToken: no_op,
   loadLoggedInUser: no_op,
 };
 
-const mapStateToProps = state => ({
-  hasCompleteProfile: false, //todo update this when user service is ready
-  swaggerError: state.swagger.hasErrored,
-  selectedMoveType: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.selected_move_type
-    : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-  hasMove: Boolean(state.submittedMoves.currentMove),
-  moveId: state.submittedMoves.currentMove
-    ? state.submittedMoves.currentMove.id
-    : null,
-});
+const mapStateToProps = state => {
+  return {
+    hasCompleteProfile: false, //todo update this when user service is ready
+    swaggerError: state.swagger.hasErrored,
+    selectedMoveType: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.selected_move_type
+      : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    hasMove: Boolean(state.submittedMoves.currentMove),
+    moveId: state.submittedMoves.currentMove
+      ? state.submittedMoves.currentMove.id
+      : null,
+    currentOrdersId:
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0].id') ||
+      get(state.orders, 'currentOrders.id'), // should we get the latest or the first?
+  };
+};
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, loadUserAndToken, createMove },
+    { push, loadSchema, loadLoggedInUser, createMove },
     dispatch,
   );
 
