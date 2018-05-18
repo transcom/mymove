@@ -28,6 +28,7 @@ __snapshots__
 /bin/golint
 /bin/swagger
 /bin/gin
+/bin/gas
 
 #debugging
 /cmd/webserver/debug

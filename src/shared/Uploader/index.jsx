@@ -44,6 +44,8 @@ export class Uploader extends Component {
       },
       iconUndo: this.pond._pond.iconRemove,
       imagePreviewMaxHeight: 100,
+      labelIdle:
+        'Drag & drop or <span class="filepond--label-action">click to upload orders</span>',
       labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/*', 'application/pdf'],
     });
@@ -97,7 +99,7 @@ export class Uploader extends Component {
 
   render() {
     return (
-      <div className="usa-grid">
+      <div>
         <FilePond
           ref={ref => (this.pond = ref)}
           oninit={() => this.handlePondInit()}
