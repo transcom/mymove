@@ -1,12 +1,14 @@
 import React, { Component } from 'react'; // eslint-disable-line
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import windowSize from 'react-window-size';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import { push } from 'react-router-redux';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import generatePath from './generatePath';
 import './index.css';
+import { mobileSize } from 'shared/constants';
 
 import {
   getNextPagePath,
@@ -20,6 +22,7 @@ export class WizardPage extends Component {
     super(props);
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
+    this.cancelFlow = this.cancelFlow.bind(this);
     this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
@@ -28,6 +31,9 @@ export class WizardPage extends Component {
   }
   componentDidMount() {
     window.scrollTo(0, 0);
+  }
+  cancelFlow() {
+    this.props.push(`/`);
   }
   beforeTransition(func) {
     const {
@@ -75,6 +81,7 @@ export class WizardPage extends Component {
   }
 
   render() {
+    const isMobile = this.props.windowWidth < mobileSize;
     const {
       handleSubmit,
       pageKey,
@@ -98,24 +105,28 @@ export class WizardPage extends Component {
         )}
         <div className="usa-width-one-whole">{children}</div>
         <div className="usa-width-one-whole lower-nav-btns">
-          <div className="usa-width-one-third">
+          {!isMobile && (
+            <div className="left cancel">
+              <button
+                className="usa-button-secondary"
+                onClick={this.cancelFlow}
+                disabled={false}
+              >
+                Cancel
+              </button>
+            </div>
+          )}
+          <div className="prev-next">
             <button
-              className="usa-button-secondary"
+              className="usa-button-secondary prev"
               onClick={this.previousPage}
               disabled={!canMoveBackward}
             >
-              Prev
+              Back
             </button>
-          </div>
-          <div className="usa-width-one-third center">
-            <button className="usa-button-secondary" disabled={true}>
-              Save for later
-            </button>
-          </div>
-          <div className="usa-width-one-third right-align">
             {!isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary"
+                className="usa-button-primary next"
                 onClick={this.nextPage}
                 disabled={!canMoveForward}
               >
@@ -124,7 +135,7 @@ export class WizardPage extends Component {
             )}
             {isLastPage(pageList, pageKey) && (
               <button
-                className="usa-button-primary"
+                className="usa-button-primary next"
                 onClick={handleSubmit}
                 disabled={!canMoveForward}
               >
@@ -154,6 +165,7 @@ WizardPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
+  windowWidth: PropTypes.number,
 };
 
 WizardPage.defaultProps = {
@@ -166,4 +178,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ push }, dispatch);
 }
 
-export default withRouter(connect(null, mapDispatchToProps)(WizardPage));
+const wizardFormPageWithSize = windowSize(WizardPage);
+export default withRouter(
+  connect(null, mapDispatchToProps)(wizardFormPageWithSize),
+);

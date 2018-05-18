@@ -263,6 +263,50 @@ workflows:
       - build_app
       - build_migrations
 
+      - deploy_staging_migrations:
+          requires:
+            - pre_test
+            - build_app
+            - build_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_staging_app_redirect:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
+      - deploy_staging_app:
+          requires:
+            - deploy_staging_migrations
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_migrations:
+          requires:
+            - deploy_staging_app_redirect
+            - deploy_staging_app
+          filters:
+            branches:
+              only: master
+
+      - deploy_prod_app_redirect:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
+      - deploy_prod_app:
+          requires:
+            - deploy_prod_migrations
+          filters:
+            branches:
+              only: master
+
+
   dependency_updater:
     triggers:
       - schedule:
