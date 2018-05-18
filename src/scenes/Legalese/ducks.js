@@ -34,6 +34,10 @@ const createSignedCertification = ReduxHelpers.generateAsyncActionCreator(
   CreateCertification,
 );
 
+const SIGN_AND_SUBMIT_FOR_APPROVAL = ReduxHelpers.generateAsyncActionTypes(
+  signAndSubmitForApprovalType,
+);
+
 const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(
   signAndSubmitForApprovalType,
 );
@@ -133,7 +137,9 @@ export function signedCertificationReducer(state = initialState, action) {
         certificationText: null,
         error: get(action, 'error', null),
       });
-    case signAndSubmitForApprovalActions.failure:
+    case SIGN_AND_SUBMIT_FOR_APPROVAL.success:
+      return { ...state, moveSubmitSuccess: true };
+    case SIGN_AND_SUBMIT_FOR_APPROVAL.failure:
       return { ...state, error: action.error };
     default:
       return state;
