@@ -20,7 +20,7 @@ import profileImage from './images/profile.png';
 const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = props => {
-  const { onCancel, schema, handleSubmit, pristine, submitting, valid } = props;
+  const { onCancel, schema, handleSubmit, submitting, valid } = props;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Profile
@@ -35,7 +35,7 @@ let EditProfileForm = props => {
       <SwaggerField fieldName="rank" swagger={schema} required />
       <SwaggerField fieldName="edipi" swagger={schema} required />
       <Field name="current_station" component={DutyStationSearchBox} />
-      <button type="submit" disabled={pristine || submitting || !valid}>
+      <button type="submit" disabled={submitting || !valid}>
         Save
       </button>
       <button type="button" disabled={submitting} onClick={onCancel}>
@@ -59,7 +59,7 @@ class EditProfile extends Component {
   updateProfile = (fieldValues, something, elses) => {
     fieldValues.current_station_id = fieldValues.current_station.id;
 
-    this.props.updateServiceMember(fieldValues).then(() => {
+    return this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.returnToReview();
