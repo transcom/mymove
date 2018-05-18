@@ -1,4 +1,5 @@
 required = [
+	"github.com/GoASTScanner/gas/cmd/gas",
 	"github.com/gobuffalo/pop/soda",
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
@@ -10,3 +11,8 @@ required = [
 [[constraint]]
   name = "github.com/go-swagger/go-swagger"
   branch = "master"
+
+
+[[constraint]]
+  branch = "master"
+  name = "github.com/GoASTScanner/gas"

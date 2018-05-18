@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import profileComplete from 'shared/images/profile-complete-gray-icon.png';
-import moveOrders from 'shared/images/move-icon.png';
+import ordersIcon from 'shared/images/orders-icon.png';
 import 'scenes/ServiceMembers/ServiceMembers.css';
 
 export class TransitionToOrders extends Component {
@@ -17,7 +17,7 @@ export class TransitionToOrders extends Component {
 
         <div className="lg center">
           <p>Now, we need to take a look at your move orders.</p>
-          <img className="sm" src={moveOrders} alt="onto-move-orders" />
+          <img className="sm" src={ordersIcon} alt="onto-move-orders" />
         </div>
       </div>
     );
