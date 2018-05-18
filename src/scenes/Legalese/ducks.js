@@ -58,8 +58,8 @@ export const signAndSubmitForApproval = (
       );
       await dispatch(SubmitForApproval(moveId));
       return dispatch(signAndSubmitForApprovalActions.success());
-    } catch (ex) {
-      return dispatch(signAndSubmitForApprovalActions.error(ex));
+    } catch (error) {
+      return dispatch(signAndSubmitForApprovalActions.error(error));
     }
   };
 };

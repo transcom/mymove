@@ -17,13 +17,8 @@ import {
   signAndSubmitForApproval,
 } from './ducks';
 
-const validateSignatureForm = (values, form) => {
-  // all the validation is taken care of by the schema fields
-  return {};
-};
-
 const formName = 'signature-form';
-const SignatureWizardForm = reduxifyWizardForm(formName, validateSignatureForm);
+const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
   componentDidMount() {

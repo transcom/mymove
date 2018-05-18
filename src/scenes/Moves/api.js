@@ -33,7 +33,6 @@ export async function UpdateMove(
 }
 
 export async function SubmitMoveForApproval(moveId) {
-  console.log('submit for approval');
   const client = await getClient();
   const response = await client.apis.moves.submitMoveForApproval({
     moveId,
