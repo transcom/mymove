@@ -25,7 +25,7 @@ export function loadIssues() {
   // Interpreted by the thunk middleware:
   return function(dispatch, getState) {
     dispatch(createShowIssuesRequest());
-    IssuesIndex()
+    return IssuesIndex()
       .then(items => dispatch(createShowIssuesSuccess(items)))
       .catch(error => dispatch(createShowIssuesFailure(error)));
   };

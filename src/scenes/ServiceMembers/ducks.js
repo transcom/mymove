@@ -76,6 +76,8 @@ export function updateServiceMember(serviceMember) {
           ),
         )
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -87,9 +89,11 @@ export function loadServiceMember(serviceMemberId) {
     const state = getState();
     const currentServiceMember = state.serviceMember.currentServiceMember;
     if (!currentServiceMember) {
-      GetServiceMember(serviceMemberId)
+      return GetServiceMember(serviceMemberId)
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }
