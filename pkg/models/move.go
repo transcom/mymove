@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"strings"
 	"time"
 
@@ -48,20 +47,8 @@ type Move struct {
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 }
 
-// String is not required by pop and may be deleted
-func (m Move) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
-}
-
 // Moves is not required by pop and may be deleted
 type Moves []Move
-
-// String is not required by pop and may be deleted
-func (m Moves) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
