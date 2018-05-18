@@ -181,7 +181,6 @@ export function officeReducer(state = initialState, action) {
     case UPDATE_ORDERS.failure:
       return Object.assign({}, state, {
         ordersAreUpdating: false,
-        officeOrders: null,
         ordersHaveUpdateSuccess: false,
         ordersHaveUpdateError: true,
         error: action.error.message,

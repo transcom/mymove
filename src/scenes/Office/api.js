@@ -30,10 +30,11 @@ export async function LoadOrders(ordersId) {
   return response.body;
 }
 
-export async function UpdateOrders(ordersId) {
+export async function UpdateOrders(ordersId, payload) {
   const client = await getClient();
-  const response = await client.apis.orders.CreateUpdateOrders({
+  const response = await client.apis.orders.patchOrders({
     ordersId,
+    patchOrders: payload,
   });
   checkResponse(response, 'failed to update orders due to server error');
   return response.body;
