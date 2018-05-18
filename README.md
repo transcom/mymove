@@ -35,6 +35,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Database](#database)
     * [Dev Commands](#dev-commands)
     * [Migrations](#migrations)
+    * [Secure Migrations](#secure-migrations)
   * [Environment Variables](#environment-variables)
   * [Documentation](#documentation)
   * [Spellcheck](#spellcheck)
@@ -259,6 +260,38 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 1. Migrations run inside the container against the environment's database.
 1. If migrations fail, CircleCI fails the deploy.
 1. If migrations pass, CircleCI continues with the deploy.
+
+#### Secure Migrations
+
+We are piggy-backing on the migration system for importing static datasets. This approach causes problems if the data isn't public, as all of the migrations are in this open source repository. To address this, we have what are called "secure migrations."
+
+To create a secure migration:
+
+* You create a regular Fizz migration, as described in the previous section.
+* The body of the Fizz migration should be of the format: `exec(./apply-secure-migration.sh ${FILENAME})`.
+* `${FILENAME}` should be the same as the name of the migration that Fizz created for you, except with an `.sql` extension.
+* Make a test migration
+  * Create an SQL file with a mock version of the data (nothing sensitive,) and save it in `migrations/secure-dev/${FILENAME}`.
+  * **This migration will be run every time migrations are run against a dev or testing database.**
+  * Test the migration with: `make db_dev_reset && make db_dev_migrate`.
+  * You should see your test migration run.
+* Create the real migration
+  * Make the actual migration SQL file with the secrets in it, and give it the same filename.
+  * Upload it to the `staging` and `prod` S3 buckets: `transcom-ppp-app-{{environment}}-us-west-2/secure-migrations/`.
+  * You should see other migrations in the S3 bucket. If you don't, you may be looking in the wrong place.
+* Voila!
+  * When you land your PR, CI will run your migration against staging. If that is successful, it will then run against production.
+
+Gory Details:
+
+When this migration is run, `soda` will shell out to our script, `apply-secure-migration.sh`. This script will:
+
+* Look at `$SECURE_MIGRATION_SOURCE` to determine if the migrations should be found locally (`local`, for dev & testing,) or on S3 (`s3`).
+* If the file is to be found on S3, it is downloaded from `${AWS_S3_BUCKET_NAME}/secure-migrations/${FILENAME}`.
+* If it is to be found locally, the script looks for it in `$SECURE_MIGRATION_DIR`.
+* Regardless of where the migration comes from, it is then applied to the database by essentially doing: `psql < ${FILENAME}`.
+
+There is an example of a secure migration [in the repo](https://github.com/transcom/mymove/blob/master/migrations/20180424010930_test_secure_migrations.up.fizz).
 
 ### Environment Variables
 
