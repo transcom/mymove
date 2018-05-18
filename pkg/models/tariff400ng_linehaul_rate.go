@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 	"time"
 
@@ -29,20 +28,8 @@ type Tariff400ngLinehaulRate struct {
 	EffectiveDateUpper time.Time  `json:"effective_date_upper" db:"effective_date_upper"`
 }
 
-// String is not required by pop and may be deleted
-func (t Tariff400ngLinehaulRate) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // Tariff400ngLinehaulRates is not required by pop and may be deleted
 type Tariff400ngLinehaulRates []Tariff400ngLinehaulRate
-
-// String is not required by pop and may be deleted
-func (t Tariff400ngLinehaulRates) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

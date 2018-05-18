@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,20 +23,8 @@ type DutyStation struct {
 	Address     Address                      `belongs_to:"address"`
 }
 
-// String is not required by pop and may be deleted
-func (d DutyStation) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
-}
-
 // DutyStations is not required by pop and may be deleted
 type DutyStations []DutyStation
-
-// String is not required by pop and may be deleted
-func (d DutyStations) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
