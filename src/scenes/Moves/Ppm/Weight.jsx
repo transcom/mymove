@@ -52,7 +52,9 @@ function getWeightInfo(ppm) {
 export class PpmWeight extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Weight Selection';
-    this.props.loadPpm(this.props.match.params.moveId);
+    if (!this.props.currentPpm) {
+      this.props.loadPpm(this.props.match.params.moveId);
+    }
   }
   handleSubmit = () => {
     const { pendingPpmWeight, incentive, createOrUpdatePpm } = this.props;

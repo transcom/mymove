@@ -51,7 +51,7 @@ export function setPendingMoveType(value) {
 export function createMove(ordersId, movePayload = {}) {
   return function(dispatch) {
     dispatch(createMoveRequest());
-    CreateMove(ordersId, movePayload)
+    return CreateMove(ordersId, movePayload)
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };
@@ -60,7 +60,7 @@ export function createMove(ordersId, movePayload = {}) {
 export function updateMove(moveId, moveType) {
   return function(dispatch) {
     dispatch(updateMoveRequest());
-    UpdateMove(moveId, { selected_move_type: moveType })
+    return UpdateMove(moveId, { selected_move_type: moveType })
       .then(item => dispatch(createOrUpdateMoveSuccess(item)))
       .catch(error => dispatch(createOrUpdateMoveFailure(error)));
   };
@@ -68,14 +68,10 @@ export function updateMove(moveId, moveType) {
 
 export function loadMove(moveId) {
   return function(dispatch, getState) {
-    const state = getState();
-    const currentMove = state.submittedMoves.currentMove;
-    if (!currentMove) {
-      dispatch(getMoveRequest());
-      GetMove(moveId)
-        .then(item => dispatch(getMoveSuccess(item)))
-        .catch(error => dispatch(getMoveFailure(error)));
-    }
+    dispatch(getMoveRequest());
+    return GetMove(moveId)
+      .then(item => dispatch(getMoveSuccess(item)))
+      .catch(error => dispatch(getMoveFailure(error)));
   };
 }
 

@@ -51,7 +51,9 @@ export class DateAndLocation extends React.Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Date & Locations';
     const moveId = this.props.match.params.moveId;
-    this.props.loadPpm(moveId);
+    if (!this.props.currentPpm) {
+      this.props.loadPpm(moveId);
+    }
   }
   handleSubmit = () => {
     const { createOrUpdatePpm, dirty } = this.props;

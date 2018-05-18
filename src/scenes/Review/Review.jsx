@@ -16,7 +16,9 @@ import './Review.css';
 
 export class Review extends Component {
   componentWillMount() {
-    this.props.loadPpm(this.props.match.params.moveId);
+    if (!this.props.currentPpm) {
+      this.props.loadPpm(this.props.match.params.moveId);
+    }
   }
   componentWillUpdate(newProps) {
     const service_member = get(newProps.loggedInUser, 'service_member');
