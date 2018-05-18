@@ -1,5 +1,11 @@
-import { CreateMove, UpdateMove, GetMove } from './api.js';
+import {
+  CreateMove,
+  UpdateMove,
+  GetMove,
+  SubmitMoveForApproval,
+} from './api.js';
 
+import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
 export const SET_PENDING_MOVE_TYPE = 'SET_PENDING_MOVE_TYPE';
 export const CREATE_MOVE = 'CREATE_MOVE';
@@ -75,6 +81,15 @@ export function loadMove(moveId) {
   };
 }
 
+const SUBMIT_FOR_APPROVAL = 'SUBMIT_FOR_APPROVAL';
+export const SUBMIT_FOR_APPROVAL_TYPES = ReduxHelpers.generateAsyncActionTypes(
+  SUBMIT_FOR_APPROVAL,
+);
+export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
+  SUBMIT_FOR_APPROVAL,
+  SubmitMoveForApproval,
+);
+
 // Reducer
 const initialState = {
   currentMove: null,
@@ -120,6 +135,20 @@ export function moveReducer(state = initialState, action) {
         currentMove: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
+        error: action.error,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.start:
+      return Object.assign({}, state, {
+        submittedForApproval: false,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.success:
+      return Object.assign({}, state, {
+        currentMove: action.item,
+        submittedForApproval: true,
+      });
+    case SUBMIT_FOR_APPROVAL_TYPES.failure:
+      return Object.assign({}, state, {
+        submittedForApproval: false,
         error: action.error,
       });
     default:

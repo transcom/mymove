@@ -1,5 +1,5 @@
 import { get } from 'lodash';
-import { CreatePpm, UpdatePpm, GetPpm, GetPpmEstimate } from './api.js';
+import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -29,11 +29,16 @@ export function setPendingPpmWeight(value) {
   return { type: SET_PENDING_PPM_WEIGHT, payload: value };
 }
 
-export function getPpmEstimate(moveDate, originZip, destZip, weightEstimate) {
+export function getPpmWeightEstimate(
+  moveDate,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start);
-    GetPpmEstimate(moveDate, originZip, destZip, weightEstimate)
+    GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };
@@ -80,6 +85,10 @@ const initialState = {
   currentPpm: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  hasLoadSuccess: false,
+  hasLoadError: false,
+  hasEstimateSuccess: false,
+  hasEstimateError: false,
 };
 export function ppmReducer(state = initialState, action) {
   switch (action.type) {
@@ -111,39 +120,39 @@ export function ppmReducer(state = initialState, action) {
       });
     case GET_PPM.start:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
+        hasLoadSuccess: false,
       });
     case GET_PPM.success:
       return Object.assign({}, state, {
         currentPpm: get(action.payload, '0', null),
         pendingPpmWeight: get(action.payload, '0.weight_estimate', null),
         incentive: get(action.payload, '0.estimated_incentive', null),
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        hasLoadSuccess: true,
+        hasLoadError: false,
       });
     case GET_PPM.failure:
       return Object.assign({}, state, {
         currentPpm: null,
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        hasLoadSuccess: false,
+        hasLoadError: true,
         error: action.error,
       });
     case GET_PPM_ESTIMATE.start:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
+        hasEstimateSuccess: false,
       });
     case GET_PPM_ESTIMATE.success:
       return Object.assign({}, state, {
         incentive: formatPpmEstimate(action.payload),
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
         error: null,
       });
     case GET_PPM_ESTIMATE.failure:
       return Object.assign({}, state, {
         incentive: null,
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        hasEstimateSuccess: false,
+        hasEstimateError: true,
         error: action.error,
       });
     default:

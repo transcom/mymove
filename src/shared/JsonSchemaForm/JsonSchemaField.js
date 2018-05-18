@@ -182,7 +182,9 @@ const renderInputField = ({
         htmlFor={input.name}
       >
         {title}
-        {!always_required && <span className="label-optional">Optional</span>}
+        {!always_required &&
+          type !== 'boolean' &&
+          !component && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
@@ -200,7 +202,14 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const { fieldName, swagger, required, className, disabled } = props;
+  const {
+    fieldName,
+    swagger,
+    required,
+    className,
+    disabled,
+    component,
+  } = props;
 
   let swaggerField;
   if (swagger.properties) {
@@ -221,6 +230,7 @@ export const SwaggerField = props => {
     undefined,
     className,
     disabled,
+    component,
   );
 };
 
@@ -232,11 +242,12 @@ const createSchemaField = (
   nameSpace,
   className = '',
   disabled = false,
+  component,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
   const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
-  if (swaggerField.type === 'boolean') {
+  if (swaggerField.type === 'boolean' && !component) {
     return (
       <Fragment key={fieldName}>
         {createCheckbox(fieldName, swaggerField, nameAttr)}
@@ -264,7 +275,9 @@ const createSchemaField = (
   }
 
   let children = null;
-  if (swaggerField.enum) {
+  if (component) {
+    fieldProps.customComponent = component;
+  } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
