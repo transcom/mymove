@@ -20,7 +20,6 @@ export class DutyStationSearchBox extends Component {
 
     this.state = {
       inputValue: '',
-      initialValueSet: false,
     };
 
     this.loadOptions = this.loadOptions.bind(this);
@@ -29,17 +28,6 @@ export class DutyStationSearchBox extends Component {
     this.localOnChange = this.localOnChange.bind(this);
     this.onInputChange = this.onInputChange.bind(this);
     this.renderOption = this.renderOption.bind(this);
-  }
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (
-      prevState.inputValue === '' &&
-      nextProps.input.value &&
-      !prevState.initialValueSet
-    ) {
-      return { inputValue: nextProps.input.value.name, initialValueSet: true };
-    }
-    return null;
   }
 
   loadOptions(inputValue, callback) {
@@ -115,13 +103,13 @@ export class DutyStationSearchBox extends Component {
         <AsyncSelect
           className="duty-input-box"
           cacheOptions
-          inputValue={this.state.inputValue}
           getOptionLabel={getOptionName}
           getOptionValue={getOptionName}
           loadOptions={this.getDebouncedOptions}
           onChange={this.localOnChange}
           onInputChange={this.onInputChange}
           components={{ Option: this.renderOption }}
+          value={this.props.input.value}
           placeholder="Start typing a duty station..."
         />
         {this.props.input.value && (
