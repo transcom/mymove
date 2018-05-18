@@ -32,12 +32,18 @@ func main() {
 	zap.ReplaceGlobals(logger)
 
 	// DB connection
-	pop.AddLookupPaths(*config)
+	err = pop.AddLookupPaths(*config)
+	if err != nil {
+		log.Panic(err)
+	}
 	dbConnection, err := pop.Connect(*env)
 	if err != nil {
 		log.Panic(err)
 	}
 
 	awardQueue := awardqueue.NewAwardQueue(dbConnection, logger)
-	awardQueue.Run()
+	err = awardQueue.Run()
+	if err != nil {
+		log.Panic(err)
+	}
 }
