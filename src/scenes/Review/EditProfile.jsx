@@ -61,8 +61,10 @@ class EditProfile extends Component {
 
     this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
-      if (!this.props.error) {
+      if (!this.props.hasSubmitError) {
         this.returnToReview();
+      } else {
+        window.scrollTo(0, 0);
       }
     });
   };
@@ -97,6 +99,7 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
+    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     schema: get(
       state,
       'swagger.spec.definitions.CreateServiceMemberPayload',
