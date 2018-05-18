@@ -126,8 +126,8 @@ class MoveInfo extends Component {
                   <FontAwesomeIcon className="icon" icon={faEmail} />
                 )}
               </li>
-              <li className="Todo">Locator# {officeMove.locator}</li>
-              <li>KKFA to HAFC</li>
+              <li>Locator# {officeMove.locator}</li>
+              <li className="Todo">KKFA to HAFC</li>
               <li>
                 Requested Pickup {get(officePPMs, '[0].planned_move_date')}
               </li>

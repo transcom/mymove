@@ -8,6 +8,17 @@
   revision = "88d57ee9043ba88d6a62e437fa15dda1ca0d2b59"
 
 [[projects]]
+  branch = "master"
+  name = "github.com/GoASTScanner/gas"
+  packages = [
+    ".",
+    "cmd/gas",
+    "output",
+    "rules"
+  ]
+  revision = "4ae8c95b4097691ea5b2b0c5060f4ca0413dfcef"
+
+[[projects]]
   name = "github.com/PuerkitoBio/purell"
   packages = ["."]
   revision = "0bcb03f4b4d0a9428594752bd2a3b9aa0a9d4bd4"
@@ -341,6 +352,15 @@
   version = "v1.2.0"
 
 [[projects]]
+  name = "github.com/kisielk/gotool"
+  packages = [
+    ".",
+    "internal/load"
+  ]
+  revision = "80517062f582ea3340cd4baf70e86d539ae7d84d"
+  version = "v1.0.0"
+
+[[projects]]
   branch = "master"
   name = "github.com/kr/pretty"
   packages = ["."]
@@ -450,6 +470,22 @@
   version = "v1.7.4-pre"
 
 [[projects]]
+  name = "github.com/nbutton23/zxcvbn-go"
+  packages = [
+    ".",
+    "adjacency",
+    "data",
+    "entropy",
+    "frequency",
+    "match",
+    "matching",
+    "scoring",
+    "utils/math"
+  ]
+  revision = "eafdab6b0663b4b528c35975c8b0e78be6e25261"
+  version = "v0.1"
+
+[[projects]]
   name = "github.com/pelletier/go-toml"
   packages = ["."]
   revision = "acdc4509485b587f5e675510c4f2c63e90ff68a8"
@@ -466,6 +502,12 @@
   packages = ["difflib"]
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/ryanuber/go-glob"
+  packages = ["."]
+  revision = "256dc444b735e061061cf46c809487313d5b0065"
 
 [[projects]]
   name = "github.com/segmentio/chamber"
@@ -701,6 +743,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5df2463d040fc676f69d25224e87ec13fab2487760e8214e53c49aae6c56e40b"
+  inputs-digest = "8af3dae6e8a385b9411e62e8442d568ec372023df0fc5a4e528a8fc729b1e0ee"
   solver-name = "gps-cdcl"
   solver-version = 1
