@@ -4,6 +4,7 @@ import {
   LoadMove,
   LoadOrders,
   LoadServiceMember,
+  UpdateServiceMember,
   LoadBackupContacts,
   LoadPPMs,
   ApproveBasics,
@@ -16,6 +17,7 @@ const updateAccountingType = 'UPDATE_ACCOUNTING';
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
+const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
@@ -35,6 +37,10 @@ const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
+);
+
+const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
+  updateServiceMemberType,
 );
 
 const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
@@ -72,6 +78,11 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
 export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
   loadServiceMemberType,
   LoadServiceMember,
+);
+
+export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
+  updateServiceMemberType,
+  UpdateServiceMember,
 );
 
 export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
@@ -129,6 +140,8 @@ const initialState = {
   ordersHaveLoadSuccess: false,
   serviceMemberHasLoadError: null,
   serviceMemberHasLoadSuccess: false,
+  serviceMemberHasUpdateError: null,
+  serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
   ppmsHaveLoadError: null,
@@ -240,9 +253,27 @@ export function officeReducer(state = initialState, action) {
     case LOAD_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
         serviceMemberIsLoading: false,
-        officeServiceMember: null,
         serviceMemberHasLoadSuccess: false,
         serviceMemberHasLoadError: true,
+        error: action.error.message,
+      });
+    case UPDATE_SERVICE_MEMBER.start:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: true,
+        serviceMemberHasUpdateSuccess: false,
+      });
+    case UPDATE_SERVICE_MEMBER.success:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: false,
+        officeServiceMember: action.payload,
+        serviceMemberHasUpdateSuccess: true,
+        serviceMemberHasUpdateError: false,
+      });
+    case UPDATE_SERVICE_MEMBER.failure:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: false,
+        serviceMemberHasUpdateSuccess: false,
+        serviceMemberHasUpdateError: true,
         error: action.error.message,
       });
 

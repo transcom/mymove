@@ -66,6 +66,19 @@ export async function LoadServiceMember(serviceMemberId) {
   return response.body;
 }
 
+export async function UpdateServiceMember(serviceMemberId, payload) {
+  const client = await getClient();
+  const response = await client.apis.service_members.patchServiceMember({
+    serviceMemberId,
+    patchServiceMemberPayload: payload,
+  });
+  checkResponse(
+    response,
+    'failed to update service member due to server error',
+  );
+  return response.body;
+}
+
 // BACKUP CONTACT
 export async function LoadBackupContacts(serviceMemberId) {
   const client = await getClient();

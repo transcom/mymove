@@ -2,7 +2,7 @@ import { get, pick } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { updateAccounting } from './ducks';
@@ -57,6 +57,12 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     displayValues: state.office.accounting || {},
     isUpdating: state.office.accountingIsUpdating,
+    getUpdateArgs: function() {
+      return [
+        state.office.officeServiceMember.id,
+        getFormValues(formName)(state),
+      ];
+    },
   };
 }
 

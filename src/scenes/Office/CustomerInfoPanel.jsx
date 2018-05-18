@@ -2,18 +2,18 @@ import { get, pick, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, getFormValues } from 'redux-form';
 import editablePanel from './editablePanel';
 
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { no_op_action } from 'shared/utils';
 
-// import { updateCustomerInfo, loadCustomerInfo } from './ducks';
+import { updateServiceMember } from './ducks';
 import {
   PanelSwaggerField,
   PanelField,
   SwaggerValue,
 } from 'shared/EditablePanel';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -25,7 +25,6 @@ const CustomerInfoDisplay = props => {
   const values = props.values;
   const name = compact([values.last_name, values.first_name]).join(', ');
   const address = values.residential_address || {};
-
   return (
     <React.Fragment>
       <div className="editable-panel-column">
@@ -95,112 +94,53 @@ const CustomerInfoDisplay = props => {
 };
 
 const CustomerInfoEdit = props => {
-  // const { schema } = props;
+  const schema = props.schema;
   return (
     <React.Fragment>
-      <div className="form-column">
-        <label>Title (optional)</label>
-        <input type="text" name="title" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="title" swagger={schema} />
       </div>
-      <div className="form-column">
-        <label>First name</label>
-        <input type="text" name="first-name" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="first_name" swagger={schema} required />
       </div>
-      <div className="form-column">
-        <label>Middle name (optional)</label>
-        <input type="text" name="middle-name" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="middle_name" swagger={schema} />
       </div>
-      <div className="form-column">
-        <label>Last name</label>
-        <input type="text" name="last-name" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="last_name" swagger={schema} required />
       </div>
-      <div className="form-column">
-        <label>Suffix (optional)</label>
-        <input type="text" name="name-suffix" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="suffix" swagger={schema} />
       </div>
-      <div className="form-column">
-        <label>DoD ID</label>
-        <input type="number" name="dod-id" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="edipi" swagger={schema} required />
       </div>
-      <div className="form-column">
-        <label>Branch</label>
-        <select name="branch">
-          <option value="army">Army</option>
-          <option value="navy">Navy</option>
-          <option value="air-force">Air Force</option>
-          <option value="marines">Marines</option>
-          <option value="coast-guard">Coast Guard</option>
-        </select>
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="affiliation" swagger={schema} />
       </div>
-      <div className="form-column">
-        <label>Rank</label>
-        <select name="rank">
-          <option value="E-7">E-7</option>
-          <option value="another-rank">Another rank</option>
-          <option value="and-another-rank">And another rank</option>
-        </select>
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="rank" swagger={schema} />
       </div>
-      <div className="form-column">
-        <b>Contact</b>
-        <label>Phone</label>
-        <input type="tel" name="contact-phone-number" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="telephone" swagger={schema} required />
       </div>
-      <div className="form-column">
-        <label>Alternate phone</label>
-        <input type="tel" name="alternate-contact-phone-number" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="secondary_telephone" swagger={schema} />
       </div>
-      <div className="form-column">
-        <label>Email</label>
-        <input type="text" name="contact-email" />
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="personal_email" swagger={schema} required />
       </div>
-      <div className="form-column">
-        <label>Preferred contact methods</label>
-        <div>
-          <input
-            type="checkbox"
-            id="phone-preference"
-            name="preferred-contact-phone"
-          />
-          <label htmlFor="phone-preference">Phone</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            id="text-preference"
-            name="preferred-contact-text-message"
-          />
-          <label htmlFor="text-preference">Text message</label>
-        </div>
-        <div>
-          <input
-            type="checkbox"
-            id="email-preference"
-            name="preferred-contact-email"
-          />
-          <label htmlFor="email-preference">Email</label>
-        </div>
+      <div className="editable-panel-column">
+        <SwaggerField fieldName="residential_address" swagger={schema} />
       </div>
-      <div className="form-column">
-        <b>Current Residence Address</b>
-        <label>Address 1</label>
-        <input type="text" name="contact-address-1" />
-      </div>
-      <div className="form-column">
-        <label>Address 2</label>
-        <input type="text" name="contact-address-2" />
-      </div>
-      <div className="form-column">
-        <label>City</label>
-        <input type="text" name="contact-city" />
-      </div>
-      <div className="form-column">
-        <label>State</label>
-        <input type="text" name="contact-state" />
-      </div>
-      <div className="form-column">
-        <label>Zip</label>
-        <input type="number" name="contact-zip" />
-      </div>
+      <fieldset key="contact_preferences">
+        <legend htmlFor="contact_preferences">
+          Preferred contact method during your move:
+        </legend>
+        <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+        <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
+        <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+      </fieldset>
     </React.Fragment>
   );
 };
@@ -220,15 +160,22 @@ function mapStateToProps(state) {
     schema: get(state, 'swagger.spec.definitions.ServiceMemberPayload'),
     hasError: false,
     errorMessage: state.office.error,
-    displayValues: state.office.officeServiceMember,
+    displayValues: state.office.officeServiceMember || {},
     isUpdating: false,
+    // formValues: getFormValues(formName)(state),
+    getUpdateArgs: function() {
+      return [
+        state.office.officeServiceMember.id,
+        getFormValues(formName)(state),
+      ];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updateServiceMember,
     },
     dispatch,
   );
