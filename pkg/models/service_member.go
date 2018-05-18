@@ -270,7 +270,16 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.ResidentialAddress == nil {
 		return false
 	}
-	// TODO: add check for station, SSN, and backup contacts
+	if s.BackupMailingAddress == nil {
+		return false
+	}
+	if s.SocialSecurityNumberID == nil {
+		return false
+	}
+	if s.DutyStationID == nil {
+		return false
+	}
+
 	// All required fields have a set value
 	return true
 }

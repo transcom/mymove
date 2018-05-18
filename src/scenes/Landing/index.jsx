@@ -33,6 +33,15 @@ export class Landing extends Component {
             }/create`,
           );
         });
+        // If the service member exists, but is not complete, redirect as well.
+      } else if (
+        this.props.loggedInUser &&
+        this.props.loggedInUser.service_member &&
+        !this.props.loggedInUser.service_member.is_profile_complete
+      ) {
+        this.props.push(
+          `service-member/${this.props.loggedInUser.service_member.id}/create`,
+        );
       }
     }
   }

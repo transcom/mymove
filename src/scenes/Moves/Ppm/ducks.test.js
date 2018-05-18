@@ -51,8 +51,8 @@ describe('Ppm Reducer', () => {
         currentPpm: samplePpm,
         incentive: null,
         pendingPpmWeight: null,
-        hasSubmitError: false,
-        hasSubmitSuccess: true,
+        hasLoadError: false,
+        hasLoadSuccess: true,
       });
     });
 
@@ -67,8 +67,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         pendingValue: '',
         currentPpm: null,
-        hasSubmitError: true,
-        hasSubmitSuccess: false,
+        hasLoadError: true,
+        hasLoadSuccess: false,
         error: 'No bueno.',
       });
     });

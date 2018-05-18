@@ -104,18 +104,18 @@ describe('given a WizardPage', () => {
           expect(childContainer.length).toBe(3);
           expect(childContainer.first().text()).toBe('<Alert />');
         });
-        it('it renders button for prev, save, next', () => {
+        it('it renders button for cancel, back, next', () => {
           expect(buttons.length).toBe(3);
         });
-        it('the previous button is first and is enabled', () => {
-          const prevButton = buttons.first();
-          expect(prevButton.text()).toBe('Prev');
-          expect(prevButton.prop('disabled')).toBe(false);
+        it('the cancel button is first and is enabled', () => {
+          const cancelButton = buttons.first();
+          expect(cancelButton.text()).toBe('Cancel');
+          expect(cancelButton.prop('disabled')).toBe(false);
         });
-        it('the save for later button is second and is disabled', () => {
-          const prevButton = buttons.at(1);
-          expect(prevButton.text()).toBe('Save for later');
-          expect(prevButton.prop('disabled')).toBe(true);
+        it('the back button is second and is enabled', () => {
+          const backButton = buttons.at(1);
+          expect(backButton.text()).toBe('Back');
+          expect(backButton.prop('disabled')).toBe(false);
         });
         it('the next button is last and is enabled', () => {
           const nextButton = buttons.last();
@@ -143,14 +143,14 @@ describe('given a WizardPage', () => {
         );
         buttons = wrapper.find('button');
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the previous button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('push gets the prev page', () => {
@@ -161,10 +161,10 @@ describe('given a WizardPage', () => {
           expect(submit.mock.calls.length).toBe(0);
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -206,18 +206,19 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 1');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is disabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is disabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(true);
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -258,17 +259,17 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 2');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
-      describe('when the prev button is clicked', () => {
+      describe('when the back button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('push gets the prev page', () => {
@@ -276,10 +277,10 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls[0][0]).toBe('1');
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -322,17 +323,17 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 3');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
-      describe('when the prev button is clicked', () => {
+      describe('when the back button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('push gets the prev page', () => {
@@ -340,10 +341,10 @@ describe('given a WizardPage', () => {
           expect(mockPush.mock.calls[0][0]).toBe('2');
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const saveButton = buttons.at(1);
-        expect(saveButton.text()).toBe('Save for later');
-        expect(saveButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const saveButton = buttons.first();
+        expect(saveButton.text()).toBe('Cancel');
+        expect(saveButton.prop('disabled')).toBe(false);
       });
       it('the Complete button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -408,9 +409,9 @@ describe('given a WizardPage', () => {
             );
             buttons = wrapper.find('button');
           });
-          it('the previous button is first and is disabled', () => {
-            const prevButton = buttons.first();
-            expect(prevButton.text()).toBe('Prev');
+          it('the back button is second and is disabled', () => {
+            const prevButton = buttons.at(1);
+            expect(prevButton.text()).toBe('Back');
             expect(prevButton.prop('disabled')).toBe(true);
           });
           it('the complete button is last and is disabled', () => {
@@ -470,18 +471,18 @@ describe('given a WizardPage', () => {
           expect(childContainer.length).toBe(3);
           expect(childContainer.first().text()).toBe('<Alert />');
         });
-        it('it renders button for prev, save, next', () => {
+        it('it renders button for cancel, back, next', () => {
           expect(buttons.length).toBe(3);
         });
-        it('the previous button is first and is enabled', () => {
-          const prevButton = buttons.first();
-          expect(prevButton.text()).toBe('Prev');
+        it('the back button is second and is enabled', () => {
+          const prevButton = buttons.at(1);
+          expect(prevButton.text()).toBe('Back');
           expect(prevButton.prop('disabled')).toBe(false);
         });
-        it('the save for later button is second and is disabled', () => {
-          const prevButton = buttons.at(1);
-          expect(prevButton.text()).toBe('Save for later');
-          expect(prevButton.prop('disabled')).toBe(true);
+        it('the cancel button is first and is enabled', () => {
+          const prevButton = buttons.first();
+          expect(prevButton.text()).toBe('Cancel');
+          expect(prevButton.prop('disabled')).toBe(false);
         });
         it('the next button is last and is enabled', () => {
           const nextButton = buttons.last();
@@ -512,24 +513,24 @@ describe('given a WizardPage', () => {
       afterEach(() => {
         submit.mockClear();
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('submit is not called', () => {
           expect(submit.mock.calls.length).toBe(0);
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -572,18 +573,18 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 1');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is disabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is disabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(true);
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -632,17 +633,17 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 2');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('transitionFunc is set to getPrevPage', () => {
@@ -653,10 +654,10 @@ describe('given a WizardPage', () => {
           expect(submit.mock.calls.length).toBe(1);
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const prevButton = buttons.at(1);
-        expect(prevButton.text()).toBe('Save for later');
-        expect(prevButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const prevButton = buttons.first();
+        expect(prevButton.text()).toBe('Cancel');
+        expect(prevButton.prop('disabled')).toBe(false);
       });
       it('the next button is last and is enabled', () => {
         const nextButton = buttons.last();
@@ -705,27 +706,27 @@ describe('given a WizardPage', () => {
         expect(childContainer.length).toBe(2);
         expect(childContainer.first().text()).toBe('This is page 3');
       });
-      it('it renders button for prev, save, next', () => {
+      it('it renders button for cancel, back, next', () => {
         expect(buttons.length).toBe(3);
       });
-      it('the previous button is first and is enabled', () => {
-        const prevButton = buttons.first();
-        expect(prevButton.text()).toBe('Prev');
+      it('the back button is second and is enabled', () => {
+        const prevButton = buttons.at(1);
+        expect(prevButton.text()).toBe('Back');
         expect(prevButton.prop('disabled')).toBe(false);
       });
       describe('when the prev button is clicked', () => {
         beforeEach(() => {
-          const prevButton = buttons.first();
+          const prevButton = buttons.at(1);
           prevButton.simulate('click');
         });
         it('submit is called', () => {
           expect(submit.mock.calls.length).toBe(1);
         });
       });
-      it('the save for later button is second and is disabled', () => {
-        const saveButton = buttons.at(1);
-        expect(saveButton.text()).toBe('Save for later');
-        expect(saveButton.prop('disabled')).toBe(true);
+      it('the cancel button is first and is enabled', () => {
+        const saveButton = buttons.first();
+        expect(saveButton.text()).toBe('Cancel');
+        expect(saveButton.prop('disabled')).toBe(false);
       });
       it('the Complete button is last and is enabled', () => {
         const nextButton = buttons.last();

@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -63,15 +64,20 @@ export function updateServiceMember(serviceMember) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    const currentServiceMember = state.serviceMember.currentServiceMember;
+    const currentServiceMember = get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    );
     if (currentServiceMember) {
-      UpdateServiceMember(currentServiceMember.id, serviceMember)
+      return UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>
           dispatch(
             action.success(Object.assign({}, currentServiceMember, item)),
           ),
         )
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -83,9 +89,11 @@ export function loadServiceMember(serviceMemberId) {
     const state = getState();
     const currentServiceMember = state.serviceMember.currentServiceMember;
     if (!currentServiceMember) {
-      GetServiceMember(serviceMemberId)
+      return GetServiceMember(serviceMemberId)
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }

@@ -9,7 +9,9 @@ import MoveType from './MoveType';
 
 export class MoveTypeWizardPage extends Component {
   componentDidMount() {
-    this.props.loadMove(this.props.match.params.moveId);
+    if (!this.props.currentMove) {
+      this.props.loadMove(this.props.match.params.moveId);
+    }
   }
   handleSubmit = () => {
     const { pendingMoveType, updateMove } = this.props;
