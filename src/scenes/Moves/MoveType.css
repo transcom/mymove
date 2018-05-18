@@ -1,14 +1,12 @@
 .restrict-left {
   margin-right: 3rem;
 }
-
-.font-3 {
-  font-size: 0.8em;
-}
-
-.font-2 {
+.grey-title {
   font-size: 0.8em;
   color: #525252;
+}
+.smaller-text {
+  font-size: 0.8em;
 }
 .move-type-button {
   text-align: left;

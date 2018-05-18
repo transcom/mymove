@@ -289,11 +289,11 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Pickup ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.pickup_zip}</td>
+                    <td> {currentPpm && currentPpm.pickup_postal_code}</td>
                   </tr>
                   <tr>
                     <td> Delivery ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.destination_zip}</td>
+                    <td> {currentPpm && currentPpm.destination_postal_code}</td>
                   </tr>
                 </tbody>
               </table>
