@@ -110,6 +110,7 @@ export class WizardPage extends Component {
               <button
                 className="usa-button-secondary"
                 onClick={this.cancelFlow}
+                disabled={false}
               >
                 Cancel
               </button>
