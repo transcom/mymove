@@ -5,6 +5,9 @@ import {
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { get } from 'lodash';
+import { SubmitForApproval } from '../Moves/ducks.js';
+
+const signAndSubmitForApprovalType = 'SIGN_AND_SUBMIT_FOR_APPROVAL';
 
 // Actions
 
@@ -30,6 +33,36 @@ export const createSignedCertification = ReduxHelpers.generateAsyncActionCreator
   'CREATE_SIGNED_CERT',
   CreateCertification,
 );
+
+const signAndSubmitForApprovalActions = ReduxHelpers.generateAsyncActions(
+  signAndSubmitForApprovalType,
+);
+export const signAndSubmitForApproval = (
+  moveId,
+  certificationText,
+  signature,
+  dateSigned,
+) => {
+  return async function(dispatch, getState) {
+    dispatch(signAndSubmitForApprovalActions.start());
+    try {
+      await dispatch(
+        createSignedCertification({
+          moveId,
+          createSignedCertificationPayload: {
+            certification_text: certificationText,
+            signature,
+            date: dateSigned,
+          },
+        }),
+      );
+      await dispatch(SubmitForApproval(moveId));
+      return dispatch(signAndSubmitForApprovalActions.success());
+    } catch (ex) {
+      return dispatch(signAndSubmitForApprovalActions.error(ex));
+    }
+  };
+};
 
 export function loadLatestCertification(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
@@ -100,6 +133,8 @@ export function signedCertificationReducer(state = initialState, action) {
         certificationText: null,
         error: get(action, 'error', null),
       });
+    case signAndSubmitForApprovalActions.failure:
+      return { ...state, error: action.error };
     default:
       return state;
   }
