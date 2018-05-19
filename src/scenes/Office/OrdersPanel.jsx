@@ -57,13 +57,13 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         <span className="editable-panel-column subheader">Entitlements</span>
         <PanelField title="Household Goods">
-          {get(props.entitlements, 'total', '')} lbs
+          {get(props.entitlements, 'total', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Pro-gear">
-          {get(props.entitlements, 'pro_gear', '')} lbs
+          {get(props.entitlements, 'pro_gear', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Spouse pro-gear">
-          {get(props.entitlements, 'pro_gear_spouse', '')} lbs
+          {get(props.entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
         </PanelField>
         <PanelField className="Todo" title="Short-term storage">
           90 days
