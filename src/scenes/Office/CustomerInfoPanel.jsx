@@ -175,7 +175,6 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     serviceMember: state.office.officeServiceMember,
     isUpdating: false,
-    // formValues: getFormValues(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [
