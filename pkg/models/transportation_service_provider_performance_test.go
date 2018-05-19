@@ -92,7 +92,7 @@ func (suite *ModelSuite) Test_GetRateCycle() {
 func (suite *ModelSuite) Test_IncrementTSPPerformanceOfferCount() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, "2")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	perf, _ := testdatagen.MakeTSPPerformance(suite.db, tsp, tdl, nil, mps, 0, .2, .1)
 
@@ -171,7 +171,7 @@ func (suite *ModelSuite) Test_BVSWithLowMPS() {
 func (suite *ModelSuite) Test_FetchNextQualityBandTSPPerformance() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
@@ -354,7 +354,7 @@ func (suite *ModelSuite) Test_SelectNextTSPPerformancePartialRound() {
 // order for the Award Queue operation.
 func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 	t := suite.T()
-	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
@@ -394,7 +394,7 @@ func (suite *ModelSuite) Test_GatherNextEligibleTSPPerformances() {
 func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp3, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
@@ -426,7 +426,7 @@ func (suite *ModelSuite) Test_FetchTSPPerformanceForQualityBandAssignment() {
 func (suite *ModelSuite) Test_MinimumPerformanceScore() {
 	t := suite.T()
 
-	tdl, _ := testdatagen.MakeTDL(suite.db, "source", "dest", "cos")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	tsp1, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	tsp2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	// Make 2 TSPs, one with a BVS above the MPS and one below the MPS.
@@ -454,8 +454,8 @@ func (suite *ModelSuite) Test_FetchDiscountRatesBVS() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
-	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 320, Region: 6})
-	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "320", Region: "6"})
+	suite.mustSave(&Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	tspPerformance := TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          testdatagen.PerformancePeriodStart,

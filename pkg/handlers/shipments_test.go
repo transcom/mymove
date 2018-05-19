@@ -15,8 +15,8 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 
 	tdl := models.TrafficDistributionList{
 		CodeOfService:     "cos",
-		DestinationRegion: "dr",
-		SourceRateArea:    "sra",
+		DestinationRegion: "1",
+		SourceRateArea:    "US1",
 	}
 	suite.mustSave(&tdl)
 

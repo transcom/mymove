@@ -12,9 +12,9 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		Zip3:          "321",
 		BasepointCity: "Crescent City",
 		State:         "FL",
-		ServiceArea:   184,
+		ServiceArea:   "184",
 		RateArea:      "ZIP",
-		Region:        13,
+		Region:        "13",
 	}
 	if err := save(db, &zip3_321); err != nil {
 		return err
@@ -22,7 +22,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	zip5_32168 := models.Tariff400ngZip5RateArea{
 		Zip5:     "32168",
-		RateArea: "4964400",
+		RateArea: "US4964400",
 	}
 	if err := save(db, &zip5_32168); err != nil {
 		return err
@@ -32,9 +32,9 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		Zip3:          "294",
 		BasepointCity: "Moncks Corner",
 		State:         "SC",
-		ServiceArea:   692,
-		RateArea:      "44",
-		Region:        12,
+		ServiceArea:   "692",
+		RateArea:      "US44",
+		Region:        "12",
 	}
 	if err := save(db, &zip3_294); err != nil {
 		return err
@@ -48,7 +48,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 	}
 
 	tdl := models.TrafficDistributionList{
-		SourceRateArea:    "4964400",
+		SourceRateArea:    "US4964400",
 		DestinationRegion: "12",
 		CodeOfService:     "2",
 	}
@@ -58,7 +58,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Orlando, FL",
-		ServiceArea:        184,
+		ServiceArea:        "184",
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(60),
 		ServiceChargeCents: unit.Cents(361),
@@ -74,7 +74,7 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Charleston, SC",
-		ServiceArea:        692,
+		ServiceArea:        "692",
 		ServicesSchedule:   2,
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(431),
@@ -158,9 +158,9 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		Zip3:          "945",
 		BasepointCity: "Walnut Creek",
 		State:         "CA",
-		ServiceArea:   80,
-		RateArea:      "87",
-		Region:        2,
+		ServiceArea:   "80",
+		RateArea:      "US87",
+		Region:        "2",
 	}
 	if err := save(db, &zip3_945); err != nil {
 		return err
@@ -170,9 +170,9 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		Zip3:          "786",
 		BasepointCity: "Austin",
 		State:         "TX",
-		ServiceArea:   744,
+		ServiceArea:   "744",
 		RateArea:      "ZIP",
-		Region:        6,
+		Region:        "6",
 	}
 	if err := save(db, &zip3_786); err != nil {
 		return err
@@ -180,7 +180,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	zip5_78626 := models.Tariff400ngZip5RateArea{
 		Zip5:     "78626",
-		RateArea: "68",
+		RateArea: "US68",
 	}
 	if err := save(db, &zip5_78626); err != nil {
 		return err
@@ -194,7 +194,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 	}
 
 	tdl := models.TrafficDistributionList{
-		SourceRateArea:    "87",
+		SourceRateArea:    "US87",
 		DestinationRegion: "6",
 		CodeOfService:     "2",
 	}
@@ -204,7 +204,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "San Francisco, CA",
-		ServiceArea:        80,
+		ServiceArea:        "80",
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(263),
 		ServiceChargeCents: unit.Cents(489),
@@ -220,7 +220,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Austin, TX",
-		ServiceArea:        744,
+		ServiceArea:        "744",
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(78),
 		ServiceChargeCents: unit.Cents(452),
