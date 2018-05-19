@@ -356,7 +356,11 @@ func fetchToken(logger *zap.Logger, code string, clientID string, loginGovProvid
 	}
 
 	var parsedResponse LoginGovTokenResponse
-	json.Unmarshal(responseBody, &parsedResponse)
+	err = json.Unmarshal(responseBody, &parsedResponse)
+	if err != nil {
+		logger.Error("Parsing login.gov token", zap.Error(err))
+		return nil, errors.Wrap(err, "parsing login.gov")
+	}
 	if parsedResponse.Error != "" {
 		logger.Error("Error in Login.gov token response", zap.String("error", parsedResponse.Error))
 		return nil, errors.New(parsedResponse.Error)

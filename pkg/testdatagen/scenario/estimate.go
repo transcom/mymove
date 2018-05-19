@@ -10,7 +10,7 @@ import (
 func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 	originZip5_779 := models.Tariff400ngZip5RateArea{
 		Zip5:     "77901",
-		RateArea: "68",
+		RateArea: "US68",
 	}
 	if err := save(db, &originZip5_779); err != nil {
 		return err
@@ -18,7 +18,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	destZip5_674 := models.Tariff400ngZip5RateArea{
 		Zip5:     "67401",
-		RateArea: "58",
+		RateArea: "US58",
 	}
 	if err := save(db, &destZip5_674); err != nil {
 		return err
@@ -26,11 +26,11 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	originZip3_779 := models.Tariff400ngZip3{
 		Zip3:          "779",
-		RateArea:      "68",
+		RateArea:      "US68",
 		BasepointCity: "Victoria",
 		State:         "TX",
-		ServiceArea:   748,
-		Region:        6,
+		ServiceArea:   "748",
+		Region:        "6",
 	}
 	if err := save(db, &originZip3_779); err != nil {
 		return err
@@ -38,11 +38,11 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	destZip3_674 := models.Tariff400ngZip3{
 		Zip3:          "674",
-		Region:        5,
+		Region:        "5",
 		BasepointCity: "Salina",
 		State:         "KS",
-		RateArea:      "58",
-		ServiceArea:   320,
+		RateArea:      "US58",
+		ServiceArea:   "320",
 	}
 	if err := save(db, &destZip3_674); err != nil {
 		return err
@@ -56,7 +56,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 	}
 
 	tdl := models.TrafficDistributionList{
-		SourceRateArea:    "68",
+		SourceRateArea:    "US68",
 		DestinationRegion: "5",
 		CodeOfService:     "D",
 	}
@@ -66,7 +66,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     unit.Cents(39),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: may15_2018,
@@ -81,7 +81,7 @@ func RunPPMSITEstimateScenario1(db *pop.Connection) error {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     unit.Cents(43),
 		ServiceChargeCents: unit.Cents(350),
 		EffectiveDateLower: may15_2018,

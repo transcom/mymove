@@ -25,7 +25,7 @@ export const createDocumentFailure = error => ({
 export function createDocument(fileUpload, serviceMemberId) {
   return function(dispatch, getState) {
     dispatch(createDocumentRequest());
-    CreateDocument(fileUpload, serviceMemberId)
+    return CreateDocument(fileUpload, serviceMemberId)
       .then(item => dispatch(createDocumentSuccess(item)))
       .catch(error => dispatch(createDocumentFailure(error)));
   };

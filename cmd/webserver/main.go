@@ -119,20 +119,23 @@ func main() {
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
-		log.Fatalln(err)
+		logger.Fatal("Login.gov private key", zap.Error(err))
 	}
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*clientAuthSecretKey)); err != nil {
-		log.Fatalln(err)
+		logger.Fatal("Client auth private key", zap.Error(err))
 	}
 	if *loginGovHostname == "" {
-		log.Fatalln(errors.New("Must provide the Login.gov hostname parameter, exiting"))
+		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
 	//DB connection
-	pop.AddLookupPaths(*config)
+	err = pop.AddLookupPaths(*config)
+	if err != nil {
+		logger.Fatal("Adding Pop config path", zap.Error(err))
+	}
 	dbConnection, err := pop.Connect(*env)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
 	// Serves files out of build folder
@@ -140,7 +143,10 @@ func main() {
 
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
-	loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	if err != nil {
+		logger.Fatal("Registering login provider", zap.Error(err))
+	}
 
 	// Populates user info using cookie and renews token
 	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)

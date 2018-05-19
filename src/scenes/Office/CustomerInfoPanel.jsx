@@ -26,7 +26,8 @@ const CustomerInfoDisplay = props => {
   };
   const values = props.serviceMember;
   const name = compact([values.last_name, values.first_name]).join(', ');
-  const address = values.residential_address || {};
+  const address = get(values, 'residential_address', {});
+
   return (
     <React.Fragment>
       <div className="editable-panel-column">
