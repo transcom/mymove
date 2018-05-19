@@ -1,12 +1,12 @@
 import {
   LoadMove,
   LoadOrders,
-  UpdateOrders,
   LoadServiceMember,
   LoadBackupContacts,
   LoadPPMs,
   ApproveBasics,
 } from './api.js';
+import { UpdateOrders } from 'scenes/Orders/api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types

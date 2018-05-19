@@ -38,13 +38,19 @@ const AccountingEdit = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <SwaggerField
+          title="Department indicator"
           fieldName="department_indicator"
           swagger={ordersSchema}
           required
         />
       </div>
       <div className="editable-panel-column">
-        <SwaggerField fieldName="tac" swagger={ordersSchema} required />
+        <SwaggerField
+          title="TAC"
+          fieldName="tac"
+          swagger={ordersSchema}
+          required
+        />
       </div>
     </React.Fragment>
   );
@@ -57,7 +63,7 @@ AccountingPanel = reduxForm({ form: formName })(AccountingPanel);
 
 function mapStateToProps(state) {
   let orders = get(state, 'office.officeOrders', {});
-  debugger;
+
   return {
     // reduxForm
     formData: state.form[formName],
@@ -72,7 +78,9 @@ function mapStateToProps(state) {
     isUpdating: state.office.ordersAreUpdating,
 
     getUpdateArgs: function() {
-      return [orders.id, getFormValues(formName)(state)];
+      let values = getFormValues(formName)(state);
+      values.new_duty_station_id = values.new_duty_station.id;
+      return [orders.id, values];
     },
   };
 }
