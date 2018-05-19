@@ -6,7 +6,6 @@ import { reduxForm, getFormValues, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { no_op_action } from 'shared/utils';
 
 import { updateServiceMember } from './ducks';
 import {
@@ -98,12 +97,7 @@ const CustomerInfoDisplay = props => {
 
 const CustomerInfoEdit = props => {
   const schema = props.serviceMemberSchema;
-  let customerInfoProps = {
-    swagger: props.serviceMemberSchema,
-    values: props.serviceMember,
-  };
-
-  let addressSwagger = props.addressSchema;
+  const addressSwagger = props.addressSchema;
 
   return (
     <React.Fragment>
@@ -125,22 +119,11 @@ const CustomerInfoEdit = props => {
           <SwaggerField fieldName="telephone" swagger={schema} required />
           <SwaggerField fieldName="secondary_telephone" swagger={schema} />
           <SwaggerField fieldName="personal_email" swagger={schema} required />
-          <fieldset key="contact_preferences">
-            <legend htmlFor="contact_preferences">
-              Preferred contact method during your move:
-            </legend>
-            <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-            <SwaggerField
-              fieldName="text_message_is_preferred"
-              swagger={schema}
-            />
-            <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-          </fieldset>
         </div>
       </FormSection>
-      <FormSection name="address">
-        <div className="panel-subhead">Current Residence Address</div>
-        <div className="editable-panel-column">
+      <div className="editable-panel-column">
+        <FormSection name="address">
+          <div className="panel-subhead">Current Residence Address</div>
           <SwaggerField fieldName="street_address_1" swagger={addressSwagger} />
           <SwaggerField fieldName="street_address_2" swagger={addressSwagger} />
           <SwaggerField fieldName="street_address_3" swagger={addressSwagger} />
@@ -148,8 +131,21 @@ const CustomerInfoEdit = props => {
           <SwaggerField fieldName="state" swagger={addressSwagger} />
           <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
           <SwaggerField fieldName="country" swagger={addressSwagger} />
-        </div>
-      </FormSection>
+        </FormSection>
+      </div>
+      <div className="editable-panel-column">
+        <fieldset key="contact_preferences">
+          <legend htmlFor="contact_preferences">
+            Preferred contact method during your move:
+          </legend>
+          <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+          <SwaggerField
+            fieldName="text_message_is_preferred"
+            swagger={schema}
+          />
+          <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+        </fieldset>
+      </div>
     </React.Fragment>
   );
 };
@@ -160,7 +156,7 @@ let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
 CustomerInfoPanel = reduxForm({ form: formName })(CustomerInfoPanel);
 
 function mapStateToProps(state) {
-  let customerInfo = get(state, 'office.officeServiceMember');
+  let customerInfo = get(state, 'office.officeServiceMember', {});
   return {
     // reduxForm
     initialValues: {
@@ -181,12 +177,11 @@ function mapStateToProps(state) {
     isUpdating: false,
     // formValues: getFormValues(formName)(state),
     getUpdateArgs: function() {
-      // Will need to do some nesting to make the address pull make sense, matching Swagger object shape
       let values = getFormValues(formName)(state);
       return [
         state.office.officeServiceMember.id,
-        // Need to nest the address value here...
-        getFormValues(formName)(state),
+        values.serviceMember,
+        { residential_address: values.residential_address },
       ];
     },
   };
