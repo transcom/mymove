@@ -74,12 +74,14 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
-		HasDependents:    fmtBool(order.HasDependents),
-		IssueDate:        fmtDate(order.IssueDate),
-		ReportByDate:     fmtDate(order.ReportByDate),
-		OrdersType:       newOrdersType,
-		NewDutyStationID: fmtUUID(order.NewDutyStationID),
-		ServiceMemberID:  fmtUUID(order.ServiceMember.ID),
+		HasDependents:       fmtBool(order.HasDependents),
+		IssueDate:           fmtDate(order.IssueDate),
+		ReportByDate:        fmtDate(order.ReportByDate),
+		OrdersType:          newOrdersType,
+		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
+		ServiceMemberID:     fmtUUID(order.ServiceMember.ID),
+		Tac:                 fmtString(*order.TAC),
+		DepartmentIndicator: fmtString(*internalmessages.DeptIndicator),
 	}
 
 	params := ordersop.UpdateOrdersParams{
