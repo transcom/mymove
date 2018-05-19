@@ -22,15 +22,21 @@ func (suite *ModelSuite) Test_ShipmentOfferValidations() {
 func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	t := suite.T()
 	now := time.Now()
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
-	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	market := "dHHG"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "OHAI", &market)
-	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
+	tdl, err := testdatagen.MakeTDL(suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	suite.Nil(err, "error making TDL")
 
-	if err != nil {
-		t.Errorf("Failed to create Shipment Offer: %v", err)
-	}
+	tsp, err := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	suite.Nil(err, "error making TSP")
+
+	market := "dHHG"
+	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "OHAI", &market)
+	suite.Nil(err, "error making Shipment")
+	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
+	suite.Nil(err, "error making ShipmentOffer")
+
 	expectedShipmentOffer := ShipmentOffer{}
 	if err := suite.db.Find(&expectedShipmentOffer, shipmentOffer.ID); err != nil {
 		t.Fatalf("could not find shipmentOffer: %v", err)
