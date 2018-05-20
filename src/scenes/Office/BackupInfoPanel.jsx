@@ -2,15 +2,17 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
-import { no_op_action } from 'shared/utils';
+import { updateBackupInfo } from './ducks';
+
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField } from 'shared/EditablePanel';
 
 const BackupInfoDisplay = props => {
-  const backupAddress = get(props, 'serviceMember.backup_mailing_address', {});
-  const backupContact = get(props, 'backupContacts[0]', '');
+  const backupAddress = props.backupMailingAddress;
+  const backupContact = props.backupContact;
 
   return (
     <React.Fragment>
@@ -57,57 +59,52 @@ const BackupInfoDisplay = props => {
 };
 
 const BackupInfoEdit = props => {
-  // const { schema } = props;
+  let backupContactProps = {
+    swagger: props.backupContactSchema,
+    values: props.backupContact,
+  };
+  let backupMailingAddressProps = {
+    swagger: props.addressSchema,
+    values: props.backupMailingAddress,
+  };
   return (
     <React.Fragment>
-      <div className="form-column">
-        <b>Backup Contact 1</b>
-        <label>Name</label>
-        <input type="text" name="backup-contact-1-name" />
+      <div className="editable-panel-column">
+        <div className="panel-subhead">Backup Contact 1</div>
+
+        <FormSection name="backupContact">
+          <SwaggerField fieldName="name" {...backupContactProps} required />
+          <SwaggerField
+            fieldName="telephone"
+            {...backupContactProps}
+            required
+          />
+          <SwaggerField fieldName="email" {...backupContactProps} />
+
+          <div className="panel-subhead">Authorization</div>
+          <SwaggerField fieldName="permission" {...backupContactProps} />
+        </FormSection>
       </div>
-      <div className="form-column">
-        <label>Phone</label>
-        <input type="tel" name="backup-contact-1-phone" />
-      </div>
-      <div className="form-column">
-        <label>Email (optional)</label>
-        <input type="text" name="backup-contact-1-email" />
-      </div>
-      <div className="form-column">
-        <b>Authorization</b>
-        <input type="radio" name="authorization" value="none" />
-        <label htmlFor="none">None</label>
-        <input
-          type="radio"
-          name="authorization"
-          value="letter-of-authorization"
-        />
-        <label htmlFor="letter-of-authorization">Letter of Authorization</label>
-        <input
-          type="radio"
-          name="authorization"
-          value="sign-for-pickup-delivery-only"
-        />
-        <label htmlFor="sign-for-pickup-delivery-only">
-          Sign for pickup/delivery only
-        </label>
-      </div>
-      <div className="form-column">
-        <b>Backup Mailing Address</b>
-        <label>Mailing address 1</label>
-        <input type="text" name="backup-contact-1-mailing-address-1" />
-      </div>
-      <div className="form-column">
-        <label>Mailing address 2</label>
-        <input type="text" name="backup-contact-1-mailing-address-2" />
-      </div>
-      <div className="form-column">
-        <label>City</label>
-        <input type="text" name="backup-contact-1-city" />
-      </div>
-      <div className="form-column">
-        <label>State</label>
-        <input type="text" name="backup-contact-1-state" />
+
+      <div className="editable-panel-column">
+        <div className="panel-subhead">Backup Mailing Address</div>
+
+        <FormSection name="backupMailingAddress">
+          <SwaggerField
+            fieldName="street_address_1"
+            {...backupMailingAddressProps}
+          />
+          <SwaggerField
+            fieldName="street_address_2"
+            {...backupMailingAddressProps}
+          />
+          <SwaggerField fieldName="city" {...backupMailingAddressProps} />
+          <SwaggerField fieldName="state" {...backupMailingAddressProps} />
+          <SwaggerField
+            fieldName="postal_code"
+            {...backupMailingAddressProps}
+          />
+        </FormSection>
       </div>
     </React.Fragment>
   );
@@ -119,24 +116,44 @@ let BackupInfoPanel = editablePanel(BackupInfoDisplay, BackupInfoEdit);
 BackupInfoPanel = reduxForm({ form: formName })(BackupInfoPanel);
 
 function mapStateToProps(state) {
+  let serviceMember = get(state, 'office.officeServiceMember', {});
+  let backupContact = get(state, 'office.officeBackupContacts.0', {}); // there can be only one
+
   return {
     // reduxForm
-    formData: get(state, 'form[formName]', ''),
-    initialValues: {},
+    initialValues: {
+      backupContact: backupContact,
+      backupMailingAddress: serviceMember.backup_mailing_address,
+    },
 
-    // Wrapper
+    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    backupContactSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberBackupContactPayload',
+      {},
+    ),
+    backupMailingAddress: serviceMember.backup_mailing_address,
+    backupContact: backupContact,
+
+    getUpdateArgs: function() {
+      let values = getFormValues(formName)(state);
+      return [
+        serviceMember.id,
+        { backup_mailing_address: values.backupMailingAddress },
+        backupContact.id,
+        values.backupContact,
+      ];
+    },
+
     hasError: false,
-    errorMessage: get(state, 'office.error', {}),
-    serviceMember: get(state, 'office.officeServiceMember', {}),
-    backupContacts: get(state, 'office.officeBackupContacts', []),
-    isUpdating: false,
+    errorMessage: state.office.error,
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updateBackupInfo,
     },
     dispatch,
   );
