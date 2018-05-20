@@ -119,10 +119,7 @@ const mapStateToProps = state => ({
   createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
   createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
-  entitlement: loadEntitlements(
-    get(state.loggedInUser, 'loggedInUser.service_member.orders.0'),
-    get(state.loggedInUser, 'loggedInUser.service_member'),
-  ),
+  entitlement: loadEntitlements(state),
 });
 
 function mapDispatchToProps(dispatch) {
