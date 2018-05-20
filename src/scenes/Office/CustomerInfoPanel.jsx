@@ -178,11 +178,9 @@ function mapStateToProps(state) {
     isUpdating: false,
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
-      return [
-        state.office.officeServiceMember.id,
-        values.serviceMember,
-        { residential_address: values.residential_address },
-      ];
+      let serviceMember = values.serviceMember;
+      serviceMember.residential_address = values.address;
+      return [state.office.officeServiceMember.id, serviceMember];
     },
   };
 }
