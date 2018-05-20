@@ -91,7 +91,6 @@ export class PpmWeight extends Component {
   };
   onWeightSelected = value => {
     const { currentPpm } = this.props;
-    debugger;
     this.props.getPpmWeightEstimate(
       currentPpm.planned_move_date,
       currentPpm.pickup_zip,
