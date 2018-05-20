@@ -135,17 +135,19 @@ const CustomerInfoEdit = props => {
         </FormSection>
       </div>
       <div className="editable-panel-column">
-        <fieldset key="contact_preferences">
-          <legend htmlFor="contact_preferences">
-            Preferred contact method during your move:
-          </legend>
-          <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-          <SwaggerField
-            fieldName="text_message_is_preferred"
-            swagger={schema}
-          />
-          <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-        </fieldset>
+        <FormSection name="contact_preferences">
+          <fieldset key="contact_preferences">
+            <legend htmlFor="contact_preferences">
+              Preferred contact method during your move:
+            </legend>
+            <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+            <SwaggerField
+              fieldName="text_message_is_preferred"
+              swagger={schema}
+            />
+            <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+          </fieldset>
+        </FormSection>
       </div>
     </React.Fragment>
   );
