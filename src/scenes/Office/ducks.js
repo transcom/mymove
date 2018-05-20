@@ -308,25 +308,6 @@ export function officeReducer(state = initialState, action) {
         serviceMemberHasLoadError: true,
         error: action.error.message,
       });
-    case UPDATE_SERVICE_MEMBER.start:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: true,
-        serviceMemberHasUpdateSuccess: false,
-      });
-    case UPDATE_SERVICE_MEMBER.success:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: false,
-        officeServiceMember: action.payload,
-        serviceMemberHasUpdateSuccess: true,
-        serviceMemberHasUpdateError: false,
-      });
-    case UPDATE_SERVICE_MEMBER.failure:
-      return Object.assign({}, state, {
-        serviceMemberIsUpdating: false,
-        serviceMemberHasUpdateSuccess: false,
-        serviceMemberHasUpdateError: true,
-        error: action.error.message,
-      });
 
     case UPDATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
