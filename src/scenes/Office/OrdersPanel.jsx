@@ -6,7 +6,7 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadEntitlements } from 'scenes/Office/ducks';
 
 import {
   PanelSwaggerField,
@@ -57,13 +57,13 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         <span className="editable-panel-column subheader">Entitlements</span>
         <PanelField title="Household Goods">
-          {get(props.entitlements, 'total', '')} lbs
+          {get(props.entitlements, 'total', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Pro-gear">
-          {get(props.entitlements, 'pro_gear', '')} lbs
+          {get(props.entitlements, 'pro_gear', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Spouse pro-gear">
-          {get(props.entitlements, 'pro_gear_spouse', '')} lbs
+          {get(props.entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
         </PanelField>
         <PanelField className="Todo" title="Short-term storage">
           90 days
@@ -190,10 +190,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     orders: get(state, 'office.officeOrders'),
     serviceMember: get(state, 'office.officeServiceMember'),
-    entitlements: loadEntitlements(
-      get(state, 'office.officeOrders'),
-      get(state, 'office.officeServiceMember'),
-    ),
+    entitlements: loadEntitlements(state),
     isUpdating: false,
   };
 }

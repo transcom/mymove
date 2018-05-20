@@ -1,12 +1,17 @@
+import { isNull, get } from 'lodash';
 import {
   LoadMove,
   LoadOrders,
   LoadServiceMember,
+  UpdateServiceMember,
   LoadBackupContacts,
+  UpdateBackupContact,
   LoadPPMs,
   ApproveBasics,
 } from './api.js';
+
 import { UpdateOrders } from 'scenes/Orders/api.js';
+import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -14,8 +19,12 @@ const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
+const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
+const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
+
+const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 const approveBasicsType = 'APPROVE_BASICS';
 
@@ -29,11 +38,23 @@ const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
 );
 
+const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
+  updateServiceMemberType,
+);
+
 const LOAD_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   loadBackupContactType,
 );
 
+const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
+  updateBackupContactType,
+);
+
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
+
+const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
+  updateBackupInfoType,
+);
 
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
   loadDependenciesType,
@@ -61,9 +82,19 @@ export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
   LoadServiceMember,
 );
 
+export const updateServiceMember = ReduxHelpers.generateAsyncActionCreator(
+  updateServiceMemberType,
+  UpdateServiceMember,
+);
+
 export const loadBackupContacts = ReduxHelpers.generateAsyncActionCreator(
   loadBackupContactType,
   LoadBackupContacts,
+);
+
+export const updateBackupContact = ReduxHelpers.generateAsyncActionCreator(
+  updateBackupContactType,
+  UpdateBackupContact,
 );
 
 export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
@@ -75,6 +106,28 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   approveBasicsType,
   ApproveBasics,
 );
+
+export function updateBackupInfo(
+  serviceMemberId,
+  serviceMemberPayload,
+  backupContactId,
+  backupContact,
+) {
+  const actions = ReduxHelpers.generateAsyncActions(updateBackupInfoType);
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    try {
+      // TODO: perform these requests concurrently
+      await dispatch(
+        updateServiceMember(serviceMemberId, serviceMemberPayload),
+      );
+      await dispatch(updateBackupContact(backupContactId, backupContact));
+      return dispatch(actions.success());
+    } catch (ex) {
+      return dispatch(actions.error(ex));
+    }
+  };
+}
 
 export function loadMoveDependencies(moveId) {
   const actions = ReduxHelpers.generateAsyncActions(loadDependenciesType);
@@ -95,6 +148,16 @@ export function loadMoveDependencies(moveId) {
       return dispatch(actions.error(ex));
     }
   };
+}
+
+// Selectors
+export function loadEntitlements(state) {
+  const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
+  const rank = get(state, 'office.officeServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer
@@ -208,6 +271,26 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    case UPDATE_SERVICE_MEMBER.start:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: true,
+        serviceMemberHasUpdateSuccess: false,
+      });
+    case UPDATE_SERVICE_MEMBER.success:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: false,
+        officeServiceMember: action.payload,
+        serviceMemberHasUpdateSuccess: true,
+        serviceMemberHasUpdateError: false,
+      });
+    case UPDATE_SERVICE_MEMBER.failure:
+      return Object.assign({}, state, {
+        serviceMemberIsUpdating: false,
+        serviceMemberHasUpdateSuccess: false,
+        serviceMemberHasUpdateError: true,
+        error: action.error.message,
+      });
+
     // BACKUP CONTACT
     case LOAD_BACKUP_CONTACT.start:
       return Object.assign({}, state, {
@@ -227,6 +310,26 @@ export function officeReducer(state = initialState, action) {
         officeBackupContacts: null,
         backupContactsHaveLoadSuccess: false,
         backupContactsHaveLoadError: true,
+        error: action.error.message,
+      });
+
+    case UPDATE_BACKUP_CONTACT.start:
+      return Object.assign({}, state, {
+        backupContactIsUpdating: true,
+        backupContactHasUpdateSuccess: false,
+      });
+    case UPDATE_BACKUP_CONTACT.success:
+      return Object.assign({}, state, {
+        backupContactIsUpdating: false,
+        officeBackupContacts: [action.payload], // there is only one
+        backupContactHasUpdateSuccess: true,
+        backupContactHasUpdateFailure: false,
+      });
+    case UPDATE_BACKUP_CONTACT.failure:
+      return Object.assign({}, state, {
+        backupContactIsUpdating: false,
+        backupContactHasUpdateSuccess: false,
+        backupContactHasUpdateFailure: true,
         error: action.error.message,
       });
 
@@ -264,6 +367,24 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
         basicsAreUpdating: false,
+        error: action.error.message,
+      });
+
+    // BACKUP INFO
+    case UPDATE_BACKUP_INFO.start:
+      return Object.assign({}, state, {
+        updateBackupInfoHasSuccess: false,
+        updateBackupInfoHasError: false,
+      });
+    case UPDATE_BACKUP_INFO.success:
+      return Object.assign({}, state, {
+        updateBackupInfoHasSuccess: true,
+        updateBackupInfoHasError: false,
+      });
+    case UPDATE_BACKUP_INFO.failure:
+      return Object.assign({}, state, {
+        updateBackupInfoHasSuccess: false,
+        updateBackupInfoHasError: true,
         error: action.error.message,
       });
 
