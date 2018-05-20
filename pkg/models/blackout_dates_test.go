@@ -16,7 +16,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)
@@ -68,7 +68,7 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	// Use FetchTSPBlackoutDates on two queries: one that should use a market value and one that doesn't.
 	// Create one blackout date object with a market.
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	tdl, _ := testdatagen.MakeTDL(suite.db, "Oklahoma", "62240", "5")
+	tdl, _ := testdatagen.MakeTDL(suite.db, testdatagen.DefaultSrcRateArea, testdatagen.DefaultDstRegion, testdatagen.DefaultCOS)
 	blackoutStartDate := time.Now()
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
 	pickupDate := blackoutStartDate.Add(time.Hour)

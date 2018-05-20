@@ -92,6 +92,9 @@ export function addUploads(uploads) {
 
 // Selectors
 export function loadEntitlements(orders, service_member) {
+  if (!orders || !service_member) {
+    return null;
+  }
   var rank = service_member.rank;
   var hasDependents = orders.has_dependents;
   return getEntitlements(rank, hasDependents);

@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { MoveSummary } from './MoveSummary';
 
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
+import { loadEntitlements } from 'scenes/Orders/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
@@ -68,6 +69,7 @@ export class Landing extends Component {
       loggedInUserError,
       createdServiceMemberError,
       loggedInUser,
+      entitlement,
     } = this.props;
 
     let profile = get(loggedInUser, 'service_member');
@@ -94,6 +96,7 @@ export class Landing extends Component {
         </div>
         {displayMove && (
           <MoveSummary
+            entitlement={entitlement}
             profile={profile}
             orders={orders}
             move={move}
@@ -122,6 +125,10 @@ const mapStateToProps = state => ({
   createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
   createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
+  entitlement: loadEntitlements(
+    get(state.loggedInUser, 'loggedInUser.service_member.orders.0'),
+    get(state.loggedInUser, 'loggedInUser.service_member'),
+  ),
 });
 
 function mapDispatchToProps(dispatch) {

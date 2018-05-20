@@ -2,7 +2,6 @@ package testdatagen
 
 import (
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -24,9 +23,9 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		Market:                    market,
 	}
 
-	_, err := db.ValidateAndSave(&shipment)
-	if err != nil {
-		log.Panic(err)
+	verrs, err := db.ValidateAndSave(&shipment)
+	if verrs.HasAny() {
+		err = fmt.Errorf("shipment validation errors: %v", verrs)
 	}
 
 	return shipment, err
