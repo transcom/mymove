@@ -73,6 +73,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	departmentIndicator := internalmessages.DeptIndicatorAIRFORCE
 	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:       fmtBool(order.HasDependents),
 		IssueDate:           fmtDate(order.IssueDate),
@@ -80,8 +81,8 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		OrdersType:          newOrdersType,
 		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
 		ServiceMemberID:     fmtUUID(order.ServiceMember.ID),
-		Tac:                 fmtString(*order.TAC),
-		DepartmentIndicator: fmtString(*internalmessages.DeptIndicator),
+		Tac:                 order.TAC,
+		DepartmentIndicator: &departmentIndicator,
 	}
 
 	params := ordersop.UpdateOrdersParams{
