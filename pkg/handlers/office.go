@@ -17,8 +17,7 @@ type ShowAccountingHandler HandlerContext
 
 // Handle ... creates a new ServiceMember from a request payload
 func (h ShowAccountingHandler) Handle(params officeop.ShowAccountingParams) middleware.Responder {
-	// User should always be populated by middleware
-	// user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// TODO: Validate that this move belongs to the current user
@@ -94,8 +93,9 @@ type ApproveMoveHandler HandlerContext
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	// User should always be populated by middleware
+	// #nosec User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
 

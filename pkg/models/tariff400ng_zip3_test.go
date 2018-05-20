@@ -2,6 +2,7 @@ package models_test
 
 import (
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) Test_Zip3Validation() {
@@ -9,9 +10,9 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 		Zip3:          "139",
 		BasepointCity: "Dogtown",
 		State:         "NY",
-		ServiceArea:   11,
-		RateArea:      "14",
-		Region:        8,
+		ServiceArea:   testdatagen.DefaultServiceArea,
+		RateArea:      testdatagen.DefaultSrcRateArea,
+		Region:        testdatagen.DefaultDstRegion,
 	}
 
 	expErrors := map[string][]string{}
@@ -21,9 +22,9 @@ func (suite *ModelSuite) Test_Zip3Validation() {
 
 	expErrors = map[string][]string{
 		"basepoint_city": []string{"BasepointCity can not be blank."},
-		"rate_area":      []string{"RateArea can not be blank."},
-		"region":         []string{"Region can not be blank."},
-		"service_area":   []string{"ServiceArea can not be blank."},
+		"rate_area":      []string{"RateArea can not be blank.", "RateArea does not match the expected format."},
+		"region":         []string{"Region can not be blank.", "Region does not match the expected format."},
+		"service_area":   []string{"ServiceArea can not be blank.", "ServiceArea does not match the expected format."},
 		"state":          []string{"State can not be blank."},
 		"zip3":           []string{"Zip3 not in range(3, 3)"},
 	}
@@ -36,9 +37,9 @@ func (suite *ModelSuite) Test_Zip3CreateAndSave() {
 		Zip3:          "720",
 		BasepointCity: "Dogtown",
 		State:         "NY",
-		ServiceArea:   384,
-		RateArea:      "13",
-		Region:        4,
+		ServiceArea:   testdatagen.DefaultServiceArea,
+		RateArea:      testdatagen.DefaultSrcRateArea,
+		Region:        testdatagen.DefaultDstRegion,
 	}
 
 	suite.mustSave(&validZip3)
@@ -51,9 +52,9 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5() {
 		Zip3:          "720",
 		BasepointCity: "Dogtown",
 		State:         "NY",
-		ServiceArea:   384,
-		RateArea:      "13",
-		Region:        4,
+		ServiceArea:   testdatagen.DefaultServiceArea,
+		RateArea:      testdatagen.DefaultSrcRateArea,
+		Region:        testdatagen.DefaultDstRegion,
 	}
 
 	suite.mustSave(&zip3)
@@ -63,8 +64,8 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5() {
 		t.Fatal(err)
 	}
 
-	if rateArea != "13" {
-		t.Errorf("wrong rateArea: expected 13, got %s", rateArea)
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
 	}
 }
 
@@ -75,16 +76,16 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
 		Zip3:          "720",
 		BasepointCity: "Dogtown",
 		State:         "NY",
-		ServiceArea:   384,
+		ServiceArea:   testdatagen.DefaultServiceArea,
 		RateArea:      "ZIP",
-		Region:        4,
+		Region:        testdatagen.DefaultDstRegion,
 	}
 
 	suite.mustSave(&zip3)
 
 	zip5RateArea := Tariff400ngZip5RateArea{
 		Zip5:     "72014",
-		RateArea: "48",
+		RateArea: testdatagen.DefaultSrcRateArea,
 	}
 
 	suite.mustSave(&zip5RateArea)
@@ -94,9 +95,8 @@ func (suite *ModelSuite) Test_FetchRateAreaForZip5UsingZip5sTable() {
 		t.Fatal(err)
 	}
 
-	expected := "48"
-	if rateArea != expected {
-		t.Errorf("wrong rateArea: expected %s, got %s", expected, rateArea)
+	if rateArea != testdatagen.DefaultSrcRateArea {
+		t.Errorf("wrong rateArea: expected %s, got %s", testdatagen.DefaultSrcRateArea, rateArea)
 	}
 }
 
@@ -107,9 +107,9 @@ func (suite *ModelSuite) Test_FetchRegionForZip5() {
 		Zip3:          "720",
 		BasepointCity: "Dogtown",
 		State:         "NY",
-		ServiceArea:   384,
-		RateArea:      "13",
-		Region:        4,
+		ServiceArea:   testdatagen.DefaultServiceArea,
+		RateArea:      testdatagen.DefaultSrcRateArea,
+		Region:        testdatagen.DefaultDstRegion,
 	}
 
 	suite.mustSave(&zip3)
@@ -119,8 +119,7 @@ func (suite *ModelSuite) Test_FetchRegionForZip5() {
 		t.Fatal(err)
 	}
 
-	expected := 4
-	if region != expected {
-		t.Errorf("wrong region: expected %d, got %d", expected, region)
+	if region != testdatagen.DefaultDstRegion {
+		t.Errorf("wrong region: expected %s, got %s", testdatagen.DefaultDstRegion, region)
 	}
 }

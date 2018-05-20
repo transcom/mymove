@@ -31,7 +31,7 @@ func (h CreateBackupContactHandler) Handle(params backupop.CreateServiceMemberBa
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
-
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
@@ -60,6 +60,7 @@ func (h IndexBackupContactsHandler) Handle(params backupop.IndexServiceMemberBac
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
 	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
 	if err != nil {
@@ -85,7 +86,7 @@ func (h ShowBackupContactHandler) Handle(params backupop.ShowServiceMemberBackup
 	// User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
-
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.db, user, reqApp, contactID)
 	if err != nil {
@@ -105,6 +106,7 @@ func (h UpdateBackupContactHandler) Handle(params backupop.UpdateServiceMemberBa
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	contactID, _ := uuid.FromString(params.BackupContactID.String())
 	contact, err := models.FetchBackupContact(h.db, user, reqApp, contactID)
 	if err != nil {

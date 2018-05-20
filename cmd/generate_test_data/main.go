@@ -20,7 +20,10 @@ func main() {
 	flag.Parse()
 
 	//DB connection
-	pop.AddLookupPaths(*config)
+	err := pop.AddLookupPaths(*config)
+	if err != nil {
+		log.Panic(err)
+	}
 	db, err := pop.Connect(*env)
 	if err != nil {
 		log.Panic(err)
@@ -33,11 +36,11 @@ func main() {
 	} else if *scenario == 3 {
 		tdgs.RunDutyStationScenario3(db)
 	} else if *scenario == 4 {
-		tdgs.RunPPMSITEstimateScenario1(db)
+		err = tdgs.RunPPMSITEstimateScenario1(db)
 	} else if *scenario == 5 {
-		tdgs.RunRateEngineScenario1(db)
+		err = tdgs.RunRateEngineScenario1(db)
 	} else if *scenario == 6 {
-		tdgs.RunRateEngineScenario2(db)
+		err = tdgs.RunRateEngineScenario2(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
 		testdatagen.MakeTDLData(db)
@@ -47,7 +50,13 @@ func main() {
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakeMoveData(db)
-		testdatagen.MakeServiceMember(db)
-		testdatagen.MakeBackupContact(db)
+		_, err = testdatagen.MakeServiceMember(db)
+		if err == nil {
+			_, err = testdatagen.MakeBackupContact(db)
+
+		}
+	}
+	if err != nil {
+		log.Panic(err)
 	}
 }

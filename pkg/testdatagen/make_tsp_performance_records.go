@@ -13,8 +13,14 @@ import (
 )
 
 // MakeTSPPerformance makes a single best_value_score record
-func MakeTSPPerformance(db *pop.Connection, tsp models.TransportationServiceProvider,
-	tdl models.TrafficDistributionList, qualityBand *int, score float64, offerCount int, linehaulDiscountRate unit.DiscountRate, SITDiscountRate unit.DiscountRate) (models.TransportationServiceProviderPerformance, error) {
+func MakeTSPPerformance(db *pop.Connection,
+	tsp models.TransportationServiceProvider,
+	tdl models.TrafficDistributionList,
+	qualityBand *int,
+	score float64,
+	offerCount int,
+	linehaulDiscountRate unit.DiscountRate,
+	SITDiscountRate unit.DiscountRate) (models.TransportationServiceProviderPerformance, error) {
 
 	tspPerformance := models.TransportationServiceProviderPerformance{
 		PerformancePeriodStart:          PerformancePeriodStart,

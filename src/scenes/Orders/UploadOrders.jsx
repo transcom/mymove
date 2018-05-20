@@ -8,10 +8,8 @@ import moment from 'moment';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { showCurrentOrders, deleteUpload, addUploads } from './ducks';
-import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import WizardPage from 'shared/WizardPage';
-import { no_op } from 'shared/utils.js';
 
 import './UploadOrders.css';
 
@@ -71,7 +69,6 @@ export class UploadOrders extends Component {
       currentOrders,
       uploads,
     } = this.props;
-    const { showAmendedOrders } = this.state;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
     return (
@@ -137,7 +134,8 @@ export class UploadOrders extends Component {
           </div>
         )}
 
-        <div className="Todo amended-orders">
+        {/* TODO: Uncomment when we support upload of amended orders */}
+        {/* <div className="amended-orders">
           <p>
             Do you have amended orders? If so, you need to upload those as well.
           </p>
@@ -152,7 +150,7 @@ export class UploadOrders extends Component {
               <div className="hint">(Each page must be clear and legible)</div>
             </div>
           )}
-        </div>
+        </div> */}
       </WizardPage>
     );
   }
