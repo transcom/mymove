@@ -106,9 +106,10 @@ export class Landing extends Component {
         )}
 
         {!isLoggedIn && <LoginButton />}
-        {loggedInUserSuccess && (
-          <button onClick={this.startMove}>Start a move</button>
-        )}
+        {!displayMove &&
+          loggedInUserSuccess && (
+            <button onClick={this.startMove}>Start a move</button>
+          )}
       </div>
     );
   }
