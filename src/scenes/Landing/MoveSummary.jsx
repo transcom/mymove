@@ -21,7 +21,7 @@ const DutyStationContactInfo = props => {
 };
 
 export const MoveSummary = props => {
-  const { profile, move, orders, ppm, editMove } = props;
+  const { profile, move, orders, ppm, editMove, entitlement } = props;
   return (
     <div className="whole_box">
       <h2>
@@ -29,9 +29,12 @@ export const MoveSummary = props => {
       </h2>
       <div className="usa-width-three-fourths">
         <div>Move Locator: {move.locator}</div>
-        <div>
-          Weight Entitlement: <span className="Todo">10,500 lbs</span>
-        </div>
+        {entitlement && (
+          <div>
+            Weight Entitlement:{' '}
+            <span>{entitlement.total.toLocaleString()} lbs</span>
+          </div>
+        )}
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
