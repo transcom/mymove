@@ -15,7 +15,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
     }
 
     save = () => {
-      const args = this.props.getUpdateArgs();
+      let args = this.props.getUpdateArgs();
       this.props.update(...args);
       this.toggleEditable();
     };
