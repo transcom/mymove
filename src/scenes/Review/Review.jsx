@@ -19,6 +19,13 @@ export class Review extends Component {
     if (!this.props.currentPpm) {
       this.props.loadPpm(this.props.match.params.moveId);
     }
+    const service_member = get(this.props.loggedInUser, 'service_member');
+    if (
+      service_member &&
+      !(this.props.currentBackupContacts && this.props.currentBackupContacts[0])
+    ) {
+      this.props.indexBackupContacts(service_member.id);
+    }
   }
   componentWillUpdate(newProps) {
     const service_member = get(newProps.loggedInUser, 'service_member');
@@ -247,7 +254,7 @@ export class Review extends Component {
                 <tbody>
                   <tr>
                     <th>
-                      Backup Contact Info{' '}
+                      Backup Contact{' '}
                       <span className="align-right">
                         <a href={editBackupContactAddress}>Edit</a>
                       </span>
