@@ -48,7 +48,7 @@ export const MoveSummary = props => {
                 <div className="step-contents">
                   <div className="status_box usa-width-two-thirds">
                     <div className="step">
-                      <div className="title">Awaiting Approval</div>
+                      <div className="title">Next Step: Awaiting approval</div>
                       <div>
                         Your shipment is awaiting approval. This can take up to
                         3 business days. Questions or need help? Contact your
@@ -189,7 +189,7 @@ export const MoveSummary = props => {
             className="usa-button-secondary"
             onClick={() => editMove(move)}
           >
-            Edit Move Details
+            Edit Move
           </button>
         </div>
 

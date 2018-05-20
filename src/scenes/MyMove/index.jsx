@@ -12,6 +12,7 @@ import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import EditProfile from 'scenes/Review/EditProfile';
+import EditBackupContact from 'scenes/Review/EditBackupContact';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -64,6 +65,11 @@ export class AppWrapper extends Component {
                   exact
                   path="/moves/:moveId/review/edit-profile"
                   component={EditProfile}
+                />
+                <PrivateRoute
+                  exact
+                  path="/moves/:moveId/review/edit-backup-contact"
+                  component={EditBackupContact}
                 />
                 <Route component={NoMatch} />
               </Switch>

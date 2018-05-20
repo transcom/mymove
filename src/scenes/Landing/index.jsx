@@ -21,27 +21,21 @@ export class Landing extends Component {
   }
   componentDidUpdate() {
     if (this.props.loggedInUserSuccess) {
-      // Once the logged in user loads, if the service member doesn't
-      // exist we need to dispatch creating one, once.
       if (
         !this.props.createdServiceMemberIsLoading &&
         !this.props.loggedInUser.service_member
       ) {
-        this.props.createServiceMember({}).then(something => {
-          this.props.push(
-            `service-member/${
-              this.props.loggedInUser.service_member.id
-            }/create`,
-          );
-        });
-        // If the service member exists, but is not complete, redirect as well.
+        // Once the logged in user loads, if the service member doesn't
+        // exist we need to dispatch creating one, once.
+        this.props.createServiceMember({});
       } else if (
         this.props.loggedInUser &&
         this.props.loggedInUser.service_member &&
         !this.props.loggedInUser.service_member.is_profile_complete
       ) {
+        // If the service member exists, but is not complete, redirect to profile creation.
         this.props.push(
-          `service-member/${this.props.loggedInUser.service_member.id}/create`,
+          `/service-member/${this.props.loggedInUser.service_member.id}/create`,
         );
       }
     }
@@ -106,9 +100,10 @@ export class Landing extends Component {
         )}
 
         {!isLoggedIn && <LoginButton />}
-        {loggedInUserSuccess && (
-          <button onClick={this.startMove}>Start a move</button>
-        )}
+        {!displayMove &&
+          loggedInUserSuccess && (
+            <button onClick={this.startMove}>Start a move</button>
+          )}
       </div>
     );
   }
