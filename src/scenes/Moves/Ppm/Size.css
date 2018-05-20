@@ -32,15 +32,11 @@
 .radio {
   width: 30px;
   height: 30px;
-  -moz-border-radius: 15px;
-  -webkit-border-radius: 15px;
   border-radius: 15px;
   border: 1px solid #468ac8;
-  content: "\2713";
 }
 
 .radio.selected {
-  content: "\2713";
   font-size: 20px;
   line-height: 25px;
   color: white;
