@@ -1,5 +1,53 @@
 .ppm-size-content h3 {
-  margin-bottom: 5rem;
+  margin-bottom: 3rem;
   font-weight: bold;
   font-size: 2.5rem;
+}
+
+.entitlement-container {
+  background-color: #C8C8C8;
+  padding: 0.7em;
+  margin-bottom: 3rem;
+}
+
+.entitlement-container > p {
+  margin: 0;
+}
+
+.button-container {
+  display: flex;
+}
+
+.contents {
+  width: 100%;
+}
+
+.text {
+  min-height: 4em;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.radio {
+  width: 30px;
+  height: 30px;
+  -moz-border-radius: 15px;
+  -webkit-border-radius: 15px;
+  border-radius: 15px;
+  border: 1px solid #468ac8;
+  content: "\2713";
+}
+
+.radio.selected {
+  content: "\2713";
+  font-size: 20px;
+  line-height: 25px;
+  color: white;
+  background-color: #0071bc;
+  border: 1px solid #0071bc;
+}
+
+.radio-container {
+  margin: 10px 10px 0 0;
 }

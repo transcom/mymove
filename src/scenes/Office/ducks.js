@@ -1,3 +1,4 @@
+import { isNull, get } from 'lodash';
 import {
   LoadAccountingAPI,
   UpdateAccountingAPI,
@@ -8,6 +9,7 @@ import {
   LoadPPMs,
   ApproveBasics,
 } from './api.js';
+import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -108,6 +110,16 @@ export function loadMoveDependencies(moveId) {
       return dispatch(actions.error(ex));
     }
   };
+}
+
+// Selectors
+export function loadEntitlements(state) {
+  const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
+  const rank = get(state, 'office.officeServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer

@@ -6,7 +6,7 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadEntitlements } from 'scenes/Office/ducks';
 
 import {
   PanelSwaggerField,
@@ -190,10 +190,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     orders: get(state, 'office.officeOrders'),
     serviceMember: get(state, 'office.officeServiceMember'),
-    entitlements: loadEntitlements(
-      get(state, 'office.officeOrders'),
-      get(state, 'office.officeServiceMember'),
-    ),
+    entitlements: loadEntitlements(state),
     isUpdating: false,
   };
 }
