@@ -82,6 +82,7 @@ export class Review extends Component {
 
     const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = thisAddress + '/edit-profile';
+    const editBackupContactAddress = thisAddress + '/edit-backup-contact';
 
     return (
       <WizardPage
@@ -246,7 +247,7 @@ export class Review extends Component {
                     <th>
                       Backup Contact Info{' '}
                       <span className="align-right">
-                        <a href="about:blank">Edit</a>
+                        <a href={editBackupContactAddress}>Edit</a>
                       </span>
                     </th>
                   </tr>
