@@ -214,6 +214,8 @@ const initialState = {
 
 export function officeReducer(state = initialState, action) {
   switch (action.type) {
+    // SINGLE-RESOURCE ACTION TYPES
+
     // MOVES
     case LOAD_MOVE.start:
       return Object.assign({}, state, {
@@ -397,6 +399,12 @@ export function officeReducer(state = initialState, action) {
         basicsAreUpdating: false,
         error: action.error.message,
       });
+
+    // MULTIPLE-RESOURCE ACTION TYPES
+    //
+    // These action types typically dispatch to other actions above to
+    // perform their work and exist to encapsulate when multiple requests
+    // need to be made in response to a user action.
 
     // BACKUP INFO
     case UPDATE_BACKUP_INFO.start:
