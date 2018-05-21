@@ -8,9 +8,11 @@
     "classnames": "^2.2.5",
     "enzyme": "^3.2.0",
     "enzyme-adapter-react-16": "^1.1.1",
+    "eslint-plugin-security": "^1.4.0",
     "filepond-plugin-file-validate-type": "^1.0.3",
     "filepond-plugin-image-exif-orientation": "^1.0.1",
-    "filepond-plugin-image-preview": "https://github.com/transcom/filepond-plugin-image-preview",
+    "filepond-plugin-image-preview":
+      "https://github.com/transcom/filepond-plugin-image-preview",
     "filepond-polyfill": "^1.0.2",
     "is-mobile": "^0.3.0",
     "jest-canvas-mock": "^1.0.2",
@@ -22,6 +24,8 @@
     "moment": "^2.22.1",
     "path-to-regexp": "^2.2.0",
     "react": "^16.2.0",
+    "react-app-rewire-eslint": "^0.2.3",
+    "react-app-rewired": "^1.5.2",
     "react-day-picker": "^7.1.8",
     "react-dom": "^16.2.0",
     "react-filepond": "^2.0.6",
@@ -51,12 +55,14 @@
   "name": "client",
   "private": true,
   "scripts": {
-    "build": "NODE_PATH=./src react-scripts build",
-    "eject": "NODE_PATH=./src react-scripts eject",
-    "start": "NODE_PATH=./src react-scripts start",
-    "test": "NODE_PATH=./src react-scripts test --env=jsdom",
-    "test:debug": "NODE_PATH=./src react-scripts --inspect-brk test --runInBand --env=jsdom",
-    "test:coverage": "NODE_PATH=./src react-scripts test --coverage --env=jsdom",
+    "build": "NODE_PATH=./src react-app-rewired build",
+    "eject": "NODE_PATH=./src react-app-rewired eject",
+    "start": "NODE_PATH=./src react-app-rewired start",
+    "test": "NODE_PATH=./src react-app-rewired test --env=jsdom",
+    "test:debug":
+      "NODE_PATH=./src react-app-rewired --inspect-brk test --runInBand --env=jsdom",
+    "test:coverage":
+      "NODE_PATH=./src react-app-rewired test --coverage --env=jsdom",
     "e2e-test": "NODE_PATH=./e2e jest ./e2e.test.js --env=jsdom",
     "prettier": "prettier",
     "adr-log": "adr-log -d ./docs/adr -i ./docs/adr/readme.md"
