@@ -32,7 +32,7 @@ export const MoveSummary = props => {
         {entitlement && (
           <div>
             Weight Entitlement:{' '}
-            <span>{entitlement.total.toLocaleString()} lbs</span>
+            <span>{entitlement.sum.toLocaleString()} lbs</span>
           </div>
         )}
         <div className="shipment_box">

@@ -55,7 +55,6 @@ server_deps: go_version .server_deps.stamp
 	dep ensure -vendor-only
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	# go install ./vendor/github.com/GoASTScanner/gas/cmd/gas
 	go build -i -o bin/gas ./vendor/github.com/GoASTScanner/gas/cmd/gas
 	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
 	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
