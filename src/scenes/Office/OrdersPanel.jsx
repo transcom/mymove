@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
 import { loadEntitlements } from 'scenes/Office/ducks';
+import { formatDate } from './helpers';
 
 import {
   PanelSwaggerField,
@@ -33,17 +34,15 @@ const OrdersDisplay = props => {
             <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
           </Link>
         </PanelField>
-        <PanelSwaggerField
+        <PanelField
           title="Date issued"
-          fieldName="issue_date"
-          {...fieldProps}
+          value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        <PanelSwaggerField
+        <PanelField
           title="Report by"
-          fieldName="report_by_date"
-          {...fieldProps}
+          value={formatDate(props.orders.report_by_date)}
         />
         <PanelField title="Current Duty Station">
           {get(props.serviceMember, 'current_station.name', '')}
