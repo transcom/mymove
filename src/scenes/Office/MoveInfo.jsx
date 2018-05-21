@@ -124,7 +124,8 @@ class MoveInfo extends Component {
               <li>Locator# {officeMove.locator}</li>
               <li className="Todo">KKFA to HAFC</li>
               <li>
-                Requested Pickup {get(officePPMs, '[0].planned_move_date')}
+                Requested Pickup{' '}
+                {formatDate(get(officePPMs, '[0].planned_move_date'))}
               </li>
             </ul>
           </div>
