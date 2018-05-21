@@ -1,7 +1,11 @@
 package handlers
 
 import (
-	/* #nosec */
+	/*
+		#nosec - we use md5 because it's required by the S3 API for
+		validating data integrity.
+		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+	*/
 	"crypto/md5"
 	"encoding/base64"
 	"io"
@@ -61,7 +65,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return responseForError(h.logger, docErr)
 	}
 
-	/* #nosec */
+	/*
+		#nosec - we use md5 because it's required by the S3 API for
+		validating data integrity.
+		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+	*/
 	hash := md5.New()
 	if _, err := io.Copy(hash, file.Data); err != nil {
 		h.logger.Error("failed to hash uploaded file", zap.Error(err))
