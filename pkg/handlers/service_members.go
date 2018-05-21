@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	if serviceMember.DutyStation != nil {
@@ -20,8 +20,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	}
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
-		var h HandlerContext
-		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orderPayload, _ := payloadForOrdersModel(storage, order)
 		orders[i] = orderPayload
 	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
@@ -118,7 +117,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
+	servicememberPayload := payloadForServiceMemberModel(h.storage, user, newServiceMember)
 	return servicememberop.NewCreateServiceMemberCreated().WithPayload(servicememberPayload)
 }
 
@@ -137,7 +136,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return responseForError(h.logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -164,7 +163,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
