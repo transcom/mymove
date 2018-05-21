@@ -87,9 +87,10 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		OrdersType:          newOrdersType,
 		OrdersTypeDetail:    &newOrdersTypeDetail,
 		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
-		ServiceMemberID:     fmtUUID(otherServiceMemberUUID),
 		Tac:                 order.TAC,
 		DepartmentIndicator: &departmentIndicator,
+		// Attempt to assign to another service member
+		ServiceMemberID: fmtUUID(otherServiceMemberUUID),
 	}
 
 	params := ordersop.UpdateOrdersParams{
