@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	/* #nosec */
 	"crypto/md5"
 	"encoding/base64"
 	"io"
@@ -60,6 +61,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return responseForError(h.logger, docErr)
 	}
 
+	/* #nosec */
 	hash := md5.New()
 	if _, err := io.Copy(hash, file.Data); err != nil {
 		h.logger.Error("failed to hash uploaded file", zap.Error(err))
