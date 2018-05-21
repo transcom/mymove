@@ -6,8 +6,8 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
-import { loadEntitlements } from 'scenes/Orders/ducks';
-// import { updateOrders } from './ducks';
+import { loadEntitlements } from 'scenes/Office/ducks';
+
 import {
   PanelSwaggerField,
   PanelField,
@@ -27,7 +27,10 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <a href={props.orders.uploaded_orders.uploads.url} target="_blank">
+          <a
+            href={get(props.orders, 'uploaded_orders.uploads[0].url')}
+            target="_blank"
+          >
             <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
             <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
           </a>
@@ -54,13 +57,13 @@ const OrdersDisplay = props => {
       <div className="editable-panel-column">
         <span className="editable-panel-column subheader">Entitlements</span>
         <PanelField title="Household Goods">
-          {get(props.entitlements, 'total', '')} lbs
+          {get(props.entitlements, 'total', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Pro-gear">
-          {get(props.entitlements, 'pro_gear', '')} lbs
+          {get(props.entitlements, 'pro_gear', '').toLocaleString()} lbs
         </PanelField>
         <PanelField title="Spouse pro-gear">
-          {get(props.entitlements, 'pro_gear_spouse', '')} lbs
+          {get(props.entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
         </PanelField>
         <PanelField className="Todo" title="Short-term storage">
           90 days

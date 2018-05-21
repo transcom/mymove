@@ -124,8 +124,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 
-	internalAPI.OfficeShowAccountingHandler = ShowAccountingHandler(context)
-	internalAPI.OfficePatchAccountingHandler = PatchAccountingHandler(context)
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 
 	return internalAPI.Serve(nil)

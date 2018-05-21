@@ -1,4 +1,4 @@
-import { get, reject, concat } from 'lodash';
+import { reject, concat, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -60,7 +60,7 @@ export function deleteUpload(uploadId) {
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (currentOrders) {
-      DeleteUpload(uploadId)
+      return DeleteUpload(uploadId)
         .then(() => {
           const uploads = currentOrders.uploaded_orders.uploads;
           currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
@@ -69,6 +69,8 @@ export function deleteUpload(uploadId) {
           dispatch(action.success(currentOrders));
         })
         .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -90,18 +92,20 @@ export function addUploads(uploads) {
 
 // Selectors
 export function loadEntitlements(state) {
-  if (state.currentOrders || state.office) {
-    var rank;
-    var hasDependents;
-    if (state.currentOrders) {
-      rank = get(state, 'currentOrders.service_member.rank');
-      hasDependents = get(state, 'currentOrders.has_dependents');
-    } else if (state.office.officeOrders) {
-      rank = get(state, 'office.officeServiceMember.rank');
-      hasDependents = get(state, 'office.officeOrders.has_dependents');
-    }
-    return getEntitlements(rank, hasDependents);
+  const hasDependents = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.orders.0.has_dependents',
+    null,
+  );
+  const rank = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.rank',
+    null,
+  );
+  if (isNull(hasDependents) || isNull(rank)) {
+    return null;
   }
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer

@@ -11,9 +11,8 @@ import (
 )
 
 func (suite *RateEngineSuite) Test_Scenario1() {
-	if err := scenario.RunRateEngineScenario1(suite.db); err != nil {
-		suite.NotNil(err, "failed to run scenario 1")
-	}
+	err := scenario.RunRateEngineScenario1(suite.db)
+	suite.Nil(err, "failed to run scenario 1")
 
 	logger, err := zap.NewDevelopment()
 	suite.Assertions.Nil(err, "could not create a development logger")

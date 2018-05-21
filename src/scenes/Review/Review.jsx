@@ -16,7 +16,16 @@ import './Review.css';
 
 export class Review extends Component {
   componentWillMount() {
-    this.props.loadPpm(this.props.match.params.moveId);
+    if (!this.props.currentPpm) {
+      this.props.loadPpm(this.props.match.params.moveId);
+    }
+    const service_member = get(this.props.loggedInUser, 'service_member');
+    if (
+      service_member &&
+      !(this.props.currentBackupContacts && this.props.currentBackupContacts[0])
+    ) {
+      this.props.indexBackupContacts(service_member.id);
+    }
   }
   componentWillUpdate(newProps) {
     const service_member = get(newProps.loggedInUser, 'service_member');
@@ -82,6 +91,7 @@ export class Review extends Component {
 
     const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = thisAddress + '/edit-profile';
+    const editBackupContactAddress = thisAddress + '/edit-backup-contact';
 
     return (
       <WizardPage
@@ -244,9 +254,9 @@ export class Review extends Component {
                 <tbody>
                   <tr>
                     <th>
-                      Backup Contact Info{' '}
+                      Backup Contact{' '}
                       <span className="align-right">
-                        <a href="about:blank">Edit</a>
+                        <a href={editBackupContactAddress}>Edit</a>
                       </span>
                     </th>
                   </tr>

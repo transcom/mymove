@@ -8,17 +8,17 @@ import {
   SHOW_CURRENT_ORDERS,
 } from 'scenes/Orders/ducks.js';
 
-const GET_LOGGED_IN_USER = 'GET_LOGGED_IN_USER';
+const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
-export const getUserTypes = helpers.generateAsyncActionTypes(
-  GET_LOGGED_IN_USER,
+export const GET_LOGGED_IN_USER = helpers.generateAsyncActionTypes(
+  getLoggedInUserType,
 );
 
-const getLoggedInActions = helpers.generateAsyncActions(GET_LOGGED_IN_USER);
+const getLoggedInActions = helpers.generateAsyncActions(getLoggedInUserType);
 export const loadLoggedInUser = () => {
   return function(dispatch) {
     const userInfo = getUserInfo();
-    if (!userInfo.isLoggedIn) return;
+    if (!userInfo.isLoggedIn) return Promise.resolve();
     dispatch(getLoggedInActions.start());
     return GetLoggedInUser()
       .then(item => dispatch(getLoggedInActions.success(item)))
@@ -27,7 +27,7 @@ export const loadLoggedInUser = () => {
 };
 
 const generatedReducer = helpers.generateAsyncReducer(
-  GET_LOGGED_IN_USER,
+  getLoggedInUserType,
   u => ({ loggedInUser: u }),
 );
 

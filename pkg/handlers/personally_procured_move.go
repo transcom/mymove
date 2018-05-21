@@ -39,9 +39,10 @@ type CreatePersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	// User should always be populated by middleware
+	// #nosec User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -76,9 +77,10 @@ type IndexPersonallyProcuredMovesHandler HandlerContext
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
-	// User should always be populated by middleware
+	// #nosec User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
@@ -142,10 +144,12 @@ type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	// User should always be populated by middleware
+	// #nosec User should always be populated by middleware
 	user, _ := auth.GetUser(params.HTTPRequest.Context())
 	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, reqApp, ppmID)

@@ -72,14 +72,9 @@ export function loadLatestCertification(moveId) {
   const action = ReduxHelpers.generateAsyncActions('GET_LATEST_CERT');
   return function(dispatch, getState) {
     dispatch(action.start);
-    const state = getState();
-    const latestSignedCertification =
-      state.signedCertification.latestSignedCertification;
-    if (!latestSignedCertification) {
-      GetCertifications(moveId, 1)
-        .then(item => dispatch(action.success(item)))
-        .catch(error => dispatch(action.error(error)));
-    }
+    return GetCertifications(moveId, 1)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
   };
 }
 

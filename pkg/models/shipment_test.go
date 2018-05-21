@@ -22,7 +22,11 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 func (suite *ModelSuite) Test_FetchAllShipments() {
 	t := suite.T()
 	now := time.Now()
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
@@ -44,7 +48,11 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 	t := suite.T()
 	now := time.Now()
-	tdl, _ := testdatagen.MakeTDL(suite.db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
