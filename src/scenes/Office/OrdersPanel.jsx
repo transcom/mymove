@@ -3,6 +3,7 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
+import { Link } from 'react-router-dom';
 
 import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
