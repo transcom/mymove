@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
 import editablePanel from './editablePanel';
 
-import { no_op_action } from 'shared/utils';
+import { updateOrdersInfo } from './ducks';
 import { loadEntitlements } from 'scenes/Office/ducks';
 
 import {
@@ -187,7 +187,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updateOrdersInfo,
     },
     dispatch,
   );
