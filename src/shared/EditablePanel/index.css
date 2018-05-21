@@ -38,8 +38,9 @@
 }
 
 .editable-panel .half-width {
-  width: 40%;
+  width: 45%;
   display: inline-block;
+  vertical-align: top;
 }
 
 .editable-panel .half-width + .half-width {
