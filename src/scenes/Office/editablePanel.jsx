@@ -27,7 +27,8 @@ export default function editablePanel(DisplayComponent, EditComponent) {
     };
 
     render() {
-      const isEditable = this.state.isEditable || this.props.isUpdating;
+      const isEditable =
+        this.state.isEditable || this.props.isUpdating || false;
       const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (
@@ -54,7 +55,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
     update: PropTypes.func.isRequired,
     moveId: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
-    isUpdating: PropTypes.bool.isRequired,
+    isUpdating: PropTypes.bool,
   };
 
   return Wrapper;

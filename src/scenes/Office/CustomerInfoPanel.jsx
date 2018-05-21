@@ -102,52 +102,73 @@ const CustomerInfoEdit = props => {
 
   return (
     <React.Fragment>
-      <FormSection name="serviceMember">
-        <div className="editable-panel-column">
-          <SwaggerField fieldName="title" swagger={schema} />
-          <SwaggerField fieldName="first_name" swagger={schema} required />
-          <SwaggerField fieldName="middle_name" swagger={schema} />
-          <SwaggerField fieldName="last_name" swagger={schema} required />
-          <SwaggerField fieldName="suffix" swagger={schema} />
-        </div>
-        <div className="editable-panel-column">
-          <SwaggerField fieldName="edipi" swagger={schema} required />
-          <SwaggerField fieldName="affiliation" swagger={schema} />
-          <SwaggerField fieldName="rank" swagger={schema} />
-        </div>
-        <div className="editable-panel-column">
-          <div className="panel-subhead">Contact</div>
-          <SwaggerField fieldName="telephone" swagger={schema} required />
-          <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-          <SwaggerField fieldName="personal_email" swagger={schema} required />
-        </div>
-      </FormSection>
-      <div className="editable-panel-column">
-        <FormSection name="address">
-          <div className="panel-subhead">Current Residence Address</div>
-          <SwaggerField fieldName="street_address_1" swagger={addressSwagger} />
-          <SwaggerField fieldName="street_address_2" swagger={addressSwagger} />
-          <SwaggerField fieldName="street_address_3" swagger={addressSwagger} />
-          <SwaggerField fieldName="city" swagger={addressSwagger} />
-          <SwaggerField fieldName="state" swagger={addressSwagger} />
-          <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
-          <SwaggerField fieldName="country" swagger={addressSwagger} />
+      <div>
+        <FormSection name="serviceMember">
+          <div className="editable-panel-column">
+            <SwaggerField fieldName="title" swagger={schema} />
+            <SwaggerField fieldName="first_name" swagger={schema} required />
+            <SwaggerField fieldName="middle_name" swagger={schema} />
+            <SwaggerField fieldName="last_name" swagger={schema} required />
+            <SwaggerField fieldName="suffix" swagger={schema} />
+          </div>
+          <div className="editable-panel-column">
+            <SwaggerField fieldName="edipi" swagger={schema} required />
+            <SwaggerField fieldName="affiliation" swagger={schema} />
+            <SwaggerField fieldName="rank" swagger={schema} />
+          </div>
         </FormSection>
       </div>
-      <div className="editable-panel-column">
-        <FormSection name="contact_preferences">
-          <fieldset key="contact_preferences">
-            <legend htmlFor="contact_preferences">
-              Preferred contact method during your move:
-            </legend>
-            <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+
+      <div>
+        <div className="editable-panel-column">
+          <FormSection name="serviceMember">
+            <div className="panel-subhead">Contact</div>
+            <SwaggerField fieldName="telephone" swagger={schema} required />
+            <SwaggerField fieldName="secondary_telephone" swagger={schema} />
             <SwaggerField
-              fieldName="text_message_is_preferred"
+              fieldName="personal_email"
               swagger={schema}
+              required
             />
-            <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-          </fieldset>
-        </FormSection>
+
+            <fieldset key="contact_preferences">
+              <legend htmlFor="contact_preferences">
+                <p>Preferred contact method</p>
+              </legend>
+              <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+              <SwaggerField
+                fieldName="text_message_is_preferred"
+                swagger={schema}
+              />
+              <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+            </fieldset>
+          </FormSection>
+        </div>
+
+        <div className="editable-panel-column">
+          <FormSection name="address">
+            <div className="panel-subhead">Current Residence Address</div>
+            <SwaggerField
+              fieldName="street_address_1"
+              swagger={addressSwagger}
+            />
+            <SwaggerField
+              fieldName="street_address_2"
+              swagger={addressSwagger}
+            />
+            <SwaggerField
+              fieldName="street_address_3"
+              swagger={addressSwagger}
+            />
+            <SwaggerField fieldName="city" swagger={addressSwagger} />
+            <div className="half-width">
+              <SwaggerField fieldName="state" swagger={addressSwagger} />
+            </div>
+            <div className="half-width">
+              <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
+            </div>
+          </FormSection>
+        </div>
       </div>
     </React.Fragment>
   );

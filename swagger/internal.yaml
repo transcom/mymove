@@ -1024,7 +1024,7 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
-    title: Dept. indicator
+    title: Department indicator
     enum:
       - AIRFORCE
     x-display-value:
@@ -1347,6 +1347,7 @@ definitions:
         type: string
         format: date-time
       tac:
+        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -1403,6 +1404,7 @@ definitions:
         x-nullable: true
         example: "030-00362"
       tac:
+        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -1486,27 +1488,6 @@ definitions:
       - last_modified_date
       - last_modified_name
       - created_at
-  Accounting:
-    type: object
-    properties:
-      dept_indicator:
-        $ref: '#/definitions/DeptIndicator'
-      tac:
-        type: string
-        example: F8J1
-        title: TAC
-    required:
-      - dept_indicator
-      - tac
-  PatchAccounting:
-    type: object
-    properties:
-      dept_indicator:
-        $ref: '#/definitions/DeptIndicator'
-      tac:
-        type: string
-        example: F8J1
-        title: TAC
 paths:
   /estimates/ppm:
     get:
@@ -2122,68 +2103,6 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/accounting:
-    get:
-      summary: Returns accounting information for a move
-      description: Returns accounting information for a move
-      operationId: showAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-      responses:
-        200:
-          description: the accounting information for a move
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
-    patch:
-      summary: Updates accounting information for a move
-      description: Any fields sent in this request will be set for accounting info on the referenced move
-      operationId: patchAccounting
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the associated move
-        - in: body
-          name: patchAccounting
-          required: true
-          schema:
-            $ref: '#/definitions/PatchAccounting'
-      responses:
-        200:
-          description: updated accounting information
-          schema:
-            $ref: '#/definitions/Accounting'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: move not found
-        500:
-          description: internal server error
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
