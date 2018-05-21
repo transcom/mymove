@@ -3,10 +3,12 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
-import editablePanel from './editablePanel';
+import { Link } from 'react-router-dom';
 
+import editablePanel from './editablePanel';
 import { no_op_action } from 'shared/utils';
 import { loadEntitlements } from 'scenes/Office/ducks';
+import { formatDate } from './helpers';
 
 import {
   PanelSwaggerField,
@@ -27,25 +29,20 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <a
-            href={get(props.orders, 'uploaded_orders.uploads[0].url')}
-            target="_blank"
-          >
+          <Link to={`/moves/${props.move.id}/orders`} target="_blank">
             <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
             <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-          </a>
+          </Link>
         </PanelField>
-        <PanelSwaggerField
+        <PanelField
           title="Date issued"
-          fieldName="issue_date"
-          {...fieldProps}
+          value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        <PanelSwaggerField
+        <PanelField
           title="Report by"
-          fieldName="report_by_date"
-          {...fieldProps}
+          value={formatDate(props.orders.report_by_date)}
         />
         <PanelField title="Current Duty Station">
           {get(props.serviceMember, 'current_station.name', '')}
@@ -189,6 +186,7 @@ function mapStateToProps(state) {
     hasError: false,
     errorMessage: state.office.error,
     orders: get(state, 'office.officeOrders'),
+    move: get(state, 'office.officeMove'),
     serviceMember: get(state, 'office.officeServiceMember'),
     entitlements: loadEntitlements(state),
     isUpdating: false,
