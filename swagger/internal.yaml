@@ -1296,13 +1296,13 @@ definitions:
         description: The date and time that these orders were cut.
         format: date
         example: "2018-04-26"
-        title: Orders date
+        title: Date issued
       report_by_date:
         type: string
         description: Report By Date
         format: date
         example: "2018-04-26"
-        title:  Report-by date
+        title:  Report by
       orders_status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
