@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -25,26 +24,16 @@ type TrafficDistributionList struct {
 	CodeOfService     string    `json:"code_of_service" db:"code_of_service"`
 }
 
-// String is not required by pop and may be deleted
-func (t TrafficDistributionList) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // TrafficDistributionLists is not required by pop and may be deleted
 type TrafficDistributionLists []TrafficDistributionList
-
-// String is not required by pop and may be deleted
-func (t TrafficDistributionLists) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *TrafficDistributionList) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.SourceRateArea, Name: "SourceRateArea"},
+		&validators.RegexMatch{Field: t.SourceRateArea, Name: "SourceRateArea", Expr: "^US.*$"},
 		&validators.StringIsPresent{Field: t.DestinationRegion, Name: "DestinationRegion"},
+		&validators.RegexMatch{Field: t.DestinationRegion, Name: "DestinationRegion", Expr: "^[0-9]+"},
 		&validators.StringIsPresent{Field: t.CodeOfService, Name: "CodeOfService"},
 	), nil
 }

@@ -184,7 +184,7 @@ const renderInputField = ({
         {title}
         {!always_required &&
           type !== 'boolean' &&
-          !component && <span className="label-optional">Optional</span>}
+          !customComponent && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (

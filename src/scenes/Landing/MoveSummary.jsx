@@ -21,7 +21,7 @@ const DutyStationContactInfo = props => {
 };
 
 export const MoveSummary = props => {
-  const { profile, move, orders, ppm, editMove } = props;
+  const { profile, move, orders, ppm, editMove, entitlement } = props;
   return (
     <div className="whole_box">
       <h2>
@@ -29,9 +29,12 @@ export const MoveSummary = props => {
       </h2>
       <div className="usa-width-three-fourths">
         <div>Move Locator: {move.locator}</div>
-        <div>
-          Weight Entitlement: <span className="Todo">10,500 lbs</span>
-        </div>
+        {entitlement && (
+          <div>
+            Weight Entitlement:{' '}
+            <span>{entitlement.total.toLocaleString()} lbs</span>
+          </div>
+        )}
         <div className="shipment_box">
           <div className="shipment_type">
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
@@ -45,7 +48,7 @@ export const MoveSummary = props => {
                 <div className="step-contents">
                   <div className="status_box usa-width-two-thirds">
                     <div className="step">
-                      <div className="title">Awaiting Approval</div>
+                      <div className="title">Next Step: Awaiting approval</div>
                       <div>
                         Your shipment is awaiting approval. This can take up to
                         3 business days. Questions or need help? Contact your
@@ -186,7 +189,7 @@ export const MoveSummary = props => {
             className="usa-button-secondary"
             onClick={() => editMove(move)}
           >
-            Edit Move Details
+            Edit Move
           </button>
         </div>
 

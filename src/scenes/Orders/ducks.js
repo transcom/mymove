@@ -1,4 +1,4 @@
-import { reject, concat } from 'lodash';
+import { reject, concat, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -91,9 +91,20 @@ export function addUploads(uploads) {
 }
 
 // Selectors
-export function loadEntitlements(orders, service_member) {
-  var rank = service_member.rank;
-  var hasDependents = orders.has_dependents;
+export function loadEntitlements(state) {
+  const hasDependents = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.orders.0.has_dependents',
+    null,
+  );
+  const rank = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.rank',
+    null,
+  );
+  if (isNull(hasDependents) || isNull(rank)) {
+    return null;
+  }
   return getEntitlements(rank, hasDependents);
 }
 

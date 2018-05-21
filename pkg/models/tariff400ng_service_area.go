@@ -18,7 +18,7 @@ type Tariff400ngServiceArea struct {
 	CreatedAt          time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt          time.Time  `json:"updated_at" db:"updated_at"`
 	Name               string     `json:"name" db:"name"`
-	ServiceArea        int        `json:"service_area" db:"service_area"`
+	ServiceArea        string     `json:"service_area" db:"service_area"`
 	ServicesSchedule   int        `json:"services_schedule" db:"services_schedule"`
 	LinehaulFactor     unit.Cents `json:"linehaul_factor" db:"linehaul_factor"`
 	ServiceChargeCents unit.Cents `json:"service_charge_cents" db:"service_charge_cents"`
@@ -36,6 +36,8 @@ type Tariff400ngServiceAreas []Tariff400ngServiceArea
 // This method is not required and may be deleted.
 func (t *Tariff400ngServiceArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
+		&validators.StringIsPresent{Field: t.ServiceArea, Name: "ServiceArea"},
+		&validators.RegexMatch{Field: t.ServiceArea, Name: "ServiceArea", Expr: "^[0-9]+$"},
 		&validators.IntIsGreaterThan{Field: t.ServiceChargeCents.Int(), Name: "ServiceChargeCents", Compared: -1},
 		&validators.IntIsPresent{Field: t.SIT185ARateCents.Int(), Name: "SIT185ARateCents"},
 		&validators.IntIsPresent{Field: t.SIT185BRateCents.Int(), Name: "SIT185BRateCents"},

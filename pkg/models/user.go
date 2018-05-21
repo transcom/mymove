@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -21,20 +20,8 @@ type User struct {
 	LoginGovEmail string    `json:"login_gov_email" db:"login_gov_email"`
 }
 
-// String is not required by pop and may be deleted
-func (u User) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
-
 // Users is not required by pop and may be deleted
 type Users []User
-
-// String is not required by pop and may be deleted
-func (u Users) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -67,7 +54,7 @@ func GetUserByID(db *pop.Connection, id uuid.UUID) (User, error) {
 // GetServiceMemberProfile returns a service member profile if one is associated with this user, otherwise returns nil
 func (u User) GetServiceMemberProfile(db *pop.Connection) (*ServiceMember, error) {
 	serviceMembers := ServiceMembers{}
-	err := db.Where("user_id = $1", u.ID).Eager("DutyStation", "ResidentialAddress", "BackupMailingAddress", "Orders.NewDutyStation.Address", "Orders.UploadedOrders", "Orders.Moves.PersonallyProcuredMoves").All(&serviceMembers)
+	err := db.Where("user_id = $1", u.ID).Eager("DutyStation", "ResidentialAddress", "BackupMailingAddress", "Orders.NewDutyStation.Address", "Orders.UploadedOrders.Uploads", "Orders.Moves.PersonallyProcuredMoves").All(&serviceMembers)
 	if err != nil {
 		return nil, err
 	}

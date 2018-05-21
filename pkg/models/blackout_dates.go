@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -48,20 +47,8 @@ func FetchTSPBlackoutDates(tx *pop.Connection, tspID uuid.UUID, shipment Shipmen
 	return blackoutDates, err
 }
 
-// String is not required by pop and may be deleted
-func (b BlackoutDate) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
-}
-
 // BlackoutDates is not required by pop and may be deleted
 type BlackoutDates []BlackoutDate
-
-// String is not required by pop and may be deleted
-func (b BlackoutDates) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.

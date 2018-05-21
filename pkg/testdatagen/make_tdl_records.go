@@ -1,7 +1,7 @@
 package testdatagen
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/gobuffalo/pop"
 
@@ -17,9 +17,9 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models
 		CodeOfService:     cos,
 	}
 
-	_, err := db.ValidateAndSave(&tdl)
-	if err != nil {
-		log.Fatalf("Failed to validate and save tdl: %v", err)
+	verrs, err := db.ValidateAndSave(&tdl)
+	if verrs.HasAny() {
+		err = fmt.Errorf("TDL validation errors: %v", verrs)
 	}
 
 	return tdl, err
@@ -28,7 +28,7 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models
 // MakeTDLData creates three TDL records
 func MakeTDLData(db *pop.Connection) {
 	// It would be nice to make this less repetitive
-	MakeTDL(db, "california", "90210", "2")
-	MakeTDL(db, "north carolina", "27007", "4")
-	MakeTDL(db, "washington", "98310", "1")
+	MakeTDL(db, "US1", "2", "2")
+	MakeTDL(db, "US10", "9", "2")
+	MakeTDL(db, "US4964400", "4", "D")
 }
