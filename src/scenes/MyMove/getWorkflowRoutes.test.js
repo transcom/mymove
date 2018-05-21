@@ -11,8 +11,19 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPagesInFlow(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/service-member/:serviceMemberId/transition',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
           '/moves/:moveId',
           '/moves/:moveId/ppm-start',
           '/moves/:moveId/ppm-size',
@@ -29,8 +40,19 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPagesInFlow(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/service-member/:serviceMemberId/transition',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
           '/moves/:moveId',
           '/moves/:moveId/schedule',
           '/moves/:moveId/address',
@@ -46,8 +68,19 @@ describe('when getting the routes for the current workflow', () => {
         hasMove: true,
       };
       const pages = getPagesInFlow(props);
-      it('just returns move pages', () => {
+      it('returns service member, order and move pages', () => {
         expect(pages).toEqual([
+          '/service-member/:serviceMemberId/create',
+          '/service-member/:serviceMemberId/name',
+          '/service-member/:serviceMemberId/contact-info',
+          '/service-member/:serviceMemberId/duty-station',
+          '/service-member/:serviceMemberId/residence-address',
+          '/service-member/:serviceMemberId/backup-mailing-address',
+          '/service-member/:serviceMemberId/backup-contacts',
+          '/service-member/:serviceMemberId/transition',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
           '/moves/:moveId',
           '/moves/:moveId/schedule',
           '/moves/:moveId/address',

@@ -60,7 +60,6 @@ const stub = (key, pages, description) => ({ match }) => (
 const createMove = props => () =>
   props.hasMove || props.createMove(props.currentOrdersId);
 const always = () => true;
-const incompleteServiceMember = props => !props.hasCompleteProfile;
 const hasHHG = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
@@ -69,51 +68,51 @@ const isCombo = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType === 'COMBO';
 const pages = {
   '/service-member/:serviceMemberId/create': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <DodInfo pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/name': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <SMName pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/contact-info': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <ContactInfo pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/duty-station': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <DutyStation pages={pages} pageKey={key} match={match} />
     ),
     description: 'current duty station',
   },
   '/service-member/:serviceMemberId/residence-address': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <ResidentialAddress pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/backup-mailing-address': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <BackupMailingAddress pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/backup-contacts': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <BackupContact pages={pages} pageKey={key} match={match} />
     ),
     description: 'Backup contacts',
   },
   '/service-member/:serviceMemberId/transition': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <TransitionToOrders />
@@ -121,20 +120,20 @@ const pages = {
     ),
   },
   '/orders/': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <Orders pages={pages} pageKey={key} match={match} />
     ),
   },
   '/orders/upload': {
-    isInFlow: incompleteServiceMember,
+    isInFlow: always,
     render: (key, pages) => ({ match }) => (
       <UploadOrders pages={pages} pageKey={key} match={match} />
     ),
     description: 'Upload your orders',
   },
   '/orders/transition': {
-    isInFlow: incompleteServiceMember, //todo: this is probably not the right check
+    isInFlow: always, //todo: this is probably not the right check
     render: (key, pages, description, props) => ({ match }) => (
       <WizardPage
         handleSubmit={createMove(props)}

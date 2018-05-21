@@ -88,7 +88,10 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    hasCompleteProfile: false, //todo update this when user service is ready
+    hasCompleteProfile: get(
+      state.loggedInUser,
+      'loggedInUser.service_member.is_profile_complete',
+    ),
     swaggerError: state.swagger.hasErrored,
     selectedMoveType: state.submittedMoves.currentMove
       ? state.submittedMoves.currentMove.selected_move_type
