@@ -15,6 +15,7 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
+import PaymentsPanel from './PaymentsPanel';
 import { loadMoveDependencies, approveBasics } from './ducks.js';
 import { formatDate } from './helpers';
 
@@ -23,6 +24,7 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
+// import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
@@ -43,8 +45,12 @@ const BasicsTabContent = props => {
   );
 };
 
-const PPMTabContent = () => {
-  return <div>PPM</div>;
+const PPMTabContent = props => {
+  return (
+    <React.Fragment>
+      <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+    </React.Fragment>
+  );
 };
 
 class MoveInfo extends Component {
