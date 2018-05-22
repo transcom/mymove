@@ -28,7 +28,15 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return responseForError(h.logger, err)
 	}
 
-	cost, err := engine.ComputePPM(unit.Pound(params.WeightEstimate),
+	weightEstimate := params.WeightEstimate
+	weightProrate := float64(1)
+	// If weight is less than 1000, prorate the rate for 1000 lbs
+	if weightEstimate < 1000 {
+		weightProrate = float64(weightEstimate) / 1000.0
+		weightEstimate = 1000
+	}
+
+	cost, err := engine.ComputePPM(unit.Pound(weightEstimate),
 		params.OriginZip,
 		params.DestinationZip,
 		time.Time(params.PlannedMoveDate),
@@ -41,8 +49,8 @@ func (h ShowPPMEstimateHandler) Handle(params ppmop.ShowPPMEstimateParams) middl
 		return responseForError(h.logger, err)
 	}
 
-	min := cost.GCC.MultiplyFloat64(0.95)
-	max := cost.GCC.MultiplyFloat64(1.05)
+	min := cost.GCC.MultiplyFloat64(0.95).MultiplyFloat64(weightProrate)
+	max := cost.GCC.MultiplyFloat64(1.05).MultiplyFloat64(weightProrate)
 
 	ppmEstimate := internalmessages.PPMEstimateRange{
 		RangeMin: swag.Int64(min.Int64()),
