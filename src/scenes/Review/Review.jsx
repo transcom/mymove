@@ -92,6 +92,7 @@ export class Review extends Component {
     const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = thisAddress + '/edit-profile';
     const editBackupContactAddress = thisAddress + '/edit-backup-contact';
+    const editOrdersAddress = thisAddress + '/edit-orders';
 
     return (
       <WizardPage
@@ -155,7 +156,7 @@ export class Review extends Component {
                   <th>
                     Orders{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editOrdersAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
@@ -184,7 +185,7 @@ export class Review extends Component {
                   <td> Dependents?: </td>
                   <td>
                     {' '}
-                    {get(currentOrders, 'has_dependents') &&
+                    {currentOrders &&
                       yesNoMap[get(currentOrders, 'has_dependents').toString()]}
                   </td>
                 </tr>
