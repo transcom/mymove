@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -13,7 +14,19 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 		return models.PersonallyProcuredMove{}, err
 	}
 
-	ppm, verrs, err := move.CreateNewPPM(db)
+	shirt := internalmessages.TShirtSizeM
+	ppm, verrs, err := move.CreatePPM(db,
+		&shirt,
+		models.Int64Pointer(8000),
+		models.StringPointer("estimate incentive"),
+		models.TimePointer(DateInsidePeakRateCycle),
+		models.StringPointer("72017"),
+		models.BoolPointer(false),
+		nil,
+		models.StringPointer("60605"),
+		models.BoolPointer(false),
+		nil)
+
 	if verrs.HasAny() || err != nil {
 		return models.PersonallyProcuredMove{}, err
 	}

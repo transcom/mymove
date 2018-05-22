@@ -209,8 +209,3 @@ func createNewMove(db *pop.Connection,
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration
 }
-
-// CreateNewPPM creates a new PersonallyProcuredMove connected to the receiver.
-func (m Move) CreateNewPPM(db *pop.Connection) (*PersonallyProcuredMove, *validate.Errors, error) {
-	return createNewPPM(db, m.ID)
-}
