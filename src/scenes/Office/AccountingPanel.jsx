@@ -79,6 +79,7 @@ function mapStateToProps(state) {
 
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
+      values.new_duty_station_id = values.new_duty_station.id;
       return [orders.id, values];
     },
   };
