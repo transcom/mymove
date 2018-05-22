@@ -15,7 +15,6 @@ import (
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -76,19 +75,37 @@ func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
 	suite.checkErrorResponse(resp, http.StatusTeapot, "Teapot")
 }
 
-func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.User) *http.Request {
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	ctx = app.PopulateAppContext(ctx, app.MyApp)
+// Request authenticated with a service member
+func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.ServiceMember) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          user.UserID,
+		IDToken:         "fake token",
+		ServiceMemberID: user.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 
-func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.User) *http.Request {
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, user)
-	ctx = app.PopulateAppContext(ctx, app.OfficeApp)
+// Request only authenticated with a bare user - have no idea if they are a service member yet
+func (suite *HandlerSuite) authenticateUserRequest(req *http.Request, user models.User) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          user.ID,
+		IDToken:         "fake token",
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
+func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.OfficeApp,
+		UserID:          user.UserID,
+		IDToken:         "fake token",
+		OfficeUserID:    user.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)
 }
 

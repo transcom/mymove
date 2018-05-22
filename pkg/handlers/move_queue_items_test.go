@@ -14,9 +14,16 @@ import (
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	// Given: An office user
-	officeUser := models.User{
+	user := models.User{
 		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "email@example.com",
+	}
+	officeUser := models.OfficeUser{
+		UserID:    user.ID,
+		User:      user,
+		FirstName: "Office",
+		LastName:  "Worker",
+		Email:     "email@example.gov",
 	}
 	suite.mustSave(&officeUser)
 
@@ -35,7 +42,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/queues/new", nil)
-	req = suite.authenticateRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := queueop.ShowQueueParams{
 		HTTPRequest: req,

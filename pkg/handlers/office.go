@@ -5,7 +5,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -93,14 +92,12 @@ type ApproveMoveHandler HandlerContext
 
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
 	// TODO: Validate that this move belongs to the office user
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

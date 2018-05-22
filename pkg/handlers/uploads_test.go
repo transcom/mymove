@@ -94,7 +94,7 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 
 func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, user models.User, fakeS3 *fakeS3Storage) middleware.Responder {
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, user)
+	req = suite.authenticateUserRequest(req, user)
 
 	params.HTTPRequest = req
 

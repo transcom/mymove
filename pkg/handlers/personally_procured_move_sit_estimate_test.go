@@ -3,8 +3,6 @@ package handlers
 import (
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
-
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -62,11 +60,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	}
 	suite.mustSave(&tspPerformance)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -145,11 +139,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	}
 	suite.mustSave(&tspPerformance)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -210,11 +200,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	}
 	suite.mustSave(&destServiceArea)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains required auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)

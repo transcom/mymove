@@ -12,7 +12,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -45,9 +44,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
-
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
@@ -55,7 +52,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	//fetching document to ensure user has access to it
-	_, docErr := models.FetchDocument(h.db, user, reqApp, documentID)
+	_, docErr := models.FetchDocument(h.db, session, documentID)
 	if docErr != nil {
 		return responseForError(h.logger, docErr)
 	}
@@ -97,7 +94,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	newUpload := models.Upload{
 		ID:          id,
 		DocumentID:  documentID,
-		UploaderID:  user.ID,
+		UploaderID:  session.UserID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: contentType,
@@ -145,12 +142,10 @@ type DeleteUploadHandler HandlerContext
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	app := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.db, user, app, uploadID)
+	upload, err := models.FetchUpload(h.db, session, uploadID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

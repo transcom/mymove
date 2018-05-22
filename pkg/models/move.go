@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"crypto/sha256"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -72,7 +73,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchMove fetches and validates a Move for this User
-func FetchMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*Move, error) {
+func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager().Find(&move, id)
 	if err != nil {
@@ -84,7 +85,7 @@ func FetchMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrder(db, authUser, reqApp, move.OrdersID)
+	_, authErr := FetchOrder(db, session, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}
@@ -131,14 +132,14 @@ func (m Move) CreatePPM(db *pop.Connection,
 
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
-	submittingUser User,
+	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
 	date time.Time) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
 		MoveID:            m.ID,
-		SubmittingUserID:  submittingUser.ID,
+		SubmittingUserID:  submittingUserID,
 		CertificationText: certificationText,
 		Signature:         signature,
 		Date:              date,

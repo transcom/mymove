@@ -4,11 +4,9 @@ import (
 	"net/http/httptest"
 	"time"
 
-	"github.com/gobuffalo/uuid"
-
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
-	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/route"
+	"github.com/transcom/mymove/pkg/testdatagen"
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
@@ -17,11 +15,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)

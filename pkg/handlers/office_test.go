@@ -13,10 +13,12 @@ import (
 func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	move, _ := testdatagen.MakeMove(suite.db)
+	// Given: and office User
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApproveMoveParams{
 		HTTPRequest: req,

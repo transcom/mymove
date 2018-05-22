@@ -9,7 +9,7 @@ import (
 	"path"
 	"path/filepath"
 
-	aws "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
@@ -18,8 +18,8 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/route"
@@ -113,9 +113,6 @@ func main() {
 	}
 	zap.ReplaceGlobals(logger)
 
-	// Middleware to look at request hostname and work out which APP (my.move.mil, office.move.mil ..) we are serving
-	appDetectionMiddleware := app.DetectorMiddleware(logger, *myHostname, *officeHostname)
-
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
@@ -142,15 +139,16 @@ func main() {
 	clientHandler := http.FileServer(http.Dir(*build))
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
+	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
 	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
-	// Populates user info using cookie and renews token
-	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
+	// Session management and authentication middleware
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
+	userAuthMiddleware := authentication.UserAuthMiddleware()
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
 
@@ -202,8 +200,8 @@ func main() {
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
 
 	root := goji.NewMux()
-	root.Use(appDetectionMiddleware)
-	root.Use(tokenMiddleware)
+	root.Use(sessionCookieMiddleware)
+	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -228,12 +226,12 @@ func main() {
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
-	authContext := auth.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler{AuthorizationContext: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler{AuthorizationContext: authContext})
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+	authMux.Handle(pat.Get("/logout"), authentication.LogoutHandler{Context: authContext})
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
