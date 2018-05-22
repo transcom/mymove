@@ -12,7 +12,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.8.1
+    rev: v0.9.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -66,14 +66,14 @@ repos:
     -   id: go-vet
     -   id: go-lint
 
-  # - repo: local
-  #   hooks:
-  #     - id: gas
-  #       name: go abstract syntax (gas) scanner
-  #       entry: bin/gas -fmt text -quiet ./...
-  #       language: script
-  #       description: Inspects source code for security problems by scanning the Go AST.
-  #       files: \.go$
+  - repo: local
+    hooks:
+      - id: gas
+        name: go abstract syntax (gas) scanner
+        entry: bin/gas -exclude=G104 -fmt text -quiet ./...
+        language: script
+        description: Inspects source code for security problems by scanning the Go AST.
+        files: \.go$
 
   - repo: local
     hooks:
