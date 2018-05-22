@@ -30,6 +30,9 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker, md5 string) (*StoreR
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
+	/*
+		#nosec - filesystem storage is only used for local development.
+	*/
 	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create parent directory")
