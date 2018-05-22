@@ -14,7 +14,7 @@ import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-// Types
+// SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
@@ -23,10 +23,14 @@ const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
-
-const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
-const loadDependenciesType = 'LOAD_DEPENDENCIES';
 const approveBasicsType = 'APPROVE_BASICS';
+
+// MULTIPLE-RESOURCE ACTION TYPES
+const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
+const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
+const loadDependenciesType = 'LOAD_DEPENDENCIES';
+
+// SINGLE RESOURCE ACTION TYPES
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
@@ -52,15 +56,23 @@ const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
+const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+
+// MULTIPLE-RESOURCE ACTION TYPES
+
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
   updateBackupInfoType,
+);
+
+const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(
+  updateOrdersInfoType,
 );
 
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
   loadDependenciesType,
 );
 
-const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+// SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -107,6 +119,12 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   ApproveBasics,
 );
 
+// MULTIPLE-RESOURCE ACTION CREATORS
+//
+// These action types typically dispatch to other actions above to
+// perform their work and exist to encapsulate when multiple requests
+// need to be made in response to a user action.
+
 export function updateBackupInfo(
   serviceMemberId,
   serviceMemberPayload,
@@ -122,6 +140,29 @@ export function updateBackupInfo(
         updateServiceMember(serviceMemberId, serviceMemberPayload),
       );
       await dispatch(updateBackupContact(backupContactId, backupContact));
+      return dispatch(actions.success());
+    } catch (ex) {
+      return dispatch(actions.error(ex));
+    }
+  };
+}
+
+export function updateOrdersInfo(
+  ordersId,
+  orders,
+  serviceMemberId,
+  serviceMember,
+) {
+  const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    try {
+      // TODO: perform these requests concurrently
+      serviceMember.current_station_id = serviceMember.current_station.id;
+      await dispatch(updateServiceMember(serviceMemberId, serviceMember));
+
+      orders.new_duty_station_id = orders.new_duty_station.id;
+      await dispatch(updateOrders(ordersId, orders));
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));
@@ -188,6 +229,8 @@ const initialState = {
 
 export function officeReducer(state = initialState, action) {
   switch (action.type) {
+    // SINGLE-RESOURCE ACTION TYPES
+
     // MOVES
     case LOAD_MOVE.start:
       return Object.assign({}, state, {
@@ -371,6 +414,12 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    // MULTIPLE-RESOURCE ACTION TYPES
+    //
+    // These action types typically dispatch to other actions above to
+    // perform their work and exist to encapsulate when multiple requests
+    // need to be made in response to a user action.
+
     // BACKUP INFO
     case UPDATE_BACKUP_INFO.start:
       return Object.assign({}, state, {
@@ -386,6 +435,24 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         updateBackupInfoHasSuccess: false,
         updateBackupInfoHasError: true,
+        error: action.error.message,
+      });
+
+    // ORDERS INFO
+    case UPDATE_ORDERS_INFO.start:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: false,
+        updateOrdersInfoHasError: false,
+      });
+    case UPDATE_ORDERS_INFO.success:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: true,
+        updateOrdersInfoHasError: false,
+      });
+    case UPDATE_ORDERS_INFO.failure:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: false,
+        updateOrdersInfoHasError: true,
         error: action.error.message,
       });
 

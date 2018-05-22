@@ -153,7 +153,7 @@
   font-size: 0.8em;
 }
 
-.panel-subhead {
+head .panel-subhead {
   font-weight: bold;
   margin-top: 4rem;
 }
@@ -176,4 +176,16 @@
 
 .editable-panel-column fieldset label:first-of-type {
   margin-top: 0;
+}
+
+.usa-input.duty-station p {
+  margin-bottom: 0;
+}
+
+.usa-input.duty-station .duty-input-box {
+  margin-left: 0.1em;
+}
+
+.usa-input.duty-station p.location {
+  display: none;
 }

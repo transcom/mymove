@@ -105,3 +105,23 @@
 .panel-subhead + .usa-input .usa-input-label {
   margin-top: 1rem;
 }
+
+.editable-panel.is-editable .field-value {
+  display: block;
+  margin-left: 0;
+  font-size: 1.8rem;
+}
+
+.editable-panel.is-editable .field-title {
+  display: block;
+}
+
+.editable-panel.is-editable .panel-field {
+  border: 0;
+  margin: 1rem 0 2rem;
+}
+
+.editable-panel.is-editable .panel-subhead {
+  margin-top: 3rem;
+  display: block;
+}

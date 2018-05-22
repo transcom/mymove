@@ -52,7 +52,7 @@ export const PanelSwaggerField = props => {
 PanelSwaggerField.propTypes = {
   fieldName: PropTypes.string.isRequired,
   schema: PropTypes.object.isRequired,
-  values: PropTypes.object,
+  values: PropTypes.object.isRequired,
   title: PropTypes.string,
 };
 
