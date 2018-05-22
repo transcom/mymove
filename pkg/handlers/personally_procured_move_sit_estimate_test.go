@@ -17,12 +17,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "D") // Victoria, TX to Salina, KS
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -96,12 +96,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -171,12 +171,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -189,7 +189,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,

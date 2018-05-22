@@ -11,7 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForServiceMemberModel(serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storage FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	if serviceMember.DutyStation != nil {
@@ -19,8 +19,7 @@ func payloadForServiceMemberModel(serviceMember models.ServiceMember) *internalm
 	}
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
-		var h HandlerContext
-		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orderPayload, _ := payloadForOrdersModel(storage, order)
 		orders[i] = orderPayload
 	}
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
@@ -118,11 +117,17 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 	// Update session info
 	session.ServiceMemberID = newServiceMember.ID
-	session.FirstName = *newServiceMember.FirstName
-	session.Middle = *newServiceMember.MiddleName
-	session.LastName = *newServiceMember.LastName
+	if newServiceMember.FirstName != nil {
+		session.FirstName = *(newServiceMember.FirstName)
+	}
+	if newServiceMember.MiddleName != nil {
+		session.Middle = *(newServiceMember.MiddleName)
+	}
+	if newServiceMember.LastName != nil {
+		session.LastName = *(newServiceMember.LastName)
+	}
 	// And return
-	serviceMemberPayload := payloadForServiceMemberModel(newServiceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, newServiceMember)
 	return servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
 }
 
@@ -139,7 +144,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return responseForError(h.logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -164,7 +169,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 

@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect, Link } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -15,11 +15,7 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import {
-  loadMoveDependencies,
-  loadAccounting,
-  approveBasics,
-} from './ducks.js';
+import { loadMoveDependencies, approveBasics } from './ducks.js';
 import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -54,7 +50,6 @@ const PPMTabContent = () => {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.loadAccounting(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -69,12 +64,7 @@ class MoveInfo extends Component {
     // const officeBackupContacts = this.props.officeBackupContacts || []
     const officePPMs = this.props.officePPMs || [];
 
-    let uploads;
-    if (this.props.officeOrders) {
-      uploads = this.props.officeOrders.uploaded_orders.uploads;
-    } else {
-      uploads = [];
-    }
+    let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -129,7 +119,7 @@ class MoveInfo extends Component {
               <li>Locator# {officeMove.locator}</li>
               <li className="Todo">KKFA to HAFC</li>
               <li>
-                Requested Pickup {get(officePPMs, '[0].planned_move_date')}
+                Move date {formatDate(get(officePPMs, '[0].planned_move_date'))}
               </li>
             </ul>
           </div>
@@ -193,21 +183,17 @@ class MoveInfo extends Component {
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
-              {uploads.length === 0 && <p>No orders have been uploaded.</p>}
-              {uploads.map(upload => {
-                return (
-                  <div key={upload.url} className="document">
-                    <FontAwesomeIcon
-                      style={{ color: 'red' }}
-                      className="icon"
-                      icon={faExclamationCircle}
-                    />
-                    <a href={upload.url} target="_blank">
-                      Orders ({formatDate(upload.created_at)})
-                    </a>
-                  </div>
-                );
-              })}
+              {!upload && <p>No orders have been uploaded.</p>}
+              <div className="document">
+                <FontAwesomeIcon
+                  style={{ color: 'red' }}
+                  className="icon"
+                  icon={faExclamationCircle}
+                />
+                <Link to={`/moves/${officeMove.id}/orders`} target="_blank">
+                  Orders ({formatDate(upload.created_at)})
+                </Link>
+              </div>
             </div>
           </div>
         </div>
@@ -218,7 +204,6 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  loadAccounting: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -233,9 +218,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { loadMoveDependencies, loadAccounting, approveBasics },
-    dispatch,
-  );
+  bindActionCreators({ loadMoveDependencies, approveBasics }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);

@@ -1,4 +1,4 @@
-import { has } from 'lodash';
+import { has, sum } from 'lodash';
 
 export function getEntitlements(rank, hasDependents = false) {
   if (!has(entitlements, rank)) {
@@ -12,6 +12,11 @@ export function getEntitlements(rank, hasDependents = false) {
     total: entitlements[rank][totalKey],
     pro_gear: entitlements[rank].pro_gear_weight,
     pro_gear_spouse: entitlements[rank].pro_gear_weight_spouse,
+    sum: sum([
+      entitlements[rank][totalKey],
+      entitlements[rank].pro_gear_weight,
+      entitlements[rank].pro_gear_weight_spouse,
+    ]),
   };
 }
 

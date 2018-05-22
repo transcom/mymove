@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, find } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -71,9 +71,20 @@ export function loadPpm(moveId) {
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (!currentPpm) {
-      GetPpm(moveId)
-        .then(item => dispatch(action.success(item)))
-        .catch(error => dispatch(action.error(error)));
+      // Load PPM from loggedInUser if available
+      const loadedMoves = get(
+        state,
+        'loggedInUser.loggedInUser.service_member.orders.0.moves',
+        [],
+      );
+      const matchingMove = find(loadedMoves, ['id', moveId]);
+      if (get(matchingMove, 'personally_procured_moves.length')) {
+        dispatch(action.success(matchingMove.personally_procured_moves));
+      } else {
+        GetPpm(moveId)
+          .then(item => dispatch(action.success(item)))
+          .catch(error => dispatch(action.error(error)));
+      }
     }
   };
 }
