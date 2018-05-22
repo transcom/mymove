@@ -5,6 +5,8 @@ import (
 	"net/http/httptest"
 	"time"
 
+	"github.com/gobuffalo/uuid"
+
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -73,16 +75,22 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	req = suite.authenticateRequest(req, order.ServiceMember.User)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED
 	departmentIndicator := internalmessages.DeptIndicatorAIRFORCE
+	otherServiceMemberUUID := uuid.Must(uuid.NewV4())
+
 	payload := &internalmessages.CreateUpdateOrders{
+		OrdersNumber:        fmtString("123456"),
 		HasDependents:       fmtBool(order.HasDependents),
 		IssueDate:           fmtDate(order.IssueDate),
 		ReportByDate:        fmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,
+		OrdersTypeDetail:    &newOrdersTypeDetail,
 		NewDutyStationID:    fmtUUID(order.NewDutyStationID),
-		ServiceMemberID:     fmtUUID(order.ServiceMember.ID),
 		Tac:                 order.TAC,
 		DepartmentIndicator: &departmentIndicator,
+		// Attempt to assign to another service member
+		ServiceMemberID: fmtUUID(otherServiceMemberUUID),
 	}
 
 	params := ordersop.UpdateOrdersParams{
@@ -96,6 +104,8 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
 	okResponse := response.(*ordersop.UpdateOrdersOK)
 
-	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.Assertions.Equal(fmtString("123456"), okResponse.Payload.OrdersNumber)
+	suite.Assertions.Equal(order.ServiceMember.ID.String(), okResponse.Payload.ServiceMemberID.String(), "service member id should not change")
 	suite.Assertions.Equal(newOrdersType, okResponse.Payload.OrdersType)
+	suite.Assertions.Equal(newOrdersTypeDetail, *okResponse.Payload.OrdersTypeDetail)
 }
