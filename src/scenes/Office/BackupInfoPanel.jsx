@@ -123,16 +123,15 @@ function mapStateToProps(state) {
     // reduxForm
     initialValues: {
       backupContact: backupContact,
-      backupMailingAddress: serviceMember.backup_mailing_address,
+      backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     },
-
     addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
     backupContactSchema: get(
       state,
       'swagger.spec.definitions.ServiceMemberBackupContactPayload',
       {},
     ),
-    backupMailingAddress: serviceMember.backup_mailing_address,
+    backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     backupContact: backupContact,
 
     getUpdateArgs: function() {
