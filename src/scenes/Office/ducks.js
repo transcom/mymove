@@ -25,13 +25,12 @@ const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const approveBasicsType = 'APPROVE_BASICS';
+const approvePPMType = 'APPROVE_PPM';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
 const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
-const approveBasicsType = 'APPROVE_BASICS';
-const approvePPMType = 'APPROVE_PPM';
 
 // SINGLE RESOURCE ACTION TYPES
 
