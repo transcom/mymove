@@ -18,6 +18,7 @@ export class Landing extends Component {
     if (!this.props.loggedInUserIsLoading) {
       this.props.loadLoggedInUser();
     }
+    window.scrollTo(0, 0);
   }
   componentDidUpdate() {
     if (this.props.loggedInUserSuccess) {
@@ -63,6 +64,7 @@ export class Landing extends Component {
       loggedInUserError,
       createdServiceMemberError,
       loggedInUser,
+      moveSubmitSuccess,
       entitlement,
     } = this.props;
 
@@ -76,6 +78,11 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         <div>
+          {moveSubmitSuccess && (
+            <Alert type="success" heading="Success">
+              You've submitted your move
+            </Alert>
+          )}
           {loggedInUserError && (
             <Alert type="error" heading="An error occurred">
               There was an error loading your user information.
@@ -119,6 +126,7 @@ const mapStateToProps = state => ({
   createdServiceMemberSuccess: state.serviceMember.hasSubmitSuccess,
   createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
+  moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
   entitlement: loadEntitlements(state),
 });
 
