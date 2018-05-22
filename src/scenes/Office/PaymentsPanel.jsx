@@ -1,5 +1,5 @@
-// import { get } from 'lodash';
-import React, { Component } from 'react';
+import { get } from 'lodash';
+import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
@@ -8,67 +8,52 @@ import { no_op } from 'shared/utils';
 
 // import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 
-class PaymentsTable extends Component {
-  // const backupAddress = props.backupMailingAddress;
-  // const backupContact = props.backupContact;
-  render() {
-    return (
-      <React.Fragment>
-        <table>
-          <tbody>
+const PaymentsTable = props => {
+  const ppm = props.ppm;
+  return (
+    <div className="usa-grid">
+      <table>
+        <tbody>
+          <tr>
+            <th />
+            <th>Amount</th>
+            <th>Disbursement</th>
+            <th>Requested on</th>
+            <th>Approved</th>
+          </tr>
+          {ppm.has_requested_advance ? (
+            [
+              <tr>
+                <th>Payments against PPM Incentive</th>
+              </tr>,
+              <tr>
+                <td />
+                <td>{ppm.requested_amount}</td>
+                <td>{ppm.method_of_receipt}</td>
+                <td>Dogs</td>
+                <td>Dogs</td>
+              </tr>,
+            ]
+          ) : (
             <tr>
-              <th />
-              <th>Amount</th>
-              <th>Disbursement</th>
-              <th>Requested on</th>
-              <th>Approved</th>
+              <th>No payments requested</th>
             </tr>
-            <tr>
-              <th>Payments against PPM Incentive</th>
-            </tr>
-            <tr>
-              <td />
-              <td>Dogs</td>
-              <td>Dogs</td>
-              <td>Dogs</td>
-              <td>Dogs</td>
-            </tr>
-          </tbody>
-        </table>
-      </React.Fragment>
-    );
-  }
-}
+          )}
+        </tbody>
+      </table>
+    </div>
+  );
+};
 
 function mapStateToProps(state) {
   // let serviceMember = get(state, 'office.officeServiceMember', {});
   // let backupContact = get(state, 'office.officeBackupContacts.0', {}); // there can be only one
 
   return {
-    // reduxForm
     initialValues: {},
-
-    // addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
-    // backupContactSchema: get(
-    //   state,
-    //   'swagger.spec.definitions.ServiceMemberBackupContactPayload',
-    //   {},
-    // ),
-    // backupMailingAddress: serviceMember.backup_mailing_address,
-    // backupContact: backupContact,
-
-    // getUpdateArgs: function() {
-    //   let values = getFormValues(formName)(state);
-    //   return [
-    //     serviceMember.id,
-    //     { backup_mailing_address: values.backupMailingAddress },
-    //     backupContact.id,
-    //     values.backupContact,
-    //   ];
-    // },
-
+    ppm: get(state, 'office.officePPMs[0]', {}),
     hasError: false,
-    // errorMessage: state.office.error,
+    errorMessage: state.office.error,
   };
 }
 
