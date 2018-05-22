@@ -151,3 +151,15 @@
   margin-right: 4px;
   font-size: 0.8em;
 }
+
+.usa-input.duty-station p {
+  margin-bottom: 0;
+}
+
+.usa-input.duty-station .duty-input-box {
+  margin-left: 0.1em;
+}
+
+.usa-input.duty-station p.location {
+  display: none;
+}

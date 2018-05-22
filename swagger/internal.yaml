@@ -1351,7 +1351,7 @@ definitions:
         description: Report By Date
         format: date
         example: "2018-04-26"
-        title:  Report-by date
+        title:  Report by
       orders_status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
