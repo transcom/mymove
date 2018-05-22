@@ -14,7 +14,7 @@ import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-// Types
+// SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
@@ -23,11 +23,14 @@ const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
+const approveBasicsType = 'APPROVE_BASICS';
 
+// MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
 const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
-const approveBasicsType = 'APPROVE_BASICS';
+
+// SINGLE RESOURCE ACTION TYPES
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
@@ -53,6 +56,10 @@ const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
+const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+
+// MULTIPLE-RESOURCE ACTION TYPES
+
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
   updateBackupInfoType,
 );
@@ -65,7 +72,7 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
   loadDependenciesType,
 );
 
-const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+// SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -111,6 +118,12 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   approveBasicsType,
   ApproveBasics,
 );
+
+// MULTIPLE-RESOURCE ACTION CREATORS
+//
+// These action types typically dispatch to other actions above to
+// perform their work and exist to encapsulate when multiple requests
+// need to be made in response to a user action.
 
 export function updateBackupInfo(
   serviceMemberId,
