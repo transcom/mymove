@@ -234,7 +234,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		return err
 	}
 
-	linehaulRate := models.Tariff400ngLinehaulRate{
+	linehaulRate1 := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1601,
 		DistanceMilesUpper: 1701,
 		Type:               "ConusLinehaul",
@@ -244,7 +244,21 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		EffectiveDateLower: may15_2018,
 		EffectiveDateUpper: may15_2019,
 	}
-	if err := save(db, &linehaulRate); err != nil {
+	if err := save(db, &linehaulRate1); err != nil {
+		return err
+	}
+
+	linehaulRate2 := models.Tariff400ngLinehaulRate{
+		DistanceMilesLower: 1601,
+		DistanceMilesUpper: 1701,
+		Type:               "ConusLinehaul",
+		WeightLbsLower:     1000,
+		WeightLbsUpper:     1400,
+		RateCents:          unit.Cents(1277900),
+		EffectiveDateLower: may15_2018,
+		EffectiveDateUpper: may15_2019,
+	}
+	if err := save(db, &linehaulRate2); err != nil {
 		return err
 	}
 

@@ -49,3 +49,41 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 	suite.Equal(int64(605204), *cost.RangeMin, "RangeMin was not equal")
 	suite.Equal(int64(668910), *cost.RangeMax, "RangeMax was not equal")
 }
+
+func (suite *HandlerSuite) TestShowPPMEstimateHandlerLowWeight() {
+	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
+
+	user := models.User{
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
+		LoginGovEmail: "email@example.com",
+	}
+	suite.mustSave(&user)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
+	req = suite.authenticateRequest(req, user)
+
+	date := time.Date(2018, time.June, 18, 0, 0, 0, 0, time.UTC)
+	params := ppmop.ShowPPMEstimateParams{
+		HTTPRequest:     req,
+		PlannedMoveDate: *fmtDate(date),
+		OriginZip:       "94540",
+		DestinationZip:  "78626",
+		WeightEstimate:  600,
+	}
+	// And: show Queue is queried
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetPlanner(route.NewTestingPlanner(1693))
+	showHandler := ShowPPMEstimateHandler(context)
+	showResponse := showHandler.Handle(params)
+
+	// Then: Expect a 200 status code
+	okResponse := showResponse.(*ppmop.ShowPPMEstimateOK)
+	cost := okResponse.Payload
+
+	// And: Returned SIT cost to be as expected
+	suite.Equal(int64(256740), *cost.RangeMin, "RangeMin was not equal")
+	suite.Equal(int64(283766), *cost.RangeMax, "RangeMax was not equal")
+}
