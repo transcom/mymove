@@ -8,6 +8,7 @@ import {
   UpdateBackupContact,
   LoadPPMs,
   ApproveBasics,
+  ApprovePPM,
 } from './api.js';
 
 import { UpdateOrders } from 'scenes/Orders/api.js';
@@ -27,6 +28,7 @@ const loadPPMsType = 'LOAD_PPMS';
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
 const loadDependenciesType = 'LOAD_DEPENDENCIES';
 const approveBasicsType = 'APPROVE_BASICS';
+const approvePPMType = 'APPROVE_PPM';
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
@@ -61,6 +63,8 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 );
 
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+
+const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -105,6 +109,11 @@ export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
 export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   approveBasicsType,
   ApproveBasics,
+);
+
+export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
+  approvePPMType,
+  ApprovePPM,
 );
 
 export function updateBackupInfo(
@@ -355,18 +364,35 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    // MOVE STATUS
     case APPROVE_BASICS.start:
       return Object.assign({}, state, {
-        basicsAreUpdating: true,
+        basicsIsApproving: true,
       });
     case APPROVE_BASICS.success:
       return Object.assign({}, state, {
-        basicsAreUpdating: false,
+        basicsIsApproving: false,
         officeMove: action.payload,
       });
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
-        basicsAreUpdating: false,
+        basicsIsApproving: false,
+        error: action.error.message,
+      });
+
+    // PPM STATUS
+    case APPROVE_PPM.start:
+      return Object.assign({}, state, {
+        ppmIsApproving: true,
+      });
+    case APPROVE_PPM.success:
+      return Object.assign({}, state, {
+        ppmIsApproving: false,
+        officePPMs: [action.payload],
+      });
+    case APPROVE_PPM.failure:
+      return Object.assign({}, state, {
+        ppmIsApproving: false,
         error: action.error.message,
       });
 
