@@ -30,14 +30,14 @@ func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRaw
 
 	testEmail := m.Suite.GetTestEmailContent()
 	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
-	m.Suite.Equal(senderEmail, *input.Source)
+	m.Suite.Equal(senderEmail(), *input.Source)
 
 	message := string(input.RawMessage.Data)
 	m.Suite.Contains(message, testEmail.subject)
 	m.Suite.Contains(message, testEmail.htmlBody)
 	m.Suite.Contains(message, testEmail.textBody)
 	m.Suite.Contains(message, testEmail.recipientEmail)
-	m.Suite.Contains(message, senderEmail)
+	m.Suite.Contains(message, senderEmail())
 
 	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
 }
