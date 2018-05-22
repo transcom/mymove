@@ -1027,7 +1027,7 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
-    title: Department indicator
+    title: Dept. indicator
     enum:
       - AIRFORCE
     x-display-value:
@@ -1379,7 +1379,6 @@ definitions:
         type: string
         format: date-time
       tac:
-        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -1436,7 +1435,6 @@ definitions:
         x-nullable: true
         example: "030-00362"
       tac:
-        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -2135,6 +2133,39 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/approve:
+    post:
+      summary: Approves the PPM
+      description: Sets the status of the PPM to APPROVED.
+      operationId: approvePPM
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being updated
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
