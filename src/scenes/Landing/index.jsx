@@ -68,12 +68,12 @@ export class Landing extends Component {
       entitlement,
     } = this.props;
 
-    let profile = get(loggedInUser, 'service_member');
-    let orders = get(profile, 'orders.0');
-    let move = get(orders, 'moves.0');
-    let ppm = get(move, 'personally_procured_moves.0');
+    const profile = get(loggedInUser, 'service_member');
+    const orders = get(profile, 'orders.0');
+    const move = get(orders, 'moves.0');
+    const ppm = get(move, 'personally_procured_moves.0', {});
 
-    const displayMove = !!ppm;
+    const displayMove = !!move;
 
     return (
       <div className="usa-grid">
