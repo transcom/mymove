@@ -21,7 +21,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	move, _ := testdatagen.MakeMove(suite.db)
 	user := move.Orders.ServiceMember.User
 
-	advance := BuildDraftReimbursement(1000, MethodOfReceiptMIL_PAY)
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
 	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
