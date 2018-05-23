@@ -84,6 +84,7 @@ class MoveInfo extends Component {
           </div>
         </div>
       );
+
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -181,7 +182,9 @@ class MoveInfo extends Component {
               </button>
               <button
                 onClick={this.approvePPM}
-                disabled={ppm.status === 'APPROVED'}
+                disabled={
+                  ppm.status === 'APPROVED' || move.status != 'APPROVED'
+                }
                 style={{
                   backgroundColor: ppm.status === 'APPROVED' && 'green',
                 }}
@@ -200,15 +203,30 @@ class MoveInfo extends Component {
               {!upload ? (
                 <p>No orders have been uploaded.</p>
               ) : (
-                <div className="document">
-                  <FontAwesomeIcon
-                    style={{ color: 'red' }}
-                    className="icon"
-                    icon={faExclamationCircle}
-                  />
-                  <Link to={`/moves/${move.id}/orders`} target="_blank">
-                    Orders ({formatDate(upload.created_at)})
-                  </Link>
+                <div>
+                  {move.status === 'APPROVED' ? (
+                    <div className="document">
+                      <FontAwesomeIcon
+                        style={{ color: 'green' }}
+                        className="icon"
+                        icon={faCheck}
+                      />
+                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                        Orders ({formatDate(upload.created_at)})
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="document">
+                      <FontAwesomeIcon
+                        style={{ color: 'red' }}
+                        className="icon"
+                        icon={faExclamationCircle}
+                      />
+                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                        Orders ({formatDate(upload.created_at)})
+                      </Link>
+                    </div>
+                  )}
                 </div>
               )}
             </div>
