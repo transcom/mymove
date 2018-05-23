@@ -23,6 +23,17 @@ func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceM
 		orderPayload, _ := payloadForOrdersModel(storage, order)
 		orders[i] = orderPayload
 	}
+
+	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, 0)
+	if serviceMember.BackupContacts != nil {
+		contacts := *serviceMember.BackupContacts
+		contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
+		for i, contact := range contacts {
+			contactPayload := payloadForBackupContactModel(contact)
+			contactPayloads[i] = &contactPayload
+		}
+	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
@@ -44,6 +55,7 @@ func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceM
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
+		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          dutyStationPayload,
