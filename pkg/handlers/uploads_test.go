@@ -251,3 +251,71 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 		t.Fatalf("Wrong number of uploads in database: expected 0, got %d", count)
 	}
 }
+
+func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
+	fakeS3 := newFakeS3Storage(true)
+
+	upload, err := testdatagen.MakeUpload(suite.db, nil)
+	suite.Nil(err)
+
+	file := suite.fixture("test.pdf")
+	key := fakeS3.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+	fakeS3.Store(key, file.Data, "somehash")
+
+	params := uploadop.NewDeleteUploadParams()
+	params.UploadID = strfmt.UUID(upload.ID.String())
+
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, upload.Document.ServiceMember.User)
+	params.HTTPRequest = req
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := DeleteUploadHandler(context)
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.DeleteUploadCreated)
+	suite.True(ok)
+
+	queriedUpload := models.Upload{}
+	err = suite.db.Find(&queriedUpload, upload.ID)
+	suite.NotNil(err)
+}
+
+func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
+	fakeS3 := newFakeS3Storage(true)
+
+	upload1, err := testdatagen.MakeUpload(suite.db, nil)
+	suite.Nil(err)
+
+	upload2, err := testdatagen.MakeUpload(suite.db, &upload1.Document)
+	suite.Nil(err)
+
+	file := suite.fixture("test.pdf")
+	key1 := fakeS3.Key("documents", upload1.DocumentID.String(), "uploads", upload1.ID.String())
+	key2 := fakeS3.Key("documents", upload2.DocumentID.String(), "uploads", upload2.ID.String())
+	fakeS3.Store(key1, file.Data, "somehash")
+	fakeS3.Store(key2, file.Data, "somehash")
+
+	params := uploadop.NewDeleteUploadsParams()
+	params.UploadIds = []strfmt.UUID{
+		strfmt.UUID(upload1.ID.String()),
+		strfmt.UUID(upload2.ID.String()),
+	}
+
+	req := &http.Request{}
+	req = suite.authenticateRequest(req, upload1.Document.ServiceMember.User)
+	params.HTTPRequest = req
+
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := DeleteUploadsHandler(context)
+	response := handler.Handle(params)
+
+	_, ok := response.(*uploadop.DeleteUploadsCreated)
+	suite.True(ok)
+
+	queriedUpload := models.Upload{}
+	err = suite.db.Find(&queriedUpload, upload1.ID)
+	suite.NotNil(err)
+}
