@@ -54,7 +54,7 @@ const EstimatesDisplay = props => {
           fieldName="destination_postal_code"
           {...fieldProps}
         />
-        <p>Distance estimate goes here</p>
+        <PanelField title="Distance estimate" value="Distance estimate" />
       </div>
     </React.Fragment>
   );
