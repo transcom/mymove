@@ -32,6 +32,7 @@ fi
 # not on CircleCI
 if [[ -z ${CIRCLECI-} ]]; then
     has direnv "brew install direnv"
+    has aws-vault "brew install aws-vault"
 fi
 
 has node "test"
