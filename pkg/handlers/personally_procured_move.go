@@ -30,6 +30,7 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		DestinationPostalCode:      personallyProcuredMove.DestinationPostalCode,
 		HasSit:                     personallyProcuredMove.HasSit,
 		DaysInStorage:              personallyProcuredMove.DaysInStorage,
+		Status:                     internalmessages.PPMStatus(personallyProcuredMove.Status),
 	}
 	return ppmPayload
 }

@@ -83,6 +83,14 @@
     {
       "name": "HERE_MAPS_ROUTING_ENDPOINT",
       "value": "https://route.cit.api.here.com/routing/7.2/calculateroute.json"
+    },
+    {
+      "name": "AWS_SES_DOMAIN",
+      "value": "{{environment}}.dps.us"
+    },
+    {
+      "name": "AWS_SES_REGION",
+      "value": "us-west-2"
     }
   ],
   "logConfiguration": {

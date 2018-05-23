@@ -90,6 +90,7 @@ export class DutyStationSearchBox extends Component {
     );
   }
   render() {
+    const defaultTitle = 'Name of Duty Station:';
     return (
       <Fragment>
         {this.state.error && (
@@ -99,7 +100,7 @@ export class DutyStationSearchBox extends Component {
             </Alert>
           </div>
         )}
-        <p>Name of Duty Station:</p>
+        <p>{this.props.title || defaultTitle}</p>
         <AsyncSelect
           className="duty-input-box"
           cacheOptions
@@ -113,7 +114,7 @@ export class DutyStationSearchBox extends Component {
           placeholder="Start typing a duty station..."
         />
         {this.props.input.value && (
-          <p>
+          <p className="location">
             {this.props.input.value.address.city},{' '}
             {this.props.input.value.address.state}{' '}
             {this.props.input.value.address.postal_code}
@@ -126,6 +127,7 @@ export class DutyStationSearchBox extends Component {
 DutyStationSearchBox.propTypes = {
   onChange: PropTypes.func,
   existingStation: PropTypes.object,
+  title: PropTypes.string,
 };
 
 export default DutyStationSearchBox;

@@ -12,7 +12,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForServiceMemberModel(user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	if serviceMember.DutyStation != nil {
@@ -20,10 +20,20 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 	}
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
-		var h HandlerContext
-		orderPayload, _ := payloadForOrdersModel(h.storage, order)
+		orderPayload, _ := payloadForOrdersModel(storage, order)
 		orders[i] = orderPayload
 	}
+
+	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, 0)
+	if serviceMember.BackupContacts != nil {
+		contacts := *serviceMember.BackupContacts
+		contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
+		for i, contact := range contacts {
+			contactPayload := payloadForBackupContactModel(contact)
+			contactPayloads[i] = &contactPayload
+		}
+	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
@@ -45,6 +55,7 @@ func payloadForServiceMemberModel(user models.User, serviceMember models.Service
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
+		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          dutyStationPayload,
@@ -118,7 +129,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	servicememberPayload := payloadForServiceMemberModel(user, newServiceMember)
+	servicememberPayload := payloadForServiceMemberModel(h.storage, user, newServiceMember)
 	return servicememberop.NewCreateServiceMemberCreated().WithPayload(servicememberPayload)
 }
 
@@ -137,7 +148,7 @@ func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMembe
 		return responseForError(h.logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -164,7 +175,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 

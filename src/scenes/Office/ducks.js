@@ -1,7 +1,5 @@
 import { isNull, get } from 'lodash';
 import {
-  LoadAccountingAPI,
-  UpdateAccountingAPI,
   LoadMove,
   LoadOrders,
   LoadServiceMember,
@@ -11,35 +9,34 @@ import {
   LoadPPMs,
   ApproveBasics,
 } from './api.js';
+
+import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-// Types
-const loadAccountingType = 'LOAD_ACCOUNTING';
-const updateAccountingType = 'UPDATE_ACCOUNTING';
+// SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
 const loadOrdersType = 'LOAD_ORDERS';
+const updateOrdersType = 'UPDATE_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
 const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
-
-const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
-const loadDependenciesType = 'LOAD_DEPENDENCIES';
 const approveBasicsType = 'APPROVE_BASICS';
 
-const LOAD_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  loadAccountingType,
-);
+// MULTIPLE-RESOURCE ACTION TYPES
+const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
+const updateOrdersInfoType = 'UPDATE_ORDERS_INFO';
+const loadDependenciesType = 'LOAD_DEPENDENCIES';
 
-const UPDATE_ACCOUNTING = ReduxHelpers.generateAsyncActionTypes(
-  updateAccountingType,
-);
+// SINGLE RESOURCE ACTION TYPES
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
 
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
+
+const UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(updateOrdersType);
 
 const LOAD_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   loadServiceMemberType,
@@ -59,25 +56,23 @@ const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
+const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+
+// MULTIPLE-RESOURCE ACTION TYPES
+
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
   updateBackupInfoType,
+);
+
+const UPDATE_ORDERS_INFO = ReduxHelpers.generateAsyncActionTypes(
+  updateOrdersInfoType,
 );
 
 const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
   loadDependenciesType,
 );
 
-const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
-
-export const loadAccounting = ReduxHelpers.generateAsyncActionCreator(
-  loadAccountingType,
-  LoadAccountingAPI,
-);
-
-export const updateAccounting = ReduxHelpers.generateAsyncActionCreator(
-  updateAccountingType,
-  UpdateAccountingAPI,
-);
+// SINGLE-RESOURCE ACTION CREATORS
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -87,6 +82,11 @@ export const loadMove = ReduxHelpers.generateAsyncActionCreator(
 export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
   loadOrdersType,
   LoadOrders,
+);
+
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
+  updateOrdersType,
+  UpdateOrders,
 );
 
 export const loadServiceMember = ReduxHelpers.generateAsyncActionCreator(
@@ -119,6 +119,12 @@ export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   ApproveBasics,
 );
 
+// MULTIPLE-RESOURCE ACTION CREATORS
+//
+// These action types typically dispatch to other actions above to
+// perform their work and exist to encapsulate when multiple requests
+// need to be made in response to a user action.
+
 export function updateBackupInfo(
   serviceMemberId,
   serviceMemberPayload,
@@ -134,6 +140,29 @@ export function updateBackupInfo(
         updateServiceMember(serviceMemberId, serviceMemberPayload),
       );
       await dispatch(updateBackupContact(backupContactId, backupContact));
+      return dispatch(actions.success());
+    } catch (ex) {
+      return dispatch(actions.error(ex));
+    }
+  };
+}
+
+export function updateOrdersInfo(
+  ordersId,
+  orders,
+  serviceMemberId,
+  serviceMember,
+) {
+  const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    try {
+      // TODO: perform these requests concurrently
+      serviceMember.current_station_id = serviceMember.current_station.id;
+      await dispatch(updateServiceMember(serviceMemberId, serviceMember));
+
+      orders.new_duty_station_id = orders.new_duty_station.id;
+      await dispatch(updateOrders(ordersId, orders));
       return dispatch(actions.success());
     } catch (ex) {
       return dispatch(actions.error(ex));
@@ -174,23 +203,22 @@ export function loadEntitlements(state) {
 
 // Reducer
 const initialState = {
-  accountingIsLoading: false,
-  accountingIsUpdating: false,
   moveIsLoading: false,
   ordersAreLoading: false,
+  ordersAreUpdating: false,
   serviceMemberIsLoading: false,
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
-  accountingHasLoadError: null,
-  accountingHasLoadSuccess: false,
-  accountingHasUpdateError: null,
-  accountingHasUpdateSuccess: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   ordersHaveLoadError: null,
   ordersHaveLoadSuccess: false,
+  ordersHaveUploadError: null,
+  ordersHaveUploadSuccess: false,
   serviceMemberHasLoadError: null,
   serviceMemberHasLoadSuccess: false,
+  serviceMemberHasUpdateError: null,
+  serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
   ppmsHaveLoadError: null,
@@ -201,48 +229,9 @@ const initialState = {
 
 export function officeReducer(state = initialState, action) {
   switch (action.type) {
-    case LOAD_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        accountingIsLoading: true,
-        accountingHasLoadSuccess: false,
-      });
-    case LOAD_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        accountingIsLoading: false,
-        accounting: action.payload,
-        accountingHasLoadSuccess: true,
-        accountingHasLoadError: false,
-      });
-    case LOAD_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        accountingIsLoading: false,
-        accounting: null,
-        accountingHasLoadSuccess: false,
-        accountingHasLoadError: true,
-        error: action.error.message,
-      });
+    // SINGLE-RESOURCE ACTION TYPES
 
-    case UPDATE_ACCOUNTING.start:
-      return Object.assign({}, state, {
-        accountingIsUpdating: true,
-        accountingHasUpdateSuccess: false,
-      });
-    case UPDATE_ACCOUNTING.success:
-      return Object.assign({}, state, {
-        accountingIsUpdating: false,
-        accounting: action.payload,
-        accountingHasUpdateSuccess: true,
-        accountingHasUpdateError: false,
-      });
-    case UPDATE_ACCOUNTING.failure:
-      return Object.assign({}, state, {
-        accountingIsUpdating: false,
-        accountingHasUpdateSuccess: false,
-        accountingHasUpdateError: true,
-        error: action.error.message,
-      });
-
-    // Moves
+    // MOVES
     case LOAD_MOVE.start:
       return Object.assign({}, state, {
         moveIsLoading: true,
@@ -285,6 +274,25 @@ export function officeReducer(state = initialState, action) {
         ordersHaveLoadError: true,
         error: action.error.message,
       });
+    case UPDATE_ORDERS.start:
+      return Object.assign({}, state, {
+        ordersAreUpdating: true,
+        ordersHaveUpdateSuccess: false,
+      });
+    case UPDATE_ORDERS.success:
+      return Object.assign({}, state, {
+        ordersAreUpdating: false,
+        officeOrders: action.payload,
+        ordersHaveUpdateSuccess: true,
+        ordersHaveUpdateError: false,
+      });
+    case UPDATE_ORDERS.failure:
+      return Object.assign({}, state, {
+        ordersAreUpdating: false,
+        ordersHaveUpdateSuccess: false,
+        ordersHaveUpdateError: true,
+        error: action.error.message,
+      });
 
     // SERVICE_MEMBER
     case LOAD_SERVICE_MEMBER.start:
@@ -302,7 +310,6 @@ export function officeReducer(state = initialState, action) {
     case LOAD_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
         serviceMemberIsLoading: false,
-        officeServiceMember: null,
         serviceMemberHasLoadSuccess: false,
         serviceMemberHasLoadError: true,
         error: action.error.message,
@@ -407,6 +414,12 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    // MULTIPLE-RESOURCE ACTION TYPES
+    //
+    // These action types typically dispatch to other actions above to
+    // perform their work and exist to encapsulate when multiple requests
+    // need to be made in response to a user action.
+
     // BACKUP INFO
     case UPDATE_BACKUP_INFO.start:
       return Object.assign({}, state, {
@@ -422,6 +435,24 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         updateBackupInfoHasSuccess: false,
         updateBackupInfoHasError: true,
+        error: action.error.message,
+      });
+
+    // ORDERS INFO
+    case UPDATE_ORDERS_INFO.start:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: false,
+        updateOrdersInfoHasError: false,
+      });
+    case UPDATE_ORDERS_INFO.success:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: true,
+        updateOrdersInfoHasError: false,
+      });
+    case UPDATE_ORDERS_INFO.failure:
+      return Object.assign({}, state, {
+        updateOrdersInfoHasSuccess: false,
+        updateOrdersInfoHasError: true,
         error: action.error.message,
       });
 

@@ -2,11 +2,12 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
-import editablePanel from './editablePanel';
+import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
+import { Link } from 'react-router-dom';
 
-import { no_op_action } from 'shared/utils';
-import { loadEntitlements } from 'scenes/Office/ducks';
+import editablePanel from './editablePanel';
+import { loadEntitlements, updateOrdersInfo } from './ducks';
+import { formatDate } from './helpers';
 
 import {
   PanelSwaggerField,
@@ -14,8 +15,31 @@ import {
   SwaggerValue,
 } from 'shared/EditablePanel';
 
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
+
+function renderEntitlements(entitlements) {
+  return (
+    <React.Fragment>
+      <span className="panel-subhead">Entitlements</span>
+      <PanelField title="Household Goods">
+        {get(entitlements, 'total', '').toLocaleString()} lbs
+      </PanelField>
+      <PanelField title="Pro-gear">
+        {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
+      </PanelField>
+      <PanelField title="Spouse pro-gear">
+        {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
+      </PanelField>
+      <PanelField className="Todo" title="Short-term storage">
+        90 days
+      </PanelField>
+    </React.Fragment>
+  );
+}
 
 const OrdersDisplay = props => {
   const fieldProps = {
@@ -27,25 +51,20 @@ const OrdersDisplay = props => {
     <React.Fragment>
       <div className="editable-panel-column">
         <PanelField title="Orders Number">
-          <a
-            href={get(props.orders, 'uploaded_orders.uploads[0].url')}
-            target="_blank"
-          >
+          <Link to={`/moves/${props.move.id}/orders`} target="_blank">
             <SwaggerValue fieldName="orders_number" {...fieldProps} />&nbsp;
             <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-          </a>
+          </Link>
         </PanelField>
-        <PanelSwaggerField
+        <PanelField
           title="Date issued"
-          fieldName="issue_date"
-          {...fieldProps}
+          value={formatDate(props.orders.issue_date)}
         />
         <PanelSwaggerField fieldName="orders_type" {...fieldProps} />
         <PanelSwaggerField fieldName="orders_type_detail" {...fieldProps} />
-        <PanelSwaggerField
+        <PanelField
           title="Report by"
-          fieldName="report_by_date"
-          {...fieldProps}
+          value={formatDate(props.orders.report_by_date)}
         />
         <PanelField title="Current Duty Station">
           {get(props.serviceMember, 'current_station.name', '')}
@@ -55,19 +74,7 @@ const OrdersDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        <span className="editable-panel-column subheader">Entitlements</span>
-        <PanelField title="Household Goods">
-          {get(props.entitlements, 'total', '').toLocaleString()} lbs
-        </PanelField>
-        <PanelField title="Pro-gear">
-          {get(props.entitlements, 'pro_gear', '').toLocaleString()} lbs
-        </PanelField>
-        <PanelField title="Spouse pro-gear">
-          {get(props.entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
-        </PanelField>
-        <PanelField className="Todo" title="Short-term storage">
-          90 days
-        </PanelField>
+        {renderEntitlements(props.entitlements)}
         {props.orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
@@ -77,96 +84,56 @@ const OrdersDisplay = props => {
 };
 
 const OrdersEdit = props => {
-  // const { schema } = props;
+  const schema = props.ordersSchema;
   return (
     <React.Fragment>
-      <div className="form-column">
-        <label>Orders number</label>
-        <input type="text" name="orders-number" />
+      <div className="editable-panel-column">
+        <FormSection name="orders">
+          <SwaggerField
+            fieldName="orders_number"
+            swagger={schema}
+            className="half-width"
+          />
+          <SwaggerField
+            fieldName="issue_date"
+            swagger={schema}
+            className="half-width"
+          />
+          <SwaggerField fieldName="orders_type" swagger={schema} />
+          <SwaggerField fieldName="orders_type_detail" swagger={schema} />
+          <SwaggerField fieldName="report_by_date" swagger={schema} />
+        </FormSection>
+
+        <FormSection name="serviceMember">
+          <div className="usa-input duty-station">
+            <Field
+              name="current_station"
+              component={DutyStationSearchBox}
+              props={{ title: 'Current Duty Station' }}
+            />
+          </div>
+        </FormSection>
+
+        <FormSection name="orders">
+          <div className="usa-input duty-station">
+            <Field
+              name="new_duty_station"
+              component={DutyStationSearchBox}
+              props={{ title: 'New Duty Station' }}
+            />
+          </div>
+        </FormSection>
       </div>
-      <div className="form-column">
-        <label>Date issued</label>
-        <input type="text" name="date-issued" />
-      </div>
-      <div className="form-column">
-        <label>Move type</label>
-        <select name="move-type">
-          <option value="permanent-change-of-station">
-            Permanent Change of Station
-          </option>
-          <option value="separation">Separation</option>
-          <option value="retirement">Retirement</option>
-          <option value="local-move">Local Move</option>
-          <option value="tdy">Temporary Duty</option>
-          <option value="dependent-travel">Dependent Travel</option>
-          <option value="bluebark">Bluebark</option>
-          <option value="various">Various</option>
-        </select>
-      </div>
-      <div className="form-column">
-        <label>Orders type</label>
-        <select name="orders-type">
-          <option value="shipment-of-hhg-permitted">
-            Shipment of HHG Permitted
-          </option>
-          <option value="pcs-with-tdy-en-route">PCS with TDY En Route</option>
-          <option value="shipment-of-hhg-restricted-or-prohibited">
-            Shipment of HHG Restricted or Prohibited
-          </option>
-          <option value="hhg-restricted-area-hhg-prohibited">
-            HHG Restricted Area - HHG Prohibited
-          </option>
-          <option value="course-of-instruction-20-weeks-or-more">
-            Course of Instruction 20 Weeks or More
-          </option>
-          <option value="shipment-of-hhg-prohibited-but-authorized-within-20-weeks">
-            Shipment of HHG Prohibited but Authorized within 20 Weeks
-          </option>
-          <option value="delayed-approval-20-weeks-or-more">
-            Delayed Approval 20 Weeks or More
-          </option>
-        </select>
-      </div>
-      <div className="form-column">
-        <label>Report by</label>
-        <input type="date" name="report-by-date" />
-      </div>
-      <div className="form-column">
-        <label>Current duty station</label>
-        <input type="text" name="current-duty-station" />
-      </div>
-      <div className="form-column">
-        <label>New duty station</label>
-        <input type="text" name="new-duty-station" />
-      </div>
-      <div className="form-column">
-        <b>Entitlements</b>
-        <label>Household goods</label>
-        <input type="number" name="household-goods-weight" /> lbs
-      </div>
-      <div className="form-column">
-        <label>Pro-gear</label>
-        <input type="number" name="pro-gear-weight" /> lbs
-      </div>
-      <div className="form-column">
-        <label>Spouse pro-gear</label>
-        <input type="number" name="spouse-pro-gear-weight" /> lbs
-      </div>
-      <div className="form-column">
-        <label>Short-term storage</label>
-        <input type="number" name="short-term-storage-days" /> days
-      </div>
-      <div className="form-column">
-        <label>Long-term storage</label>
-        <input type="number" name="long-term-storage-days" /> days
-      </div>
-      <div className="form-column">
-        <input
-          type="checkbox"
-          id="dependents-checkbox"
-          name="dependents-authorized"
-        />
-        <label htmlFor="dependents-checkbox">Dependents authorized</label>
+      <div className="editable-panel-column">
+        {renderEntitlements(props.entitlements)}
+
+        <FormSection name="orders">
+          <SwaggerField
+            fieldName="has_dependents"
+            swagger={schema}
+            title="Dependents authorized"
+          />
+        </FormSection>
       </div>
     </React.Fragment>
   );
@@ -180,25 +147,43 @@ OrdersPanel = reduxForm({ form: formName })(OrdersPanel);
 function mapStateToProps(state) {
   return {
     // reduxForm
-    formData: state.form[formName],
-    initialValues: {},
+    initialValues: {
+      orders: get(state, 'office.officeOrders', {}),
+      serviceMember: get(state, 'office.officeServiceMember', {}),
+    },
 
-    // Wrapper
-    ordersSchema: get(state, 'swagger.spec.definitions.Orders'),
+    ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
+    serviceMemberSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberPayload',
+      {},
+    ),
 
     hasError: false,
     errorMessage: state.office.error,
-    orders: get(state, 'office.officeOrders'),
-    serviceMember: get(state, 'office.officeServiceMember'),
     entitlements: loadEntitlements(state),
     isUpdating: false,
+
+    orders: get(state, 'office.officeOrders', {}),
+    serviceMember: get(state, 'office.officeServiceMember', {}),
+    move: get(state, 'office.officeMove', {}),
+
+    getUpdateArgs: function() {
+      let values = getFormValues(formName)(state);
+      return [
+        get(state, 'office.officeOrders.id'),
+        values.orders,
+        get(state, 'office.officeServiceMember.id'),
+        values.serviceMember,
+      ];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updateOrdersInfo,
     },
     dispatch,
   );
