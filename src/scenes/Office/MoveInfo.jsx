@@ -24,7 +24,8 @@ import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
-// import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
@@ -64,11 +65,12 @@ class MoveInfo extends Component {
 
   render() {
     // TODO: If the following vars are not used to load data, remove them.
-    const officeMove = this.props.officeMove || {};
+    const officeMove = get(this.props, 'officeMove', {});
     // const officeOrders = this.props.officeOrders || {};
-    const officeServiceMember = this.props.officeServiceMember || {};
+    const officeServiceMember = get(this.props, 'officeServiceMember', {});
     // const officeBackupContacts = this.props.officeBackupContacts || []
-    const officePPMs = this.props.officePPMs || [];
+    // Todo: Change once more than 1 PPM will be loaded at one time
+    const officePPM = get(this.props, 'officePPMs[0]');
 
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
 
@@ -125,7 +127,7 @@ class MoveInfo extends Component {
               <li>Locator# {officeMove.locator}</li>
               <li className="Todo">KKFA to HAFC</li>
               <li>
-                Move date {formatDate(get(officePPMs, '[0].planned_move_date'))}
+                Move date {formatDate(get(officePPM, 'planned_move_date'))}
               </li>
             </ul>
           </div>
@@ -143,13 +145,23 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                <span className="status">
-                  <FontAwesomeIcon
-                    className="icon"
-                    icon={faExclamationTriangle}
-                  />
-                  Status Goes Here
-                </span>
+                {officePPM.status === 'APPROVED' ? (
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-ready"
+                      icon={faCheck}
+                    />
+                    Move pending
+                  </span>
+                ) : (
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-waiting"
+                      icon={faClock}
+                    />
+                    In review
+                  </span>
+                )}
               </NavTab>
             </RoutedTabs>
 

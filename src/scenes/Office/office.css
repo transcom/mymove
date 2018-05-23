@@ -272,12 +272,16 @@ head .panel-subhead {
     visibility: visible;
 }
 
-.approve-ready {
+.approval-ready {
   color: green;
   cursor: pointer;
 }
 
-.unapproved {
+.approval-waiting {
+  color: #fdb81e;
+}
+
+.approval-blocked {
   color: gray;
 }
 

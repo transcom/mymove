@@ -1,7 +1,7 @@
 import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { bindActionCreators } from 'redux';
 
 // import { updatePaymentInfo } from './ducks';
@@ -11,8 +11,7 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
 import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
-
-import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 const PaymentsTable = props => {
   const ppm = props.ppm;
@@ -46,15 +45,27 @@ const PaymentsTable = props => {
                   {ppm.planned_move_date}
                 </td>
                 <td className="payment-table-column-content Todo">
-                  {ppm.status}
+                  {ppm.status === 'APPROVED' ? (
+                    <span>
+                      <FontAwesomeIcon
+                        className="icon approval-ready"
+                        icon={faCheck}
+                      />{' '}
+                      Approved
+                    </span>
+                  ) : (
+                    <FontAwesomeIcon
+                      className="icon approval-waiting"
+                      icon={faClock}
+                    />
+                  )}
                 </td>
-
                 <td className="payment-table-column-content">
                   <span className="tooltip">
                     {ppm.status === 'APPROVED' ? (
                       <React.Fragment>
                         <FontAwesomeIcon
-                          className="icon approve-ready"
+                          className="icon approval-ready"
                           icon={faCheck}
                         />
                         <span className="tooltiptext">Approve</span>
@@ -62,7 +73,7 @@ const PaymentsTable = props => {
                     ) : (
                       <React.Fragment>
                         <FontAwesomeIcon
-                          className="icon unapproved"
+                          className="icon approval-blocked"
                           icon={faCheck}
                         />
                         <span
