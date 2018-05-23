@@ -86,7 +86,7 @@
     },
     {
       "name": "AWS_SES_DOMAIN",
-      "value": "{{environment}}.dps.us"
+      "value": "{{domain}}"
     },
     {
       "name": "AWS_SES_REGION",
