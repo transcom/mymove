@@ -5,6 +5,8 @@ import { get } from 'lodash';
 
 import { push } from 'react-router-redux';
 import { reduxForm, FormSection } from 'redux-form';
+import Alert from 'shared/Alert'; // eslint-disable-line
+
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
@@ -127,7 +129,12 @@ class EditContact extends Component {
     });
   };
   render() {
-    const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
+    const {
+      error,
+      serviceMemberSchema,
+      addressSchema,
+      serviceMember,
+    } = this.props;
     let initialValues = null;
     if (
       serviceMember &&
@@ -141,6 +148,13 @@ class EditContact extends Component {
       };
     return (
       <div className="usa-grid">
+        {error && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              {error.message}
+            </Alert>
+          </div>
+        )}
         <div className="usa-width-one-whole">
           <EditContactForm
             initialValues={initialValues}
@@ -164,6 +178,8 @@ function mapStateToProps(state) {
   return {
     serviceMember: serviceMember,
     move: get(state, 'moves.currentMove'),
+    error: get(state, 'serviceMember.error'),
+    hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     serviceMemberSchema: get(
       state,
       'swagger.spec.definitions.CreateServiceMemberPayload',
