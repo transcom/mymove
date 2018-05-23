@@ -19,7 +19,6 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { createMove } from 'scenes/Moves/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -106,9 +105,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, createMove },
-    dispatch,
-  );
+  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

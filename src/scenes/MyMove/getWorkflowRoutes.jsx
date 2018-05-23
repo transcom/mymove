@@ -59,8 +59,6 @@ const stub = (key, pages, description) => ({ match }) => (
   />
 );
 
-const createMove = props => () =>
-  props.hasMove || props.createMove(props.currentOrdersId);
 const always = () => true;
 const hasHHG = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'PPM';
@@ -173,9 +171,8 @@ const pages = {
     isComplete: always,
     render: (key, pages, description, props) => ({ match }) => (
       <WizardPage
-        handleSubmit={createMove(props)}
-        isAsync={!props.hasMove}
-        hasSucceeded={props.hasMove}
+        handleSubmit={no_op}
+        isAsync={false}
         pageList={pages}
         pageKey={key}
         additionalParams={{ moveId: props.moveId }}
