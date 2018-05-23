@@ -8,9 +8,14 @@ import (
 	"github.com/gobuffalo/pop"
 )
 
-var may15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
-var oct15_2018 = time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
-var may15_2019 = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
+// May15_2018 is a date in May 2018
+var May15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
+
+// Oct15_2018 is a date in October 2018
+var Oct15_2018 = time.Date(2018, time.October, 15, 0, 0, 0, 0, time.UTC)
+
+// May15_2019 is a date in May 2019
+var May15_2019 = time.Date(2019, time.May, 15, 0, 0, 0, 0, time.UTC)
 
 func save(db *pop.Connection, model interface{}) error {
 	verrs, err := db.ValidateAndSave(model)
