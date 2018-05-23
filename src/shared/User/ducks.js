@@ -77,7 +77,7 @@ const loggedOutUser = {
 };
 
 function getUserInfo() {
-  const cookie = Cookies.get('user_session');
+  const cookie = Cookies.get('session_token');
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
   return {
