@@ -506,6 +506,8 @@ definitions:
         title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
+      backup_contacts:
+        $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
       is_profile_complete:
         type: boolean
       created_at:

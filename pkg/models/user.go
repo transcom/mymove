@@ -48,7 +48,7 @@ func (u *User) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // GetFullServiceMemberProfile returns a service member profile if one is associated with this user, otherwise returns nil
 func GetFullServiceMemberProfile(db *pop.Connection, session *auth.Session) (*ServiceMember, error) {
 	serviceMembers := ServiceMembers{}
-	err := db.Where("id = $1", session.ServiceMemberID).Eager("DutyStation", "ResidentialAddress", "BackupMailingAddress", "Orders.NewDutyStation.Address", "Orders.UploadedOrders.Uploads", "Orders.Moves.PersonallyProcuredMoves", "User").All(&serviceMembers)
+	err := db.Where("id = $1", session.ServiceMemberID).Eager("DutyStation", "ResidentialAddress", "BackupMailingAddress", "Orders.NewDutyStation.Address", "Orders.UploadedOrders.Uploads", "Orders.Moves.PersonallyProcuredMoves", "BackupContacts", "User").All(&serviceMembers)
 	if err != nil {
 		return nil, err
 	}

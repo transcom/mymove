@@ -67,6 +67,8 @@
     "private/protocol/restxml",
     "private/protocol/xml/xmlutil",
     "service/s3",
+    "service/ses",
+    "service/ses/sesiface",
     "service/ssm",
     "service/ssm/ssmiface",
     "service/sts"
@@ -130,6 +132,12 @@
   packages = ["."]
   revision = "c2828203cd70a50dcccfb2761f8b1f8ceef9a8e9"
   version = "v1.4.7"
+
+[[projects]]
+  name = "github.com/go-gomail/gomail"
+  packages = ["."]
+  revision = "41f3572897373c5538c50a2402db15db079fa4fd"
+  version = "2.0.0"
 
 [[projects]]
   name = "github.com/go-ini/ini"
@@ -565,9 +573,16 @@
   revision = "15738813a09db5c8e5b60a19d67d3f9bd38da3a4"
 
 [[projects]]
+  name = "github.com/stretchr/objx"
+  packages = ["."]
+  revision = "facf9a85c22f48d2f52f2380e4efce1768749a89"
+  version = "v0.1"
+
+[[projects]]
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
+    "mock",
     "require",
     "suite"
   ]
@@ -720,6 +735,12 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "v3"
+  name = "gopkg.in/alexcesaro/quotedprintable.v3"
+  packages = ["."]
+  revision = "2caba252f4dc53eaf6b553000885530023f54623"
+
+[[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
   packages = [
@@ -743,6 +764,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "8af3dae6e8a385b9411e62e8442d568ec372023df0fc5a4e528a8fc729b1e0ee"
+  inputs-digest = "5bbc3d25398631f4d3b1055e0d5e0019aacda5a2c132594b82f7d82a403da1d7"
   solver-name = "gps-cdcl"
   solver-version = 1
