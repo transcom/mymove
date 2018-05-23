@@ -180,12 +180,11 @@ type DeleteUploadsHandler HandlerContext
 // Handle deletes uploads
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	app := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())
-		upload, err := models.FetchUpload(h.db, user, app, uuid)
+		upload, err := models.FetchUpload(h.db, session, uuid)
 		if err != nil {
 			return responseForError(h.logger, err)
 		}

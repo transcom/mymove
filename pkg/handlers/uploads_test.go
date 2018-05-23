@@ -262,7 +262,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	params.UploadID = strfmt.UUID(upload.ID.String())
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, upload.Document.ServiceMember.User)
+	req = suite.authenticateRequest(req, upload.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
@@ -300,7 +300,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	}
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, upload1.Document.ServiceMember.User)
+	req = suite.authenticateRequest(req, upload1.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
