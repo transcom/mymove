@@ -188,14 +188,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session.IDToken = openIDSession.IDToken
 	session.Email = openIDUser.Email
-	loginGovID, err := uuid.FromString(openIDUser.UserID)
-	if err != nil {
-		h.logger.Error("Unable to parse login.gov UUID", zap.String("email", openIDUser.Email), zap.String("UUID", openIDUser.UserID), zap.Error(err))
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
 
-	userIdentity, err := models.FetchUserIdentity(h.db, loginGovID)
+	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
 
 		session.UserID = userIdentity.ID

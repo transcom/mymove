@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	. "github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestUserCreation() {
@@ -80,4 +81,40 @@ func (suite *ModelSuite) TestCreateUser() {
 	fail, err := CreateUser(suite.db, expectedEmail, badUUID)
 	suite.NotNil(err, "should get and error from bad uuid")
 	suite.Nil(fail, "no user with bad uuid")
+}
+
+func (suite *ModelSuite) TestFetchUserIdentity() {
+	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
+
+	// First check that it all works with no record
+	identity, err := FetchUserIdentity(suite.db, goodUUID)
+	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
+	suite.Nil(identity)
+
+	alice, _ := testdatagen.MakeUser(suite.db)
+	identity, err = FetchUserIdentity(suite.db, alice.LoginGovUUID.String())
+	suite.Nil(err, "loading sally's identity")
+	suite.NotNil(identity)
+	suite.Equal(alice.ID, identity.ID)
+	suite.Equal(alice.LoginGovEmail, identity.Email)
+	suite.Nil(identity.ServiceMemberID)
+	suite.Nil(nil, identity.OfficeUserID)
+
+	bob, _ := testdatagen.MakeServiceMember(suite.db)
+	identity, err = FetchUserIdentity(suite.db, bob.User.LoginGovUUID.String())
+	suite.Nil(err, "loading bob's identity")
+	suite.NotNil(identity)
+	suite.Equal(bob.UserID, identity.ID)
+	suite.Equal(bob.User.LoginGovEmail, identity.Email)
+	suite.Equal(bob.ID, *identity.ServiceMemberID)
+	suite.Nil(nil, identity.OfficeUserID)
+
+	carol, _ := testdatagen.MakeOfficeUser(suite.db)
+	identity, err = FetchUserIdentity(suite.db, carol.User.LoginGovUUID.String())
+	suite.Nil(err, "loading carol's identity")
+	suite.NotNil(identity)
+	suite.Equal(carol.UserID, identity.ID)
+	suite.Equal(carol.User.LoginGovEmail, identity.Email)
+	suite.Nil(nil, identity.ServiceMemberID)
+	suite.Equal(carol.ID, *identity.OfficeUserID)
 }

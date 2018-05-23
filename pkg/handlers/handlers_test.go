@@ -76,12 +76,12 @@ func (suite *HandlerSuite) checkResponseTeapot(resp middleware.Responder) {
 }
 
 // Request authenticated with a service member
-func (suite *HandlerSuite) authenticateRequest(req *http.Request, user models.ServiceMember) *http.Request {
+func (suite *HandlerSuite) authenticateRequest(req *http.Request, serviceMember models.ServiceMember) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.MyApp,
-		UserID:          user.UserID,
+		UserID:          serviceMember.UserID,
 		IDToken:         "fake token",
-		ServiceMemberID: user.ID,
+		ServiceMemberID: serviceMember.ID,
 	}
 	ctx := auth.SetSessionInRequestContext(req, &session)
 	return req.WithContext(ctx)

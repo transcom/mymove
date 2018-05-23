@@ -53,7 +53,7 @@ func signTokenStringWithUserInfo(expiry time.Time, session *Session, secret stri
 	return ss, err
 }
 
-func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
+func sessionClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request) (claims *SessionClaims, ok bool) {
 	cookie, err := r.Cookie(UserSessionCookieName)
 	if err != nil {
 		// No cookie set on client
@@ -118,7 +118,7 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := Session{}
-			claims, ok := getUserClaimsFromRequest(logger, secret, r)
+			claims, ok := sessionClaimsFromRequest(logger, secret, r)
 			if ok {
 				session = claims.SessionValue
 			}
