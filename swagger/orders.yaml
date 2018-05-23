@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.5
+  version: 0.0.6
   title: MyMove Orders Gateway
   license:
     name: MIT
@@ -304,7 +304,7 @@ definitions:
         format: date
       reportNoLaterThan:
         type: string
-        description: Latest date that the service member is allowed to report for duty at the new duty station.
+        description: Latest date that the service member is allowed to report for duty at the new duty station. Should be included for most Orders types, but can be missing for Separation / Retirement Orders.
         format: date
       pcsAccounting:
         $ref: '#/definitions/Accounting'
@@ -326,7 +326,6 @@ definitions:
       - hasDependents
       - losingUnit
       - gainingUnit
-      - reportNoLaterThan
   Affiliation:
     type: string
     description: Military branch of service
@@ -499,7 +498,7 @@ definitions:
       tac:
         type: string
         description: |
-          Transportation Account Code - a reference to a line of accounting in the Transportation Global Edit Tables (TGET). This is the most common way to charge a move expense to the correct pool of money.
+          Transportation Account Code - a reference to a line of accounting in the Transportation Global Edit Tables (TGET). This is the preferred way to charge a move expense to the correct pool of money.
 
           > TGET is a centralized repository that contains established transportation LOAs formatted in accordance with Service/Agency LOA requirements and associated TACs.
 
@@ -523,9 +522,10 @@ definitions:
           At the time of this writing, the Marines have separate SDNs for each category of moving expenses (HHG, POV Storage, NTS, etc.), but only one of them is unique to a specific Marine - the Commercial Travel (CT) SDN. The CT SDN **is** the Orders # for the Marines. In the future, the Marines would like to include the first 15 characters of the CT SDN in any transactions with the Third Party Payment System, and for the TPPS to include this unique value with every expense in the resulting report.
       loa:
         type: string
-        description: The full Line Of Accounting. Use this if no TAC is supplied.
+        description: The full Line Of Accounting. LOA is required if there is no TAC.
   Unit:
     type: object
+    description: Information about either the losing or gaining Unit. If these are separation orders, the location information for the gaining Unit may be blank.
     properties:
       name:
         type: string
@@ -545,11 +545,8 @@ definitions:
         description: State (US). OCONUS units may not have the equivalent information available.
       country:
         type: string
-        description: ISO 3166-1 alpha-2 country code. If blank, assume US
+        description: ISO 3166-1 alpha-2 country code. If blank, but city and locality or postalCode are not blank, assume US
         pattern: '^[A-Z]{2}$'
-      postal-code:
+      postalCode:
         type: string
         description: In the USA, this is the ZIP Code.
-    required:
-      - city
-      - postal-code
