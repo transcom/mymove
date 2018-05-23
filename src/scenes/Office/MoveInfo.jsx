@@ -15,11 +15,12 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import { loadMoveDependencies, approveBasics } from './ducks.js';
+import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
 import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
 import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
@@ -56,15 +57,17 @@ class MoveInfo extends Component {
     this.props.approveBasics(this.props.match.params.moveId);
   };
 
+  approvePPM = () => {
+    this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
   render() {
-    // TODO: If the following vars are not used to load data, remove them.
-    const officeMove = this.props.officeMove || {};
-    // const officeOrders = this.props.officeOrders || {};
-    const officeServiceMember = this.props.officeServiceMember || {};
-    // const officeBackupContacts = this.props.officeBackupContacts || []
-    const officePPMs = this.props.officePPMs || [];
+    const move = this.props.officeMove;
+    const serviceMember = this.props.officeServiceMember;
+    const ppm = this.props.officePPM;
 
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
+    let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -81,13 +84,13 @@ class MoveInfo extends Component {
           </div>
         </div>
       );
+
     return (
       <div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-two-thirds">
             <h1>
-              Move Info: {officeServiceMember.last_name},{' '}
-              {officeServiceMember.first_name}
+              Move Info: {serviceMember.last_name}, {serviceMember.first_name}
             </h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -99,28 +102,26 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {officeServiceMember.id}</li>
+              <li>ID# {serviceMember.id}</li>
               <li>
-                {officeServiceMember.telephone}
-                {officeServiceMember.phone_is_preferred && (
+                {serviceMember.telephone}
+                {serviceMember.phone_is_preferred && (
                   <FontAwesomeIcon
                     className="icon"
                     icon={faPhone}
                     flip="horizontal"
                   />
                 )}
-                {officeServiceMember.text_message_is_preferred && (
+                {serviceMember.text_message_is_preferred && (
                   <FontAwesomeIcon className="icon" icon={faComments} />
                 )}
-                {officeServiceMember.email_is_preferred && (
+                {serviceMember.email_is_preferred && (
                   <FontAwesomeIcon className="icon" icon={faEmail} />
                 )}
               </li>
-              <li>Locator# {officeMove.locator}</li>
+              <li>Locator# {move.locator}</li>
               <li className="Todo">KKFA to HAFC</li>
-              <li>
-                Move date {formatDate(get(officePPMs, '[0].planned_move_date'))}
-              </li>
+              <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
         </div>
@@ -132,7 +133,7 @@ class MoveInfo extends Component {
                 <span className="title">Basics</span>
                 <span className="status">
                   <FontAwesomeIcon className="icon" icon={faPlayCircle} />
-                  {capitalize(officeMove.status)}
+                  {capitalize(move.status)}
                 </span>
               </NavTab>
               <NavTab to="/ppm">
@@ -171,9 +172,25 @@ class MoveInfo extends Component {
             <div>
               <button
                 onClick={this.approveBasics}
-                disabled={officeMove.status === 'APPROVED'}
+                disabled={move.status === 'APPROVED'}
+                style={{
+                  backgroundColor: move.status === 'APPROVED' && 'green',
+                }}
               >
                 Approve Basics
+                {move.status === 'APPROVED' && check}
+              </button>
+              <button
+                onClick={this.approvePPM}
+                disabled={
+                  ppm.status === 'APPROVED' || move.status !== 'APPROVED'
+                }
+                style={{
+                  backgroundColor: ppm.status === 'APPROVED' && 'green',
+                }}
+              >
+                Approve PPM
+                {ppm.status === 'APPROVED' && check}
               </button>
               <button>Troubleshoot</button>
               <button>Cancel Move</button>
@@ -183,17 +200,35 @@ class MoveInfo extends Component {
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
-              {!upload && <p>No orders have been uploaded.</p>}
-              <div className="document">
-                <FontAwesomeIcon
-                  style={{ color: 'red' }}
-                  className="icon"
-                  icon={faExclamationCircle}
-                />
-                <Link to={`/moves/${officeMove.id}/orders`} target="_blank">
-                  Orders ({formatDate(upload.created_at)})
-                </Link>
-              </div>
+              {!upload ? (
+                <p>No orders have been uploaded.</p>
+              ) : (
+                <div>
+                  {move.status === 'APPROVED' ? (
+                    <div className="document">
+                      <FontAwesomeIcon
+                        style={{ color: 'green' }}
+                        className="icon"
+                        icon={faCheck}
+                      />
+                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                        Orders ({formatDate(upload.created_at)})
+                      </Link>
+                    </div>
+                  ) : (
+                    <div className="document">
+                      <FontAwesomeIcon
+                        style={{ color: 'red' }}
+                        className="icon"
+                        icon={faExclamationCircle}
+                      />
+                      <Link to={`/moves/${move.id}/orders`} target="_blank">
+                        Orders ({formatDate(upload.created_at)})
+                      </Link>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -207,17 +242,20 @@ MoveInfo.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  swaggerError: state.swagger.hasErrored,
-  officeMove: state.office.officeMove,
-  officeOrders: state.office.officeOrders,
-  officeServiceMember: state.office.officeServiceMember,
-  officeBackupContacts: state.office.officeBackupContacts,
-  officePPMs: state.office.officePPMs,
-  loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
-  loadDependenciesHasError: state.office.loadDependenciesHasError,
+  swaggerError: get(state, 'swagger.hasErrored'),
+  officeMove: get(state, 'office.officeMove', {}),
+  officeOrders: get(state, 'office.officeOrders', {}),
+  officeServiceMember: get(state, 'office.officeServiceMember', {}),
+  officeBackupContacts: get(state, 'office.officeBackupContacts', []),
+  officePPM: get(state, 'office.officePPMs.0', {}),
+  loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
+  loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies, approveBasics }, dispatch);
+  bindActionCreators(
+    { loadMoveDependencies, approveBasics, approvePPM },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);

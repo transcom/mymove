@@ -46,7 +46,10 @@ export async function UpdateServiceMember(serviceMemberId, payload) {
     serviceMemberId,
     patchServiceMemberPayload: payload,
   });
-  checkResponse(response, 'failed to load service member due to server error');
+  checkResponse(
+    response,
+    'failed to update service member due to server error',
+  );
   return response.body;
 }
 
@@ -91,5 +94,16 @@ export async function ApproveBasics(moveId) {
     moveId,
   });
   checkResponse(response, 'failed to approve move due to server error');
+  return response.body;
+}
+
+// PPM status
+export async function ApprovePPM(moveId, ppmId) {
+  const client = await getClient();
+  const response = await client.apis.office.approvePPM({
+    moveId,
+    personallyProcuredMoveId: ppmId,
+  });
+  checkResponse(response, 'failed to approve ppm due to server error');
   return response.body;
 }

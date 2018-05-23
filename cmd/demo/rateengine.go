@@ -84,7 +84,8 @@ func main() {
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
-		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack fee:", cost.PackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack fee:", cost.UnpackFee.ToDollarString())
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 
@@ -119,7 +120,8 @@ func main() {
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
-		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack fee:", cost.PackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack fee:", cost.UnpackFee.ToDollarString())
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 	}

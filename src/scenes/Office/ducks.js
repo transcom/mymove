@@ -8,6 +8,7 @@ import {
   UpdateBackupContact,
   LoadPPMs,
   ApproveBasics,
+  ApprovePPM,
 } from './api.js';
 
 import { UpdateOrders } from 'scenes/Orders/api.js';
@@ -24,6 +25,7 @@ const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const approveBasicsType = 'APPROVE_BASICS';
+const approvePPMType = 'APPROVE_PPM';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -74,6 +76,8 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 
 // SINGLE-RESOURCE ACTION CREATORS
 
+const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
+
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
   LoadMove,
@@ -117,6 +121,11 @@ export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
 export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   approveBasicsType,
   ApproveBasics,
+);
+
+export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
+  approvePPMType,
+  ApprovePPM,
 );
 
 // MULTIPLE-RESOURCE ACTION CREATORS
@@ -217,6 +226,8 @@ const initialState = {
   ordersHaveUploadSuccess: false,
   serviceMemberHasLoadError: null,
   serviceMemberHasLoadSuccess: false,
+  serviceMemberHasUpdateError: null,
+  serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
   ppmsHaveLoadError: null,
@@ -308,7 +319,6 @@ export function officeReducer(state = initialState, action) {
     case LOAD_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
         serviceMemberIsLoading: false,
-        officeServiceMember: null,
         serviceMemberHasLoadSuccess: false,
         serviceMemberHasLoadError: true,
         error: action.error.message,
@@ -398,18 +408,35 @@ export function officeReducer(state = initialState, action) {
         error: action.error.message,
       });
 
+    // MOVE STATUS
     case APPROVE_BASICS.start:
       return Object.assign({}, state, {
-        basicsAreUpdating: true,
+        basicsIsApproving: true,
       });
     case APPROVE_BASICS.success:
       return Object.assign({}, state, {
-        basicsAreUpdating: false,
+        basicsIsApproving: false,
         officeMove: action.payload,
       });
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
-        basicsAreUpdating: false,
+        basicsIsApproving: false,
+        error: action.error.message,
+      });
+
+    // PPM STATUS
+    case APPROVE_PPM.start:
+      return Object.assign({}, state, {
+        ppmIsApproving: true,
+      });
+    case APPROVE_PPM.success:
+      return Object.assign({}, state, {
+        ppmIsApproving: false,
+        officePPMs: [action.payload],
+      });
+    case APPROVE_PPM.failure:
+      return Object.assign({}, state, {
+        ppmIsApproving: false,
         error: action.error.message,
       });
 
