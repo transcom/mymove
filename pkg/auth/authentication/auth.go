@@ -18,19 +18,20 @@ import (
 )
 
 // UserAuthMiddleware enforces that the incoming request is tied to a user session
-func UserAuthMiddleware() func(next http.Handler) http.Handler {
+func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
 			session := auth.SessionFromRequestContext(r)
 			// We must have a logged in session and a user
 			if session == nil || session.UserID == uuid.Nil {
+				logger.Error("unauthorized access")
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
 			// TODO: Add support for BackupContacts
 			// And this must be the right type of user for the application
-			if (session.IsMyApp() && session.ServiceMemberID == uuid.Nil) ||
-				(session.IsOfficeApp() && session.OfficeUserID == uuid.Nil) {
+			if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+				logger.Error("unauthorized user for office.move.mil", zap.String("email", session.Email))
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
@@ -65,6 +66,18 @@ func NewAuthContext(logger *zap.Logger, loginGovProvider LoginGovProvider, callb
 // LogoutHandler handles logging the user out of login.gov
 type LogoutHandler struct {
 	Context
+	clientAuthSecretKey string
+	noSessionTimeout    bool
+}
+
+// NewLogoutHandler creates a new LogoutHandler
+func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool) LogoutHandler {
+	handler := LogoutHandler{
+		Context:             ac,
+		clientAuthSecretKey: clientAuthSecretKey,
+		noSessionTimeout:    noSessionTimeout,
+	}
+	return handler
 }
 
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -73,16 +86,15 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
 			logoutURL := h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
-			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 			session.IDToken = ""
 			session.UserID = uuid.Nil
+			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 		} else {
 			// Can't log out of login.gov without a token, redirect and let them re-auth
 			http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
 		}
 	}
-	// If all else fails send them to the site root
-	http.Redirect(w, r, "/", http.StatusTemporaryRedirect)
 }
 
 // RedirectHandler handles redirection
@@ -113,12 +125,12 @@ type CallbackHandler struct {
 	Context
 	db                     *pop.Connection
 	clientAuthSecretKey    string
+	noSessionTimeout       bool
 	loginGovMyClientID     string
 	loginGovOfficeClientID string
-	noSessionTimeout       bool
 }
 
-// NewCallbackHandler creates a new AuthorizationCallbackHandler
+// NewCallbackHandler creates a new CallbackHandler
 func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CallbackHandler {
 	handler := CallbackHandler{
 		Context:             ac,
@@ -174,28 +186,67 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	user, err := models.GetOrCreateUser(h.db, openIDUser)
+	session.IDToken = openIDSession.IDToken
+	session.Email = openIDUser.Email
+	loginGovID, err := uuid.FromString(openIDUser.UserID)
 	if err != nil {
-		h.logger.Error("Unable to create user.", zap.Error(err))
+		h.logger.Error("Unable to parse login.gov UUID", zap.String("email", openIDUser.Email), zap.String("UUID", openIDUser.UserID), zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	// Update the session
-	session.IDToken = openIDSession.IDToken
-	session.UserID = user.ID
-	session.Email = user.LoginGovEmail
+	userIdentity, err := models.FetchUserIdentity(h.db, loginGovID)
+	if err == nil { // Someone we know already
 
-	identity, err := models.FetchUserIdentity(h.db, user.ID)
-	if err != nil {
-		h.logger.Error("Failed to load identity for User ", zap.Any("UserID", user.ID), zap.String("email", user.LoginGovEmail), zap.Error(err))
-	} else {
-		session.ServiceMemberID = identity.ServiceMemberID
-		session.OfficeUserID = identity.OfficeUserID
-		session.FirstName = identity.FirstName()
-		session.LastName = identity.LastName()
-		session.Middle = identity.Middle()
+		session.UserID = userIdentity.ID
+		if userIdentity.ServiceMemberID != nil {
+			session.ServiceMemberID = *(userIdentity.ServiceMemberID)
+		}
+
+		if userIdentity.OfficeUserID != nil {
+			session.OfficeUserID = *(userIdentity.OfficeUserID)
+		} else if session.IsOfficeApp() {
+			h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+			return
+		}
+		session.FirstName = userIdentity.FirstName()
+		session.LastName = userIdentity.LastName()
+		session.Middle = userIdentity.Middle()
+
+	} else if err == models.ErrFetchNotFound { // Never heard of them so far
+
+		var officeUser *models.OfficeUser
+		if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
+			officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("No Office user found", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
+
+		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
+		if err == nil { // Successfully created the user
+			session.UserID = user.ID
+			if officeUser != nil {
+				session.OfficeUserID = officeUser.ID
+				officeUser.UserID = user.ID
+				err = h.db.Save(officeUser)
+			}
+		}
+		if err != nil {
+			h.logger.Error("Unable to create user.", zap.Error(err))
+			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+			return
+		}
 	}
+	h.logger.Info("logged in", zap.Any("session", session))
+	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
 }
 

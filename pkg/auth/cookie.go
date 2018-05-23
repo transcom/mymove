@@ -14,9 +14,12 @@ const UserSessionCookieName = "user_session"
 
 // SessionExpiryInMinutes is the number of minutes before a fallow session is harvested
 const SessionExpiryInMinutes = 15
+const sessionExpiryInSeconds = 15 * 60
 
-// Taken from answer here: https://stackoverflow.com/a/32620397
-var maxPossibleTimeValue = time.Unix(1<<63-62135596801, 999999999)
+// A representable date far in the future.  The trouble with something like https://stackoverflow.com/a/32620397
+// is that it produces a date which may not marshall well into JSON which makes logging problematic
+var likeForever = time.Date(9999, 1, 1, 12, 0, 0, 0, time.UTC)
+var likeForeverInSeconds = 99999999
 
 // GetExpiryTimeFromMinutes returns 'min' minutes from now
 func GetExpiryTimeFromMinutes(min int64) time.Time {
@@ -76,6 +79,40 @@ func getUserClaimsFromRequest(logger *zap.Logger, secret string, r *http.Request
 	return claims, ok
 }
 
+// WriteSessionCookie update the cookie for the session
+func WriteSessionCookie(w http.ResponseWriter, session *Session, secret string, noSessionTimeout bool, logger *zap.Logger) {
+
+	// Delete the cookie
+	cookie := http.Cookie{
+		Name:    UserSessionCookieName,
+		Value:   "blank",
+		Path:    "/",
+		Expires: time.Unix(0, 0),
+		MaxAge:  -1,
+	}
+
+	// unless we have a valid session
+	if session.IDToken != "" && session.UserID != uuid.Nil {
+		expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
+		maxAge := sessionExpiryInSeconds
+		// Never expire token if in development
+		if noSessionTimeout {
+			expiry = likeForever
+			maxAge = likeForeverInSeconds
+		}
+
+		ss, err := signTokenStringWithUserInfo(expiry, session, secret)
+		if err != nil {
+			logger.Error("Generating signed token string", zap.Error(err))
+		} else {
+			cookie.Value = ss
+			cookie.Expires = expiry
+			cookie.MaxAge = maxAge
+		}
+	}
+	http.SetCookie(w, &cookie)
+}
+
 // SessionCookieMiddleware handle serializing and de-serializing the session betweem the user_session cookie and the request context
 func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout bool) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
@@ -88,34 +125,10 @@ func SessionCookieMiddleware(logger *zap.Logger, secret string, noSessionTimeout
 
 			// And put the session info into the request context
 			ctx := SetSessionInRequestContext(r, &session)
+			// And update the cookie. May get over-ridden later
+			WriteSessionCookie(w, &session, secret, noSessionTimeout, logger)
 			next.ServeHTTP(w, r.WithContext(ctx))
 
-			// Delete the cookie
-			cookie := http.Cookie{
-				Name:    UserSessionCookieName,
-				Value:   "blank",
-				Path:    "/",
-				Expires: time.Unix(0, 0),
-				MaxAge:  -1,
-			}
-
-			// unless we have a valid session
-			if session.IDToken != "" && session.UserID != uuid.Nil {
-				expiry := GetExpiryTimeFromMinutes(SessionExpiryInMinutes)
-				// Never expire token if in development
-				if noSessionTimeout {
-					expiry = maxPossibleTimeValue
-				}
-
-				ss, err := signTokenStringWithUserInfo(expiry, &session, secret)
-				if err != nil {
-					logger.Error("Generating signed token string", zap.Error(err))
-				} else {
-					cookie.Value = ss
-					cookie.Expires = expiry
-				}
-			}
-			http.SetCookie(w, &cookie)
 		}
 		return http.HandlerFunc(mw)
 	}

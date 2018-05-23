@@ -100,14 +100,16 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
+	suite.Assertions.IsType(&CookieUpdateResponder{}, response)
+	unwrappedResponse := response.(*CookieUpdateResponder).responder
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
 
 	// Then: we expect a servicemember to have been created for the user
 	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
-	servicemembers := []models.ServiceMember{}
-	query.All(&servicemembers)
+	var serviceMembers models.ServiceMembers
+	query.All(&serviceMembers)
 
-	suite.Assertions.Len(servicemembers, 1)
+	suite.Assertions.Len(serviceMembers, 1)
 }
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
@@ -135,20 +137,23 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	handler := CreateServiceMemberHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
-	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, response)
-	okResponse := response.(*servicememberop.CreateServiceMemberCreated)
+	suite.Assertions.IsType(&CookieUpdateResponder{}, response)
+	unwrappedResponse := response.(*CookieUpdateResponder).responder
+	suite.Assertions.IsType(&servicememberop.CreateServiceMemberCreated{}, unwrappedResponse)
+	okResponse := unwrappedResponse.(*servicememberop.CreateServiceMemberCreated)
 
 	suite.Assertions.True(*okResponse.Payload.HasSocialSecurityNumber)
 
-	// Then: we expect a servicemember to have been created for the user
+	// Then: we expect a ServiceMember to have been created for the user
 	query := suite.db.Where(fmt.Sprintf("user_id='%v'", user.ID))
-	servicemembers := []models.ServiceMember{}
-	query.All(&servicemembers)
+	var serviceMembers models.ServiceMembers
+	query.All(&serviceMembers)
 
-	suite.Assertions.Len(servicemembers, 1)
+	suite.Assertions.Len(serviceMembers, 1)
 
 	serviceMemberID, _ := uuid.FromString(okResponse.Payload.ID.String())
 
+	session.ServiceMemberID = serviceMemberID
 	serviceMember, err := models.FetchServiceMember(suite.db, session, serviceMemberID)
 	suite.Assertions.NoError(err)
 
@@ -307,7 +312,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	patchPayload := internalmessages.PatchServiceMemberPayload{}
 
 	req := httptest.NewRequest("PATCH", "/service_members/some_id", nil)
-	req = suite.authenticateUserRequest(req, user)
+	req = suite.authenticateRequest(req, newServiceMember)
 
 	params := servicememberop.PatchServiceMemberParams{
 		HTTPRequest:               req,

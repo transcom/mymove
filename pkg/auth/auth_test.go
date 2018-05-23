@@ -12,7 +12,7 @@ type authSuite struct {
 	logger *zap.Logger
 }
 
-func TestAppSuite(t *testing.T) {
+func TestAuthSuite(t *testing.T) {
 	logger, err := zap.NewDevelopment()
 	if err != nil {
 		log.Panic(err)

@@ -128,7 +128,8 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 	// And return
 	serviceMemberPayload := payloadForServiceMemberModel(h.storage, newServiceMember)
-	return servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
+	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
+	return NewCookieUpdateResponder(params.HTTPRequest, h.cookieSecret, h.noSessionTimeout, h.logger, responder)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID

@@ -5,6 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"strings"
 	"time"
 )
 
@@ -51,4 +52,17 @@ func (o *OfficeUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error
 // This method is not required and may be deleted.
 func (o *OfficeUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchOfficeUserByEmail looks for an office user with a specific email
+func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, error) {
+	var users OfficeUsers
+	err := tx.Where("email = $1", strings.ToLower(email)).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrFetchNotFound
+	}
+	return &users[0], nil
 }

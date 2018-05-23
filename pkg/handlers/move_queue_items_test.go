@@ -5,8 +5,6 @@ import (
 
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
-
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,18 +12,7 @@ import (
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	// Given: An office user
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	officeUser := models.OfficeUser{
-		UserID:    user.ID,
-		User:      user,
-		FirstName: "Office",
-		LastName:  "Worker",
-		Email:     "email@example.gov",
-	}
-	suite.mustSave(&officeUser)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	//  A set of orders and a move belonging to those orders
 	order, _ := testdatagen.MakeOrder(suite.db)

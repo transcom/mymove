@@ -11,6 +11,9 @@ import (
 	"github.com/gobuffalo/validate"
 	"go.uber.org/zap"
 
+	"github.com/go-openapi/runtime"
+	"github.com/go-openapi/runtime/middleware"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -32,10 +35,12 @@ type FileStorer interface {
 // Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
-	db      *pop.Connection
-	logger  *zap.Logger
-	planner route.Planner
-	storage FileStorer
+	db               *pop.Connection
+	logger           *zap.Logger
+	cookieSecret     string
+	noSessionTimeout bool
+	planner          route.Planner
+	storage          FileStorer
 }
 
 // NewHandlerContext returns a new HandlerContext with its required private fields set.
@@ -54,6 +59,42 @@ func (context *HandlerContext) SetFileStorer(storer FileStorer) {
 // SetPlanner is a simple setter for the route.Planner private field
 func (context *HandlerContext) SetPlanner(planner route.Planner) {
 	context.planner = planner
+}
+
+// SetCookieSecret is a simple setter for the cookieSeecret private Field
+func (context *HandlerContext) SetCookieSecret(cookieSecret string) {
+	context.cookieSecret = cookieSecret
+}
+
+// SetNoSessionTimeout is a simple setter for the noSessionTimeout private Field
+func (context *HandlerContext) SetNoSessionTimeout() {
+	context.noSessionTimeout = true
+}
+
+// CookieUpdateResponder wraps a swagger middleware.Responder in code which sets the session_cookie
+type CookieUpdateResponder struct {
+	session          *auth.Session
+	cookieSecret     string
+	noSessionTimeout bool
+	logger           *zap.Logger
+	responder        middleware.Responder
+}
+
+// NewCookieUpdateResponder constructs a wrapper for the responder which will update cookies
+func NewCookieUpdateResponder(request *http.Request, secret string, noSessionTimeout bool, logger *zap.Logger, responder middleware.Responder) middleware.Responder {
+	return &CookieUpdateResponder{
+		session:          auth.SessionFromRequestContext(request),
+		cookieSecret:     secret,
+		noSessionTimeout: noSessionTimeout,
+		logger:           logger,
+		responder:        responder,
+	}
+}
+
+// WriteResponse updates the session cookie before writing out the details of the response
+func (cur *CookieUpdateResponder) WriteResponse(rw http.ResponseWriter, p runtime.Producer) {
+	auth.WriteSessionCookie(rw, cur.session, cur.cookieSecret, cur.noSessionTimeout, cur.logger)
+	cur.responder.WriteResponse(rw, p)
 }
 
 // NewPublicAPIHandler returns a handler for the public API

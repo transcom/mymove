@@ -7,9 +7,9 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	"github.com/markbates/goth"
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
+	"strings"
 )
 
 // User is an entity with a registered uuid and email at login.gov
@@ -59,56 +59,54 @@ func GetFullServiceMemberProfile(db *pop.Connection, session *auth.Session) (*Se
 	}
 
 	return nil, nil
-
 }
 
-// GetOrCreateUser is called upon successful login.gov verification
-func GetOrCreateUser(db *pop.Connection, gothUser goth.User) (*User, error) {
-
-	// Check if user already exists
-	query := db.Where("login_gov_uuid = $1", gothUser.UserID)
+// GetUser loads the associated User from the DB
+func GetUser(db *pop.Connection, userID uuid.UUID) (*User, error) {
 	var user User
-	err := query.First(&user)
+	err := db.Find(&user, userID)
+	return &user, err
+}
+
+// CreateUser is called upon successful login.gov verification of a new user
+func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, error) {
+	lgu, err := uuid.FromString(loginGovID)
 	if err != nil {
-		if err.Error() != "sql: no rows in result set" {
-			return nil, errors.Wrap(err, "Failed to load user")
-		}
-		// No user found, creating new user
-		loginGovUUID, _ := uuid.FromString(gothUser.UserID)
-		newUser := User{
-			LoginGovUUID:  loginGovUUID,
-			LoginGovEmail: gothUser.Email,
-		}
-		verrs, err := db.ValidateAndCreate(&newUser)
-		if verrs.HasAny() {
-			return nil, verrs
-		} else if err != nil {
-			err = errors.Wrap(err, "Unable to create user")
-			return nil, err
-		}
-		return &newUser, nil
+		return nil, err
 	}
-	// Return found user
-	return &user, nil
+	newUser := User{
+		LoginGovUUID:  lgu,
+		LoginGovEmail: strings.ToLower(email),
+	}
+	verrs, err := db.ValidateAndCreate(&newUser)
+	if verrs.HasAny() {
+		return nil, verrs
+	} else if err != nil {
+		err = errors.Wrap(err, "Unable to create user")
+		return nil, err
+	}
+	return &newUser, nil
 }
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                     uuid.UUID `db:"id"`
-	ServiceMemberID        uuid.UUID `db:"sm_id"`
-	ServiceMemberFirstName string    `db:"sm_fname"`
-	ServiceMemberLastName  string    `db:"sm_lname"`
-	ServiceMemberMiddle    string    `db:"sm_middle"`
-	OfficeUserID           uuid.UUID `db:"ou_id"`
-	OfficeUserFirstName    string    `db:"ou_fname"`
-	OfficeUserLastName     string    `db:"ou_lname"`
-	OfficeUserMiddle       string    `db:"ou_middle"`
+	ID                     uuid.UUID  `db:"id"`
+	Email                  string     `db:"email"`
+	ServiceMemberID        *uuid.UUID `db:"sm_id"`
+	ServiceMemberFirstName *string    `db:"sm_fname"`
+	ServiceMemberLastName  *string    `db:"sm_lname"`
+	ServiceMemberMiddle    *string    `db:"sm_middle"`
+	OfficeUserID           *uuid.UUID `db:"ou_id"`
+	OfficeUserFirstName    *string    `db:"ou_fname"`
+	OfficeUserLastName     *string    `db:"ou_lname"`
+	OfficeUserMiddle       *string    `db:"ou_middle"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
 func FetchUserIdentity(db *pop.Connection, userID uuid.UUID) (*UserIdentity, error) {
 	var identities []UserIdentity
 	query := `SELECT users.id,
+				users.login_gov_email as email,
 				sm.id as sm_id,
 				sm.first_name as sm_fname,
 				sm.last_name as sm_lname,
@@ -118,9 +116,9 @@ func FetchUserIdentity(db *pop.Connection, userID uuid.UUID) (*UserIdentity, err
 				ou.last_name as ou_lname,
 				ou.middle_initials as ou_middle
 			FROM users
-			OUTER JOIN service_members as sm on sm.user_id = users.id
-			OUTER JOIN office_users as ou on ou.user_id = users.id
-			WHERE users.id  = $1`
+			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
+			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
+			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, userID).All(&identities)
 	if err != nil {
 		return nil, err
@@ -130,24 +128,27 @@ func FetchUserIdentity(db *pop.Connection, userID uuid.UUID) (*UserIdentity, err
 	return &identities[0], nil
 }
 
-func firstNotEmpty(one string, two string) string {
-	if one != "" {
-		return one
+func firstValue(one *string, two *string) (value string) {
+
+	if one != nil {
+		value = *one
+	} else if two != nil {
+		value = *two
 	}
-	return two
+	return
 }
 
 // FirstName gets the firstname of the user from either the ServiceMember or OfficeUser identity
 func (ui *UserIdentity) FirstName() string {
-	return firstNotEmpty(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
+	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
 }
 
 // LastName gets the firstname of the user from either the ServiceMember or OfficeUser identity
 func (ui *UserIdentity) LastName() string {
-	return firstNotEmpty(ui.ServiceMemberLastName, ui.OfficeUserLastName)
+	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName)
 }
 
 // Middle gets the MiddleName or Initials from the ServiceMember or OfficeUserIdentity
 func (ui *UserIdentity) Middle() string {
-	return firstNotEmpty(ui.ServiceMemberMiddle, ui.OfficeUserMiddle)
+	return firstValue(ui.ServiceMemberMiddle, ui.OfficeUserMiddle)
 }

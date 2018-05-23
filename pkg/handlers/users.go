@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUserModel(storage FileStorer, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
+func payloadForUserModel(storage FileStorer, user *models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
 	var smPayload *internalmessages.ServiceMemberPayload
 
 	if serviceMember != nil {
@@ -18,10 +18,10 @@ func payloadForUserModel(storage FileStorer, serviceMember *models.ServiceMember
 	}
 
 	userPayload := internalmessages.LoggedInUserPayload{
-		ID:            fmtUUID(serviceMember.UserID),
-		CreatedAt:     fmtDateTime(serviceMember.User.CreatedAt),
+		ID:            fmtUUID(user.ID),
+		CreatedAt:     fmtDateTime(user.CreatedAt),
 		ServiceMember: smPayload,
-		UpdatedAt:     fmtDateTime(serviceMember.User.UpdatedAt),
+		UpdatedAt:     fmtDateTime(user.UpdatedAt),
 	}
 	return &userPayload
 }
@@ -33,14 +33,23 @@ type ShowLoggedInUserHandler HandlerContext
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
+	var user *models.User
 	serviceMember, err := models.GetFullServiceMemberProfile(h.db, session)
-	if err != nil {
-		h.logger.Error("Error retrieving service_member", zap.Error(err))
-		response := userop.NewShowLoggedInUserUnauthorized()
-		return response
+	if err == nil {
+		if serviceMember == nil {
+			user, err = models.GetUser(h.db, session.UserID)
+		} else {
+			user = &serviceMember.User
+		}
 	}
 
-	userPayload := payloadForUserModel(h.storage, serviceMember)
-	response := userop.NewShowLoggedInUserOK().WithPayload(userPayload)
+	var response middleware.Responder
+	if err != nil {
+		h.logger.Error("Error retrieving service_member", zap.Error(err))
+		response = userop.NewShowLoggedInUserUnauthorized()
+	} else {
+		userPayload := payloadForUserModel(h.storage, user, serviceMember)
+		response = userop.NewShowLoggedInUserOK().WithPayload(userPayload)
+	}
 	return response
 }

@@ -1,23 +1,16 @@
 package authentication
 
 import (
-	"crypto/rand"
-	"crypto/rsa"
-	"crypto/x509"
-	"encoding/pem"
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"regexp"
 	"testing"
-	"time"
-
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -66,39 +59,6 @@ func fakeLoginGovProvider(logger *zap.Logger) LoginGovProvider {
 	return NewLoginGovProvider("fakeHostname", "secret_key", logger)
 }
 
-func getHandlerParamsWithToken(ss string, expiry time.Time) (*httptest.ResponseRecorder, *http.Request) {
-	rr := httptest.NewRecorder()
-	req, _ := http.NewRequest("GET", "/protected", nil)
-
-	// Set a secure cookie on the request
-	cookie := http.Cookie{
-		Name:    auth.UserSessionCookieName,
-		Value:   ss,
-		Path:    "/",
-		Expires: expiry,
-	}
-	req.AddCookie(&cookie)
-
-	return rr, req
-}
-
-func createRandomRSAPEM() (s string, err error) {
-	priv, err := rsa.GenerateKey(rand.Reader, 1024)
-	if err != nil {
-		err = errors.Wrap(err, "failed to generate key")
-		return
-	}
-
-	asn1 := x509.MarshalPKCS1PrivateKey(priv)
-	privBytes := pem.EncodeToMemory(&pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: asn1,
-	})
-	s = string(privBytes[:])
-
-	return
-}
-
 func (suite *AuthSuite) TestGenerateNonce() {
 	t := suite.T()
 	nonce := generateNonce()
@@ -128,7 +88,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	req = req.WithContext(ctx)
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http://", callbackPort)
-	handler := LogoutHandler{authContext}
+	handler := LogoutHandler{authContext, "fake key", false}
 	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(handler)
 
 	rr := httptest.NewRecorder()
@@ -174,7 +134,7 @@ func (suite *AuthSuite) TestRequireAuthMiddleware() {
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		handlerSession = auth.SessionFromRequestContext(r)
 	})
-	middleware := UserAuthMiddleware()(handler)
+	middleware := UserAuthMiddleware(suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 
@@ -191,7 +151,7 @@ func (suite *AuthSuite) TestRequireAuthMiddlewareUnauthorized() {
 	req := httptest.NewRequest("GET", "/moves", nil)
 
 	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {})
-	middleware := UserAuthMiddleware()(handler)
+	middleware := UserAuthMiddleware(suite.logger)(handler)
 
 	middleware.ServeHTTP(rr, req)
 

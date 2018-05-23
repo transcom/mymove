@@ -3,9 +3,7 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 
-	"github.com/markbates/goth"
 	. "github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
 func (suite *ModelSuite) TestUserCreation() {
@@ -68,46 +66,18 @@ func (suite *ModelSuite) TestUserCreationDuplicateUUID() {
 	}
 }
 
-func (suite *ModelSuite) TestGetOrCreateUser() {
-	t := suite.T()
+func (suite *ModelSuite) TestCreateUser() {
+	const testEmail = "Sally@GoVernment.gov"
+	const expectedEmail = "sally@government.gov"
+	const goodUUID = "39b28c92-0506-4bef-8b57-e39519f42dc2"
+	const badUUID = "39xnfc92-0506-4bef-8b57-e39519f42dc2"
 
-	// When: login gov UUID is passed to create user func
-	gothUser := goth.User{Email: "sally@government.gov", UserID: "39b28c92-0506-4bef-8b57-e39519f42dc2"}
-	loginGovUUID, _ := uuid.FromString(gothUser.UserID)
+	sally, err := CreateUser(suite.db, goodUUID, testEmail)
+	suite.Nil(err, "No error for good create")
+	suite.Equal(expectedEmail, sally.LoginGovEmail, "should convert email to lower case")
+	suite.NotEqual(sally.ID, uuid.Nil)
 
-	// And: user does not yet exist in the db
-	newUser, err := GetOrCreateUser(suite.db, gothUser)
-	if err != nil {
-		t.Error("error querying or creating user.", err)
-	}
-
-	// Then: expect fields to be set on returned user
-	if newUser.LoginGovEmail != gothUser.Email {
-		t.Error("expected email to be set")
-	}
-	if newUser.LoginGovUUID != loginGovUUID {
-		t.Error("expected uuid to be set")
-	}
-
-	// When: The same UUID is passed in func
-	sameUser, err := GetOrCreateUser(suite.db, gothUser)
-	if err != nil {
-		t.Error("error querying or creating user.")
-	}
-
-	// Then: expect the existing user to be returned
-	if sameUser.LoginGovEmail != newUser.LoginGovEmail {
-		t.Error("expected existing user to have been returned")
-	}
-
-	// And: no new user to have been created
-	query := suite.db.Where("login_gov_uuid = $1", loginGovUUID)
-	var users []User
-	queryErr := query.All(&users)
-	if queryErr != nil {
-		t.Error("DB Query Error", zap.Error(err))
-	}
-	if len(users) > 1 {
-		t.Error("1 user should have been returned")
-	}
+	fail, err := CreateUser(suite.db, expectedEmail, badUUID)
+	suite.NotNil(err, "should get and error from bad uuid")
+	suite.Nil(fail, "no user with bad uuid")
 }

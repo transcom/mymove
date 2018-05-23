@@ -148,9 +148,13 @@ func main() {
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
 	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
-	userAuthMiddleware := authentication.UserAuthMiddleware()
+	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetCookieSecret(*clientAuthSecretKey)
+	if *noSessionTimeout {
+		handlerContext.SetNoSessionTimeout()
+	}
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
@@ -231,7 +235,7 @@ func main() {
 	root.Handle(pat.New("/auth/*"), authMux)
 	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.LogoutHandler{Context: authContext})
+	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
