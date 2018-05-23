@@ -2291,6 +2291,35 @@ paths:
           description: not found
         500:
           description: server error
+  /uploads:
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        201:
+          description: deleted uploads
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
   /service_members:
     post:
       summary: Creates service member for a logged-in user

@@ -360,8 +360,8 @@ function mapStateToProps(state) {
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
-      get(state.orders, 'currentOrders'),
+      get(state.orders, 'currentOrders') ||
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]'),
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
   };

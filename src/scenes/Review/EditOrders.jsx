@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, concat, includes, map, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
 import { reduxForm, Field } from 'redux-form';
@@ -15,7 +15,7 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 
 import {
   updateOrders,
-  deleteUpload,
+  deleteUploads,
   addUploads,
   showCurrentOrders,
 } from 'scenes/Orders/ducks';
@@ -37,8 +37,12 @@ let EditOrdersForm = props => {
     initialValues,
     existingUploads,
     newUploads,
+    deleteQueue,
   } = props;
-  const hasUploads = newUploads.length || existingUploads.length;
+  const visibleUploads = reject(existingUploads, upload => {
+    return includes(deleteQueue, upload.id);
+  });
+  const hasUploads = newUploads.length || visibleUploads.length;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Orders
@@ -55,8 +59,8 @@ let EditOrdersForm = props => {
       <br />
       <Field name="new_duty_station" component={DutyStationSearchBox} />
       <p>Uploads:</p>
-      {Boolean(existingUploads.length) && (
-        <UploadsTable uploads={existingUploads} onDelete={onDelete} />
+      {Boolean(visibleUploads.length) && (
+        <UploadsTable uploads={visibleUploads} onDelete={onDelete} />
       )}
       {Boolean(get(initialValues, 'uploaded_orders')) && (
         <Uploader
@@ -84,8 +88,22 @@ class EditOrders extends Component {
 
     this.state = {
       newUploads: [],
+      deleteQueue: [],
     };
+
+    this.cancelChanges = this.cancelChanges.bind(this);
   }
+
+  cancelChanges = () => {
+    const newUploadIds = map(this.state.newUploads, 'id');
+    this.props.deleteUploads(newUploadIds).then(() => {
+      if (!this.props.hasSubmitError) {
+        this.returnToReview();
+      } else {
+        window.scrollTo(0, 0);
+      }
+    });
+  };
 
   returnToReview = () => {
     const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
@@ -99,9 +117,9 @@ class EditOrders extends Component {
     }
   };
 
-  deleteFile = (e, uploadId) => {
+  handleDelete = (e, uploadId) => {
     e.preventDefault();
-    this.props.deleteUpload(uploadId);
+    this.setState({ deleteQueue: concat(this.state.deleteQueue, uploadId) });
   };
 
   handleNewUpload = uploads => {
@@ -110,15 +128,18 @@ class EditOrders extends Component {
 
   updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
-    this.props.addUploads(this.state.newUploads);
-    return this.props.updateOrders(fieldValues.id, fieldValues).then(() => {
-      // This promise resolves regardless of error.
-      if (!this.props.hasSubmitError) {
-        this.returnToReview();
-      } else {
-        window.scrollTo(0, 0);
-      }
-    });
+    let addUploads = this.props.addUploads(this.state.newUploads);
+    let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
+    return Promise.all([addUploads, deleteUploads])
+      .then(() => this.props.updateOrders(fieldValues.id, fieldValues))
+      .then(() => {
+        // This promise resolves regardless of error.
+        if (!this.props.hasSubmitError) {
+          this.returnToReview();
+        } else {
+          window.scrollTo(0, 0);
+        }
+      });
   };
 
   render() {
@@ -136,12 +157,13 @@ class EditOrders extends Component {
           <EditOrdersForm
             initialValues={currentOrders}
             onSubmit={this.updateOrders}
-            onCancel={this.returnToReview}
+            onCancel={this.cancelChanges}
             schema={schema}
             existingUploads={existingUploads}
             newUploads={this.state.newUploads}
+            deleteQueue={this.state.deleteQueue}
             onUpload={this.handleNewUpload}
-            onDelete={this.deleteFile}
+            onDelete={this.handleDelete}
           />
         </div>
       </div>
@@ -169,7 +191,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateOrders, addUploads, deleteUpload, showCurrentOrders },
+    { push, updateOrders, addUploads, deleteUploads, showCurrentOrders },
     dispatch,
   );
 }

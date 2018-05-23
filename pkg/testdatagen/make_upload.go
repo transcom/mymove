@@ -20,6 +20,7 @@ func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, e
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
+		Document:    *document,
 		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
