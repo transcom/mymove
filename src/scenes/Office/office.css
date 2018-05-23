@@ -63,7 +63,8 @@
   background-color: #ececec;
 }
 
-.tabs .nav-tab .status, .tabs .nav-tab .title {
+.tabs .nav-tab .status,
+.tabs .nav-tab .title {
   display: block;
   text-align: center;
 }
@@ -104,13 +105,13 @@
 }
 
 .documents .usa-heading .icon {
-  margin-left: .5em;
+  margin-left: 0.5em;
   font-size: 1.7rem;
   vertical-align: baseline;
 }
 
 .documents .document .icon {
-  margin-right: .3em;
+  margin-right: 0.3em;
 }
 
 .orders-page-column {
@@ -150,6 +151,31 @@
 .panel-field.contact-prefs .field-value svg {
   margin-right: 4px;
   font-size: 0.8em;
+}
+
+head .panel-subhead {
+  font-weight: bold;
+  margin-top: 4rem;
+}
+
+.panel-subhead + .usa-input .usa-input-label {
+  margin-top: 1rem;
+}
+
+.editable-panel-column fieldset {
+  margin-top: 4rem;
+}
+
+.editable-panel-column legend {
+  font-size: 1.7rem;
+}
+
+.editable-panel-column fieldset label {
+  margin-top: 2rem;
+}
+
+.editable-panel-column fieldset label:first-of-type {
+  margin-top: 0;
 }
 
 .usa-input.duty-station p {

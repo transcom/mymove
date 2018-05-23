@@ -189,17 +189,20 @@ class MoveInfo extends Component {
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
-              {!upload && <p>No orders have been uploaded.</p>}
-              <div className="document">
-                <FontAwesomeIcon
-                  style={{ color: 'red' }}
-                  className="icon"
-                  icon={faExclamationCircle}
-                />
-                <Link to={`/moves/${officeMove.id}/orders`} target="_blank">
-                  Orders ({formatDate(upload.created_at)})
-                </Link>
-              </div>
+              {!upload ? (
+                <p>No orders have been uploaded.</p>
+              ) : (
+                <div className="document">
+                  <FontAwesomeIcon
+                    style={{ color: 'red' }}
+                    className="icon"
+                    icon={faExclamationCircle}
+                  />
+                  <Link to={`/moves/${officeMove.id}/orders`} target="_blank">
+                    Orders ({formatDate(upload.created_at)})
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </div>
