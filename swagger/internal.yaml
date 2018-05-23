@@ -1239,6 +1239,7 @@ definitions:
     type: string
     title: Reimbursement
     enum:
+      - DRAFT
       - REQUESTED
       - APPROVED
       - REJECTED
@@ -1248,6 +1249,7 @@ definitions:
     title: Method of Receipt
     enum:
       - MIL_PAY
+      - DIRECT_DEPOSIT
       - OTHER
   MoveStatus:
     type: string
