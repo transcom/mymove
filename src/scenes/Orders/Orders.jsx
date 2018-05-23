@@ -34,11 +34,7 @@ export class Orders extends Component {
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
-        this.props
-          .createOrders(pendingValues)
-          .then(dispatchedAction =>
-            this.props.createMove(dispatchedAction.payload.id),
-          );
+        this.props.createOrders(pendingValues);
       }
     }
   };
