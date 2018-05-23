@@ -23,7 +23,6 @@ import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
