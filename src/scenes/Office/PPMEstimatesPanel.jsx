@@ -6,6 +6,7 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
+import { formatDate } from './helpers';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
@@ -18,24 +19,38 @@ const EstimatesDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
+        <PanelSwaggerField fieldName="estimated_incentive" {...fieldProps} />
+        <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
         <PanelSwaggerField
-          title="DoD ID"
-          fieldName="estimated_incentive"
+          title="Planned departure"
+          fieldName="planned_move_date"
           {...fieldProps}
         />
-        <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
-        <PanelSwaggerField fieldName="planned_move_date" {...fieldProps} />
-        <PanelSwaggerField fieldName="has_sit" {...fieldProps} />
-        <PanelSwaggerField fieldName="days_in_storage" {...fieldProps} />
-        max storage cost (two fields)
+        <PanelSwaggerField
+          title="Storage planned"
+          fieldName="has_sit"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Storage days"
+          fieldName="days_in_storage"
+          {...fieldProps}
+        />
+        <PanelField title="Max. storage cost" value="Max. storage cost" />
       </div>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="pickup_postal_code" {...fieldProps} />
         <PanelSwaggerField
+          title="Origin zip code"
+          fieldName="pickup_postal_code"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Additional stop zip code"
           fieldName="additional_pickup_postal_code"
           {...fieldProps}
         />
         <PanelSwaggerField
+          title="Destination zip code"
           fieldName="destination_postal_code"
           {...fieldProps}
         />
