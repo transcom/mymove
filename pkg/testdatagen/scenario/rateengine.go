@@ -65,8 +65,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		SIT185ARateCents:   unit.Cents(1691),
 		SIT185BRateCents:   unit.Cents(65),
 		SITPDSchedule:      3,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &originServiceArea); err != nil {
 		return err
@@ -81,8 +81,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		SIT185ARateCents:   unit.Cents(1378),
 		SIT185BRateCents:   unit.Cents(53),
 		SITPDSchedule:      2,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &destinationServiceArea); err != nil {
 		return err
@@ -95,8 +95,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		WeightLbsLower:     4000,
 		WeightLbsUpper:     4200,
 		RateCents:          unit.Cents(458300),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &linehaulRate); err != nil {
 		return err
@@ -106,8 +106,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		CwtMilesLower:      0,
 		CwtMilesUpper:      16001,
 		RateCents:          32834,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &shorthaulRate); err != nil {
 		return err
@@ -118,8 +118,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(16001),
 		RateCents:          unit.Cents(6130),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &fullPackRate); err != nil {
 		return err
@@ -128,8 +128,8 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           2,
 		RateMillicents:     643650,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &fullUnpackRate); err != nil {
 		return err
@@ -137,10 +137,10 @@ func RunRateEngineScenario1(db *pop.Connection) error {
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          may15_2018,
-		PerformancePeriodEnd:            oct15_2018,
-		RateCycleStart:                  may15_2018,
-		RateCycleEnd:                    oct15_2018,
+		PerformancePeriodStart:          May15_2018,
+		PerformancePeriodEnd:            Oct15_2018,
+		RateCycleStart:                  May15_2018,
+		RateCycleEnd:                    Oct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
@@ -208,8 +208,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(263),
 		ServiceChargeCents: unit.Cents(489),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 		SIT185ARateCents:   unit.Cents(1447),
 		SIT185BRateCents:   unit.Cents(51),
 		SITPDSchedule:      3,
@@ -224,8 +224,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		ServicesSchedule:   3,
 		LinehaulFactor:     unit.Cents(78),
 		ServiceChargeCents: unit.Cents(452),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 		SIT185ARateCents:   unit.Cents(1642),
 		SIT185BRateCents:   unit.Cents(70),
 		SITPDSchedule:      3,
@@ -241,8 +241,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		WeightLbsLower:     7400,
 		WeightLbsUpper:     7600,
 		RateCents:          unit.Cents(1277900),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &linehaulRate1); err != nil {
 		return err
@@ -255,8 +255,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		WeightLbsLower:     1000,
 		WeightLbsUpper:     1400,
 		RateCents:          unit.Cents(1277900),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &linehaulRate2); err != nil {
 		return err
@@ -266,8 +266,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		CwtMilesLower:      96001,
 		CwtMilesUpper:      128001,
 		RateCents:          18242,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &shorthaulRate); err != nil {
 		return err
@@ -278,8 +278,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 		WeightLbsLower:     unit.Pound(0),
 		WeightLbsUpper:     unit.Pound(16001),
 		RateCents:          unit.Cents(6714),
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &fullPackRate); err != nil {
 		return err
@@ -288,8 +288,8 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 	fullUnpackRate := models.Tariff400ngFullUnpackRate{
 		Schedule:           3,
 		RateMillicents:     704970,
-		EffectiveDateLower: may15_2018,
-		EffectiveDateUpper: may15_2019,
+		EffectiveDateLower: May15_2018,
+		EffectiveDateUpper: May15_2019,
 	}
 	if err := save(db, &fullUnpackRate); err != nil {
 		return err
@@ -297,10 +297,10 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	band := 1
 	tspp := models.TransportationServiceProviderPerformance{
-		PerformancePeriodStart:          may15_2018,
-		PerformancePeriodEnd:            oct15_2018,
-		RateCycleStart:                  may15_2018,
-		RateCycleEnd:                    oct15_2018,
+		PerformancePeriodStart:          May15_2018,
+		PerformancePeriodEnd:            Oct15_2018,
+		RateCycleStart:                  May15_2018,
+		RateCycleEnd:                    Oct15_2018,
 		TrafficDistributionListID:       tdl.ID,
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     &band,
