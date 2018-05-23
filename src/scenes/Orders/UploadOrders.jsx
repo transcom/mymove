@@ -1,14 +1,13 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import bytes from 'bytes';
-import moment from 'moment';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { showCurrentOrders, deleteUpload, addUploads } from './ducks';
 import Uploader from 'shared/Uploader';
+import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 
 import './UploadOrders.css';
@@ -92,37 +91,11 @@ export class UploadOrders extends Component {
             upload the images.
           </p>
         </div>
-        {!!uploads.length && (
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Uploaded</th>
-                  <th>Size</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {uploads.map(upload => (
-                  <tr key={upload.id}>
-                    <td>
-                      <a href={upload.url} target="_blank">
-                        {upload.filename}
-                      </a>
-                    </td>
-                    <td>{moment(upload.created_at).format('LLL')}</td>
-                    <td>{bytes(upload.bytes)}</td>
-                    <td>
-                      <a href="" onClick={e => this.deleteFile(e, upload.id)}>
-                        Delete
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {Boolean(uploads.length) && (
+          <Fragment>
+            <br />
+            <UploadsTable uploads={uploads} onDelete={this.deleteFile} />
+          </Fragment>
         )}
         {currentOrders && (
           <div className="uploader-box">
