@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,6 +8,8 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MethodOfReceipt is how the SM will be paid
@@ -39,12 +40,12 @@ const (
 	ReimbursementStatusPAID ReimbursementStatus = "PAID"
 )
 
-// Reimbursement is money that is intedended to be paid to the servicemember
+// Reimbursement is money that is intended to be paid to the servicemember
 type Reimbursement struct {
 	ID              uuid.UUID           `json:"id" db:"id"`
 	CreatedAt       time.Time           `json:"created_at" db:"created_at"`
 	UpdatedAt       time.Time           `json:"updated_at" db:"updated_at"`
-	RequestedAmount int                 `json:"requested_amount" db:"requested_amount"`
+	RequestedAmount unit.Cents          `json:"requested_amount" db:"requested_amount"`
 	MethodOfReceipt MethodOfReceipt     `json:"method_of_receipt" db:"method_of_receipt"`
 	Status          ReimbursementStatus `json:"status" db:"status"`
 	RequestedDate   *time.Time          `json:"requested_date" db:"requested_date"`
@@ -56,7 +57,7 @@ type Reimbursement struct {
 // ErrInvalidTransition is an error representing an invalid transition.
 var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
 
-// Request officailly requests the reimbursement.
+// Request officially requests the reimbursement.
 func (r *Reimbursement) Request() error {
 	if r.Status != ReimbursementStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Request")
@@ -78,7 +79,7 @@ func (r *Reimbursement) Approve() error {
 	return nil
 }
 
-// Reject recjects the Reimbursement
+// Reject rejects the Reimbursement
 func (r *Reimbursement) Reject() error {
 	if r.Status != ReimbursementStatusREQUESTED {
 		return errors.Wrap(ErrInvalidTransition, "Reject")
@@ -90,7 +91,7 @@ func (r *Reimbursement) Reject() error {
 
 // Pay pays the Reimbursement
 func (r *Reimbursement) Pay() error {
-	if r.Status != ReimbursementStatusAPPROVED && r.Status != ReimbursementStatusDRAFT {
+	if r.Status != ReimbursementStatusAPPROVED {
 		return errors.Wrap(ErrInvalidTransition, "Pay")
 	}
 
@@ -101,7 +102,7 @@ func (r *Reimbursement) Pay() error {
 // END State Machine
 
 // BuildDraftReimbursement makes a Reimbursement in the DRAFT state, but does not save it
-func BuildDraftReimbursement(requestedAmount int, methodOfReceipt MethodOfReceipt) Reimbursement {
+func BuildDraftReimbursement(requestedAmount unit.Cents, methodOfReceipt MethodOfReceipt) Reimbursement {
 	return Reimbursement{
 		Status:          ReimbursementStatusDRAFT,
 		RequestedAmount: requestedAmount,
@@ -110,7 +111,8 @@ func BuildDraftReimbursement(requestedAmount int, methodOfReceipt MethodOfReceip
 }
 
 // BuildRequestedReimbursement makes a Reimbursement in the REQUEST state, but does not save it
-func BuildRequestedReimbursement(requestedAmount int, methodOfReceipt MethodOfReceipt) Reimbursement {
+// This will be useful for reimbursements that are filed after the initial move is created
+func BuildRequestedReimbursement(requestedAmount unit.Cents, methodOfReceipt MethodOfReceipt) Reimbursement {
 	today := time.Now()
 	return Reimbursement{
 		Status:          ReimbursementStatusREQUESTED,
@@ -144,10 +146,8 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		string(MethodOfReceiptOTHER),
 	}
 
-	fmt.Println("WEOIFNWOIFNOWF", r)
-
 	return validate.Validate(
-		&validators.IntIsGreaterThan{Field: r.RequestedAmount, Name: "RequestedAmount", Compared: 0},
+		&validators.IntIsGreaterThan{Field: int(r.RequestedAmount), Name: "RequestedAmount", Compared: 0},
 		&validators.StringInclusion{Field: string(r.Status), Name: "Status", List: validStatuses},
 		&validators.StringInclusion{Field: string(r.MethodOfReceipt), Name: "Status", List: validMethodsOfReceipt},
 	), nil
