@@ -183,7 +183,7 @@ class MoveInfo extends Component {
               <button
                 onClick={this.approvePPM}
                 disabled={
-                  ppm.status === 'APPROVED' || move.status != 'APPROVED'
+                  ppm.status === 'APPROVED' || move.status !== 'APPROVED'
                 }
                 style={{
                   backgroundColor: ppm.status === 'APPROVED' && 'green',
