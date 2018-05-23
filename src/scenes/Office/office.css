@@ -195,10 +195,12 @@ head .panel-subhead {
   padding-left: 1.7rem;
   padding-right: 1.7rem;
   border: solid #f1f1f1;
-  border-width: 0 3px 3px 3px;
+  border-width: 3px;
   padding-top: 8px;
   padding-bottom: 9px;
   background: white;
+  width:100%;
+  empty-cells: hide;
 }
 
 .payment-table a {
@@ -221,6 +223,7 @@ head .panel-subhead {
   -webkit-column-span: all;
   -moz-column-span: all;
   column-span: all;
+  width:100%;
 }
 
 .payment-table-column-title {
@@ -235,10 +238,40 @@ head .panel-subhead {
   font-size: .9em;
   border: none;
   border-bottom: solid 1px #f1f1f1;
+  width: 90%;
 }
 
 .payment-table-column-content {
   border: none;
   border-bottom: solid 1px #f1f1f1;
+}
+
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 150%;
+    margin-left: -100px;
+}
+
+.tooltip .tooltiptext::after {
+    content: "";
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: transparent transparent black transparent;
+}
+
+.tooltip:hover .tooltiptext {
+    visibility: visible;
 }
 

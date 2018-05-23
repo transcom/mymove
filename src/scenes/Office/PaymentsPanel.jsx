@@ -17,46 +17,67 @@ import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 const PaymentsTable = props => {
   const ppm = props.ppm;
   return (
-    <div className="usa-grid">
-      <table className="payment-table">
-        <tbody>
-          <tr>
-            <th className="payment-table-title">Payments</th>
-          </tr>
-          <tr>
-            <th className="payment-table-column-title" />
-            <th className="payment-table-column-title">Amount</th>
-            <th className="payment-table-column-title">Disbursement</th>
-            <th className="payment-table-column-title">Requested on</th>
-            <th className="payment-table-column-title">Approved</th>
-          </tr>
-          {ppm ? (
-            [
-              <tr>
-                <th className="payment-table-subheader">
-                  Payments against PPM Incentive
-                </th>
-              </tr>,
-              <tr>
-                <td className="payment-table-column-content" />
-                <td className="payment-table-column-content">I</td>
-                <td className="payment-table-column-content">Like</td>
-                <td className="payment-table-column-content">Dogs</td>
-                <td className="payment-table-column-content">
-                  <FontAwesomeIcon className="icon" icon={faCheck} />
-                  <FontAwesomeIcon className="icon" icon={faTimes} />
-                  <FontAwesomeIcon className="icon" icon={faPencil} />
-                </td>
-              </tr>,
-            ]
-          ) : (
+    <table className="payment-table">
+      <tbody>
+        <tr>
+          <th className="payment-table-title" colSpan="5">
+            Payments
+          </th>
+        </tr>
+        <tr>
+          <td className="payment-table-column-title" />
+          <th className="payment-table-column-title">Amount</th>
+          <th className="payment-table-column-title">Disbursement</th>
+          <th className="payment-table-column-title">Requested on</th>
+          <th className="payment-table-column-title">Approved</th>
+        </tr>
+        {ppm ? (
+          <React.Fragment>
             <tr>
-              <th className="payment-table-subheader">No payments requested</th>
+              <th className="payment-table-subheader" colSpan="5">
+                Payments against PPM Incentive
+              </th>
             </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+            <tr>
+              <td className="payment-table-column-content" />
+              <td className="payment-table-column-content">{ppm.id}</td>
+              <td className="payment-table-column-content">{ppm.status}</td>
+              <td className="payment-table-column-content">
+                {ppm.planned_move_date}
+              </td>
+              <td className="payment-table-column-content">
+                <span className="tooltip">
+                  <FontAwesomeIcon className="icon" icon={faCheck} />
+                  {ppm.status === 'APPROVED' ? (
+                    <span className="tooltiptext">Approve</span>
+                  ) : (
+                    <span className="tooltiptext">
+                      Can't approve payment until shipment is approved.
+                    </span>
+                  )}
+                </span>
+                <span className="tooltip">
+                  <FontAwesomeIcon
+                    className="icon"
+                    title="Delete"
+                    icon={faTimes}
+                  />
+                  <span className="tooltiptext">Delete</span>
+                </span>
+                <span className="tooltip">
+                  <FontAwesomeIcon className="icon" icon={faPencil} />
+                  <span className="tooltiptext">Edit</span>
+                </span>
+              </td>
+            </tr>
+          </React.Fragment>
+        ) : (
+          <tr>
+            <th className="payment-table-subheader">No payments requested</th>
+          </tr>
+        )}
+      </tbody>
+    </table>
   );
 };
 
