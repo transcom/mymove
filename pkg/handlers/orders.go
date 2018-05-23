@@ -152,9 +152,11 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation
 	order.TAC = payload.Tac
+
 	if payload.DepartmentIndicator != nil {
 		order.DepartmentIndicator = fmtString(string(*payload.DepartmentIndicator))
 	}
+
 	verrs, err := models.SaveOrder(h.db, &order)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)

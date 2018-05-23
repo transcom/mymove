@@ -178,3 +178,34 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 
 	return uploadop.NewDeleteUploadCreated()
 }
+
+// DeleteUploadsHandler deletes a collection of uploads
+type DeleteUploadsHandler HandlerContext
+
+// Handle deletes uploads
+func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
+	// User should always be populated by middleware
+	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	app := app.GetAppFromContext(params.HTTPRequest)
+
+	for _, uploadID := range params.UploadIds {
+		uuid, _ := uuid.FromString(uploadID.String())
+		upload, err := models.FetchUpload(h.db, user, app, uuid)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+
+		key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+		err = h.storage.Delete(key)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+
+		err = models.DeleteUpload(h.db, &upload)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+	}
+
+	return uploadop.NewDeleteUploadsCreated()
+}

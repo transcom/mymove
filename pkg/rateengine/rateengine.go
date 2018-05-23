@@ -20,20 +20,19 @@ type RateEngine struct {
 
 // CostComputation represents the results of a computation.
 type CostComputation struct {
-	BaseLinehaul              unit.Cents
-	OriginLinehaulFactor      unit.Cents
-	DestinationLinehaulFactor unit.Cents
-	ShorthaulCharge           unit.Cents
-	LinehaulChargeTotal       unit.Cents
+	LinehaulCostComputation
+	NonLinehaulCostComputation
+	SITFee unit.Cents
+	GCC    unit.Cents
+}
 
-	OriginServiceFee      unit.Cents
-	DestinationServiceFee unit.Cents
-	PackFee               unit.Cents
-	UnpackFee             unit.Cents
-	FullPackUnpackFee     unit.Cents
-	SITFee                unit.Cents
+// Scale scales a cost computation by a multiplicative factor
+func (c *CostComputation) Scale(factor float64) {
+	c.LinehaulCostComputation.Scale(factor)
+	c.NonLinehaulCostComputation.Scale(factor)
 
-	GCC unit.Cents
+	c.SITFee = c.SITFee.MultiplyFloat64(factor)
+	c.GCC = c.GCC.MultiplyFloat64(factor)
 }
 
 // MarshalLogObject allows CostComputation to be logged by Zap.
@@ -48,7 +47,6 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("DestinationServiceFee", c.DestinationServiceFee.Int())
 	encoder.AddInt("PackFee", c.PackFee.Int())
 	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
-	encoder.AddInt("FullPackUnpackFee", c.FullPackUnpackFee.Int())
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
@@ -62,85 +60,68 @@ func Zip5ToZip3(zip5 string) string {
 }
 
 // ComputePPM Calculates the cost of a PPM move.
-func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhDiscount unit.DiscountRate, sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
-	originZip3 := Zip5ToZip3(originZip5)
-	destinationZip3 := Zip5ToZip3(destinationZip5)
+func (re *RateEngine) ComputePPM(
+	weight unit.Pound,
+	originZip5 string,
+	destinationZip5 string,
+	date time.Time,
+	daysInSIT int,
+	lhDiscount unit.DiscountRate,
+	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+
+	// Weights below 1000lbs are prorated to the 1000lb rate
+	prorateFactor := 1.0
+	if weight.Int() < 1000 {
+		prorateFactor = weight.Float64() / 1000.0
+		weight = unit.Pound(1000)
+	}
 
 	// Linehaul charges
-	mileage, err := re.determineMileage(originZip5, destinationZip5)
+	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
 	if err != nil {
-		re.logger.Error("Failed to determine mileage", zap.Error(err))
+		re.logger.Error("Failed to compute linehaul cost", zap.Error(err))
 		return
 	}
-
-	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, date)
-	if err != nil {
-		re.logger.Error("Failed to determine base linehaul charge", zap.Error(err))
-		return
-	}
-
-	cost.OriginLinehaulFactor, err = re.linehaulFactors(weight.ToCWT(), originZip3, date)
-	if err != nil {
-		re.logger.Error("Failed to determine origin linehaul factor", zap.Error(err))
-		return
-	}
-
-	cost.DestinationLinehaulFactor, err = re.linehaulFactors(weight.ToCWT(), destinationZip3, date)
-	if err != nil {
-		re.logger.Error("Failed to determine destination linehaul factor", zap.Error(err))
-		return
-	}
-
-	cost.ShorthaulCharge, err = re.shorthaulCharge(mileage, weight.ToCWT(), date)
-	if err != nil {
-		re.logger.Error("Failed to determine shorthaul charge", zap.Error(err))
-		return
-	}
-
-	linehaulChargeSubtotal := cost.BaseLinehaul + cost.OriginLinehaulFactor +
-		cost.DestinationLinehaulFactor + cost.ShorthaulCharge
-
-	cost.LinehaulChargeTotal = lhDiscount.Apply(linehaulChargeSubtotal)
 
 	// Non linehaul charges
-	originServiceFee, err := re.serviceFeeCents(weight.ToCWT(), originZip3, date)
+	nonLinehaulCostComputation, err := re.nonLinehaulChargeComputation(weight, originZip5, destinationZip5, date)
 	if err != nil {
-		re.logger.Error("Failed to determine origin service fee", zap.Error(err))
-		return
-	}
-	cost.OriginServiceFee = lhDiscount.Apply(originServiceFee)
-
-	destinationServiceFee, err := re.serviceFeeCents(weight.ToCWT(), destinationZip3, date)
-	if err != nil {
-		re.logger.Error("Failed to determine destination service fee", zap.Error(err))
-		return
-	}
-	cost.DestinationServiceFee = lhDiscount.Apply(destinationServiceFee)
-
-	cost.PackFee, err = re.fullPackCents(weight.ToCWT(), originZip3, date)
-	if err != nil {
-		re.logger.Error("Failed to determine full pack cost", zap.Error(err))
-		return
-	}
-	cost.UnpackFee, err = re.fullUnpackCents(weight.ToCWT(), destinationZip3, date)
-	if err != nil {
-		re.logger.Error("Failed to determine full unpack cost", zap.Error(err))
+		re.logger.Error("Failed to compute non-linehaul cost", zap.Error(err))
 		return
 	}
 
-	/// SIT
+	// Apply linehaul discounts
+	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
+	nonLinehaulCostComputation.OriginServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.OriginServiceFee)
+	nonLinehaulCostComputation.DestinationServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationServiceFee)
+	nonLinehaulCostComputation.PackFee = lhDiscount.Apply(nonLinehaulCostComputation.PackFee)
+	nonLinehaulCostComputation.UnpackFee = lhDiscount.Apply(nonLinehaulCostComputation.UnpackFee)
+
+	// SIT
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	destinationZip3 := Zip5ToZip3(destinationZip5)
 	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
 		return
 	}
-	// Note that SIT has a different discount rate than [non]linehaul charges
-	cost.SITFee = sitDiscount.Apply(sit)
+	sitFee := sitDiscount.Apply(sit)
 
 	// Totals
-	cost.FullPackUnpackFee = lhDiscount.Apply(cost.PackFee + cost.UnpackFee)
+	gcc := linehaulCostComputation.LinehaulChargeTotal +
+		nonLinehaulCostComputation.OriginServiceFee +
+		nonLinehaulCostComputation.DestinationServiceFee +
+		nonLinehaulCostComputation.PackFee +
+		nonLinehaulCostComputation.UnpackFee
 
-	cost.GCC = cost.LinehaulChargeTotal + cost.OriginServiceFee + cost.DestinationServiceFee +
-		cost.FullPackUnpackFee
+	cost = CostComputation{
+		LinehaulCostComputation:    linehaulCostComputation,
+		NonLinehaulCostComputation: nonLinehaulCostComputation,
+		SITFee: sitFee,
+		GCC:    gcc,
+	}
+
+	// Finaly, scale by prorate factor
+	cost.Scale(prorateFactor)
 
 	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
 
