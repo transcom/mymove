@@ -11,7 +11,6 @@ import { loadEntitlements } from 'scenes/Orders/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
-import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -36,7 +35,7 @@ export class Landing extends Component {
         !service_member.is_profile_complete
       ) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
-        this.props.push(getNextIncompletePage(service_member));
+        this.resumeMove();
       }
     }
   }
@@ -55,11 +54,12 @@ export class Landing extends Component {
     this.props.push(`moves/${move.id}/review`);
   };
 
+  resumeMove = () => {
+    this.props.push(getNextIncompletePage(this.props.service_member));
+  };
   render() {
     const {
-      isLoggedIn,
       loggedInUserIsLoading,
-      loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
       loggedInUser,
@@ -67,12 +67,10 @@ export class Landing extends Component {
       entitlement,
     } = this.props;
 
-    const profile = get(loggedInUser, 'service_member');
+    const profile = get(loggedInUser, 'service_member', {});
     const orders = get(profile, 'orders.0');
     const move = get(orders, 'moves.0');
     const ppm = get(move, 'personally_procured_moves.0', {});
-
-    const displayMove = !!move;
 
     return (
       <div className="usa-grid">
@@ -94,22 +92,15 @@ export class Landing extends Component {
           )}
           {loggedInUserIsLoading && <span> Loading... </span>}
         </div>
-        {displayMove && (
-          <MoveSummary
-            entitlement={entitlement}
-            profile={profile}
-            orders={orders}
-            move={move}
-            ppm={ppm}
-            editMove={this.editMove}
-          />
-        )}
-
-        {!isLoggedIn && <LoginButton />}
-        {!displayMove &&
-          loggedInUserSuccess && (
-            <button onClick={this.startMove}>Start a move</button>
-          )}
+        <MoveSummary
+          entitlement={entitlement}
+          profile={profile}
+          orders={orders}
+          move={move}
+          ppm={ppm}
+          editMove={this.editMove}
+          resumeMove={this.resumeMove}
+        />
       </div>
     );
   }
