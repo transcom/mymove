@@ -3,6 +3,10 @@
   color: blue;
 }
 
+.icon {
+  margin: 0 0.3em 0 0.3em;
+}
+
 .form-column {
   display: inline-block;
   width: 45%;
