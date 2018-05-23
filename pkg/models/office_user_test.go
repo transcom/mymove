@@ -12,7 +12,6 @@ func (suite *ModelSuite) Test_OfficeUserInstantiation() {
 		"last_name":                {"LastName can not be blank."},
 		"telephone":                {"Telephone can not be blank."},
 		"email":                    {"Email can not be blank."},
-		"user_id":                  {"UserID can not be blank."},
 		"transportation_office_id": {"TransportationOfficeID can not be blank."},
 	}
 	suite.verifyValidationErrors(user, expErrors)
@@ -29,11 +28,12 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 	office := CreateTestShippingOffice(suite)
 
 	user := OfficeUser{
-		LastName:               "Tester",
-		FirstName:              "Sally",
-		Email:                  "sally.work@government.gov",
-		Telephone:              "(907) 555-1212",
-		UserID:                 sally.ID,
+		LastName:  "Tester",
+		FirstName: "Sally",
+		Email:     "sally.work@government.gov",
+		Telephone: "(907) 555-1212",
+		UserID:    &sally.ID,
+		User:      &sally,
 		TransportationOfficeID: office.ID,
 	}
 	suite.mustSave(&user)
@@ -43,4 +43,27 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 	suite.Nil(err, "loading user")
 	suite.Equal(user.ID, loadUser.ID)
 	suite.Equal(office.ID, loadUser.TransportationOffice.ID)
+}
+
+func (suite *ModelSuite) TestFetchOfficeUserByEmail() {
+
+	user, err := FetchOfficeUserByEmail(suite.db, "not_here@example.com")
+	suite.Equal(err, ErrFetchNotFound)
+	suite.Nil(user)
+
+	const email = "sally.work@government.gov"
+	office := CreateTestShippingOffice(suite)
+	newUser := OfficeUser{
+		LastName:               "Tester",
+		FirstName:              "Sally",
+		Email:                  email,
+		Telephone:              "(907) 555-1212",
+		TransportationOfficeID: office.ID,
+	}
+	suite.mustSave(&newUser)
+
+	user, err = FetchOfficeUserByEmail(suite.db, email)
+	suite.Nil(err)
+	suite.NotNil(user)
+	suite.Equal(newUser.ID, user.ID)
 }

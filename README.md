@@ -160,7 +160,11 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
 1. add the following line to /etc/hosts
     `127.0.0.1 officelocal`
-2. `make office_client_run`
+2. Ensure that you have a test account which can log into the office site...
+    * `make tools_build` to build the tools
+    * run ```bin/make-office-user -email <email>``` to set up an office user associated with that email address
+3. `make office_client_run`
+4. Login with the email used above to access the office
 
 ### Setup: S3
 
