@@ -1,0 +1,104 @@
+.edit-ppm-entitlement {
+  background-color: #C8C8C8;
+  padding: 0.7em;
+}
+
+.edit-ppm-entitlement > p {
+  margin: 0;
+}
+
+.edit-weight-container {
+  padding-top: 3rem;
+}
+
+.edit-weight-container .usa-alert {
+  margin-top: 0;
+  padding: 0;
+  background-size: 1.7em;
+  background-position: 0.7rem 0.7rem;
+}
+
+.edit-weight-container .usa-alert-body {
+  padding-left: 4rem;
+}
+
+.edit-weight-container .usa-alert-text {
+  font-size: 1.4rem;
+  padding-top: 0.8rem;
+  margin-bottom: 0.8rem
+}
+
+.edit-weight-container .usa-alert:before {
+  display: none;
+}
+
+.edit-weight-container h4.sm-heading {
+  margin-bottom: 0;
+}
+
+.examples-table {
+  margin-top: 3rem;
+}
+
+.examples-table tr > th:first-child, tr > td:first-child {
+  text-align: right
+}
+
+.examples-table tbody > tr {
+  border-top: 1px solid #00000063;
+}
+
+.examples-table th, td {
+  border: none;
+  white-space: nowrap;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+}
+
+.examples-table th {
+  background-color: unset;
+  color: #00000063;
+  padding-top: 0;
+}
+
+.weight-estimate-input {
+  display: inline-block;
+  max-width: 170px;
+}
+
+.display-value {
+  color: black;
+  margin-top: 3rem;
+}
+
+.display-value p {
+  margin: 0;
+}
+
+.display-value p.warn {
+  color: #F19427;
+}
+
+div.weight-estimate-input.warn input {
+  border: 2px solid #F19427;
+}
+
+.display-value p.error {
+  color: #da002f;
+}
+
+div.weight-estimate-input.error input {
+  border: 2px solid #da002f;
+}
+
+p.advance-error {
+  color: #da002f;
+  font-size: 0.8em;
+  font-style: italic;
+  margin-top: 0;
+}
+
+.display-value p.subtext {
+  font-size: 0.8em;
+  opacity: 0.5;
+}
