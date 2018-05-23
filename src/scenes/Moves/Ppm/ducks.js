@@ -78,7 +78,7 @@ export function getPpmSitEstimate(
     if (!canEstimate) {
       return dispatch(action.success({ estimate: null }));
     }
-    dispatch(action.start);
+    dispatch(action.start());
     GetPpmSitEstimate(moveDate, sitDays, originZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
@@ -157,6 +157,11 @@ export function ppmReducer(state = initialState, action) {
         pendingPpmSize: get(currentPpm, 'size', null),
         pendingPpmWeight: get(currentPpm, 'weight_estimate', null),
         incentive: get(currentPpm, 'estimated_incentive', null),
+        sitReimbursement: get(
+          currentPpm,
+          'estimated_storage_reimbursement',
+          null,
+        ),
         hasLoadSuccess: true,
         hasLoadError: false,
       });
@@ -175,10 +180,10 @@ export function ppmReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.payload,
-        incentive: get(action.payload, '0.estimated_incentive', null),
+        incentive: get(action.payload, 'estimated_incentive', null),
         sitReimbursement: get(
           action.payload,
-          '0.estimated_storage_reimbursement',
+          'estimated_storage_reimbursement',
           null,
         ),
         pendingPpmSize: null,
@@ -240,6 +245,7 @@ export function ppmReducer(state = initialState, action) {
     case GET_SIT_ESTIMATE.start:
       return Object.assign({}, state, {
         hasEstimateSuccess: false,
+        hasEstimateInProgress: true,
       });
     case GET_SIT_ESTIMATE.success:
       let estimate = null;
@@ -251,6 +257,7 @@ export function ppmReducer(state = initialState, action) {
         sitReimbursement: estimate,
         hasEstimateSuccess: true,
         hasEstimateError: false,
+        hasEstimateInProgress: false,
         error: null,
       });
     case GET_SIT_ESTIMATE.failure:
@@ -258,6 +265,7 @@ export function ppmReducer(state = initialState, action) {
         sitReimbursement: null,
         hasEstimateSuccess: false,
         hasEstimateError: true,
+        hasEstimateInProgress: false,
         error: action.error,
       });
     default:
