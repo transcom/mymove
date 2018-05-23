@@ -209,6 +209,7 @@ export const SwaggerField = props => {
     className,
     disabled,
     component,
+    title,
   } = props;
 
   let swaggerField;
@@ -231,6 +232,7 @@ export const SwaggerField = props => {
     className,
     disabled,
     component,
+    title,
   );
 };
 
@@ -243,6 +245,7 @@ const createSchemaField = (
   className = '',
   disabled = false,
   component,
+  title,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -252,7 +255,7 @@ const createSchemaField = (
       <Fragment key={fieldName}>
         {createCheckbox(fieldName, swaggerField, nameAttr)}
         <label htmlFor={fieldName} className="usa-input-label">
-          {swaggerField.title || fieldName}
+          {title || swaggerField.title || fieldName}
         </label>
       </Fragment>
     );
@@ -261,7 +264,7 @@ const createSchemaField = (
   // configure the basic Field props
   let fieldProps = {};
   fieldProps.name = nameAttr;
-  fieldProps.title = swaggerField.title || fieldName;
+  fieldProps.title = title || swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];

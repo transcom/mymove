@@ -49,7 +49,7 @@ func main() {
 		testdatagen.MakeShipmentOfferData(db)
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
-		testdatagen.MakeMoveData(db)
+		testdatagen.MakePPMData(db)
 		_, err = testdatagen.MakeServiceMember(db)
 		if err == nil {
 			_, err = testdatagen.MakeBackupContact(db)
