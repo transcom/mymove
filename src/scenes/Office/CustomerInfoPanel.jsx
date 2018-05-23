@@ -2,18 +2,17 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, getFormValues, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
-import { no_op_action } from 'shared/utils';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-// import { updateCustomerInfo, loadCustomerInfo } from './ducks';
+import { updateServiceMember } from './ducks';
 import {
   PanelSwaggerField,
   PanelField,
   SwaggerValue,
 } from 'shared/EditablePanel';
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -98,111 +97,78 @@ const CustomerInfoDisplay = props => {
 };
 
 const CustomerInfoEdit = props => {
-  // const { schema } = props;
+  const schema = props.serviceMemberSchema;
+  const addressSwagger = props.addressSchema;
+
   return (
     <React.Fragment>
-      <div className="form-column">
-        <label>Title (optional)</label>
-        <input type="text" name="title" />
+      <div>
+        <FormSection name="serviceMember">
+          <div className="editable-panel-column">
+            <SwaggerField fieldName="title" swagger={schema} />
+            <SwaggerField fieldName="first_name" swagger={schema} required />
+            <SwaggerField fieldName="middle_name" swagger={schema} />
+            <SwaggerField fieldName="last_name" swagger={schema} required />
+            <SwaggerField fieldName="suffix" swagger={schema} />
+          </div>
+          <div className="editable-panel-column">
+            <SwaggerField fieldName="edipi" swagger={schema} required />
+            <SwaggerField fieldName="affiliation" swagger={schema} />
+            <SwaggerField fieldName="rank" swagger={schema} />
+          </div>
+        </FormSection>
       </div>
-      <div className="form-column">
-        <label>First name</label>
-        <input type="text" name="first-name" />
-      </div>
-      <div className="form-column">
-        <label>Middle name (optional)</label>
-        <input type="text" name="middle-name" />
-      </div>
-      <div className="form-column">
-        <label>Last name</label>
-        <input type="text" name="last-name" />
-      </div>
-      <div className="form-column">
-        <label>Suffix (optional)</label>
-        <input type="text" name="name-suffix" />
-      </div>
-      <div className="form-column">
-        <label>DoD ID</label>
-        <input type="number" name="dod-id" />
-      </div>
-      <div className="form-column">
-        <label>Branch</label>
-        <select name="branch">
-          <option value="army">Army</option>
-          <option value="navy">Navy</option>
-          <option value="air-force">Air Force</option>
-          <option value="marines">Marines</option>
-          <option value="coast-guard">Coast Guard</option>
-        </select>
-      </div>
-      <div className="form-column">
-        <label>Rank</label>
-        <select name="rank">
-          <option value="E-7">E-7</option>
-          <option value="another-rank">Another rank</option>
-          <option value="and-another-rank">And another rank</option>
-        </select>
-      </div>
-      <div className="form-column">
-        <b>Contact</b>
-        <label>Phone</label>
-        <input type="tel" name="contact-phone-number" />
-      </div>
-      <div className="form-column">
-        <label>Alternate phone</label>
-        <input type="tel" name="alternate-contact-phone-number" />
-      </div>
-      <div className="form-column">
-        <label>Email</label>
-        <input type="text" name="contact-email" />
-      </div>
-      <div className="form-column">
-        <label>Preferred contact methods</label>
-        <div>
-          <input
-            type="checkbox"
-            id="phone-preference"
-            name="preferred-contact-phone"
-          />
-          <label htmlFor="phone-preference">Phone</label>
+
+      <div>
+        <div className="editable-panel-column">
+          <FormSection name="serviceMember">
+            <div className="panel-subhead">Contact</div>
+            <SwaggerField fieldName="telephone" swagger={schema} required />
+            <SwaggerField fieldName="secondary_telephone" swagger={schema} />
+            <SwaggerField
+              fieldName="personal_email"
+              swagger={schema}
+              required
+            />
+
+            <fieldset key="contact_preferences">
+              <legend htmlFor="contact_preferences">
+                <p>Preferred contact method</p>
+              </legend>
+              <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
+              <SwaggerField
+                fieldName="text_message_is_preferred"
+                swagger={schema}
+              />
+              <SwaggerField fieldName="email_is_preferred" swagger={schema} />
+            </fieldset>
+          </FormSection>
         </div>
-        <div>
-          <input
-            type="checkbox"
-            id="text-preference"
-            name="preferred-contact-text-message"
-          />
-          <label htmlFor="text-preference">Text message</label>
+
+        <div className="editable-panel-column">
+          <FormSection name="address">
+            <div className="panel-subhead">Current Residence Address</div>
+            <SwaggerField
+              fieldName="street_address_1"
+              swagger={addressSwagger}
+            />
+            <SwaggerField
+              fieldName="street_address_2"
+              swagger={addressSwagger}
+            />
+            <SwaggerField
+              fieldName="street_address_3"
+              swagger={addressSwagger}
+            />
+            <SwaggerField fieldName="city" swagger={addressSwagger} />
+            <div className="half-width">
+              <SwaggerField fieldName="state" swagger={addressSwagger} />
+            </div>
+            <div className="half-width">
+              <SwaggerField fieldName="postal_code" swagger={addressSwagger} />
+            </div>
+          </FormSection>
         </div>
-        <div>
-          <input
-            type="checkbox"
-            id="email-preference"
-            name="preferred-contact-email"
-          />
-          <label htmlFor="email-preference">Email</label>
-        </div>
-      </div>
-      <div className="form-column">
-        <b>Current Residence Address</b>
-        <label>Address 1</label>
-        <input type="text" name="contact-address-1" />
-      </div>
-      <div className="form-column">
-        <label>Address 2</label>
-        <input type="text" name="contact-address-2" />
-      </div>
-      <div className="form-column">
-        <label>City</label>
-        <input type="text" name="contact-city" />
-      </div>
-      <div className="form-column">
-        <label>State</label>
-        <input type="text" name="contact-state" />
-      </div>
-      <div className="form-column">
-        <label>Zip</label>
-        <input type="number" name="contact-zip" />
       </div>
     </React.Fragment>
   );
@@ -214,10 +180,15 @@ let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
 CustomerInfoPanel = reduxForm({ form: formName })(CustomerInfoPanel);
 
 function mapStateToProps(state) {
+  let customerInfo = get(state, 'office.officeServiceMember', {});
   return {
     // reduxForm
-    formData: state.form[formName],
-    initialValues: {},
+    initialValues: {
+      serviceMember: customerInfo,
+      address: customerInfo.residential_address,
+    },
+
+    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
 
     // Wrapper
     serviceMemberSchema: get(
@@ -228,13 +199,19 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     serviceMember: state.office.officeServiceMember,
     isUpdating: false,
+    getUpdateArgs: function() {
+      let values = getFormValues(formName)(state);
+      let serviceMember = values.serviceMember;
+      serviceMember.residential_address = values.address;
+      return [state.office.officeServiceMember.id, serviceMember];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updateServiceMember,
     },
     dispatch,
   );
