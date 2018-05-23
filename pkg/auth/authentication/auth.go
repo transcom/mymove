@@ -234,10 +234,14 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 		if err != nil {
-			h.logger.Error("Unable to create user.", zap.Error(err))
+			h.logger.Error("Error creating user", zap.Error(err))
 			http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 			return
 		}
+	} else {
+		h.logger.Error("Error loading Identity.", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
 	}
 	h.logger.Info("logged in", zap.Any("session", session))
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
