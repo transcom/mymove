@@ -46,18 +46,21 @@ const PaymentsTable = props => {
                 </td>
                 <td className="payment-table-column-content Todo">
                   {ppm.status === 'APPROVED' ? (
-                    <span>
+                    <div>
                       <FontAwesomeIcon
                         className="icon approval-ready"
                         icon={faCheck}
                       />{' '}
                       Approved
-                    </span>
+                    </div>
                   ) : (
-                    <FontAwesomeIcon
-                      className="icon approval-waiting"
-                      icon={faClock}
-                    />
+                    <div>
+                      <FontAwesomeIcon
+                        className="icon approval-waiting"
+                        icon={faClock}
+                      />{' '}
+                      Awaiting review
+                    </div>
                   )}
                 </td>
                 <td className="payment-table-column-content">
