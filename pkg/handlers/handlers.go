@@ -72,6 +72,7 @@ func (context *HandlerContext) SetNoSessionTimeout() {
 }
 
 // CookieUpdateResponder wraps a swagger middleware.Responder in code which sets the session_cookie
+// See: https://github.com/go-swagger/go-swagger/issues/748
 type CookieUpdateResponder struct {
 	session          *auth.Session
 	cookieSecret     string

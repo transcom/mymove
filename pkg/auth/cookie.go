@@ -10,7 +10,7 @@ import (
 )
 
 // UserSessionCookieName is the key at which we're storing our token cookie
-const UserSessionCookieName = "user_session"
+const UserSessionCookieName = "session_token"
 
 // SessionExpiryInMinutes is the number of minutes before a fallow session is harvested
 const SessionExpiryInMinutes = 15
