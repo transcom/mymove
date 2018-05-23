@@ -258,7 +258,7 @@ describe('when getting the next incomplete page', () => {
           affiliation: 'Marines',
           last_name: 'foo',
           first_name: 'foo',
-          phone_is_preferred: true,
+          email_is_preferred: true,
           telephone: '666-666-6666',
           personal_email: 'foo@bar.com',
         });

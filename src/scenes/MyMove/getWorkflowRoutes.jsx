@@ -91,7 +91,7 @@ const pages = {
       (every([sm.telephone, sm.personal_email]) &&
         some([
           sm.phone_is_preferred,
-          sm.emai_is_preferred,
+          sm.email_is_preferred,
           sm.text_message_is_preferred,
         ])),
     render: (key, pages) => ({ match }) => (
