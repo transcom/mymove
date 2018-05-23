@@ -114,7 +114,11 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 		return cost, errors.Wrap(err, "Failed to determine shorthaul charge")
 	}
 
-	cost.LinehaulChargeTotal = cost.BaseLinehaul + cost.OriginLinehaulFactor + cost.DestinationLinehaulFactor + cost.ShorthaulCharge
+	cost.LinehaulChargeTotal = cost.BaseLinehaul +
+		cost.OriginLinehaulFactor +
+		cost.DestinationLinehaulFactor +
+		cost.ShorthaulCharge
+
 	re.logger.Info("Linehaul charge total calculated",
 		zap.Int("linehaul total", cost.LinehaulChargeTotal.Int()),
 		zap.Int("linehaul", cost.BaseLinehaul.Int()),

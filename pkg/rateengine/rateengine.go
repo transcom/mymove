@@ -22,10 +22,8 @@ type RateEngine struct {
 type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
-	FullPackUnpackFee unit.Cents
-	SITFee            unit.Cents
-
-	GCC unit.Cents
+	SITFee unit.Cents
+	GCC    unit.Cents
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -33,7 +31,6 @@ func (c *CostComputation) Scale(factor float64) {
 	c.LinehaulCostComputation.Scale(factor)
 	c.NonLinehaulCostComputation.Scale(factor)
 
-	c.FullPackUnpackFee = c.FullPackUnpackFee.MultiplyFloat64(factor)
 	c.SITFee = c.SITFee.MultiplyFloat64(factor)
 	c.GCC = c.GCC.MultiplyFloat64(factor)
 }
@@ -50,7 +47,6 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("DestinationServiceFee", c.DestinationServiceFee.Int())
 	encoder.AddInt("PackFee", c.PackFee.Int())
 	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
-	encoder.AddInt("FullPackUnpackFee", c.FullPackUnpackFee.Int())
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
@@ -64,7 +60,15 @@ func Zip5ToZip3(zip5 string) string {
 }
 
 // ComputePPM Calculates the cost of a PPM move.
-func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinationZip5 string, date time.Time, daysInSIT int, lhDiscount unit.DiscountRate, sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+func (re *RateEngine) ComputePPM(
+	weight unit.Pound,
+	originZip5 string,
+	destinationZip5 string,
+	date time.Time,
+	daysInSIT int,
+	lhDiscount unit.DiscountRate,
+	sitDiscount unit.DiscountRate) (cost CostComputation, err error) {
+
 	// Weights below 1000lbs are prorated to the 1000lb rate
 	prorateFactor := 1.0
 	if weight.Int() < 1000 {
@@ -90,6 +94,8 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	linehaulCostComputation.LinehaulChargeTotal = lhDiscount.Apply(linehaulCostComputation.LinehaulChargeTotal)
 	nonLinehaulCostComputation.OriginServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.OriginServiceFee)
 	nonLinehaulCostComputation.DestinationServiceFee = lhDiscount.Apply(nonLinehaulCostComputation.DestinationServiceFee)
+	nonLinehaulCostComputation.PackFee = lhDiscount.Apply(nonLinehaulCostComputation.PackFee)
+	nonLinehaulCostComputation.UnpackFee = lhDiscount.Apply(nonLinehaulCostComputation.UnpackFee)
 
 	// SIT
 	// Note that SIT has a different discount rate than [non]linehaul charges
@@ -101,15 +107,17 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	sitFee := sitDiscount.Apply(sit)
 
 	// Totals
-	fullPackUnpackFee := lhDiscount.Apply(nonLinehaulCostComputation.PackFee + nonLinehaulCostComputation.UnpackFee)
-	gcc := linehaulCostComputation.LinehaulChargeTotal + nonLinehaulCostComputation.OriginServiceFee + nonLinehaulCostComputation.DestinationServiceFee + fullPackUnpackFee
+	gcc := linehaulCostComputation.LinehaulChargeTotal +
+		nonLinehaulCostComputation.OriginServiceFee +
+		nonLinehaulCostComputation.DestinationServiceFee +
+		nonLinehaulCostComputation.PackFee +
+		nonLinehaulCostComputation.UnpackFee
 
 	cost = CostComputation{
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
-		FullPackUnpackFee:          fullPackUnpackFee,
-		SITFee:                     sitFee,
-		GCC:                        gcc,
+		SITFee: sitFee,
+		GCC:    gcc,
 	}
 
 	// Finaly, scale by prorate factor
