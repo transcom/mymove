@@ -206,7 +206,7 @@ class MoveInfo extends Component {
                     className="icon"
                     icon={faExclamationCircle}
                   />
-                  <Link to={`/moves/${officeMove.id}/orders`} target="_blank">
+                  <Link to={`/moves/${move.id}/orders`} target="_blank">
                     Orders ({formatDate(upload.created_at)})
                   </Link>
                 </div>
