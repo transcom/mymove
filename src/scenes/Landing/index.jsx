@@ -11,6 +11,7 @@ import { loadEntitlements } from 'scenes/Orders/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
+import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
@@ -59,6 +60,7 @@ export class Landing extends Component {
   };
   render() {
     const {
+      isLoggedIn,
       loggedInUserIsLoading,
       loggedInUserError,
       createdServiceMemberError,
@@ -92,15 +94,18 @@ export class Landing extends Component {
           )}
           {loggedInUserIsLoading && <span> Loading... </span>}
         </div>
-        <MoveSummary
-          entitlement={entitlement}
-          profile={profile}
-          orders={orders}
-          move={move}
-          ppm={ppm}
-          editMove={this.editMove}
-          resumeMove={this.resumeMove}
-        />
+        {!isLoggedIn && <LoginButton />}
+        {isLoggedIn && (
+          <MoveSummary
+            entitlement={entitlement}
+            profile={profile}
+            orders={orders}
+            move={move}
+            ppm={ppm}
+            editMove={this.editMove}
+            resumeMove={this.resumeMove}
+          />
+        )}
       </div>
     );
   }

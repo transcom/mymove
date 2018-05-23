@@ -1,11 +1,11 @@
-import { reject, concat, get, isNull } from 'lodash';
+import { reject, cloneDeep, concat, includes, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
   GetOrders,
   ShowCurrentOrdersAPI,
 } from './api.js';
-import { DeleteUpload } from 'shared/api.js';
+import { DeleteUploads } from 'shared/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
@@ -54,17 +54,40 @@ export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
   GetOrders,
 );
 
+// Deletes a single upload
 export function deleteUpload(uploadId) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (currentOrders) {
-      return DeleteUpload(uploadId)
+      return DeleteUploads(uploadId)
         .then(() => {
           const uploads = currentOrders.uploaded_orders.uploads;
           currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
-            return upload.id === uploadId;
+            return uploadId === upload.id;
+          });
+          dispatch(action.success(currentOrders));
+        })
+        .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
+    }
+  };
+}
+
+// Deletes an array of uploads
+export function deleteUploads(uploadIds) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
+    const state = getState();
+    const currentOrders = cloneDeep(state.orders.currentOrders);
+    if (currentOrders && uploadIds.length) {
+      return DeleteUploads(uploadIds)
+        .then(() => {
+          const uploads = currentOrders.uploaded_orders.uploads;
+          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
+            return includes(uploadIds, upload.id);
           });
           dispatch(action.success(currentOrders));
         })
