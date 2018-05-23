@@ -72,8 +72,8 @@ export class PpmWeight extends Component {
       this.onWeightSelecting(currentWeight);
       this.props.getPpmWeightEstimate(
         currentPpm.planned_move_date,
-        currentPpm.pickup_zip,
-        currentPpm.destination_zip,
+        currentPpm.pickup_postal_code,
+        currentPpm.destination_postal_code,
         currentWeight,
       );
     }
@@ -93,8 +93,8 @@ export class PpmWeight extends Component {
     const { currentPpm } = this.props;
     this.props.getPpmWeightEstimate(
       currentPpm.planned_move_date,
-      currentPpm.pickup_zip,
-      currentPpm.destination_zip,
+      currentPpm.pickup_postal_code,
+      currentPpm.destination_postal_code,
       this.props.pendingPpmWeight,
     );
   };
@@ -108,6 +108,7 @@ export class PpmWeight extends Component {
       hasSubmitSuccess,
       currentWeight,
       hasLoadSuccess,
+      hasEstimateInProgress,
       error,
       entitlement,
     } = this.props;
@@ -115,14 +116,14 @@ export class PpmWeight extends Component {
     if (hasLoadSuccess) {
       currentInfo = getWeightInfo(currentPpm, entitlement);
     }
-
+    const isValid = incentive && !hasEstimateInProgress;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={true}
+        pageIsValid={isValid}
         pageIsDirty={Boolean(pendingPpmWeight)}
         hasSucceeded={hasSubmitSuccess}
       >

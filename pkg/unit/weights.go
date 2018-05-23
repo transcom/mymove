@@ -35,3 +35,8 @@ func (pounds Pound) ToCWT() CWT {
 func (pounds Pound) Int() int {
 	return int(pounds)
 }
+
+// Float64 returns a float representation of this weight
+func (pounds Pound) Float64() float64 {
+	return float64(pounds)
+}
