@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { get } from 'lodash';
 
 import { push } from 'react-router-redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, FormSection } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
@@ -14,75 +14,85 @@ import './Review.css';
 const editContactFormName = 'edit_contact_info';
 
 let EditContactForm = props => {
-  const { onCancel, schema, handleSubmit, submitting, valid } = props;
-  const resAddressSchema = get(schema, 'properties.residential_address');
-  const backupAddressSchema = get(schema, 'properties.backup_mailing_address');
+  const {
+    onCancel,
+    serviceMemberSchema,
+    addressSchema,
+    handleSubmit,
+    submitting,
+    valid,
+  } = props;
   return (
     <form className="service_member_contact_info" onSubmit={handleSubmit}>
-      <h2>Edit Contact Info</h2>
-      <SwaggerField fieldName="telephone" swagger={schema} required />
-      <SwaggerField fieldName="secondary_telephone" swagger={schema} />
-      <SwaggerField fieldName="personal_email" swagger={schema} required />
-      <fieldset key="contact_preferences">
-        <legend htmlFor="contact_preferences">
-          Preferred contact method(s) during your move:
-        </legend>
-        <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
-        <SwaggerField fieldName="text_message_is_preferred" swagger={schema} />
-        <SwaggerField fieldName="email_is_preferred" swagger={schema} />
-      </fieldset>
+      <FormSection name="serviceMember">
+        <h2>Edit Contact Info</h2>
+        <SwaggerField
+          fieldName="telephone"
+          swagger={serviceMemberSchema}
+          required
+        />
+        <SwaggerField
+          fieldName="secondary_telephone"
+          swagger={serviceMemberSchema}
+        />
+        <SwaggerField
+          fieldName="personal_email"
+          swagger={serviceMemberSchema}
+          required
+        />
+        <fieldset key="contact_preferences">
+          <legend htmlFor="contact_preferences">
+            Preferred contact method(s) during your move:
+          </legend>
+          <SwaggerField
+            fieldName="phone_is_preferred"
+            swagger={serviceMemberSchema}
+          />
+          <SwaggerField
+            fieldName="text_message_is_preferred"
+            swagger={serviceMemberSchema}
+          />
+          <SwaggerField
+            fieldName="email_is_preferred"
+            swagger={serviceMemberSchema}
+          />
+        </fieldset>
+      </FormSection>
       <hr className="spacer" />
-      <h3>Current Residence Address</h3>
-      <SwaggerField
-        fieldName="street_address_1"
-        swagger={resAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="street_address_2"
-        swagger={resAddressSchema || schema}
-      />
-      <SwaggerField
-        fieldName="city"
-        swagger={resAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="state"
-        swagger={resAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="postal_code"
-        swagger={resAddressSchema || schema}
-        required
-      />
+
+      <FormSection name="resAddress">
+        <h3>Current Residence Address</h3>
+        <SwaggerField
+          fieldName="street_address_1"
+          swagger={addressSchema}
+          required
+        />
+        <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
+        <SwaggerField fieldName="city" swagger={addressSchema} required />
+        <SwaggerField fieldName="state" swagger={addressSchema} required />
+        <SwaggerField
+          fieldName="postal_code"
+          swagger={addressSchema}
+          required
+        />
+      </FormSection>
       <hr className="spacer" />
-      <h3>Backup Mailing Address</h3>
-      <SwaggerField
-        fieldName="street_address_1"
-        swagger={backupAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="street_address_2"
-        swagger={backupAddressSchema || schema}
-      />
-      <SwaggerField
-        fieldName="city"
-        swagger={backupAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="state"
-        swagger={backupAddressSchema || schema}
-        required
-      />
-      <SwaggerField
-        fieldName="postal_code"
-        swagger={backupAddressSchema || schema}
-        required
-      />
+      <FormSection name="backupAddress">
+        <h3>Backup Mailing Address</h3>
+        <SwaggerField
+          fieldName="street_address_1"
+          swagger={addressSchema}
+          required
+        />
+        <SwaggerField fieldName="street_address_2" swagger={addressSchema} />
+        <SwaggerField fieldName="city" swagger={addressSchema} required />
+        <SwaggerField fieldName="state" swagger={addressSchema} required />
+        <SwaggerField
+          fieldName="postal_code"
+          swagger={addressSchema}
+          required
+        />
+      </FormSection>
       <button type="submit" disabled={submitting || !valid}>
         Save
       </button>
@@ -104,7 +114,10 @@ class EditContact extends Component {
   };
 
   updateContact = fieldValues => {
-    return this.props.updateServiceMember(fieldValues).then(() => {
+    let serviceMember = fieldValues.serviceMember;
+    serviceMember.residential_address = fieldValues.resAddress;
+    serviceMember.backup_mailing_address = fieldValues.backupAddress;
+    return this.props.updateServiceMember(serviceMember).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
         this.returnToReview();
@@ -114,27 +127,25 @@ class EditContact extends Component {
     });
   };
   render() {
-    const { schema, serviceMember } = this.props;
-    var fullSM;
-    // redux form expects a flat object for initial values to populate correctly
-    // TODO: not working for some reason.
+    const { serviceMemberSchema, addressSchema, serviceMember } = this.props;
+    let initialValues = null;
     if (
+      serviceMember &&
       get(serviceMember, 'residential_address') &&
       get(serviceMember, 'backup_mailing_address')
-    ) {
-      fullSM = Object.assign(
-        {},
-        serviceMember,
-        serviceMember.residential_address,
-        serviceMember.backup_mailing_address,
-      );
-    }
+    )
+      initialValues = {
+        serviceMember: serviceMember,
+        resAddress: serviceMember.residential_address,
+        backupAddress: serviceMember.backup_mailing_address,
+      };
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">
           <EditContactForm
-            initialValues={fullSM}
-            schema={schema}
+            initialValues={initialValues}
+            serviceMemberSchema={serviceMemberSchema}
+            addressSchema={addressSchema}
             onSubmit={this.updateContact}
             onCancel={this.returnToReview}
           />
@@ -145,14 +156,20 @@ class EditContact extends Component {
 }
 
 function mapStateToProps(state) {
+  let serviceMember = get(
+    state,
+    'loggedInUser.loggedInUser.service_member',
+    {},
+  );
   return {
-    serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
+    serviceMember: serviceMember,
     move: get(state, 'moves.currentMove'),
-    schema: get(
+    serviceMemberSchema: get(
       state,
       'swagger.spec.definitions.CreateServiceMemberPayload',
       {},
     ),
+    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
   };
 }
 
