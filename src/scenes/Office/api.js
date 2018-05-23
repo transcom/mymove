@@ -46,7 +46,10 @@ export async function UpdateServiceMember(serviceMemberId, payload) {
     serviceMemberId,
     patchServiceMemberPayload: payload,
   });
-  checkResponse(response, 'failed to load service member due to server error');
+  checkResponse(
+    response,
+    'failed to update service member due to server error',
+  );
   return response.body;
 }
 

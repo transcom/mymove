@@ -217,6 +217,8 @@ const initialState = {
   ordersHaveUploadSuccess: false,
   serviceMemberHasLoadError: null,
   serviceMemberHasLoadSuccess: false,
+  serviceMemberHasUpdateError: null,
+  serviceMemberHasUpdateSuccess: false,
   backupContactsHaveLoadError: null,
   backupContactsHaveLoadSuccess: false,
   ppmsHaveLoadError: null,
@@ -308,7 +310,6 @@ export function officeReducer(state = initialState, action) {
     case LOAD_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
         serviceMemberIsLoading: false,
-        officeServiceMember: null,
         serviceMemberHasLoadSuccess: false,
         serviceMemberHasLoadError: true,
         error: action.error.message,
