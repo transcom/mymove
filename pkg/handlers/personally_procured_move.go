@@ -155,7 +155,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		if payload.Advance != nil {
 			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
 			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
-			fmt.Println("I BUT ETHIS", ppm.Advance)
+
 			if ppm.Advance != nil {
 				ppm.Advance.MethodOfReceipt = methodOfReceipt
 				ppm.Advance.RequestedAmount = requestedAmount

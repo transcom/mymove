@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 
 // import { updatePaymentInfo } from './ducks';
 import { no_op } from 'shared/utils';
+import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -15,6 +16,8 @@ import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 const PaymentsTable = props => {
   const ppm = props.ppm;
+  const advance = props.advance;
+
   return (
     <div className="payment-panel">
       <div className="payment-panel-title">Payments</div>
@@ -37,15 +40,17 @@ const PaymentsTable = props => {
               </tr>
               <tr>
                 <td className="payment-table-column-content">Advance </td>
-                <td className="payment-table-column-content Todo">{ppm.id}</td>
-                <td className="payment-table-column-content Todo">
-                  {ppm.planned_move_date}
+                <td className="payment-table-column-content">
+                  ${get(advance, 'requested_amount', '').toLocaleString()}.00
                 </td>
-                <td className="payment-table-column-content Todo">
-                  {ppm.planned_move_date}
+                <td className="payment-table-column-content">
+                  {advance.method_of_receipt}
                 </td>
-                <td className="payment-table-column-content Todo">
-                  {ppm.status === 'APPROVED' ? (
+                <td className="payment-table-column-content">
+                  {formatDate(advance.requested_date)}
+                </td>
+                <td className="payment-table-column-content">
+                  {advance.status === 'APPROVED' ? (
                     <div>
                       <FontAwesomeIcon
                         className="icon approval-ready"
@@ -121,6 +126,7 @@ function mapStateToProps(state) {
   return {
     initialValues: {},
     ppm: get(state, 'office.officePPMs[0]', {}),
+    advance: get(state, 'office.officePPMs[0].advance', {}),
     hasError: false,
     errorMessage: state.office.error,
   };
