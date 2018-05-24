@@ -80,13 +80,15 @@ class PaymentsTable extends Component {
                     <span className="tooltip">
                       {ppm.status === 'APPROVED' ? (
                         <React.Fragment>
-                          <FontAwesomeIcon
-                            aria-hidden
-                            className="icon approval-ready"
-                            icon={faCheck}
-                            title="Approve"
-                          />
-                          <span className="tooltiptext">Approve</span>
+                          <div onClick={this.approveReimbursement}>
+                            <FontAwesomeIcon
+                              aria-hidden
+                              className="icon approval-ready"
+                              icon={faCheck}
+                              title="Approve"
+                            />
+                            <span className="tooltiptext">Approve</span>
+                          </div>
                         </React.Fragment>
                       ) : (
                         <React.Fragment>

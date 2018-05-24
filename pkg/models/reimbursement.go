@@ -179,9 +179,9 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 		return nil, err
 	}
 	// TODO: Authorize office user
-	if session.IsMyApp() {
-		return nil, ErrFetchForbidden
-	}
+	// if session.IsMyApp() {
+	// 	return nil, ErrFetchForbidden
+	// }
 
 	return &reimbursement, nil
 }
