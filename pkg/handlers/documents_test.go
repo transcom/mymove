@@ -21,8 +21,6 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 		t.Fatalf("could not create serviceMember: %s", err)
 	}
 
-	user := serviceMember.User
-
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
 		Name:            "test document",
@@ -30,7 +28,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, user)
+	req = suite.authenticateRequest(req, serviceMember)
 	params.HTTPRequest = req
 
 	handler := CreateDocumentHandler(NewHandlerContext(suite.db, suite.logger))
@@ -83,13 +81,11 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 		t.Fatalf("could not load document: %s", err)
 	}
 
-	user := document.ServiceMember.User
-
 	params := documentop.NewShowDocumentParams()
 	params.DocumentID = strfmt.UUID(documentID.String())
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, user)
+	req = suite.authenticateRequest(req, document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)

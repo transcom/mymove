@@ -20,9 +20,12 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	params := userop.NewShowLoggedInUserParams()
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, unknownUser.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, unknownUser)
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          unknownUser.ID,
+		IDToken:         "fake token",
+	}
+	ctx := auth.SetSessionInRequestContext(req, session)
 
 	params.HTTPRequest = req.WithContext(ctx)
 
@@ -65,9 +68,13 @@ func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	params := userop.NewShowLoggedInUserParams()
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
 
-	ctx := req.Context()
-	ctx = auth.PopulateAuthContext(ctx, smUser.ID, "fake token")
-	ctx = auth.PopulateUserModel(ctx, smUser)
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          smUser.ID,
+		ServiceMemberID: serviceMember.ID,
+		IDToken:         "fake token",
+	}
+	ctx := auth.SetSessionInRequestContext(req, session)
 
 	params.HTTPRequest = req.WithContext(ctx)
 

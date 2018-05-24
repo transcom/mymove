@@ -3,7 +3,7 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -23,8 +23,12 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 func (suite *ModelSuite) TestFetchMove() {
 	order1, _ := testdatagen.MakeOrder(suite.db)
 	order2, _ := testdatagen.MakeOrder(suite.db)
-	reqApp := app.MyApp
 
+	session := &auth.Session{
+		UserID:          order1.ServiceMember.UserID,
+		ServiceMemberID: order1.ServiceMemberID,
+		ApplicationName: auth.MyApp,
+	}
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
 	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
@@ -33,15 +37,17 @@ func (suite *ModelSuite) TestFetchMove() {
 	suite.Equal(6, len(move.Locator))
 
 	// All correct
-	fetchedMove, err := FetchMove(suite.db, order1.ServiceMember.User, reqApp, move.ID)
+	fetchedMove, err := FetchMove(suite.db, session, move.ID)
 	suite.Nil(err, "Expected to get moveResult back.")
 	suite.Equal(fetchedMove.ID, move.ID, "Expected new move to match move.")
 
 	// Bad Move
-	fetchedMove, err = FetchMove(suite.db, order1.ServiceMember.User, reqApp, uuid.Must(uuid.NewV4()))
+	fetchedMove, err = FetchMove(suite.db, session, uuid.Must(uuid.NewV4()))
 	suite.Equal(ErrFetchNotFound, err, "Expected to get FetchNotFound.")
 
 	// Bad User
-	fetchedMove, err = FetchMove(suite.db, order2.ServiceMember.User, reqApp, move.ID)
+	session.UserID = order2.ServiceMember.UserID
+	session.ServiceMemberID = order2.ServiceMemberID
+	fetchedMove, err = FetchMove(suite.db, session, move.ID)
 	suite.Equal(ErrFetchForbidden, err, "Expected to get a Forbidden back.")
 }
