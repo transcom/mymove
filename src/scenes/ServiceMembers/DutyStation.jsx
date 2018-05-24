@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
@@ -44,9 +44,6 @@ export class DutyStation extends Component {
   stationOnChange = newStation => {
     this.setState({ value: newStation });
   };
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
 
   handleSubmit = (somethings, elses) => {
     const pendingValues = this.props.formData.values;
@@ -94,10 +91,7 @@ DutyStation.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   const currentServiceMember = state.serviceMember.currentServiceMember;

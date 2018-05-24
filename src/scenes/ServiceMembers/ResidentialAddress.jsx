@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -12,10 +12,6 @@ const formName = 'service_member_residential_address';
 const ResidentalWizardForm = reduxifyWizardForm(formName);
 
 export class ResidentialAddress extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const newAddress = { residential_address: this.props.formData.values };
     this.props.updateServiceMember(newAddress);
@@ -73,10 +69,7 @@ ResidentialAddress.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   return {

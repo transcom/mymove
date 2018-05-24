@@ -42,7 +42,7 @@ type ServiceMember struct {
 	Orders                 Orders                              `has_many:"orders" order_by:"created_at desc"`
 	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
-	DutyStation            *DutyStation                        `belongs_to:"duty_stations"`
+	DutyStation            DutyStation                         `belongs_to:"duty_stations"`
 }
 
 // ServiceMembers is not required by pop and may be deleted
@@ -94,13 +94,6 @@ func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	}
 	if serviceMember.SocialSecurityNumberID == nil {
 		serviceMember.SocialSecurityNumber = nil
-	}
-
-	if serviceMember.DutyStationID == nil {
-		serviceMember.DutyStation = nil
-	} else {
-		// Need to do this because Pop's nested eager loading seems to be broken
-		db.Q().Eager().Find(&serviceMember.DutyStation.Address, serviceMember.DutyStation.AddressID)
 	}
 
 	return serviceMember, nil
