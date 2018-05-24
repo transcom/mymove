@@ -33,6 +33,7 @@ const validateContactForm = (values, form) => {
     const newError = {
       phone_is_preferred: 'Please select a preferred method of contact.',
     };
+    console.log('newe error', newError);
     return newError;
   }
   return errors;

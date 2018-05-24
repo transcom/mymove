@@ -8,6 +8,8 @@ import { reduxForm, FormSection } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateOneSelected } from 'shared/JsonSchemaForm';
+
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import 'scenes/ServiceMembers/ServiceMembers.css';
@@ -107,6 +109,11 @@ let EditContactForm = props => {
 
 EditContactForm = reduxForm({
   form: editContactFormName,
+  validate: validateOneSelected([
+    'serviceMember.phone_is_preferred',
+    'serviceMember.text_message_is_preferred',
+    'serviceMember.email_is_preferred',
+  ]),
 })(EditContactForm);
 
 class EditContact extends Component {
