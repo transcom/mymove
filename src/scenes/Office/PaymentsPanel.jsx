@@ -57,16 +57,20 @@ class PaymentsTable extends Component {
                     {advance.status === 'APPROVED' ? (
                       <div>
                         <FontAwesomeIcon
+                          aria-hidden
                           className="icon approval-ready"
                           icon={faCheck}
+                          title="Approved"
                         />{' '}
                         Approved
                       </div>
                     ) : (
                       <div>
                         <FontAwesomeIcon
+                          aria-hidden
                           className="icon approval-waiting"
                           icon={faClock}
+                          title="Awaiting Review"
                         />{' '}
                         Awaiting review
                       </div>
@@ -76,39 +80,41 @@ class PaymentsTable extends Component {
                     <span className="tooltip">
                       {ppm.status === 'APPROVED' ? (
                         <React.Fragment>
-                          <div onClick={this.approveReimbursement}>
-                            <FontAwesomeIcon
-                              className="icon approval-ready"
-                              icon={faCheck}
-                            />
-                            <span className="tooltiptext">Approve</span>
-                          </div>
+                          <FontAwesomeIcon
+                            aria-hidden
+                            className="icon approval-ready"
+                            icon={faCheck}
+                            title="Approve"
+                          />
+                          <span className="tooltiptext">Approve</span>
                         </React.Fragment>
                       ) : (
                         <React.Fragment>
                           <FontAwesomeIcon
+                            aria-hidden
                             className="icon approval-blocked"
                             icon={faCheck}
+                            title="Can't approve payment until shipment is approved."
                           />
-                          <span
-                            className="tooltiptext"
-                            aria-label="Can't approve payment until shipment is approved."
-                          >
+                          <span className="tooltiptext">
                             Can't approve payment until shipment is approved.
                           </span>
                         </React.Fragment>
                       )}
                     </span>
-                    <span className="tooltip" aria-label="Delete">
+                    <span className="tooltip">
                       <FontAwesomeIcon
+                        aria-hidden
                         className="icon payment-action"
                         title="Delete"
                         icon={faTimes}
                       />
                       <span className="tooltiptext">Delete</span>
                     </span>
-                    <span className="tooltip" aria-label="Edit">
+                    <span className="tooltip">
                       <FontAwesomeIcon
+                        aria-hidden
+                        title="Edit"
                         className="icon payment-action"
                         icon={faPencil}
                       />
