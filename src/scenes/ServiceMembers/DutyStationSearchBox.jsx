@@ -1,11 +1,11 @@
-import { debounce, sortBy } from 'lodash';
+import { debounce, sortBy, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import Alert from 'shared/Alert';
 import { components } from 'react-select';
 import Highlighter from 'react-highlight-words';
-
+import { NULL_UUID } from 'shared/constants';
 import { SearchDutyStations } from './api.js';
 
 import './DutyStation.css';
@@ -113,7 +113,7 @@ export class DutyStationSearchBox extends Component {
           value={this.props.input.value}
           placeholder="Start typing a duty station..."
         />
-        {this.props.input.value && (
+        {get(this.props, 'input.value.id', NULL_UUID) !== NULL_UUID && (
           <p className="location">
             {this.props.input.value.address.city},{' '}
             {this.props.input.value.address.state}{' '}
