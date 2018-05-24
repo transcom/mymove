@@ -46,7 +46,6 @@ type PersonallyProcuredMove struct {
 	HasSit                        *bool                        `json:"has_sit" db:"has_sit"`
 	DaysInStorage                 *int64                       `json:"days_in_storage" db:"days_in_storage"`
 	EstimatedStorageReimbursement *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
-	Status                        PPMStatus                    `json:"status" db:"status"`
 	Mileage                       *int64                       `json:"mileage" db:"mileage"`
 	PlannedSITMax                 *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
 	SITMax                        *unit.Cents                  `json:"sit_max" db:"sit_max"`

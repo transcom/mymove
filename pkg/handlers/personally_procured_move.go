@@ -33,7 +33,6 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		Status:                     internalmessages.PPMStatus(personallyProcuredMove.Status),
 		Mileage:                    personallyProcuredMove.Mileage,
 		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
-		Status: internalmessages.PPMStatus(personallyProcuredMove.Status),
 	}
 
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
