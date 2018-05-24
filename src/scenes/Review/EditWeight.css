@@ -1,5 +1,5 @@
 .edit-ppm-entitlement {
-  background-color: #C8C8C8;
+  background-color: #c8c8c8;
   padding: 0.7em;
 }
 
@@ -26,7 +26,7 @@
 .edit-weight-container .usa-alert-text {
   font-size: 1.4rem;
   padding-top: 0.8rem;
-  margin-bottom: 0.8rem
+  margin-bottom: 0.8rem;
 }
 
 .edit-weight-container .usa-alert:before {
@@ -41,15 +41,17 @@
   margin-top: 3rem;
 }
 
-.examples-table tr > th:first-child, tr > td:first-child {
-  text-align: right
+.examples-table tr > th:first-child,
+.examples-table tr > td:first-child {
+  text-align: right;
 }
 
 .examples-table tbody > tr {
   border-top: 1px solid #00000063;
 }
 
-.examples-table th, td {
+.examples-table th,
+.examples-table td {
   border: none;
   white-space: nowrap;
   padding-top: 0.5rem;
@@ -77,11 +79,11 @@
 }
 
 .display-value p.warn {
-  color: #F19427;
+  color: #f19427;
 }
 
 div.weight-estimate-input.warn input {
-  border: 2px solid #F19427;
+  border: 2px solid #f19427;
 }
 
 .display-value p.error {
