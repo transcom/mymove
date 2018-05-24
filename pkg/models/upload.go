@@ -14,6 +14,7 @@ import (
 type Upload struct {
 	ID          uuid.UUID `db:"id"`
 	DocumentID  uuid.UUID `db:"document_id"`
+	Document    Document  `belongs_to:"documents"`
 	UploaderID  uuid.UUID `db:"uploader_id"`
 	Filename    string    `db:"filename"`
 	Bytes       int64     `db:"bytes"`
