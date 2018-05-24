@@ -43,15 +43,13 @@ export async function GetPpmWeightEstimate(
   destZip,
   weightEstimate,
 ) {
-  //TODO: make api call once data is loaded on staging and prod
-  return { range_min: 75 * weightEstimate, range_max: 115 * weightEstimate };
-  //  const client = await getClient();
-  // const response = await client.apis.ppm.showPPMEstimate({
-  //   planned_move_date: moveDate,
-  //   origin_zip: originZip,
-  //   destination_zip: destZip,
-  //   weight_estimate: weightEstimate,
-  // });
-  // checkResponse(response, 'failed to update ppm due to server error');
-  // return response.body;
+  const client = await getClient();
+  const response = await client.apis.ppm.showPPMEstimate({
+    planned_move_date: moveDate,
+    origin_zip: originZip,
+    destination_zip: destZip,
+    weight_estimate: weightEstimate,
+  });
+  checkResponse(response, 'failed to update ppm due to server error');
+  return response.body;
 }
