@@ -46,7 +46,7 @@ func (suite *HandlerSuite) mustSave(model interface{}) {
 func (suite *HandlerSuite) checkErrorResponse(resp middleware.Responder, code int, name string) {
 	errResponse, ok := resp.(*errResponse)
 	if !ok || errResponse.code != code {
-		suite.T().Errorf("Expected %s Response: %v", name, resp)
+		suite.T().Fatalf("Expected %s Response: %v", name, resp)
 		debug.PrintStack()
 	}
 }

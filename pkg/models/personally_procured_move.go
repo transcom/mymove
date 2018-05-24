@@ -109,6 +109,10 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 					return transactionError
 				}
 				ppm.AdvanceID = &ppm.Advance.ID
+			} else if ppm.AdvanceID == nil {
+				// if Has Requested Advance is set, but there is nothing saved or to save, that's an error.
+				responseError = ErrInvalidPatchGate
+				return transactionError
 			}
 		} else {
 			if ppm.AdvanceID != nil {

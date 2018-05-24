@@ -6,6 +6,7 @@ import (
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/validate"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -30,11 +31,13 @@ func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 }
 
 func responseForError(logger *zap.Logger, err error) middleware.Responder {
-	switch err {
+	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
 		return newErrResponse(http.StatusNotFound)
 	case models.ErrFetchForbidden:
 		return newErrResponse(http.StatusForbidden)
+	case models.ErrInvalidPatchGate:
+		return newErrResponse(http.StatusBadRequest)
 	default:
 		logger.Error("Unexpected db error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError)
