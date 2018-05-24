@@ -45,6 +45,9 @@ type PersonallyProcuredMove struct {
 	HasSit                     *bool                        `json:"has_sit" db:"has_sit"`
 	DaysInStorage              *int64                       `json:"days_in_storage" db:"days_in_storage"`
 	Status                     PPMStatus                    `json:"status" db:"status"`
+	HasRequestedAdvance        bool                         `json:"has_requested_advance" db:"has_requested_advance"`
+	AdvanceID                  *uuid.UUID                   `json:"advance_id" db:"advance_id"`
+	Advance                    *Reimbursement               `belongs_to:"reimbursements"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -73,7 +76,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -87,6 +90,36 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, reqApp strin
 	}
 
 	return &ppm, nil
+}
+
+// SavePersonallyProcuredMove Safely saves a PPM and it's associated Advance.
+func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		if ppm.Advance != nil {
+			if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			ppm.AdvanceID = &ppm.Advance.ID
+		}
+
+		if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return responseVErrors, responseError
 }
 
 // createNewPPM adds a new Personally Procured Move record into the DB.
@@ -104,4 +137,5 @@ func createNewPPM(db *pop.Connection, moveID uuid.UUID) (*PersonallyProcuredMove
 	}
 
 	return &ppm, verrs, nil
+
 }

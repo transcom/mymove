@@ -15,6 +15,8 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 	}
 
 	shirt := internalmessages.TShirtSizeM
+	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+
 	ppm, verrs, err := move.CreatePPM(db,
 		&shirt,
 		models.Int64Pointer(8000),
@@ -25,7 +27,10 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 		nil,
 		models.StringPointer("60605"),
 		models.BoolPointer(false),
-		nil)
+		nil,
+		true,
+		&advance,
+	)
 
 	if verrs.HasAny() || err != nil {
 		return models.PersonallyProcuredMove{}, err
