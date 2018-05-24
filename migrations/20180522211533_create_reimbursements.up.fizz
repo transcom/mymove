@@ -1,0 +1,9 @@
+create_table("reimbursements", func(t) {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("requested_amount", "integer", {})
+	t.Column("method_of_receipt", "string", {})
+	t.Column("status", "string", {})
+	t.Column("requested_date", "date", { "null": true })
+})
+add_column("personally_procured_moves", "has_requested_advance", "bool", {})
+add_column("personally_procured_moves", "advance_id", "uuid", {"null": true})
