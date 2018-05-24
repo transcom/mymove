@@ -43,3 +43,7 @@
   border: 2px solid #949494;
   color: black;
 }
+.big-button button:disabled,
+button[disabled] {
+  background-color: #f1f1f1;
+}

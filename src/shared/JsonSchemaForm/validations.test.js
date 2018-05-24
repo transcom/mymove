@@ -244,7 +244,8 @@ describe('SchemaField tests', () => {
   describe('email field', () => {
     const emailField = {
       type: 'string',
-      format: 'email',
+      format: 'x-email',
+      pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
       example: 'john_bob@example.com',
       'x-nullable': true,
       title: 'Personal Email Address',
@@ -260,27 +261,6 @@ describe('SchemaField tests', () => {
     ];
 
     testField(emailField, stringTests);
-  });
-
-  describe('ssn field', () => {
-    const ssnField = {
-      type: 'string',
-      format: 'ssn',
-      pattern: /^\d{3}-\d{2}-\d{4}$/,
-      example: '615-22-3323',
-      'x-nullable': true,
-      title: 'SSN No.',
-    };
-
-    const stringTests = [
-      ['615-22-3323', '615-22-3323', null],
-      ['615223323', '615-22-3323', null],
-      ['615-22-332sdfsdfsd3', '615-22-3323', null],
-      ['615-22-332', '615-22-332', 'SSN must have 9 digits.'],
-      ['615-22-33233', '615-22-3323', null],
-    ];
-
-    testField(ssnField, stringTests);
   });
 
   describe('zip field', () => {

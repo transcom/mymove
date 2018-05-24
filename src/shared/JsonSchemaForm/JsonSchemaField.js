@@ -74,18 +74,6 @@ const configureTelephoneField = (swaggerField, props) => {
   return props;
 };
 
-const configureSSNField = (swaggerField, props) => {
-  props.normalize = validator.normalizeSSN;
-  props.validate.push(
-    validator.patternMatches(
-      '^\\d{3}-\\d{2}-\\d{4}$',
-      'SSN must have 9 digits.',
-    ),
-  );
-  props.type = 'text';
-  return props;
-};
-
 const configureZipField = (swaggerField, props) => {
   props.normalize = validator.normalizeZip;
   props.validate.push(
@@ -121,22 +109,21 @@ const configureTextField = (swaggerField, props) => {
   return props;
 };
 
-const configureEmailField = (swaggerField, props) => {
+const configureEdipiField = (swaggerField, props) => {
   props.validate.push(
-    validator.patternMatches(
-      // go-swagger uses the email regex found here: https://github.com/asaskevich/govalidator/blob/master/patterns.go
-      // but that is pretty obnoxious so we will risk the difference and use this simpler one
-      '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
-      'Must be a valid email address',
-    ),
+    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
   );
   props.type = 'text';
 
   return props;
 };
-const configureEdipiField = (swaggerField, props) => {
+
+const configureEmailField = (swaggerField, props) => {
   props.validate.push(
-    validator.patternMatches(swaggerField.pattern, 'Must be a valid DoD ID #'),
+    validator.patternMatches(
+      swaggerField.pattern,
+      'Must be a valid email address',
+    ),
   );
   props.type = 'text';
 
@@ -153,6 +140,8 @@ const renderInputField = ({
   customComponent,
   meta: { touched, error, warning },
   children,
+  className,
+  inputProps,
 }) => {
   let component = 'input';
   if (componentNameOverride) {
@@ -177,19 +166,25 @@ const renderInputField = ({
       type: type,
       step: step,
       'aria-describedby': input.name + '-error',
+      ...inputProps,
     },
     children,
   );
 
   const displayError = touched && error;
+  const classes = `${
+    displayError ? 'usa-input-error' : 'usa-input'
+  } ${className}`;
   return (
-    <div className={displayError ? 'usa-input-error' : 'usa-input'}>
+    <div className={classes}>
       <label
         className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
         htmlFor={input.name}
       >
         {title}
-        {!always_required && <span className="label-optional">Optional</span>}
+        {!always_required &&
+          type !== 'boolean' &&
+          !customComponent && <span className="label-optional">Optional</span>}
       </label>
       {touched &&
         error && (
@@ -207,7 +202,16 @@ const renderInputField = ({
 };
 
 export const SwaggerField = props => {
-  const { fieldName, swagger, required } = props;
+  const {
+    fieldName,
+    swagger,
+    required,
+    className,
+    disabled,
+    component,
+    title,
+    onChange,
+  } = props;
 
   let swaggerField;
   if (swagger.properties) {
@@ -222,21 +226,39 @@ export const SwaggerField = props => {
     swaggerField[ALWAYS_REQUIRED_KEY] = true;
   }
 
-  return createSchemaField(fieldName, swaggerField, undefined);
+  return createSchemaField(
+    fieldName,
+    swaggerField,
+    undefined,
+    className,
+    disabled,
+    component,
+    title,
+    onChange,
+  );
 };
 
 // This function switches on the type of the field and creates the correct
 // Label and Field combination.
-const createSchemaField = (fieldName, swaggerField, nameSpace) => {
+const createSchemaField = (
+  fieldName,
+  swaggerField,
+  nameSpace,
+  className = '',
+  disabled = false,
+  component,
+  title,
+  onChange,
+) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
   const nameAttr = nameSpace ? `${nameSpace}.${fieldName}` : fieldName;
-  if (swaggerField.type === 'boolean') {
+  if (swaggerField.type === 'boolean' && !component) {
     return (
       <Fragment key={fieldName}>
         {createCheckbox(fieldName, swaggerField, nameAttr)}
         <label htmlFor={fieldName} className="usa-input-label">
-          {swaggerField.title || fieldName}
+          {title || swaggerField.title || fieldName}
         </label>
       </Fragment>
     );
@@ -245,17 +267,23 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
   // configure the basic Field props
   let fieldProps = {};
   fieldProps.name = nameAttr;
-  fieldProps.title = swaggerField.title || fieldName;
+  fieldProps.title = title || swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
+
+  let inputProps = {
+    disabled: disabled,
+  };
 
   if (fieldProps.always_required) {
     fieldProps.validate.push(validator.isRequired);
   }
 
   let children = null;
-  if (swaggerField.enum) {
+  if (component) {
+    fieldProps.customComponent = component;
+  } else if (swaggerField.enum) {
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
@@ -266,16 +294,12 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
       fieldProps = configureDateField(swaggerField, fieldProps);
     } else if (fieldFormat === 'telephone') {
       fieldProps = configureTelephoneField(swaggerField, fieldProps);
-    } else if (fieldFormat === 'ssn') {
-      fieldProps = configureSSNField(swaggerField, fieldProps);
     } else if (fieldFormat === 'zip') {
       fieldProps = configureZipField(swaggerField, fieldProps);
-    } else if (fieldFormat === 'email') {
-      fieldProps = configureEmailField(swaggerField, fieldProps);
     } else if (fieldFormat === 'edipi') {
       fieldProps = configureEdipiField(swaggerField, fieldProps);
-      // more cases go here. Datetime, Date,
-      // more cases go here. Datetime, Date,
+    } else if (fieldFormat === 'x-email') {
+      fieldProps = configureEmailField(swaggerField, fieldProps);
     } else {
       if (swaggerField.pattern) {
         console.error(
@@ -302,7 +326,13 @@ const createSchemaField = (fieldName, swaggerField, nameSpace) => {
     );
   }
   return (
-    <Field key={fieldName} {...fieldProps}>
+    <Field
+      key={fieldName}
+      className={className}
+      inputProps={inputProps}
+      {...fieldProps}
+      onChange={onChange}
+    >
       {children}
     </Field>
   );

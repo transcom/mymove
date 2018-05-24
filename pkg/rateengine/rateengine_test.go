@@ -21,15 +21,15 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
-		ServiceArea:   428,
-		RateArea:      "48",
-		Region:        11,
+		ServiceArea:   "428",
+		RateArea:      "US48",
+		Region:        "11",
 	}
 	suite.mustSave(&originZip3)
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
-		ServiceArea:        428,
+		ServiceArea:        "428",
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		ServicesSchedule:   1,
@@ -45,15 +45,15 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 		Zip3:          "336",
 		BasepointCity: "Tampa",
 		State:         "FL",
-		ServiceArea:   197,
-		RateArea:      "4964400",
-		Region:        13,
+		ServiceArea:   "197",
+		RateArea:      "US4964400",
+		Region:        "13",
 	}
 	suite.mustSave(&destinationZip3)
 
 	destinationServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Tampa, FL",
-		ServiceArea:        197,
+		ServiceArea:        "197",
 		LinehaulFactor:     69,
 		ServiceChargeCents: 663,
 		ServicesSchedule:   1,
@@ -105,7 +105,8 @@ func (suite *RateEngineSuite) Test_CheckPPMTotal() {
 	suite.mustSave(&shorthaul)
 
 	// 139698 +20000
-	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate, 1, .40, .5)
+	cost, err := engine.ComputePPM(2000, "39574", "33633", testdatagen.RateEngineDate,
+		1, unit.DiscountRate(.6), unit.DiscountRate(.5))
 
 	if err != nil {
 		t.Fatalf("failed to calculate ppm charge: %s", err)

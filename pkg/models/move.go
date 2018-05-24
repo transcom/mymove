@@ -1,7 +1,7 @@
 package models
 
 import (
-	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -10,40 +10,53 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"crypto/sha256"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
+
+// MoveStatus represents the status of an order record's lifecycle
+type MoveStatus string
+
+const (
+	// MoveStatusDRAFT captures enum value "DRAFT"
+	MoveStatusDRAFT MoveStatus = "DRAFT"
+	// MoveStatusSUBMITTED captures enum value "SUBMITTED"
+	MoveStatusSUBMITTED MoveStatus = "SUBMITTED"
+	// MoveStatusAPPROVED captures enum value "APPROVED"
+	MoveStatusAPPROVED MoveStatus = "APPROVED"
+	// MoveStatusCOMPLETED captures enum value "COMPLETED"
+	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+)
+
+const maxLocatorAttempts = 3
+const locatorLength = 6
+
+var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
 // Move is an object representing a move
 type Move struct {
 	ID                      uuid.UUID                          `json:"id" db:"id"`
+	Locator                 string                             `json:"locator" db:"locator"`
 	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
 	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
-	UserID                  uuid.UUID                          `json:"user_id" db:"user_id"`
-	User                    User                               `belongs_to:"user"`
+	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
+	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves"`
-}
-
-// String is not required by pop and may be deleted
-func (m Move) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
+	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	Status                  MoveStatus                         `json:"status" db:"status"`
+	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 }
 
 // Moves is not required by pop and may be deleted
 type Moves []Move
 
-// String is not required by pop and may be deleted
-func (m Moves) String() string {
-	jm, _ := json.Marshal(m)
-	return string(jm)
-}
-
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: m.UserID, Name: "UserID"},
+		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
+		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 	), nil
 }
 
@@ -60,7 +73,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchMove fetches and validates a Move for this User
-func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
+func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager().Find(&move, id)
 	if err != nil {
@@ -70,9 +83,11 @@ func FetchMove(db *pop.Connection, authUser User, id uuid.UUID) (*Move, error) {
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// TODO: Handle case where more than one user is authorized to modify move
-	if move.UserID != authUser.ID {
-		return nil, ErrFetchForbidden
+
+	// Ensure that the logged-in user is authorized to access this move
+	_, authErr := FetchOrder(db, session, move.OrdersID)
+	if authErr != nil {
+		return nil, authErr
 	}
 
 	return &move, nil
@@ -84,25 +99,36 @@ func (m Move) CreatePPM(db *pop.Connection,
 	weightEstimate *int64,
 	estimatedIncentive *string,
 	plannedMoveDate *time.Time,
-	pickupZip *string,
-	additionalPickupZip *string,
-	destinationZip *string,
-	daysInStorage *int64) (*PersonallyProcuredMove, *validate.Errors, error) {
+	pickupPostalCode *string,
+	hasAdditionalPostalCode *bool,
+	additionalPickupPostalCode *string,
+	destinationPostalCode *string,
+	hasSit *bool,
+	daysInStorage *int64,
+	estimatedStorageReimbursement *string,
+	hasRequestedAdvance bool,
+	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
-		MoveID:              m.ID,
-		Move:                m,
-		Size:                size,
-		WeightEstimate:      weightEstimate,
-		EstimatedIncentive:  estimatedIncentive,
-		PlannedMoveDate:     plannedMoveDate,
-		PickupZip:           pickupZip,
-		AdditionalPickupZip: additionalPickupZip,
-		DestinationZip:      destinationZip,
-		DaysInStorage:       daysInStorage,
+		MoveID:                        m.ID,
+		Move:                          m,
+		Size:                          size,
+		WeightEstimate:                weightEstimate,
+		EstimatedIncentive:            estimatedIncentive,
+		PlannedMoveDate:               plannedMoveDate,
+		PickupPostalCode:              pickupPostalCode,
+		HasAdditionalPostalCode:       hasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    additionalPickupPostalCode,
+		DestinationPostalCode:         destinationPostalCode,
+		HasSit:                        hasSit,
+		DaysInStorage:                 daysInStorage,
+		EstimatedStorageReimbursement: estimatedStorageReimbursement,
+		Status:              PPMStatusDRAFT,
+		HasRequestedAdvance: hasRequestedAdvance,
+		Advance:             advance,
 	}
 
-	verrs, err := db.ValidateAndCreate(&newPPM)
+	verrs, err := SavePersonallyProcuredMove(db, &newPPM)
 	if err != nil || verrs.HasAny() {
 		return nil, verrs, err
 	}
@@ -112,14 +138,14 @@ func (m Move) CreatePPM(db *pop.Connection,
 
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
-	submittingUser User,
+	submittingUserID uuid.UUID,
 	certificationText string,
 	signature string,
 	date time.Time) (*SignedCertification, *validate.Errors, error) {
 
 	newSignedCertification := SignedCertification{
 		MoveID:            m.ID,
-		SubmittingUserID:  submittingUser.ID,
+		SubmittingUserID:  submittingUserID,
 		CertificationText: certificationText,
 		Signature:         signature,
 		Date:              date,
@@ -139,4 +165,54 @@ func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
 	query := db.Where("user_id = $1", userID)
 	err := query.All(&moves)
 	return moves, err
+}
+
+// generateLocator constructs a record locator - a unique 6 character alphanumeric string
+func generateLocator() string {
+	// Get a UUID as a source of (almost certainly) unique bytes
+	seed, err := uuid.NewV4()
+	if err != nil {
+		return ""
+	}
+	// Scramble them via SHA256 in case UUID has structure
+	scrambledBytes := sha256.Sum256(seed.Bytes())
+	// Now convert bytes to letters
+	locatorRunes := make([]rune, locatorLength)
+	for idx := 0; idx < locatorLength; idx++ {
+		j := int(scrambledBytes[idx]) % len(locatorLetters)
+		locatorRunes[idx] = locatorLetters[j]
+	}
+	return string(locatorRunes)
+}
+
+// createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
+// retry with a new record locator.
+func createNewMove(db *pop.Connection,
+	ordersID uuid.UUID,
+	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
+
+	for i := 0; i < maxLocatorAttempts; i++ {
+		move := Move{
+			OrdersID:         ordersID,
+			Locator:          generateLocator(),
+			SelectedMoveType: selectedType,
+			Status:           MoveStatusDRAFT,
+		}
+		verrs, err := db.ValidateAndCreate(&move)
+		if verrs.HasAny() {
+			return nil, verrs, nil
+		}
+		if err != nil {
+			if strings.HasPrefix(errors.Cause(err).Error(), uniqueConstraintViolationErrorPrefix) {
+				// If we have a collision, try again for maxLocatorAttempts
+				continue
+			}
+			return nil, verrs, err
+		}
+
+		return &move, verrs, nil
+	}
+	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
+	verrs := validate.NewErrors()
+	return nil, verrs, ErrLocatorGeneration
 }

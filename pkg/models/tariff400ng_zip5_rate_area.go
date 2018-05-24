@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -20,25 +19,14 @@ type Tariff400ngZip5RateArea struct {
 	Zip5      string    `json:"zip5" db:"zip5"`
 }
 
-// String is not required by pop and may be deleted
-func (t Tariff400ngZip5RateArea) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
-
 // Tariff400ngZip5RateAreas is not required by pop and may be deleted
 type Tariff400ngZip5RateAreas []Tariff400ngZip5RateArea
-
-// String is not required by pop and may be deleted
-func (t Tariff400ngZip5RateAreas) String() string {
-	jt, _ := json.Marshal(t)
-	return string(jt)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (t *Tariff400ngZip5RateArea) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.StringIsPresent{Field: t.RateArea, Name: "RateArea"},
+		&validators.RegexMatch{Field: t.RateArea, Name: "RateArea", Expr: "^(ZIP|US[0-9]+)$"},
 		&validators.StringLengthInRange{Field: t.Zip5, Name: "Zip5", Min: 5, Max: 5},
 	), nil
 }

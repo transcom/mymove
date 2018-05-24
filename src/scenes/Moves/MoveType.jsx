@@ -35,6 +35,7 @@ class BigButtonGroup extends Component {
       prosList,
       altTag,
       isMobile,
+      isDisabled,
     ) => {
       const onButtonClick = () => {
         this.props.onMoveTypeSelected(value);
@@ -46,11 +47,13 @@ class BigButtonGroup extends Component {
           selected={isSelected}
           onClick={onButtonClick}
           className="move-type-button"
+          isDisabled={isDisabled}
         >
           <div>
+            {isDisabled && <h4>Not currently available, coming soon...</h4>}
             <p className="restrict-left">{description}</p>
             <img src={icon} alt={altTag} />
-            {!isMobile && <p className="font-2">{title}</p>}
+            {!isMobile && <p className="grey-title">{title}</p>}
             {isMobile && (
               <div className="collapse-btn" onClick={this.toggleHidden}>
                 &gt; &nbsp; Pros and Cons:
@@ -63,7 +66,7 @@ class BigButtonGroup extends Component {
                   return (
                     <div key={key.toString()}>
                       <p>{key}</p>
-                      <ul className="font-3">
+                      <ul className="smaller-text">
                         {pros.map(item => <li key={item}>{item}</li>)}
                       </ul>
                     </div>
@@ -97,6 +100,7 @@ class BigButtonGroup extends Component {
       },
       'hhg-ppm-combo',
       isMobile,
+      true,
     );
     var ppm = createButton(
       'PPM',
@@ -118,6 +122,7 @@ class BigButtonGroup extends Component {
       },
       'trailer-gray',
       isMobile,
+      false,
     );
     var hhg = createButton(
       'HHG',
@@ -139,6 +144,7 @@ class BigButtonGroup extends Component {
       },
       'truck-gray',
       isMobile,
+      true,
     );
 
     return (
@@ -161,20 +167,24 @@ const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 export class MoveType extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Move Type Selection';
+    // TODO: Remove line below once other move type options are availabed
+    this.props.setPendingMoveType('PPM');
   }
 
   onMoveTypeSelected = value => {
     this.props.setPendingMoveType(value);
   };
   render() {
-    const { pendingMoveType, currentMove } = this.props;
-    const selectedOption =
-      pendingMoveType || (currentMove && currentMove.selected_move_type);
+    // TODO: once Combo and HHG options available, remove currentOption and disabled prop
+    const currentOption = 'PPM';
+    // const { currentMove } = this.props;
+    // const selectedOption =
+    //   pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full">
         <h2> Select a Move Type</h2>
         <BigButtonGroupWithSize
-          selectedOption={selectedOption}
+          selectedOption={currentOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
       </div>

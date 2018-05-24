@@ -1,13 +1,12 @@
 package models
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
+	"github.com/gobuffalo/validate/validators"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
@@ -24,12 +23,6 @@ type Address struct {
 	State          string    `json:"state" db:"state"`
 	PostalCode     string    `json:"postal_code" db:"postal_code"`
 	Country        *string   `json:"country" db:"country"`
-}
-
-// String is not required by pop and may be deleted
-func (a Address) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
 }
 
 // GetAddressID facilitates grabbing the ID from an address that may be nil
@@ -63,31 +56,15 @@ func FetchAddressByID(dbConnection *pop.Connection, id *uuid.UUID) *Address {
 // Addresses is not required by pop and may be deleted
 type Addresses []Address
 
-// String is not required by pop and may be deleted
-func (a Addresses) String() string {
-	ja, _ := json.Marshal(a)
-	return string(ja)
-}
-
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
 func (a *Address) Validate(tx *pop.Connection) (*validate.Errors, error) {
-	verrs := validate.NewErrors()
-
-	stringFields := map[string]string{
-		"StreetAddress1": a.StreetAddress1,
-		"City":           a.City,
-		"State":          a.State,
-		"PostalCode":     a.PostalCode,
-	}
-
-	for key, field := range stringFields {
-		if field == "" {
-			verrs.Add(key, fmt.Sprintf("%s must not be blank!", key))
-		}
-	}
-
-	return verrs, nil
+	return validate.Validate(
+		&validators.StringIsPresent{Field: a.StreetAddress1, Name: "StreetAddress1"},
+		&validators.StringIsPresent{Field: a.City, Name: "City"},
+		&validators.StringIsPresent{Field: a.State, Name: "State"},
+		&validators.StringIsPresent{Field: a.PostalCode, Name: "PostalCode"},
+	), nil
 }
 
 // ValidateCreate gets run every time you call "pop.ValidateAndCreate" method.

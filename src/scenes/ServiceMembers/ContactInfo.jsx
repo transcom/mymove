@@ -1,10 +1,10 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -41,10 +41,6 @@ const formName = 'service_member_contact_info';
 const ContactWizardForm = reduxifyWizardForm(formName, validateContactForm);
 
 export class ContactInfo extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
@@ -86,7 +82,7 @@ export class ContactInfo extends Component {
 
         <fieldset key="contact_preferences">
           <legend htmlFor="contact_preferences">
-            Preferred contact method during your move:
+            Preferred contact method(s) during your move:
           </legend>
           <SwaggerField fieldName="phone_is_preferred" swagger={schema} />
           <SwaggerField
@@ -109,21 +105,18 @@ ContactInfo.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
-  const props = {
+  return {
     userEmail: state.user.email,
-    schema: {},
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateServiceMemberPayload',
+      {},
+    ),
     formData: state.form[formName],
     ...state.serviceMember,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateServiceMemberPayload;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ContactInfo);

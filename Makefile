@@ -55,6 +55,7 @@ server_deps: go_version .server_deps.stamp
 	dep ensure -vendor-only
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
+	go build -i -o bin/gas ./vendor/github.com/GoASTScanner/gas/cmd/gas
 	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
 	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -90,6 +91,7 @@ tools_build: server_deps
 	go build -i -o bin/tsp-award-queue ./cmd/tsp_award_queue
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
+	go build -i -o bin/make-office-user ./cmd/make_office_user
 
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue

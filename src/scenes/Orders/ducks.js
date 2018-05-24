@@ -1,96 +1,150 @@
+import { reject, cloneDeep, concat, includes, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
   GetOrders,
   ShowCurrentOrdersAPI,
 } from './api.js';
+import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
+import { DeleteUploads } from 'shared/api.js';
+import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
-export const SET_PENDING_ORDERS_TYPE = 'SET_PENDING_ORDERS_TYPE';
-export const CREATE_ORDERS = 'CREATE_ORDERS';
-export const UPDATE_ORDERS = 'UPDATE_ORDERS';
-export const CREATE_OR_UPDATE_ORDERS_SUCCESS =
-  'CREATE_OR_UPDATE_ORDERS_SUCCESS';
-export const CREATE_OR_UPDATE_ORDERS_FAILURE =
-  'CREATE_OR_UPDATE_ORDERS_FAILURE';
-export const GET_ORDERS = 'GET_ORDERS';
-export const GET_ORDERS_SUCCESS = 'GET_ORDERS_SUCCESS';
-export const GET_ORDERS_FAILURE = 'GET_ORDERS_FAILURE';
+const getOrdersType = 'GET_ORDERS';
+export const GET_ORDERS = ReduxHelpers.generateAsyncActionTypes(getOrdersType);
+
+const addUploadsType = 'ADD_UPLOADS';
+export const ADD_UPLOADS = ReduxHelpers.generateAsyncActionTypes(
+  addUploadsType,
+);
+
+const createOrUpdateOrdersType = 'CREATE_OR_UPDATE_ORDERS';
+export const CREATE_OR_UPDATE_ORDERS = ReduxHelpers.generateAsyncActionTypes(
+  createOrUpdateOrdersType,
+);
 
 const showCurrentOrdersType = 'SHOW_CURRENT_ORDERS';
-
 export const SHOW_CURRENT_ORDERS = ReduxHelpers.generateAsyncActionTypes(
   showCurrentOrdersType,
 );
 
+const deleteUploadType = 'DELETE_UPLOAD';
+export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
+  deleteUploadType,
+);
+
+// Actions
 export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
   showCurrentOrdersType,
   ShowCurrentOrdersAPI,
 );
 
-export const createOrdersRequest = () => ({
-  type: CREATE_ORDERS,
-});
-
-export const updateOrdersRequest = () => ({
-  type: UPDATE_ORDERS,
-});
-
-export const createOrUpdateOrdersSuccess = item => ({
-  type: CREATE_OR_UPDATE_ORDERS_SUCCESS,
-  item,
-});
-
-export const createOrUpdateOrdersFailure = error => ({
-  type: CREATE_OR_UPDATE_ORDERS_FAILURE,
-  error,
-});
-
-const getOrdersRequest = () => ({
-  type: GET_ORDERS,
-});
-
-export const getOrdersSuccess = item => ({
-  type: GET_ORDERS_SUCCESS,
-  item,
-  // item: items.length > 0 ? items[0] : null,
-});
-
-export const getOrdersFailure = error => ({
-  type: GET_ORDERS_FAILURE,
-  error,
-});
-
-export function createOrders(orderPayload) {
-  return function(dispatch) {
-    dispatch(createOrdersRequest());
-    CreateOrders(orderPayload)
-      .then(item => dispatch(createOrUpdateOrdersSuccess(item)))
-      .catch(error => dispatch(createOrUpdateOrdersFailure(error)));
-  };
-}
-
-export function updateOrders(orderId, orderPayload) {
-  return function(dispatch) {
-    dispatch(updateOrdersRequest());
-    UpdateOrders(orderId, orderPayload)
-      .then(item => dispatch(createOrUpdateOrdersSuccess(item)))
-      .catch(error => dispatch(createOrUpdateOrdersFailure(error)));
-  };
-}
-
-export function loadOrders(orderId) {
+export function createOrders(ordersPayload) {
   return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
+    const moveAction = ReduxHelpers.generateAsyncActions(
+      createOrUpdateMoveType,
+    );
     const state = getState();
     const currentOrders = state.orders.currentOrders;
     if (!currentOrders) {
-      dispatch(getOrdersRequest());
-      GetOrders(orderId)
-        .then(item => dispatch(getOrdersSuccess(item)))
-        .catch(error => dispatch(getOrdersFailure(error)));
+      return CreateOrders(ordersPayload)
+        .then(item => {
+          const newMove = get(item, 'moves.0', null);
+          dispatch(action.success(item));
+          dispatch(moveAction.success(newMove));
+        })
+        .catch(error => dispatch(action.error(error)));
     }
   };
+}
+
+export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
+  createOrUpdateOrdersType,
+  UpdateOrders,
+);
+
+export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
+  getOrdersType,
+  GetOrders,
+);
+
+// Deletes a single upload
+export function deleteUpload(uploadId) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
+    const state = getState();
+    const currentOrders = state.orders.currentOrders;
+    if (currentOrders) {
+      return DeleteUploads(uploadId)
+        .then(() => {
+          const uploads = currentOrders.uploaded_orders.uploads;
+          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
+            return uploadId === upload.id;
+          });
+          dispatch(action.success(currentOrders));
+        })
+        .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
+    }
+  };
+}
+
+// Deletes an array of uploads
+export function deleteUploads(uploadIds) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
+    const state = getState();
+    const currentOrders = cloneDeep(state.orders.currentOrders);
+    if (currentOrders && uploadIds.length) {
+      return DeleteUploads(uploadIds)
+        .then(() => {
+          const uploads = currentOrders.uploaded_orders.uploads;
+          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
+            return includes(uploadIds, upload.id);
+          });
+          dispatch(action.success(currentOrders));
+        })
+        .catch(err => action.error(err));
+    } else {
+      return Promise.resolve();
+    }
+  };
+}
+
+export function addUploads(uploads) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(addUploadsType);
+    const state = getState();
+    const currentOrders = state.orders.currentOrders;
+    if (currentOrders) {
+      currentOrders.uploaded_orders.uploads = concat(
+        currentOrders.uploaded_orders.uploads,
+        ...uploads,
+      );
+      dispatch(action.success(currentOrders));
+    }
+  };
+}
+
+// Selectors
+export function loadEntitlements(state) {
+  const hasDependents = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.orders.0.has_dependents',
+    null,
+  );
+  const rank = get(
+    state.loggedInUser,
+    'loggedInUser.service_member.rank',
+    null,
+  );
+  if (isNull(hasDependents) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents);
 }
 
 // Reducer
@@ -102,33 +156,29 @@ const initialState = {
 };
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
-    case UPDATE_ORDERS:
+    case CREATE_OR_UPDATE_ORDERS.success:
       return Object.assign({}, state, {
-        hasSubmitSuccess: false,
-      });
-    case CREATE_OR_UPDATE_ORDERS_SUCCESS:
-      return Object.assign({}, state, {
-        currentOrders: action.item,
+        currentOrders: action.payload,
         pendingOrdersType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
       });
-    case CREATE_OR_UPDATE_ORDERS_FAILURE:
+    case CREATE_OR_UPDATE_ORDERS.failure:
       return Object.assign({}, state, {
         currentOrders: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
       });
-    case GET_ORDERS_SUCCESS:
+    case GET_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.item,
+        currentOrders: action.payload,
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
       });
-    case GET_ORDERS_FAILURE:
+    case GET_ORDERS.failure:
       return Object.assign({}, state, {
         currentOrders: {},
         hasSubmitSuccess: false,
@@ -152,6 +202,27 @@ export function ordersReducer(state = initialState, action) {
         currentOrders: null,
         showCurrentOrdersError: true,
         error,
+      });
+    case DELETE_UPLOAD.success:
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+        error: null,
+      });
+    case DELETE_UPLOAD.failure:
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
+      });
+    case ADD_UPLOADS.success:
+      return Object.assign({}, state, {
+        currentOrders: action.payload,
+        hasSubmitSuccess: true,
+        hasSubmitError: false,
+        error: null,
       });
     default:
       return state;

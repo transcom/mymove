@@ -1,3 +1,18 @@
+.fake-link {
+  text-decoration: underline;
+  color: blue;
+}
+
+.icon {
+  margin: 0 0.3em 0 0.3em;
+}
+
+.form-column {
+  display: inline-block;
+  width: 45%;
+  margin-right: 5%;
+}
+
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .grid-wide {
   max-width: 2000px;
@@ -7,7 +22,7 @@
 
 .move-info-header-meta {
   list-style: none outside;
-  border-top: solid 1px rgb(222,222,222);
+  border-top: solid 1px rgb(222, 222, 222);
   margin: 0;
   padding: 2px 0 0;
 }
@@ -23,7 +38,7 @@
 
 .move-info-header-meta li:after {
   content: '-';
-  margin: 0 .8em;
+  margin: 0 0.8em;
 }
 
 .move-info-header-meta li:last-child:after {
@@ -33,7 +48,7 @@
 
 .nav-controls {
   text-align: right;
-  padding-top: .5em;
+  padding-top: 0.5em;
   font-size: 0.9em;
 }
 
@@ -45,14 +60,15 @@
   border: solid 1px black;
   border-radius: 4px 4px 0 0;
   padding: 4px 42px 8px 42px;
-  margin: 0 2px;
+  margin-left: 8px;
   display: inline-block;
   text-decoration: none;
   color: black;
   background-color: #ececec;
 }
 
-.tabs .nav-tab span {
+.tabs .nav-tab .status,
+.tabs .nav-tab .title {
   display: block;
   text-align: center;
 }
@@ -78,4 +94,102 @@
 .tab-content {
   border-top: solid 1px black;
   margin-top: -1px;
+  padding-top: 2rem;
+}
+
+.documents {
+  border: solid 1px black;
+  padding: 1em;
+  margin-top: 1em;
+}
+
+.documents .usa-heading {
+  margin-top: 0;
+  font-size: 2rem;
+}
+
+.documents .usa-heading .icon {
+  margin-left: 0.5em;
+  font-size: 1.7rem;
+  vertical-align: baseline;
+}
+
+.documents .document .icon {
+  margin-right: 0.3em;
+}
+
+.orders-page-column {
+  background: lightgray;
+}
+
+.orders-page-column .pdf-placeholder {
+  padding: 1em;
+  background: white;
+  font-style: italic;
+  text-align: right;
+}
+
+.orders-page-column .pdf-placeholder .filename {
+  font-weight: bold;
+  font-style: normal;
+  float: left;
+}
+
+.orders-page-column .page {
+  padding: 1em;
+}
+
+.orders-page-fields h3 {
+  margin-bottom: 0;
+}
+
+.orders-page-fields .uploaded-at {
+  font-size: 0.8em;
+  color: gray;
+  margin-top: 0;
+}
+
+.panel-field.contact-prefs .field-value span {
+  margin-right: 1em;
+}
+.panel-field.contact-prefs .field-value svg {
+  margin-right: 4px;
+  font-size: 0.8em;
+}
+
+head .panel-subhead {
+  font-weight: bold;
+  margin-top: 4rem;
+}
+
+.panel-subhead + .usa-input .usa-input-label {
+  margin-top: 1rem;
+}
+
+.editable-panel-column fieldset {
+  margin-top: 4rem;
+}
+
+.editable-panel-column legend {
+  font-size: 1.7rem;
+}
+
+.editable-panel-column fieldset label {
+  margin-top: 2rem;
+}
+
+.editable-panel-column fieldset label:first-of-type {
+  margin-top: 0;
+}
+
+.usa-input.duty-station p {
+  margin-bottom: 0;
+}
+
+.usa-input.duty-station .duty-input-box {
+  margin-left: 0.1em;
+}
+
+.usa-input.duty-station p.location {
+  display: none;
 }

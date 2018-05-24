@@ -1,46 +1,20 @@
-import { pick } from 'lodash';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
-import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+import { updateServiceMember } from './ducks';
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-const subsetOfFields = ['residential_address'];
-
-const uiSchema = {
-  title: 'Current Residence address',
-  order: subsetOfFields,
-  definitions: {
-    Address: {
-      order: [
-        'street_address_1',
-        'street_address_2',
-        'city',
-        'state',
-        'postal_code',
-      ],
-    },
-  },
-  requiredFields: subsetOfFields,
-};
 const formName = 'service_member_residential_address';
-const CurrentForm = reduxifyForm(formName);
+const ResidentalWizardForm = reduxifyWizardForm(formName);
 
 export class ResidentialAddress extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
-    if (pendingValues) {
-      const patch = pick(pendingValues, subsetOfFields);
-      this.props.updateServiceMember(patch);
-    }
+    const newAddress = { residential_address: this.props.formData.values };
+    this.props.updateServiceMember(newAddress);
   };
 
   render() {
@@ -51,32 +25,38 @@ export class ResidentialAddress extends Component {
       error,
       currentServiceMember,
     } = this.props;
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
-    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentServiceMember
-      ? pick(currentServiceMember, subsetOfFields)
-      : null;
+    const initialValues = get(currentServiceMember, 'residential_address');
+    const serviceMemberId = this.props.match.params.serviceMemberId;
     return (
-      <WizardPage
+      <ResidentalWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
+        className={formName}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        pageIsDirty={isDirty}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
+        initialValues={initialValues}
+        additionalParams={{ serviceMemberId }}
       >
-        <CurrentForm
-          ref="currentForm"
-          className={formName}
-          handleSubmit={no_op}
-          schema={this.props.schema}
-          uiSchema={uiSchema}
-          initialValues={initialValues}
+        <h1 className="sm-heading">Current Residence Address</h1>
+        <SwaggerField
+          fieldName="street_address_1"
+          swagger={this.props.schema}
+          required
         />
-      </WizardPage>
+        <SwaggerField
+          fieldName="street_address_2"
+          swagger={this.props.schema}
+        />
+        <SwaggerField fieldName="city" swagger={this.props.schema} required />
+        <SwaggerField fieldName="state" swagger={this.props.schema} required />
+        <SwaggerField
+          fieldName="postal_code"
+          swagger={this.props.schema}
+          required
+        />
+      </ResidentalWizardForm>
     );
   }
 }
@@ -89,20 +69,13 @@ ResidentialAddress.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
-  const props = {
-    schema: {},
+  return {
+    schema: get(state, 'swagger.spec.definitions.Address', {}),
     formData: state.form[formName],
     ...state.serviceMember,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateServiceMemberPayload;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ResidentialAddress);

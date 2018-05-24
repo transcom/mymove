@@ -1,12 +1,11 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import {
   updateServiceMember,
-  loadServiceMember,
   indexBackupContacts,
   createBackupContact,
   updateBackupContact,
@@ -15,85 +14,86 @@ import {
   renderField,
   recursivelyAnnotateRequiredFields,
 } from 'shared/JsonSchemaForm';
-import { reduxForm, Field } from 'redux-form';
+import { reduxForm } from 'redux-form';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
 import './BackupContact.css';
 
 const NonePermission = 'NONE';
-const ViewPermission = 'VIEW';
-const EditPermission = 'EDIT';
+// const ViewPermission = 'VIEW';
+// const EditPermission = 'EDIT';
 
-const permissionsField = props => {
-  const {
-    input: { value: rawValue, onChange },
-  } = props;
-  let value;
-  if (![NonePermission, ViewPermission, EditPermission].includes(rawValue)) {
-    value = NonePermission;
-  } else {
-    value = rawValue;
-  }
+// TODO: Uncomment field below after backup contact auth is implemented.
+// const permissionsField = props => {
+//   const {
+//     input: { value: rawValue, onChange },
+//   } = props;
+//   let value;
+//   if (![NonePermission, ViewPermission, EditPermission].includes(rawValue)) {
+//     value = NonePermission;
+//   } else {
+//     value = rawValue;
+//   }
 
-  const localOnChange = event => {
-    if (event.target.id === 'authorizeAgent') {
-      if (event.target.checked && value === NonePermission) {
-        onChange(ViewPermission);
-      } else if (!event.target.checked) {
-        onChange(NonePermission);
-      }
-    } else if (event.target.id === 'aaChoiceView') {
-      onChange(ViewPermission);
-    } else if (event.target.id === 'aaChoiceEdit') {
-      onChange(EditPermission);
-    }
-  };
+//   const localOnChange = event => {
+//     if (event.target.id === 'authorizeAgent') {
+//       if (event.target.checked && value === NonePermission) {
+//         onChange(ViewPermission);
+//       } else if (!event.target.checked) {
+//         onChange(NonePermission);
+//       }
+//     } else if (event.target.id === 'aaChoiceView') {
+//       onChange(ViewPermission);
+//     } else if (event.target.id === 'aaChoiceEdit') {
+//       onChange(EditPermission);
+//     }
+//   };
 
-  const authorizedChecked = value !== NonePermission;
-  const viewChecked = value === ViewPermission;
-  const editChecked = value === EditPermission;
+//   const authorizedChecked = value !== NonePermission;
+//   const viewChecked = value === ViewPermission;
+//   const editChecked = value === EditPermission;
 
-  return (
-    <Fragment>
-      <input
-        id="authorizeAgent"
-        type="checkbox"
-        onChange={localOnChange}
-        checked={authorizedChecked}
-      />
-      <label htmlFor="authorizeAgent">I authorize this person to:</label>
-      <input
-        id="aaChoiceView"
-        type="radio"
-        onChange={localOnChange}
-        checked={viewChecked}
-        disabled={!authorizedChecked}
-      />
-      <label
-        htmlFor="aaChoiceView"
-        className={authorizedChecked ? '' : 'disabled'}
-      >
-        Sign for pickup or delivery in my absence, and view move details in this
-        app.
-      </label>
-      <input
-        id="aaChoiceEdit"
-        type="radio"
-        onChange={localOnChange}
-        checked={editChecked}
-        disabled={!authorizedChecked}
-      />
-      <label
-        htmlFor="aaChoiceEdit"
-        className={authorizedChecked ? '' : 'disabled'}
-      >
-        Represent me in all aspects of this move (this person will be invited to
-        login and will be authorized with power of attorney on your behalf).
-      </label>
-    </Fragment>
-  );
-};
+//   return (
+//     <Fragment>
+//       <input
+//         id="authorizeAgent"
+//         type="checkbox"
+//         onChange={localOnChange}
+//         checked={authorizedChecked}
+//       />
+//       <label htmlFor="authorizeAgent">I authorize this person to:</label>
+//       <input
+//         id="aaChoiceView"
+//         type="radio"
+//         onChange={localOnChange}
+//         checked={viewChecked}
+//         disabled={!authorizedChecked}
+//       />
+//       <label
+//         htmlFor="aaChoiceView"
+//         className={authorizedChecked ? '' : 'disabled'}
+//       >
+//         Sign for pickup or delivery in my absence, and view move details in this
+//         app.
+//       </label>
+//       <input
+//         id="aaChoiceEdit"
+//         type="radio"
+//         onChange={localOnChange}
+//         checked={editChecked}
+//         disabled={!authorizedChecked}
+//       />
+//       <label
+//         htmlFor="aaChoiceEdit"
+//         className={authorizedChecked ? '' : 'disabled'}
+//       >
+//         Represent me in all aspects of this move (this person will be invited to
+//         login and will be authorized with power of attorney on your behalf).
+//       </label>
+//     </Fragment>
+//   );
+// };
 
 const formName = 'service_member_backup_contact';
 
@@ -126,7 +126,8 @@ class ContactForm extends Component {
         {renderField('email', fields, '')}
         {renderField('telephone', fields, '')}
 
-        <Field name="permission" component={permissionsField} />
+        {/* TODO: Uncomment line below after backup contact auth is implemented.  */}
+        {/* <Field name="permission" component={permissionsField} /> */}
       </form>
     );
   }
@@ -241,7 +242,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       updateServiceMember,
-      loadServiceMember,
       indexBackupContacts,
       createBackupContact,
       updateBackupContact,
@@ -250,20 +250,19 @@ function mapDispatchToProps(dispatch) {
   );
 }
 function mapStateToProps(state) {
-  const props = {
+  return {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     hasSubmitSuccess:
       state.serviceMember.createBackupContactSuccess ||
       state.serviceMember.updateBackupContactSuccess,
     error: state.serviceMember.error,
     loggedInUser: state.loggedInUser.loggedInUser,
-    schema: {},
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
+      {},
+    ),
     formData: state.form[formName],
   };
-  if (state.swagger.spec) {
-    props.schema =
-      state.swagger.spec.definitions.CreateServiceMemberBackupContactPayload;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);

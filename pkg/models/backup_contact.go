@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -10,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -26,20 +26,8 @@ type BackupContact struct {
 	Phone           *string                                  `json:"phone" db:"phone"`
 }
 
-// String is not required by pop and may be deleted
-func (b BackupContact) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
-}
-
 // BackupContacts is not required by pop and may be deleted
 type BackupContacts []BackupContact
-
-// String is not required by pop and may be deleted
-func (b BackupContacts) String() string {
-	jb, _ := json.Marshal(b)
-	return string(jb)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 // This method is not required and may be deleted.
@@ -64,7 +52,7 @@ func (b *BackupContact) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchBackupContact returns a specific backup contact model
-func FetchBackupContact(db *pop.Connection, authUser User, id uuid.UUID) (BackupContact, error) {
+func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID) (BackupContact, error) {
 	var contact BackupContact
 	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {
@@ -75,9 +63,8 @@ func FetchBackupContact(db *pop.Connection, authUser User, id uuid.UUID) (Backup
 		return BackupContact{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify contact
-	if contact.ServiceMember.UserID != authUser.ID {
+	if session.IsMyApp() && contact.ServiceMember.ID != session.ServiceMemberID {
 		return BackupContact{}, ErrFetchForbidden
 	}
-
 	return contact, nil
 }

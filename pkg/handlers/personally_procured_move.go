@@ -16,17 +16,21 @@ import (
 func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
 
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                  fmtUUID(personallyProcuredMove.ID),
-		CreatedAt:           fmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:           fmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:                personallyProcuredMove.Size,
-		WeightEstimate:      personallyProcuredMove.WeightEstimate,
-		EstimatedIncentive:  personallyProcuredMove.EstimatedIncentive,
-		PlannedMoveDate:     fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
-		PickupZip:           personallyProcuredMove.PickupZip,
-		AdditionalPickupZip: personallyProcuredMove.AdditionalPickupZip,
-		DestinationZip:      personallyProcuredMove.DestinationZip,
-		DaysInStorage:       personallyProcuredMove.DaysInStorage,
+		ID:                            fmtUUID(personallyProcuredMove.ID),
+		CreatedAt:                     fmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                     fmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:                          personallyProcuredMove.Size,
+		WeightEstimate:                personallyProcuredMove.WeightEstimate,
+		EstimatedIncentive:            personallyProcuredMove.EstimatedIncentive,
+		PlannedMoveDate:               fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
+		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
+		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
+		HasSit:                        personallyProcuredMove.HasSit,
+		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+		Status: internalmessages.PPMStatus(personallyProcuredMove.Status),
 	}
 	return ppmPayload
 }
@@ -36,12 +40,12 @@ type CreatePersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -52,10 +56,15 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.WeightEstimate,
 		payload.EstimatedIncentive,
 		(*time.Time)(payload.PlannedMoveDate),
-		payload.PickupZip,
-		payload.AdditionalPickupZip,
-		payload.DestinationZip,
-		payload.DaysInStorage)
+		payload.PickupPostalCode,
+		payload.HasAdditionalPostalCode,
+		payload.AdditionalPickupPostalCode,
+		payload.DestinationPostalCode,
+		payload.HasSit,
+		payload.DaysInStorage,
+		payload.EstimatedStorageReimbursement,
+		false,
+		nil)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
@@ -70,12 +79,13 @@ type IndexPersonallyProcuredMovesHandler HandlerContext
 
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	// #nosec User should always be populated by middleware
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -105,18 +115,31 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.PlannedMoveDate != nil {
 		ppm.PlannedMoveDate = (*time.Time)(payload.PlannedMoveDate)
 	}
-	if payload.PickupZip != nil {
-		ppm.PickupZip = payload.PickupZip
+	if payload.PickupPostalCode != nil {
+		ppm.PickupPostalCode = payload.PickupPostalCode
 	}
-	if payload.AdditionalPickupZip != nil {
-		ppm.AdditionalPickupZip = payload.AdditionalPickupZip
+	if payload.HasAdditionalPostalCode != nil {
+		if *payload.HasAdditionalPostalCode == false {
+			ppm.AdditionalPickupPostalCode = nil
+		} else if *payload.HasAdditionalPostalCode == true {
+			ppm.AdditionalPickupPostalCode = payload.AdditionalPickupPostalCode
+		}
+		ppm.HasAdditionalPostalCode = payload.HasAdditionalPostalCode
 	}
-	if payload.DestinationZip != nil {
-		ppm.DestinationZip = payload.DestinationZip
+	if payload.DestinationPostalCode != nil {
+		ppm.DestinationPostalCode = payload.DestinationPostalCode
 	}
-	if payload.DaysInStorage != nil {
-		ppm.DaysInStorage = payload.DaysInStorage
+	if payload.HasSit != nil {
+		if *payload.HasSit == false {
+			ppm.DaysInStorage = nil
+			ppm.EstimatedStorageReimbursement = nil
+		} else if *payload.HasSit == true {
+			ppm.DaysInStorage = payload.DaysInStorage
+			ppm.EstimatedStorageReimbursement = payload.EstimatedStorageReimbursement
+		}
+		ppm.HasSit = payload.HasSit
 	}
+
 }
 
 // PatchPersonallyProcuredMoveHandler Patchs a PPM
@@ -124,12 +147,14 @@ type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
+	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

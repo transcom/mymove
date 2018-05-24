@@ -10,11 +10,11 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForUserModel(user models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
+func payloadForUserModel(storage FileStorer, user *models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
 	var smPayload *internalmessages.ServiceMemberPayload
 
 	if serviceMember != nil {
-		smPayload = payloadForServiceMemberModel(user, *serviceMember)
+		smPayload = payloadForServiceMemberModel(storage, *serviceMember)
 	}
 
 	userPayload := internalmessages.LoggedInUserPayload{
@@ -31,18 +31,25 @@ type ShowLoggedInUserHandler HandlerContext
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-	user, ok := auth.GetUser(params.HTTPRequest.Context())
-	if !ok {
-		return userop.NewShowLoggedInUserInternalServerError()
-	}
-	serviceMember, err := user.GetServiceMemberProfile(h.db)
-	if err != nil {
-		h.logger.Error("Error retrieving service_member", zap.Error(err))
-		response := userop.NewShowLoggedInUserUnauthorized()
-		return response
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	var user *models.User
+	serviceMember, err := models.GetFullServiceMemberProfile(h.db, session)
+	if err == nil {
+		if serviceMember == nil {
+			user, err = models.GetUser(h.db, session.UserID)
+		} else {
+			user = &serviceMember.User
+		}
 	}
 
-	userPayload := payloadForUserModel(user, serviceMember)
-	response := userop.NewShowLoggedInUserOK().WithPayload(userPayload)
+	var response middleware.Responder
+	if err != nil {
+		h.logger.Error("Error retrieving service_member", zap.Error(err))
+		response = userop.NewShowLoggedInUserUnauthorized()
+	} else {
+		userPayload := payloadForUserModel(h.storage, user, serviceMember)
+		response = userop.NewShowLoggedInUserOK().WithPayload(userPayload)
+	}
 	return response
 }

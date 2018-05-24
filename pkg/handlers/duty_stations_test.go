@@ -44,16 +44,19 @@ func (suite *HandlerSuite) TestSearchDutyStationHandler() {
 	suite.mustSave(&station2)
 
 	req := httptest.NewRequest("GET", "/duty_stations", nil)
-	newSearchParams := stationop.SearchDutyStationsParams{
-		HTTPRequest: req,
-		Affiliation: string(internalmessages.AffiliationARMY),
-		Search:      "first",
-	}
 
 	// Make sure the context contains the auth values
-	ctx := newSearchParams.HTTPRequest.Context()
-	ctx = auth.PopulateAuthContext(ctx, user.ID, "fake token")
-	newSearchParams.HTTPRequest = newSearchParams.HTTPRequest.WithContext(ctx)
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          user.ID,
+		IDToken:         "fake token",
+	}
+	ctx := auth.SetSessionInRequestContext(req, session)
+
+	newSearchParams := stationop.SearchDutyStationsParams{
+		HTTPRequest: req.WithContext(ctx),
+		Search:      "first",
+	}
 
 	handler := SearchDutyStationsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newSearchParams)

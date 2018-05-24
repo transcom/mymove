@@ -25,7 +25,10 @@ func main() {
 	scenarioNumber := flag.Int("scenario", 1, "Specify which scenario you'd like to run. Current options: 1, 2.")
 	flag.Parse()
 
-	pop.AddLookupPaths("config")
+	err := pop.AddLookupPaths("config")
+	if err != nil {
+		log.Fatalf("failed to add config to pop paths: %+v", err)
+	}
 	db, err := pop.Connect("development")
 	if err != nil {
 		log.Fatalf("could not connect to database: %+v", err)
@@ -39,8 +42,8 @@ func main() {
 	for {
 		fmt.Println("Running this tool will delete everything in your development database.")
 		fmt.Print("Do you wish to proceed? (y)es or (n)o: ")
-		fmt.Scanln(&input)
-		if input == "n" || input == "no" {
+		count, err := fmt.Scanln(&input)
+		if err != nil || count == 0 || input == "n" || input == "no" {
 			os.Exit(1)
 		} else if input == "y" || input == "yes" {
 			break
@@ -67,9 +70,9 @@ func main() {
 		originZip5 := "32168"
 		destinationZip5 := "29429"
 		date := time.Date(2018, time.June, 18, 0, 0, 0, 0, time.UTC)
-		inverseDiscount := 0.33
+		lhDiscount := unit.DiscountRate(0.67)
 
-		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
+		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
 		if err != nil {
 			log.Fatalf("could not compute PPM: %+v", err)
 		}
@@ -81,7 +84,8 @@ func main() {
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
-		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack fee:", cost.PackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack fee:", cost.UnpackFee.ToDollarString())
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 
@@ -102,9 +106,9 @@ func main() {
 		originZip5 := "94540"
 		destinationZip5 := "78626"
 		date := time.Date(2018, time.December, 5, 0, 0, 0, 0, time.UTC)
-		inverseDiscount := 0.33
+		lhDiscount := unit.DiscountRate(0.67)
 
-		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, inverseDiscount, 0)
+		cost, err := engine.ComputePPM(weight, originZip5, destinationZip5, date, 0, lhDiscount, 0)
 		if err != nil {
 			log.Fatalf("could not compute PPM: %+v", errors.Cause(err))
 		}
@@ -116,7 +120,8 @@ func main() {
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Origin service fee:", cost.OriginServiceFee.ToDollarString())
 		fmt.Printf("%-30s%s\n", "Destination service fee:", cost.DestinationServiceFee.ToDollarString())
-		fmt.Printf("%-30s%s\n", "Full Pack/Unpack fee:", cost.FullPackUnpackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Pack fee:", cost.PackFee.ToDollarString())
+		fmt.Printf("%-30s%s\n", "Full Unpack fee:", cost.UnpackFee.ToDollarString())
 		fmt.Println("")
 		fmt.Printf("%-30s%s\n", "Government Constructed Cost:", cost.GCC.ToDollarString())
 	}

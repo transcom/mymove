@@ -1,6 +1,11 @@
 package handlers
 
 import (
+	/*
+		#nosec - we use md5 because it's required by the S3 API for
+		validating data integrity.
+		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+	*/
 	"crypto/md5"
 	"encoding/base64"
 	"io"
@@ -20,9 +25,13 @@ import (
 
 func payloadForUploadModel(upload models.Upload, url string) *internalmessages.UploadPayload {
 	return &internalmessages.UploadPayload{
-		ID:       fmtUUID(upload.ID),
-		Filename: swag.String(upload.Filename),
-		URL:      fmtURI(url),
+		ID:          fmtUUID(upload.ID),
+		Filename:    swag.String(upload.Filename),
+		ContentType: swag.String(upload.ContentType),
+		URL:         fmtURI(url),
+		Bytes:       &upload.Bytes,
+		CreatedAt:   fmtDateTime(upload.CreatedAt),
+		UpdatedAt:   fmtDateTime(upload.UpdatedAt),
 	}
 }
 
@@ -40,8 +49,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	documentID, err := uuid.FromString(params.DocumentID.String())
 	if err != nil {
 		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
@@ -49,11 +57,16 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	}
 
 	//fetching document to ensure user has access to it
-	_, docErr := models.FetchDocument(h.db, user, documentID)
+	_, docErr := models.FetchDocument(h.db, session, documentID)
 	if docErr != nil {
 		return responseForError(h.logger, docErr)
 	}
 
+	/*
+		#nosec - we use md5 because it's required by the S3 API for
+		validating data integrity.
+		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+	*/
 	hash := md5.New()
 	if _, err := io.Copy(hash, file.Data); err != nil {
 		h.logger.Error("failed to hash uploaded file", zap.Error(err))
@@ -91,7 +104,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	newUpload := models.Upload{
 		ID:          id,
 		DocumentID:  documentID,
-		UploaderID:  user.ID,
+		UploaderID:  session.UserID,
 		Filename:    file.Header.Filename,
 		Bytes:       int64(file.Header.Size),
 		ContentType: contentType,
@@ -139,11 +152,10 @@ type DeleteUploadHandler HandlerContext
 
 // Handle deletes an upload
 func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	uploadID, _ := uuid.FromString(params.UploadID.String())
-	upload, err := models.FetchUpload(h.db, user, uploadID)
+	upload, err := models.FetchUpload(h.db, session, uploadID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -160,4 +172,34 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 	}
 
 	return uploadop.NewDeleteUploadCreated()
+}
+
+// DeleteUploadsHandler deletes a collection of uploads
+type DeleteUploadsHandler HandlerContext
+
+// Handle deletes uploads
+func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
+	// User should always be populated by middleware
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	for _, uploadID := range params.UploadIds {
+		uuid, _ := uuid.FromString(uploadID.String())
+		upload, err := models.FetchUpload(h.db, session, uuid)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+
+		key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+		err = h.storage.Delete(key)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+
+		err = models.DeleteUpload(h.db, &upload)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+	}
+
+	return uploadop.NewDeleteUploadsCreated()
 }

@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -19,6 +20,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 		"report_by_date":      {"ReportByDate can not be blank."},
 		"service_member_id":   {"ServiceMemberID can not be blank."},
 		"new_duty_station_id": {"NewDutyStationID can not be blank."},
+		"status":              {"Status can not be blank."},
 	}
 
 	suite.verifyValidationErrors(order, expErrors)
@@ -32,30 +34,40 @@ func (suite *ModelSuite) TestFetchOrder() {
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeRotational
+	ordersType := internalmessages.OrdersTypeBLUEBARK
 	hasDependents := true
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
 		Name:            UploadedOrdersDocumentName,
 	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
 	suite.mustSave(&uploadedOrder)
 	order := Order{
-		ServiceMemberID:  serviceMember1.ID,
-		ServiceMember:    serviceMember1,
-		IssueDate:        issueDate,
-		ReportByDate:     reportByDate,
-		OrdersType:       ordersType,
-		HasDependents:    hasDependents,
-		NewDutyStationID: dutyStation.ID,
-		NewDutyStation:   dutyStation,
-		UploadedOrdersID: uploadedOrder.ID,
-		UploadedOrders:   uploadedOrder,
+		ServiceMemberID:     serviceMember1.ID,
+		ServiceMember:       serviceMember1,
+		IssueDate:           issueDate,
+		ReportByDate:        reportByDate,
+		OrdersType:          ordersType,
+		HasDependents:       hasDependents,
+		NewDutyStationID:    dutyStation.ID,
+		NewDutyStation:      dutyStation,
+		UploadedOrdersID:    uploadedOrder.ID,
+		UploadedOrders:      uploadedOrder,
+		Status:              OrderStatusSUBMITTED,
+		TAC:                 &TAC,
+		DepartmentIndicator: &deptIndicator,
 	}
 	suite.mustSave(&order)
 
 	// User is authorized to fetch order
-	goodOrder, err := FetchOrder(suite.db, serviceMember1.User, order.ID)
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          serviceMember1.UserID,
+		ServiceMemberID: serviceMember1.ID,
+	}
+	goodOrder, err := FetchOrder(suite.db, session, order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -64,16 +76,18 @@ func (suite *ModelSuite) TestFetchOrder() {
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 	}
 
+	// Wrong Order ID
+	wrongID, _ := uuid.NewV4()
+	_, err = FetchOrder(suite.db, session, wrongID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchNotFound, err)
+	}
 	// User is forbidden from fetching order
-	_, err = FetchOrder(suite.db, serviceMember2.User, order.ID)
+	session.UserID = serviceMember2.UserID
+	session.ServiceMemberID = serviceMember2.ID
+	_, err = FetchOrder(suite.db, session, order.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
-	// Wrong Order ID
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrder(suite.db, serviceMember1.User, wrongID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
-	}
 }

@@ -5,51 +5,31 @@ import (
 
 	"net/http/httptest"
 
-	"github.com/go-openapi/swag"
-	"github.com/gobuffalo/uuid"
-
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
-	t := suite.T()
-	t.Skip("don't test stubbed out endpoint")
-
 	// Given: An office user
-	officeUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&officeUser)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
-	//  A service member and a move belonging to that service member
-	smUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "servicemember@example.com",
-	}
-	suite.mustSave(&smUser)
-
-	rank := internalmessages.ServiceMemberRankE5
-
-	newServiceMember := models.ServiceMember{
-		UserID:    smUser.ID,
-		FirstName: swag.String("Nino"),
-		LastName:  swag.String("Panino"),
-		Rank:      &rank,
-		Edipi:     swag.String("5805291540"),
-	}
-	suite.mustSave(&newServiceMember)
+	//  A set of orders and a move belonging to those orders
+	order, _ := testdatagen.MakeOrder(suite.db)
 
 	newMove := models.Move{
-		UserID: smUser.ID,
+		OrdersID: order.ID,
+		Status:   "DRAFT",
 	}
 	suite.mustSave(&newMove)
 
+	_, verrs, locErr := order.CreateNewMove(suite.db, nil)
+	suite.False(verrs.HasAny(), "failed to create new move")
+	suite.Nil(locErr)
+
 	// And: the context contains the auth values
-	req := httptest.NewRequest("GET", "/queues/some_queue", nil)
-	req = suite.authenticateRequest(req, officeUser)
+	req := httptest.NewRequest("GET", "/queues/new", nil)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := queueop.ShowQueueParams{
 		HTTPRequest: req,
@@ -64,8 +44,8 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 	moveQueueItem := okResponse.Payload[0]
 
 	// And: Returned query to include our added move
-	expectedCustomerName := fmt.Sprintf("%v %v", *newServiceMember.FirstName, *newServiceMember.LastName)
-	if *moveQueueItem.CustomerName != expectedCustomerName {
-		t.Errorf("Expected move queue item to have service member name '%v', instead has '%v'", expectedCustomerName, *moveQueueItem.CustomerName)
-	}
+	// The moveQueueItems are produced by joining Moves, Orders and ServiceMember to each other, so we check the
+	// furthest link in that chain
+	expectedCustomerName := fmt.Sprintf("%v, %v", *order.ServiceMember.LastName, *order.ServiceMember.FirstName)
+	suite.Equal(expectedCustomerName, *moveQueueItem.CustomerName)
 }

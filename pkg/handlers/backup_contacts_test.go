@@ -20,7 +20,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 	serviceMember, _ := testdatagen.MakeServiceMember(suite.db)
 
 	newContactPayload := internalmessages.CreateServiceMemberBackupContactPayload{
-		Email:      fmtEmail("email@example.com"),
+		Email:      swag.String("email@example.com"),
 		Name:       swag.String("name"),
 		Permission: internalmessages.BackupContactPermissionEDIT,
 		Telephone:  swag.String("5555555555"),
@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 		ServiceMemberID:            *fmtUUID(serviceMember.ID),
 	}
 
-	params.HTTPRequest = suite.authenticateRequest(req, serviceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, serviceMember)
 
 	handler := CreateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -66,7 +66,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	params := contactop.IndexServiceMemberBackupContactsParams{
 		ServiceMemberID: *fmtUUID(contact.ServiceMember.ID),
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 		ServiceMemberID: *fmtUUID(contact.ServiceMember.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := IndexBackupContactsHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -120,7 +120,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	params := contactop.ShowServiceMemberBackupContactParams{
 		BackupContactID: *fmtUUID(contact.ID),
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -146,7 +146,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 		BackupContactID: *fmtUUID(contact.ID),
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := ShowBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -168,7 +168,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      fmtEmail("otheremail@example.com"),
+		Email:      swag.String("otheremail@example.com"),
 		Name:       swag.String("other name"),
 		Permission: internalmessages.BackupContactPermissionNONE,
 		Telephone:  swag.String("4444444444"),
@@ -178,7 +178,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 		BackupContactID:                         *fmtUUID(contact.ID),
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
-	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, contact.ServiceMember)
 
 	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
@@ -201,7 +201,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	req := httptest.NewRequest("PUT", updatePath, nil)
 
 	updateContactPayload := internalmessages.UpdateServiceMemberBackupContactPayload{
-		Email:      fmtEmail("otheremail@example.com"),
+		Email:      swag.String("otheremail@example.com"),
 		Name:       swag.String("other name"),
 		Permission: internalmessages.BackupContactPermissionNONE,
 		Telephone:  swag.String("4444444444"),
@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 		UpdateServiceMemberBackupContactPayload: &updateContactPayload,
 	}
 	// Logged in as other user
-	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember.User)
+	params.HTTPRequest = suite.authenticateRequest(req, otherServiceMember)
 
 	handler := UpdateBackupContactHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)

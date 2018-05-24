@@ -72,15 +72,15 @@ func (suite *RateEngineSuite) Test_CheckLinehaulFactors() {
 		Zip3:          "395",
 		BasepointCity: "Saucier",
 		State:         "MS",
-		ServiceArea:   428,
-		RateArea:      "48",
-		Region:        11,
+		ServiceArea:   "428",
+		RateArea:      "US48",
+		Region:        "11",
 	}
 	suite.mustSave(&originZip3)
 
 	serviceArea := models.Tariff400ngServiceArea{
 		Name:               "Gulfport, MS",
-		ServiceArea:        428,
+		ServiceArea:        "428",
 		LinehaulFactor:     57,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -151,9 +151,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		Zip3:          zip3Austin,
 		BasepointCity: "Austin",
 		State:         "TX",
-		ServiceArea:   744,
-		RateArea:      "1",
-		Region:        1,
+		ServiceArea:   "744",
+		RateArea:      "US1",
+		Region:        "1",
 	}
 	suite.mustSave(&zipAustin)
 
@@ -161,9 +161,9 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 		Zip3:          zip3SanFrancisco,
 		BasepointCity: "San Francisco",
 		State:         "CA",
-		ServiceArea:   81,
-		RateArea:      "2",
-		Region:        2,
+		ServiceArea:   "81",
+		RateArea:      "US2",
+		Region:        "2",
 	}
 	suite.mustSave(&zipSanFrancisco)
 
@@ -171,7 +171,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	sa1 := models.Tariff400ngServiceArea{
 		Name:               "Austin",
 		ServiceChargeCents: 100,
-		ServiceArea:        744,
+		ServiceArea:        "744",
 		LinehaulFactor:     78,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
@@ -184,7 +184,7 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	sa2 := models.Tariff400ngServiceArea{
 		Name:               "SF",
 		ServiceChargeCents: 200,
-		ServiceArea:        81,
+		ServiceArea:        "81",
 		LinehaulFactor:     263,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
 		EffectiveDateUpper: testdatagen.PeakRateCycleEnd,
@@ -194,12 +194,12 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	}
 	suite.mustSave(&sa2)
 
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(
+	cost, err := engine.linehaulChargeComputation(
 		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	if linehaulChargeTotal != expected {
-		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
+	if cost.LinehaulChargeTotal != expected {
+		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, cost.LinehaulChargeTotal)
 	}
 }

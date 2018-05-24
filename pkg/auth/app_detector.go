@@ -1,44 +1,29 @@
-package app
+package auth
 
 import (
-	"context"
 	"net/http"
 	"strings"
 
 	"go.uber.org/zap"
 )
 
-type appCtxKey string
+type application string
 
-const appKey = appCtxKey("app")
-const hostnameKey = appCtxKey("hostname")
-const officeApp = "OFFICE"
-const myApp = "MY"
-
-func fromContext(r *http.Request, key appCtxKey) string {
-	if app, ok := r.Context().Value(key).(string); ok {
-		return app
-	}
-	return ""
-}
-
-func appFromContext(r *http.Request) string {
-	return fromContext(r, appKey)
-}
+const (
+	// OfficeApp indicates office.move.mil
+	OfficeApp application = "OFFICE"
+	// MyApp indicates my.move.mil
+	MyApp application = "MY"
+)
 
 // IsOfficeApp returns true iff the request is for the office.move.mil host
-func IsOfficeApp(r *http.Request) bool {
-	return appFromContext(r) == officeApp
+func (s *Session) IsOfficeApp() bool {
+	return s.ApplicationName == OfficeApp
 }
 
 // IsMyApp returns true iff the request is for the my.move.mil host
-func IsMyApp(r *http.Request) bool {
-	return appFromContext(r) == myApp
-}
-
-// GetHostname returns the hostname used to hit this server
-func GetHostname(r *http.Request) string {
-	return fromContext(r, hostnameKey)
+func (s *Session) IsMyApp() bool {
+	return s.ApplicationName == MyApp
 }
 
 // DetectorMiddleware detects which application we are serving based on the hostname
@@ -46,20 +31,21 @@ func DetectorMiddleware(logger *zap.Logger, myHostname string, officeHostname st
 	logger.Info("Creating host detector", zap.String("myHost", myHostname), zap.String("officeHost", officeHostname))
 	return func(next http.Handler) http.Handler {
 		mw := func(w http.ResponseWriter, r *http.Request) {
+			session := SessionFromRequestContext(r)
 			parts := strings.Split(r.Host, ":")
-			var app string
+			var appName application
 			if strings.EqualFold(parts[0], myHostname) {
-				app = myApp
+				appName = MyApp
 			} else if strings.EqualFold(parts[0], officeHostname) {
-				app = officeApp
+				appName = OfficeApp
 			} else {
 				logger.Error("Bad hostname", zap.String("hostname", r.Host))
 				http.Error(w, http.StatusText(400), http.StatusBadRequest)
 				return
 			}
-			ctx := context.WithValue(r.Context(), appKey, app)
-			ctx = context.WithValue(ctx, hostnameKey, strings.ToLower(parts[0]))
-			next.ServeHTTP(w, r.WithContext(ctx))
+			session.ApplicationName = appName
+			session.Hostname = strings.ToLower(parts[0])
+			next.ServeHTTP(w, r)
 			return
 		}
 		return http.HandlerFunc(mw)

@@ -58,7 +58,7 @@ export function generateAsyncActionCreator(resourceName, asyncAction) {
   return function actionCreator(...args) {
     return function(dispatch) {
       dispatch(actions.start());
-      asyncAction(...args)
+      return asyncAction(...args)
         .then(item => dispatch(actions.success(item)))
         .catch(error => dispatch(actions.error(error)));
     };

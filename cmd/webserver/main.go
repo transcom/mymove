@@ -9,7 +9,7 @@ import (
 	"path"
 	"path/filepath"
 
-	aws "github.com/aws/aws-sdk-go/aws"
+	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
@@ -18,31 +18,15 @@ import (
 	"goji.io"
 	"goji.io/pat"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
+	"github.com/transcom/mymove/pkg/logging"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
 var logger *zap.Logger
-
-// TODO(nick - 12/21/17) - this is a simple logger for debugging testing
-// It needs replacing with something we can use in production
-func requestLoggerMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("requestLoggerMiddleware installed")
-	wrapper := func(w http.ResponseWriter, r *http.Request) {
-		zap.L().Info("Request",
-			zap.String("method", r.Method),
-			zap.String("url", r.URL.String()),
-			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
-			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),
-			zap.String("x-forwarded-proto", r.Header.Get("x-forwarded-proto")),
-		)
-		inner.ServeHTTP(w, r)
-	}
-	return http.HandlerFunc(wrapper)
-}
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
@@ -51,7 +35,7 @@ const maxBodySize int64 = 200 * 1000 * 1000
 const maxHeaderSize int = 1 * 1000 * 1000
 
 func limitBodySizeMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("limitBodySizeMiddleware installed")
+	zap.L().Debug("limitBodySizeMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		inner.ServeHTTP(w, r)
@@ -61,10 +45,9 @@ func limitBodySizeMiddleware(inner http.Handler) http.Handler {
 }
 
 func noCacheMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("noCacheMiddleware installed")
+	zap.L().Debug("noCacheMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Cache-Control", "no-cache, no-store, must-revalidate")
-		r.Body = http.MaxBytesReader(w, r.Body, maxBodySize)
 		inner.ServeHTTP(w, r)
 		return
 	}
@@ -72,7 +55,7 @@ func noCacheMiddleware(inner http.Handler) http.Handler {
 }
 
 func httpsComplianceMiddleware(inner http.Handler) http.Handler {
-	zap.L().Info("httpsComplianceMiddleware installed")
+	zap.L().Debug("httpsComplianceMiddleware installed")
 	mw := func(w http.ResponseWriter, r *http.Request) {
 		// set the HSTS header using values recommended by OWASP
 		// https://www.owasp.org/index.php/HTTP_Strict_Transport_Security_Cheat_Sheet#Examples
@@ -124,53 +107,54 @@ func main() {
 
 	flag.Parse()
 
-	// Set up logger for the system
-	var err error
-	if *debugLogging {
-		logger, err = zap.NewDevelopment()
-	} else {
-		logger, err = zap.NewProduction()
-	}
-
+	logger, err := logging.Config(*env, *debugLogging)
 	if err != nil {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 	zap.ReplaceGlobals(logger)
 
-	// Middleware to look at request hostname and work out which APP (my.move.mil, office.move.mil ..) we are serving
-	appDetectionMiddleware := app.DetectorMiddleware(logger, *myHostname, *officeHostname)
-
 	// Assert that our secret keys can be parsed into actual private keys
 	// TODO: Store the parsed key in handlers/AppContext instead of parsing every time
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*loginGovSecretKey)); err != nil {
-		log.Fatalln(err)
+		logger.Fatal("Login.gov private key", zap.Error(err))
 	}
 	if _, err := jwt.ParseRSAPrivateKeyFromPEM([]byte(*clientAuthSecretKey)); err != nil {
-		log.Fatalln(err)
+		logger.Fatal("Client auth private key", zap.Error(err))
 	}
 	if *loginGovHostname == "" {
-		log.Fatalln(errors.New("Must provide the Login.gov hostname parameter, exiting"))
+		log.Fatal("Must provide the Login.gov hostname parameter, exiting")
 	}
 
 	//DB connection
-	pop.AddLookupPaths(*config)
+	err = pop.AddLookupPaths(*config)
+	if err != nil {
+		logger.Fatal("Adding Pop config path", zap.Error(err))
+	}
 	dbConnection, err := pop.Connect(*env)
 	if err != nil {
-		log.Panic(err)
+		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
 
 	// Register Login.gov authentication provider for My.(move.mil)
-	loginGovProvider := auth.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
-	loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
+	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	if err != nil {
+		logger.Fatal("Registering login provider", zap.Error(err))
+	}
 
-	// Populates user info using cookie and renews token
-	tokenMiddleware := auth.TokenParsingMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	userAuthMiddleware := auth.UserAuthMiddleware(dbConnection)
+	// Session management and authentication middleware
+	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
+	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
+	handlerContext.SetCookieSecret(*clientAuthSecretKey)
+	if *noSessionTimeout {
+		handlerContext.SetNoSessionTimeout()
+	}
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
@@ -212,7 +196,7 @@ func main() {
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(requestLoggerMiddleware)
+	site.Use(logging.LogRequestMiddleware)
 	site.Use(httpsComplianceMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
@@ -220,8 +204,8 @@ func main() {
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
 
 	root := goji.NewMux()
-	root.Use(appDetectionMiddleware)
-	root.Use(tokenMiddleware)
+	root.Use(sessionCookieMiddleware)
+	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -246,12 +230,12 @@ func main() {
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
-	authContext := auth.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), auth.AuthorizationRedirectHandler{AuthorizationContext: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), auth.NewAuthorizationCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), auth.AuthorizationLogoutHandler{AuthorizationContext: authContext})
+	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development

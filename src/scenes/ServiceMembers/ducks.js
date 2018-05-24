@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -6,6 +7,7 @@ import {
   CreateBackupContactAPI,
   UpdateBackupContactAPI,
 } from './api.js';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -63,15 +65,20 @@ export function updateServiceMember(serviceMember) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    const currentServiceMember = state.serviceMember.currentServiceMember;
+    const currentServiceMember = get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    );
     if (currentServiceMember) {
-      UpdateServiceMember(currentServiceMember.id, serviceMember)
+      return UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>
           dispatch(
             action.success(Object.assign({}, currentServiceMember, item)),
           ),
         )
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -83,9 +90,11 @@ export function loadServiceMember(serviceMemberId) {
     const state = getState();
     const currentServiceMember = state.serviceMember.currentServiceMember;
     if (!currentServiceMember) {
-      GetServiceMember(serviceMemberId)
+      return GetServiceMember(serviceMemberId)
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.resolve();
     }
   };
 }
@@ -101,18 +110,26 @@ const initialState = {
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
+    case GET_LOGGED_IN_USER.success:
+      return Object.assign({}, state, {
+        currentServiceMember: action.payload.service_member,
+        isLoading: false,
+      });
     case CREATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
+        isLoading: true,
         hasSubmitSuccess: false,
       });
     case CREATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
         currentServiceMember: action.payload,
+        isLoading: false,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
     case CREATE_SERVICE_MEMBER.failure:
       return Object.assign({}, state, {
+        isLoading: false,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,

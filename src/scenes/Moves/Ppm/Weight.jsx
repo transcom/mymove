@@ -1,61 +1,77 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 
+import { loadEntitlements } from 'scenes/Orders/ducks';
 import WizardPage from 'shared/WizardPage';
+import Alert from 'shared/Alert';
+import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   setPendingPpmWeight,
-  loadPpm,
-  getIncentive,
+  getPpmWeightEstimate,
   createOrUpdatePpm,
 } from './ducks';
 
 import 'react-rangeslider/lib/index.css';
 import './Weight.css';
-import carGray from 'shared/icon/car-gray.svg';
-import trailerGray from 'shared/icon/trailer-gray.svg';
-import truckGray from 'shared/icon/truck-gray.svg';
 
-function getWeightInfo(ppm) {
+function getWeightInfo(ppm, entitlement) {
   const size = ppm ? ppm.size : 'L';
   switch (size) {
     case 'S':
       return {
-        icon: carGray,
-        altTag: 'car-gray',
-        min: 100,
-        max: 800,
-        vehicle: 'your car',
+        min: 50,
+        max: 1000,
       };
     case 'M':
       return {
-        icon: trailerGray,
-        altTag: 'trailer-gray',
-        min: 400,
-        max: 1200,
-        vehicle: 'a trailer',
+        min: 500,
+        max: 2500,
       };
     default:
       return {
-        icon: truckGray,
-        altTag: 'truck-gray',
-        defaultWeight: 800,
-        min: 1000,
-        max: 5000,
-        vehicle: 'a truck',
+        min: 1500,
+        max: entitlement.sum,
       };
   }
 }
 export class PpmWeight extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Weight Selection';
-    this.props.loadPpm(this.props.match.params.moveId);
+    if (this.props.currentPpm) {
+      this.updateIncentive();
+    }
+  }
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      !prevProps.hasLoadSuccess &&
+      this.props.hasLoadSuccess &&
+      this.props.currentPpm
+    ) {
+      this.updateIncentive();
+    }
+  }
+  // this method is used to set the incentive on page load
+  // it runs even if the incentive has been set before since data changes on previous pages could
+  // affect it
+  updateIncentive() {
+    const { pendingPpmWeight, currentWeight, currentPpm } = this.props;
+    const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
+    if (![pendingPpmWeight, weight_estimate].includes(currentWeight)) {
+      this.onWeightSelecting(currentWeight);
+      this.props.getPpmWeightEstimate(
+        currentPpm.planned_move_date,
+        currentPpm.pickup_postal_code,
+        currentPpm.destination_postal_code,
+        currentWeight,
+      );
+    }
   }
   handleSubmit = () => {
     const { pendingPpmWeight, incentive, createOrUpdatePpm } = this.props;
-    //todo: we should make sure this move matches the redux state
     const moveId = this.props.match.params.moveId;
     createOrUpdatePpm(moveId, {
       weight_estimate: pendingPpmWeight,
@@ -66,81 +82,104 @@ export class PpmWeight extends Component {
     this.props.setPendingPpmWeight(value);
   };
   onWeightSelected = value => {
-    this.props.getIncentive(this.props.pendingPpmWeight);
+    const { currentPpm } = this.props;
+    this.props.getPpmWeightEstimate(
+      currentPpm.planned_move_date,
+      currentPpm.pickup_postal_code,
+      currentPpm.destination_postal_code,
+      this.props.pendingPpmWeight,
+    );
   };
   render() {
     const {
       pendingPpmWeight,
       currentPpm,
-      moveDistance,
       incentive,
       pages,
       pageKey,
       hasSubmitSuccess,
+      currentWeight,
+      hasLoadSuccess,
+      hasEstimateInProgress,
+      error,
+      entitlement,
     } = this.props;
-    const currentInfo = getWeightInfo(currentPpm);
-    const setOrPendingWeight =
-      pendingPpmWeight || (currentPpm && currentPpm.weight);
-    const currentWeight =
-      setOrPendingWeight ||
-      currentInfo.min + (currentInfo.max - currentInfo.min) / 2;
+    let currentInfo = null;
+    if (hasLoadSuccess) {
+      currentInfo = getWeightInfo(currentPpm, entitlement);
+    }
+    const isValid = incentive && !hasEstimateInProgress;
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
         isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={Boolean(setOrPendingWeight)}
+        pageIsValid={isValid}
         pageIsDirty={Boolean(pendingPpmWeight)}
         hasSucceeded={hasSubmitSuccess}
       >
-        <h2>
-          <img
-            className="icon"
-            src={currentInfo.icon}
-            alt={currentInfo.altTag}
-          />{' '}
-          You selected {currentInfo.min} - {currentInfo.max} pounds in{' '}
-          {currentInfo.vehicle}.
-        </h2>
-        <p>
-          Use this slider to customize how much weight you think you’ll carry.
-        </p>
-        <div className="slider-container">
-          <Slider
-            min={currentInfo.min}
-            max={currentInfo.max}
-            value={currentWeight}
-            onChange={this.onWeightSelecting}
-            onChangeComplete={this.onWeightSelected}
-            labels={{
-              [currentInfo.min]: currentInfo.min,
-              [currentInfo.max]: currentInfo.max,
-              //[currentWeight]: currentWeight,
-            }}
-          />
-        </div>
-        <h4>
-          {' '}
-          Your PPM Incentive:{' '}
-          <span className="incentive Todo">{incentive}</span>
-        </h4>
-        <div className="info">
-          <h3> How is my PPM Incentive calculated?</h3>
-          <p>
-            The government gives you 95% of what they would pay a mover when you
-            move your own belongings, based on weight and distance. You pay
-            taxes on this income.
-          </p>
-          <p className="Todo">Your move Distance: {moveDistance} miles </p>
-          <p>
-            This estimator just presents a range of possible incentives. You’ll
-            need to inventory and weigh the stuff you’re carrying, and submit
-            weight tickets to get an accurate incentive. The amount you receive
-            also depends on the date you move. We’ll let you know later how to
-            weigh the stuff you carry.
-          </p>
-        </div>
+        {error && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              {error.message}
+            </Alert>
+          </div>
+        )}
+        <h2>Customize Weight</h2>
+        {!hasLoadSuccess && <LoadingPlaceholder />}
+        {hasLoadSuccess && (
+          <React.Fragment>
+            <p>
+              Use this slider to customize how much weight you think you’ll
+              carry.
+            </p>
+            <div className="slider-container">
+              <Slider
+                min={currentInfo.min}
+                max={currentInfo.max}
+                value={currentWeight}
+                onChange={this.onWeightSelecting}
+                onChangeComplete={this.onWeightSelected}
+                labels={{
+                  [currentInfo.min]: currentInfo.min.toLocaleString(),
+                  [currentInfo.max]: currentInfo.max.toLocaleString(),
+                }}
+              />
+            </div>
+            <table className="numeric-info">
+              <tbody>
+                <tr>
+                  <th>Your PPM Weight Estimate:</th>
+                  <td className="current-weight"> {currentWeight}</td>
+                </tr>
+                <tr>
+                  <th>Your PPM Incentive:</th>
+                  <td className="incentive">{incentive}</td>
+                </tr>
+              </tbody>
+            </table>
+
+            <div className="info">
+              <h3> How is my PPM Incentive calculated?</h3>
+              <p>
+                The government gives you 95% of what they would pay a mover when
+                you move your own belongings, based on weight and distance. You
+                pay taxes on this income. You can reduce the amount taxable
+                incentive by saving receipts for approved expenses.
+              </p>
+
+              <p>
+                This estimator just presents a range of possible incentives
+                based on your anticipated shipment weight, anticipated moving
+                date, and the specific route that you will be traveling. During
+                your move, you will need to weigh the stuff you’re carrying, and
+                submit weight tickets. We’ll let you know later how to weigh the
+                stuff you carry.
+              </p>
+            </div>
+          </React.Fragment>
+        )}
       </WizardPage>
     );
   }
@@ -148,6 +187,7 @@ export class PpmWeight extends Component {
 
 PpmWeight.propTypes = {
   pendingPpmWeight: PropTypes.number,
+  currentWeight: PropTypes.number,
   currentPpm: PropTypes.shape({
     id: PropTypes.string,
     size: PropTypes.string,
@@ -155,18 +195,36 @@ PpmWeight.propTypes = {
     incentive: PropTypes.string,
   }),
   hasSubmitSuccess: PropTypes.bool.isRequired,
-  moveDistance: PropTypes.number,
+  hasLoadSuccess: PropTypes.bool.isRequired,
   setPendingPpmWeight: PropTypes.func.isRequired,
+  entitlement: PropTypes.object,
 };
 
+function getMiddleWeight(ppm, entitlement) {
+  const currentInfo = getWeightInfo(ppm, entitlement);
+  return currentInfo.min + (currentInfo.max - currentInfo.min) / 2;
+}
 function mapStateToProps(state) {
-  return { ...state.ppm, moveDistance: 666 };
+  const entitlement = loadEntitlements(state);
+  const defaultWeight = state.ppm.hasLoadSuccess
+    ? getMiddleWeight(state.ppm.currentPpm, entitlement)
+    : null;
+  const currentWeight =
+    state.ppm.pendingPpmWeight ||
+    get(state, 'ppm.currentPpm.weight_estimate', defaultWeight);
+  const props = {
+    ...state.ppm,
+    loggedInUser: state.loggedInUser,
+    currentWeight,
+    entitlement: loadEntitlements(state),
+  };
+
+  return props;
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    //todo: will want to load move to get distance
-    { setPendingPpmWeight, loadPpm, getIncentive, createOrUpdatePpm },
+    { setPendingPpmWeight, getPpmWeightEstimate, createOrUpdatePpm },
     dispatch,
   );
 }

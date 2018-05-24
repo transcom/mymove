@@ -1,85 +1,35 @@
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
 
 import { createOrders, updateOrders, showCurrentOrders } from './ducks';
+import { createMove } from 'scenes/Moves/ducks';
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
 import './Orders.css';
 
-const YesNoBoolean = props => {
-  const {
-    input: { value: rawValue, onChange },
-  } = props;
-  let value = rawValue;
-  const yesChecked = value === true;
-  const noChecked = value === false;
-
-  const localOnChange = event => {
-    if (event.target.id === 'yes') {
-      onChange(true);
-    } else {
-      onChange(false);
-    }
-  };
-
-  return (
-    <Fragment>
-      <input
-        id="yes"
-        className="inline_radio"
-        type="radio"
-        onChange={localOnChange}
-        checked={yesChecked}
-      />
-      <label className="inline_radio" htmlFor="yes">
-        Yes
-      </label>
-      <input
-        id="no"
-        className="inline_radio"
-        type="radio"
-        onChange={localOnChange}
-        checked={noChecked}
-      />
-      <label id="no_label" className="inline_radio" htmlFor="no">
-        No
-      </label>
-    </Fragment>
-  );
-};
-
-const validateOrdersForm = (values, form) => {
-  let errors = {};
-
-  const required_fields = ['has_dependents', 'new_duty_station'];
-
-  required_fields.forEach(fieldName => {
-    if (values[fieldName] === undefined || values[fieldName] === '') {
-      errors[fieldName] = 'Required.';
-    }
-  });
-
-  return errors;
-};
+const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
 
 const formName = 'orders_info';
 const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = Object.assign({}, this.props.formData.values);
     // Update if orders object already extant
     if (pendingValues) {
       pendingValues['service_member_id'] = this.props.currentServiceMember.id;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
+      pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
@@ -133,7 +83,7 @@ export class Orders extends Component {
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
-        <h1 className="sm-heading">Your Orders</h1>
+        <h1 className="sm-heading">Tell Us About Your Move Orders</h1>
         <SwaggerField
           fieldName="orders_type"
           swagger={this.props.schema}
@@ -149,17 +99,12 @@ export class Orders extends Component {
           swagger={this.props.schema}
           required
         />
-        <fieldset key="dependents">
-          <legend htmlFor="dependents">
-            Are dependents included in your orders?
-          </legend>
-          <Field name="has_dependents" component={YesNoBoolean} />
-        </fieldset>
-        <Field
-          name="new_duty_station"
-          component={DutyStationSearchBox}
-          affiliation={this.props.affiliation}
+        <SwaggerField
+          fieldName="has_dependents"
+          swagger={this.props.schema}
+          component={YesNoBoolean}
         />
+        <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
   }
@@ -174,32 +119,32 @@ Orders.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { updateOrders, createOrders, showCurrentOrders, loadServiceMember },
+    {
+      updateOrders,
+      createOrders,
+      showCurrentOrders,
+      loadServiceMember,
+      createMove,
+    },
     dispatch,
   );
 }
+
 function mapStateToProps(state) {
-  const currentServiceMember = state.loggedInUser.loggedInUser
-    ? state.loggedInUser.loggedInUser.service_member
-    : null;
-  const affiliation = currentServiceMember
-    ? currentServiceMember.affiliation
-    : null;
   const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =
     state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
-    currentServiceMember,
-    affiliation,
-    schema: {},
+    currentServiceMember: get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    ),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
     error,
     hasSubmitSuccess,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateUpdateOrdersPayload;
-  }
   return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Orders);

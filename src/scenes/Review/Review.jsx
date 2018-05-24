@@ -1,29 +1,32 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { loadPpm } from 'scenes/Moves/Ppm/ducks';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
-import { showCurrentOrders } from 'scenes/Orders/ducks';
 
 import './Review.css';
 
 export class Review extends Component {
   componentWillMount() {
-    this.props.loadPpm(this.props.match.params.moveId);
+    const service_member = get(this.props.loggedInUser, 'service_member');
+    if (
+      service_member &&
+      !(this.props.currentBackupContacts && this.props.currentBackupContacts[0])
+    ) {
+      this.props.indexBackupContacts(service_member.id);
+    }
   }
   componentWillUpdate(newProps) {
     const service_member = get(newProps.loggedInUser, 'service_member');
     if (get(this.props.loggedInUser, 'service_member') !== service_member) {
       this.props.indexBackupContacts(service_member.id);
-      this.props.showCurrentOrders(service_member.id);
     }
   }
   render() {
@@ -35,6 +38,7 @@ export class Review extends Component {
       loggedInUser,
       currentOrders,
       schemaRank,
+      schemaOrdersType,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
     function getFullName() {
@@ -45,9 +49,15 @@ export class Review extends Component {
     }
     function getFullAddress(address) {
       if (address) {
-        return `${address.street_address_1} ${address.street_address_2 || ''} ${
-          address.city
-        }, ${address.state} ${address.postal_code}`;
+        return (
+          <Fragment>
+            <div>{address.street_address_1}</div>
+            {address.street_address_2 && <div>{address.street_address_2}</div>}
+            <div>
+              {address.city}, {address.state} {address.postal_code}
+            </div>
+          </Fragment>
+        );
       }
     }
     function getFullContactPreferences() {
@@ -66,19 +76,35 @@ export class Review extends Component {
       });
       return preferredMethods.join(', ');
     }
-    function getFullBackupPermission(backup_contact) {
-      const perms = {
-        NONE: '',
-        VIEW: 'View all aspects of this move',
-        EDIT:
-          'Authorized to represent me in all aspects of this move (letter of authorization)',
-      };
-      return `${perms[backup_contact.permission]}`;
-    }
+    // TODO: Uncomment function below after backup contact auth is implemented.
+    // function getFullBackupPermission(backup_contact) {
+    //   const perms = {
+    //     NONE: '',
+    //     VIEW: 'View all aspects of this move',
+    //     EDIT:
+    //       'Authorized to represent me in all aspects of this move (letter of authorization)',
+    //   };
+    //   return `${perms[backup_contact.permission]}`;
+    // }
     function formatDate(date) {
       if (!date) return;
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
+
+    const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
+    const editProfileAddress = thisAddress + '/edit-profile';
+    const editBackupContactAddress = thisAddress + '/edit-backup-contact';
+    const editContactInfoAddress = thisAddress + '/edit-contact-info';
+    const editOrdersAddress = thisAddress + '/edit-orders';
+    const privateStorageString = get(
+      currentPpm,
+      'estimated_storage_reimbursement',
+    )
+      ? `(spend up to ${
+          currentPpm.estimated_storage_reimbursement
+        } on private storage)`
+      : '';
+
     return (
       <WizardPage
         handleSubmit={no_op}
@@ -101,7 +127,7 @@ export class Review extends Component {
                   <th>
                     Profile{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editProfileAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
@@ -127,7 +153,7 @@ export class Review extends Component {
                   <td>{get(loggedInUser, 'service_member.edipi')}</td>
                 </tr>
                 <tr>
-                  <td className="Todo"> Current Duty Station: </td>
+                  <td> Current Duty Station: </td>
                   <td>
                     {get(loggedInUser, 'service_member.current_station.name')}
                   </td>
@@ -141,13 +167,18 @@ export class Review extends Component {
                   <th>
                     Orders{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editOrdersAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
                 <tr>
                   <td> Orders Type: </td>
-                  <td>{get(currentOrders, 'orders_type')}</td>
+                  <td>
+                    {get(
+                      schemaOrdersType['x-display-value'],
+                      get(currentOrders, 'orders_type'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Orders Date: </td>
@@ -165,7 +196,7 @@ export class Review extends Component {
                   <td> Dependents?: </td>
                   <td>
                     {' '}
-                    {get(currentOrders, 'has_dependents') &&
+                    {currentOrders &&
                       yesNoMap[get(currentOrders, 'has_dependents').toString()]}
                   </td>
                 </tr>
@@ -187,7 +218,7 @@ export class Review extends Component {
                   <th>
                     Contact Info{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editContactInfoAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
@@ -235,9 +266,9 @@ export class Review extends Component {
                 <tbody>
                   <tr>
                     <th>
-                      Backup Contact Info{' '}
+                      Backup Contact{' '}
                       <span className="align-right">
-                        <a href="about:blank">Edit</a>
+                        <a href={editBackupContactAddress}>Edit</a>
                       </span>
                     </th>
                   </tr>
@@ -245,7 +276,7 @@ export class Review extends Component {
                     <td> Backup Contact: </td>
                     <td>
                       {contact.name} <br />
-                      {getFullBackupPermission(contact)}
+                      {/* getFullBackupPermission(contact) */}
                     </td>
                   </tr>
                   <tr>
@@ -284,11 +315,28 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Pickup ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.pickup_zip}</td>
+                    <td> {currentPpm && currentPpm.pickup_postal_code}</td>
                   </tr>
+                  {currentPpm.has_additional_postal_code && (
+                    <tr>
+                      <td> Additional Pickup: </td>
+                      <td> {currentPpm.additional_pickup_postal_code}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td> Delivery ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.destination_zip}</td>
+                    <td> {currentPpm && currentPpm.destination_postal_code}</td>
+                  </tr>
+                  <tr>
+                    <td> Storage: </td>
+                    <td>
+                      {' '}
+                      {currentPpm.has_sit
+                        ? `${
+                            currentPpm.days_in_storage
+                          } days ${privateStorageString}`
+                        : 'Not requested'}{' '}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -310,11 +358,14 @@ export class Review extends Component {
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
-                    <td className="Todo">
-                      {' '}
-                      {currentPpm && currentPpm.estimated_incentive}
-                    </td>
+                    <td> {currentPpm && currentPpm.estimated_incentive}</td>
                   </tr>
+                  {currentPpm.has_requested_advance && (
+                    <tr>
+                      <td> Advance: </td>
+                      <td> ${currentPpm.advance.requested_amount}</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -330,26 +381,23 @@ Review.propTypes = {
   currentBackupContacts: PropTypes.array,
   currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,
+  schemaOrdersType: PropTypes.object,
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { loadPpm, indexBackupContacts, showCurrentOrders },
-    dispatch,
-  );
+  return bindActionCreators({ indexBackupContacts }, dispatch);
 }
 
 function mapStateToProps(state) {
-  const props = {
+  return {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders: state.orders.currentOrders,
-    schemaRank: {},
+    currentOrders:
+      get(state.orders, 'currentOrders') ||
+      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]'),
+    schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
+    schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
   };
-  if (state.swagger.spec) {
-    props.schemaRank = state.swagger.spec.definitions.ServiceMemberRank;
-  }
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Review);

@@ -1,8 +1,6 @@
 package models
 
 import (
-	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -52,13 +50,10 @@ type ShipmentWithOffer struct {
 func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]ShipmentWithOffer, error) {
 	shipments := []ShipmentWithOffer{}
 
-	var unassignedSQL string
+	var sql string
 
 	if onlyUnassigned {
-		unassignedSQL = "WHERE shipment_offers.id IS NULL"
-	}
-
-	sql := fmt.Sprintf(`SELECT
+		sql = `SELECT
 				shipments.id,
 				shipments.created_at,
 				shipments.updated_at,
@@ -73,28 +68,32 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 			FROM shipments
 			LEFT JOIN shipment_offers ON
 				shipment_offers.shipment_id=shipments.id
-			%s`,
-		unassignedSQL)
+			WHERE shipment_offers.id IS NULL`
+	} else {
+		sql = `SELECT
+				shipments.id,
+				shipments.created_at,
+				shipments.updated_at,
+				shipments.pickup_date,
+				shipments.requested_pickup_date,
+				shipments.book_date,
+				shipments.traffic_distribution_list_id,
+				shipments.source_gbloc,
+				shipments.market,
+				shipment_offers.transportation_service_provider_id,
+				shipment_offers.administrative_shipment
+			FROM shipments
+			LEFT JOIN shipment_offers ON
+				shipment_offers.shipment_id=shipments.id`
+	}
 
 	err := dbConnection.RawQuery(sql).All(&shipments)
 
 	return shipments, err
 }
 
-// String is not required by pop and may be deleted
-func (s Shipment) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
-
 // Shipments is not required by pop and may be deleted
 type Shipments []Shipment
-
-// String is not required by pop and may be deleted
-func (s Shipments) String() string {
-	js, _ := json.Marshal(s)
-	return string(js)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {

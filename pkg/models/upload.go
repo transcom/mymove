@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,12 +8,14 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
 type Upload struct {
 	ID          uuid.UUID `db:"id"`
 	DocumentID  uuid.UUID `db:"document_id"`
+	Document    Document  `belongs_to:"documents"`
 	UploaderID  uuid.UUID `db:"uploader_id"`
 	Filename    string    `db:"filename"`
 	Bytes       int64     `db:"bytes"`
@@ -24,20 +25,8 @@ type Upload struct {
 	UpdatedAt   time.Time `db:"updated_at"`
 }
 
-// String is not required by pop and may be deleted
-func (u Upload) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
-
 // Uploads is not required by pop and may be deleted
 type Uploads []Upload
-
-// String is not required by pop and may be deleted
-func (u Uploads) String() string {
-	ju, _ := json.Marshal(u)
-	return string(ju)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -46,13 +35,13 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: u.UploaderID, Name: "UploaderID"},
 		&validators.StringIsPresent{Field: u.Filename, Name: "Filename"},
 		&Int64IsPresent{Field: u.Bytes, Name: "Bytes"},
-		&AllowedFiletype{Field: u.ContentType, Name: "ContentType"},
+		NewAllowedFileTypeValidator(u.ContentType, "ContentType"),
 		&validators.StringIsPresent{Field: u.Checksum, Name: "Checksum"},
 	), nil
 }
 
 // FetchUpload returns an Upload if the user has access to that upload
-func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
+func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
@@ -63,7 +52,7 @@ func FetchUpload(db *pop.Connection, user User, id uuid.UUID) (Upload, error) {
 		return Upload{}, err
 	}
 
-	_, docErr := FetchDocument(db, user, upload.DocumentID)
+	_, docErr := FetchDocument(db, session, upload.DocumentID)
 	if docErr != nil {
 		return Upload{}, docErr
 	}

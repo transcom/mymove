@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -9,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // A Document represents a physical artifact such as a multipage form that was
@@ -21,23 +21,11 @@ type Document struct {
 	Name            string        `db:"name"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
-	Uploads         Uploads       `has_many:"uploads"`
-}
-
-// String is not required by pop and may be deleted
-func (d Document) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
+	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`
 }
 
 // Documents is not required by pop and may be deleted
 type Documents []Document
-
-// String is not required by pop and may be deleted
-func (d Documents) String() string {
-	jd, _ := json.Marshal(d)
-	return string(jd)
-}
 
 // Validate gets run every time you call a "pop.Validate*" (pop.ValidateAndSave, pop.ValidateAndCreate, pop.ValidateAndUpdate) method.
 func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
@@ -47,7 +35,7 @@ func (d *Document) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchDocument returns a document if the user has access to that document
-func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error) {
+func FetchDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (Document, error) {
 	var document Document
 	err := db.Q().Eager().Find(&document, id)
 	if err != nil {
@@ -58,7 +46,7 @@ func FetchDocument(db *pop.Connection, user User, id uuid.UUID) (Document, error
 		return Document{}, err
 	}
 
-	_, smErr := FetchServiceMember(db, user, document.ServiceMemberID)
+	_, smErr := FetchServiceMember(db, session, document.ServiceMemberID)
 	if smErr != nil {
 		return Document{}, smErr
 	}

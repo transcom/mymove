@@ -1,40 +1,117 @@
-import { pick } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
-import { reduxifyForm } from 'shared/JsonSchemaForm';
-import { no_op } from 'shared/utils';
-import WizardPage from 'shared/WizardPage';
+import { Field } from 'redux-form';
+import validator from 'shared/JsonSchemaForm/validator';
 
-// todo: add branch (once can get yaml anchors to work)
+import { updateServiceMember } from './ducks';
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
 const subsetOfFields = [
   'affiliation',
   'edipi',
   'social_security_number',
   'rank',
 ];
-const uiSchema = {
-  title: 'Create your profile',
-  order: subsetOfFields,
-  requiredFields: subsetOfFields,
-  todos: (
-    <ul>
-      <li>SSN should be masked when not active</li>
-    </ul>
-  ),
+
+class SSNField extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      focused: false,
+    };
+
+    this.localOnBlur = this.localOnBlur.bind(this);
+    this.localOnFocus = this.localOnFocus.bind(this);
+  }
+
+  localOnBlur(value, something) {
+    this.setState({ focused: false });
+    this.props.input.onBlur(value);
+  }
+
+  localOnFocus(value, something) {
+    this.setState({ focused: true });
+    this.props.input.onFocus(value);
+  }
+
+  render() {
+    const {
+      input: { value, name },
+      meta: { touched, error },
+      ssnOnServer,
+    } = this.props;
+
+    let displayedValue = value;
+    if (!this.state.focused && (value !== '' || ssnOnServer)) {
+      displayedValue = '•••-••-••••';
+    }
+    const displayError = touched && error;
+
+    // This is copied from JsonSchemaField to match the styling
+    return (
+      <div className={displayError ? 'usa-input-error' : 'usa-input'}>
+        <label
+          className={displayError ? 'usa-input-error-label' : 'usa-input-label'}
+          htmlFor={name}
+        >
+          Social Security Number
+        </label>
+        {touched &&
+          error && (
+            <span
+              className="usa-input-error-message"
+              id={name + '-error'}
+              role="alert"
+            >
+              {error}
+            </span>
+          )}
+        <input
+          {...this.props.input}
+          onFocus={this.localOnFocus}
+          onBlur={this.localOnBlur}
+          value={displayedValue}
+        />
+      </div>
+    );
+  }
+}
+
+const validateDodForm = (values, form) => {
+  // Everything is taken care of except for SSN
+  let errors = {};
+  const ssn = values.social_security_number;
+  const hasSSN = form.ssnOnServer;
+
+  const validSSNPattern = RegExp('^\\d{3}-\\d{2}-\\d{4}$');
+  const validSSN = validSSNPattern.test(ssn);
+  const ssnPresent = ssn !== '' && ssn !== undefined;
+
+  if (hasSSN) {
+    if (ssnPresent && !validSSN) {
+      errors.social_security_number = 'SSN must have 9 digits.';
+    }
+  } else {
+    if (!ssnPresent) {
+      errors.social_security_number = 'Required.';
+    } else if (!validSSN) {
+      errors.social_security_number = 'SSN must have 9 digits.';
+    }
+  }
+
+  return errors;
 };
 
 const formName = 'service_member_dod_info';
-const CurrentForm = reduxifyForm(formName);
+const DodWizardForm = reduxifyWizardForm(formName, validateDodForm);
 
 export class DodInfo extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
@@ -50,32 +127,38 @@ export class DodInfo extends Component {
       hasSubmitSuccess,
       error,
       currentServiceMember,
+      schema,
     } = this.props;
-    const isValid = this.refs.currentForm && this.refs.currentForm.valid;
-    const isDirty = this.refs.currentForm && this.refs.currentForm.dirty;
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
+
+    const ssnOnServer = currentServiceMember
+      ? currentServiceMember.has_social_security_number
+      : false;
+
     return (
-      <WizardPage
+      <DodWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
+        className={formName}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        pageIsDirty={isDirty}
         hasSucceeded={hasSubmitSuccess}
-        error={error}
+        serverError={error}
+        initialValues={initialValues}
+        ssnOnServer={ssnOnServer}
       >
-        <CurrentForm
-          ref="currentForm"
-          className={formName}
-          handleSubmit={no_op}
-          schema={this.props.schema}
-          uiSchema={uiSchema}
-          initialValues={initialValues}
+        <h1 className="sm-heading">Create your profile</h1>
+        <SwaggerField fieldName="affiliation" swagger={schema} required />
+        <SwaggerField fieldName="edipi" swagger={schema} required />
+        <Field
+          name="social_security_number"
+          component={SSNField}
+          ssnOnServer={ssnOnServer}
+          normalize={validator.normalizeSSN}
         />
-      </WizardPage>
+        <SwaggerField fieldName="rank" swagger={schema} required />
+      </DodWizardForm>
     );
   }
 }
@@ -88,20 +171,18 @@ DodInfo.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   const props = {
-    schema: {},
+    schema: get(
+      state,
+      'swagger.spec.definitions.CreateServiceMemberPayload',
+      {},
+    ),
     formData: state.form[formName],
     ...state.serviceMember,
   };
-  if (state.swagger.spec) {
-    props.schema = state.swagger.spec.definitions.CreateServiceMemberPayload;
-  }
   return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(DodInfo);

@@ -1,18 +1,12 @@
-.move-type-content h3 {
-  background-color: red;
-}
-
 .restrict-left {
   margin-right: 3rem;
 }
-
-.font-3 {
-  font-size: 0.8em;
-}
-
-.font-2 {
+.grey-title {
   font-size: 0.8em;
   color: #525252;
+}
+.smaller-text {
+  font-size: 0.8em;
 }
 .move-type-button {
   text-align: left;
@@ -52,12 +46,11 @@ ul {
 
 /* This matches the width at which submit buttons go full-width for mobile devices */
 @media only screen and (max-width: 481px) {
-    .move-type-button {
-        min-height: 100%;
-    }
-    .collapse-btn {
-      border-top: 2px solid #e2e2e2;
-      padding: 1em 0rem 1em 0em;
-
-    }
+  .move-type-button {
+    min-height: 100%;
+  }
+  .collapse-btn {
+    border-top: 2px solid #e2e2e2;
+    padding: 1em 0rem 1em 0em;
+  }
 }

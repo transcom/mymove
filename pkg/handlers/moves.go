@@ -2,21 +2,32 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"go.uber.org/zap"
 )
 
-func payloadForMoveModel(user models.User, move models.Move) internalmessages.MovePayload {
+func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
+
+	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
+	for _, ppm := range move.PersonallyProcuredMoves {
+		payload := payloadForPPMModel(ppm)
+		ppmPayloads = append(ppmPayloads, &payload)
+	}
+
 	movePayload := internalmessages.MovePayload{
-		CreatedAt:        fmtDateTime(move.CreatedAt),
-		SelectedMoveType: move.SelectedMoveType,
-		ID:               fmtUUID(move.ID),
-		UpdatedAt:        fmtDateTime(move.UpdatedAt),
-		UserID:           fmtUUID(user.ID),
+		CreatedAt:               fmtDateTime(move.CreatedAt),
+		SelectedMoveType:        move.SelectedMoveType,
+		Locator:                 swag.String(move.Locator),
+		ID:                      fmtUUID(move.ID),
+		UpdatedAt:               fmtDateTime(move.UpdatedAt),
+		PersonallyProcuredMoves: ppmPayloads,
+		OrdersID:                fmtUUID(order.ID),
+		Status:                  internalmessages.MoveStatus(move.Status),
 	}
 	return movePayload
 }
@@ -26,51 +37,24 @@ type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	var response middleware.Responder
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
+	ordersID, _ := uuid.FromString(params.OrdersID.String())
 
-	// Create a new move for an authenticated user
-	newMove := models.Move{
-		UserID:           user.ID,
-		SelectedMoveType: params.CreateMovePayload.SelectedMoveType,
-	}
-	if verrs, err := h.db.ValidateAndCreate(&newMove); verrs.HasAny() || err != nil {
-		if verrs.HasAny() {
-			h.logger.Error("DB Validation", zap.Error(verrs))
-		} else {
-			h.logger.Error("DB Insertion", zap.Error(err))
-		}
-		response = moveop.NewCreateMoveBadRequest()
-	} else {
-		movePayload := payloadForMoveModel(user, newMove)
-		response = moveop.NewCreateMoveCreated().WithPayload(&movePayload)
-	}
-	return response
-}
-
-// IndexMovesHandler returns a list of all moves
-type IndexMovesHandler HandlerContext
-
-// Handle retrieves a list of all moves in the system belonging to the logged in user
-func (h IndexMovesHandler) Handle(params moveop.IndexMovesParams) middleware.Responder {
-	var response middleware.Responder
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-
-	moves, err := models.GetMovesForUserID(h.db, user.ID)
+	orders, err := models.FetchOrder(h.db, session, ordersID)
 	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = moveop.NewIndexMovesBadRequest()
-	} else {
-		movePayloads := make(internalmessages.IndexMovesPayload, len(moves))
-		for i, move := range moves {
-			movePayload := payloadForMoveModel(user, move)
-			movePayloads[i] = &movePayload
-		}
-		response = moveop.NewIndexMovesOK().WithPayload(movePayloads)
+		return responseForError(h.logger, err)
 	}
-	return response
+
+	move, verrs, err := orders.CreateNewMove(h.db, params.CreateMovePayload.SelectedMoveType)
+	if verrs.HasAny() || err != nil {
+		if err == models.ErrCreateViolatesUniqueConstraint {
+			h.logger.Error("Failed to create Unique Record Locator")
+		}
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	movePayload := payloadForMoveModel(orders, *move)
+	return moveop.NewCreateMoveCreated().WithPayload(&movePayload)
 }
 
 // ShowMoveHandler returns a move for a user and move ID
@@ -78,36 +62,45 @@ type ShowMoveHandler HandlerContext
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	// Fetch orders for authorized user
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	movePayload := payloadForMoveModel(user, *move)
+	movePayload := payloadForMoveModel(orders, *move)
 	return moveop.NewShowMoveOK().WithPayload(&movePayload)
-
 }
 
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
 type PatchMoveHandler HandlerContext
 
-// Handle ... patches a new Move from a request payload
+// Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
+	// Fetch orders for authorized user
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	payload := params.PatchMovePayload
 	newSelectedMoveType := payload.SelectedMoveType
 
@@ -119,6 +112,34 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-	movePayload := payloadForMoveModel(user, *move)
+	movePayload := payloadForMoveModel(orders, *move)
 	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+}
+
+// SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
+type SubmitMoveHandler HandlerContext
+
+// Handle ... submit a move for approval
+func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	/* #nosec UUID is pattern matched by swagger which checks the format */
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	//TODO: update PPM status too
+
+	move.Status = models.MoveStatusSUBMITTED
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	movePayload := payloadForMoveModel(move.Orders, *move)
+	return moveop.NewSubmitMoveForApprovalOK().WithPayload(&movePayload)
 }

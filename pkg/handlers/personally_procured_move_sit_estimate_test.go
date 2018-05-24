@@ -3,8 +3,6 @@ package handlers
 import (
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
-
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -19,12 +17,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "D") // Victoria, TX to Salina, KS
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -37,7 +35,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -57,16 +55,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
-		LinehaulRate:                    50.5,
-		SITRate:                         50,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.mustSave(&tspPerformance)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -102,12 +96,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	tdl, _ := testdatagen.MakeTDL(suite.db, "US68", "5", "2") // Victoria, TX to Salina, KS
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -120,7 +114,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -140,16 +134,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 		TransportationServiceProviderID: tsp.ID,
 		QualityBand:                     models.IntPointer(1),
 		BestValueScore:                  90,
-		LinehaulRate:                    50.5,
-		SITRate:                         50,
+		LinehaulRate:                    unit.NewDiscountRateFromPercent(50.5),
+		SITRate:                         unit.NewDiscountRateFromPercent(50),
 	}
 	suite.mustSave(&tspPerformance)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -181,12 +171,12 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	// Given: A PPM Estimate request with all relevant records except TSP performance
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: 748, Region: 6})
-	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: 5, BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: 320})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "779", RateArea: "US68", BasepointCity: "Victoria", State: "TX", ServiceArea: "748", Region: "6"})
+	suite.mustSave(&models.Tariff400ngZip3{Zip3: "674", Region: "5", BasepointCity: "Salina", State: "KS", RateArea: "US58", ServiceArea: "320"})
 
 	originServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Victoria, TX",
-		ServiceArea:        748,
+		ServiceArea:        "748",
 		LinehaulFactor:     39,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -199,7 +189,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 
 	destServiceArea := models.Tariff400ngServiceArea{
 		Name:               "Salina, KS",
-		ServiceArea:        320,
+		ServiceArea:        "320",
 		LinehaulFactor:     43,
 		ServiceChargeCents: 350,
 		EffectiveDateLower: testdatagen.PeakRateCycleStart,
@@ -210,11 +200,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	}
 	suite.mustSave(&destServiceArea)
 
-	user := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&user)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains required auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)

@@ -11,8 +11,8 @@ func (suite *ModelSuite) Test_TrafficDistributionList() {
 	tdl := &TrafficDistributionList{}
 
 	expErrors := map[string][]string{
-		"source_rate_area":   []string{"SourceRateArea can not be blank."},
-		"destination_region": []string{"DestinationRegion can not be blank."},
+		"source_rate_area":   []string{"SourceRateArea can not be blank.", "SourceRateArea does not match the expected format."},
+		"destination_region": []string{"DestinationRegion can not be blank.", "DestinationRegion does not match the expected format."},
 		"code_of_service":    []string{"CodeOfService can not be blank."},
 	}
 
@@ -24,11 +24,11 @@ func (suite *ModelSuite) Test_FetchTDLsAwaitingBandAssignment() {
 
 	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "3", "2")
 	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, 4.2, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, nil, float64(mps+1), 0, .2, .3)
 
 	notFoundTDL, _ := testdatagen.MakeTDL(suite.db, "US14", "5", "2")
 	notFoundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, 4.4, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, notFoundTSP, notFoundTDL, swag.Int(1), float64(mps+1), 0, .4, .3)
 
 	tdls, err := FetchTDLsAwaitingBandAssignment(suite.db)
 	if err != nil {
@@ -49,7 +49,7 @@ func (suite *ModelSuite) Test_FetchOrCreateTDL() {
 
 	foundTDL, _ := testdatagen.MakeTDL(suite.db, "US28", "4", "2")
 	foundTSP, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
-	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, 4.2, 4.3)
+	testdatagen.MakeTSPPerformance(suite.db, foundTSP, foundTDL, swag.Int(1), float64(mps+1), 0, .2, .3)
 
 	fetchedTDL, err := FetchOrCreateTDL(suite.db, "US28", "4", "2")
 	if err != nil {

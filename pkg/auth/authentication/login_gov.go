@@ -1,4 +1,4 @@
-package auth
+package authentication
 
 import (
 	"encoding/base64"
@@ -12,7 +12,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
 )
 
@@ -20,8 +20,9 @@ const myProviderName = "myProvider"
 const officeProviderName = "officeProvider"
 
 func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, error) {
+	session := auth.SessionFromRequestContext(r)
 	providerName := myProviderName
-	if app.IsOfficeApp(r) {
+	if session.IsOfficeApp() {
 		providerName = officeProviderName
 	}
 	gothProvider, err := goth.GetProvider(providerName)
@@ -122,6 +123,7 @@ func (p LoginGovProvider) AuthorizationURL(r *http.Request) (string, error) {
 
 // LogoutURL returns a full URL to log out of login.gov with required params
 func (p LoginGovProvider) LogoutURL(redirectURL string, idToken string) string {
+	/* #nosec URL is known to be good */
 	logoutPath, _ := url.Parse(fmt.Sprintf("https://%s/openid_connect/logout", p.hostname))
 	// Parameters taken from https://developers.login.gov/oidc/#logout
 	params := url.Values{
@@ -179,6 +181,7 @@ func (p LoginGovProvider) createClientAssertionJWT(clientID string, expiry time.
 
 // LoginGovTokenResponse is a struct for parsing responses from the token endpoint
 type LoginGovTokenResponse struct {
+	Error       string `json:"error"`
 	AccessToken string `json:"access_token"`
 	ExpiresIn   int    `json:"expires_in"`
 	IDToken     string `json:"id_token"`

@@ -40,8 +40,7 @@ type CreateDocumentHandler HandlerContext
 
 // Handle creates a new Document from a request payload
 func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, err := uuid.FromString(params.DocumentPayload.ServiceMemberID.String())
 	if err != nil {
@@ -49,7 +48,7 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 	}
 
 	// Fetch to check auth
-	serviceMember, err := models.FetchServiceMember(h.db, user, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -74,6 +73,31 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 		return responseForError(h.logger, err)
 	}
 	return documentop.NewCreateDocumentCreated().WithPayload(documentPayload)
+}
+
+// ShowDocumentHandler shows a document via GETT /documents/:document_id
+type ShowDocumentHandler HandlerContext
+
+// Handle creates a new Document from a request payload
+func (h ShowDocumentHandler) Handle(params documentop.ShowDocumentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	documentID, err := uuid.FromString(params.DocumentID.String())
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	document, err := models.FetchDocument(h.db, session, documentID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	documentPayload, err := payloadForDocumentModel(h.storage, document)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	return documentop.NewShowDocumentOK().WithPayload(documentPayload)
 }
 
 /* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,

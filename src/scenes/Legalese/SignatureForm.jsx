@@ -4,15 +4,11 @@ import './SignatureForm.css';
 import validator from 'shared/JsonSchemaForm/validator';
 
 function SignatureForm(props) {
-  const { handleSubmit, pristine, invalid, submitting } = props;
+  const { pristine, invalid, submitting } = props;
   return (
-    <form className="signature_form" onSubmit={handleSubmit}>
+    <div>
       <h3>SIGNATURE</h3>
-      <p>
-        In consideration of said household goods or mobile homes being shipped
-        at Government expense,{' '}
-        <strong>I hereby agree to the certifications stated above.</strong>
-      </p>
+      <p>I agree that I have read and understand the above notifications.</p>
       <div className="signing_box">
         <label id="name_field">
           Your name
@@ -28,11 +24,8 @@ function SignatureForm(props) {
           Today's date
           <Field name="date" component="input" type="text" readOnly />
         </label>
-        <button type="submit" disabled={pristine || submitting || invalid}>
-          Sign
-        </button>
       </div>
-    </form>
+    </div>
   );
 }
 

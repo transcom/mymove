@@ -36,7 +36,7 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrFetchForbidden:
 		return newErrResponse(http.StatusForbidden)
 	default:
-		logger.Error("Unexpected fetch error", zap.Error(err))
+		logger.Error("Unexpected db error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError)
 	}
 }

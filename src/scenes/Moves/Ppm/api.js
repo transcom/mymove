@@ -1,9 +1,5 @@
 import { getClient, checkResponse } from 'shared/api';
 
-export async function GetSpec() {
-  const client = await getClient();
-  return client.spec;
-}
 export async function GetPpm(moveId) {
   const client = await getClient();
   const response = await client.apis.ppm.indexPersonallyProcuredMoves({
@@ -36,6 +32,42 @@ export async function UpdatePpm(
     moveId,
     personallyProcuredMoveId,
     patchPersonallyProcuredMovePayload: payload,
+  });
+  checkResponse(response, 'failed to update ppm due to server error');
+  return response.body;
+}
+
+export async function GetPpmWeightEstimate(
+  moveDate,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
+  const client = await getClient();
+  const response = await client.apis.ppm.showPPMEstimate({
+    planned_move_date: moveDate,
+    origin_zip: originZip,
+    destination_zip: destZip,
+    weight_estimate: weightEstimate,
+  });
+  checkResponse(response, 'failed to update ppm due to server error');
+  return response.body;
+}
+
+export async function GetPpmSitEstimate(
+  moveDate,
+  sitDays,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
+  const client = await getClient();
+  const response = await client.apis.ppm.showPPMSitEstimate({
+    planned_move_date: moveDate,
+    days_in_storage: sitDays,
+    origin_zip: originZip,
+    destination_zip: destZip,
+    weight_estimate: weightEstimate,
   });
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;

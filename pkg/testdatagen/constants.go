@@ -13,6 +13,12 @@ var DefaultSrcGBLOC = "OHAI"
 // DefaultMarket is the default market for testing.
 var DefaultMarket = "dHHG"
 
+// DefaultServiceArea is the default Service Area for testing.
+var DefaultServiceArea = "4"
+
+// DefaultCOS is the default Code of Service for testing.
+var DefaultCOS = "2"
+
 // DefaultSrcRateArea is a default rate area (California) for testing.
 var DefaultSrcRateArea = "US87"
 
@@ -59,3 +65,9 @@ var DateOutsidePerformancePeriod = time.Date(TestYear, time.August, 1, 0, 0, 0, 
 
 // RateEngineDate is a date for the rate engine to use on generation for tests.
 var RateEngineDate = time.Date(TestYear, time.May, 18, 0, 0, 0, 0, time.UTC)
+
+// DefaultDepartmentIndicator is a code for orders accounting that indicates which branch the orders are for.
+var DefaultDepartmentIndicator = "57 - United States Air Force"
+
+// DefaultTransportationAccountingCode (TAC) is an accounting code used for orders.
+var DefaultTransportationAccountingCode = "F8J1"
