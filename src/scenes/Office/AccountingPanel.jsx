@@ -66,7 +66,6 @@ function mapStateToProps(state) {
 
   return {
     // reduxForm
-    formData: state.form[formName],
     initialValues: state.office.officeOrders,
 
     // Wrapper
@@ -74,6 +73,7 @@ function mapStateToProps(state) {
     hasError:
       state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
     errorMessage: state.office.error,
+
     orders: orders,
     isUpdating: state.office.ordersAreUpdating,
 

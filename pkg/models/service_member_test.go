@@ -65,7 +65,11 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// When: all required fields are set
 	emailPreferred := true
 	servicemember.EmailIsPreferred = &emailPreferred
+	fakeBackupContact, _ := testdatagen.MakeBackupContact(suite.db)
 
+	var backupContacts BackupContacts
+	backupContacts = append(backupContacts, fakeBackupContact)
+	servicemember.BackupContacts = &backupContacts
 	// Then: IsProfileComplete should return true
 	if servicemember.IsProfileComplete() != true {
 		t.Error("Expected profile to be complete.")

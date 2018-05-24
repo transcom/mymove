@@ -121,10 +121,12 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.DocumentsShowDocumentHandler = ShowDocumentHandler(context)
 	internalAPI.UploadsCreateUploadHandler = CreateUploadHandler(context)
 	internalAPI.UploadsDeleteUploadHandler = DeleteUploadHandler(context)
+	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
+	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
 
 	return internalAPI.Serve(nil)
 }
