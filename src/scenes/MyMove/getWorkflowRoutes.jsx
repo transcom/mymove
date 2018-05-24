@@ -5,7 +5,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
 import { no_op } from 'shared/utils';
-
+import { NULL_UUID } from 'shared/constants';
 import DodInfo from 'scenes/ServiceMembers/DodInfo';
 import SMName from 'scenes/ServiceMembers/Name';
 import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
@@ -100,7 +100,9 @@ const pages = {
   },
   '/service-member/:serviceMemberId/duty-station': {
     isInFlow: always,
-    isComplete: sm => sm.is_profile_complete || Boolean(sm.current_station),
+    isComplete: sm =>
+      sm.is_profile_complete ||
+      get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
     render: (key, pages) => ({ match }) => (
       <DutyStation pages={pages} pageKey={key} match={match} />
     ),

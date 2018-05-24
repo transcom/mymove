@@ -1,5 +1,5 @@
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
-
+import { NULL_UUID } from 'shared/constants';
 describe('when getting the routes for the current workflow', () => {
   let profileIsComplete;
   describe('given a complete service member', () => {
@@ -261,6 +261,10 @@ describe('when getting the next incomplete page', () => {
           email_is_preferred: true,
           telephone: '666-666-6666',
           personal_email: 'foo@bar.com',
+          current_station: {
+            id: NULL_UUID,
+            name: '',
+          },
         });
         expect(result).toEqual('/service-member/foo/duty-station');
       });
