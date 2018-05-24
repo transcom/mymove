@@ -81,8 +81,8 @@ function getUserInfo() {
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
   return {
-    email: jwt.email,
-    userId: jwt.user_id,
+    email: jwt.SessionValue.Email,
+    userId: jwt.SessionValue.UserID,
     isLoggedIn: true,
   };
 }

@@ -4,9 +4,9 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
-
-import { updateServiceMember, loadServiceMember } from './ducks';
-
+import { get } from 'lodash';
+import { updateServiceMember } from './ducks';
+import { NULL_UUID } from 'shared/constants';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -15,8 +15,9 @@ import './DutyStation.css';
 
 const validateDutyStationForm = (values, form) => {
   let errors = {};
-
-  if (!values.current_station) {
+  // api for duty station always returns an object, even when duty station is not set
+  // if there is no duty station, that object will have a null uuid
+  if (get(values, 'current_station.id', NULL_UUID) === NULL_UUID) {
     const newError = {
       current_station: 'Please select a duty station.',
     };
@@ -44,9 +45,6 @@ export class DutyStation extends Component {
   stationOnChange = newStation => {
     this.setState({ value: newStation });
   };
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
 
   handleSubmit = (somethings, elses) => {
     const pendingValues = this.props.formData.values;
@@ -65,7 +63,6 @@ export class DutyStation extends Component {
       error,
       existingStation,
     } = this.props;
-    // TODO: make sure isvalid is accurate
 
     let initialValues = null;
     if (existingStation) {
@@ -94,10 +91,7 @@ DutyStation.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   const currentServiceMember = state.serviceMember.currentServiceMember;

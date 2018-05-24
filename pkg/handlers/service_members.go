@@ -14,9 +14,7 @@ import (
 func payloadForServiceMemberModel(storage FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
-	if serviceMember.DutyStation != nil {
-		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
-	}
+	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storage, order)
@@ -83,7 +81,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 
 	var stationID *uuid.UUID
-	var station *models.DutyStation
+	var station models.DutyStation
 	if params.CreateServiceMemberPayload.CurrentStationID != nil {
 		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 		if err != nil {
@@ -94,7 +92,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			return responseForError(h.logger, err)
 		}
 		stationID = &id
-		station = &s
+		station = s
 	}
 
 	// User should always be populated by middleware
@@ -236,7 +234,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		if err != nil {
 			return validate.NewErrors(), err
 		}
-		serviceMember.DutyStation = &station
+		serviceMember.DutyStation = station
 		serviceMember.DutyStationID = &stationID
 	}
 	if payload.SocialSecurityNumber != nil {
