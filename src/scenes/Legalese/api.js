@@ -1,12 +1,8 @@
 import { getClient, checkResponse } from 'shared/api';
 import * as legalese from './legaleseText';
 
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 // This function will be an API call one day. For now loads a sample.
 export async function GetCertificationText(hasSIT, hasAdvance) {
-  debugger;
   const txt = [legalese.ppmStandardLiability];
   if (hasSIT) txt.push(legalese.storageLiability);
   if (hasAdvance) txt.push(legalese.ppmAdvance);
