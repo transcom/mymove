@@ -27,9 +27,15 @@ export class SignedCertification extends Component {
   }
 
   componentDidUpdate() {
-    const { getCertificationSuccess, certificationText } = this.props;
-    if (getCertificationSuccess && !certificationText) {
-      this.props.loadCertificationText();
+    const {
+      getCertificationSuccess,
+      hasLoggedInUser,
+      certificationText,
+      has_advance,
+      has_sit,
+    } = this.props;
+    if (hasLoggedInUser && getCertificationSuccess && !certificationText) {
+      this.props.loadCertificationText(has_sit, has_advance);
       return;
     }
   }
@@ -150,8 +156,11 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateSignedCertificationPayload',
       {},
     ),
+    hasLoggedInUser: state.loggedInUser.hasSucceeded,
     formData: state.form[formName],
     ...state.signedCertification,
+    has_sit: get(state.ppm, 'currentPpm.has_sit', false),
+    has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),
   };
 }
 

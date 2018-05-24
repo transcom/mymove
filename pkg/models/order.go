@@ -91,7 +91,9 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
-		"UploadedOrders.Uploads").Find(&order, id)
+		"UploadedOrders.Uploads",
+		"Moves.PersonallyProcuredMoves",
+		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

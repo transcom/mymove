@@ -6,3 +6,15 @@ label.inline_radio {
 .grey {
 	color: rgb(120, 120, 120);
 }
+
+.days-in-storage > input {
+  max-width: 100px;
+}
+
+.storage-estimate {
+  margin-top: 3rem;
+  background-color: #f4f2f2;
+  border: 1px solid #cccccc;
+  padding: 1em;
+  max-width: 700px;
+}

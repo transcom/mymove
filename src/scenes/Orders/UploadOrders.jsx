@@ -27,15 +27,22 @@ export class UploadOrders extends Component {
     this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
   }
 
+  componentDidMount() {
+    // If we have a logged in user at mount time, do our loading then.
+    if (this.props.currentServiceMember) {
+      const serviceMemberID = this.props.currentServiceMember.id;
+      this.props.showCurrentOrders(serviceMemberID);
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
     // If we don't have a service member yet, fetch one when loggedInUser loads.
     if (
-      !prevProps.user.loggedInUser &&
-      this.props.user.loggedInUser &&
-      !this.props.currentServiceMember
+      !prevProps.currentServiceMember &&
+      this.props.currentServiceMember &&
+      !this.props.currentOrders
     ) {
-      const serviceMemberID = this.props.user.loggedInUser.service_member.id;
-      this.props.loadServiceMember(serviceMemberID);
+      const serviceMemberID = this.props.currentServiceMember.id;
       this.props.showCurrentOrders(serviceMemberID);
     }
   }
@@ -143,6 +150,10 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
+    currentServiceMember: get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    ),
     currentOrders: state.orders.currentOrders,
     uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
     user: state.loggedInUser,

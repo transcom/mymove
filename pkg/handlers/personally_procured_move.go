@@ -17,22 +17,23 @@ import (
 func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
 
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                         fmtUUID(personallyProcuredMove.ID),
-		CreatedAt:                  fmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:                  fmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:                       personallyProcuredMove.Size,
-		WeightEstimate:             personallyProcuredMove.WeightEstimate,
-		EstimatedIncentive:         personallyProcuredMove.EstimatedIncentive,
-		PlannedMoveDate:            fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
-		PickupPostalCode:           personallyProcuredMove.PickupPostalCode,
-		AdditionalPickupPostalCode: personallyProcuredMove.AdditionalPickupPostalCode,
-		HasAdditionalPostalCode:    personallyProcuredMove.HasAdditionalPostalCode,
-		DestinationPostalCode:      personallyProcuredMove.DestinationPostalCode,
-		HasSit:                     personallyProcuredMove.HasSit,
-		DaysInStorage:              personallyProcuredMove.DaysInStorage,
-		Status:                     internalmessages.PPMStatus(personallyProcuredMove.Status),
-		HasRequestedAdvance:        personallyProcuredMove.HasRequestedAdvance,
-		Advance:                    payloadForReimbursementModel(personallyProcuredMove.Advance),
+		ID:                            fmtUUID(personallyProcuredMove.ID),
+		CreatedAt:                     fmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                     fmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:                          personallyProcuredMove.Size,
+		WeightEstimate:                personallyProcuredMove.WeightEstimate,
+		EstimatedIncentive:            personallyProcuredMove.EstimatedIncentive,
+		PlannedMoveDate:               fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
+		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
+		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
+		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
+		HasSit:                        personallyProcuredMove.HasSit,
+		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance: personallyProcuredMove.HasRequestedAdvance,
+		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
 	}
 	return ppmPayload
 }
@@ -71,6 +72,7 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.DestinationPostalCode,
 		payload.HasSit,
 		payload.DaysInStorage,
+		payload.EstimatedStorageReimbursement,
 		payload.HasRequestedAdvance,
 		advance)
 
@@ -140,8 +142,10 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	if payload.HasSit != nil {
 		if *payload.HasSit == false {
 			ppm.DaysInStorage = nil
+			ppm.EstimatedStorageReimbursement = nil
 		} else if *payload.HasSit == true {
 			ppm.DaysInStorage = payload.DaysInStorage
+			ppm.EstimatedStorageReimbursement = payload.EstimatedStorageReimbursement
 		}
 		ppm.HasSit = payload.HasSit
 	}

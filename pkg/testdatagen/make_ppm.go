@@ -28,6 +28,7 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 		models.StringPointer("60605"),
 		models.BoolPointer(false),
 		nil,
+		models.StringPointer("estimate sit"),
 		true,
 		&advance,
 	)

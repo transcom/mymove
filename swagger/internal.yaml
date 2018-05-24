@@ -128,6 +128,10 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -187,6 +191,10 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -245,6 +253,10 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
@@ -308,6 +320,10 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
@@ -2076,7 +2092,7 @@ paths:
         403:
           description: user is not authorized
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
-    post:
+    put:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
       operationId: updatePersonallyProcuredMove

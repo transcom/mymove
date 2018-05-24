@@ -43,6 +43,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	okResponse := response.(*ordersop.CreateOrdersCreated)
 
 	suite.Assertions.Equal(sm.ID.String(), okResponse.Payload.ServiceMemberID.String())
+	suite.Assertions.Len(okResponse.Payload.Moves, 1)
 	suite.Assertions.Equal(ordersType, okResponse.Payload.OrdersType)
 }
 
