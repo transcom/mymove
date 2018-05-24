@@ -229,7 +229,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.UserID = user.ID
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
-				officeUser.UserID = user.ID
+				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			}
 		}

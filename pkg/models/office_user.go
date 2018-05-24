@@ -12,8 +12,8 @@ import (
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
-	UserID                 uuid.UUID            `json:"user_id" db:"user_id"`
-	User                   User                 `belongs_to:"user"`
+	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
+	User                   *User                `belongs_to:"user"`
 	LastName               string               `json:"last_name" db:"last_name"`
 	FirstName              string               `json:"first_name" db:"first_name"`
 	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
@@ -33,7 +33,6 @@ type OfficeUsers []OfficeUser
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: o.UserID, Name: "UserID"},
 		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: o.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},

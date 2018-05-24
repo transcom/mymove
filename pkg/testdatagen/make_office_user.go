@@ -18,8 +18,8 @@ func MakeOfficeUser(db *pop.Connection) (models.OfficeUser, error) {
 	office, _ := MakeTransportationOffice(db)
 
 	officeUser := models.OfficeUser{
-		UserID:                 user.ID,
-		User:                   user,
+		UserID:                 &user.ID,
+		User:                   &user,
 		TransportationOffice:   office,
 		TransportationOfficeID: office.ID,
 		FirstName:              "Leo",

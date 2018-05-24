@@ -98,7 +98,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(alice.ID, identity.ID)
 	suite.Equal(alice.LoginGovEmail, identity.Email)
 	suite.Nil(identity.ServiceMemberID)
-	suite.Nil(nil, identity.OfficeUserID)
+	suite.Nil(identity.OfficeUserID)
 
 	bob, _ := testdatagen.MakeServiceMember(suite.db)
 	identity, err = FetchUserIdentity(suite.db, bob.User.LoginGovUUID.String())
@@ -107,14 +107,14 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.UserID, identity.ID)
 	suite.Equal(bob.User.LoginGovEmail, identity.Email)
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
-	suite.Nil(nil, identity.OfficeUserID)
+	suite.Nil(identity.OfficeUserID)
 
 	carol, _ := testdatagen.MakeOfficeUser(suite.db)
 	identity, err = FetchUserIdentity(suite.db, carol.User.LoginGovUUID.String())
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)
-	suite.Equal(carol.UserID, identity.ID)
+	suite.Equal(*carol.UserID, identity.ID)
 	suite.Equal(carol.User.LoginGovEmail, identity.Email)
-	suite.Nil(nil, identity.ServiceMemberID)
+	suite.Nil(identity.ServiceMemberID)
 	suite.Equal(carol.ID, *identity.OfficeUserID)
 }

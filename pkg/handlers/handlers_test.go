@@ -101,7 +101,7 @@ func (suite *HandlerSuite) authenticateUserRequest(req *http.Request, user model
 func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user models.OfficeUser) *http.Request {
 	session := auth.Session{
 		ApplicationName: auth.OfficeApp,
-		UserID:          user.UserID,
+		UserID:          *user.UserID,
 		IDToken:         "fake token",
 		OfficeUserID:    user.ID,
 	}
