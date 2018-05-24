@@ -9,6 +9,7 @@
 
 .edit-weight-container {
   padding-top: 3rem;
+  overflow: hidden;
 }
 
 .edit-weight-container .usa-alert {
