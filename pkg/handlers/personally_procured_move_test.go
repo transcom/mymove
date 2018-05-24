@@ -371,7 +371,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	// First, create an advance
 	truth := true

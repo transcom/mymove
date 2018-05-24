@@ -64,7 +64,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	reimbursement, _ := testdatagen.MakeReimbursement(suite.db)
+	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
