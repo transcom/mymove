@@ -2215,6 +2215,33 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /reimbursement/{reimbursement_id}/approve:
+    post:
+      summary: Approves the reimbursement
+      description: Sets the status of the reimbursement to APPROVED.
+      operationId: approveReimbursement
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: reimbursement_id
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the reimbursement being approved
+      responses:
+        200:
+          description: updated instance of reimbursement
+          schema:
+            $ref: '#/definitions/Reimbursement'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
