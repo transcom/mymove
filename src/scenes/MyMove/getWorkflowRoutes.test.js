@@ -373,7 +373,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
             },
           ],
         });
@@ -390,7 +390,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
               uploaded_orders: {
                 uploads: [{}],
               },
@@ -411,7 +411,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
               uploaded_orders: {
                 uploads: [{}],
               },
@@ -438,7 +438,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
               uploaded_orders: {
                 uploads: [{}],
               },
@@ -472,7 +472,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
               uploaded_orders: {
                 uploads: [{}],
               },
@@ -507,7 +507,7 @@ describe('when getting the next incomplete page', () => {
               orders_type: 'foo',
               issue_date: '2019-01-01',
               report_by_date: '2019-02-01',
-              new_duty_station: {},
+              new_duty_station: { id: 'something' },
               uploaded_orders: {
                 uploads: [{}],
               },
