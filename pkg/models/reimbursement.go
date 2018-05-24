@@ -178,10 +178,10 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// TODO: Handle case where more than one user is authorized to modify reimbursement
-	// if session.IsMyApp() && reimbursement.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
-	// 	return nil, ErrFetchForbidden
-	// }
+	// TODO: Authorize office user
+	if session.IsMyApp() {
+		return nil, ErrFetchForbidden
+	}
 
 	return &reimbursement, nil
 }
