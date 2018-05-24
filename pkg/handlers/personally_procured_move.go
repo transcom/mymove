@@ -150,8 +150,12 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		ppm.HasSit = payload.HasSit
 	}
 
-	ppm.HasRequestedAdvance = *payload.HasRequestedAdvance
-	if *payload.HasRequestedAdvance {
+	if payload.HasRequestedAdvance != nil {
+		ppm.HasRequestedAdvance = *payload.HasRequestedAdvance
+	} else if payload.Advance != nil {
+		ppm.HasRequestedAdvance = true
+	}
+	if ppm.HasRequestedAdvance {
 		if payload.Advance != nil {
 			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
 			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
