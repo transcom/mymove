@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -52,7 +52,7 @@ func (b *BackupContact) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchBackupContact returns a specific backup contact model
-func FetchBackupContact(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (BackupContact, error) {
+func FetchBackupContact(db *pop.Connection, session *auth.Session, id uuid.UUID) (BackupContact, error) {
 	var contact BackupContact
 	err := db.Q().Eager().Find(&contact, id)
 	if err != nil {
@@ -63,9 +63,8 @@ func FetchBackupContact(db *pop.Connection, authUser User, reqApp string, id uui
 		return BackupContact{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify contact
-	if reqApp == app.MyApp && contact.ServiceMember.UserID != authUser.ID {
+	if session.IsMyApp() && contact.ServiceMember.ID != session.ServiceMemberID {
 		return BackupContact{}, ErrFetchForbidden
 	}
-
 	return contact, nil
 }
