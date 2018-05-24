@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import { Field } from 'redux-form';
 import validator from 'shared/JsonSchemaForm/validator';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -112,10 +112,6 @@ const formName = 'service_member_dod_info';
 const DodWizardForm = reduxifyWizardForm(formName, validateDodForm);
 
 export class DodInfo extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
@@ -175,10 +171,7 @@ DodInfo.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   const props = {

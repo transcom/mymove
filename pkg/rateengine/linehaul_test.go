@@ -194,12 +194,12 @@ func (suite *RateEngineSuite) Test_CheckLinehaulChargeTotal() {
 	}
 	suite.mustSave(&sa2)
 
-	linehaulChargeTotal, err := engine.linehaulChargeTotal(
+	cost, err := engine.linehaulChargeComputation(
 		weight, zip5Austin, zip5SanFrancisco, testdatagen.DateInsidePeakRateCycle)
 	if err != nil {
 		t.Error("Unable to determine linehaulChargeTotal: ", err)
 	}
-	if linehaulChargeTotal != expected {
-		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, linehaulChargeTotal)
+	if cost.LinehaulChargeTotal != expected {
+		t.Errorf("Determined linehaul factor incorrectly. Expected %d, got %d", expected, cost.LinehaulChargeTotal)
 	}
 }

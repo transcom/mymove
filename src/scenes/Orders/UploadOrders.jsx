@@ -1,14 +1,13 @@
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
-import bytes from 'bytes';
-import moment from 'moment';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { showCurrentOrders, deleteUpload, addUploads } from './ducks';
 import Uploader from 'shared/Uploader';
+import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
 
 import './UploadOrders.css';
@@ -28,15 +27,22 @@ export class UploadOrders extends Component {
     this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
   }
 
+  componentDidMount() {
+    // If we have a logged in user at mount time, do our loading then.
+    if (this.props.currentServiceMember) {
+      const serviceMemberID = this.props.currentServiceMember.id;
+      this.props.showCurrentOrders(serviceMemberID);
+    }
+  }
+
   componentDidUpdate(prevProps, prevState) {
     // If we don't have a service member yet, fetch one when loggedInUser loads.
     if (
-      !prevProps.user.loggedInUser &&
-      this.props.user.loggedInUser &&
-      !this.props.currentServiceMember
+      !prevProps.currentServiceMember &&
+      this.props.currentServiceMember &&
+      !this.props.currentOrders
     ) {
-      const serviceMemberID = this.props.user.loggedInUser.service_member.id;
-      this.props.loadServiceMember(serviceMemberID);
+      const serviceMemberID = this.props.currentServiceMember.id;
       this.props.showCurrentOrders(serviceMemberID);
     }
   }
@@ -92,37 +98,11 @@ export class UploadOrders extends Component {
             upload the images.
           </p>
         </div>
-        {!!uploads.length && (
-          <div>
-            <table>
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Uploaded</th>
-                  <th>Size</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                {uploads.map(upload => (
-                  <tr key={upload.id}>
-                    <td>
-                      <a href={upload.url} target="_blank">
-                        {upload.filename}
-                      </a>
-                    </td>
-                    <td>{moment(upload.created_at).format('LLL')}</td>
-                    <td>{bytes(upload.bytes)}</td>
-                    <td>
-                      <a href="" onClick={e => this.deleteFile(e, upload.id)}>
-                        Delete
-                      </a>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {Boolean(uploads.length) && (
+          <Fragment>
+            <br />
+            <UploadsTable uploads={uploads} onDelete={this.deleteFile} />
+          </Fragment>
         )}
         {currentOrders && (
           <div className="uploader-box">
@@ -170,6 +150,10 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
+    currentServiceMember: get(
+      state,
+      'loggedInUser.loggedInUser.service_member',
+    ),
     currentOrders: state.orders.currentOrders,
     uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
     user: state.loggedInUser,

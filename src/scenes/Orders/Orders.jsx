@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { Field } from 'redux-form';
 
 import { createOrders, updateOrders, showCurrentOrders } from './ducks';
+import { createMove } from 'scenes/Moves/ducks';
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -118,10 +119,17 @@ Orders.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { updateOrders, createOrders, showCurrentOrders, loadServiceMember },
+    {
+      updateOrders,
+      createOrders,
+      showCurrentOrders,
+      loadServiceMember,
+      createMove,
+    },
     dispatch,
   );
 }
+
 function mapStateToProps(state) {
   const error = state.loggedInUser.error || state.orders.error;
   const hasSubmitSuccess =

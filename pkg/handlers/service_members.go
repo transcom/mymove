@@ -5,29 +5,37 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storage FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
-	if serviceMember.DutyStation != nil {
-		dutyStationPayload = payloadForDutyStationModel(*serviceMember.DutyStation)
-	}
+	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
 		orderPayload, _ := payloadForOrdersModel(storage, order)
 		orders[i] = orderPayload
 	}
+
+	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, 0)
+	if serviceMember.BackupContacts != nil {
+		contacts := *serviceMember.BackupContacts
+		contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
+		for i, contact := range contacts {
+			contactPayload := payloadForBackupContactModel(contact)
+			contactPayloads[i] = &contactPayload
+		}
+	}
+
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{
 		ID:                      fmtUUID(serviceMember.ID),
 		CreatedAt:               fmtDateTime(serviceMember.CreatedAt),
 		UpdatedAt:               fmtDateTime(serviceMember.UpdatedAt),
-		UserID:                  fmtUUID(user.ID),
+		UserID:                  fmtUUID(serviceMember.UserID),
 		Edipi:                   serviceMember.Edipi,
 		Orders:                  orders,
 		Affiliation:             serviceMember.Affiliation,
@@ -44,6 +52,7 @@ func payloadForServiceMemberModel(storage FileStorer, user models.User, serviceM
 		EmailIsPreferred:        serviceMember.EmailIsPreferred,
 		ResidentialAddress:      payloadForAddressModel(serviceMember.ResidentialAddress),
 		BackupMailingAddress:    payloadForAddressModel(serviceMember.BackupMailingAddress),
+		BackupContacts:          contactPayloads,
 		HasSocialSecurityNumber: fmtBool(serviceMember.SocialSecurityNumberID != nil),
 		IsProfileComplete:       fmtBool(serviceMember.IsProfileComplete()),
 		CurrentStation:          dutyStationPayload,
@@ -72,7 +81,7 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	}
 
 	var stationID *uuid.UUID
-	var station *models.DutyStation
+	var station models.DutyStation
 	if params.CreateServiceMemberPayload.CurrentStationID != nil {
 		id, err := uuid.FromString(params.CreateServiceMemberPayload.CurrentStationID.String())
 		if err != nil {
@@ -83,15 +92,15 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 			return responseForError(h.logger, err)
 		}
 		stationID = &id
-		station = &s
+		station = s
 	}
 
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Create a new serviceMember for an authenticated user
 	newServiceMember := models.ServiceMember{
-		UserID:                 user.ID,
+		UserID:                 session.UserID,
 		Edipi:                  params.CreateServiceMemberPayload.Edipi,
 		Affiliation:            params.CreateServiceMemberPayload.Affiliation,
 		Rank:                   params.CreateServiceMemberPayload.Rank,
@@ -116,9 +125,21 @@ func (h CreateServiceMemberHandler) Handle(params servicememberop.CreateServiceM
 	if verrs.HasAny() || err != nil {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-
-	servicememberPayload := payloadForServiceMemberModel(h.storage, user, newServiceMember)
-	return servicememberop.NewCreateServiceMemberCreated().WithPayload(servicememberPayload)
+	// Update session info
+	session.ServiceMemberID = newServiceMember.ID
+	if newServiceMember.FirstName != nil {
+		session.FirstName = *(newServiceMember.FirstName)
+	}
+	if newServiceMember.MiddleName != nil {
+		session.Middle = *(newServiceMember.MiddleName)
+	}
+	if newServiceMember.LastName != nil {
+		session.LastName = *(newServiceMember.LastName)
+	}
+	// And return
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, newServiceMember)
+	responder := servicememberop.NewCreateServiceMemberCreated().WithPayload(serviceMemberPayload)
+	return NewCookieUpdateResponder(params.HTTPRequest, h.cookieSecret, h.noSessionTimeout, h.logger, responder)
 }
 
 // ShowServiceMemberHandler returns a serviceMember for a user and service member ID
@@ -126,17 +147,15 @@ type ShowServiceMemberHandler HandlerContext
 
 // Handle retrieves a service member in the system belonging to the logged in user given service member ID
 func (h ShowServiceMemberHandler) Handle(params servicememberop.ShowServiceMemberParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewShowServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -145,12 +164,10 @@ type PatchServiceMemberHandler HandlerContext
 
 // Handle ... patches a new ServiceMember from a request payload
 func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMemberParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -163,7 +180,7 @@ func (h PatchServiceMemberHandler) Handle(params servicememberop.PatchServiceMem
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	serviceMemberPayload := payloadForServiceMemberModel(h.storage, user, serviceMember)
+	serviceMemberPayload := payloadForServiceMemberModel(h.storage, serviceMember)
 	return servicememberop.NewPatchServiceMemberOK().WithPayload(serviceMemberPayload)
 }
 
@@ -217,7 +234,7 @@ func (h PatchServiceMemberHandler) patchServiceMemberWithPayload(serviceMember *
 		if err != nil {
 			return validate.NewErrors(), err
 		}
-		serviceMember.DutyStation = &station
+		serviceMember.DutyStation = station
 		serviceMember.DutyStationID = &stationID
 	}
 	if payload.SocialSecurityNumber != nil {
@@ -253,12 +270,10 @@ type ShowServiceMemberOrdersHandler HandlerContext
 
 // Handle retrieves orders for a service member
 func (h ShowServiceMemberOrdersHandler) Handle(params servicememberop.ShowServiceMemberOrdersParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	serviceMemberID, _ := uuid.FromString(params.ServiceMemberID.String())
-	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

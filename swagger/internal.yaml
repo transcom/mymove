@@ -128,6 +128,10 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
+        x-nullable: true
       weight_estimate:
         type: integer
         title: Weight Estimate
@@ -186,6 +190,10 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
@@ -246,6 +254,10 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
@@ -310,6 +322,10 @@ definitions:
         title: How many days do you plan to put your stuff in storage?
         minimum: 0
         maximum: 90
+        x-nullable: true
+      estimated_storage_reimbursement:
+        type: string
+        title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
@@ -436,66 +452,81 @@ definitions:
         example: '5789345789'
         pattern: '^[0-9]{10}$'
         x-nullable: true
+        title: DoD ID
       orders:
         type: array
         items:
           $ref: '#/definitions/Orders'
       affiliation:
         $ref: '#/definitions/Affiliation'
+        title: Branch
       rank:
         $ref: '#/definitions/ServiceMemberRank'
+        title: Rank
       has_social_security_number:
         type: boolean
       first_name:
         type: string
         example: John
         x-nullable: true
+        title: First Name
       middle_name:
         type: string
         example: L.
         x-nullable: true
+        title: Middle Name
       last_name:
         type: string
         example: Donut
         x-nullable: true
+        title: Last Name
       suffix:
         type: string
         example: Jr.
         x-nullable: true
+        title: Suffix
       telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
+        title: Best Contact Phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
+        title: Secondary Phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: personal email address
+        title: Personal Email Address
       phone_is_preferred:
         type: boolean
         x-nullable: true
+        title: Telephone
       text_message_is_preferred:
         type: boolean
         x-nullable: true
+        title: Text Message
       email_is_preferred:
         type: boolean
         x-nullable: true
+        title: Email
       current_station:
         $ref: '#/definitions/DutyStationPayload'
       residential_address:
         $ref: '#/definitions/Address'
+        title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
+      backup_contacts:
+        $ref: '#/definitions/IndexServiceMemberBackupContactsPayload'
       is_profile_complete:
         type: boolean
       created_at:
@@ -561,21 +592,21 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best contact phone
+        title: Best Contact Phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Alternate phone
+        title: Alternate Phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: Personal email
+        title: Personal Email
       phone_is_preferred:
         type: boolean
         x-nullable: true
@@ -583,7 +614,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text message
+        title: Text Message
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -595,8 +626,10 @@ definitions:
         x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
+        title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
+        title: Backup Mailing Address
   PatchServiceMemberPayload:
     type: object
     properties:
@@ -610,7 +643,7 @@ definitions:
         pattern: '^[0-9]{10}$'
         example: '5789345789'
         x-nullable: true
-        title: 'DoD ID #'
+        title: DoD ID
       affiliation:
         $ref: '#/definitions/Affiliation'
       rank:
@@ -619,7 +652,7 @@ definitions:
         type: string
         format: ssn
         x-nullable: true
-        title: 'Social Security Number'
+        title: Social Security Number
         example: '555-55-5555'
       first_name:
         type: string
@@ -647,21 +680,21 @@ definitions:
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Best contact phone
+        title: Best Contact Phone
       secondary_telephone:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-5555
         x-nullable: true
-        title: Alternate phone
+        title: Alternate Phone
       personal_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
         x-nullable: true
-        title: Personal email
+        title: Personal Email
       phone_is_preferred:
         type: boolean
         x-nullable: true
@@ -669,7 +702,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text message
+        title: Text Message
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -681,8 +714,10 @@ definitions:
         x-nullable: true
       residential_address:
         $ref: '#/definitions/Address'
+        title: Residential Address
       backup_mailing_address:
         $ref: '#/definitions/Address'
+        title: Backup Mailing Address
   ServiceMemberBackupContactPayload:
     type: object
     properties:
@@ -1030,7 +1065,7 @@ definitions:
   DeptIndicator:
     type: string
     x-nullable: true
-    title: Department indicator
+    title: Dept. indicator
     enum:
       - AIRFORCE
     x-display-value:
@@ -1412,7 +1447,6 @@ definitions:
         type: string
         format: date-time
       tac:
-        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -1469,7 +1503,6 @@ definitions:
         x-nullable: true
         example: "030-00362"
       tac:
-        title: TAC
         type: string
         example: "F8J1"
         x-nullable: true
@@ -2062,7 +2095,7 @@ paths:
         403:
           description: user is not authorized
   /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}:
-    post:
+    put:
       summary: Updates the PPM
       description: This replaces the current version of the PPM with the version sent.
       operationId: updatePersonallyProcuredMove
@@ -2168,6 +2201,39 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/approve:
+    post:
+      summary: Approves the PPM
+      description: Sets the status of the PPM to APPROVED.
+      operationId: approvePPM
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being updated
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
@@ -2363,6 +2429,35 @@ paths:
       responses:
         201:
           description: deleted upload
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
+  /uploads:
+    delete:
+      summary: Deletes a collection of uploads
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: deleteUploads
+      tags:
+        - uploads
+      parameters:
+        - in: query
+          name: uploadIds
+          type: array
+          items:
+            type: string
+            format: uuid
+          required: true
+          description: Array of UUIDs to be deleted
+      responses:
+        201:
+          description: deleted uploads
         400:
           description: invalid request
           schema:

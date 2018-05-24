@@ -5,8 +5,6 @@ import (
 
 	"net/http/httptest"
 
-	"github.com/gobuffalo/uuid"
-
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -14,11 +12,7 @@ import (
 
 func (suite *HandlerSuite) TestShowQueueHandler() {
 	// Given: An office user
-	officeUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&officeUser)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	//  A set of orders and a move belonging to those orders
 	order, _ := testdatagen.MakeOrder(suite.db)
@@ -35,7 +29,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/queues/new", nil)
-	req = suite.authenticateRequest(req, officeUser)
+	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := queueop.ShowQueueParams{
 		HTTPRequest: req,

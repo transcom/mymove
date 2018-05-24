@@ -13,13 +13,14 @@ import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
+import EditContactInfo from 'scenes/Review/EditContactInfo';
+import EditOrders from 'scenes/Review/EditOrders';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
-import { createMove } from 'scenes/Moves/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -71,6 +72,15 @@ export class AppWrapper extends Component {
                   path="/moves/:moveId/review/edit-backup-contact"
                   component={EditBackupContact}
                 />
+                <PrivateRoute
+                  exact
+                  path="/moves/:moveId/review/edit-contact-info"
+                  component={EditContactInfo}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/review/edit-orders"
+                  component={EditOrders}
+                />
                 <Route component={NoMatch} />
               </Switch>
             )}
@@ -88,7 +98,10 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    hasCompleteProfile: false, //todo update this when user service is ready
+    hasCompleteProfile: get(
+      state.loggedInUser,
+      'loggedInUser.service_member.is_profile_complete',
+    ),
     swaggerError: state.swagger.hasErrored,
     selectedMoveType: state.submittedMoves.currentMove
       ? state.submittedMoves.currentMove.selected_move_type
@@ -103,9 +116,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, createMove },
-    dispatch,
-  );
+  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

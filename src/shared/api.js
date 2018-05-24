@@ -33,6 +33,15 @@ export async function DeleteUpload(uploadId) {
   return response.body;
 }
 
+export async function DeleteUploads(uploadIds) {
+  const client = await getClient();
+  const response = await client.apis.uploads.deleteUploads({
+    uploadIds,
+  });
+  checkResponse(response, 'failed to delete files due to server error');
+  return response.body;
+}
+
 export async function CreateDocument(name, serviceMemberId) {
   const client = await getClient();
   const response = await client.apis.documents.createDocument({

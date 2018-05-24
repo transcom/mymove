@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -8,36 +8,31 @@ import { MoveSummary } from './MoveSummary';
 
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
-import { loadLoggedInUser } from 'shared/User/ducks';
+import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
-    if (!this.props.loggedInUserIsLoading) {
-      this.props.loadLoggedInUser();
-    }
     window.scrollTo(0, 0);
   }
   componentDidUpdate() {
+    const { service_member } = this.props;
     if (this.props.loggedInUserSuccess) {
       if (
         !this.props.createdServiceMemberIsLoading &&
-        !this.props.loggedInUser.service_member
+        isEmpty(service_member)
       ) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
         this.props.createServiceMember({});
       } else if (
-        this.props.loggedInUser &&
-        this.props.loggedInUser.service_member &&
-        !this.props.loggedInUser.service_member.is_profile_complete
+        !isEmpty(service_member) &&
+        !service_member.is_profile_complete
       ) {
-        // If the service member exists, but is not complete, redirect to profile creation.
-        this.props.push(
-          `/service-member/${this.props.loggedInUser.service_member.id}/create`,
-        );
+        // If the service member exists, but is not complete, redirect to next incomplete page.
+        this.resumeMove();
       }
     }
   }
@@ -56,11 +51,13 @@ export class Landing extends Component {
     this.props.push(`moves/${move.id}/review`);
   };
 
+  resumeMove = () => {
+    this.props.push(getNextIncompletePage(this.props.service_member));
+  };
   render() {
     const {
       isLoggedIn,
       loggedInUserIsLoading,
-      loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
       loggedInUser,
@@ -68,12 +65,10 @@ export class Landing extends Component {
       entitlement,
     } = this.props;
 
-    const profile = get(loggedInUser, 'service_member');
+    const profile = get(loggedInUser, 'service_member', {});
     const orders = get(profile, 'orders.0');
     const move = get(orders, 'moves.0');
     const ppm = get(move, 'personally_procured_moves.0', {});
-
-    const displayMove = !!move;
 
     return (
       <div className="usa-grid">
@@ -95,7 +90,8 @@ export class Landing extends Component {
           )}
           {loggedInUserIsLoading && <span> Loading... </span>}
         </div>
-        {displayMove && (
+        {!isLoggedIn && <LoginButton />}
+        {isLoggedIn && (
           <MoveSummary
             entitlement={entitlement}
             profile={profile}
@@ -103,14 +99,9 @@ export class Landing extends Component {
             move={move}
             ppm={ppm}
             editMove={this.editMove}
+            resumeMove={this.resumeMove}
           />
         )}
-
-        {!isLoggedIn && <LoginButton />}
-        {!displayMove &&
-          loggedInUserSuccess && (
-            <button onClick={this.startMove}>Start a move</button>
-          )}
       </div>
     );
   }
@@ -118,6 +109,7 @@ export class Landing extends Component {
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
+  service_member: get(state, 'loggedInUser.loggedInUser.service_member', {}),
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,
@@ -131,10 +123,7 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, createServiceMember, loadLoggedInUser },
-    dispatch,
-  );
+  return bindActionCreators({ push, createServiceMember }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);

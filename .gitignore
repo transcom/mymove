@@ -23,6 +23,7 @@ __snapshots__
 /bin/webserver
 /bin/tsp-award-queue
 /bin/generate-test-data
+/bin/make-office-user
 /bin/rateengine
 /bin/soda
 /bin/golint
@@ -40,8 +41,6 @@ __snapshots__
 .env.test.local
 .env.production.local
 .idea
-.envrc
-
 .vscode
 
 npm-debug.log*

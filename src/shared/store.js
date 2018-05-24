@@ -6,14 +6,14 @@ import thunk from 'redux-thunk';
 
 import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProduction';
 
-import { isProduction } from 'shared/constants';
+import { isDevelopment } from 'shared/constants';
 import logger from './reduxLogger';
 
 export const history = createHistory();
 
 const middlewares = [thunk, routerMiddleware(history)];
 
-if (!isProduction && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
+if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   middlewares.push(logger);
 }
 

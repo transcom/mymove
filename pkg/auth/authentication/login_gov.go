@@ -1,4 +1,4 @@
-package auth
+package authentication
 
 import (
 	"encoding/base64"
@@ -12,7 +12,7 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/providers/openidConnect"
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"go.uber.org/zap"
 )
 
@@ -20,8 +20,9 @@ const myProviderName = "myProvider"
 const officeProviderName = "officeProvider"
 
 func getLoginGovProviderForRequest(r *http.Request) (*openidConnect.Provider, error) {
+	session := auth.SessionFromRequestContext(r)
 	providerName := myProviderName
-	if app.IsOfficeApp(r) {
+	if session.IsOfficeApp() {
 		providerName = officeProviderName
 	}
 	gothProvider, err := goth.GetProvider(providerName)
