@@ -96,6 +96,7 @@ export class Review extends Component {
     const editBackupContactAddress = thisAddress + '/edit-backup-contact';
     const editContactInfoAddress = thisAddress + '/edit-contact-info';
     const editOrdersAddress = thisAddress + '/edit-orders';
+    const editWeightAddress = thisAddress + '/edit-weight';
     const privateStorageString = get(
       currentPpm,
       'estimated_storage_reimbursement',
@@ -348,7 +349,7 @@ export class Review extends Component {
                     <th>
                       Weight
                       <span className="align-right">
-                        <a href="about:blank">Edit</a>
+                        <a href={editWeightAddress}>Edit</a>
                       </span>
                     </th>
                   </tr>
