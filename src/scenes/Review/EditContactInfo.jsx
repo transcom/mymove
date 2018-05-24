@@ -8,7 +8,6 @@ import { reduxForm, FormSection } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import 'scenes/ServiceMembers/ServiceMembers.css';

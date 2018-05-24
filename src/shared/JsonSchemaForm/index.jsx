@@ -137,6 +137,7 @@ export const validateAdditionalFields = additionalFields => {
         errors[fieldName] = 'Required.';
       }
     });
+
     return errors;
   };
 };
