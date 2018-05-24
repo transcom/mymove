@@ -210,6 +210,7 @@ export const SwaggerField = props => {
     disabled,
     component,
     title,
+    onChange,
   } = props;
 
   let swaggerField;
@@ -233,6 +234,7 @@ export const SwaggerField = props => {
     disabled,
     component,
     title,
+    onChange,
   );
 };
 
@@ -246,6 +248,7 @@ const createSchemaField = (
   disabled = false,
   component,
   title,
+  onChange,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -328,6 +331,7 @@ const createSchemaField = (
       className={className}
       inputProps={inputProps}
       {...fieldProps}
+      onChange={onChange}
     >
       {children}
     </Field>
