@@ -205,6 +205,7 @@ definitions:
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
@@ -268,6 +269,7 @@ definitions:
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
@@ -337,6 +339,7 @@ definitions:
         $ref: '#/definitions/PPMStatus'
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'

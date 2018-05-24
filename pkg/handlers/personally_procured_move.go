@@ -32,7 +32,7 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
 		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
 		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
-		HasRequestedAdvance: personallyProcuredMove.HasRequestedAdvance,
+		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
 		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
 	}
 	return ppmPayload
@@ -150,6 +150,26 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		ppm.HasSit = payload.HasSit
 	}
 
+	ppm.HasRequestedAdvance = *payload.HasRequestedAdvance
+	if *payload.HasRequestedAdvance {
+		if payload.Advance != nil {
+			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
+			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
+			fmt.Println("I BUT ETHIS", ppm.Advance)
+			if ppm.Advance != nil {
+				ppm.Advance.MethodOfReceipt = methodOfReceipt
+				ppm.Advance.RequestedAmount = requestedAmount
+			} else {
+				var advance models.Reimbursement
+				if ppm.Status == models.PPMStatusDRAFT {
+					advance = models.BuildDraftReimbursement(requestedAmount, methodOfReceipt)
+				} else {
+					advance = models.BuildRequestedReimbursement(requestedAmount, methodOfReceipt)
+				}
+				ppm.Advance = &advance
+			}
+		}
+	}
 }
 
 // PatchPersonallyProcuredMoveHandler Patchs a PPM
@@ -176,7 +196,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
-	verrs, err := h.db.ValidateAndUpdate(ppm)
+	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}

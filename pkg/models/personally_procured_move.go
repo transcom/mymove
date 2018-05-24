@@ -101,18 +101,40 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		if ppm.Advance != nil {
-			if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = err
-				return transactionError
+		if ppm.HasRequestedAdvance {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+				ppm.AdvanceID = &ppm.Advance.ID
 			}
-			ppm.AdvanceID = &ppm.Advance.ID
+		} else {
+			if ppm.AdvanceID != nil {
+				// If HasRequstedAdvance is false, we need to delete the record
+				if ppm.Advance == nil {
+					reimbursement := Reimbursement{}
+					err := db.Find(&reimbursement, *ppm.AdvanceID)
+					if err != nil {
+						responseError = errors.Wrap(err, "Error finding Advance for Advance ID")
+						return transactionError
+					}
+					ppm.Advance = &reimbursement
+				}
+				err := db.Destroy(ppm.Advance)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error Deleting Advance record")
+					return transactionError
+				}
+				ppm.AdvanceID = nil
+				ppm.Advance = nil
+			}
 		}
 
 		if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = err
+			responseError = errors.Wrap(err, "Error Saving PPM")
 			return transactionError
 		}
 
