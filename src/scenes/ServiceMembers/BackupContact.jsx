@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 
 import {
   updateServiceMember,
-  loadServiceMember,
   indexBackupContacts,
   createBackupContact,
   updateBackupContact,
@@ -243,7 +242,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       updateServiceMember,
-      loadServiceMember,
       indexBackupContacts,
       createBackupContact,
       updateBackupContact,

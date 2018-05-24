@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http/httptest"
 	"time"
 
@@ -18,17 +17,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
-	t := suite.T()
-
-	user1 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	verrs, err := suite.db.ValidateAndCreate(&user1)
-	if verrs.HasAny() || err != nil {
-		t.Error(verrs, err)
-	}
-
+	user1, _ := testdatagen.MakeServiceMember(suite.db)
 	orders, _ := testdatagen.MakeOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
@@ -37,7 +26,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	suite.Nil(locErr)
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
-	request = suite.authenticateRequest(request, orders.ServiceMember.User)
+	request = suite.authenticateRequest(request, orders.ServiceMember)
 
 	newPPMPayload := internalmessages.CreatePersonallyProcuredMovePayload{
 		WeightEstimate:   swag.Int64(12),
@@ -56,7 +45,7 @@ func (suite *HandlerSuite) TestCreatePPMHandler() {
 	// assert we got back the 201 response
 	createdResponse := response.(*ppmop.CreatePersonallyProcuredMoveCreated)
 	createdIssuePayload := createdResponse.Payload
-	fmt.Println(createdIssuePayload)
+	suite.NotNil(createdIssuePayload.ID)
 
 	// Next try the wrong user
 	request = suite.authenticateRequest(request, user1)
@@ -116,7 +105,7 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	}
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.authenticateRequest(req, move1.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move1.Orders.ServiceMember)
 
 	indexPPMParams := ppmop.IndexPersonallyProcuredMovesParams{
 		MoveID:      strfmt.UUID(move1.ID.String()),
@@ -184,7 +173,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:                    &newSize,
@@ -314,12 +303,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
 	newMoveDate := time.Now()
 
-	user2 := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "whoever@example.com",
-	}
-	suite.mustSave(&user2)
-
+	user2, _ := testdatagen.MakeServiceMember(suite.db)
 	move, _ := testdatagen.MakeMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
@@ -386,7 +370,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.authenticateRequest(req, orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:           &newSize,
@@ -428,7 +412,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	suite.mustSave(&ppm1)
 
 	req := httptest.NewRequest("GET", "/fake/path", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	payload := internalmessages.PatchPersonallyProcuredMovePayload{
 		Size:           &newSize,

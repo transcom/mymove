@@ -1,11 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { loadPpm } from 'scenes/Moves/Ppm/ducks';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
@@ -16,9 +15,6 @@ import './Review.css';
 
 export class Review extends Component {
   componentWillMount() {
-    if (!this.props.currentPpm) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
     const service_member = get(this.props.loggedInUser, 'service_member');
     if (
       service_member &&
@@ -53,9 +49,15 @@ export class Review extends Component {
     }
     function getFullAddress(address) {
       if (address) {
-        return `${address.street_address_1} ${address.street_address_2 || ''} ${
-          address.city
-        }, ${address.state} ${address.postal_code}`;
+        return (
+          <Fragment>
+            <div>{address.street_address_1}</div>
+            {address.street_address_2 && <div>{address.street_address_2}</div>}
+            <div>
+              {address.city}, {address.state} {address.postal_code}
+            </div>
+          </Fragment>
+        );
       }
     }
     function getFullContactPreferences() {
@@ -92,7 +94,16 @@ export class Review extends Component {
     const thisAddress = `/moves/${this.props.match.params.moveId}/review`;
     const editProfileAddress = thisAddress + '/edit-profile';
     const editBackupContactAddress = thisAddress + '/edit-backup-contact';
+    const editContactInfoAddress = thisAddress + '/edit-contact-info';
     const editOrdersAddress = thisAddress + '/edit-orders';
+    const privateStorageString = get(
+      currentPpm,
+      'estimated_storage_reimbursement',
+    )
+      ? `(spend up to ${
+          currentPpm.estimated_storage_reimbursement
+        } on private storage)`
+      : '';
 
     return (
       <WizardPage
@@ -207,7 +218,7 @@ export class Review extends Component {
                   <th>
                     Contact Info{' '}
                     <span className="align-right">
-                      <a href="about:blank">Edit</a>
+                      <a href={editContactInfoAddress}>Edit</a>
                     </span>
                   </th>
                 </tr>
@@ -306,9 +317,26 @@ export class Review extends Component {
                     <td> Pickup ZIP Code: </td>
                     <td> {currentPpm && currentPpm.pickup_postal_code}</td>
                   </tr>
+                  {currentPpm.has_additional_postal_code && (
+                    <tr>
+                      <td> Additional Pickup: </td>
+                      <td> {currentPpm.additional_pickup_postal_code}</td>
+                    </tr>
+                  )}
                   <tr>
                     <td> Delivery ZIP Code: </td>
                     <td> {currentPpm && currentPpm.destination_postal_code}</td>
+                  </tr>
+                  <tr>
+                    <td> Storage: </td>
+                    <td>
+                      {' '}
+                      {currentPpm.has_sit
+                        ? `${
+                            currentPpm.days_in_storage
+                          } days ${privateStorageString}`
+                        : 'Not requested'}{' '}
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -332,6 +360,12 @@ export class Review extends Component {
                     <td> Estimated PPM Incentive: </td>
                     <td> {currentPpm && currentPpm.estimated_incentive}</td>
                   </tr>
+                  {currentPpm.has_requested_advance && (
+                    <tr>
+                      <td> Advance: </td>
+                      <td> ${currentPpm.advance.requested_amount}</td>
+                    </tr>
+                  )}
                 </tbody>
               </table>
             </div>
@@ -351,7 +385,7 @@ Review.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadPpm, indexBackupContacts }, dispatch);
+  return bindActionCreators({ indexBackupContacts }, dispatch);
 }
 
 function mapStateToProps(state) {

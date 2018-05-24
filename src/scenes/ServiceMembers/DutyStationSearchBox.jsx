@@ -1,11 +1,11 @@
-import { debounce, sortBy } from 'lodash';
+import { debounce, sortBy, get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import AsyncSelect from 'react-select/lib/Async';
 import Alert from 'shared/Alert';
 import { components } from 'react-select';
 import Highlighter from 'react-highlight-words';
-
+import { NULL_UUID } from 'shared/constants';
 import { SearchDutyStations } from './api.js';
 
 import './DutyStation.css';
@@ -91,6 +91,10 @@ export class DutyStationSearchBox extends Component {
   }
   render() {
     const defaultTitle = 'Name of Duty Station:';
+    // api for duty station always returns an object, even when duty station is not set
+    // if there is no duty station, that object will have a null uuid
+    const isEmptyStation =
+      get(this.props, 'input.value.id', NULL_UUID) === NULL_UUID;
     return (
       <Fragment>
         {this.state.error && (
@@ -110,10 +114,10 @@ export class DutyStationSearchBox extends Component {
           onChange={this.localOnChange}
           onInputChange={this.onInputChange}
           components={{ Option: this.renderOption }}
-          value={this.props.input.value}
+          value={isEmptyStation ? null : this.props.input.value}
           placeholder="Start typing a duty station..."
         />
-        {this.props.input.value && (
+        {!isEmptyStation && (
           <p className="location">
             {this.props.input.value.address.city},{' '}
             {this.props.input.value.address.state}{' '}

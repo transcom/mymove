@@ -5,6 +5,7 @@ import {
   GetOrders,
   ShowCurrentOrdersAPI,
 } from './api.js';
+import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -39,10 +40,25 @@ export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
   ShowCurrentOrdersAPI,
 );
 
-export const createOrders = ReduxHelpers.generateAsyncActionCreator(
-  createOrUpdateOrdersType,
-  CreateOrders,
-);
+export function createOrders(ordersPayload) {
+  return function(dispatch, getState) {
+    const action = ReduxHelpers.generateAsyncActions(createOrUpdateOrdersType);
+    const moveAction = ReduxHelpers.generateAsyncActions(
+      createOrUpdateMoveType,
+    );
+    const state = getState();
+    const currentOrders = state.orders.currentOrders;
+    if (!currentOrders) {
+      return CreateOrders(ordersPayload)
+        .then(item => {
+          const newMove = get(item, 'moves.0', null);
+          dispatch(action.success(item));
+          dispatch(moveAction.success(newMove));
+        })
+        .catch(error => dispatch(action.error(error)));
+    }
+  };
+}
 
 export const updateOrders = ReduxHelpers.generateAsyncActionCreator(
   createOrUpdateOrdersType,

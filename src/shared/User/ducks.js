@@ -77,12 +77,12 @@ const loggedOutUser = {
 };
 
 function getUserInfo() {
-  const cookie = Cookies.get('user_session');
+  const cookie = Cookies.get('session_token');
   if (!cookie) return loggedOutUser;
   const jwt = decode(cookie);
   return {
-    email: jwt.email,
-    userId: jwt.user_id,
+    email: jwt.SessionValue.Email,
+    userId: jwt.SessionValue.UserID,
     isLoggedIn: true,
   };
 }

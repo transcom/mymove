@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 
 	"github.com/pkg/errors"
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -30,27 +30,32 @@ const (
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
 type PersonallyProcuredMove struct {
-	ID                         uuid.UUID                    `json:"id" db:"id"`
-	MoveID                     uuid.UUID                    `json:"move_id" db:"move_id"`
-	Move                       Move                         `belongs_to:"move"`
-	CreatedAt                  time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt                  time.Time                    `json:"updated_at" db:"updated_at"`
-	Size                       *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate             *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	EstimatedIncentive         *string                      `json:"estimated_incentive" db:"estimated_incentive"`
-	PlannedMoveDate            *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
-	PickupPostalCode           *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
-	HasAdditionalPostalCode    *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
-	AdditionalPickupPostalCode *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
-	DestinationPostalCode      *string                      `json:"destination_postal_code" db:"destination_postal_code"`
-	HasSit                     *bool                        `json:"has_sit" db:"has_sit"`
-	DaysInStorage              *int64                       `json:"days_in_storage" db:"days_in_storage"`
-	Status                     PPMStatus                    `json:"status" db:"status"`
-	Mileage                    *int64                       `json:"mileage" db:"mileage"`
-	PlannedSITMax              *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
-	SITMax                     *unit.Cents                  `json:"sit_max" db:"sit_max"`
-	IncentiveEstimateMin       *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
-	IncentiveEstimateMax       *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
+	ID                            uuid.UUID                    `json:"id" db:"id"`
+	MoveID                        uuid.UUID                    `json:"move_id" db:"move_id"`
+	Move                          Move                         `belongs_to:"move"`
+	CreatedAt                     time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
+	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
+	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
+	EstimatedIncentive            *string                      `json:"estimated_incentive" db:"estimated_incentive"`
+	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
+	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
+	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
+	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
+	DestinationPostalCode         *string                      `json:"destination_postal_code" db:"destination_postal_code"`
+	HasSit                        *bool                        `json:"has_sit" db:"has_sit"`
+	DaysInStorage                 *int64                       `json:"days_in_storage" db:"days_in_storage"`
+	EstimatedStorageReimbursement *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
+	Status                        PPMStatus                    `json:"status" db:"status"`
+	Mileage                       *int64                       `json:"mileage" db:"mileage"`
+	PlannedSITMax                 *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
+	SITMax                        *unit.Cents                  `json:"sit_max" db:"sit_max"`
+	IncentiveEstimateMin          *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
+	IncentiveEstimateMax          *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
+	Status                        PPMStatus                    `json:"status" db:"status"`
+	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
+	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
+	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -77,9 +82,9 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
-func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*PersonallyProcuredMove, error) {
+func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove
-	err := db.Q().Eager("Move.Orders.ServiceMember").Find(&ppm, id)
+	err := db.Q().Eager("Move.Orders.ServiceMember", "Advance").Find(&ppm, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -88,11 +93,41 @@ func FetchPersonallyProcuredMove(db *pop.Connection, authUser User, reqApp strin
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify ppm
-	if reqApp == app.MyApp && ppm.Move.Orders.ServiceMember.UserID != authUser.ID {
+	if session.IsMyApp() && ppm.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
 	return &ppm, nil
+}
+
+// SavePersonallyProcuredMove Safely saves a PPM and it's associated Advance.
+func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		if ppm.Advance != nil {
+			if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			ppm.AdvanceID = &ppm.Advance.ID
+		}
+
+		if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return responseVErrors, responseError
 }
 
 // createNewPPM adds a new Personally Procured Move record into the DB.
@@ -110,4 +145,5 @@ func createNewPPM(db *pop.Connection, moveID uuid.UUID) (*PersonallyProcuredMove
 	}
 
 	return &ppm, verrs, nil
+
 }
