@@ -3,7 +3,7 @@ package models_test
 import (
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -79,7 +79,6 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 func (suite *ModelSuite) TestFetchServiceMember() {
 	user1, _ := testdatagen.MakeUser(suite.db)
 	user2, _ := testdatagen.MakeUser(suite.db)
-	reqApp := app.MyApp
 
 	firstName := "Oliver"
 	resAddress, _ := testdatagen.MakeAddress(suite.db)
@@ -92,23 +91,31 @@ func (suite *ModelSuite) TestFetchServiceMember() {
 	}
 	suite.mustSave(&sm)
 
-	// User is authorized to fetch order
-	goodSm, err := FetchServiceMember(suite.db, user1, reqApp, sm.ID)
+	// User is authorized to fetch service member
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          user1.ID,
+		ServiceMemberID: sm.ID,
+	}
+	goodSm, err := FetchServiceMember(suite.db, session, sm.ID)
 	if suite.NoError(err) {
 		suite.Equal(sm.FirstName, goodSm.FirstName)
 		suite.Equal(sm.ResidentialAddress.ID, goodSm.ResidentialAddress.ID)
 	}
 
+	// Wrong ServiceMember
+	wrongID, _ := uuid.NewV4()
+	_, err = FetchServiceMember(suite.db, session, wrongID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchNotFound, err)
+	}
+
 	// User is forbidden from fetching order
-	_, err = FetchServiceMember(suite.db, user2, reqApp, sm.ID)
+	session.UserID = user2.ID
+	session.ServiceMemberID = uuid.Nil
+	_, err = FetchServiceMember(suite.db, session, sm.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
-	// Wrong Order ID
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchServiceMember(suite.db, user1, reqApp, wrongID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
-	}
 }

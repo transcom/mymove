@@ -7,6 +7,7 @@ import {
   CreateBackupContactAPI,
   UpdateBackupContactAPI,
 } from './api.js';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // Types
@@ -109,6 +110,11 @@ const initialState = {
 };
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
+    case GET_LOGGED_IN_USER.success:
+      return Object.assign({}, state, {
+        currentServiceMember: action.payload.service_member,
+        isLoading: false,
+      });
     case CREATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
         isLoading: true,

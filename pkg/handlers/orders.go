@@ -5,8 +5,6 @@ import (
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
-
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -51,9 +49,7 @@ type CreateOrdersHandler HandlerContext
 
 // Handle ... creates new Orders from a request payload
 func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	payload := params.CreateOrders
 
@@ -61,7 +57,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, user, reqApp, serviceMemberID)
+	serviceMember, err := models.FetchServiceMember(h.db, session, serviceMemberID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -86,6 +82,14 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
+	// TODO: Don't default to PPM when we start supporting HHG
+	newMoveType := internalmessages.SelectedMoveTypePPM
+	newMove, verrs, err := newOrder.CreateNewMove(h.db, &newMoveType)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	newOrder.Moves = append(newOrder.Moves, *newMove)
+
 	orderPayload, err := payloadForOrdersModel(h.storage, newOrder)
 	if err != nil {
 		return responseForError(h.logger, err)
@@ -98,12 +102,10 @@ type ShowOrdersHandler HandlerContext
 
 // Handle retrieves orders in the system belonging to the logged in user given order ID
 func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
-
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
+	order, err := models.FetchOrder(h.db, session, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -120,15 +122,13 @@ type UpdateOrdersHandler HandlerContext
 
 // Handle ... updates an order from a request payload
 func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	orderID, err := uuid.FromString(params.OrdersID.String())
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	order, err := models.FetchOrder(h.db, user, reqApp, orderID)
+	order, err := models.FetchOrder(h.db, session, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

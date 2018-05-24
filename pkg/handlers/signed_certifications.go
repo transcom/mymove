@@ -6,7 +6,6 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	certop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/certification"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -29,18 +28,17 @@ type CreateSignedCertificationHandler HandlerContext
 
 // Handle creates a new SignedCertification from a request payload
 func (h CreateSignedCertificationHandler) Handle(params certop.CreateSignedCertificationParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
 	payload := params.CreateSignedCertificationPayload
-	_, verrs, err := move.CreateSignedCertification(h.db, user, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
+	_, verrs, err := move.CreateSignedCertification(h.db, session.UserID, *payload.CertificationText, *payload.Signature, (time.Time)(*payload.Date))
 	if verrs.HasAny() || err != nil {
 		return responseForVErrors(h.logger, verrs, err)
 	}
@@ -53,12 +51,11 @@ type IndexSignedCertificationsHandler HandlerContext
 
 // Handle returns a SignedCertification for a given moveID
 func (h IndexSignedCertificationsHandler) Handle(params certop.IndexSignedCertificationsParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec Format of UUID is checked by swagger
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

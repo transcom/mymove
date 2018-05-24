@@ -92,9 +92,9 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	return document, params
 }
 
-func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, user models.User, fakeS3 *fakeS3Storage) middleware.Responder {
+func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *fakeS3Storage) middleware.Responder {
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, user)
+	req = suite.authenticateRequest(req, serviceMember)
 
 	params.HTTPRequest = req
 
@@ -111,7 +111,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	fakeS3 := newFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	createdResponse, ok := response.(*uploadop.CreateUploadCreated)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadCreated, got %T", response)
@@ -156,11 +156,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	_, params := createPrereqs(suite)
 
 	// Create a user that is not associated with the move
-	otherUser := models.User{
-		LoginGovUUID:  uuid.Must(uuid.NewV4()),
-		LoginGovEmail: "email@example.com",
-	}
-	suite.mustSave(&otherUser)
+	otherUser, _ := testdatagen.MakeServiceMember(suite.db)
 
 	response := makeRequest(suite, params, otherUser, fakeS3)
 	suite.Assertions.IsType(&errResponse{}, response)
@@ -188,7 +184,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	// Make a document ID that is not actually associated with a document
 	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
 
-	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	suite.Assertions.IsType(&errResponse{}, response)
 	errResponse := response.(*errResponse)
 
@@ -213,7 +209,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 
 	params.File = suite.fixture("empty.pdf")
 
-	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadBadRequest)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
@@ -235,7 +231,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	fakeS3 := newFakeS3Storage(false)
 	document, params := createPrereqs(suite)
 
-	response := makeRequest(suite, params, document.ServiceMember.User, fakeS3)
+	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadInternalServerError)
 	if !ok {
 		t.Fatalf("Wrong response type. Expected CreateUploadInternalServerError, got %T", response)
@@ -266,7 +262,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	params.UploadID = strfmt.UUID(upload.ID.String())
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, upload.Document.ServiceMember.User)
+	req = suite.authenticateRequest(req, upload.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
@@ -304,7 +300,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	}
 
 	req := &http.Request{}
-	req = suite.authenticateRequest(req, upload1.Document.ServiceMember.User)
+	req = suite.authenticateRequest(req, upload1.Document.ServiceMember)
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
