@@ -231,8 +231,8 @@
         <name><![CDATA[public.transportation_service_providers]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>806.00</x>
-            <y>1744.00</y>
+            <x>815.00</x>
+            <y>1823.00</y>
         </location>
         <size>
             <width>474.00</width>
@@ -963,8 +963,8 @@
         <name><![CDATA[public.shipment_offers]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>232.00</x>
-            <y>1709.00</y>
+            <x>237.00</x>
+            <y>1785.00</y>
         </location>
         <size>
             <width>286.00</width>
@@ -1386,8 +1386,8 @@
             <y>779.00</y>
         </location>
         <size>
-            <width>326.00</width>
-            <height>320.00</height>
+            <width>336.00</width>
+            <height>420.00</height>
         </size>
         <zorder>18</zorder>
         <SQLField>
@@ -1483,6 +1483,31 @@
             <type><![CDATA[TEXT]]></type>
             <uid><![CDATA[EED0D417-1A0E-4308-9120-1D735B739607]]></uid>
         </SQLField>
+        <SQLField>
+            <name><![CDATA[mileage]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[982C1C2E-FE61-42D3-97F4-69E9306A6FD8]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[planned_sit_max]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[58907299-D8A7-408B-9C27-DBEB28524DAF]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[sit_max]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[9766D195-E393-4390-A7A4-9B1CA76104A8]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[incentive_estimate_min]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[EAAD987D-A168-42D0-BC5B-4C6270C3E14F]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[incentive_estimate_max]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[51DC2788-0F55-4D72-B9DB-8C01CE4D5D24]]></uid>
+        </SQLField>
         <labelWindowIndex><![CDATA[22]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[46E01A41-38AB-4A8D-9239-A816D2A8E279]]></uid>
@@ -1491,8 +1516,8 @@
         <name><![CDATA[public.traffic_distribution_lists]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>809.00</x>
-            <y>1411.00</y>
+            <x>817.00</x>
+            <y>1539.00</y>
         </location>
         <size>
             <width>427.00</width>
@@ -1636,8 +1661,8 @@
         <name><![CDATA[transportation_offices]]></name>
         <schema><![CDATA[]]></schema>
         <location>
-            <x>645.00</x>
-            <y>1136.00</y>
+            <x>638.00</x>
+            <y>1261.00</y>
         </location>
         <size>
             <width>675.00</width>
@@ -2081,8 +2106,8 @@
         <name><![CDATA[public.shipments]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>174.00</x>
-            <y>1372.00</y>
+            <x>172.00</x>
+            <y>1471.00</y>
         </location>
         <size>
             <width>440.00</width>
@@ -2194,8 +2219,8 @@
         <name><![CDATA[office_users]]></name>
         <schema><![CDATA[]]></schema>
         <location>
-            <x>352.00</x>
-            <y>1118.00</y>
+            <x>331.00</x>
+            <y>1243.00</y>
         </location>
         <size>
             <width>227.00</width>
@@ -2963,17 +2988,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1520.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[2153.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1293.000000]]></windowHeight>
-        <windowLocationX><![CDATA[1715.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[-325.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{0, 104}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1797.000000]]></windowWidth>
+        <windowHeight><![CDATA[1344.000000]]></windowHeight>
+        <windowLocationX><![CDATA[114.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[-0.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{0, 772}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[2430.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>
