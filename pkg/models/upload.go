@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // An Upload represents an uploaded file, such as an image or PDF.
@@ -40,7 +41,7 @@ func (u *Upload) Validate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // FetchUpload returns an Upload if the user has access to that upload
-func FetchUpload(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Upload, error) {
+func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Upload, error) {
 	var upload Upload
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
@@ -51,7 +52,7 @@ func FetchUpload(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Up
 		return Upload{}, err
 	}
 
-	_, docErr := FetchDocument(db, user, reqApp, upload.DocumentID)
+	_, docErr := FetchDocument(db, session, upload.DocumentID)
 	if docErr != nil {
 		return Upload{}, docErr
 	}

@@ -16,7 +16,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	orders, _ := testdatagen.MakeOrder(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
-	req = suite.authenticateRequest(req, orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, orders.ServiceMember)
 
 	// When: a new Move is posted
 	var selectedType = internalmessages.SelectedMoveTypePPM
@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -70,12 +70,12 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move, _ := testdatagen.MakeMove(suite.db)
-	// And: a not logged in user
-	unAuthedUser, _ := testdatagen.MakeUser(suite.db)
+	// And: another logged in user
+	anotherUser, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, unAuthedUser)
+	req = suite.authenticateRequest(req, anotherUser)
 
 	var newType = internalmessages.SelectedMoveTypeCOMBO
 	patchPayload := internalmessages.PatchMovePayload{
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user, _ := testdatagen.MakeUser(suite.db)
+	user, _ := testdatagen.MakeServiceMember(suite.db)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
@@ -127,7 +127,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	patchPayload := internalmessages.PatchMovePayload{}
 	params := moveop.PatchMoveParams{
@@ -152,7 +152,7 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.ShowMoveParams{
 		HTTPRequest: req,
@@ -174,12 +174,12 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
 	move, _ := testdatagen.MakeMove(suite.db)
-	// And: a not logged in user
-	unAuthedUser, _ := testdatagen.MakeUser(suite.db)
+	// And: another logged in user
+	anotherUser, _ := testdatagen.MakeServiceMember(suite.db)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
-	req = suite.authenticateRequest(req, unAuthedUser)
+	req = suite.authenticateRequest(req, anotherUser)
 
 	showMoveParams := moveop.ShowMoveParams{
 		HTTPRequest: req,
@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestSummitMoveForApprovalHandler() {
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params := moveop.SubmitMoveForApprovalParams{
 		HTTPRequest: req,
