@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // PPMStatus represents the status of an order record's lifecycle
@@ -45,6 +46,11 @@ type PersonallyProcuredMove struct {
 	HasSit                     *bool                        `json:"has_sit" db:"has_sit"`
 	DaysInStorage              *int64                       `json:"days_in_storage" db:"days_in_storage"`
 	Status                     PPMStatus                    `json:"status" db:"status"`
+	Mileage                    *int64                       `json:"mileage" db:"mileage"`
+	PlannedSITMax              *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
+	SITMax                     *unit.Cents                  `json:"sit_max" db:"sit_max"`
+	IncentiveEstimateMin       *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
+	IncentiveEstimateMax       *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs

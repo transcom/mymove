@@ -11,6 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// MaxSITDays is the maximum number of days of SIT that will be reimbursed.
+const MaxSITDays = 90
+
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
 	db      *pop.Connection
@@ -20,6 +23,8 @@ type RateEngine struct {
 
 // CostComputation represents the results of a computation.
 type CostComputation struct {
+	Mileage int
+
 	BaseLinehaul              unit.Cents
 	OriginLinehaulFactor      unit.Cents
 	DestinationLinehaulFactor unit.Cents
@@ -32,6 +37,7 @@ type CostComputation struct {
 	UnpackFee             unit.Cents
 	FullPackUnpackFee     unit.Cents
 	SITFee                unit.Cents
+	SITMax                unit.Cents
 
 	GCC unit.Cents
 }
@@ -72,6 +78,7 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 		re.logger.Error("Failed to determine mileage", zap.Error(err))
 		return
 	}
+	cost.Mileage = mileage
 
 	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, date)
 	if err != nil {
@@ -135,6 +142,14 @@ func (re *RateEngine) ComputePPM(weight unit.Pound, originZip5 string, destinati
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
 	cost.SITFee = sitDiscount.Apply(sit)
+
+	/// Max SIT
+	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	if err != nil {
+		return
+	}
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	cost.SITMax = sitDiscount.Apply(maxSIT)
 
 	// Totals
 	cost.FullPackUnpackFee = lhDiscount.Apply(cost.PackFee + cost.UnpackFee)

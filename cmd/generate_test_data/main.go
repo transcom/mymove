@@ -40,6 +40,21 @@ func main() {
 	} else if *scenario == 5 {
 		err = tdgs.RunRateEngineScenario1(db)
 	} else if *scenario == 6 {
+		query := `DELETE FROM transportation_service_provider_performances;
+				  DELETE FROM transportation_service_providers;
+				  DELETE FROM traffic_distribution_lists;
+				  DELETE FROM tariff400ng_zip3s;
+				  DELETE FROM tariff400ng_zip5_rate_areas;
+				  DELETE FROM tariff400ng_service_areas;
+				  DELETE FROM tariff400ng_linehaul_rates;
+				  DELETE FROM tariff400ng_shorthaul_rates;
+				  DELETE FROM tariff400ng_full_pack_rates;
+				  DELETE FROM tariff400ng_full_unpack_rates;`
+
+		err = db.RawQuery(query).Exec()
+		if err != nil {
+			log.Panic(err)
+		}
 		err = tdgs.RunRateEngineScenario2(db)
 	} else {
 		// Can this be less repetitive without being overly clever?
