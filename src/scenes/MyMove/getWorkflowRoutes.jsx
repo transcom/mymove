@@ -169,17 +169,19 @@ const pages = {
   '/orders/transition': {
     isInFlow: always,
     isComplete: always,
-    render: (key, pages, description, props) => ({ match }) => (
-      <WizardPage
-        handleSubmit={no_op}
-        isAsync={false}
-        pageList={pages}
-        pageKey={key}
-        additionalParams={{ moveId: props.moveId }}
-      >
-        <TransitionToMove />
-      </WizardPage>
-    ),
+    render: (key, pages, description, props) => ({ match }) => {
+      return (
+        <WizardPage
+          handleSubmit={no_op}
+          isAsync={false}
+          pageList={pages}
+          pageKey={key}
+          additionalParams={{ moveId: props.moveId }}
+        >
+          <TransitionToMove />
+        </WizardPage>
+      );
+    },
   },
   '/moves/:moveId': {
     isInFlow: always,
