@@ -63,7 +63,9 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.AdditionalPickupPostalCode,
 		payload.DestinationPostalCode,
 		payload.HasSit,
-		payload.DaysInStorage)
+		payload.DaysInStorage,
+		false,
+		nil)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
