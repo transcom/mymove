@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"crypto/sha256"
+
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -103,7 +104,9 @@ func (m Move) CreatePPM(db *pop.Connection,
 	additionalPickupPostalCode *string,
 	destinationPostalCode *string,
 	hasSit *bool,
-	daysInStorage *int64) (*PersonallyProcuredMove, *validate.Errors, error) {
+	daysInStorage *int64,
+	hasRequestedAdvance bool,
+	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
 		MoveID:                     m.ID,
@@ -119,9 +122,11 @@ func (m Move) CreatePPM(db *pop.Connection,
 		HasSit:                     hasSit,
 		DaysInStorage:              daysInStorage,
 		Status:                     PPMStatusDRAFT,
+		HasRequestedAdvance:        hasRequestedAdvance,
+		Advance:                    advance,
 	}
 
-	verrs, err := db.ValidateAndCreate(&newPPM)
+	verrs, err := SavePersonallyProcuredMove(db, &newPPM)
 	if err != nil || verrs.HasAny() {
 		return nil, verrs, err
 	}
