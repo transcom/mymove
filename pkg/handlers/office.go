@@ -34,7 +34,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
 }
 
-// ApprovePPMHandler approves a move via POST /moves/{moveId}/approve
+// ApprovePPMHandler approves a move via POST /moves/{moveId}/ppm/{ppmId}/approve
 type ApprovePPMHandler HandlerContext
 
 // Handle ... approves a Personally Procured Move from a request payload
@@ -65,13 +65,12 @@ type ApproveReimbursementHandler HandlerContext
 
 // Handle ... approves a Reimbursement from a request payload
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	reimbursementID, _ := uuid.FromString(params.ReimbursementID.String())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
-	reimbursement, err := models.FetchReimbursement(h.db, user, reqApp, reimbursementID)
+	reimbursement, err := models.FetchReimbursement(h.db, session, reimbursementID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

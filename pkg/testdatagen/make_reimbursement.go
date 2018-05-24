@@ -3,38 +3,39 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeReimbursement creates a single Reimbursement
-func MakeReimbursement(db *pop.Connection) (models.Reimbursement, error) {
+// MakeDraftReimbursement creates a single draft status Reimbursement
+func MakeDraftReimbursement(db *pop.Connection) (models.Reimbursement, error) {
 
-	reimbursement, verrs, err := move.CreateReimbursement(db,
-		&shirt,
-		models.Int64Pointer(8000),
-		models.StringPointer("estimate incentive"),
-		models.TimePointer(DateInsidePeakRateCycle),
-		models.StringPointer("72017"),
-		models.BoolPointer(false),
-		nil,
-		models.StringPointer("60605"),
-		models.BoolPointer(false),
-		nil,
-		true,
-		&advance,
-	)
+	reimbursement := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
-	if verrs.HasAny() || err != nil {
+	if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
 		return models.Reimbursement{}, err
 	}
 
-	return *ppm, nil
+	return reimbursement, nil
 }
 
-// MakeReimbursementData creates 5 Reimbursements
+// MakeRequestedReimbursement creates a single requested status Reimbursement
+func MakeRequestedReimbursement(db *pop.Connection) (models.Reimbursement, error) {
+
+	reimbursement := models.BuildRequestedReimbursement(2000, models.MethodOfReceiptDIRECTDEPOSIT)
+
+	if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
+		return models.Reimbursement{}, err
+	}
+
+	return reimbursement, nil
+}
+
+// MakeReimbursementData creates 3 draft Reimbursements and 2 requested Reimbursements
 func MakeReimbursementData(db *pop.Connection) {
-	for i := 0; i < 5; i++ {
-		MakeReimbursement(db)
+	for i := 0; i < 3; i++ {
+		MakeDraftReimbursement(db)
+	}
+	for i := 0; i < 2; i++ {
+		MakeRequestedReimbursement(db)
 	}
 }

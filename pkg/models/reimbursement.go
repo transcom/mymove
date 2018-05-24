@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 
 	// "github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -167,9 +168,9 @@ func (r *Reimbursement) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchReimbursement Fetches and Validates a Reimbursement model
-func FetchReimbursement(db *pop.Connection, authUser User, reqApp string, id uuid.UUID) (*Reimbursement, error) {
+func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
 	var reimbursement Reimbursement
-	err := db.Q().Eager("Move.Orders.ServiceMember.PPM.Reimbursement", "Advance").Find(&reimbursement, id)
+	err := db.Q().Find(&reimbursement, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -178,7 +179,7 @@ func FetchReimbursement(db *pop.Connection, authUser User, reqApp string, id uui
 		return nil, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify reimbursement
-	// if reqApp == app.MyApp && reimbursement.PPM.Move.Orders.ServiceMember.UserID != authUser.ID {
+	// if session.IsMyApp() && reimbursement.Move.Orders.ServiceMember.ID != session.ServiceMemberID {
 	// 	return nil, ErrFetchForbidden
 	// }
 
