@@ -8,6 +8,7 @@ import { MoveSummary } from './MoveSummary';
 
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import LoginButton from 'shared/User/LoginButton';
@@ -15,6 +16,9 @@ import LoginButton from 'shared/User/LoginButton';
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
+    if (!this.props.loggedInUserIsLoading) {
+      this.props.loadLoggedInUser();
+    }
     window.scrollTo(0, 0);
   }
   componentDidUpdate() {
@@ -123,7 +127,10 @@ const mapStateToProps = state => ({
 });
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, createServiceMember }, dispatch);
+  return bindActionCreators(
+    { push, createServiceMember, loadLoggedInUser },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Landing);
