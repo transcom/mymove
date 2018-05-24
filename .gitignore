@@ -23,6 +23,7 @@ __snapshots__
 /bin/webserver
 /bin/tsp-award-queue
 /bin/generate-test-data
+/bin/make-office-user
 /bin/rateengine
 /bin/soda
 /bin/golint

@@ -65,7 +65,6 @@ func (u User) GetServiceMemberProfile(db *pop.Connection) (*ServiceMember, error
 	}
 
 	return nil, nil
-
 }
 
 // GetOrCreateUser is called upon successful login.gov verification
