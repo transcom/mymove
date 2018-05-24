@@ -1,0 +1,2 @@
+change_column("office_users", "user_id", "uuid", {"null": true})
+add_index("office_users", "email", {"unique": true})
