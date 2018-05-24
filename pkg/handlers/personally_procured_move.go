@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -41,14 +40,12 @@ type CreatePersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonallyProcuredMoveParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -83,13 +80,12 @@ type IndexPersonallyProcuredMovesHandler HandlerContext
 // Handle handles the request
 func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonallyProcuredMovesParams) middleware.Responder {
 	// #nosec User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -151,15 +147,14 @@ type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
 func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyProcuredMoveParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
 
-	ppm, err := models.FetchPersonallyProcuredMove(h.db, user, reqApp, ppmID)
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

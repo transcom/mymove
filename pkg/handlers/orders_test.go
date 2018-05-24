@@ -17,7 +17,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	station := testdatagen.MakeAnyDutyStation(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
-	req = suite.authenticateRequest(req, sm.User)
+	req = suite.authenticateRequest(req, sm)
 
 	hasDependents := true
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -51,7 +51,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember.User)
+	req = suite.authenticateRequest(req, order.ServiceMember)
 
 	params := ordersop.ShowOrdersParams{
 		HTTPRequest: req,
@@ -72,7 +72,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)
-	req = suite.authenticateRequest(req, order.ServiceMember.User)
+	req = suite.authenticateRequest(req, order.ServiceMember)
 
 	newOrdersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	newOrdersTypeDetail := internalmessages.OrdersTypeDetailHHGPERMITTED

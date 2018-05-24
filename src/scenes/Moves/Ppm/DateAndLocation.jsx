@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
-import { loadPpm, createOrUpdatePpm, getPpmSitEstimate } from './ducks';
+import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
@@ -19,10 +19,6 @@ const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 export class DateAndLocation extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Date & Locations';
-    const moveId = this.props.match.params.moveId;
-    if (!this.props.currentPpm) {
-      this.props.loadPpm(moveId);
-    }
   }
 
   handleSubmit = () => {
@@ -173,7 +169,6 @@ export class DateAndLocation extends Component {
 
 DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
-  loadPpm: PropTypes.func.isRequired,
   createOrUpdatePpm: PropTypes.func.isRequired,
   error: PropTypes.object,
   hasSubmitSuccess: PropTypes.bool.isRequired,
@@ -209,10 +204,7 @@ function mapStateToProps(state) {
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { loadPpm, createOrUpdatePpm, getPpmSitEstimate },
-    dispatch,
-  );
+  return bindActionCreators({ createOrUpdatePpm, getPpmSitEstimate }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(DateAndLocation);
