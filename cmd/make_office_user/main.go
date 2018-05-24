@@ -10,8 +10,11 @@ import (
 
 func mustSave(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndSave(model)
-	if err != nil || verrs.HasAny() {
-		log.Fatalf("Failed to save %v", model)
+	if verrs.HasAny() {
+		log.Fatalf("validation Errors %v", verrs)
+	}
+	if err != nil {
+		log.Fatalf("Failed to save %v", err)
 	}
 }
 
@@ -41,7 +44,7 @@ func main() {
 
 	// Attempt to load an existing user.
 	var user models.User
-	err = db.Where("login_gov_email = $1", *email).Last(&user)
+	db.Where("login_gov_email = $1", *email).Last(&user)
 
 	// Now create the Truss JPPSO
 	address := models.Address{
