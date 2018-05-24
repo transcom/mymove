@@ -1,9 +1,9 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { get, isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-
+import { withLastLocation } from 'react-router-last-location';
 import { MoveSummary } from './MoveSummary';
 
 import { createServiceMember } from 'scenes/ServiceMembers/ducks';
@@ -16,7 +16,9 @@ import LoginButton from 'shared/User/LoginButton';
 export class Landing extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Landing Page';
-    if (!this.props.loggedInUserIsLoading) {
+    //rerun loadLoggedInUser if you have traveled to other pages
+    if (!this.props.loggedInUserIsLoading && this.props.lastLocation) {
+      console.log('reloading loggedInUser');
       this.props.loadLoggedInUser();
     }
     window.scrollTo(0, 0);
@@ -62,6 +64,7 @@ export class Landing extends Component {
     const {
       isLoggedIn,
       loggedInUserIsLoading,
+      loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
       loggedInUser,
@@ -73,38 +76,41 @@ export class Landing extends Component {
     const orders = get(profile, 'orders.0');
     const move = get(orders, 'moves.0');
     const ppm = get(move, 'personally_procured_moves.0', {});
-
     return (
       <div className="usa-grid">
-        <div>
-          {moveSubmitSuccess && (
-            <Alert type="success" heading="Success">
-              You've submitted your move
-            </Alert>
-          )}
-          {loggedInUserError && (
-            <Alert type="error" heading="An error occurred">
-              There was an error loading your user information.
-            </Alert>
-          )}
-          {createdServiceMemberError && (
-            <Alert type="error" heading="An error occurred">
-              There was an error creating your move.
-            </Alert>
-          )}
-          {loggedInUserIsLoading && <span> Loading... </span>}
-        </div>
-        {!isLoggedIn && <LoginButton />}
-        {isLoggedIn && (
-          <MoveSummary
-            entitlement={entitlement}
-            profile={profile}
-            orders={orders}
-            move={move}
-            ppm={ppm}
-            editMove={this.editMove}
-            resumeMove={this.resumeMove}
-          />
+        {loggedInUserIsLoading && <span> Loading... </span>}
+        {loggedInUserSuccess && (
+          <Fragment>
+            <div>
+              {moveSubmitSuccess && (
+                <Alert type="success" heading="Success">
+                  You've submitted your move
+                </Alert>
+              )}
+              {loggedInUserError && (
+                <Alert type="error" heading="An error occurred">
+                  There was an error loading your user information.
+                </Alert>
+              )}
+              {createdServiceMemberError && (
+                <Alert type="error" heading="An error occurred">
+                  There was an error creating your move.
+                </Alert>
+              )}
+            </div>
+            {!isLoggedIn && <LoginButton />}
+            {isLoggedIn && (
+              <MoveSummary
+                entitlement={entitlement}
+                profile={profile}
+                orders={orders}
+                move={move}
+                ppm={ppm}
+                editMove={this.editMove}
+                resumeMove={this.resumeMove}
+              />
+            )}
+          </Fragment>
         )}
       </div>
     );
@@ -133,4 +139,6 @@ function mapDispatchToProps(dispatch) {
   );
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(Landing);
+export default withLastLocation(
+  connect(mapStateToProps, mapDispatchToProps)(Landing),
+);
