@@ -29,25 +29,26 @@ const (
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
 type PersonallyProcuredMove struct {
-	ID                         uuid.UUID                    `json:"id" db:"id"`
-	MoveID                     uuid.UUID                    `json:"move_id" db:"move_id"`
-	Move                       Move                         `belongs_to:"move"`
-	CreatedAt                  time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt                  time.Time                    `json:"updated_at" db:"updated_at"`
-	Size                       *internalmessages.TShirtSize `json:"size" db:"size"`
-	WeightEstimate             *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	EstimatedIncentive         *string                      `json:"estimated_incentive" db:"estimated_incentive"`
-	PlannedMoveDate            *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
-	PickupPostalCode           *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
-	HasAdditionalPostalCode    *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
-	AdditionalPickupPostalCode *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
-	DestinationPostalCode      *string                      `json:"destination_postal_code" db:"destination_postal_code"`
-	HasSit                     *bool                        `json:"has_sit" db:"has_sit"`
-	DaysInStorage              *int64                       `json:"days_in_storage" db:"days_in_storage"`
-	Status                     PPMStatus                    `json:"status" db:"status"`
-	HasRequestedAdvance        bool                         `json:"has_requested_advance" db:"has_requested_advance"`
-	AdvanceID                  *uuid.UUID                   `json:"advance_id" db:"advance_id"`
-	Advance                    *Reimbursement               `belongs_to:"reimbursements"`
+	ID                            uuid.UUID                    `json:"id" db:"id"`
+	MoveID                        uuid.UUID                    `json:"move_id" db:"move_id"`
+	Move                          Move                         `belongs_to:"move"`
+	CreatedAt                     time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
+	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
+	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
+	EstimatedIncentive            *string                      `json:"estimated_incentive" db:"estimated_incentive"`
+	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
+	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
+	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
+	AdditionalPickupPostalCode    *string                      `json:"additional_pickup_postal_code" db:"additional_pickup_postal_code"`
+	DestinationPostalCode         *string                      `json:"destination_postal_code" db:"destination_postal_code"`
+	HasSit                        *bool                        `json:"has_sit" db:"has_sit"`
+	DaysInStorage                 *int64                       `json:"days_in_storage" db:"days_in_storage"`
+	EstimatedStorageReimbursement *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
+	Status                        PPMStatus                    `json:"status" db:"status"`
+	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
+	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
+	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
