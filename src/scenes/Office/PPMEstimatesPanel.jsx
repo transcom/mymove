@@ -1,4 +1,4 @@
-import { get, compact } from 'lodash';
+import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -6,7 +6,6 @@ import { reduxForm } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
-import { formatDate } from './helpers';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
