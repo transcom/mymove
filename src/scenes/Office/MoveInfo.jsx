@@ -15,15 +15,16 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
+import PaymentsPanel from './PaymentsPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
 import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
@@ -44,8 +45,12 @@ const BasicsTabContent = props => {
   );
 };
 
-const PPMTabContent = () => {
-  return <div>PPM</div>;
+const PPMTabContent = props => {
+  return (
+    <React.Fragment>
+      <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+    </React.Fragment>
+  );
 };
 
 class MoveInfo extends Component {
@@ -138,13 +143,23 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                <span className="status">
-                  <FontAwesomeIcon
-                    className="icon"
-                    icon={faExclamationTriangle}
-                  />
-                  Status Goes Here
-                </span>
+                {ppm.status === 'APPROVED' ? (
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-ready"
+                      icon={faCheck}
+                    />
+                    Move pending
+                  </span>
+                ) : (
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-waiting"
+                      icon={faClock}
+                    />
+                    In review
+                  </span>
+                )}
               </NavTab>
             </RoutedTabs>
 
