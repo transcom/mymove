@@ -11,7 +11,59 @@ import { formatDate } from './helpers';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
 const EstimatesDisplay = props => {
-  return <React.Fragment>This is where the viewing happens!</React.Fragment>;
+  const fieldProps = {
+    schema: props.PPMEstimateSchema,
+    values: props.PPMEstimate,
+  };
+
+  return (
+    <React.Fragment>
+      <div className="editable-panel-column">
+        <PanelSwaggerField fieldName="estimated_incentive" {...fieldProps} />
+        <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
+        <PanelSwaggerField
+          title="Planned departure"
+          fieldName="planned_move_date"
+          {...fieldProps}
+        />
+        <PanelField title="Storage planned" fieldName="days_in_storage">
+          {fieldProps.values.has_sit ? 'Yes' : 'No'}
+        </PanelField>
+        <PanelSwaggerField
+          title="Storage days"
+          fieldName="days_in_storage"
+          {...fieldProps}
+        />
+        <PanelField
+          title="Max. storage cost"
+          value="Max. storage cost"
+          className="Todo"
+        />
+      </div>
+      <div className="editable-panel-column">
+        <PanelSwaggerField
+          title="Origin zip code"
+          fieldName="pickup_postal_code"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Additional stop zip code"
+          fieldName="additional_pickup_postal_code"
+          {...fieldProps}
+        />
+        <PanelSwaggerField
+          title="Destination zip code"
+          fieldName="destination_postal_code"
+          {...fieldProps}
+        />
+        <PanelField
+          title="Distance estimate"
+          value="863 miles"
+          className="Todo"
+        />
+      </div>
+    </React.Fragment>
+  );
 };
 
 const EstimatesEdit = props => {
