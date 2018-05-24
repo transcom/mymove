@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -13,10 +13,6 @@ const formName = 'service_member_name';
 const NameWizardForm = reduxifyWizardForm(formName);
 
 export class Name extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
     if (pendingValues) {
@@ -75,10 +71,7 @@ Name.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   return {

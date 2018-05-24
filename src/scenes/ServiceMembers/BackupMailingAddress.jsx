@@ -4,7 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { updateServiceMember, loadServiceMember } from './ducks';
+import { updateServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -13,10 +13,6 @@ const formName = 'service_member_backup_mailing_addresss';
 const BackupMailingWizardForm = reduxifyWizardForm(formName);
 
 export class BackupMailingAddress extends Component {
-  componentDidMount() {
-    this.props.loadServiceMember(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const newAddress = { backup_mailing_address: this.props.formData.values };
     this.props.updateServiceMember(newAddress);
@@ -79,10 +75,7 @@ BackupMailingAddress.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { updateServiceMember, loadServiceMember },
-    dispatch,
-  );
+  return bindActionCreators({ updateServiceMember }, dispatch);
 }
 function mapStateToProps(state) {
   return {
