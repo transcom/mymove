@@ -16,6 +16,8 @@ describe('Ppm Reducer', () => {
         pendingPpmSize: null,
         pendingPpmWeight: null,
         currentPpm: samplePpm,
+        incentive: null,
+        sitReimbursement: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
       });
@@ -51,6 +53,7 @@ describe('Ppm Reducer', () => {
         currentPpm: samplePpm,
         incentive: null,
         pendingPpmWeight: null,
+        sitReimbursement: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });

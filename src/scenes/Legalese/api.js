@@ -1,13 +1,13 @@
 import { getClient, checkResponse } from 'shared/api';
-import { legaleseSample } from './legaleseSample';
+import * as legalese from './legaleseText';
 
-function timeout(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
 // This function will be an API call one day. For now loads a sample.
-export async function GetCertificationText() {
-  await timeout(100);
-  return legaleseSample;
+export async function GetCertificationText(hasSIT, hasAdvance) {
+  const txt = [legalese.ppmStandardLiability];
+  if (hasSIT) txt.push(legalese.storageLiability);
+  if (hasAdvance) txt.push(legalese.ppmAdvance);
+  txt.push(legalese.additionalInformation);
+  return txt.join('');
 }
 
 export async function GetCertifications(moveId, limit) {

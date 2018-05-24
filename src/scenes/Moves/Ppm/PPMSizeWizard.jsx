@@ -2,16 +2,11 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { createOrUpdatePpm, loadPpm } from './ducks';
+import { createOrUpdatePpm } from './ducks';
 import WizardPage from 'shared/WizardPage';
 import PpmSize from './Size';
 
 export class PpmSizeWizardPage extends Component {
-  componentDidMount() {
-    if (!this.props.currentPpm) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
-  }
   handleSubmit = () => {
     const { pendingPpmSize, createOrUpdatePpm } = this.props;
     //todo: we should make sure this move matches the redux state
@@ -56,7 +51,7 @@ PpmSizeWizardPage.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdatePpm, loadPpm }, dispatch);
+  return bindActionCreators({ createOrUpdatePpm }, dispatch);
 }
 function mapStateToProps(state) {
   return { ...state.ppm, move: state.submittedMoves };

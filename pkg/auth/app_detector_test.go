@@ -1,9 +1,6 @@
-package app
+package auth
 
 import (
-	"log"
-	"testing"
-
 	"net/http"
 
 	"net/http/httptest"
@@ -11,61 +8,49 @@ import (
 	"strings"
 
 	"fmt"
-
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 )
-
-type appSuite struct {
-	suite.Suite
-	logger *zap.Logger
-}
-
-func TestAppSuite(t *testing.T) {
-	logger, err := zap.NewDevelopment()
-	if err != nil {
-		log.Panic(err)
-	}
-	hs := &appSuite{logger: logger}
-	suite.Run(t, hs)
-}
 
 var myMoveMil = "my.move.mil"
 var officeMoveMil = "office.move.mil"
 
-func (suite *appSuite) TestMiddlewareConstructor() {
+func (suite *authSuite) TestMiddlewareConstructor() {
 	adm := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)
 	suite.NotNil(adm)
 }
 
-func (suite *appSuite) TestMiddleWareMyApp() {
+func (suite *authSuite) TestMiddleWareMyApp() {
 	rr := httptest.NewRecorder()
 
 	myMoveTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		suite.True(IsMyApp(r), "first should be myApp")
-		suite.False(IsOfficeApp(r), "first should not be officeApp")
-		suite.Equal(myMoveMil, GetHostname(r))
+		session := SessionFromRequestContext(r)
+		suite.True(session.IsMyApp(), "first should be myApp")
+		suite.False(session.IsOfficeApp(), "first should not be officeApp")
+		suite.Equal(myMoveMil, session.Hostname)
 	})
 	myMoveMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(myMoveTestHandler)
 
 	req, _ := http.NewRequest("GET", "/some_url", nil)
 	req.Host = myMoveMil
-	myMoveMiddleware.ServeHTTP(rr, req)
+	session := Session{}
+	myMoveMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = strings.ToUpper(myMoveMil)
-	myMoveMiddleware.ServeHTTP(rr, req)
+	session = Session{}
+	myMoveMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
 	officeTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		suite.False(IsMyApp(r), "should not be myApp")
-		suite.True(IsOfficeApp(r), "should be officeApp")
-		suite.Equal(officeMoveMil, GetHostname(r))
+		session := SessionFromRequestContext(r)
+		suite.False(session.IsMyApp(), "should not be myApp")
+		suite.True(session.IsOfficeApp(), "should be officeApp")
+		suite.Equal(officeMoveMil, session.Hostname)
 	})
 	officeMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(officeTestHandler)
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = fmt.Sprintf("%s:8080", officeMoveMil)
-	officeMiddleware.ServeHTTP(rr, req)
+	session = Session{}
+	officeMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 
 	noAppTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		suite.Fail("Should not be called")
@@ -74,6 +59,7 @@ func (suite *appSuite) TestMiddleWareMyApp() {
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = "totally.bogus.hostname"
-	noAppMiddleware.ServeHTTP(rr, req)
+	session = Session{}
+	noAppMiddleware.ServeHTTP(rr, req.WithContext(SetSessionInRequestContext(req, &session)))
 	suite.Equal(http.StatusBadRequest, rr.Code, "Should get an error ")
 }
