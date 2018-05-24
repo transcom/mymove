@@ -100,6 +100,9 @@ const pages = {
   },
   '/service-member/:serviceMemberId/duty-station': {
     isInFlow: always,
+
+    // api for duty station always returns an object, even when duty station is not set
+    // if there is no duty station, that object will have a null uuid
     isComplete: sm =>
       sm.is_profile_complete ||
       get(sm, 'current_station.id', NULL_UUID) !== NULL_UUID,
@@ -152,7 +155,7 @@ const pages = {
         orders.orders_type,
         orders.issue_date,
         orders.report_by_date,
-        orders.new_duty_station,
+        get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
       ]);
     },
     render: (key, pages) => ({ match }) => (
