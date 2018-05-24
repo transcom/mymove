@@ -211,6 +211,7 @@ export const SwaggerField = props => {
     component,
     title,
     onChange,
+    validate,
   } = props;
 
   let swaggerField;
@@ -235,6 +236,7 @@ export const SwaggerField = props => {
     component,
     title,
     onChange,
+    validate,
   );
 };
 
@@ -249,6 +251,7 @@ const createSchemaField = (
   component,
   title,
   onChange,
+  validate,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -275,6 +278,10 @@ const createSchemaField = (
   let inputProps = {
     disabled: disabled,
   };
+
+  if (validate) {
+    fieldProps.validate.push(validate);
+  }
 
   if (fieldProps.always_required) {
     fieldProps.validate.push(validator.isRequired);
