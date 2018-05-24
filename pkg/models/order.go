@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
 
@@ -87,7 +87,7 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 }
 
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.
-func FetchOrder(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Order, error) {
+func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
@@ -100,7 +100,7 @@ func FetchOrder(db *pop.Connection, user User, reqApp string, id uuid.UUID) (Ord
 		return Order{}, err
 	}
 	// TODO: Handle case where more than one user is authorized to modify orders
-	if reqApp == app.MyApp && order.ServiceMember.UserID != user.ID {
+	if session.IsMyApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
 	}
 

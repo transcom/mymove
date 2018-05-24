@@ -11,7 +11,6 @@ import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
   setPendingPpmWeight,
-  loadPpm,
   getPpmWeightEstimate,
   createOrUpdatePpm,
 } from './ducks';
@@ -47,13 +46,6 @@ export class PpmWeight extends Component {
     }
   }
   componentDidUpdate(prevProps, prevState) {
-    if (
-      !prevProps.loggedInUser.hasSucceeded &&
-      this.props.loggedInUser.hasSucceeded
-    ) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
-
     if (
       !prevProps.hasLoadSuccess &&
       this.props.hasLoadSuccess &&
@@ -232,7 +224,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { setPendingPpmWeight, loadPpm, getPpmWeightEstimate, createOrUpdatePpm },
+    { setPendingPpmWeight, getPpmWeightEstimate, createOrUpdatePpm },
     dispatch,
   );
 }

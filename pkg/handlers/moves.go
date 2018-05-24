@@ -5,7 +5,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -38,12 +37,11 @@ type CreateMoveHandler HandlerContext
 
 // Handle ... creates a new Move from a request payload
 func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Responder {
-	// Get orders for authorized user
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
-	orders, err := models.FetchOrder(h.db, user, reqApp, ordersID)
+
+	orders, err := models.FetchOrder(h.db, session, ordersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -64,19 +62,18 @@ type ShowMoveHandler HandlerContext
 
 // Handle retrieves a move in the system belonging to the logged in user given move ID
 func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Responder {
-	// User should always be populated by middleware
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, user, reqApp, move.OrdersID)
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -90,19 +87,17 @@ type PatchMoveHandler HandlerContext
 
 // Handle ... patches a Move from a request payload
 func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Responder {
-	/* #nosec User is always be populated by middleware */
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, user, reqApp, move.OrdersID)
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -126,13 +121,12 @@ type SubmitMoveHandler HandlerContext
 
 // Handle ... submit a move for approval
 func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) middleware.Responder {
-	/* #nosec User is always be populated by middleware */
-	user, _ := auth.GetUser(params.HTTPRequest.Context())
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	moveID, _ := uuid.FromString(params.MoveID.String())
-	reqApp := app.GetAppFromContext(params.HTTPRequest)
 
-	move, err := models.FetchMove(h.db, user, reqApp, moveID)
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

@@ -41,8 +41,6 @@ __snapshots__
 .env.test.local
 .env.production.local
 .idea
-.envrc
-
 .vscode
 
 npm-debug.log*
