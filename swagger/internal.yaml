@@ -134,6 +134,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -197,6 +198,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -260,6 +262,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -327,6 +330,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
