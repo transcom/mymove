@@ -14,6 +14,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
+import PPMEstimatesPanel from './PPMEstimatesPanel';
 import OrdersPanel from './OrdersPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
 import { formatDate } from './helpers';
@@ -45,7 +46,7 @@ const BasicsTabContent = props => {
 };
 
 const PPMTabContent = () => {
-  return <div>PPM</div>;
+  return <PPMEstimatesPanel />;
 };
 
 class MoveInfo extends Component {
