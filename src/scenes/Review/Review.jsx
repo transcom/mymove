@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 
-import { loadPpm } from 'scenes/Moves/Ppm/ducks';
 import { no_op } from 'shared/utils';
 import WizardPage from 'shared/WizardPage';
 
@@ -16,9 +15,6 @@ import './Review.css';
 
 export class Review extends Component {
   componentWillMount() {
-    if (!this.props.currentPpm) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
     const service_member = get(this.props.loggedInUser, 'service_member');
     if (
       service_member &&
@@ -352,7 +348,7 @@ Review.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ loadPpm, indexBackupContacts }, dispatch);
+  return bindActionCreators({ indexBackupContacts }, dispatch);
 }
 
 function mapStateToProps(state) {
