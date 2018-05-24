@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 
-import { get, isEmpty, uniq } from 'lodash';
+import { isEmpty, uniq } from 'lodash';
 import { reduxForm, Field } from 'redux-form';
 import './index.css';
 
@@ -137,25 +137,6 @@ export const validateAdditionalFields = additionalFields => {
         errors[fieldName] = 'Required.';
       }
     });
-    return errors;
-  };
-};
-
-export const validateOneSelected = fields => {
-  return (values, form) => {
-    let errors = {};
-    let prefSelected = false;
-    fields.forEach(fieldName => {
-      if (Boolean(get(values, fieldName))) {
-        prefSelected = true;
-      }
-    });
-    if (!prefSelected) {
-      const newError = {
-        phone_is_preferred: 'Please select a preferred method of contact.',
-      };
-      return newError;
-    }
     return errors;
   };
 };

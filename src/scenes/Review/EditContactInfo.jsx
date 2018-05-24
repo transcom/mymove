@@ -8,7 +8,6 @@ import { reduxForm, FormSection } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { validateOneSelected } from 'shared/JsonSchemaForm';
 
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
@@ -107,9 +106,31 @@ let EditContactForm = props => {
   );
 };
 
+const validateEditContactFormBools = fields => {
+  return (values, form) => {
+    let errors = {};
+    let prefSelected = false;
+    fields.forEach(fieldName => {
+      if (Boolean(get(values, fieldName))) {
+        prefSelected = true;
+      }
+    });
+    if (!prefSelected) {
+      let valueSection = fields[0].split('.')[0];
+      let field = fields[0].split('.')[1];
+      var errorMsg = {
+        [field]: 'Please select a preferred method of contact.',
+      };
+      var newError = { [valueSection]: errorMsg };
+      return newError;
+    }
+    return errors;
+  };
+};
+
 EditContactForm = reduxForm({
   form: editContactFormName,
-  validate: validateOneSelected([
+  validate: validateEditContactFormBools([
     'serviceMember.phone_is_preferred',
     'serviceMember.text_message_is_preferred',
     'serviceMember.email_is_preferred',
