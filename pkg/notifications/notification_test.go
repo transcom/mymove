@@ -10,7 +10,7 @@ import (
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -55,12 +55,13 @@ func (suite *NotificationSuite) TestMoveApproved() {
 
 	approver, _ := testdatagen.MakeUser(suite.db)
 	move, _ := testdatagen.MakeMove(suite.db)
-
 	notification := MoveApproved{
 		db:     suite.db,
 		moveID: move.ID,
-		reqApp: app.OfficeApp,
-		user:   approver,
+		session: &auth.Session{
+			UserID:          approver.ID,
+			ApplicationName: auth.OfficeApp,
+		},
 	}
 
 	emails, err := notification.emails()

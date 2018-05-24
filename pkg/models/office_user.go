@@ -5,14 +5,15 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"strings"
 	"time"
 )
 
 // OfficeUser is someone who works in one of the TransportationOffices
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
-	UserID                 uuid.UUID            `json:"user_id" db:"user_id"`
-	User                   User                 `belongs_to:"user"`
+	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
+	User                   *User                `belongs_to:"user"`
 	LastName               string               `json:"last_name" db:"last_name"`
 	FirstName              string               `json:"first_name" db:"first_name"`
 	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
@@ -32,7 +33,6 @@ type OfficeUsers []OfficeUser
 func (o *OfficeUser) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: o.UserID, Name: "UserID"},
 		&validators.StringIsPresent{Field: o.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: o.FirstName, Name: "FirstName"},
 		&validators.StringIsPresent{Field: o.Email, Name: "Email"},
@@ -51,4 +51,17 @@ func (o *OfficeUser) ValidateCreate(tx *pop.Connection) (*validate.Errors, error
 // This method is not required and may be deleted.
 func (o *OfficeUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchOfficeUserByEmail looks for an office user with a specific email
+func FetchOfficeUserByEmail(tx *pop.Connection, email string) (*OfficeUser, error) {
+	var users OfficeUsers
+	err := tx.Where("email = $1", strings.ToLower(email)).All(&users)
+	if err != nil {
+		return nil, err
+	}
+	if len(users) == 0 {
+		return nil, ErrFetchNotFound
+	}
+	return &users[0], nil
 }

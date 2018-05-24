@@ -1,6 +1,7 @@
 import { get, find } from 'lodash';
 import { CreatePpm, UpdatePpm, GetPpm, GetPpmWeightEstimate } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -15,9 +16,9 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 
 function formatPpmEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
-  const range_min = (estimate.range_min / 100).toFixed(2);
-  const range_max = (estimate.range_max / 100).toFixed(2);
-  return `$${range_min} - $${range_max}`;
+  return `$${(estimate.range_min / 100).toFixed(2)} - ${(
+    estimate.range_max / 100
+  ).toFixed(2)}`;
 }
 
 // Action creation
@@ -37,7 +38,7 @@ export function getPpmWeightEstimate(
 ) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
-    dispatch(action.start);
+    dispatch(action.start());
     GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
@@ -100,9 +101,26 @@ const initialState = {
   hasLoadError: false,
   hasEstimateSuccess: false,
   hasEstimateError: false,
+  hasEstimateInProgress: false,
 };
 export function ppmReducer(state = initialState, action) {
   switch (action.type) {
+    case GET_LOGGED_IN_USER.success:
+      // Initilize state when we get the logged in user
+      const user = action.payload;
+      const currentPpm = get(
+        user,
+        'service_member.orders.0.moves.0.personally_procured_moves.0',
+        null,
+      );
+      return Object.assign({}, state, {
+        currentPpm: currentPpm,
+        pendingPpmSize: get(currentPpm, 'size', null),
+        pendingPpmWeight: get(currentPpm, 'weight_estimate', null),
+        incentive: get(currentPpm, 'estimated_incentive', null),
+        hasLoadSuccess: true,
+        hasLoadError: false,
+      });
     case SET_PENDING_PPM_SIZE:
       return Object.assign({}, state, {
         pendingPpmSize: action.payload,
@@ -151,12 +169,14 @@ export function ppmReducer(state = initialState, action) {
     case GET_PPM_ESTIMATE.start:
       return Object.assign({}, state, {
         hasEstimateSuccess: false,
+        hasEstimateInProgress: true,
       });
     case GET_PPM_ESTIMATE.success:
       return Object.assign({}, state, {
         incentive: formatPpmEstimate(action.payload),
         hasEstimateSuccess: true,
         hasEstimateError: false,
+        hasEstimateInProgress: false,
         error: null,
       });
     case GET_PPM_ESTIMATE.failure:
@@ -164,6 +184,7 @@ export function ppmReducer(state = initialState, action) {
         incentive: null,
         hasEstimateSuccess: false,
         hasEstimateError: true,
+        hasEstimateInProgress: false,
         error: action.error,
       });
     default:

@@ -31,7 +31,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	}
 
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
@@ -76,7 +76,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.authenticateRequest(req, user2)
+	req = suite.authenticateUserRequest(req, user2)
 
 	params.HTTPRequest = req
 
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 
 	// Uses a different user than is on the move object
 	req := httptest.NewRequest("GET", "/move/id/thing", nil)
-	req = suite.authenticateRequest(req, move.Orders.ServiceMember.User)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
 	params.HTTPRequest = req
 
@@ -154,7 +154,7 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 
 	req := httptest.NewRequest("GET", "/moves/id/signed_certifications", nil)
 	params := certop.IndexSignedCertificationsParams{
-		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember.User),
+		HTTPRequest: suite.authenticateRequest(req, move.Orders.ServiceMember),
 		MoveID:      *fmtUUID(move.ID),
 	}
 

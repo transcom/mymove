@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/uuid"
 
-	"github.com/transcom/mymove/pkg/app"
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -30,7 +30,6 @@ func (suite *ModelSuite) TestFetchOrder() {
 
 	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
 	serviceMember2, _ := testdatagen.MakeServiceMember(suite.db)
-	reqApp := app.MyApp
 
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -63,7 +62,12 @@ func (suite *ModelSuite) TestFetchOrder() {
 	suite.mustSave(&order)
 
 	// User is authorized to fetch order
-	goodOrder, err := FetchOrder(suite.db, serviceMember1.User, reqApp, order.ID)
+	session := &auth.Session{
+		ApplicationName: auth.MyApp,
+		UserID:          serviceMember1.UserID,
+		ServiceMemberID: serviceMember1.ID,
+	}
+	goodOrder, err := FetchOrder(suite.db, session, order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -72,16 +76,18 @@ func (suite *ModelSuite) TestFetchOrder() {
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 	}
 
+	// Wrong Order ID
+	wrongID, _ := uuid.NewV4()
+	_, err = FetchOrder(suite.db, session, wrongID)
+	if suite.Error(err) {
+		suite.Equal(ErrFetchNotFound, err)
+	}
 	// User is forbidden from fetching order
-	_, err = FetchOrder(suite.db, serviceMember2.User, reqApp, order.ID)
+	session.UserID = serviceMember2.UserID
+	session.ServiceMemberID = serviceMember2.ID
+	_, err = FetchOrder(suite.db, session, order.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
 
-	// Wrong Order ID
-	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrder(suite.db, serviceMember1.User, reqApp, wrongID)
-	if suite.Error(err) {
-		suite.Equal(ErrFetchNotFound, err)
-	}
 }

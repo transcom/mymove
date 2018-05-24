@@ -13,6 +13,8 @@ import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
+import EditContactInfo from 'scenes/Review/EditContactInfo';
+import EditOrders from 'scenes/Review/EditOrders';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -69,6 +71,15 @@ export class AppWrapper extends Component {
                   exact
                   path="/moves/:moveId/review/edit-backup-contact"
                   component={EditBackupContact}
+                />
+                <PrivateRoute
+                  exact
+                  path="/moves/:moveId/review/edit-contact-info"
+                  component={EditContactInfo}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/review/edit-orders"
+                  component={EditOrders}
                 />
                 <Route component={NoMatch} />
               </Switch>
