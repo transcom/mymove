@@ -92,11 +92,11 @@ export function createOrUpdatePpm(moveId, ppm) {
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (currentPpm) {
-      UpdatePpm(moveId, currentPpm.id, ppm)
+      return UpdatePpm(moveId, currentPpm.id, ppm)
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
     } else {
-      CreatePpm(moveId, ppm)
+      return CreatePpm(moveId, ppm)
         .then(item => dispatch(action.success(item)))
         .catch(error => dispatch(action.error(error)));
     }
