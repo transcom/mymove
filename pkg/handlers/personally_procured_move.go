@@ -274,7 +274,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.P
 		return err
 	}
 
-	mileage := int64(cost.Mileage)
+	mileage := int64(cost.LinehaulCostComputation.Mileage)
 	ppm.Mileage = &mileage
 	ppm.PlannedSITMax = &cost.SITFee
 	ppm.SITMax = &cost.SITMax

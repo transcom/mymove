@@ -25,10 +25,9 @@ type RateEngine struct {
 type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
-	Mileage int
-	SITFee  unit.Cents
-	SITMax  unit.Cents
-	GCC     unit.Cents
+	SITFee unit.Cents
+	SITMax unit.Cents
+	GCC    unit.Cents
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -53,6 +52,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("DestinationServiceFee", c.DestinationServiceFee.Int())
 	encoder.AddInt("PackFee", c.PackFee.Int())
 	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
+	encoder.AddInt("SITMax", c.SITMax.Int())
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
@@ -81,7 +81,6 @@ func (re *RateEngine) ComputePPM(
 		prorateFactor = weight.Float64() / 1000.0
 		weight = unit.Pound(1000)
 	}
-	cost.Mileage = mileage
 
 	// Linehaul charges
 	linehaulCostComputation, err := re.linehaulChargeComputation(weight, originZip5, destinationZip5, date)
@@ -109,6 +108,7 @@ func (re *RateEngine) ComputePPM(
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
+		re.logger.Info("Can't calculate sit")
 		return
 	}
 	sitFee := sitDiscount.Apply(sit)
@@ -116,10 +116,11 @@ func (re *RateEngine) ComputePPM(
 	/// Max SIT
 	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
 	if err != nil {
+		re.logger.Info("Can't calculate max sit")
 		return
 	}
 	// Note that SIT has a different discount rate than [non]linehaul charges
-	cost.SITMax = sitDiscount.Apply(maxSIT)
+	maxSITFee := sitDiscount.Apply(maxSIT)
 
 	// Totals
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
@@ -132,6 +133,7 @@ func (re *RateEngine) ComputePPM(
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
 		SITFee: sitFee,
+		SITMax: maxSITFee,
 		GCC:    gcc,
 	}
 
