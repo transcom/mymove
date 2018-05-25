@@ -46,7 +46,7 @@ export class AppWrapper extends Component {
     return (
       <ConnectedRouter history={history}>
         <LastLocationProvider>
-          <div className="App site">
+          <div className="my-move site">
             <Header />
             <main className="site__content">
               <div className="usa-grid">

@@ -16,3 +16,11 @@
 .my-move-header .usa-navbar {
   height: 2em;
 }
+
+@media print {
+  .my-move header,
+  .my-move nav,
+  .my-move footer {
+    display: none;
+  }
+}
