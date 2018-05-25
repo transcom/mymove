@@ -15,7 +15,6 @@ import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Landing Page';
     //rerun loadLoggedInUser if you have traveled to other pages
     if (!this.props.loggedInUserIsLoading && this.props.lastLocation) {
       this.props.loadLoggedInUser();

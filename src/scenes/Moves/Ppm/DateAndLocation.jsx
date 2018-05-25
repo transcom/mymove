@@ -17,10 +17,6 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Date & Locations';
-  }
-
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);

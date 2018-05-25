@@ -22,7 +22,6 @@ const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Submit SignedCertification';
     this.props.loadLatestCertification(this.props.match.params.moveId);
   }
 

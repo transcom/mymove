@@ -166,8 +166,7 @@ const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 
 export class MoveType extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Move Type Selection';
-    // TODO: Remove line below once other move type options are availabed
+    // TODO: Remove line below once other move type options are available
     this.props.setPendingMoveType('PPM');
   }
 
