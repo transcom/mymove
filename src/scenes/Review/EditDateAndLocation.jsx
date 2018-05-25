@@ -5,13 +5,14 @@ import { getFormValues } from 'redux-form';
 
 import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
+import Alert from 'shared/Alert'; // eslint-disable-line
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
-import './Review.css';
+import 'scenes/Moves/Ppm/DateAndLocation.css';
 
 const sitEstimateDebounceTime = 300;
 
@@ -19,7 +20,7 @@ let EditDateAndLocationForm = props => {
   const {
     handleSubmit,
     currentOrders,
-    getDebouncedSitEstimate,
+    getSitEstimate,
     schema,
     valid,
     sitReimbursement,
@@ -28,22 +29,22 @@ let EditDateAndLocationForm = props => {
   } = props;
   return (
     <form onSubmit={handleSubmit}>
-      <h2> Edit PPM Dates & Locations </h2>
+      <h1 className="sm-heading"> Edit PPM Dates & Locations </h1>
       <p>
         Changes could impact your move, including the estimated PPM incentive.
       </p>
-      <h3> Move Date </h3>
+      <h2 className="sm-heading-2"> Move Date </h2>
       <SwaggerField
         fieldName="planned_move_date"
-        onChange={getDebouncedSitEstimate}
+        onChange={getSitEstimate}
         swagger={schema}
         required
       />
       <hr className="spacer" />
-      <h3>Pickup Location</h3>
+      <h2 className="sm-heading-2">Pickup Location</h2>
       <SwaggerField
         fieldName="pickup_postal_code"
-        onChange={getDebouncedSitEstimate}
+        onChange={getSitEstimate}
         swagger={schema}
         required
       />
@@ -65,7 +66,7 @@ let EditDateAndLocationForm = props => {
         </Fragment>
       )}
       <hr className="spacer" />
-      <h3>Destination Location</h3>
+      <h2 className="sm-heading-2">Destination Location</h2>
       <p>
         Enter the ZIP for your new home if you know it, or for{' '}
         {currentOrders && currentOrders.new_duty_station.name} if you don't.
@@ -73,7 +74,7 @@ let EditDateAndLocationForm = props => {
       <SwaggerField
         fieldName="destination_postal_code"
         swagger={schema}
-        onChange={getDebouncedSitEstimate}
+        onChange={getSitEstimate}
         required
       />
       <span className="grey">
@@ -91,7 +92,7 @@ let EditDateAndLocationForm = props => {
             className="days-in-storage"
             fieldName="days_in_storage"
             swagger={schema}
-            onChange={getDebouncedSitEstimate}
+            onChange={getSitEstimate}
             required
           />{' '}
           <span className="grey">You can choose up to 90 days.</span>
@@ -185,9 +186,17 @@ class EditDateAndLocation extends Component {
       formValues,
       sitReimbursement,
       currentOrders,
+      error,
     } = this.props;
     return (
       <div className="usa-grid">
+        {error && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="error" heading="An error occurred">
+              {error.message}
+            </Alert>
+          </div>
+        )}
         <div className="usa-width-one-whole">
           <EditDateAndLocationForm
             onSubmit={this.handleSubmit}
@@ -198,6 +207,7 @@ class EditDateAndLocation extends Component {
             sitReimbursement={sitReimbursement}
             currentOrders={currentOrders}
             onCancel={this.returnToReview}
+            createOrUpdatePpm={createOrUpdatePpm}
           />
         </div>
       </div>
@@ -209,7 +219,6 @@ EditDateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
   createOrUpdatePpm: PropTypes.func.isRequired,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 function mapStateToProps(state) {
   const props = {
@@ -227,6 +236,8 @@ function mapStateToProps(state) {
     currentPpm: get(state.ppm, 'currentPpm'),
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlements(state),
+    error: get(state, 'ppm.error'),
+    hasSubmitError: get(state, 'ppm.hasSubmitError'),
   };
   const defaultPickupZip = get(
     state.loggedInUser,

@@ -17,5 +17,9 @@ form.default legend {
 }
 
 h1.sm-heading {
+  font-size: 3rem;
+}
+
+h2.sm-heading-2 {
   font-size: 2.5rem;
 }
