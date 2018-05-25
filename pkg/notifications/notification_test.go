@@ -114,6 +114,11 @@ func TestNotificationSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	s := &NotificationSuite{db: db}
+	logger, _ := zap.NewDevelopment()
+
+	s := &NotificationSuite{
+		db:     db,
+		logger: logger,
+	}
 	suite.Run(t, s)
 }

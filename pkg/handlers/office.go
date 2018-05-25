@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
@@ -31,14 +32,6 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	n := notification.MoveApproved{
-		db:      h.db,
-		logger:  h.logger,
-		session: session,
-		moveID:  moveID,
-	}
-	err = notifications.SendNotification(n, nil)
-
 	movePayload := payloadForMoveModel(move.Orders, *move)
 	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
 }
@@ -52,6 +45,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
@@ -63,6 +57,14 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	verrs, err := h.db.ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	err = notifications.SendNotification(
+		notifications.NewMoveApproved(h.db, h.logger, session, moveID),
+		nil,
+	)
+	if err != nil {
+		h.logger.Error("problem sending email to user", zap.Error(err))
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
