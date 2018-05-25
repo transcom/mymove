@@ -145,7 +145,7 @@ definitions:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
-        $ref: '#/definitions/Reimbursement'
+        $ref: '#/definitions/CreateReimbursement'
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -207,6 +207,7 @@ definitions:
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
@@ -271,6 +272,7 @@ definitions:
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
@@ -341,6 +343,7 @@ definitions:
         $ref: '#/definitions/PPMStatus'
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
@@ -1259,7 +1262,7 @@ definitions:
       - city
       - state
       - postal_code
-  Reimbursement:
+  CreateReimbursement:
     type: object
     x-nullable: true
     properties:
@@ -1267,14 +1270,41 @@ definitions:
         type: integer
         minimum: 0
         title: Requested Amount
+        description: unit is cents
+      method_of_receipt:
+        $ref: "#/definitions/MethodOfReceipt"
+    required:
+      - requested_amount
+      - method_of_receipt
+  Reimbursement:
+    type: object
+    x-nullable: true
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      requested_amount:
+        type: integer
+        minimum: 0
+        title: Requested Amount
+        description: unit is cents
       method_of_receipt:
         $ref: "#/definitions/MethodOfReceipt"
       status:
         $ref: "#/definitions/ReimbursementStatus"
+      requested_date:
+        type: string
+        example: "2018-04-26"
+        format: date
+        title: Requested Date
     required:
       - requested_amount
       - method_of_receipt
+      - status
+      - requested_date
   ReimbursementStatus:
+    x-nullable: true
     type: string
     title: Reimbursement
     enum:
@@ -1284,12 +1314,17 @@ definitions:
       - REJECTED
       - PAID
   MethodOfReceipt:
+    x-nullable: true
     type: string
     title: Method of Receipt
     enum:
       - MIL_PAY
-      - DIRECT_DEPOSIT
       - OTHER
+      - GTCC
+    x-display-value:
+      MIL_PAY: Direct deposit to MilPay
+      OTHER: Direct deposit to other account
+      GTCC: GTCC
   MoveStatus:
     type: string
     title: Move status
