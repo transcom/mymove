@@ -4,9 +4,6 @@ import ppmBlack from 'shared/icon/ppm-black.svg';
 import './Transition.css';
 
 export class Transition extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Transition Page';
-  }
   render() {
     return (
       <div className="transition-box">
