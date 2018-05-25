@@ -52,7 +52,7 @@ export class Landing extends Component {
   };
 
   editMove = move => {
-    this.props.push(`moves/${move.id}/review`);
+    this.props.push(`moves/${move.id}/edit`);
   };
 
   resumeMove = () => {
