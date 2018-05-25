@@ -16,3 +16,7 @@ required = [
 [[constraint]]
   branch = "master"
   name = "github.com/GoASTScanner/gas"
+
+[[constraint]]
+  name = "github.com/360EntSecGroup-Skylar/excelize"
+  version = "1.3.0"

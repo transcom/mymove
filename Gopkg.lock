@@ -8,6 +8,12 @@
   revision = "88d57ee9043ba88d6a62e437fa15dda1ca0d2b59"
 
 [[projects]]
+  name = "github.com/360EntSecGroup-Skylar/excelize"
+  packages = ["."]
+  revision = "eb62256d165607c6877ce88efbba10c119137b3d"
+  version = "1.3"
+
+[[projects]]
   branch = "master"
   name = "github.com/GoASTScanner/gas"
   packages = [
@@ -764,6 +770,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "5bbc3d25398631f4d3b1055e0d5e0019aacda5a2c132594b82f7d82a403da1d7"
+  inputs-digest = "753c604ddf92668813a03c24b8a7f3d21dd77bc1fa32a3fc2229f68ab5c3b8e7"
   solver-name = "gps-cdcl"
   solver-version = 1
