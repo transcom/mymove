@@ -1,18 +1,19 @@
 .my-move-header a,
 .my-move-header .usa-nav-primary > li > a {
-  color: #ffffff;
-  text-decoration: none;
+	color: #ffffff;
+	text-decoration: none;
 }
 
 .my-move-header,
 .my-move-header .usa-nav,
 .my-move-header .usa-accordion,
 .my-move-header .usa-accordion-bordered {
-  color: #ffffff;
-  background-color: #0071bc;
-  padding-top: 0;
+	color: #ffffff;
+	background-color: #0071bc;
+	padding-top: 0.5rem;
 }
 
 .my-move-header .usa-navbar {
-  height: 2em;
+	height: 2em;
+	margin: 1rem 0rem 1rem 0rem;
 }
