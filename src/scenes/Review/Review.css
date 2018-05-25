@@ -63,3 +63,7 @@
 .spacer {
   margin-top: 2em;
 }
+.approved-edit-warning {
+  margin-top: 2em;
+  color: gray;
+}

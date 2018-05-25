@@ -33,6 +33,7 @@ export class Summary extends Component {
       currentOrders,
       schemaRank,
       schemaOrdersType,
+      moveIsApproved,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
 
@@ -153,10 +154,12 @@ export class Summary extends Component {
               <tbody>
                 <tr>
                   <th>
-                    Orders{' '}
-                    <span className="align-right">
-                      <a href={editOrdersAddress}>Edit</a>
-                    </span>
+                    Orders{moveIsApproved && '*'}
+                    {!moveIsApproved && (
+                      <span className="align-right">
+                        <a href={editOrdersAddress}>Edit</a>
+                      </span>
+                    )}
                   </th>
                 </tr>
                 <tr>
@@ -352,6 +355,11 @@ export class Summary extends Component {
             </div>
           </div>
         )}
+        {moveIsApproved && (
+          <div className="approved-edit-warning">
+            *To change these fields, contact your local PPPO office.
+          </div>
+        )}
       </Fragment>
     );
   }
@@ -363,6 +371,7 @@ Summary.propTypes = {
   currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
+  moveIsApproved: PropTypes.boolean,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -379,6 +388,13 @@ function mapStateToProps(state) {
       get(state.loggedInUser, 'loggedInUser.service_member.orders[0]'),
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
+    //todo: this should be a selector
+    moveIsApproved:
+      get(
+        state,
+        'loggedInUser.loggedInUser.service_member.orders.0.moves.0.status',
+        'SUBMITTED',
+      ) === 'APPROVED',
   };
 }
 export default withRouter(
