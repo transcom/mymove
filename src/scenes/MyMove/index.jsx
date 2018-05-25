@@ -84,10 +84,10 @@ export class AppWrapper extends Component {
                   <PrivateRoute
                     path="/moves/:moveId/review/edit-orders"
                     component={EditOrders}
-                />
-                <PrivateRoute
-                  path="/moves/:moveId/review/edit-weight"
-                  component={EditWeight}
+                  />
+                  <PrivateRoute
+                    path="/moves/:moveId/review/edit-weight"
+                    component={EditWeight}
                   />
                   <Route component={NoMatch} />
                 </Switch>

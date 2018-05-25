@@ -18,7 +18,6 @@ export class Landing extends Component {
     document.title = 'Transcom PPP: Landing Page';
     //rerun loadLoggedInUser if you have traveled to other pages
     if (!this.props.loggedInUserIsLoading && this.props.lastLocation) {
-      console.log('reloading loggedInUser');
       this.props.loadLoggedInUser();
     }
     window.scrollTo(0, 0);
