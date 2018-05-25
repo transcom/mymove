@@ -38,7 +38,12 @@ let EditProfileForm = props => {
       <button type="submit" disabled={submitting || !valid}>
         Save
       </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
+      <button
+        type="button"
+        className="usa-button-secondary"
+        disabled={submitting}
+        onClick={onCancel}
+      >
         Cancel
       </button>
     </form>
