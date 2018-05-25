@@ -1,5 +1,7 @@
 import React, { Component } from 'react';
 import { get } from 'lodash';
+import { LastLocationProvider } from 'react-router-last-location';
+
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Route, Switch } from 'react-router-dom';
 import { ConnectedRouter, push } from 'react-router-redux';
@@ -42,56 +44,58 @@ export class AppWrapper extends Component {
     const props = this.props;
     return (
       <ConnectedRouter history={history}>
-        <div className="App site">
-          <Header />
-          <main className="site__content">
-            <div className="usa-grid">
-              <LogoutOnInactivity />
-              {props.swaggerError && (
-                <Alert type="error" heading="An error occurred">
-                  There was an error contacting the server.
-                </Alert>
+        <LastLocationProvider>
+          <div className="App site">
+            <Header />
+            <main className="site__content">
+              <div className="usa-grid">
+                <LogoutOnInactivity />
+                {props.swaggerError && (
+                  <Alert type="error" heading="An error occurred">
+                    There was an error contacting the server.
+                  </Alert>
+                )}
+              </div>
+              {!props.swaggerError && (
+                <Switch>
+                  <Route exact path="/" component={Landing} />
+                  <Route path="/submitted" component={SubmittedFeedback} />
+                  <Route
+                    path="/shipments/:shipmentsStatus"
+                    component={Shipments}
+                  />
+                  <Route path="/feedback" component={Feedback} />
+                  {getWorkflowRoutes(props)}
+                  <PrivateRoute
+                    exact
+                    path="/moves/:moveId/review/edit-profile"
+                    component={EditProfile}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/moves/:moveId/review/edit-backup-contact"
+                    component={EditBackupContact}
+                  />
+                  <PrivateRoute
+                    exact
+                    path="/moves/:moveId/review/edit-contact-info"
+                    component={EditContactInfo}
+                  />
+                  <PrivateRoute
+                    path="/moves/:moveId/review/edit-orders"
+                    component={EditOrders}
+                  />
+                  <PrivateRoute
+                    path="/moves/:moveId/review/edit-weight"
+                    component={EditWeight}
+                  />
+                  <Route component={NoMatch} />
+                </Switch>
               )}
-            </div>
-            {!props.swaggerError && (
-              <Switch>
-                <Route exact path="/" component={Landing} />
-                <Route path="/submitted" component={SubmittedFeedback} />
-                <Route
-                  path="/shipments/:shipmentsStatus"
-                  component={Shipments}
-                />
-                <Route path="/feedback" component={Feedback} />
-                {getWorkflowRoutes(props)}
-                <PrivateRoute
-                  exact
-                  path="/moves/:moveId/review/edit-profile"
-                  component={EditProfile}
-                />
-                <PrivateRoute
-                  exact
-                  path="/moves/:moveId/review/edit-backup-contact"
-                  component={EditBackupContact}
-                />
-                <PrivateRoute
-                  exact
-                  path="/moves/:moveId/review/edit-contact-info"
-                  component={EditContactInfo}
-                />
-                <PrivateRoute
-                  path="/moves/:moveId/review/edit-orders"
-                  component={EditOrders}
-                />
-                <PrivateRoute
-                  path="/moves/:moveId/review/edit-weight"
-                  component={EditWeight}
-                />
-                <Route component={NoMatch} />
-              </Switch>
-            )}
-          </main>
-          <Footer />
-        </div>
+            </main>
+            <Footer />
+          </div>
+        </LastLocationProvider>
       </ConnectedRouter>
     );
   }
