@@ -7,7 +7,7 @@ import Email from 'shared/User/Email';
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
-
+import './index.css';
 function Header() {
   return (
     <header className="usa-header usa-header-basic" role="banner">
