@@ -25,9 +25,9 @@ export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 
 function formatPpmEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
-  return `$${(estimate.range_min / 100).toFixed(2)} - ${(
-    estimate.range_max / 100
-  ).toFixed(2)}`;
+  const range_min = (estimate.range_min / 100).toFixed(2);
+  const range_max = (estimate.range_max / 100).toFixed(2);
+  return `$${range_min} - ${range_max}`;
 }
 
 function formatSitEstimate(estimate) {
@@ -53,7 +53,7 @@ export function getPpmWeightEstimate(
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
-    GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
+    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };

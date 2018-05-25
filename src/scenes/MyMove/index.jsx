@@ -16,6 +16,7 @@ import EditBackupContact from 'scenes/Review/EditBackupContact';
 import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
+import EditWeight from 'scenes/Review/EditWeight';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
@@ -85,6 +86,10 @@ export class AppWrapper extends Component {
                 <PrivateRoute
                   path="/moves/:moveId/review/edit-date-and-location"
                   component={EditDateAndLocation}
+                />
+                <PrivateRoute
+                  path="/moves/:moveId/review/edit-weight"
+                  component={EditWeight}
                 />
                 <Route component={NoMatch} />
               </Switch>
