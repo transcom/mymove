@@ -17,3 +17,11 @@
 	height: 2em;
 	margin: 1rem 0rem 1rem 0rem;
 }
+
+@media print {
+  .my-move header,
+  .my-move nav,
+  .my-move footer {
+    display: none;
+  }
+}
