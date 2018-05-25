@@ -1,4 +1,3 @@
-
 .certification_text_box {
   margin-top: 1em;
 
@@ -12,8 +11,8 @@
   overflow-y: auto;
 }
 
-div.certification_text_box  h1 {
-  margin-top: .5em;
+div.certification_text_box h1 {
+  margin-top: 0.5em;
   font-size: 2.5rem;
 }
 
@@ -24,4 +23,12 @@ div.certification_text_box  h1 {
 .certification_text_box h3 {
   font-size: 1.5rem;
   font-weight: normal;
+}
+
+@media print {
+  .certification_text_box {
+    border: none;
+    overflow-y: visible;
+    max-height: 100%;
+  }
 }

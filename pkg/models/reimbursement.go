@@ -20,10 +20,10 @@ type MethodOfReceipt string
 const (
 	// MethodOfReceiptMILPAY captures enum value MIL_PAY
 	MethodOfReceiptMILPAY MethodOfReceipt = "MIL_PAY"
-	// MethodOfReceiptDIRECTDEPOSIT captures enum value DIRECT_DEPOSIT
-	MethodOfReceiptDIRECTDEPOSIT MethodOfReceipt = "DIRECT_DEPOSIT"
 	// MethodOfReceiptOTHER captures enum value OTHER
 	MethodOfReceiptOTHER MethodOfReceipt = "OTHER"
+	// MethodOfReceiptGTCC captures enum value GTCC
+	MethodOfReceiptGTCC MethodOfReceipt = "GTCC"
 )
 
 // ReimbursementStatus is the status of the Reimbursement
@@ -144,8 +144,8 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	validMethodsOfReceipt := []string{
 		string(MethodOfReceiptMILPAY),
-		string(MethodOfReceiptDIRECTDEPOSIT),
 		string(MethodOfReceiptOTHER),
+		string(MethodOfReceiptGTCC),
 	}
 
 	return validate.Validate(

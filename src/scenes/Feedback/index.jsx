@@ -12,10 +12,6 @@ import { createIssue } from './ducks';
 const FeedbackForm = reduxifyForm('Feedback');
 
 export class Feedback extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Submit Feedback';
-  }
-
   handleSubmit = values => {
     this.props.createIssue(values);
   };
