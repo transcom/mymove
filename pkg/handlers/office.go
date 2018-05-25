@@ -7,6 +7,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 )
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
@@ -29,6 +30,14 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
+
+	n := notification.MoveApproved{
+		db:      h.db,
+		logger:  h.logger,
+		session: session,
+		moveID:  moveID,
+	}
+	err = notifications.SendNotification(n, nil)
 
 	movePayload := payloadForMoveModel(move.Orders, *move)
 	return officeop.NewApproveMoveOK().WithPayload(&movePayload)

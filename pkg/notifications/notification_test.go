@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -16,7 +17,8 @@ import (
 
 type NotificationSuite struct {
 	suite.Suite
-	db *pop.Connection
+	db     *pop.Connection
+	logger *zap.Logger
 }
 
 type mockSESClient struct {
@@ -57,6 +59,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	move, _ := testdatagen.MakeMove(suite.db)
 	notification := MoveApproved{
 		db:     suite.db,
+		logger: suite.logger,
 		moveID: move.ID,
 		session: &auth.Session{
 			UserID:          approver.ID,
