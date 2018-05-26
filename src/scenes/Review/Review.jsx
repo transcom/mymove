@@ -4,6 +4,9 @@ import React, { Component } from 'react';
 import Summary from './Summary';
 
 export default class Review extends Component {
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  }
   render() {
     const { pages, pageKey } = this.props;
 
