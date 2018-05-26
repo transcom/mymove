@@ -63,7 +63,7 @@ export default {
                 },
               ],
               selected_move_type: 'PPM',
-              status: 'APPROVED',
+              status: 'DRAFT',
             },
           ],
           new_duty_station: {
