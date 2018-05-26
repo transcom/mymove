@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -35,7 +35,7 @@ class PaymentsTable extends Component {
               <th className="payment-table-column-title">Status</th>
               <th className="payment-table-column-title" />
             </tr>
-            {ppm ? (
+            {!isEmpty(advance) ? (
               <React.Fragment>
                 <tr>
                   <th className="payment-table-subheader" colSpan="6">
