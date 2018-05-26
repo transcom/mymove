@@ -104,6 +104,7 @@ class PaymentsTable extends Component {
                         </React.Fragment>
                       )}
                     </span>
+                    {/* Disabling unimplemented feature for now.
                     <span className="tooltip">
                       <FontAwesomeIcon
                         aria-hidden
@@ -122,6 +123,7 @@ class PaymentsTable extends Component {
                       />
                       <span className="tooltiptext">Edit</span>
                     </span>
+                    */}
                   </td>
                 </tr>
               </React.Fragment>
