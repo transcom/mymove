@@ -12,7 +12,7 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import {
   updateOrders,
   deleteUploads,
@@ -27,7 +27,6 @@ const editOrdersFormName = 'edit_orders';
 
 let EditOrdersForm = props => {
   const {
-    onCancel,
     onDelete,
     onUpload,
     schema,
@@ -36,13 +35,11 @@ let EditOrdersForm = props => {
     valid,
     initialValues,
     existingUploads,
-    newUploads,
     deleteQueue,
   } = props;
   const visibleUploads = reject(existingUploads, upload => {
     return includes(deleteQueue, upload.id);
   });
-  const hasUploads = newUploads.length || visibleUploads.length;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Orders
@@ -68,17 +65,7 @@ let EditOrdersForm = props => {
           onChange={onUpload}
         />
       )}
-      <button type="submit" disabled={submitting || !valid || !hasUploads}>
-        Save
-      </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -110,14 +97,10 @@ class EditOrders extends Component {
     });
   };
 
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
   componentDidUpdate = prevProps => {
     // Once service member loads, load the backup contact.
     if (this.props.serviceMember && !prevProps.serviceMember) {
+      debugger;
       this.props.showCurrentOrders(this.props.serviceMember.id);
     }
   };
@@ -140,7 +123,7 @@ class EditOrders extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
@@ -178,7 +161,6 @@ class EditOrders extends Component {
             <EditOrdersForm
               initialValues={currentOrders}
               onSubmit={this.updateOrders}
-              onCancel={this.cancelChanges}
               schema={schema}
               existingUploads={existingUploads}
               newUploads={this.state.newUploads}
@@ -194,6 +176,7 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
+  const orders = 'loggedInUser.loggedInUser.service_member.orders.0';
   const props = {
     serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
     error: get(state, 'orders.error'),
@@ -202,19 +185,10 @@ function mapStateToProps(state) {
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[editOrdersFormName],
 
-    //this is not working because of denormalized state fuckery
     moveIsApproved:
-      get(
-        state,
-        'loggedInUser.loggedInUser.service_member.orders.0.moves.0.status',
-        'SUBMITTED',
-      ) === 'APPROVED',
-    currentOrders: get(state, 'orders.currentOrders'),
-    existingUploads: get(
-      state,
-      'orders.currentOrders.uploaded_orders.uploads',
-      [],
-    ),
+      get(state, `${orders}.moves.0.status`, 'SUBMITTED') === 'APPROVED',
+    currentOrders: get(state, orders),
+    existingUploads: get(state, `${orders}.uploaded_orders.uploads`, []),
   };
   return props;
 }
