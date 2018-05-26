@@ -384,9 +384,10 @@ function mapStateToProps(state) {
     ...state.ppm,
     ...state.loggedInUser,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders:
-      get(state.orders, 'currentOrders') ||
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]'),
+    currentOrders: get(
+      state.loggedInUser,
+      'loggedInUser.service_member.orders[0]',
+    ),
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
     //todo: this should be a selector
