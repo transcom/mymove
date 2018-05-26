@@ -97,14 +97,6 @@ class EditOrders extends Component {
     });
   };
 
-  componentDidUpdate = prevProps => {
-    // Once service member loads, load the backup contact.
-    if (this.props.serviceMember && !prevProps.serviceMember) {
-      debugger;
-      this.props.showCurrentOrders(this.props.serviceMember.id);
-    }
-  };
-
   handleDelete = (e, uploadId) => {
     e.preventDefault();
     this.setState({ deleteQueue: concat(this.state.deleteQueue, uploadId) });
