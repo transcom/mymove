@@ -1,4 +1,5 @@
 import React, { Component, Fragment } from 'react';
+import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
@@ -116,7 +117,7 @@ export class Summary extends Component {
                   <th>
                     Profile{' '}
                     <span className="align-right">
-                      <a href={editProfileAddress}>Edit</a>
+                      <Link to={editProfileAddress}>Edit</Link>
                     </span>
                   </th>
                 </tr>
@@ -157,7 +158,7 @@ export class Summary extends Component {
                     Orders{moveIsApproved && '*'}
                     {!moveIsApproved && (
                       <span className="align-right">
-                        <a href={editOrdersAddress}>Edit</a>
+                        <Link to={editOrdersAddress}>Edit</Link>
                       </span>
                     )}
                   </th>
@@ -209,7 +210,7 @@ export class Summary extends Component {
                   <th>
                     Contact Info{' '}
                     <span className="align-right">
-                      <a href={editContactInfoAddress}>Edit</a>
+                      <Link to={editContactInfoAddress}>Edit</Link>
                     </span>
                   </th>
                 </tr>
@@ -259,7 +260,7 @@ export class Summary extends Component {
                     <th>
                       Backup Contact{' '}
                       <span className="align-right">
-                        <a href={editBackupContactAddress}>Edit</a>
+                        <Link to={editBackupContactAddress}>Edit</Link>
                       </span>
                     </th>
                   </tr>
@@ -296,7 +297,7 @@ export class Summary extends Component {
                     <th>
                       Dates & Locations
                       <span className="align-right">
-                        <a href={editDateAndLocationAddress}>Edit</a>
+                        <Link to={editDateAndLocationAddress}>Edit</Link>
                       </span>
                     </th>
                   </tr>
@@ -332,7 +333,7 @@ export class Summary extends Component {
                     <th>
                       Weight
                       <span className="align-right">
-                        <a href={editWeightAddress}>Edit</a>
+                        <Link to={editWeightAddress}>Edit</Link>
                       </span>
                     </th>
                   </tr>
