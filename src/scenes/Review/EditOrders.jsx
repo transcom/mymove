@@ -13,12 +13,7 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
-import {
-  updateOrders,
-  deleteUploads,
-  addUploads,
-  showCurrentOrders,
-} from 'scenes/Orders/ducks';
+import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -187,7 +182,12 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateOrders, addUploads, deleteUploads, showCurrentOrders },
+    {
+      push,
+      updateOrders,
+      addUploads,
+      deleteUploads,
+    },
     dispatch,
   );
 }

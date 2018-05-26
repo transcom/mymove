@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-import { showCurrentOrders, deleteUpload, addUploads } from './ducks';
+import { showServiceMemberOrders, deleteUpload, addUploads } from './ducks';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
@@ -31,7 +31,7 @@ export class UploadOrders extends Component {
     // If we have a logged in user at mount time, do our loading then.
     if (this.props.currentServiceMember) {
       const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
+      this.props.showServiceMemberOrders(serviceMemberID);
     }
   }
 
@@ -43,7 +43,7 @@ export class UploadOrders extends Component {
       !this.props.currentOrders
     ) {
       const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
+      this.props.showServiceMemberOrders(serviceMemberID);
     }
   }
 
@@ -138,13 +138,13 @@ export class UploadOrders extends Component {
 
 UploadOrders.propTypes = {
   hasSubmitSuccess: PropTypes.bool.isRequired,
-  showCurrentOrders: PropTypes.func.isRequired,
+  showServiceMemberOrders: PropTypes.func.isRequired,
   deleteUpload: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { showCurrentOrders, loadServiceMember, deleteUpload, addUploads },
+    { showServiceMemberOrders, loadServiceMember, deleteUpload, addUploads },
     dispatch,
   );
 }

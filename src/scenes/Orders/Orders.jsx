@@ -6,8 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders, showCurrentOrders } from './ducks';
-import { createMove } from 'scenes/Moves/ducks';
+import { createOrders, updateOrders } from './ducks';
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -102,9 +101,6 @@ function mapDispatchToProps(dispatch) {
     {
       updateOrders,
       createOrders,
-      showCurrentOrders,
-      loadServiceMember,
-      createMove,
     },
     dispatch,
   );

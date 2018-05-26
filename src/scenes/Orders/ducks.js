@@ -1,14 +1,15 @@
-import { reject, cloneDeep, concat, includes, get, isNull } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
   GetOrders,
-  ShowCurrentOrdersAPI,
+  ShowServiceMemberOrders,
 } from './api.js';
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { GET_LOGGED_IN_USER } from 'shared/user/ducks';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -35,9 +36,9 @@ export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // Actions
-export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
+export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
   showCurrentOrdersType,
-  ShowCurrentOrdersAPI,
+  ShowServiceMemberOrders,
 );
 
 export function createOrders(ordersPayload) {
@@ -152,14 +153,35 @@ const initialState = {
   currentOrders: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  hasLoadSuccess: false,
+  hasLoadError: false,
   error: null,
 };
+function reshapeOrders(orders) {
+  return pick(orders, [
+    'id',
+    'has_dependents',
+    'issue_date',
+    'new_duty_station',
+    'orders_type',
+    'report_by_date',
+    'service_member_id',
+    'uploaded_orders',
+  ]);
+}
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
+    case GET_LOGGED_IN_USER.success:
+      return Object.assign({}, state, {
+        currentOrders: reshapeOrders(
+          get(action.payload, 'service_member.orders.0', {}),
+        ),
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
     case CREATE_OR_UPDATE_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
-        pendingOrdersType: null,
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
@@ -173,16 +195,16 @@ export function ordersReducer(state = initialState, action) {
       });
     case GET_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        currentOrders: reshapeOrders(action.payload),
+        hasLoadSuccess: true,
+        hasLoadError: false,
         error: null,
       });
     case GET_ORDERS.failure:
       return Object.assign({}, state, {
-        currentOrders: {},
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        currentOrders: null,
+        hasLoadSuccess: false,
+        hasLoadError: true,
         error: action.error,
       });
     case SHOW_CURRENT_ORDERS.start:
@@ -192,7 +214,7 @@ export function ordersReducer(state = initialState, action) {
       });
     case SHOW_CURRENT_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
+        currentOrders: reshapeOrders(action.payload),
         showCurrentOrdersSuccess: true,
         showCurrentOrdersError: false,
       });
