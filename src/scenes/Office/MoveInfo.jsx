@@ -49,7 +49,7 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <React.Fragment>
-      <PPMEstimatesPanel title="Estimate" />
+      <PPMEstimatesPanel title="Estimate" moveId={props.match.params.moveId} />
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
     </React.Fragment>
   );
