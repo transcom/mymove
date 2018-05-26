@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick, without } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -19,7 +19,7 @@ export const UPDATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
 );
 
 const createServiceMemberType = 'CREATE_SERVICE_MEMBER';
-const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
+export const CREATE_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   createServiceMemberType,
 );
 
@@ -108,12 +108,14 @@ const initialState = {
   createBackupContactSuccess: false,
   updateBackupContactSuccess: false,
 };
+const reshape = sm => pick(sm, without(Object.keys(sm), 'orders'));
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
-        currentServiceMember: action.payload.service_member,
-        isLoading: false,
+        currentServiceMember: reshape(action.payload.service_member),
+        hasLoadError: false,
+        hasLoadSuccess: true,
       });
     case CREATE_SERVICE_MEMBER.start:
       return Object.assign({}, state, {
@@ -122,7 +124,7 @@ export function serviceMemberReducer(state = initialState, action) {
       });
     case CREATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
-        currentServiceMember: action.payload,
+        currentServiceMember: reshape(action.payload),
         isLoading: false,
         hasSubmitSuccess: true,
         hasSubmitError: false,
@@ -140,7 +142,7 @@ export function serviceMemberReducer(state = initialState, action) {
       });
     case UPDATE_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
-        currentServiceMember: action.payload,
+        currentServiceMember: reshape(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
@@ -156,7 +158,7 @@ export function serviceMemberReducer(state = initialState, action) {
       });
     case GET_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
-        currentServiceMember: action.payload,
+        currentServiceMember: reshape(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });
