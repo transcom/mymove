@@ -9,8 +9,6 @@ import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 class PaymentsTable extends Component {
