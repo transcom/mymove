@@ -9,7 +9,7 @@ import { Field, reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
@@ -20,7 +20,7 @@ import profileImage from './images/profile.png';
 const editProfileFormName = 'edit_profile';
 
 let EditProfileForm = props => {
-  const { onCancel, schema, handleSubmit, submitting, valid } = props;
+  const { schema, handleSubmit, submitting, valid } = props;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Profile
@@ -35,17 +35,7 @@ let EditProfileForm = props => {
       <SwaggerField fieldName="rank" swagger={schema} required />
       <SwaggerField fieldName="edipi" swagger={schema} required />
       <Field name="current_station" component={DutyStationSearchBox} />
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -56,18 +46,13 @@ EditProfileForm = reduxForm({
 })(EditProfileForm);
 
 class EditProfile extends Component {
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
   updateProfile = (fieldValues, something, elses) => {
     fieldValues.current_station_id = fieldValues.current_station.id;
 
     return this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
-        this.returnToReview();
+        this.props.history.goBack();
       } else {
         window.scrollTo(0, 0);
       }

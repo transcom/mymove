@@ -13,14 +13,14 @@ import {
   updateBackupContact,
   indexBackupContacts,
 } from 'scenes/ServiceMembers/ducks';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
 let EditBackupContactForm = props => {
-  const { onCancel, schema, handleSubmit, submitting, valid } = props;
+  const { schema, handleSubmit, submitting, valid } = props;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Backup Contact
@@ -29,17 +29,7 @@ let EditBackupContactForm = props => {
       <SwaggerField fieldName="name" swagger={schema} required />
       <SwaggerField fieldName="email" swagger={schema} required />
       <SwaggerField fieldName="telephone" swagger={schema} />
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -48,11 +38,9 @@ EditBackupContactForm = reduxForm({
 })(EditBackupContactForm);
 
 class EditBackupContact extends Component {
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  }
   componentDidUpdate = prevProps => {
     // Once service member loads, load the backup contact.
     if (this.props.serviceMember && !prevProps.serviceMember) {
@@ -69,7 +57,7 @@ class EditBackupContact extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
@@ -97,7 +85,6 @@ class EditBackupContact extends Component {
           <EditBackupContactForm
             initialValues={backupContact}
             onSubmit={this.updateContact}
-            onCancel={this.returnToReview}
             schema={schema}
           />
         </div>
