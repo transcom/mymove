@@ -1,4 +1,13 @@
-import { reject, pick, cloneDeep, concat, includes, get, isNull } from 'lodash';
+import {
+  reject,
+  pick,
+  cloneDeep,
+  concat,
+  includes,
+  get,
+  isNull,
+  merge,
+} from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -76,16 +85,9 @@ export function deleteUpload(uploadId) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
-    const currentOrders = cloneDeep(state.orders.currentOrders);
-    if (currentOrders) {
+    if (state.orders.currentOrders) {
       return DeleteUploads(uploadId)
-        .then(() => {
-          const uploads = currentOrders.uploaded_orders.uploads;
-          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
-            return uploadId === upload.id;
-          });
-          dispatch(action.success(currentOrders));
-        })
+        .then(() => dispatch(action.success([uploadId])))
         .catch(err => action.error(err));
     } else {
       return Promise.resolve();
@@ -98,16 +100,9 @@ export function deleteUploads(uploadIds) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
-    const currentOrders = cloneDeep(state.orders.currentOrders);
-    if (currentOrders && uploadIds.length) {
+    if (state.orders.currentOrders && uploadIds.length) {
       return DeleteUploads(uploadIds)
-        .then(() => {
-          const uploads = currentOrders.uploaded_orders.uploads;
-          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
-            return includes(uploadIds, upload.id);
-          });
-          dispatch(action.success(currentOrders));
-        })
+        .then(() => dispatch(action.success(uploadIds)))
         .catch(err => action.error(err));
     } else {
       return Promise.resolve();
@@ -119,13 +114,14 @@ export function addUploads(uploads) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
-    const currentOrders = cloneDeep(state.orders.currentOrders);
-    if (currentOrders) {
-      currentOrders.uploaded_orders.uploads = concat(
-        currentOrders.uploaded_orders.uploads,
-        ...uploads,
+    if (state.orders.currentOrders) {
+      dispatch(action.success(uploads));
+    } else {
+      dispatch(
+        action.error(
+          new Error("attempted to add uploads when orders don't exist"),
+        ),
       );
-      dispatch(action.success(currentOrders));
     }
   };
 }
@@ -169,6 +165,24 @@ function reshapeOrders(orders) {
     'uploaded_orders',
   ]);
 }
+const removeUploads = (uploadIds, state) => {
+  const newState = cloneDeep(state);
+  newState.currentOrders.uploaded_orders.uploads = reject(
+    state.currentOrders.uploaded_orders.uploads,
+    upload => {
+      return includes(uploadIds, upload.id);
+    },
+  );
+  return newState;
+};
+const insertUploads = (uploads, state) => {
+  const newState = cloneDeep(state);
+  newState.currentOrders.uploaded_orders.uploads = concat(
+    state.currentOrders.uploaded_orders.uploads,
+    ...uploads,
+  );
+  return newState;
+};
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
@@ -219,36 +233,33 @@ export function ordersReducer(state = initialState, action) {
         showCurrentOrdersError: false,
       });
     case SHOW_CURRENT_ORDERS.failure:
-      const error = action.error.statusCode === 404 ? null : action.error;
       return Object.assign({}, state, {
         currentOrders: null,
         showCurrentOrdersError: true,
-        error,
+        error: action.error,
       });
     case DELETE_UPLOAD.success:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(action.payload),
+        ...removeUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
       });
     case DELETE_UPLOAD.failure:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
       });
     case ADD_UPLOADS.success:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(action.payload),
+        ...insertUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
       });
     case ADD_UPLOADS.failure:
       return Object.assign({}, state, {
-        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,

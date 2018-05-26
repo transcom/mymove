@@ -59,6 +59,45 @@ const expectedOrders = {
     ],
   },
 };
+const ordersWithOneUpload = {
+  id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
+  has_dependents: false,
+  issue_date: '2018-05-11',
+  new_duty_station: {
+    address: {
+      city: 'Fort Worth',
+      country: 'United States',
+      postal_code: '76127',
+      state: 'TX',
+      street_address_1: 'n/a',
+    },
+    affiliation: 'NAVY',
+    created_at: '2018-05-20T18:36:45.034Z',
+    id: '44db8bfb-db7c-4c8d-bc08-5d683c4469ed',
+    name: 'NAS Fort Worth',
+    updated_at: '2018-05-20T18:36:45.034Z',
+  },
+  orders_type: 'PERMANENT_CHANGE_OF_STATION',
+  report_by_date: '2018-05-29',
+  service_member_id: '1694e00e-17ff-43fe-af6d-ab0519a18ff2',
+  uploaded_orders: {
+    id: '24f18674-eec7-4c1f-b8c0-cb343a8c4f77',
+    name: 'uploaded_orders',
+    service_member_id: '1694e00e-17ff-43fe-af6d-ab0519a18ff2',
+    uploads: [
+      {
+        bytes: 3932969,
+        content_type: 'image/jpeg',
+        created_at: '2018-05-25T21:38:06.235Z',
+        filename: 'last vacccination.jpg',
+        id: 'd56df2e3-1481-4dff-9a02-ef5c6bcae491',
+        updated_at: '2018-05-25T21:38:06.235Z',
+        url:
+          '/storage/documents/24f18674-eec7-4c1f-b8c0-cb343a8c4f77/uploads/d56df2e3-1481-4dff-9a02-ef5c6bcae491?contentType=image%2Fjpeg',
+      },
+    ],
+  },
+};
 const ordersPayload = Object.freeze({
   created_at: '2018-05-25T21:36:10.219Z',
   has_dependents: false,
@@ -247,14 +286,14 @@ describe('orders Reducer', () => {
   });
   describe('DELETE_UPLOAD', () => {
     it('Should handle DELETE_UPLOAD_SUCCESS', () => {
-      const initialState = {};
+      const initialState = { currentOrders: expectedOrders };
       const newState = ordersReducer(initialState, {
         type: DELETE_UPLOAD.success,
-        payload: ordersPayload,
+        payload: 'e2010a83-ac1e-45a2-9eb1-4e144c443c41',
       });
-
+      expect(expectedOrders.uploaded_orders.uploads.length).toEqual(2);
       expect(newState).toEqual({
-        currentOrders: { ...expectedOrders },
+        currentOrders: ordersWithOneUpload,
         hasSubmitError: false,
         hasSubmitSuccess: true,
         error: null,
@@ -262,7 +301,7 @@ describe('orders Reducer', () => {
     });
 
     it('Should handle DELETE_UPLOAD_FAILURE', () => {
-      const initialState = {};
+      const initialState = { currentOrders: expectedOrders };
 
       const newState = ordersReducer(initialState, {
         payload: ordersPayload,
@@ -271,7 +310,7 @@ describe('orders Reducer', () => {
       });
 
       expect(newState).toEqual({
-        currentOrders: { ...expectedOrders },
+        currentOrders: expectedOrders,
         hasSubmitError: true,
         hasSubmitSuccess: false,
         error: 'No bueno.',
@@ -280,14 +319,17 @@ describe('orders Reducer', () => {
   });
   describe('ADD_UPLOADS', () => {
     it('Should handle ADD_UPLOADS_SUCCESS', () => {
-      const initialState = {};
+      const initialState = { currentOrders: ordersWithOneUpload };
       const newState = ordersReducer(initialState, {
         type: ADD_UPLOADS.success,
-        payload: ordersPayload,
+        payload: [expectedOrders.uploaded_orders.uploads[1]],
       });
 
+      expect(initialState.currentOrders.uploaded_orders.uploads.length).toEqual(
+        1,
+      );
       expect(newState).toEqual({
-        currentOrders: { ...expectedOrders },
+        currentOrders: expectedOrders,
         hasSubmitError: false,
         hasSubmitSuccess: true,
         error: null,
@@ -295,7 +337,7 @@ describe('orders Reducer', () => {
     });
 
     it('Should handle ADD_UPLOADS_FAILURE', () => {
-      const initialState = {};
+      const initialState = { currentOrders: ordersWithOneUpload };
 
       const newState = ordersReducer(initialState, {
         payload: ordersPayload,
@@ -304,7 +346,7 @@ describe('orders Reducer', () => {
       });
 
       expect(newState).toEqual({
-        currentOrders: { ...expectedOrders },
+        currentOrders: { ...initialState.currentOrders },
         hasSubmitError: true,
         hasSubmitSuccess: false,
         error: 'No bueno.',
