@@ -76,7 +76,7 @@ export function deleteUpload(uploadId) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
-    const currentOrders = state.orders.currentOrders;
+    const currentOrders = cloneDeep(state.orders.currentOrders);
     if (currentOrders) {
       return DeleteUploads(uploadId)
         .then(() => {
@@ -119,7 +119,7 @@ export function addUploads(uploads) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
-    const currentOrders = state.orders.currentOrders;
+    const currentOrders = cloneDeep(state.orders.currentOrders);
     if (currentOrders) {
       currentOrders.uploaded_orders.uploads = concat(
         currentOrders.uploaded_orders.uploads,
@@ -227,24 +227,31 @@ export function ordersReducer(state = initialState, action) {
       });
     case DELETE_UPLOAD.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
       });
     case DELETE_UPLOAD.failure:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
       });
     case ADD_UPLOADS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
+      });
+    case ADD_UPLOADS.failure:
+      return Object.assign({}, state, {
+        currentOrders: reshapeOrders(action.payload),
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
       });
     default:
       return state;

@@ -2,6 +2,8 @@ import {
   CREATE_OR_UPDATE_ORDERS,
   GET_ORDERS,
   SHOW_CURRENT_ORDERS,
+  DELETE_UPLOAD,
+  ADD_UPLOADS,
   ordersReducer,
 } from './ducks';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
@@ -57,7 +59,7 @@ const expectedOrders = {
     ],
   },
 };
-const ordersPayload = {
+const ordersPayload = Object.freeze({
   created_at: '2018-05-25T21:36:10.219Z',
   has_dependents: false,
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
@@ -132,7 +134,7 @@ const ordersPayload = {
       },
     ],
   },
-};
+});
 describe('orders Reducer', () => {
   describe('GET_LOGGED_IN_USER', () => {
     it('Should handle GET_LOGGED_IN_USER.success', () => {
@@ -209,6 +211,102 @@ describe('orders Reducer', () => {
         currentOrders: null,
         hasLoadError: true,
         hasLoadSuccess: false,
+        error: 'No bueno.',
+      });
+    });
+  });
+  describe('SHOW_CURRENT_ORDERS', () => {
+    it('Should handle SHOW_CURRENT_ORDERS_SUCCESS', () => {
+      const initialState = {};
+      const newState = ordersReducer(initialState, {
+        type: SHOW_CURRENT_ORDERS.success,
+        payload: ordersPayload,
+      });
+
+      expect(newState).toEqual({
+        currentOrders: { ...expectedOrders },
+        showCurrentOrdersError: false,
+        showCurrentOrdersSuccess: true,
+      });
+    });
+
+    it('Should handle SHOW_CURRENT_ORDERS_FAILURE', () => {
+      const initialState = {};
+
+      const newState = ordersReducer(initialState, {
+        type: SHOW_CURRENT_ORDERS.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentOrders: null,
+        showCurrentOrdersError: true,
+        error: 'No bueno.',
+      });
+    });
+  });
+  describe('DELETE_UPLOAD', () => {
+    it('Should handle DELETE_UPLOAD_SUCCESS', () => {
+      const initialState = {};
+      const newState = ordersReducer(initialState, {
+        type: DELETE_UPLOAD.success,
+        payload: ordersPayload,
+      });
+
+      expect(newState).toEqual({
+        currentOrders: { ...expectedOrders },
+        hasSubmitError: false,
+        hasSubmitSuccess: true,
+        error: null,
+      });
+    });
+
+    it('Should handle DELETE_UPLOAD_FAILURE', () => {
+      const initialState = {};
+
+      const newState = ordersReducer(initialState, {
+        payload: ordersPayload,
+        type: DELETE_UPLOAD.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentOrders: { ...expectedOrders },
+        hasSubmitError: true,
+        hasSubmitSuccess: false,
+        error: 'No bueno.',
+      });
+    });
+  });
+  describe('ADD_UPLOADS', () => {
+    it('Should handle ADD_UPLOADS_SUCCESS', () => {
+      const initialState = {};
+      const newState = ordersReducer(initialState, {
+        type: ADD_UPLOADS.success,
+        payload: ordersPayload,
+      });
+
+      expect(newState).toEqual({
+        currentOrders: { ...expectedOrders },
+        hasSubmitError: false,
+        hasSubmitSuccess: true,
+        error: null,
+      });
+    });
+
+    it('Should handle ADD_UPLOADS_FAILURE', () => {
+      const initialState = {};
+
+      const newState = ordersReducer(initialState, {
+        payload: ordersPayload,
+        type: ADD_UPLOADS.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentOrders: { ...expectedOrders },
+        hasSubmitError: true,
+        hasSubmitSuccess: false,
         error: 'No bueno.',
       });
     });
