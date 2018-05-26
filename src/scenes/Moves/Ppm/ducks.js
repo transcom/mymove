@@ -145,7 +145,7 @@ const initialState = {
 export function ppmReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
-      // Initilize state when we get the logged in user
+      // Initialize state when we get the logged in user
       const user = action.payload;
       const currentPpm = get(
         user,
