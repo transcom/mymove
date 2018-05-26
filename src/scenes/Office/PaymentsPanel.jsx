@@ -33,7 +33,7 @@ class PaymentsTable extends Component {
               <th className="payment-table-column-title">Disbursement</th>
               <th className="payment-table-column-title">Requested on</th>
               <th className="payment-table-column-title">Status</th>
-              <th className="payment-table-column-title" />
+              <th className="payment-table-column-title">Actions</th>
             </tr>
             {!isEmpty(advance) ? (
               <React.Fragment>
