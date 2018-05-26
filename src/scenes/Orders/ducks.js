@@ -9,7 +9,7 @@ import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-import { GET_LOGGED_IN_USER } from 'shared/user/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 
 // Types
 const getOrdersType = 'GET_ORDERS';

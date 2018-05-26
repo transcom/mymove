@@ -4,7 +4,7 @@ import {
   SHOW_CURRENT_ORDERS,
   ordersReducer,
 } from './ducks';
-import { GET_LOGGED_IN_USER } from 'shared/user/ducks';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
 import loggedInUserPayload from 'shared/user/sampleLoggedInUserPayload';
 
