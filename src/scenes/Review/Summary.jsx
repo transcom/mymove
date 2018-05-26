@@ -372,7 +372,7 @@ Summary.propTypes = {
   currentOrders: PropTypes.object,
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
-  moveIsApproved: PropTypes.boolean,
+  moveIsApproved: PropTypes.bool,
 };
 
 function mapDispatchToProps(dispatch) {
