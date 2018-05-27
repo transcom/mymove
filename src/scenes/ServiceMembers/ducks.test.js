@@ -10,7 +10,9 @@ import {
 
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
-import loggedInUserPayload from 'shared/user/sampleLoggedInUserPayload';
+import loggedInUserPayload, {
+  emptyPayload,
+} from 'shared/user/sampleLoggedInUserPayload';
 const smPayload = { ...loggedInUserPayload.payload.service_member };
 const expectedSM = {
   affiliation: 'ARMY',
@@ -65,6 +67,15 @@ describe('Service Member Reducer', () => {
       const newState = serviceMemberReducer({}, loggedInUserPayload);
       expect(newState).toEqual({
         currentServiceMember: { ...expectedSM },
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
+    });
+    it('should handle emptyPayload', () => {
+      //todo: should this do anything with back up contacts (once the handler returns them properly)
+      const newState = serviceMemberReducer({}, emptyPayload);
+      expect(newState).toEqual({
+        currentServiceMember: {},
         hasLoadError: false,
         hasLoadSuccess: true,
       });

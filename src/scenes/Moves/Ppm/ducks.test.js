@@ -1,9 +1,11 @@
 import { CREATE_OR_UPDATE_PPM, GET_PPM, ppmReducer } from './ducks';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
-import loggedInUserPayload from 'shared/user/sampleLoggedInUserPayload';
+import loggedInUserPayload, {
+  emptyPayload,
+} from 'shared/user/sampleLoggedInUserPayload';
 describe('Ppm Reducer', () => {
   const samplePpm = { id: 'UUID', name: 'foo' };
-  describe('', () => {
+  describe('GET_LOGGED_IN_USER', () => {
     it('Should handle GET_LOGGED_IN_USER.success', () => {
       const initialState = {
         pendingValue: '',
@@ -35,6 +37,26 @@ describe('Ppm Reducer', () => {
         pendingPpmSize: 'L',
         pendingPpmWeight: 9000,
         pendingValue: '',
+        sitReimbursement: null,
+      });
+    });
+    it('Should handle emptyPayload', () => {
+      const initialState = {
+        hasSubmitError: false,
+        hasSubmitSuccess: true,
+      };
+
+      const newState = ppmReducer(initialState, emptyPayload);
+
+      expect(newState).toEqual({
+        currentPpm: null,
+        hasSubmitError: false,
+        hasSubmitSuccess: true,
+        hasLoadError: false,
+        hasLoadSuccess: true,
+        incentive: null,
+        pendingPpmSize: null,
+        pendingPpmWeight: null,
         sitReimbursement: null,
       });
     });

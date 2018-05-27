@@ -8,7 +8,9 @@ import {
 } from './ducks';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
-import loggedInUserPayload from 'shared/user/sampleLoggedInUserPayload';
+import loggedInUserPayload, {
+  emptyPayload,
+} from 'shared/user/sampleLoggedInUserPayload';
 
 const expectedOrders = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
@@ -182,6 +184,16 @@ describe('orders Reducer', () => {
 
       expect(newState).toEqual({
         currentOrders: { ...expectedOrders },
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
+    });
+    it('Should handle empty payload', () => {
+      const initialState = {};
+      const newState = ordersReducer(initialState, emptyPayload);
+
+      expect(newState).toEqual({
+        currentOrders: {},
         hasLoadError: false,
         hasLoadSuccess: true,
       });

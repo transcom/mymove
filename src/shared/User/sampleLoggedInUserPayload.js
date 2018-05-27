@@ -1,3 +1,11 @@
+export const emptyPayload = {
+  type: 'GET_LOGGED_IN_USER_SUCCESS',
+  payload: {
+    created_at: '2018-05-20T14:38:57.353Z',
+    id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
+    updated_at: '2018-05-20T14:38:57.353Z',
+  },
+};
 export default {
   type: 'GET_LOGGED_IN_USER_SUCCESS',
   payload: {

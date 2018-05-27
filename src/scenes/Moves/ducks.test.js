@@ -6,7 +6,9 @@ import {
 } from './ducks';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
-import loggedInUserPayload from 'shared/user/sampleLoggedInUserPayload';
+import loggedInUserPayload, {
+  emptyPayload,
+} from 'shared/user/sampleLoggedInUserPayload';
 
 const expectedMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
@@ -47,6 +49,17 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
+    });
+    it('Should handle GET_LOGGED_IN_USER.success with empty payload', () => {
+      const initialState = {};
+
+      const newState = moveReducer(initialState, emptyPayload);
+
+      expect(newState).toEqual({
+        currentMove: {},
         hasLoadError: false,
         hasLoadSuccess: true,
       });
