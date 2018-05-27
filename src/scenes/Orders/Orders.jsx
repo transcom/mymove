@@ -25,7 +25,7 @@ export class Orders extends Component {
     const pendingValues = Object.assign({}, this.props.formData.values);
     // Update if orders object already extant
     if (pendingValues) {
-      pendingValues['service_member_id'] = this.props.currentServiceMember.id;
+      pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       if (this.props.currentOrders) {
@@ -40,16 +40,14 @@ export class Orders extends Component {
     const {
       pages,
       pageKey,
-      hasSubmitSuccess,
       error,
       currentOrders,
-      currentServiceMember,
+      serviceMemberId,
+      hasSubmitSuccess,
     } = this.props;
+    console.log('hasSubmitSuccess', hasSubmitSuccess);
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
-    const serviceMemberId = currentServiceMember
-      ? currentServiceMember.id
-      : null;
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
@@ -106,22 +104,12 @@ function mapDispatchToProps(dispatch) {
 }
 
 function mapStateToProps(state) {
-  const error = state.loggedInUser.error || state.orders.error;
-  const hasSubmitSuccess =
-    state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
-    currentServiceMember: get(
-      state,
-      'loggedInUser.loggedInUser.service_member',
-    ),
+    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
-    currentOrders: get(
-      state,
-      'loggedInUser.loggedInUser.service_member.orders.0',
-    ),
-    error,
-    hasSubmitSuccess,
+    ...state.orders.currentOrders,
+    hasSubmitSuccess: state.submittedMoves.hasSubmitSuccess,
   };
   return props;
 }

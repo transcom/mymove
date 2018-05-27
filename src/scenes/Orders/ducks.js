@@ -119,16 +119,8 @@ export function addUploads(uploads) {
 
 // Selectors
 export function loadEntitlements(state) {
-  const hasDependents = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.orders.0.has_dependents',
-    null,
-  );
-  const rank = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.rank',
-    null,
-  );
+  const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
+  const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(rank)) {
     return null;
   }
