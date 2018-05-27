@@ -28,6 +28,8 @@ import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
+import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
+
 import { no_op } from 'shared/utils';
 
 const NoMatch = ({ location }) => (
@@ -41,6 +43,14 @@ export class AppWrapper extends Component {
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadSchema();
+  }
+
+  componentWillUpdate(newProps) {
+    //HACK: this is not loading properly in loadLoggedInUser
+    if (this.props.currentServiceMemberId !== newProps.currentServiceMemberId) {
+      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!');
+      this.props.indexBackupContacts(newProps.currentServiceMemberId);
+    }
   }
   render() {
     const props = this.props;
@@ -119,6 +129,7 @@ AppWrapper.defaultProps = {
 const mapStateToProps = state => {
   return {
     swaggerError: state.swagger.hasErrored,
+    currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     selectedMoveType: get(
       state,
       'submittedMoves.currentMove.selected_move_type',
@@ -128,6 +139,9 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators(
+    { push, loadSchema, loadLoggedInUser, indexBackupContacts },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

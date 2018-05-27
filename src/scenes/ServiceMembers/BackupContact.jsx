@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 
 import {
   updateServiceMember,
-  indexBackupContacts,
   createBackupContact,
   updateBackupContact,
 } from './ducks';
@@ -159,10 +158,6 @@ export class BackupContact extends Component {
     };
   }
 
-  componentDidMount() {
-    this.props.indexBackupContacts(this.props.match.params.serviceMemberId);
-  }
-
   handleSubmit = () => {
     const pendingValues = this.props.formData.values;
 
@@ -242,7 +237,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       updateServiceMember,
-      indexBackupContacts,
       createBackupContact,
       updateBackupContact,
     },

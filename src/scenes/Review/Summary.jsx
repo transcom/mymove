@@ -6,25 +6,10 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import './Review.css';
 export class Summary extends Component {
-  componentWillMount() {
-    if (
-      this.props.currentServiceMember &&
-      isEmpty(this.props.currentBackupContacts)
-    ) {
-      this.props.indexBackupContacts(this.props.currentServiceMember.id);
-    }
-  }
-  componentWillUpdate(newProps) {
-    // const service_member = get(newProps.loggedInUser, 'service_member');
-    // if (this.props.currentServiceMember !== service_member) {
-    //   this.props.indexBackupContacts(service_member.id);
-    // }
-  }
   render() {
     const {
       currentPpm,
@@ -364,10 +349,6 @@ Summary.propTypes = {
   moveIsApproved: PropTypes.bool,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ indexBackupContacts }, dispatch);
-}
-
 function mapStateToProps(state) {
   return {
     currentPpm: state.ppm.currentPpm,
@@ -380,6 +361,4 @@ function mapStateToProps(state) {
     moveIsApproved: moveIsApproved(state),
   };
 }
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Summary),
-);
+export default withRouter(connect(mapStateToProps)(Summary));

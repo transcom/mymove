@@ -9,10 +9,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import {
-  updateBackupContact,
-  indexBackupContacts,
-} from 'scenes/ServiceMembers/ducks';
+import { updateBackupContact } from 'scenes/ServiceMembers/ducks';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -41,12 +38,6 @@ class EditBackupContact extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
   }
-  componentDidUpdate = prevProps => {
-    // Once service member loads, load the backup contact.
-    if (this.props.serviceMember && !prevProps.serviceMember) {
-      this.props.indexBackupContacts(this.props.serviceMember.id);
-    }
-  };
 
   updateContact = fieldValues => {
     if (fieldValues.telephone === '') {
@@ -109,10 +100,7 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { push, updateBackupContact, indexBackupContacts },
-    dispatch,
-  );
+  return bindActionCreators({ push, updateBackupContact }, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditBackupContact);
