@@ -1,13 +1,4 @@
-import {
-  reject,
-  pick,
-  cloneDeep,
-  concat,
-  includes,
-  get,
-  isNull,
-  merge,
-} from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -239,12 +230,12 @@ export function ordersReducer(state = initialState, action) {
         error: action.error,
       });
     case DELETE_UPLOAD.success:
-      return Object.assign({}, state, {
+      return {
         ...removeUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
-      });
+      };
     case DELETE_UPLOAD.failure:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
@@ -252,12 +243,12 @@ export function ordersReducer(state = initialState, action) {
         error: action.error,
       });
     case ADD_UPLOADS.success:
-      return Object.assign({}, state, {
+      return {
         ...insertUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
-      });
+      };
     case ADD_UPLOADS.failure:
       return Object.assign({}, state, {
         hasSubmitSuccess: false,
