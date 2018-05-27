@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -49,10 +49,8 @@ export class Landing extends Component {
   };
 
   resumeMove = () => {
-    //getNextIncompletePage needs whole tree, so using loggedInUser state for now
-    this.props.push(
-      getNextIncompletePage(this.props.loggedInUser.service_member),
-    );
+    const { serviceMember, orders, move, ppm } = this.props;
+    this.props.push(getNextIncompletePage(serviceMember, orders, move, ppm));
   };
   render() {
     const {
@@ -112,10 +110,10 @@ export class Landing extends Component {
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
-  serviceMember: get(state, 'serviceMember.currentServiceMember', {}),
-  orders: get(state, 'orders.currentOrders'),
-  move: get(state, 'submittedMoves.currentMove'),
-  ppm: get(state, 'ppm.currentPpm'),
+  serviceMember: state.serviceMember.currentServiceMember || {},
+  orders: state.orders.currentOrders || {},
+  move: state.submittedMoves.currentMove || {},
+  ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,
