@@ -2,6 +2,9 @@ import {
   UPDATE_SERVICE_MEMBER,
   GET_SERVICE_MEMBER,
   CREATE_SERVICE_MEMBER,
+  CREATE_BACKUP_CONTACT,
+  UPDATE_BACKUP_CONTACT,
+  INDEX_BACKUP_CONTACTS,
   serviceMemberReducer,
 } from './ducks';
 
@@ -58,6 +61,7 @@ const expectedSM = {
 describe('Service Member Reducer', () => {
   describe('GET_LOGGED_IN_USER', () => {
     it('should handle SUCCESS', () => {
+      //todo: should this do anything with back up contacts (once the handler returns them properly)
       const newState = serviceMemberReducer({}, loggedInUserPayload);
       expect(newState).toEqual({
         currentServiceMember: { ...expectedSM },
@@ -66,6 +70,7 @@ describe('Service Member Reducer', () => {
       });
     });
   });
+
   describe('UPDATE_SERVICE_MEMBER', () => {
     it('Should handle UPDATE_SERVICE_MEMBER_SUCCESS', () => {
       const initialState = { currentServiceMember: null };
@@ -97,6 +102,7 @@ describe('Service Member Reducer', () => {
       });
     });
   });
+
   describe('GET_SERVICE_MEMBER', () => {
     it('Should handle GET_SERVICE_MEMBER_SUCCESS', () => {
       const initialState = { currentServiceMember: null };
@@ -128,6 +134,7 @@ describe('Service Member Reducer', () => {
       });
     });
   });
+
   describe('CREATE_SERVICE_MEMBER', () => {
     it('Should handle CREATE_SERVICE_MEMBER_SUCCESS', () => {
       const initialState = { currentServiceMember: null };
@@ -158,6 +165,120 @@ describe('Service Member Reducer', () => {
         hasSubmitSuccess: false,
         error: 'No bueno.',
         isLoading: false,
+      });
+    });
+  });
+
+  describe('CREATE_BACKUP_CONTACT', () => {
+    const backupContact = {
+      name: 'Susan Smith',
+      telephone: '212-555-5555',
+      email: 'john_bob@example.com',
+      permission: 'NONE',
+    };
+    it('Should handle CREATE_BACKUP_CONTACT_SUCCESS', () => {
+      const initialState = { currentBackupContacts: [] };
+      const newState = serviceMemberReducer(initialState, {
+        type: CREATE_BACKUP_CONTACT.success,
+        payload: backupContact,
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [backupContact],
+        createBackupContactError: false,
+        createBackupContactSuccess: true,
+      });
+    });
+
+    it('Should handle CREATE_BACKUP_CONTACT_FAILURE', () => {
+      const initialState = { currentBackupContacts: [] };
+
+      const newState = serviceMemberReducer(initialState, {
+        type: CREATE_BACKUP_CONTACT.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [],
+        createBackupContactError: true,
+        createBackupContactSuccess: false,
+        error: 'No bueno.',
+      });
+    });
+  });
+
+  describe('UPDATE_BACKUP_CONTACT', () => {
+    const backupContact = {
+      name: 'Susan Smith',
+      telephone: '212-555-5555',
+      email: 'john_bob@example.com',
+      permission: 'NONE',
+    };
+    it('Should handle UPDATE_BACKUP_CONTACT_SUCCESS', () => {
+      const initialState = { currentBackupContacts: [] };
+      const newState = serviceMemberReducer(initialState, {
+        type: UPDATE_BACKUP_CONTACT.success,
+        payload: backupContact,
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [backupContact],
+        updateBackupContactError: false,
+        updateBackupContactSuccess: true,
+      });
+    });
+
+    it('Should handle UPDATE_BACKUP_CONTACT_FAILURE', () => {
+      const initialState = { currentBackupContacts: [] };
+
+      const newState = serviceMemberReducer(initialState, {
+        type: UPDATE_BACKUP_CONTACT.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [],
+        updateBackupContactError: true,
+        updateBackupContactSuccess: false,
+        error: 'No bueno.',
+      });
+    });
+  });
+
+  describe('INDEX_BACKUP_CONTACTS', () => {
+    const backupContact = {
+      name: 'Susan Smith',
+      telephone: '212-555-5555',
+      email: 'john_bob@example.com',
+      permission: 'NONE',
+    };
+    it('Should handle INDEX_BACKUP_CONTACTS_SUCCESS', () => {
+      const initialState = { currentBackupContacts: [] };
+      const newState = serviceMemberReducer(initialState, {
+        type: INDEX_BACKUP_CONTACTS.success,
+        payload: [backupContact],
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [backupContact],
+        indexBackupContactsError: false,
+        indexBackupContactsSuccess: true,
+      });
+    });
+
+    it('Should handle INDEX_BACKUP_CONTACTS_FAILURE', () => {
+      const initialState = { currentBackupContacts: [] };
+
+      const newState = serviceMemberReducer(initialState, {
+        type: INDEX_BACKUP_CONTACTS.failure,
+        error: 'No bueno.',
+      });
+
+      expect(newState).toEqual({
+        currentBackupContacts: [],
+        indexBackupContactsError: true,
+        indexBackupContactsSuccess: false,
+        error: 'No bueno.',
       });
     });
   });

@@ -1,4 +1,4 @@
-import { get, pick, without } from 'lodash';
+import { get, pick, without, cloneDeep } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -9,7 +9,7 @@ import {
 } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-
+import { upsert } from 'shared/utils';
 // Types
 export const GET_SERVICE_MEMBER = ReduxHelpers.generateAsyncActionTypes(
   'GET_SERVICE_MEMBER',
@@ -32,15 +32,15 @@ const createBackupContactType = 'CREATE_BACKUP_CONTACT';
 const indexBackupContactsType = 'INDEX_BACKUP_CONTACTS';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 
-const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
+export const CREATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   createBackupContactType,
 );
 
-const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(
+export const INDEX_BACKUP_CONTACTS = ReduxHelpers.generateAsyncActionTypes(
   indexBackupContactsType,
 );
 
-const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
+export const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
   updateBackupContactType,
 );
 
@@ -69,6 +69,7 @@ export function updateServiceMember(serviceMember) {
       state,
       'loggedInUser.loggedInUser.service_member',
     );
+    console.log('***********', currentServiceMember.id, serviceMember.id);
     if (currentServiceMember) {
       return UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>
@@ -109,6 +110,11 @@ const initialState = {
   updateBackupContactSuccess: false,
 };
 const reshape = sm => pick(sm, without(Object.keys(sm), 'orders'));
+const upsertBackUpContact = (contact, state) => {
+  const newState = cloneDeep(state);
+  upsert(newState.currentBackupContacts, contact);
+  return newState;
+};
 export function serviceMemberReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
@@ -175,18 +181,15 @@ export function serviceMemberReducer(state = initialState, action) {
         createBackupContactSuccess: false,
       });
     case CREATE_BACKUP_CONTACT.success:
-      let newBackupContacts = state.currentBackupContacts || [];
-      newBackupContacts.push(action.payload);
-      return Object.assign({}, state, {
-        currentBackupContacts: newBackupContacts,
-        createdBackupContact: action.payload,
+      return {
+        ...upsertBackUpContact(action.payload, state),
         createBackupContactSuccess: true,
         createBackupContactError: false,
-      });
+      };
     case CREATE_BACKUP_CONTACT.failure:
       return Object.assign({}, state, {
         createBackupContactSuccess: false,
-        hasSubmitError: true,
+        createBackupContactError: true,
         error: action.error,
       });
     case UPDATE_BACKUP_CONTACT.start:
@@ -194,18 +197,11 @@ export function serviceMemberReducer(state = initialState, action) {
         updateBackupContactSuccess: false,
       });
     case UPDATE_BACKUP_CONTACT.success:
-      // replace the updated contact in the list
-      newBackupContacts = state.currentBackupContacts;
-      const staleIndex = newBackupContacts.findIndex(element => {
-        return (element.id = action.payload.id);
-      });
-      newBackupContacts[staleIndex] = action.payload;
-      return Object.assign({}, state, {
-        currentServiceMember: action.payload,
-        currentBackupContacts: newBackupContacts,
+      return {
+        ...upsertBackUpContact(action.payload, state),
         updateBackupContactSuccess: true,
         updateBackupContactError: false,
-      });
+      };
     case UPDATE_BACKUP_CONTACT.failure:
       return Object.assign({}, state, {
         updateBackupContactSuccess: false,
@@ -224,7 +220,6 @@ export function serviceMemberReducer(state = initialState, action) {
       });
     case INDEX_BACKUP_CONTACTS.failure:
       return Object.assign({}, state, {
-        currentBackupContacts: null,
         indexBackupContactsSuccess: false,
         indexBackupContactsError: true,
         error: action.error,
