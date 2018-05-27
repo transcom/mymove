@@ -118,21 +118,13 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    hasCompleteProfile: get(
-      state.loggedInUser,
-      'loggedInUser.service_member.is_profile_complete',
-    ),
     swaggerError: state.swagger.hasErrored,
-    selectedMoveType: state.submittedMoves.currentMove
-      ? state.submittedMoves.currentMove.selected_move_type
-      : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-    hasMove: Boolean(state.submittedMoves.currentMove),
-    moveId: state.submittedMoves.currentMove
-      ? state.submittedMoves.currentMove.id
-      : null,
-    currentOrdersId:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0].id') ||
-      get(state.orders, 'currentOrders.id'), // should we get the latest or the first?
+    selectedMoveType: get(
+      state,
+      'submittedMoves.currentMove.selected_move_type',
+      'PPM',
+    ), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    moveId: get(state, 'submittedMoves.currentMove.id'),
   };
 };
 const mapDispatchToProps = dispatch =>

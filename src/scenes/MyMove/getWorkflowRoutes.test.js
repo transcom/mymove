@@ -6,9 +6,7 @@ describe('when getting the routes for the current workflow', () => {
     profileIsComplete = true;
     describe('given a PPM', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'PPM',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -35,9 +33,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with an HHG', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'HHG',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -63,9 +59,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with a COMBO', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'COMBO',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -97,9 +91,7 @@ describe('when getting the routes for the current workflow', () => {
     profileIsComplete = false;
     describe('given no move', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: null,
-        hasMove: false,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -123,9 +115,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a PPM', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'PPM',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
@@ -152,9 +142,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with an HHG', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'HHG',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and HHG-specific move pages', () => {
@@ -180,9 +168,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with a COMBO', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'COMBO',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
