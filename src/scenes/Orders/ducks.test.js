@@ -193,7 +193,7 @@ describe('orders Reducer', () => {
       const newState = ordersReducer(initialState, emptyPayload);
 
       expect(newState).toEqual({
-        currentOrders: {},
+        currentOrders: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });

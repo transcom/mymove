@@ -73,6 +73,7 @@ const initialState = {
   error: null,
 };
 function reshapeMove(move) {
+  if (!move) return null;
   return pick(move, [
     'id',
     'locator',
@@ -86,7 +87,7 @@ export function moveReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(
-          get(action.payload, 'service_member.orders.0.moves.0', {}),
+          get(action.payload, 'service_member.orders.0.moves.0'),
         ),
         hasLoadError: false,
         hasLoadSuccess: true,

@@ -59,7 +59,7 @@ describe('move Reducer', () => {
       const newState = moveReducer(initialState, emptyPayload);
 
       expect(newState).toEqual({
-        currentMove: {},
+        currentMove: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });

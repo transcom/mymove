@@ -109,7 +109,10 @@ const initialState = {
   createBackupContactSuccess: false,
   updateBackupContactSuccess: false,
 };
-const reshape = sm => pick(sm, without(Object.keys(sm || {}), 'orders'));
+const reshape = sm => {
+  if (!sm) return null;
+  return pick(sm, without(Object.keys(sm || {}), 'orders'));
+};
 const upsertBackUpContact = (contact, state) => {
   const newState = cloneDeep(state);
   upsert(newState.currentBackupContacts, contact);

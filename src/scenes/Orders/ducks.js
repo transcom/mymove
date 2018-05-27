@@ -145,6 +145,7 @@ const initialState = {
   error: null,
 };
 function reshapeOrders(orders) {
+  if (!orders) return null;
   return pick(orders, [
     'id',
     'has_dependents',
@@ -179,7 +180,7 @@ export function ordersReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(
-          get(action.payload, 'service_member.orders.0', {}),
+          get(action.payload, 'service_member.orders.0'),
         ),
         hasLoadError: false,
         hasLoadSuccess: true,

@@ -75,7 +75,7 @@ describe('Service Member Reducer', () => {
       //todo: should this do anything with back up contacts (once the handler returns them properly)
       const newState = serviceMemberReducer({}, emptyPayload);
       expect(newState).toEqual({
-        currentServiceMember: {},
+        currentServiceMember: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });
