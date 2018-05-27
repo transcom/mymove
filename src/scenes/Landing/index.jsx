@@ -22,33 +22,26 @@ export class Landing extends Component {
     window.scrollTo(0, 0);
   }
   componentDidUpdate() {
-    const { service_member } = this.props;
+    const { serviceMember } = this.props;
     if (this.props.loggedInUserSuccess) {
-      if (
-        !this.props.createdServiceMemberIsLoading &&
-        isEmpty(service_member)
-      ) {
+      if (!this.props.createdServiceMemberIsLoading && isEmpty(serviceMember)) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
         this.props.createServiceMember({});
-      } else if (
-        !isEmpty(service_member) &&
-        !service_member.is_profile_complete
-      ) {
+      } else if (!serviceMember.is_profile_complete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
     }
   }
   startMove = values => {
-    if (!this.props.loggedInUser.service_member) {
+    const { serviceMember } = this.props;
+    if (isEmpty(serviceMember)) {
       console.error(
         'With no service member, you should have been redirected already.',
       );
     }
-    this.props.push(
-      `service-member/${this.props.loggedInUser.service_member.id}/create`,
-    );
+    this.props.push(`service-member/${serviceMember.id}/create`);
   };
 
   editMove = move => {
@@ -56,7 +49,10 @@ export class Landing extends Component {
   };
 
   resumeMove = () => {
-    this.props.push(getNextIncompletePage(this.props.service_member));
+    //getNextIncompletePage needs whole tree, so using loggedInUser state for now
+    this.props.push(
+      getNextIncompletePage(this.props.loggedInUser.service_member),
+    );
   };
   render() {
     const {
@@ -65,15 +61,14 @@ export class Landing extends Component {
       loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
-      loggedInUser,
       moveSubmitSuccess,
       entitlement,
+      serviceMember,
+      orders,
+      move,
+      ppm,
     } = this.props;
 
-    const profile = get(loggedInUser, 'service_member', {});
-    const orders = get(profile, 'orders.0');
-    const move = get(orders, 'moves.0');
-    const ppm = get(move, 'personally_procured_moves.0', {});
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <span> Loading... </span>}
@@ -100,7 +95,7 @@ export class Landing extends Component {
             {isLoggedIn && (
               <MoveSummary
                 entitlement={entitlement}
-                profile={profile}
+                profile={serviceMember}
                 orders={orders}
                 move={move}
                 ppm={ppm}
@@ -117,7 +112,10 @@ export class Landing extends Component {
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
-  service_member: get(state, 'loggedInUser.loggedInUser.service_member', {}),
+  serviceMember: get(state, 'serviceMember.currentServiceMember', {}),
+  orders: get(state, 'orders.currentOrders'),
+  move: get(state, 'submittedMoves.currentMove'),
+  ppm: get(state, 'ppm.currentPpm'),
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,
