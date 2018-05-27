@@ -26,47 +26,33 @@ export const loadLoggedInUser = () => {
   };
 };
 
-const generatedReducer = helpers.generateAsyncReducer(
-  getLoggedInUserType,
-  u => ({ loggedInUser: u }),
-);
-
-export const loggedInUserReducer = (state, action) => {
-  const mutatedState = generatedReducer(state, action);
-  //we want the service member info in logged in user to be up to date.
-  // In the long run we may want to change the server member reducer to work here
+// the results of the api call will be handled by other reducers. This just lets us know app has loaded initial data
+export const loggedInUserReducer = (state = {}, action) => {
   switch (action.type) {
-    case 'CREATE_SERVICE_MEMBER_SUCCESS':
-    case 'UPDATE_SERVICE_MEMBER_SUCCESS':
-    case 'GET_SERVICE_MEMBER_SUCCESS':
+    case GET_LOGGED_IN_USER.start:
       return {
-        ...mutatedState,
-        loggedInUser: {
-          ...mutatedState.loggedInUser,
-          service_member: action.payload,
-        },
+        ...state,
+        hasSucceeded: false,
+        hasErrored: false,
+        isLoading: true,
       };
-    case CREATE_OR_UPDATE_ORDERS.success:
-    case SHOW_CURRENT_ORDERS.success:
-      let oldOrders = mutatedState.loggedInUser.service_member.orders;
-      // Remove existing orders with same ID and add new orders
-      let newOrders = orderBy(
-        concat(reject(oldOrders, ['id', action.payload.id]), action.payload),
-        'created_at',
-        'desc',
-      );
+    case GET_LOGGED_IN_USER.success:
       return {
-        ...mutatedState,
-        loggedInUser: {
-          ...mutatedState.loggedInUser,
-          service_member: {
-            ...mutatedState.loggedInUser.service_member,
-            orders: newOrders,
-          },
-        },
+        ...state,
+        isLoading: false,
+        hasErrored: false,
+        hasSucceeded: true,
+      };
+    case GET_LOGGED_IN_USER.error:
+      return {
+        ...state,
+        isLoading: false,
+        hasErrored: true,
+        hasSucceeded: false,
+        error: action.error,
       };
     default:
-      return mutatedState;
+      return state;
   }
 };
 

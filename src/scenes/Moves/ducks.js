@@ -63,6 +63,9 @@ export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
   submitForApprovalType,
   SubmitMoveForApproval,
 );
+//selector
+export const moveIsApproved = state =>
+  get(state, 'submittedMoves.currentMove.status', 'SUBMITTED') === 'APPROVED';
 
 // Reducer
 const initialState = {

@@ -11,7 +11,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import {
   createOrUpdatePpm,
-  loadPpm,
   getPpmWeightEstimate,
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
@@ -194,15 +193,6 @@ class EditWeight extends Component {
     window.scrollTo(0, 0);
   }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      !prevProps.loggedInUser.hasSucceeded &&
-      this.props.loggedInUser.hasSucceeded
-    ) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
-  }
-
   debouncedGetPpmWeightEstimate = debounce(
     this.props.getPpmWeightEstimate,
     weightEstimateDebounce,
@@ -269,7 +259,6 @@ class EditWeight extends Component {
 function mapStateToProps(state) {
   return {
     ...state.ppm,
-    loggedInUser: get(state, 'loggedInUser'),
     error: get(state, 'serviceMember.error') || state.ppm.hasEstimateError,
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlements(state),
@@ -283,7 +272,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createOrUpdatePpm, getPpmWeightEstimate, loadPpm },
+    { push, createOrUpdatePpm, getPpmWeightEstimate },
     dispatch,
   );
 }

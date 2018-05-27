@@ -45,7 +45,6 @@ export class Orders extends Component {
       serviceMemberId,
       hasSubmitSuccess,
     } = this.props;
-    console.log('hasSubmitSuccess', hasSubmitSuccess);
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
     return (

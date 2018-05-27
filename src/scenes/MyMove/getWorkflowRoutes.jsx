@@ -277,8 +277,8 @@ export const getNextIncompletePage = (
     p => !p.isComplete(service_member, orders, move, ppm),
   );
   const compiledPath = generatePath(rawPath, {
-    serviceMemberId: service_member.id,
-    moveId: move.id,
+    serviceMemberId: get(service_member, 'id'),
+    moveId: get(move, 'id'),
   });
   return compiledPath;
 };

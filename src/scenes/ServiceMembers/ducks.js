@@ -65,11 +65,7 @@ export function updateServiceMember(serviceMember) {
   return function(dispatch, getState) {
     dispatch(action.start());
     const state = getState();
-    const currentServiceMember = get(
-      state,
-      'loggedInUser.loggedInUser.service_member',
-    );
-    console.log('***********', currentServiceMember.id, serviceMember.id);
+    const { currentServiceMember } = state.serviceMember;
     if (currentServiceMember) {
       return UpdateServiceMember(currentServiceMember.id, serviceMember)
         .then(item =>
@@ -79,7 +75,7 @@ export function updateServiceMember(serviceMember) {
         )
         .catch(error => dispatch(action.error(error)));
     } else {
-      return Promise.resolve();
+      return Promise.reject();
     }
   };
 }
@@ -89,7 +85,7 @@ export function loadServiceMember(serviceMemberId) {
   return function(dispatch, getState) {
     dispatch(action.start);
     const state = getState();
-    const currentServiceMember = state.serviceMember.currentServiceMember;
+    const { currentServiceMember } = state.serviceMember;
     if (!currentServiceMember) {
       return GetServiceMember(serviceMemberId)
         .then(item => dispatch(action.success(item)))

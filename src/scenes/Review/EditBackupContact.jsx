@@ -95,8 +95,8 @@ class EditBackupContact extends Component {
 
 function mapStateToProps(state) {
   return {
-    backupContacts: get(state, 'serviceMember.currentBackupContacts'),
-    serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
+    backupContacts: state.serviceMember.currentBackupContacts,
+    serviceMember: state.serviceMember.currentServiceMember,
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),

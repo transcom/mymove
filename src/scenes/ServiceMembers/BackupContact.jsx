@@ -256,7 +256,6 @@ function mapStateToProps(state) {
       state.serviceMember.createBackupContactSuccess ||
       state.serviceMember.updateBackupContactSuccess,
     error: state.serviceMember.error,
-    loggedInUser: state.loggedInUser.loggedInUser,
     schema: get(
       state,
       'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
