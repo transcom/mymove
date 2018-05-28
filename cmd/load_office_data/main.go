@@ -4,12 +4,17 @@ import (
 	"encoding/json"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
-	"github.com/namsral/flag"
+	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
 	"github.com/transcom/mymove/pkg/models"
 	"io/ioutil"
 	"log"
 	"strings"
 )
+
+/* load-office-data is a tool to load Transportation Office data into a local data base.
+From there it will be exported
+as part of a migration
+*/
 
 // OfficeLocation is the form of the `location` object in json representation of PPPO's
 type OfficeLocation struct {
@@ -25,13 +30,28 @@ type OfficeLocation struct {
 	Longitude   float32 `json:"longitude"`
 }
 
+// JSONEmail is the form of the items in the email_addresses list
+type JSONEmail struct {
+	EmailAddress string  `json:"email_address"`
+	Note         *string `json:"note"`
+}
+
+// JSONPhoneNumber is the form of the items in the phone_numbers list
+type JSONPhoneNumber struct {
+	Number string `json:"phone_number"`
+	Type   string `json:"phone_type"`
+	DSN    bool   `json:"dsn"`
+}
+
 // JSONOffice is the form of the objects listed in the PPPO json file
 type JSONOffice struct {
-	Name               string         `json:"name"`
-	ShippingOfficeName *string        `json:"shipping_office_name"`
-	Location           OfficeLocation `json:"location"`
-	Hours              string         `json:"hours"`
-	Services           []string       `json:"services"`
+	Name               string            `json:"name"`
+	ShippingOfficeName *string           `json:"shipping_office_name"`
+	Location           OfficeLocation    `json:"location"`
+	Hours              string            `json:"hours"`
+	Services           []string          `json:"services"`
+	EmailAddresses     []JSONEmail       `json:"email_addresses"`
+	PhoneNumbers       []JSONPhoneNumber `json:"phone_numbers"`
 }
 
 /* This is code used to parse the XML data from the DPS database.
@@ -121,6 +141,7 @@ func main() {
 			if office.Location.CountryCode != "US" {
 				continue
 			}
+
 			// Address
 			address := models.Address{
 				StreetAddress1: office.Location.Address1,
@@ -136,6 +157,7 @@ func main() {
 				return err
 			}
 
+			// Office
 			hours := splitOnNewLineAndCommaThenJoin(office.Hours)
 			services := splitOnNewLineAndCommaThenJoin(strings.Join(office.Services, ", "))
 			transportationOffice := models.TransportationOffice{
@@ -152,6 +174,36 @@ func main() {
 				return err
 			}
 
+			// Phone numbers
+			for _, jsonPhone := range office.PhoneNumbers {
+				// Some numbers are listed as alternates, e.g. "123 555-2323 / 123 555-2324"
+				for _, num := range strings.Split(jsonPhone.Number, "/") {
+					phone := models.OfficePhoneLine{
+						TransportationOfficeID: transportationOffice.ID,
+						Number:                 strings.TrimSpace(num),
+						Type:                   jsonPhone.Type,
+						IsDsnNumber:            jsonPhone.DSN,
+					}
+					err = validated(db.ValidateAndCreate(&phone))
+					if err != nil {
+						log.Printf("%v - office, %v - number", office.Name, phone.Number)
+						return err
+					}
+				}
+			}
+
+			for _, jsonEmail := range office.EmailAddresses {
+				email := models.OfficeEmail{
+					TransportationOfficeID: transportationOffice.ID,
+					Email: strings.TrimSpace(jsonEmail.EmailAddress),
+					Label: jsonEmail.Note,
+				}
+				err = validated(db.ValidateAndCreate(&email))
+				if err != nil {
+					log.Printf("%v - office, %v - email", office.Name, email)
+					return err
+				}
+			}
 		}
 		return nil
 	})
