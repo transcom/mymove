@@ -1,6 +1,7 @@
 import React from 'react';
 
 import { get } from 'lodash';
+import moment from 'moment';
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
 import truck from 'shared/icon/truck-gray.svg';
@@ -36,6 +37,7 @@ export const MoveSummary = props => {
     resumeMove,
   } = props;
   const status = get(move, 'status', 'DRAFT');
+  var afterToday = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrAfter();
   return (
     <div className="whole_box">
       <h2>
@@ -154,98 +156,102 @@ export const MoveSummary = props => {
               </div>
             )}
             {/* Approved Move */}
-            {status === 'APPROVED' && (
-              <div>
-                <img src={ppmApproved} alt="status" />
-                <div className="step-contents">
-                  <div className="status_box usa-width-two-thirds">
-                    <div className="step">
-                      <div className="title">Next step: Get ready to move</div>
-                      <div>
-                        Remember to save your weight tickets and expense
-                        receipts. For more information, read the PPM info
-                        packet.
+            {status === 'APPROVED' &&
+              !afterToday && (
+                <div>
+                  <img src={ppmApproved} alt="status" />
+                  <div className="step-contents">
+                    <div className="status_box usa-width-two-thirds">
+                      <div className="step">
+                        <div className="title">
+                          Next step: Get ready to move
+                        </div>
+                        <div>
+                          Remember to save your weight tickets and expense
+                          receipts. For more information, read the PPM info
+                          packet.
+                        </div>
+                        <button className="usa-button-secondary">
+                          Read PPM Info Packet
+                        </button>
                       </div>
-                      <button className="usa-button-secondary">
-                        Read PPM Info Packet
-                      </button>
+                      <div className="step">
+                        <div className="title">Next step: Request Payment</div>
+                        <div>
+                          Request a PPM payment, a storage payment, or an
+                          advance against your PPM payment before your move is
+                          done.
+                        </div>
+                        <button className="usa-button-secondary">
+                          Request Payment
+                        </button>
+                      </div>
                     </div>
-                    <div className="step">
-                      <div className="title">Next step: Request Payment</div>
-                      <div>
-                        Request a PPM payment, a storage payment, or an advance
-                        against your PPM payment before your move is done.
+                    <div className="usa-width-one-third">
+                      <div className="titled_block">
+                        <div className="title">Details</div>
+                        <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+                        <div>Incentive (est.): {ppm.estimated_incentive}</div>
                       </div>
-                      <button className="usa-button-secondary">
-                        Request Payment
-                      </button>
+                      <div className="titled_block">
+                        <div className="title">Documents</div>
+                        <div className="details-links">
+                          <a>PPM Info Packet</a>
+                          <a>Advance paperwork</a>
+                        </div>
+                      </div>
                     </div>
                   </div>
-                  <div className="usa-width-one-third">
-                    <div className="titled_block">
-                      <div className="title">Details</div>
-                      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                    </div>
-                    <div className="titled_block">
-                      <div className="title">Documents</div>
-                      <div className="details-links">
-                        <a>PPM Info Packet</a>
-                        <a>Advance paperwork</a>
-                      </div>
-                    </div>
+                  <div className="step-links">
+                    <span>
+                      <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
+                      <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                    </span>
                   </div>
                 </div>
-                <div className="step-links">
-                  <span>
-                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
             {/* In Progress Move */}
-            {/* NOTE: The above blocks rely on move.status. This in progress block
-                is unviewable until we start editing PPM statuses. */}
-            {ppm.status === 'IN_PROGRESS' && (
-              <div>
-                <img src={ppmInProgress} alt="status" />
-                <div className="step-contents">
-                  <div className="status_box usa-width-two-thirds">
-                    <div className="step">
-                      <div className="title">Next step: Request payment</div>
-                      <div>
-                        Request a PPM payment, a storage payment, or an advance
-                        against your PPM payment before your move is done.
-                      </div>
-                      <button className="usa-button-secondary">
-                        Request Payment
-                      </button>
-                    </div>
-                  </div>
-                  <div className="usa-width-one-third">
-                    <div className="titled_block">
-                      <div className="title">Details</div>
-                      <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                    </div>
-                    <div className="titled_block">
-                      <div className="title">Documents</div>
-                      <div className="details-links">
-                        <a>PPM Info Packet</a>
-                        <a>Advance paperwork</a>
+            {status == 'APPROVED' &&
+              afterToday && (
+                <div>
+                  <img src={ppmInProgress} alt="status" />
+                  <div className="step-contents">
+                    <div className="status_box usa-width-two-thirds">
+                      <div className="step">
+                        <div className="title">Next step: Request payment</div>
+                        <div>
+                          Request a PPM payment, a storage payment, or an
+                          advance against your PPM payment before your move is
+                          done.
+                        </div>
+                        <button className="usa-button-secondary">
+                          Request Payment
+                        </button>
                       </div>
                     </div>
+                    <div className="usa-width-one-third">
+                      <div className="titled_block">
+                        <div className="title">Details</div>
+                        <div>Weight (est.): {ppm.weight_estimate} lbs</div>
+                        <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                      </div>
+                      <div className="titled_block">
+                        <div className="title">Documents</div>
+                        <div className="details-links">
+                          <a>PPM Info Packet</a>
+                          <a>Advance paperwork</a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="step-links">
+                    <span>
+                      <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
+                      <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                    </span>
                   </div>
                 </div>
-                <div className="step-links">
-                  <span>
-                    <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                    <a>Report a Problem</a> | <a>Cancel Shipment</a>
-                  </span>
-                </div>
-              </div>
-            )}
+              )}
           </div>
         </div>
       </div>
