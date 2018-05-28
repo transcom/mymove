@@ -18,13 +18,21 @@ export class Landing extends Component {
     window.scrollTo(0, 0);
   }
   componentDidUpdate() {
-    const { serviceMember } = this.props;
-    if (this.props.loggedInUserSuccess) {
-      if (!this.props.createdServiceMemberIsLoading && isEmpty(serviceMember)) {
+    const {
+      serviceMember,
+      createdServiceMemberIsLoading,
+      loggedInUserSuccess,
+      createServiceMember,
+    } = this.props;
+    if (loggedInUserSuccess) {
+      if (!createdServiceMemberIsLoading && isEmpty(serviceMember)) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
-        this.props.createServiceMember({});
-      } else if (!serviceMember.is_profile_complete) {
+        createServiceMember({});
+      } else if (
+        !isEmpty(serviceMember) &&
+        !serviceMember.is_profile_complete
+      ) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
@@ -86,17 +94,19 @@ export class Landing extends Component {
               )}
             </div>
             {!isLoggedIn && <LoginButton />}
-            {isLoggedIn && (
-              <MoveSummary
-                entitlement={entitlement}
-                profile={serviceMember}
-                orders={orders}
-                move={move}
-                ppm={ppm}
-                editMove={this.editMove}
-                resumeMove={this.resumeMove}
-              />
-            )}
+            {isLoggedIn &&
+              !isEmpty(serviceMember) &&
+              serviceMember.is_profile_complete && (
+                <MoveSummary
+                  entitlement={entitlement}
+                  profile={serviceMember}
+                  orders={orders}
+                  move={move}
+                  ppm={ppm}
+                  editMove={this.editMove}
+                  resumeMove={this.resumeMove}
+                />
+              )}
           </Fragment>
         )}
       </div>
