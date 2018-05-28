@@ -1,15 +1,21 @@
 import React from 'react';
 import Summary from './Summary';
-
-export default class Edit extends React.Component {
+import { withRouter } from 'react-router-dom';
+export class Edit extends React.Component {
   componentDidMount() {
     window.scrollTo(0, 0);
   }
+  goBack = () => {
+    this.props.history.goBack();
+  };
   render() {
     return (
       <div className="usa-grid">
         <div className="usa-width-one-whole">
-          <h1>Edit Move</h1>
+          <a className="back-to-home" onClick={this.goBack}>
+            &lt;BACK TO HOME
+          </a>
+          <h1 className="edit-title">Edit Move</h1>
           <p>
             Changes to your orders or shipments could impact your move,
             including the estimated PPM incentive.
@@ -20,3 +26,5 @@ export default class Edit extends React.Component {
     );
   }
 }
+
+export default withRouter(Edit);
