@@ -41,6 +41,9 @@ export const MoveSummary = props => {
     ppm.planned_move_date,
     'YYYY-MM-DD',
   ).isSameOrAfter();
+  const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
+    ? `(up to ${ppm.estimated_storage_reimbursement})`
+    : '';
   return (
     <div className="whole_box">
       <h2>
@@ -136,6 +139,13 @@ export const MoveSummary = props => {
                       <div className="title">Details</div>
                       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                       <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                      <div>
+                        {ppm.has_sit
+                          ? `Temp. Storage: ${
+                              ppm.days_in_storage
+                            } days ${privateStorageString}`
+                          : 'Not requested'}{' '}
+                      </div>
                     </div>
                     <div className="titled_block">
                       <div className="title">Documents</div>
@@ -195,6 +205,13 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                        <div>
+                          {ppm.has_sit
+                            ? `Temp. Storage: ${
+                                ppm.days_in_storage
+                              } days ${privateStorageString}`
+                            : 'Not requested'}{' '}
+                        </div>
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>
@@ -207,8 +224,15 @@ export const MoveSummary = props => {
                   </div>
                   <div className="step-links">
                     <span>
-                      <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                      <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                      <a>Request Storage</a> |{' '}
+                      <a
+                        href="https://www.move.mil/resources/locator-maps"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Find Weight Scales
+                      </a>{' '}
+                      | <a>Report a Problem</a> | <a>Cancel Shipment</a>
                     </span>
                   </div>
                 </div>
@@ -237,6 +261,13 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                        <div>
+                          {ppm.has_sit
+                            ? `Temp. Storage: ${
+                                ppm.days_in_storage
+                              } days ${privateStorageString}`
+                            : 'Not requested'}{' '}
+                        </div>
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>
@@ -249,8 +280,15 @@ export const MoveSummary = props => {
                   </div>
                   <div className="step-links">
                     <span>
-                      <a>Request Storage</a> | <a>Find Weight Scales</a> |{' '}
-                      <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                      <a>Request Storage</a> |{' '}
+                      <a
+                        href="https://www.move.mil/resources/locator-maps"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        Find Weight Scales
+                      </a>{' '}
+                      | <a>Cancel Shipment</a>
                     </span>
                   </div>
                 </div>
