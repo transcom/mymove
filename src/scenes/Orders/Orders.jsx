@@ -108,7 +108,7 @@ function mapStateToProps(state) {
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
     ...state.orders.currentOrders,
-    hasSubmitSuccess: state.submittedMoves.hasSubmitSuccess,
+    hasSubmitSuccess: state.moves.hasSubmitSuccess,
   };
   return props;
 }

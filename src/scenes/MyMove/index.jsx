@@ -130,12 +130,8 @@ const mapStateToProps = state => {
   return {
     swaggerError: state.swagger.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    selectedMoveType: get(
-      state,
-      'submittedMoves.currentMove.selected_move_type',
-      'PPM',
-    ), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-    moveId: get(state, 'submittedMoves.currentMove.id'),
+    selectedMoveType: get(state, 'moves.currentMove.selected_move_type', 'PPM'), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    moveId: get(state, 'moves.currentMove.id'),
   };
 };
 const mapDispatchToProps = dispatch =>

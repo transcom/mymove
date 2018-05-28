@@ -108,7 +108,7 @@ const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
   serviceMember: state.serviceMember.currentServiceMember || {},
   orders: state.orders.currentOrders || {},
-  move: state.submittedMoves.currentMove || {},
+  move: state.moves.currentMove || {},
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
