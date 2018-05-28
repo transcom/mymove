@@ -2,7 +2,7 @@ import { CREATE_OR_UPDATE_PPM, GET_PPM, ppmReducer } from './ducks';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import loggedInUserPayload, {
   emptyPayload,
-} from 'shared/user/sampleLoggedInUserPayload';
+} from 'shared/User/sampleLoggedInUserPayload';
 describe('Ppm Reducer', () => {
   const samplePpm = { id: 'UUID', name: 'foo' };
   describe('GET_LOGGED_IN_USER', () => {

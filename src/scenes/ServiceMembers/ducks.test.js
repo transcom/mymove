@@ -12,7 +12,7 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
 import loggedInUserPayload, {
   emptyPayload,
-} from 'shared/user/sampleLoggedInUserPayload';
+} from 'shared/User/sampleLoggedInUserPayload';
 const smPayload = { ...loggedInUserPayload.payload.service_member };
 const expectedSM = {
   affiliation: 'ARMY',

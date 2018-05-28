@@ -8,7 +8,7 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
 import loggedInUserPayload, {
   emptyPayload,
-} from 'shared/user/sampleLoggedInUserPayload';
+} from 'shared/User/sampleLoggedInUserPayload';
 
 const expectedMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',

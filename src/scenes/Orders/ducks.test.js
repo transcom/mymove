@@ -10,7 +10,7 @@ import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { get } from 'lodash';
 import loggedInUserPayload, {
   emptyPayload,
-} from 'shared/user/sampleLoggedInUserPayload';
+} from 'shared/User/sampleLoggedInUserPayload';
 
 const expectedOrders = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
