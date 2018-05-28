@@ -48,7 +48,6 @@ export class AppWrapper extends Component {
   componentWillUpdate(newProps) {
     //HACK: this is not loading properly in loadLoggedInUser
     if (this.props.currentServiceMemberId !== newProps.currentServiceMemberId) {
-      console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!');
       this.props.indexBackupContacts(newProps.currentServiceMemberId);
     }
   }
