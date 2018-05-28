@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -65,11 +66,11 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, reimbursement.Move.Orders.ServiceMember.User)
-
+	req = suite.authenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
@@ -80,6 +81,7 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
+	fmt.Printf("response: %v", response)
 	suite.Assertions.IsType(&officeop.ApproveReimbursementOK{}, response)
 	okResponse := response.(*officeop.ApproveReimbursementOK)
 
