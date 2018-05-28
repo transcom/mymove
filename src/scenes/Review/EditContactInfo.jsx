@@ -98,15 +98,47 @@ let EditContactForm = props => {
       <button type="submit" disabled={submitting || !valid}>
         Save
       </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
+      <button
+        type="button"
+        className="usa-button-secondary"
+        disabled={submitting}
+        onClick={onCancel}
+      >
         Cancel
       </button>
     </form>
   );
 };
 
+const validateEditContactFormBools = fields => {
+  return (values, form) => {
+    let errors = {};
+    let prefSelected = false;
+    fields.forEach(fieldName => {
+      if (Boolean(get(values, fieldName))) {
+        prefSelected = true;
+      }
+    });
+    if (!prefSelected) {
+      let valueSection = fields[0].split('.')[0];
+      let field = fields[0].split('.')[1];
+      var errorMsg = {
+        [field]: 'Please select a preferred method of contact.',
+      };
+      var newError = { [valueSection]: errorMsg };
+      return newError;
+    }
+    return errors;
+  };
+};
+
 EditContactForm = reduxForm({
   form: editContactFormName,
+  validate: validateEditContactFormBools([
+    'serviceMember.phone_is_preferred',
+    'serviceMember.text_message_is_preferred',
+    'serviceMember.email_is_preferred',
+  ]),
 })(EditContactForm);
 
 class EditContact extends Component {

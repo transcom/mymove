@@ -352,3 +352,138 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	}
 
 }
+
+func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
+	t := suite.T()
+
+	initialSize := internalmessages.TShirtSize("S")
+	initialWeight := swag.Int64(1)
+
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:         move.ID,
+		Move:           move,
+		Size:           &initialSize,
+		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
+	}
+	suite.mustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+
+	// First, create an advance
+	truth := true
+	var initialAmount int64
+	initialAmount = 1000
+	initialMethod := internalmessages.MethodOfReceiptMILPAY
+	initialAdvance := internalmessages.Reimbursement{
+		RequestedAmount: &initialAmount,
+		MethodOfReceipt: &initialMethod,
+	}
+
+	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+		HasRequestedAdvance: &truth,
+		Advance:             &initialAdvance,
+	}
+
+	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		PatchPersonallyProcuredMovePayload: &payload,
+	}
+
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(patchPPMParams)
+
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	suite.Require().Equal(internalmessages.ReimbursementStatusDRAFT, *created.Payload.Advance.Status, "expected Draft")
+	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
+
+	// Then, update the advance
+	var newAmount int64
+	newAmount = 9999999
+	badStatus := internalmessages.ReimbursementStatusREQUESTED
+	payload.Advance.RequestedAmount = &newAmount
+	payload.Advance.Status = &badStatus
+
+	response = handler.Handle(patchPPMParams)
+
+	// assert we got back the created response
+	updated, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	suite.Require().Equal(internalmessages.ReimbursementStatusDRAFT, *updated.Payload.Advance.Status, "expected Draft still")
+	suite.Require().Equal(newAmount, *updated.Payload.Advance.RequestedAmount, "expected amount to be updated")
+
+}
+
+func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
+	t := suite.T()
+
+	initialSize := internalmessages.TShirtSize("S")
+	initialWeight := swag.Int64(1)
+
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:         move.ID,
+		Move:           move,
+		Size:           &initialSize,
+		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
+	}
+	suite.mustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+
+	// First, try and set has_requested_advance without passing in an advance
+	truth := true
+	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+		HasRequestedAdvance: &truth,
+	}
+
+	patchPPMParams := ppmop.PatchPersonallyProcuredMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
+		PatchPersonallyProcuredMovePayload: &payload,
+	}
+
+	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(patchPPMParams)
+
+	suite.checkResponseBadRequest(response)
+
+	// Then, try and create an advance without setting has requested advance
+	var initialAmount int64
+	initialAmount = 1000
+	initialMethod := internalmessages.MethodOfReceiptMILPAY
+	initialAdvance := internalmessages.Reimbursement{
+		RequestedAmount: &initialAmount,
+		MethodOfReceipt: &initialMethod,
+	}
+	payload = internalmessages.PatchPersonallyProcuredMovePayload{
+		Advance: &initialAdvance,
+	}
+
+	response = handler.Handle(patchPPMParams)
+
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	suite.Require().Equal(internalmessages.ReimbursementStatusDRAFT, *created.Payload.Advance.Status, "expected Draft")
+	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
+
+}
