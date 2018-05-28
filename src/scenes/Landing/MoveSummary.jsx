@@ -75,7 +75,7 @@ export const MoveSummary = props => {
           <div className="shipment_box_contents">
             {status === 'DRAFT' && (
               <div>
-                <img src={ppmDraft} alt="status" />
+                <img className="status_icon" src={ppmDraft} alt="status" />
                 <div className="step-contents">
                   <div className="status_box usa-width-two-thirds">
                     <div className="step">
@@ -121,7 +121,7 @@ export const MoveSummary = props => {
             {/* Submitted Move */}
             {status === 'SUBMITTED' && (
               <div>
-                <img src={ppmSubmitted} alt="status" />
+                <img className="status_icon" src={ppmSubmitted} alt="status" />
                 <div className="step-contents">
                   <div className="status_box usa-width-two-thirds">
                     <div className="step">
@@ -172,7 +172,7 @@ export const MoveSummary = props => {
             {status === 'APPROVED' &&
               !moveDateAfterToday && (
                 <div>
-                  <img src={ppmApproved} alt="status" />
+                  <img className="status_icon" src={ppmApproved} alt="status" />
                   <div className="step-contents">
                     <div className="status_box usa-width-two-thirds">
                       <div className="step">
@@ -238,10 +238,14 @@ export const MoveSummary = props => {
                 </div>
               )}
             {/* In Progress Move */}
-            {status == 'APPROVED' &&
+            {status === 'APPROVED' &&
               moveDateAfterToday && (
                 <div>
-                  <img src={ppmInProgress} alt="status" />
+                  <img
+                    className="status_icon"
+                    src={ppmInProgress}
+                    alt="status"
+                  />
                   <div className="step-contents">
                     <div className="status_box usa-width-two-thirds">
                       <div className="step">
