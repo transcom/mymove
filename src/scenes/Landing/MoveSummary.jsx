@@ -37,7 +37,10 @@ export const MoveSummary = props => {
     resumeMove,
   } = props;
   const status = get(move, 'status', 'DRAFT');
-  var afterToday = moment(ppm.planned_move_date, 'YYYY-MM-DD').isSameOrAfter();
+  var moveDateAfterToday = moment(
+    ppm.planned_move_date,
+    'YYYY-MM-DD',
+  ).isSameOrAfter();
   return (
     <div className="whole_box">
       <h2>
@@ -157,7 +160,7 @@ export const MoveSummary = props => {
             )}
             {/* Approved Move */}
             {status === 'APPROVED' &&
-              !afterToday && (
+              !moveDateAfterToday && (
                 <div>
                   <img src={ppmApproved} alt="status" />
                   <div className="step-contents">
@@ -212,7 +215,7 @@ export const MoveSummary = props => {
               )}
             {/* In Progress Move */}
             {status == 'APPROVED' &&
-              afterToday && (
+              moveDateAfterToday && (
                 <div>
                   <img src={ppmInProgress} alt="status" />
                   <div className="step-contents">
