@@ -107,8 +107,10 @@ function mapStateToProps(state) {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
-    ...state.orders.currentOrders,
-    hasSubmitSuccess: state.moves.hasSubmitSuccess,
+    currentOrders: state.orders.currentOrders,
+    hasSubmitSuccess: state.orders.currentOrders
+      ? state.orders.hasSubmitSuccess
+      : state.moves.hasSubmitSuccess,
   };
   return props;
 }
