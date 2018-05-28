@@ -1,12 +1,7 @@
-import { concat, reject, orderBy } from 'lodash';
 import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { GetLoggedInUser } from './api.js';
-import {
-  CREATE_OR_UPDATE_ORDERS,
-  SHOW_CURRENT_ORDERS,
-} from 'scenes/Orders/ducks.js';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 

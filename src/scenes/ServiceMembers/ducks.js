@@ -1,4 +1,4 @@
-import { get, pick, without, cloneDeep } from 'lodash';
+import { pick, without, cloneDeep } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,

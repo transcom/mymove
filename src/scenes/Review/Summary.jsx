@@ -1,9 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { get, isEmpty } from 'lodash';
+import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
