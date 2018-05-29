@@ -12,12 +12,12 @@ import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
 import 'scenes/ServiceMembers/ServiceMembers.css';
 import './Review.css';
+import SaveCancelButtons from './SaveCancelButtons';
 
 const editContactFormName = 'edit_contact_info';
 
 let EditContactForm = props => {
   const {
-    onCancel,
     serviceMemberSchema,
     addressSchema,
     handleSubmit,
@@ -95,17 +95,7 @@ let EditContactForm = props => {
           required
         />
       </FormSection>
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -142,11 +132,6 @@ EditContactForm = reduxForm({
 })(EditContactForm);
 
 class EditContact extends Component {
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
   updateContact = fieldValues => {
     let serviceMember = fieldValues.serviceMember;
     serviceMember.residential_address = fieldValues.resAddress;
@@ -154,7 +139,7 @@ class EditContact extends Component {
     return this.props.updateServiceMember(serviceMember).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
-        this.returnToReview();
+        this.props.history.goBack();
       } else {
         window.scrollTo(0, 0);
       }
@@ -193,7 +178,6 @@ class EditContact extends Component {
             serviceMemberSchema={serviceMemberSchema}
             addressSchema={addressSchema}
             onSubmit={this.updateContact}
-            onCancel={this.returnToReview}
           />
         </div>
       </div>

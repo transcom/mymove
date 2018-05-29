@@ -38,26 +38,6 @@ export class Orders extends Component {
     }
   };
 
-  componentDidMount() {
-    // If we have a logged in user at mount time, do our loading then.
-    if (this.props.currentServiceMember) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // If we don't have a service member yet, fetch it and the current orders when loggedInUser loads.
-    if (
-      !prevProps.currentServiceMember &&
-      this.props.currentServiceMember &&
-      !this.props.currentOrders
-    ) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
-  }
-
   render() {
     const {
       pages,
@@ -141,7 +121,10 @@ function mapStateToProps(state) {
     ),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
-    currentOrders: state.orders.currentOrders,
+    currentOrders: get(
+      state,
+      'loggedInUser.loggedInUser.service_member.orders.0',
+    ),
     error,
     hasSubmitSuccess,
   };

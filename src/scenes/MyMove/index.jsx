@@ -13,6 +13,7 @@ import Feedback from 'scenes/Feedback';
 import Landing from 'scenes/Landing';
 import Shipments from 'scenes/Shipments';
 import SubmittedFeedback from 'scenes/SubmittedFeedback';
+import Edit from 'scenes/Review/Edit';
 import EditProfile from 'scenes/Review/EditProfile';
 import EditBackupContact from 'scenes/Review/EditBackupContact';
 import EditContactInfo from 'scenes/Review/EditContactInfo';
@@ -67,6 +68,11 @@ export class AppWrapper extends Component {
                   />
                   <Route path="/feedback" component={Feedback} />
                   {getWorkflowRoutes(props)}
+                  <PrivateRoute
+                    exact
+                    path="/moves/:moveId/edit"
+                    component={Edit}
+                  />
                   <PrivateRoute
                     exact
                     path="/moves/:moveId/review/edit-profile"

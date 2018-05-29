@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import { push } from 'react-router-redux';
 import { reduxForm } from 'redux-form';
 
@@ -52,7 +52,6 @@ const validateWeight = (value, formValues, props, fieldName) => {
 
 let EditWeightForm = props => {
   const {
-    onCancel,
     schema,
     handleSubmit,
     submitting,
@@ -182,17 +181,7 @@ let EditWeightForm = props => {
           </table>
         </div>
       </div>
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button
-        type="button"
-        className="usa-button-secondary"
-        disabled={submitting}
-        onClick={onCancel}
-      >
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -201,6 +190,10 @@ EditWeightForm = reduxForm({
 })(EditWeightForm);
 
 class EditWeight extends Component {
+  componentDidMount() {
+    window.scrollTo(0, 0);
+  }
+
   componentDidUpdate(prevProps, prevState) {
     if (
       !prevProps.loggedInUser.hasSucceeded &&
@@ -209,11 +202,6 @@ class EditWeight extends Component {
       this.props.loadPpm(this.props.match.params.moveId);
     }
   }
-
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
 
   debouncedGetPpmWeightEstimate = debounce(
     this.props.getPpmWeightEstimate,
@@ -244,7 +232,7 @@ class EditWeight extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
@@ -268,7 +256,6 @@ class EditWeight extends Component {
             initialValues={currentPpm}
             incentive={incentive}
             onSubmit={this.updatePpm}
-            onCancel={this.returnToReview}
             onWeightChange={this.onWeightChange}
             entitlement={entitlement}
             schema={schema}
