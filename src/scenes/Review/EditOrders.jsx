@@ -13,12 +13,8 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
-import {
-  updateOrders,
-  deleteUploads,
-  addUploads,
-  showCurrentOrders,
-} from 'scenes/Orders/ducks';
+import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -168,26 +164,30 @@ class EditOrders extends Component {
 }
 
 function mapStateToProps(state) {
-  const orders = 'loggedInUser.loggedInUser.service_member.orders.0';
   const props = {
-    serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
+    currentOrders: state.orders.currentOrders,
     error: get(state, 'orders.error'),
-    hasSubmitError: get(state, 'orders.hasSubmitError'),
-
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+    existingUploads: get(
+      state,
+      `orders.currentOrders.uploaded_orders.uploads`,
+      [],
+    ),
     formData: state.form[editOrdersFormName],
-
-    moveIsApproved:
-      get(state, `${orders}.moves.0.status`, 'SUBMITTED') === 'APPROVED',
-    currentOrders: get(state, orders),
-    existingUploads: get(state, `${orders}.uploaded_orders.uploads`, []),
+    hasSubmitError: get(state, 'orders.hasSubmitError'),
+    moveIsApproved: moveIsApproved(state),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateOrders, addUploads, deleteUploads, showCurrentOrders },
+    {
+      push,
+      updateOrders,
+      addUploads,
+      deleteUploads,
+    },
     dispatch,
   );
 }
