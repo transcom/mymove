@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
@@ -134,6 +135,17 @@ func main() {
 	if err != nil {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
+
+	// Setup Amazon SES (email) service
+	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+	// below. I'm not shaving that yak today.
+	session, err := awssession.NewSession(&aws.Config{
+		Region: aws.String(os.Getenv("AWS_SES_REGION")),
+	})
+	if err != nil {
+		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+	}
+	ses = ses.New(session)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
