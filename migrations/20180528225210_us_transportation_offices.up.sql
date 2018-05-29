@@ -182,6 +182,7 @@ INSERT INTO public.addresses VALUES ('fe2073bc-dc94-4cbf-9214-a5098b0468fe', 'DM
 INSERT INTO public.addresses VALUES ('a0998c81-ecfd-4c43-af1c-65e7ee44ea8f', '1651 Stewart St.', 'Bldg. 5616', 'JBSA Lackland', 'TX', '78236', '2018-05-28 14:27:42.265059', '2018-05-28 14:27:42.26506', NULL, 'United States');
 INSERT INTO public.addresses VALUES ('fdbe3819-9e7b-41b5-80f3-70487bd351f4', 'Bldg 423', '', 'Goodfellow AFB', 'TX', '76908', '2018-05-28 14:27:42.308674', '2018-05-28 14:27:42.308675', NULL, 'United States');
 INSERT INTO public.addresses VALUES ('bbefc152-51f9-4dae-8891-c8d2dfa5a123', '1710 B Cavin Dr.', 'Bldg. 8100', 'Great Lakes', 'IL', '60088', '2018-05-28 14:27:42.351839', '2018-05-28 14:27:42.35184', NULL, 'United States');
+INSERT INTO public.addresses VALUES ('920fa7ea-2d73-4178-b5fb-4aefab3180d3', '1706 Vandenberg Ave', 'Building 1702, McGuire AFB', 'Trenton', 'NJ', '08641', '2018-05-28 14:27:42.351839', '2018-05-28 14:27:42.35184', NULL, 'United States');
 
 
 --
@@ -368,6 +369,7 @@ INSERT INTO public.transportation_offices VALUES ('bd733387-6b6c-42ba-b2c3-76c20
 INSERT INTO public.transportation_offices VALUES ('3456949e-8615-4949-8899-4faa34f3880b', NULL, 'Lackland AFB', 'a0998c81-ecfd-4c43-af1c-65e7ee44ea8f', 29.3829727, -98.627594, 'Mon-Tues-Thurs-Fri 0700-1600; Closed Wed 1400 for AETC mandatory training; Weekends; Holidays; & AETC Family Days', 'Walk-In Help; Briefings; Appointments', NULL, '2018-05-28 14:27:42.273185', '2018-05-28 14:27:42.273186');
 INSERT INTO public.transportation_offices VALUES ('2c6f2ac9-210c-4053-9770-1ed6225db248', NULL, 'Goodfellow AFB, Texas', 'fdbe3819-9e7b-41b5-80f3-70487bd351f4', 31.4359131, -100.401093, 'Mon; Wed-Friday 0730-1600; Tues 0730-1700', 'Walk-in Help; Briefings; QA Inspections', NULL, '2018-05-28 14:27:42.316664', '2018-05-28 14:27:42.316664');
 INSERT INTO public.transportation_offices VALUES ('c65f1903-9f40-42e8-9720-f4e804702817', NULL, 'Naval Training Center PPO', 'bbefc152-51f9-4dae-8891-c8d2dfa5a123', 42.3038635, -87.8623199, '0730-1630 Mon-Fri', '', NULL, '2018-05-28 14:27:42.360323', '2018-05-28 14:27:42.360323');
+INSERT INTO public.transportation_offices VALUES ('10052404-6cf0-47da-b5bc-42b03e02f904', NULL, 'JBMDL Household Goods/Transportation Office', '920fa7ea-2d73-4178-b5fb-4aefab3180d3', 40.0323893, -74.59354, 'Mon-Fri 0800-1630', '', NULL, '2018-05-28 14:27:42.360323', '2018-05-28 14:27:42.360323');
 
 --
 -- Data for Name: office_emails; Type: TABLE DATA; Schema: public; Owner: postgres
@@ -973,3 +975,5 @@ INSERT INTO public.office_phone_lines VALUES ('4417e7c6-d186-4772-b438-75bc87b59
 INSERT INTO public.office_phone_lines VALUES ('cd6c13d8-cbdf-427a-a96a-f1ec9b34c58d', '2c6f2ac9-210c-4053-9770-1ed6225db248', '477-3707', NULL, true, 'voice', '2018-05-28 14:27:42.333581', '2018-05-28 14:27:42.333582');
 INSERT INTO public.office_phone_lines VALUES ('945d69d9-9c97-4a99-9616-a7e71294875a', 'c65f1903-9f40-42e8-9720-f4e804702817', '1-800-637-5401', NULL, false, 'voice', '2018-05-28 14:27:42.368964', '2018-05-28 14:27:42.368965');
 INSERT INTO public.office_phone_lines VALUES ('a05760f3-310b-4a66-99fb-c290672c955e', 'c65f1903-9f40-42e8-9720-f4e804702817', '792-5371', NULL, true, 'voice', '2018-05-28 14:27:42.377993', '2018-05-28 14:27:42.377994');
+INSERT INTO public.office_phone_lines VALUES ('d759527b-cb69-425c-b902-6cec0f35425f', '10052404-6cf0-47da-b5bc-42b03e02f904', '(609) 754-6911', NULL, true, 'voice', '2018-05-28 14:27:42.377993', '2018-05-28 14:27:42.377994');
+INSERT INTO public.office_phone_lines VALUES ('b3825327-aa6c-4271-ad58-243b9713bb87', '10052404-6cf0-47da-b5bc-42b03e02f904', '(609) 754-3521', NULL, true, 'voice', '2018-05-28 14:27:42.377993', '2018-05-28 14:27:42.377994');
