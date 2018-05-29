@@ -4,12 +4,12 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
-import { reduxForm, Field } from 'redux-form';
+import { Field } from 'redux-form';
 
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
-import WizardPage from 'shared/WizardPage';
+import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import {
@@ -70,6 +70,10 @@ const formatMaxAdvance = maxAdvance => {
 };
 
 const validateAdvanceForm = (values, form) => {
+  if (values.hasEstimateInProgress) {
+    return { has_requested_advance: 'Esimate in progress.' };
+  }
+
   if (form.maxIncentive) {
     if (parseFloat(values.requested_amount) > parseFloat(form.maxIncentive)) {
       return { requested_amount: `Must be less than ${form.maxIncentive}` };
@@ -85,7 +89,7 @@ let RequestAdvanceForm = props => {
     maxAdvance = formatMaxAdvance(maxIncentive);
   }
   return (
-    <form className="whole_box">
+    <div className="whole_box">
       <div>
         <div className="usa-width-one-whole">
           <div className="usa-width-two-thirds">
@@ -133,13 +137,14 @@ let RequestAdvanceForm = props => {
           </div>
         )}
       </div>
-    </form>
+    </div>
   );
 };
-RequestAdvanceForm = reduxForm({
-  form: requestAdvanceFormName,
-  validate: validateAdvanceForm,
-})(RequestAdvanceForm);
+
+const WeightWizardForm = reduxifyWizardForm(
+  requestAdvanceFormName,
+  validateAdvanceForm,
+);
 
 export class PpmWeight extends Component {
   componentDidMount() {
@@ -227,7 +232,6 @@ export class PpmWeight extends Component {
   };
   render() {
     const {
-      pendingPpmWeight,
       currentPpm,
       incentive,
       pages,
@@ -246,7 +250,7 @@ export class PpmWeight extends Component {
     if (hasLoadSuccess) {
       currentInfo = getWeightInfo(currentPpm, entitlement);
     }
-    const isValid = incentive && !hasEstimateInProgress;
+
     const hasRequestedAdvance = get(
       advanceFormData,
       'values.has_requested_advance',
@@ -266,14 +270,14 @@ export class PpmWeight extends Component {
     }
 
     return (
-      <WizardPage
+      <WeightWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
-        pageIsValid={isValid}
-        pageIsDirty={Boolean(pendingPpmWeight)}
         hasSucceeded={hasSubmitSuccess}
+        initialValues={advanceInitialValues}
+        serverError={error}
+        additionalValues={{ hasEstimateInProgress }}
       >
         {error && (
           <div className="usa-width-one-whole error-message">
@@ -343,7 +347,7 @@ export class PpmWeight extends Component {
             </div>
           </Fragment>
         )}
-      </WizardPage>
+      </WeightWizardForm>
     );
   }
 }

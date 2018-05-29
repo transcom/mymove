@@ -27,7 +27,15 @@ export class WizardFormPage extends Component {
     this.cancelFlow = this.cancelFlow.bind(this);
     this.state = { transitionFunc: null };
   }
-  componentDidUpdate() {
+  componentDidUpdate(prevProps) {
+    Object.keys(this.props.additionalValues).forEach(key => {
+      if (
+        this.props.additionalValues[key] !== prevProps.additionalValues[key]
+      ) {
+        this.props.change(key, this.props.additionalValues[key]);
+      }
+    });
+
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.serverError) window.scrollTo(0, 0);
   }
@@ -156,6 +164,7 @@ WizardFormPage.propTypes = {
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
+  additionalValues: PropTypes.object, // These values are passed into the form with change()
   windowWidth: PropTypes.number,
 };
 
