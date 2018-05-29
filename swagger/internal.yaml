@@ -2209,39 +2209,6 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/approve:
-    post:
-      summary: Approves the PPM
-      description: Sets the status of the PPM to APPROVED.
-      operationId: approvePPM
-      tags:
-        - office
-      parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
-      responses:
-        200:
-          description: updated instance of personally_procured_move
-          schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        500:
-          description: internal server error
   /moves/{moveId}/orders:
     get:
       summary: Returns orders information for a move for office use
@@ -2333,6 +2300,33 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/approve:
+    post:
+      summary: Approves the PPM
+      description: Sets the status of the PPM to APPROVED.
+      operationId: approvePPM
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being updated
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document

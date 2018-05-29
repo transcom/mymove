@@ -55,6 +55,8 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	// TODO: add proper content for the approval email
+	// https://www.pivotaltracker.com/story/show/157942298
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "Move Approved",

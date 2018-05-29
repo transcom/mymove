@@ -36,7 +36,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
 }
 
-// ApprovePPMHandler approves a move via POST /moves/{moveId}/approve
+// ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
 type ApprovePPMHandler HandlerContext
 
 // Handle ... approves a Personally Procured Move from a request payload
@@ -45,13 +45,13 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
-	moveID, _ := uuid.FromString(params.MoveID.String())
 
 	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 
+	moveID := ppm.MoveID
 	ppm.Status = models.PPMStatusAPPROVED
 
 	verrs, err := h.db.ValidateAndUpdate(ppm)
@@ -65,6 +65,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	)
 	if err != nil {
 		h.logger.Error("problem sending email to user", zap.Error(err))
+		return newErrResponse(500)
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
