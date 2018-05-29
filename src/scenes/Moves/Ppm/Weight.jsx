@@ -213,7 +213,6 @@ function mapStateToProps(state) {
     get(state, 'ppm.currentPpm.weight_estimate', defaultWeight);
   const props = {
     ...state.ppm,
-    loggedInUser: state.loggedInUser,
     currentWeight,
     entitlement: loadEntitlements(state),
   };

@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 
 import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
-import { showCurrentOrders, deleteUpload, addUploads } from './ducks';
+import { deleteUpload, addUploads } from './ducks';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
 import WizardPage from 'shared/WizardPage';
@@ -25,26 +25,6 @@ export class UploadOrders extends Component {
     this.deleteFile = this.deleteFile.bind(this);
     this.handleSubmit = this.handleSubmit.bind(this);
     this.setShowAmendedOrders = this.setShowAmendedOrders.bind(this);
-  }
-
-  componentDidMount() {
-    // If we have a logged in user at mount time, do our loading then.
-    if (this.props.currentServiceMember) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // If we don't have a service member yet, fetch one when loggedInUser loads.
-    if (
-      !prevProps.currentServiceMember &&
-      this.props.currentServiceMember &&
-      !this.props.currentOrders
-    ) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
   }
 
   handleSubmit() {
@@ -138,25 +118,18 @@ export class UploadOrders extends Component {
 
 UploadOrders.propTypes = {
   hasSubmitSuccess: PropTypes.bool.isRequired,
-  showCurrentOrders: PropTypes.func.isRequired,
   deleteUpload: PropTypes.func.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { showCurrentOrders, loadServiceMember, deleteUpload, addUploads },
+    { loadServiceMember, deleteUpload, addUploads },
     dispatch,
   );
 }
 function mapStateToProps(state) {
   const props = {
-    currentServiceMember: get(
-      state,
-      'loggedInUser.loggedInUser.service_member',
-    ),
-    currentOrders: state.orders.currentOrders,
     uploads: get(state, 'orders.currentOrders.uploaded_orders.uploads', []),
-    user: state.loggedInUser,
     ...state.orders,
   };
   return props;
