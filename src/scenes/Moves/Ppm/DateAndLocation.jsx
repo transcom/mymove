@@ -17,10 +17,6 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Date & Locations';
-  }
-
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
@@ -182,17 +178,13 @@ function mapStateToProps(state) {
       {},
     ),
     ...state.ppm,
-    ...state.loggedInUser,
-    currentOrders:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
-      get(state.orders, 'currentOrders'),
-    currentPpm: get(state.ppm, 'currentPpm'),
+    currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlements(state),
   };
   const defaultPickupZip = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.residential_address.postal_code',
+    state.serviceMember,
+    'currentServiceMember.residential_address.postal_code',
   );
   props.initialValues = props.currentPpm
     ? props.currentPpm

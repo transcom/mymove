@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import {
   CreateMove,
   UpdateMove,
@@ -63,6 +63,9 @@ export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
   submitForApprovalType,
   SubmitMoveForApproval,
 );
+//selector
+export const moveIsApproved = state =>
+  get(state, 'moves.currentMove.status') === 'APPROVED';
 
 // Reducer
 const initialState = {
@@ -72,12 +75,25 @@ const initialState = {
   hasSubmitSuccess: false,
   error: null,
 };
+function reshapeMove(move) {
+  if (!move) return null;
+  return pick(move, [
+    'id',
+    'locator',
+    'orders_id',
+    'selected_move_type',
+    'status',
+  ]);
+}
 export function moveReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
-      const move = get(action.payload, 'service_member.orders.0.moves.0', null);
       return Object.assign({}, state, {
-        currentMove: move,
+        currentMove: reshapeMove(
+          get(action.payload, 'service_member.orders.0.moves.0'),
+        ),
+        hasLoadError: false,
+        hasLoadSuccess: true,
       });
     case SET_PENDING_MOVE_TYPE:
       return Object.assign({}, state, {
@@ -85,7 +101,7 @@ export function moveReducer(state = initialState, action) {
       });
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {
-        currentMove: action.payload,
+        currentMove: reshapeMove(action.payload),
         pendingMoveType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
@@ -100,16 +116,16 @@ export function moveReducer(state = initialState, action) {
       });
     case GET_MOVE.success:
       return Object.assign({}, state, {
-        currentMove: action.payload,
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        currentMove: reshapeMove(action.payload),
+        hasLoadSuccess: true,
+        hasLoadError: false,
         error: null,
       });
     case GET_MOVE.failure:
       return Object.assign({}, state, {
         currentMove: {},
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        hasLoadSuccess: false,
+        hasLoadError: true,
         error: action.error,
       });
     case SUBMIT_FOR_APPROVAL.start:
@@ -118,7 +134,7 @@ export function moveReducer(state = initialState, action) {
       });
     case SUBMIT_FOR_APPROVAL.success:
       return Object.assign({}, state, {
-        currentMove: action.payload,
+        currentMove: reshapeMove(action.payload),
         submittedForApproval: true,
       });
     case SUBMIT_FOR_APPROVAL.failure:

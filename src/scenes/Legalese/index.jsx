@@ -22,7 +22,6 @@ const SignatureWizardForm = reduxifyWizardForm(formName);
 
 export class SignedCertification extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Submit SignedCertification';
     this.props.loadLatestCertification(this.props.match.params.moveId);
   }
 
@@ -61,7 +60,9 @@ export class SignedCertification extends Component {
         .then(() => this.props.push('/'));
     }
   };
-
+  print() {
+    window.print();
+  }
   render() {
     const {
       hasSubmitError,
@@ -75,7 +76,7 @@ export class SignedCertification extends Component {
       signature: get(latestSignedCertification, 'signature', null),
     };
     return (
-      <div>
+      <div className="legalese">
         {this.props.certificationText && (
           <SignatureWizardForm
             handleSubmit={this.handleSubmit}
@@ -92,7 +93,9 @@ export class SignedCertification extends Component {
                   Before officially booking your move, please carefully read and
                   then sign the following.
                 </p>
-                <a className="pdf Todo">Printer Friendly PDF</a>
+                <a className="pdf" onClick={this.print}>
+                  Print
+                </a>
               </span>
 
               <CertificationText
@@ -102,11 +105,8 @@ export class SignedCertification extends Component {
               <div className="signature-box">
                 <h3>SIGNATURE</h3>
                 <p>
-                  In consideration of said household goods or mobile homes being
-                  shipped at Government expense,{' '}
-                  <strong>
-                    I hereby agree to the certifications stated above.
-                  </strong>
+                  I agree that I have read and understand the above
+                  notifications.
                 </p>
                 <div className="signature-fields">
                   <SwaggerField

@@ -16,6 +16,7 @@ import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
+import PPMEstimatesPanel from './PPMEstimatesPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
 import { formatDate } from './helpers';
 
@@ -48,6 +49,7 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <React.Fragment>
+      <PPMEstimatesPanel title="Estimate" />
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
     </React.Fragment>
   );

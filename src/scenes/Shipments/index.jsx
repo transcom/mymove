@@ -20,7 +20,6 @@ export class Shipments extends Component {
     // Title with capitalized shipment status
     const capShipmentsStatus =
       shipmentsStatus.charAt(0).toUpperCase() + shipmentsStatus.slice(1);
-    document.title = `Transcom PPP: ${capShipmentsStatus} Shipments`;
 
     // Handle cases of users entering invalid shipment types
     if (

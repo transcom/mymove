@@ -75,10 +75,6 @@ BigButtonGroup.propTypes = {
 };
 
 export class PpmSize extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Size Selection';
-  }
-
   onMoveTypeSelected = value => {
     this.props.setPendingPpmSize(value);
   };

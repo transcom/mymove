@@ -30,10 +30,6 @@ export class Uploader extends Component {
     };
   }
 
-  componentDidMount() {
-    document.title = 'Transcom PPP: Upload Document';
-  }
-
   handlePondInit() {
     this.pond._pond.setOptions({
       allowMultiple: true,
