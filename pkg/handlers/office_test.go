@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http/httptest"
 
 	"github.com/go-openapi/strfmt"
@@ -81,10 +80,9 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
-	fmt.Printf("response: %v", response)
 	suite.Assertions.IsType(&officeop.ApproveReimbursementOK{}, response)
 	okResponse := response.(*officeop.ApproveReimbursementOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, okResponse.Payload.Status)
+	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }
