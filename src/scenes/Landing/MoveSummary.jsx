@@ -224,15 +224,13 @@ export const MoveSummary = props => {
                   </div>
                   <div className="step-links">
                     <span>
-                      <a>Request Storage</a> |{' '}
                       <a
                         href="https://www.move.mil/resources/locator-maps"
                         target="_blank"
                         rel="noopener noreferrer"
                       >
                         Find Weight Scales
-                      </a>{' '}
-                      | <a>Report a Problem</a> | <a>Cancel Shipment</a>
+                      </a>
                     </span>
                   </div>
                 </div>
@@ -284,7 +282,6 @@ export const MoveSummary = props => {
                   </div>
                   <div className="step-links">
                     <span>
-                      <a>Request Storage</a> |{' '}
                       <a
                         href="https://www.move.mil/resources/locator-maps"
                         target="_blank"
@@ -292,7 +289,6 @@ export const MoveSummary = props => {
                       >
                         Find Weight Scales
                       </a>{' '}
-                      | <a>Cancel Shipment</a>
                     </span>
                   </div>
                 </div>

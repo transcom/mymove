@@ -285,10 +285,15 @@ workflows:
             branches:
               only: master
 
-      - deploy_prod_migrations:
+      - approve_prod_deploy:
+          type: approval
           requires:
             - deploy_staging_app_redirect
             - deploy_staging_app
+
+      - deploy_prod_migrations:
+          requires:
+            - approve_prod_deploy
           filters:
             branches:
               only: master

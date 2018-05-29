@@ -1,3 +1,6 @@
+.edit-title {
+  margin-top: 0;
+}
 .review-content {
   border-top: 1px solid black;
 }
@@ -62,4 +65,8 @@
 
 .spacer {
   margin-top: 2em;
+}
+.approved-edit-warning {
+  margin-top: 2em;
+  color: gray;
 }
