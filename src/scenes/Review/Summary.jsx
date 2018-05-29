@@ -3,46 +3,30 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
-import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
 import ppmBlack from 'shared/icon/ppm-black.svg';
-
+import { moveIsApproved } from 'scenes/Moves/ducks';
 import './Review.css';
 export class Summary extends Component {
-  componentWillMount() {
-    const service_member = get(this.props.loggedInUser, 'service_member');
-    if (
-      service_member &&
-      !(this.props.currentBackupContacts && this.props.currentBackupContacts[0])
-    ) {
-      this.props.indexBackupContacts(service_member.id);
-    }
-  }
-  componentWillUpdate(newProps) {
-    const service_member = get(newProps.loggedInUser, 'service_member');
-    if (get(this.props.loggedInUser, 'service_member') !== service_member) {
-      this.props.indexBackupContacts(service_member.id);
-    }
-  }
   render() {
     const {
       currentPpm,
       currentBackupContacts,
-      loggedInUser,
       currentOrders,
       schemaRank,
+      schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
+      serviceMember,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
 
     function getFullName() {
-      const service_member = get(loggedInUser, 'service_member');
-      if (!service_member) return;
-      return `${service_member.first_name} ${service_member.middle_name ||
-        ''} ${service_member.last_name} ${service_member.suffix || ''}`;
+      if (!serviceMember) return;
+      return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
+        serviceMember.last_name
+      } ${serviceMember.suffix || ''}`;
     }
     function getFullAddress(address) {
       if (address) {
@@ -58,8 +42,7 @@ export class Summary extends Component {
       }
     }
     function getFullContactPreferences() {
-      const service_member = get(loggedInUser, 'service_member');
-      if (!service_member) return;
+      if (!serviceMember) return;
       const prefs = {
         phone_is_preferred: 'Phone',
         text_message_is_preferred: 'Text',
@@ -67,7 +50,7 @@ export class Summary extends Component {
       };
       const preferredMethods = [];
       Object.keys(prefs).forEach(propertyName => {
-        if (service_member[propertyName]) {
+        if (serviceMember[propertyName]) {
           preferredMethods.push(prefs[propertyName]);
         }
       });
@@ -127,26 +110,29 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td>Branch:</td>
-                  <td>{get(loggedInUser, 'service_member.affiliation')}</td>
+                  <td>
+                    {get(
+                      schemaAffiliation['x-display-value'],
+                      get(serviceMember, 'affiliation'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
                   <td>
                     {get(
                       schemaRank['x-display-value'],
-                      get(loggedInUser, 'service_member.rank'),
+                      get(serviceMember, 'rank'),
                     )}
                   </td>
                 </tr>
                 <tr>
                   <td> DoD ID#: </td>
-                  <td>{get(loggedInUser, 'service_member.edipi')}</td>
+                  <td>{get(serviceMember, 'edipi')}</td>
                 </tr>
                 <tr>
                   <td> Current Duty Station: </td>
-                  <td>
-                    {get(loggedInUser, 'service_member.current_station.name')}
-                  </td>
+                  <td>{get(serviceMember, 'current_station.name')}</td>
                 </tr>
               </tbody>
             </table>
@@ -216,17 +202,15 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td> Best Contact Phone: </td>
-                  <td>{get(loggedInUser, 'service_member.telephone')}</td>
+                  <td>{get(serviceMember, 'telephone')}</td>
                 </tr>
                 <tr>
                   <td> Alt. Phone: </td>
-                  <td>
-                    {get(loggedInUser, 'service_member.secondary_telephone')}
-                  </td>
+                  <td>{get(serviceMember, 'secondary_telephone')}</td>
                 </tr>
                 <tr>
                   <td> Personal Email: </td>
-                  <td>{get(loggedInUser, 'service_member.personal_email')}</td>
+                  <td>{get(serviceMember, 'personal_email')}</td>
                 </tr>
                 <tr>
                   <td> Preferred Contact Method: </td>
@@ -235,19 +219,14 @@ export class Summary extends Component {
                 <tr>
                   <td> Current Mailing Address: </td>
                   <td>
-                    {getFullAddress(
-                      get(loggedInUser, 'service_member.residential_address'),
-                    )}
+                    {getFullAddress(get(serviceMember, 'residential_address'))}
                   </td>
                 </tr>
                 <tr>
                   <td> Backup Mailing Address: </td>
                   <td>
                     {getFullAddress(
-                      get(
-                        loggedInUser,
-                        'service_member.backup_mailing_address',
-                      ),
+                      get(serviceMember, 'backup_mailing_address'),
                     )}
                   </td>
                 </tr>
@@ -375,30 +354,17 @@ Summary.propTypes = {
   moveIsApproved: PropTypes.bool,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ indexBackupContacts }, dispatch);
-}
-
 function mapStateToProps(state) {
   return {
-    ...state.ppm,
-    ...state.loggedInUser,
+    currentPpm: state.ppm.currentPpm,
+    serviceMember: state.serviceMember.currentServiceMember,
+    currentMove: state.moves.currentMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    currentOrders: get(
-      state.loggedInUser,
-      'loggedInUser.service_member.orders[0]',
-    ),
+    currentOrders: state.orders.currentOrders,
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
-    //todo: this should be a selector
-    moveIsApproved:
-      get(
-        state,
-        'loggedInUser.loggedInUser.service_member.orders.0.moves.0.status',
-        'SUBMITTED',
-      ) === 'APPROVED',
+    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
+    moveIsApproved: moveIsApproved(state),
   };
 }
-export default withRouter(
-  connect(mapStateToProps, mapDispatchToProps)(Summary),
-);
+export default withRouter(connect(mapStateToProps)(Summary));

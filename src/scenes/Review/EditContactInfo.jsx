@@ -186,13 +186,8 @@ class EditContact extends Component {
 }
 
 function mapStateToProps(state) {
-  let serviceMember = get(
-    state,
-    'loggedInUser.loggedInUser.service_member',
-    {},
-  );
   return {
-    serviceMember: serviceMember,
+    serviceMember: state.serviceMember.currentServiceMember,
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),

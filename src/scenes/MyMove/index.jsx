@@ -30,6 +30,8 @@ import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
+import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
+
 import { no_op } from 'shared/utils';
 
 const NoMatch = ({ location }) => (
@@ -43,6 +45,13 @@ export class AppWrapper extends Component {
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadSchema();
+  }
+
+  componentWillUpdate(newProps) {
+    //HACK: this is not loading properly in loadLoggedInUser
+    if (this.props.currentServiceMemberId !== newProps.currentServiceMemberId) {
+      this.props.indexBackupContacts(newProps.currentServiceMemberId);
+    }
   }
   render() {
     const props = this.props;
@@ -128,24 +137,16 @@ AppWrapper.defaultProps = {
 
 const mapStateToProps = state => {
   return {
-    hasCompleteProfile: get(
-      state.loggedInUser,
-      'loggedInUser.service_member.is_profile_complete',
-    ),
     swaggerError: state.swagger.hasErrored,
-    selectedMoveType: state.submittedMoves.currentMove
-      ? state.submittedMoves.currentMove.selected_move_type
-      : 'PPM', // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
-    hasMove: Boolean(state.submittedMoves.currentMove),
-    moveId: state.submittedMoves.currentMove
-      ? state.submittedMoves.currentMove.id
-      : null,
-    currentOrdersId:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0].id') ||
-      get(state.orders, 'currentOrders.id'), // should we get the latest or the first?
+    currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    selectedMoveType: get(state, 'moves.currentMove.selected_move_type', 'PPM'), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    moveId: get(state, 'moves.currentMove.id'),
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators(
+    { push, loadSchema, loadLoggedInUser, indexBackupContacts },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);
