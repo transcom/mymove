@@ -44,7 +44,8 @@ check_arn() {
 update_service() {
     local arn="$1"
 
-    local network_config=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].networkConfiguration')
+    local network_config
+    network_config=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].networkConfiguration')
 
     echo "* Updating $name service to use $arn"
     aws ecs update-service --cluster "$cluster" --service "$name" --task-definition "$arn" --query 'service.deployments' --network-configuration "$network_config" || return 1
