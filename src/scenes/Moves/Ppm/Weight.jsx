@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
@@ -102,6 +102,7 @@ export class PpmWeight extends Component {
       hasEstimateInProgress,
       error,
       entitlement,
+      hasEstimateError,
     } = this.props;
     let currentInfo = null;
     if (hasLoadSuccess) {
@@ -146,6 +147,17 @@ export class PpmWeight extends Component {
                 }}
               />
             </div>
+            {hasEstimateError && (
+              <Fragment>
+                <div className="usa-width-one-whole error-message">
+                  <Alert type="warning" heading="Could not retrieve estimate">
+                    There was an issue retrieving an estimate for your
+                    incentive. You still qualify but may need to talk with your
+                    local PPPO.
+                  </Alert>
+                </div>
+              </Fragment>
+            )}
             <table className="numeric-info">
               <tbody>
                 <tr>
@@ -158,7 +170,6 @@ export class PpmWeight extends Component {
                 </tr>
               </tbody>
             </table>
-
             <div className="info">
               <h3> How is my PPM Incentive calculated?</h3>
               <p>
