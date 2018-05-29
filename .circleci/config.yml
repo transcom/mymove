@@ -138,7 +138,7 @@ jobs:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
-      - APP_ENVIRONMENT: "staging"
+      - APP_ENVIRONMENT: "experimental"
     steps: &deploy_migrations_steps
       - checkout
       - run:
@@ -153,8 +153,8 @@ jobs:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
-      - APP_ENVIRONMENT: "staging"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my-staging.move.mil/"
+      - APP_ENVIRONMENT: "experimental"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my-experimental.move.mil/"
     steps: &deploy_app_redirect_steps
       - checkout
       - setup_remote_docker
@@ -170,8 +170,8 @@ jobs:
     docker:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
-      - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my-staging.move.mil/health"
+      - APP_ENVIRONMENT: "experimental"
+      - APP_HEALTH_CHECK_URL: "https://my-experimental.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
@@ -270,46 +270,20 @@ workflows:
             - build_migrations
           filters:
             branches:
-              only: master
+              only: bsik-dashed-movemil
 
       - deploy_staging_app_redirect:
           requires:
             - deploy_staging_migrations
           filters:
             branches:
-              only: master
+              only: bsik-dashed-movemil
       - deploy_staging_app:
           requires:
             - deploy_staging_migrations
           filters:
             branches:
-              only: master
-
-      - approve_prod_deploy:
-          type: approval
-          requires:
-            - deploy_staging_app_redirect
-            - deploy_staging_app
-
-      - deploy_prod_migrations:
-          requires:
-            - approve_prod_deploy
-          filters:
-            branches:
-              only: master
-
-      - deploy_prod_app_redirect:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
-      - deploy_prod_app:
-          requires:
-            - deploy_prod_migrations
-          filters:
-            branches:
-              only: master
+              only: bsik-dashed-movemil
 
 
   dependency_updater:
