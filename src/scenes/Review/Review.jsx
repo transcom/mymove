@@ -38,6 +38,7 @@ export class Review extends Component {
       loggedInUser,
       currentOrders,
       schemaRank,
+      schemaAffiliation,
       schemaOrdersType,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
@@ -139,7 +140,12 @@ export class Review extends Component {
                 </tr>
                 <tr>
                   <td>Branch:</td>
-                  <td>{get(loggedInUser, 'service_member.affiliation')}</td>
+                  <td>
+                    {get(
+                      schemaAffiliation['x-display-value'],
+                      get(loggedInUser, 'service_member.affiliation'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
@@ -399,6 +405,7 @@ function mapStateToProps(state) {
       get(state.orders, 'currentOrders') ||
       get(state.loggedInUser, 'loggedInUser.service_member.orders[0]'),
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
+    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
   };
 }
