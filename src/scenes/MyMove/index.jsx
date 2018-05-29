@@ -31,7 +31,7 @@ import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
-
+import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 
 const NoMatch = ({ location }) => (
@@ -42,6 +42,7 @@ const NoMatch = ({ location }) => (
   </div>
 );
 export class AppWrapper extends Component {
+  state = { hasError: false };
   componentDidMount() {
     this.props.loadLoggedInUser();
     this.props.loadSchema();
@@ -52,6 +53,11 @@ export class AppWrapper extends Component {
     if (this.props.currentServiceMemberId !== newProps.currentServiceMemberId) {
       this.props.indexBackupContacts(newProps.currentServiceMemberId);
     }
+  }
+  componentDidCatch(error, info) {
+    this.setState({
+      hasError: true,
+    });
   }
   render() {
     const props = this.props;
@@ -69,15 +75,17 @@ export class AppWrapper extends Component {
                   </Alert>
                 )}
               </div>
-              {!props.swaggerError && (
-                <Switch>
-                  <Route exact path="/" component={Landing} />
-                  <Route path="/submitted" component={SubmittedFeedback} />
-                  <Route
-                    path="/shipments/:shipmentsStatus"
-                    component={Shipments}
-                  />
-                  <Route path="/feedback" component={Feedback} />
+              {this.state.hasError && <FailWhale />}
+              {!this.state.hasError &&
+                !props.swaggerError && (
+                  <Switch>
+                    <Route exact path="/" component={Landing} />
+                    <Route path="/submitted" component={SubmittedFeedback} />
+                    <Route
+                      path="/shipments/:shipmentsStatus"
+                      component={Shipments}
+                    />
+                    <Route path="/feedback" component={Feedback} />
                   <Route
                     path="/privacy-and-security-policy"
                     component={PrivacyPolicyStatement}
@@ -86,42 +94,42 @@ export class AppWrapper extends Component {
                     path="/accessibility"
                     component={AccessibilityStatement}
                   />
-                  {getWorkflowRoutes(props)}
-                  <PrivateRoute
-                    exact
-                    path="/moves/:moveId/edit"
-                    component={Edit}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/moves/:moveId/review/edit-profile"
-                    component={EditProfile}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/moves/:moveId/review/edit-backup-contact"
-                    component={EditBackupContact}
-                  />
-                  <PrivateRoute
-                    exact
-                    path="/moves/:moveId/review/edit-contact-info"
-                    component={EditContactInfo}
-                  />
-                  <PrivateRoute
-                    path="/moves/:moveId/review/edit-orders"
-                    component={EditOrders}
-                  />
-                  <PrivateRoute
-                    path="/moves/:moveId/review/edit-date-and-location"
-                    component={EditDateAndLocation}
-                  />
-                  <PrivateRoute
-                    path="/moves/:moveId/review/edit-weight"
-                    component={EditWeight}
-                  />
-                  <Route component={NoMatch} />
-                </Switch>
-              )}
+                    {getWorkflowRoutes(props)}
+                    <PrivateRoute
+                      exact
+                      path="/moves/:moveId/edit"
+                      component={Edit}
+                    />
+                    <PrivateRoute
+                      exact
+                      path="/moves/:moveId/review/edit-profile"
+                      component={EditProfile}
+                    />
+                    <PrivateRoute
+                      exact
+                      path="/moves/:moveId/review/edit-backup-contact"
+                      component={EditBackupContact}
+                    />
+                    <PrivateRoute
+                      exact
+                      path="/moves/:moveId/review/edit-contact-info"
+                      component={EditContactInfo}
+                    />
+                    <PrivateRoute
+                      path="/moves/:moveId/review/edit-orders"
+                      component={EditOrders}
+                    />
+                    <PrivateRoute
+                      path="/moves/:moveId/review/edit-date-and-location"
+                      component={EditDateAndLocation}
+                    />
+                    <PrivateRoute
+                      path="/moves/:moveId/review/edit-weight"
+                      component={EditWeight}
+                    />
+                    <Route component={NoMatch} />
+                  </Switch>
+                )}
             </main>
             <Footer />
           </div>
