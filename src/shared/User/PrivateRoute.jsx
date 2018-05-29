@@ -2,14 +2,11 @@ import React from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import LoginButton from './LoginButton';
+import SignIn from './SignIn';
 
-const NotAuthenticated = ({ location }) => (
+const NotAuthenticated = () => (
   <div className="usa-grid">
-    <h3>
-      Please login to access <code>{location.pathname}</code>
-    </h3>
-    <LoginButton />
+    <SignIn />
   </div>
 );
 

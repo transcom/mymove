@@ -11,8 +11,7 @@ import { loadEntitlements } from 'scenes/Orders/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
-import LoginButton from 'shared/User/LoginButton';
-
+import SignIn from 'shared/User/SignIn';
 export class Landing extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
@@ -74,6 +73,7 @@ export class Landing extends Component {
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <span> Loading... </span>}
+        {!isLoggedIn && <SignIn />}
         {loggedInUserSuccess && (
           <Fragment>
             <div>
@@ -93,7 +93,7 @@ export class Landing extends Component {
                 </Alert>
               )}
             </div>
-            {!isLoggedIn && <LoginButton />}
+
             {isLoggedIn &&
               !isEmpty(serviceMember) &&
               serviceMember.is_profile_complete && (
