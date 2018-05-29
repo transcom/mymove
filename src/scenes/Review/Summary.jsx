@@ -15,6 +15,7 @@ export class Summary extends Component {
       currentBackupContacts,
       currentOrders,
       schemaRank,
+      schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
       serviceMember,
@@ -109,7 +110,12 @@ export class Summary extends Component {
                 </tr>
                 <tr>
                   <td>Branch:</td>
-                  <td>{get(serviceMember, 'affiliation')}</td>
+                  <td>
+                    {get(
+                      schemaAffiliation['x-display-value'],
+                      get(serviceMember, 'affiliation'),
+                    )}
+                  </td>
                 </tr>
                 <tr>
                   <td> Rank/Pay Grade: </td>
@@ -357,6 +363,7 @@ function mapStateToProps(state) {
     currentOrders: state.orders.currentOrders,
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
+    schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
   };
 }
