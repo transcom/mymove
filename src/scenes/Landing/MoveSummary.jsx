@@ -37,10 +37,10 @@ export const MoveSummary = props => {
     resumeMove,
   } = props;
   const status = get(move, 'status', 'DRAFT');
-  var moveDateAfterToday = moment(
+  var moveDatePast = moment(
     ppm.planned_move_date,
     'YYYY-MM-DD',
-  ).isSameOrAfter();
+  ).isSameOrBefore();
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
@@ -170,7 +170,7 @@ export const MoveSummary = props => {
             )}
             {/* Approved Move */}
             {status === 'APPROVED' &&
-              !moveDateAfterToday && (
+              !moveDatePast && (
                 <div>
                   <img className="status_icon" src={ppmApproved} alt="status" />
                   <div className="step-contents">
@@ -239,7 +239,7 @@ export const MoveSummary = props => {
               )}
             {/* In Progress Move */}
             {status === 'APPROVED' &&
-              moveDateAfterToday && (
+              moveDatePast && (
                 <div>
                   <img
                     className="status_icon"
