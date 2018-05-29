@@ -83,7 +83,7 @@
     "adr-log": "^2.1.1",
     "markdown-spellcheck": "^1.3.1",
     "markdown-toc": "^1.2.0",
-    "prettier": "^1.9.2",
+    "prettier": "=1.12.1",
     "react-mock-router": "^1.0.15"
   }
 }

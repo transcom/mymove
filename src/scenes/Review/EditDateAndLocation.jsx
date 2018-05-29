@@ -2,7 +2,7 @@ import { debounce, get, bind, cloneDeep } from 'lodash';
 import { push } from 'react-router-redux';
 import PropTypes from 'prop-types';
 import { getFormValues } from 'redux-form';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import React, { Component, Fragment } from 'react';
 import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert'; // eslint-disable-line
@@ -25,7 +25,6 @@ let EditDateAndLocationForm = props => {
     valid,
     sitReimbursement,
     submitting,
-    onCancel,
   } = props;
   return (
     <form onSubmit={handleSubmit}>
@@ -104,12 +103,7 @@ let EditDateAndLocationForm = props => {
           )}
         </Fragment>
       )}
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -120,11 +114,6 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName })(
 );
 
 class EditDateAndLocation extends Component {
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
@@ -142,7 +131,7 @@ class EditDateAndLocation extends Component {
       return this.props.createOrUpdatePpm(moveId, pendingValues).then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
@@ -228,11 +217,8 @@ function mapStateToProps(state) {
       {},
     ),
     ...state.ppm,
-    ...state.loggedInUser,
     move: get(state, 'moves.currentMove'),
-    currentOrders:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
-      get(state.orders, 'currentOrders'),
+    currentOrders: get(state.orders, 'currentOrders'),
     currentPpm: get(state.ppm, 'currentPpm'),
     formValues: getFormValues(editDateAndLocationFormName)(state),
     entitlement: loadEntitlements(state),
@@ -240,8 +226,8 @@ function mapStateToProps(state) {
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
   };
   const defaultPickupZip = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.residential_address.postal_code',
+    state.serviceMember,
+    'currentServiceMember.residential_address.postal_code',
   );
   props.initialValues = props.currentPpm
     ? props.currentPpm

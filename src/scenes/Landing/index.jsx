@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { get, isEmpty } from 'lodash';
+import { isEmpty } from 'lodash';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -15,26 +15,23 @@ import LoginButton from 'shared/User/LoginButton';
 
 export class Landing extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Landing Page';
-    //rerun loadLoggedInUser if you have traveled to other pages
-    if (!this.props.loggedInUserIsLoading && this.props.lastLocation) {
-      this.props.loadLoggedInUser();
-    }
     window.scrollTo(0, 0);
   }
   componentDidUpdate() {
-    const { service_member } = this.props;
-    if (this.props.loggedInUserSuccess) {
-      if (
-        !this.props.createdServiceMemberIsLoading &&
-        isEmpty(service_member)
-      ) {
+    const {
+      serviceMember,
+      createdServiceMemberIsLoading,
+      loggedInUserSuccess,
+      createServiceMember,
+    } = this.props;
+    if (loggedInUserSuccess) {
+      if (!createdServiceMemberIsLoading && isEmpty(serviceMember)) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
-        this.props.createServiceMember({});
+        createServiceMember({});
       } else if (
-        !isEmpty(service_member) &&
-        !service_member.is_profile_complete
+        !isEmpty(serviceMember) &&
+        !serviceMember.is_profile_complete
       ) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
@@ -42,22 +39,22 @@ export class Landing extends Component {
     }
   }
   startMove = values => {
-    if (!this.props.loggedInUser.service_member) {
+    const { serviceMember } = this.props;
+    if (isEmpty(serviceMember)) {
       console.error(
         'With no service member, you should have been redirected already.',
       );
     }
-    this.props.push(
-      `service-member/${this.props.loggedInUser.service_member.id}/create`,
-    );
+    this.props.push(`service-member/${serviceMember.id}/create`);
   };
 
   editMove = move => {
-    this.props.push(`moves/${move.id}/review`);
+    this.props.push(`moves/${move.id}/edit`);
   };
 
   resumeMove = () => {
-    this.props.push(getNextIncompletePage(this.props.service_member));
+    const { serviceMember, orders, move, ppm } = this.props;
+    this.props.push(getNextIncompletePage(serviceMember, orders, move, ppm));
   };
   render() {
     const {
@@ -66,15 +63,14 @@ export class Landing extends Component {
       loggedInUserSuccess,
       loggedInUserError,
       createdServiceMemberError,
-      loggedInUser,
       moveSubmitSuccess,
       entitlement,
+      serviceMember,
+      orders,
+      move,
+      ppm,
     } = this.props;
 
-    const profile = get(loggedInUser, 'service_member', {});
-    const orders = get(profile, 'orders.0');
-    const move = get(orders, 'moves.0');
-    const ppm = get(move, 'personally_procured_moves.0', {});
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <span> Loading... </span>}
@@ -98,17 +94,19 @@ export class Landing extends Component {
               )}
             </div>
             {!isLoggedIn && <LoginButton />}
-            {isLoggedIn && (
-              <MoveSummary
-                entitlement={entitlement}
-                profile={profile}
-                orders={orders}
-                move={move}
-                ppm={ppm}
-                editMove={this.editMove}
-                resumeMove={this.resumeMove}
-              />
-            )}
+            {isLoggedIn &&
+              !isEmpty(serviceMember) &&
+              serviceMember.is_profile_complete && (
+                <MoveSummary
+                  entitlement={entitlement}
+                  profile={serviceMember}
+                  orders={orders}
+                  move={move}
+                  ppm={ppm}
+                  editMove={this.editMove}
+                  resumeMove={this.resumeMove}
+                />
+              )}
           </Fragment>
         )}
       </div>
@@ -118,7 +116,10 @@ export class Landing extends Component {
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
-  service_member: get(state, 'loggedInUser.loggedInUser.service_member', {}),
+  serviceMember: state.serviceMember.currentServiceMember || {},
+  orders: state.orders.currentOrders || {},
+  move: state.moves.currentMove || {},
+  ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
   loggedInUserError: state.loggedInUser.error,

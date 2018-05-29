@@ -40,7 +40,6 @@ function getWeightInfo(ppm, entitlement) {
 }
 export class PpmWeight extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Weight Selection';
     if (this.props.currentPpm) {
       this.updateIncentive();
     }
@@ -214,7 +213,6 @@ function mapStateToProps(state) {
     get(state, 'ppm.currentPpm.weight_estimate', defaultWeight);
   const props = {
     ...state.ppm,
-    loggedInUser: state.loggedInUser,
     currentWeight,
     entitlement: loadEntitlements(state),
   };

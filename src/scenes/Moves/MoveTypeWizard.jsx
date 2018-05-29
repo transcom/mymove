@@ -58,6 +58,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ updateMove, loadMove }, dispatch);
 }
 function mapStateToProps(state) {
-  return state.submittedMoves;
+  return state.moves;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(MoveTypeWizardPage);
