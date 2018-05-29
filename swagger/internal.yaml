@@ -42,14 +42,14 @@ definitions:
       - ARMY
       - NAVY
       - MARINES
-      - AIRFORCE
-      - COASTGUARD
+      - AIR_FORCE
+      - COAST_GUARD
     x-display-value:
       ARMY: Army
       NAVY: Navy
       MARINES: Marines
-      AIRFORCE: Airforce
-      COASTGUARD: Coastguard
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
   DutyStationPayload:
     type: object
     properties:
@@ -1071,9 +1071,9 @@ definitions:
     x-nullable: true
     title: Dept. indicator
     enum:
-      - AIRFORCE
+      - AIR_FORCE
     x-display-value:
-      AIRFORCE: 57 - United States Air Force
+      AIR_FORCE: 57 - United States Air Force
   IndexShipmentsPayload:
     type: array
     items:
