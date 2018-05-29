@@ -16,6 +16,7 @@ import {
   setPendingPpmWeight,
   getPpmWeightEstimate,
   createOrUpdatePpm,
+  getPpmMaxWeightEstimate,
 } from './ducks';
 
 import 'react-rangeslider/lib/index.css';
@@ -42,12 +43,16 @@ function getWeightInfo(ppm, entitlement) {
   }
 }
 
-const requestedTitle = (
-  <Fragment>
-    <div className="ppmquestion">How much advance do you want?</div>
-    <div className="ppmmuted">Up to $4350 (60% of your PPM incentive)</div>
-  </Fragment>
-);
+const requestedTitle = maxAdvance => {
+  return (
+    <Fragment>
+      <div className="ppmquestion">How much advance do you want?</div>
+      <div className="ppmmuted">
+        Up to {maxAdvance} (60% of your PPM incentive)
+      </div>
+    </Fragment>
+  );
+};
 
 const methodTitle = (
   <Fragment>
@@ -60,17 +65,35 @@ const methodTitle = (
   </Fragment>
 );
 
+const formatMaxAdvance = maxAdvance => {
+  return `$${maxAdvance.toFixed(2)}`;
+};
+
+const validateAdvanceForm = (values, form) => {
+  if (form.maxIncentive) {
+    if (parseFloat(values.requested_amount) > parseFloat(form.maxIncentive)) {
+      return { requested_amount: `Must be less than ${form.maxIncentive}` };
+    }
+  }
+};
+
 const requestAdvanceFormName = 'request_advance';
 let RequestAdvanceForm = props => {
-  const { schema, valid, hasRequestedAdvance } = props;
+  const { schema, valid, hasRequestedAdvance, maxIncentive } = props;
   let foo = schema.properties.advance;
+  let maxAdvance = '';
+  if (maxIncentive) {
+    maxAdvance = formatMaxAdvance(maxIncentive);
+  }
   return (
     <form className="whole_box">
       <div>
         <div className="usa-width-one-whole">
           <div className="usa-width-two-thirds">
             <div className="ppmquestion">
-              Would you like an advance of up to 60% of your PPM incentive?
+              Would you like an advance of up to 60% of your PPM incentive? ({
+                maxAdvance
+              })
             </div>
             <div className="ppmmuted">
               We recommend paying for expenses with your government travel card,
@@ -99,7 +122,7 @@ let RequestAdvanceForm = props => {
             <SwaggerField
               fieldName="requested_amount"
               swagger={schema.properties.advance}
-              title={requestedTitle}
+              title={requestedTitle(maxAdvance)}
               required
             />
             <SwaggerField
@@ -116,6 +139,7 @@ let RequestAdvanceForm = props => {
 };
 RequestAdvanceForm = reduxForm({
   form: requestAdvanceFormName,
+  validate: validateAdvanceForm,
 })(RequestAdvanceForm);
 
 export class PpmWeight extends Component {
@@ -138,7 +162,12 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { pendingPpmWeight, currentWeight, currentPpm } = this.props;
+    const {
+      pendingPpmWeight,
+      currentWeight,
+      currentPpm,
+      entitlement,
+    } = this.props;
     const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
     if (![pendingPpmWeight, weight_estimate].includes(currentWeight)) {
       this.onWeightSelecting(currentWeight);
@@ -149,14 +178,42 @@ export class PpmWeight extends Component {
         currentWeight,
       );
     }
+
+    const currentInfo = getWeightInfo(currentPpm, entitlement);
+    this.props.getPpmMaxWeightEstimate(
+      currentPpm.planned_move_date,
+      currentPpm.pickup_postal_code,
+      currentPpm.destination_postal_code,
+      currentInfo.max,
+    );
   }
   handleSubmit = () => {
-    const { pendingPpmWeight, incentive, createOrUpdatePpm } = this.props;
+    const {
+      pendingPpmWeight,
+      incentive,
+      createOrUpdatePpm,
+      advanceFormData,
+    } = this.props;
     const moveId = this.props.match.params.moveId;
-    createOrUpdatePpm(moveId, {
+    const ppmBody = {
       weight_estimate: pendingPpmWeight,
       estimated_incentive: incentive,
-    });
+    };
+
+    if (advanceFormData.values.has_requested_advance) {
+      ppmBody.has_requested_advance = true;
+      const requestedAmount = Math.round(
+        parseFloat(advanceFormData.values.requested_amount) * 100,
+      );
+      ppmBody.advance = {
+        requested_amount: requestedAmount,
+        method_of_receipt: advanceFormData.values.method_of_receipt,
+      };
+    } else {
+      ppmBody.has_requested_advance = false;
+    }
+
+    createOrUpdatePpm(moveId, ppmBody);
   };
   onWeightSelecting = value => {
     this.props.setPendingPpmWeight(value);
@@ -180,6 +237,7 @@ export class PpmWeight extends Component {
       hasSubmitSuccess,
       currentWeight,
       hasLoadSuccess,
+      maxIncentive,
       hasEstimateInProgress,
       error,
       entitlement,
@@ -196,6 +254,19 @@ export class PpmWeight extends Component {
       'values.has_requested_advance',
       false,
     );
+    let advanceInitialValues = null;
+    if (currentPpm) {
+      let requestedAmount = get(currentPpm, 'advance.requested_amount');
+      if (requestedAmount) {
+        requestedAmount = parseFloat(requestedAmount) / 100;
+      }
+      advanceInitialValues = {
+        has_requested_advance: currentPpm.has_requested_advance,
+        requested_amount: requestedAmount,
+        method_of_receipt: get(currentPpm, 'advance.method_of_receipt'),
+      };
+    }
+
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -250,6 +321,8 @@ export class PpmWeight extends Component {
             <RequestAdvanceForm
               schema={schema}
               hasRequestedAdvance={hasRequestedAdvance}
+              maxIncentive={maxIncentive}
+              initialValues={advanceInitialValues}
             />
 
             <div className="info">
@@ -322,7 +395,12 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { setPendingPpmWeight, getPpmWeightEstimate, createOrUpdatePpm },
+    {
+      setPendingPpmWeight,
+      getPpmWeightEstimate,
+      getPpmMaxWeightEstimate,
+      createOrUpdatePpm,
+    },
     dispatch,
   );
 }
