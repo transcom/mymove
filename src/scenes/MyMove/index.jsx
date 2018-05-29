@@ -24,6 +24,8 @@ import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
+import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
+import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
@@ -67,6 +69,14 @@ export class AppWrapper extends Component {
                     component={Shipments}
                   />
                   <Route path="/feedback" component={Feedback} />
+                  <Route
+                    path="/privacy-and-security-policy"
+                    component={PrivacyPolicyStatement}
+                  />
+                  <Route
+                    path="/accessibility"
+                    component={AccessibilityStatement}
+                  />
                   {getWorkflowRoutes(props)}
                   <PrivateRoute
                     exact

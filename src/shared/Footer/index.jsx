@@ -18,11 +18,24 @@ function Footer() {
                 </a>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a className="usa-footer-primary-link">Help Me</a>
+                <a
+                  className="usa-footer-primary-link"
+                  href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil"
+                >
+                  Help Me
+                </a>
               </li>
               <li className="usa-width-one-fourth usa-footer-primary-content">
-                <a className="usa-footer-primary-link">
-                  Site policies (example)
+                <a className="usa-footer-primary-link" href="/accessibility">
+                  Accessibility
+                </a>
+              </li>
+              <li className="usa-width-one-fourth usa-footer-primary-content">
+                <a
+                  className="usa-footer-primary-link"
+                  href="/privacy-and-security-policy"
+                >
+                  Privacy and Security Policy
                 </a>
               </li>
             </ul>
@@ -45,16 +58,30 @@ function Footer() {
             </a>
           </div>
           <div className="usa-footer-contact-links usa-width-one-half">
-            <a className="usa-link-twitter">
+            <a
+              className="usa-link-twitter"
+              href="https://twitter.com/us_transcom"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
               <span>Twitter</span>
             </a>
-            <a className="usa-link-rss">
-              <span>RSS</span>
+            <a
+              className="usa-link-facebook"
+              href="https://www.facebook.com/USTRANSCOM/"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <span>Facebook</span>
             </a>
             <address>
               <h3 className="usa-footer-contact-heading">Contact Us</h3>
-              <p>(800) CALL-MIL</p>
-              <a href="mailto:info@agency.mil">info@agency.mil</a>
+              <p>
+                <a href="tel:(302) 469-6683">(302) 469-6683</a>
+              </p>
+              <a href="mailto:transcom.scott.tcj5j4.mbx.ppcf@mail.mil">
+                email us
+              </a>
             </address>
           </div>
         </div>
