@@ -79,8 +79,7 @@ const validateAdvanceForm = (values, form) => {
 
 const requestAdvanceFormName = 'request_advance';
 let RequestAdvanceForm = props => {
-  const { schema, valid, hasRequestedAdvance, maxIncentive } = props;
-  let foo = schema.properties.advance;
+  const { schema, hasRequestedAdvance, maxIncentive } = props;
   let maxAdvance = '';
   if (maxIncentive) {
     maxAdvance = formatMaxAdvance(maxIncentive);
@@ -98,7 +97,7 @@ let RequestAdvanceForm = props => {
             <div className="ppmmuted">
               We recommend paying for expenses with your government travel card,
               rather than getting an advance.{' '}
-              <a href="#" className="Todo">
+              <a href="/unknown" className="Todo">
                 Why?
               </a>
             </div>
@@ -287,7 +286,7 @@ export class PpmWeight extends Component {
         <h2>Customize Weight</h2>
         {!hasLoadSuccess && <LoadingPlaceholder />}
         {hasLoadSuccess && (
-          <React.Fragment>
+          <Fragment>
             <p>
               Use this slider to customize how much weight you think you’ll
               carry.
@@ -343,7 +342,7 @@ export class PpmWeight extends Component {
                 stuff you carry.
               </p>
             </div>
-          </React.Fragment>
+          </Fragment>
         )}
       </WizardPage>
     );
