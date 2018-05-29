@@ -270,7 +270,11 @@ func (s *ServiceMember) IsProfileComplete() bool {
 func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads", "Moves").First(&order)
+	err := query.Eager("ServiceMember.User",
+		"NewDutyStation.Address",
+		"UploadedOrders.Uploads",
+		"Moves.PersonallyProcuredMoves",
+		"Moves.SignedCertifications").First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

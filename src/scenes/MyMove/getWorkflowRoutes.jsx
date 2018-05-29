@@ -149,23 +149,21 @@ const pages = {
   },
   '/orders/': {
     isInFlow: always,
-    isComplete: sm => {
-      const orders = get(sm, 'orders.0', {});
-      return every([
+    isComplete: (sm, orders) =>
+      every([
         orders.orders_type,
         orders.issue_date,
         orders.report_by_date,
         get(orders, 'new_duty_station.id', NULL_UUID) !== NULL_UUID,
-      ]);
-    },
+      ]),
     render: (key, pages) => ({ match }) => (
       <Orders pages={pages} pageKey={key} match={match} />
     ),
   },
   '/orders/upload': {
     isInFlow: always,
-    isComplete: sm =>
-      get(sm, 'orders.0.uploaded_orders.uploads', []).length > 0,
+    isComplete: (sm, orders, move, ppm) =>
+      get(orders, 'uploaded_orders.uploads', []).length > 0,
     render: (key, pages) => ({ match }) => (
       <UploadOrders pages={pages} pageKey={key} match={match} />
     ),
@@ -190,7 +188,8 @@ const pages = {
   },
   '/moves/:moveId': {
     isInFlow: always,
-    isComplete: sm => get(sm, 'orders.0.moves.0.selected_move_type', null),
+    isComplete: (sm, orders, move, ppm) =>
+      get(move, 'selected_move_type', null),
     render: (key, pages) => ({ match }) => (
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
@@ -219,8 +218,7 @@ const pages = {
   },
   '/moves/:moveId/ppm-start': {
     isInFlow: state => state.selectedMoveType === 'PPM',
-    isComplete: sm => {
-      const ppm = get(sm, 'orders.0.moves.0.personally_procured_moves.0', {});
+    isComplete: (sm, orders, move, ppm) => {
       return every([
         ppm.planned_move_date,
         ppm.pickup_postal_code,
@@ -233,32 +231,30 @@ const pages = {
   },
   '/moves/:moveId/ppm-size': {
     isInFlow: hasPPM,
-    isComplete: sm =>
-      get(sm, 'orders.0.moves.0.personally_procured_moves.0.size', null),
+    isComplete: (sm, orders, move, ppm) => get(ppm, 'size', null),
     render: (key, pages) => ({ match }) => (
       <PpmSize pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/ppm-incentive': {
     isInFlow: hasPPM,
-    isComplete: sm =>
-      get(sm, 'orders.0.moves.0.personally_procured_moves.0.weight', null),
+    isComplete: (sm, orders, move, ppm) => get(ppm, 'weight', null),
     render: (key, pages) => ({ match }) => (
       <PpmWeight pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/review': {
     isInFlow: always,
-    isComplete: sm =>
-      get(sm, 'orders.0.moves.0.status', 'DRAFT') === 'SUBMITTED',
+    isComplete: (sm, orders, move, ppm) =>
+      get(move, 'status', 'DRAFT') === 'SUBMITTED',
     render: (key, pages) => ({ match }) => (
       <Review pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/agreement': {
     isInFlow: always,
-    isComplete: sm =>
-      get(sm, 'orders.0.moves.0.status', 'DRAFT') === 'SUBMITTED',
+    isComplete: (sm, orders, move, ppm) =>
+      get(move, 'status', 'DRAFT') === 'SUBMITTED',
     render: (key, pages, description, props) => ({ match }) => {
       return <Agreement pages={pages} pageKey={key} match={match} />;
     },
@@ -270,11 +266,19 @@ export const getPagesInFlow = state =>
     return page.isInFlow(state);
   });
 
-export const getNextIncompletePage = service_member => {
-  const rawPath = findKey(pages, p => !p.isComplete(service_member));
+export const getNextIncompletePage = (
+  service_member = {},
+  orders = {},
+  move = {},
+  ppm = {},
+) => {
+  const rawPath = findKey(
+    pages,
+    p => !p.isComplete(service_member, orders, move, ppm),
+  );
   const compiledPath = generatePath(rawPath, {
-    serviceMemberId: service_member.id,
-    moveId: get(service_member, 'orders.0.moves.0.id', null),
+    serviceMemberId: get(service_member, 'id'),
+    moveId: get(move, 'id'),
   });
   return compiledPath;
 };
