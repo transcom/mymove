@@ -95,6 +95,7 @@ class QueueTable extends Component {
               onDoubleClick: e =>
                 this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}
+            className="queue-table"
           />
         </div>
       </div>

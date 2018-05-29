@@ -1,3 +1,8 @@
+.queue-table {
+  font-size: 0.75em;
+  min-width: 1000px;
+}
+
 .fake-link {
   text-decoration: underline;
   color: blue;
@@ -197,7 +202,7 @@ head .panel-subhead {
 .payment-panel {
   border: solid #f1f1f1;
   border-width: 3px;
-  width:100%;
+  width: 100%;
   empty-cells: hide;
 }
 
@@ -205,8 +210,9 @@ head .panel-subhead {
   margin: 1em;
 }
 
-.payment-table td, .payment-table th {
-    border: none;
+.payment-table td,
+.payment-table th {
+  border: none;
 }
 
 .payment-table a {
@@ -223,21 +229,21 @@ head .panel-subhead {
   font-size: 1.7rem;
   font-weight: bold;
   background-color: #f1f1f1;
-  padding: .4em 1em;
+  padding: 0.4em 1em;
   border: 3px solid #f1f1f1;
-  width:100%;
+  width: 100%;
 }
 
 .payment-table .payment-table-column-title {
   font-weight: bold;
-  font-size: .9em;
-  border-bottom: solid 1px #A2A2A2;
+  font-size: 0.9em;
+  border-bottom: solid 1px #a2a2a2;
   width: 15%;
 }
 
 .payment-table .payment-table-subheader {
   font-weight: bold;
-  font-size: .9em;
+  font-size: 0.9em;
   border-bottom: solid 1px #f1f1f1;
   width: 90%;
 }
@@ -248,32 +254,32 @@ head .panel-subhead {
 }
 
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    top: 60px;
-    margin-left: -105px;
+  visibility: hidden;
+  width: 200px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  top: 60px;
+  margin-left: -105px;
 }
 
 .tooltip .tooltiptext::after {
-    content: "";
-    position: absolute;
-    bottom: 100%;
-    left: 50%;
-    margin-left: -5px;
-    border-width: 5px;
-    border-style: solid;
-    border-color: transparent transparent black transparent;
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
 }
 
 .tooltip:hover .tooltiptext {
-    visibility: visible;
+  visibility: visible;
 }
 
 .approval-ready {
