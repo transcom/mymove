@@ -37,7 +37,6 @@ func main() {
 		log.Fatal(err)
 	}
 
-	log.Printf("")
 	if *email == "" {
 		log.Fatal("Usage: make_office_user -email <my_email@example.com>")
 	}

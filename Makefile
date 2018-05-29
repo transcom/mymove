@@ -92,6 +92,7 @@ tools_build: server_deps
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
+	go build -i -o bin/load-office-data ./cmd/load_office_data
 
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue
