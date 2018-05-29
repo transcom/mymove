@@ -1,10 +1,13 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
+import { reduxForm, Field } from 'redux-form';
 
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import WizardPage from 'shared/WizardPage';
 import Alert from 'shared/Alert';
@@ -38,6 +41,83 @@ function getWeightInfo(ppm, entitlement) {
       };
   }
 }
+
+const requestedTitle = (
+  <Fragment>
+    <div className="ppmquestion">How much advance do you want?</div>
+    <div className="ppmmuted">Up to $4350 (60% of your PPM incentive)</div>
+  </Fragment>
+);
+
+const methodTitle = (
+  <Fragment>
+    <div className="ppmquestion">How do you want to get your advance?</div>
+    <div className="ppmmuted">
+      To direct deposit to another account you'll need to fill out a new account
+      form, included in your advance paperwork, and take it to the accounting
+      office.
+    </div>
+  </Fragment>
+);
+
+const requestAdvanceFormName = 'request_advance';
+let RequestAdvanceForm = props => {
+  const { schema, valid, hasRequestedAdvance } = props;
+  let foo = schema.properties.advance;
+  return (
+    <form className="whole_box">
+      <div>
+        <div className="usa-width-one-whole">
+          <div className="usa-width-two-thirds">
+            <div className="ppmquestion">
+              Would you like an advance of up to 60% of your PPM incentive?
+            </div>
+            <div className="ppmmuted">
+              We recommend paying for expenses with your government travel card,
+              rather than getting an advance.{' '}
+              <a href="#" className="Todo">
+                Why?
+              </a>
+            </div>
+          </div>
+          <div className="usa-width-one-third">
+            <Field name="has_requested_advance" component={YesNoBoolean} />
+          </div>
+        </div>
+        {hasRequestedAdvance && (
+          <div className="usa-width-one-whole top-buffered">
+            <Alert type="info" heading="">
+              We recommend that Service Families be cautious when requesting an
+              advance on PPM expenses. Because your final incentive is affected
+              by the amount of weight you actually move, if you request a full
+              advance and then move less weight than anticipated, you may have
+              to pay back some of your advance to the military. If you would
+              like to use a more specific move calculator to estimate your
+              anticipated shipment weight, you can do that{' '}
+              <a href="https://www.move.mil/resources/weight-estimator">here</a>.
+            </Alert>
+            <SwaggerField
+              fieldName="requested_amount"
+              swagger={schema.properties.advance}
+              title={requestedTitle}
+              required
+            />
+            <SwaggerField
+              fieldName="method_of_receipt"
+              swagger={schema.properties.advance}
+              title={methodTitle}
+              required
+            />
+          </div>
+        )}
+      </div>
+    </form>
+  );
+};
+RequestAdvanceForm = reduxForm({
+  form: requestAdvanceFormName,
+})(RequestAdvanceForm);
+
 export class PpmWeight extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: Weight Selection';
@@ -103,12 +183,19 @@ export class PpmWeight extends Component {
       hasEstimateInProgress,
       error,
       entitlement,
+      schema,
+      advanceFormData,
     } = this.props;
     let currentInfo = null;
     if (hasLoadSuccess) {
       currentInfo = getWeightInfo(currentPpm, entitlement);
     }
     const isValid = incentive && !hasEstimateInProgress;
+    const hasRequestedAdvance = get(
+      advanceFormData,
+      'values.has_requested_advance',
+      false,
+    );
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
@@ -159,6 +246,11 @@ export class PpmWeight extends Component {
                 </tr>
               </tbody>
             </table>
+
+            <RequestAdvanceForm
+              schema={schema}
+              hasRequestedAdvance={hasRequestedAdvance}
+            />
 
             <div className="info">
               <h3> How is my PPM Incentive calculated?</h3>
@@ -217,6 +309,12 @@ function mapStateToProps(state) {
     loggedInUser: state.loggedInUser,
     currentWeight,
     entitlement: loadEntitlements(state),
+    schema: get(
+      state,
+      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+      {},
+    ),
+    advanceFormData: state.form[requestAdvanceFormName],
   };
 
   return props;
