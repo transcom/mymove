@@ -35,7 +35,7 @@ export const MoveSummary = props => {
     entitlement,
     resumeMove,
   } = props;
-  const status = get(move, 'status', 'DRAFT');
+  const status = get(move, 'status', 'DRAFT'); //todo: set to IN PROGRESS when move date is in past
   return (
     <div className="whole_box">
       <h2>
@@ -205,9 +205,7 @@ export const MoveSummary = props => {
               </div>
             )}
             {/* In Progress Move */}
-            {/* NOTE: The above blocks rely on move.status. This in progress block
-                is unviewable until we start editing PPM statuses. */}
-            {ppm.status === 'IN_PROGRESS' && (
+            {status === 'IN_PROGRESS' && (
               <div>
                 <img src={ppmInProgress} alt="status" />
                 <div className="step-contents">

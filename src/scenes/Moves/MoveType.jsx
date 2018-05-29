@@ -201,7 +201,7 @@ MoveType.propTypes = {
 };
 
 function mapStateToProps(state) {
-  return state.submittedMoves;
+  return state.moves;
 }
 
 function mapDispatchToProps(dispatch) {

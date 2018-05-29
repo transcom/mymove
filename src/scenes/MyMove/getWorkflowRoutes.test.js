@@ -6,9 +6,7 @@ describe('when getting the routes for the current workflow', () => {
     profileIsComplete = true;
     describe('given a PPM', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'PPM',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -35,9 +33,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with an HHG', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'HHG',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -63,9 +59,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with a COMBO', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'COMBO',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -97,9 +91,7 @@ describe('when getting the routes for the current workflow', () => {
     profileIsComplete = false;
     describe('given no move', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: null,
-        hasMove: false,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -123,9 +115,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a PPM', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'PPM',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and PPM-specific move pages', () => {
@@ -152,9 +142,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with an HHG', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'HHG',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and HHG-specific move pages', () => {
@@ -180,9 +168,7 @@ describe('when getting the routes for the current workflow', () => {
     });
     describe('given a complete service member with a COMBO', () => {
       const props = {
-        hasCompleteProfile: profileIsComplete,
         selectedMoveType: 'COMBO',
-        hasMove: true,
       };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns service member, order and move pages', () => {
@@ -354,7 +340,7 @@ describe('when getting the next incomplete page', () => {
       });
     });
   });
-  describe('when the profile is incomplete', () => {
+  describe('when the profile is complete', () => {
     // service_member.is_profile_complete = true;
     it('returns the orders info', () => {
       const result = getNextIncompletePage({
@@ -365,171 +351,160 @@ describe('when getting the next incomplete page', () => {
     });
     describe('when orders info is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-            },
-          ],
-        });
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+          },
+          { id: 'bar' },
+        );
         expect(result).toEqual('/orders/upload');
       });
     });
     describe('when orders upload is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-              uploaded_orders: {
-                uploads: [{}],
-              },
-              moves: [{ id: 'bar' }],
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
             },
-          ],
-        });
+          },
+          { id: 'bar' },
+        );
         expect(result).toEqual('/moves/bar');
       });
     });
     describe('when move type selection is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-              uploaded_orders: {
-                uploads: [{}],
-              },
-              moves: [
-                {
-                  id: 'bar',
-                  selected_move_type: 'PPM',
-                  personally_procured_moves: [{ id: 'baz' }],
-                },
-              ],
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
             },
-          ],
-        });
+          },
+          {
+            id: 'bar',
+            selected_move_type: 'PPM',
+          },
+          {
+            id: 'baz',
+          },
+        );
         expect(result).toEqual('/moves/bar/ppm-start');
       });
     });
     describe('when ppm date is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-              uploaded_orders: {
-                uploads: [{}],
-              },
-              moves: [
-                {
-                  id: 'bar',
-                  selected_move_type: 'PPM',
-                  personally_procured_moves: [
-                    {
-                      id: 'baz',
-                      planned_move_date: '2018-10-10',
-                      pickup_postal_code: '22222',
-                      destination_postal_code: '22222',
-                    },
-                  ],
-                },
-              ],
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
             },
-          ],
-        });
+          },
+          {
+            id: 'bar',
+            selected_move_type: 'PPM',
+          },
+          {
+            id: 'baz',
+            planned_move_date: '2018-10-10',
+            pickup_postal_code: '22222',
+            destination_postal_code: '22222',
+          },
+        );
         expect(result).toEqual('/moves/bar/ppm-size');
       });
     });
     describe('when ppm size is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-              uploaded_orders: {
-                uploads: [{}],
-              },
-              moves: [
-                {
-                  id: 'bar',
-                  selected_move_type: 'PPM',
-                  personally_procured_moves: [
-                    {
-                      id: 'baz',
-                      planned_move_date: '2018-10-10',
-                      pickup_postal_code: '22222',
-                      destination_postal_code: '22222',
-                      size: 'L',
-                    },
-                  ],
-                },
-              ],
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
             },
-          ],
-        });
+          },
+          {
+            id: 'bar',
+            selected_move_type: 'PPM',
+          },
+          {
+            id: 'baz',
+            planned_move_date: '2018-10-10',
+            pickup_postal_code: '22222',
+            destination_postal_code: '22222',
+            size: 'L',
+          },
+        );
         expect(result).toEqual('/moves/bar/ppm-incentive');
       });
     });
     describe('when ppm incentive is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: true,
-          orders: [
-            {
-              orders_type: 'foo',
-              issue_date: '2019-01-01',
-              report_by_date: '2019-02-01',
-              new_duty_station: { id: 'something' },
-              uploaded_orders: {
-                uploads: [{}],
-              },
-              moves: [
-                {
-                  id: 'bar',
-                  selected_move_type: 'PPM',
-                  personally_procured_moves: [
-                    {
-                      id: 'baz',
-                      planned_move_date: '2018-10-10',
-                      pickup_postal_code: '22222',
-                      destination_postal_code: '22222',
-                      size: 'L',
-                      weight: 555,
-                    },
-                  ],
-                },
-              ],
+        const result = getNextIncompletePage(
+          {
+            ...service_member,
+            is_profile_complete: true,
+          },
+          {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
             },
-          ],
-        });
+          },
+          {
+            id: 'bar',
+            selected_move_type: 'PPM',
+          },
+          {
+            id: 'baz',
+            planned_move_date: '2018-10-10',
+            pickup_postal_code: '22222',
+            destination_postal_code: '22222',
+            size: 'L',
+            weight: 555,
+          },
+        );
         expect(result).toEqual('/moves/bar/review');
       });
     });
