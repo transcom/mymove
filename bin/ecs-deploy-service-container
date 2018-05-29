@@ -32,8 +32,18 @@ readonly rds=app-${environment}
 readonly task_family=${name}-${environment}
 readonly container_name=${name}-${environment}
 
-# TODO: Change to move.mil when it's transferred to our infrastructure.
-readonly zone_name="dp3.us"
+readonly zone_name="move.mil"
+
+# TODO: Just use "domain" (below) when we stop using dashed hostnames.
+web_fqdn_suffix=-${environment}.${zone_name}
+[[ $environment = prod ]] && web_fqdn_suffix=.$zone_name
+readonly web_fqdn_suffix
+
+# TODO: Rename to "domain" when we stop using dashed hostnames.
+# use environment subdomain unless we're deploying prod
+email_domain=${environment}.${zone_name}
+[[ $environment = prod ]] && email_domain=$zone_name
+readonly email_domain
 
 
 check_arn() {
@@ -62,11 +72,6 @@ update_service() {
     return $exit_code
 }
 
-# use environment subdomain unless we're deploying prod
-domain=${environment}.${zone_name}
-[[ $environment = prod ]] && domain=$zone_name
-readonly domain
-
 # get current task definiton (for rollback)
 blue_task_def_arn=$(aws ecs describe-services --services "$name" --cluster "$cluster" --query 'services[0].taskDefinition' | jq -r .)
 
@@ -76,7 +81,7 @@ db_host=$(aws rds describe-db-instances --db-instance-identifier "$rds" --query 
 readonly db_host
 
 # create the container definition from the json template
-container_definition_json=$(perl -pe "s|{{db_host}}|$db_host|g; s|{{domain}}|$domain|g; s|{{environment}}|$environment|g; s|{{image}}|$image|g;" "$template")
+container_definition_json=$(perl -pe "s|{{db_host}}|$db_host|g; s|{{email_domain}}|$email_domain|g; s|{{environment}}|$environment|g; s|{{image}}|$image|g; s|{{web_fqdn_suffix}}|$web_fqdn_suffix|g;" "$template")
 readonly container_definition_json
 
 # create new task definition with the given image
