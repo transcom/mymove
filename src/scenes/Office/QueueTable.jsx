@@ -46,7 +46,7 @@ class QueueTable extends Component {
     return (
       <div>
         <h1>Queue: {titles[this.props.queueType]}</h1>
-        <div>
+        <div className="queue-table">
           <ReactTable
             columns={[
               {
@@ -95,7 +95,6 @@ class QueueTable extends Component {
               onDoubleClick: e =>
                 this.props.history.push(`new/moves/${rowInfo.original.id}`),
             })}
-            className="queue-table"
           />
         </div>
       </div>
