@@ -64,7 +64,7 @@ const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
-const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
+export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,
 );
 
@@ -457,8 +457,8 @@ export function officeReducer(state = initialState, action) {
       });
     case APPROVE_REIMBURSEMENT.success:
       // TODO: Remove once we have multiple ppms
-      let officePPM = get(state, 'office.officePPMs[0]');
-      let newPPM = Object.assign({}, state, {
+      let officePPM = get(state, 'officePPMs[0]');
+      let newPPM = Object.assign({}, officePPM, {
         advance: action.payload,
       });
       return Object.assign({}, state, {

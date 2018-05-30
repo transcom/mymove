@@ -17,13 +17,10 @@ class PaymentsTable extends Component {
   };
 
   renderAction = () => {
-    debugger;
     if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
-        console.log('SECOND IF ', this.props.advance.status);
         return <div>{/* Further actions to come*/}</div>;
       } else {
-        console.log('FIRST IF ', this.props.advance.status);
         return (
           <React.Fragment>
             <div onClick={this.approveReimbursement}>
@@ -39,9 +36,6 @@ class PaymentsTable extends Component {
         );
       }
     } else {
-      debugger;
-      console.log('PPM STATUS ', this.props.ppm.status);
-      console.log('ELSE ', this.props.advance.status);
       return (
         <React.Fragment>
           <FontAwesomeIcon
