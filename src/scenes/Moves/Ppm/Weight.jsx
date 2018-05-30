@@ -243,6 +243,7 @@ export class PpmWeight extends Component {
       hasEstimateInProgress,
       error,
       entitlement,
+      hasEstimateError,
       schema,
       advanceFormData,
     } = this.props;
@@ -307,6 +308,17 @@ export class PpmWeight extends Component {
                 }}
               />
             </div>
+            {hasEstimateError && (
+              <Fragment>
+                <div className="usa-width-one-whole error-message">
+                  <Alert type="warning" heading="Could not retrieve estimate">
+                    There was an issue retrieving an estimate for your
+                    incentive. You still qualify but may need to talk with your
+                    local PPPO.
+                  </Alert>
+                </div>
+              </Fragment>
+            )}
             <table className="numeric-info">
               <tbody>
                 <tr>

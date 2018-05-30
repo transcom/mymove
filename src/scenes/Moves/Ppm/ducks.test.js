@@ -1,5 +1,10 @@
-import { CREATE_OR_UPDATE_PPM, GET_PPM, ppmReducer } from './ducks';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import {
+  CREATE_OR_UPDATE_PPM,
+  GET_PPM,
+  GET_SIT_ESTIMATE,
+  GET_PPM_ESTIMATE,
+  ppmReducer,
+} from './ducks';
 import loggedInUserPayload, {
   emptyPayload,
 } from 'shared/User/sampleLoggedInUserPayload';
@@ -132,6 +137,79 @@ describe('Ppm Reducer', () => {
         hasLoadError: true,
         hasLoadSuccess: false,
         error: 'No bueno.',
+      });
+    });
+  });
+
+  describe('GET_SIT_ESTIMATE', () => {
+    it('Should handle SUCCESS', () => {
+      const initialState = {};
+      const newState = ppmReducer(initialState, {
+        type: GET_SIT_ESTIMATE.success,
+        payload: { estimate: 21505 },
+      });
+
+      expect(newState).toEqual({
+        sitReimbursement: '$215.05',
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
+        hasEstimateInProgress: false,
+        rateEngineError: null,
+      });
+    });
+
+    it('Should handle FAILURE', () => {
+      const initialState = { pendingValue: '' };
+
+      const newState = ppmReducer(initialState, {
+        type: GET_SIT_ESTIMATE.failure,
+        error: 'No bueno.',
+      });
+      // using special error here so it is not caught by WizardPage handling
+      expect(newState).toEqual({
+        hasEstimateError: true,
+        hasEstimateInProgress: false,
+        hasEstimateSuccess: false,
+        pendingValue: '',
+        rateEngineError: 'No bueno.',
+        sitReimbursement: null,
+      });
+    });
+  });
+
+  describe('GET_PPM_ESTIMATE', () => {
+    it('Should handle SUCCESS', () => {
+      const initialState = {};
+      const newState = ppmReducer(initialState, {
+        type: GET_PPM_ESTIMATE.success,
+        payload: { range_min: 21505, range_max: 44403 },
+      });
+
+      expect(newState).toEqual({
+        incentive: '$215.05 - 444.03',
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
+        hasEstimateInProgress: false,
+        rateEngineError: null,
+      });
+    });
+
+    it('Should handle FAILURE', () => {
+      const initialState = { pendingValue: '' };
+
+      const newState = ppmReducer(initialState, {
+        type: GET_PPM_ESTIMATE.failure,
+        error: 'No bueno.',
+      });
+      // using special error here so it is not caught by WizardPage handling
+      expect(newState).toEqual({
+        hasEstimateError: true,
+        hasEstimateInProgress: false,
+        hasEstimateSuccess: false,
+        pendingValue: '',
+        rateEngineError: 'No bueno.',
+        incentive: null,
+        error: null,
       });
     });
   });
