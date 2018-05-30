@@ -191,9 +191,15 @@ export const MoveSummary = props => {
                           receipts. For more information, read the PPM info
                           packet.
                         </div>
-                        <button className="usa-button-secondary">
-                          Read PPM Info Packet
-                        </button>
+                        <a
+                          href={ppmInfoPacket}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="usa-button-secondary">
+                            Read PPM Info Packet
+                          </button>
+                        </a>
                       </div>
                       <div className="step">
                         <div className="title">Next step: Request Payment</div>
