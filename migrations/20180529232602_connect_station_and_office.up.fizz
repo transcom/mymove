@@ -20,3 +20,5 @@ raw("UPDATE duty_stations SET transportation_office_id = '5853ef41-0169-4050-948
 raw("UPDATE duty_stations SET transportation_office_id = 'f69f315c-942a-4ef3-9427-7fee7883ce73' WHERE name = 'NAS Fort Worth';")
 raw("UPDATE duty_stations SET transportation_office_id = 'f5ab88fe-47f8-4b58-99af-41067d6cb60d' WHERE name = 'NAVSUP FLC Panama City';")
 raw("UPDATE duty_stations SET transportation_office_id = 'c8d5f80f-07c9-4d5f-9479-90b02e48c1d1' WHERE name = 'Dugway Proving Grounds';")
+raw("UPDATE duty_stations SET transportation_office_id = 'a468eb8d-79c5-4c01-93d7-9c0f557b7b9f' WHERE name = 'Schiever AFB';")
+raw("UPDATE duty_stations SET name = 'Schriever AFB' WHERE name = 'Schiever AFB';")
