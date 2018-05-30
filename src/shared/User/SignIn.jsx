@@ -1,5 +1,4 @@
 import React from 'react';
-import lockImage from 'shared/images/lock.png';
 const SignIn = () => (
   <div className="usa-grid">
     <div className="usa-width-one-sixth">&nbsp; </div>
