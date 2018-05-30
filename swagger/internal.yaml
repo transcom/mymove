@@ -100,6 +100,12 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      latitude:
+        type: number
+        example: 29.382973
+      longitude:
+        type: number
+        example: -98.62759
       created_at:
         type: string
         format: date-time
@@ -110,6 +116,8 @@ definitions:
       - id
       - name
       - address
+      - latitude
+      - longitude
       - created_at
       - updated_at
   DutyStationsPayload:
