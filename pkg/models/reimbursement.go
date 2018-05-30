@@ -181,10 +181,6 @@ func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID)
 		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// TODO: Authorize office user
-	// if session.IsMyApp() {
-	// 	return nil, ErrFetchForbidden
-	// }
 
 	return &reimbursement, nil
 }

@@ -456,9 +456,14 @@ export function officeReducer(state = initialState, action) {
         reimbursementIsApproving: true,
       });
     case APPROVE_REIMBURSEMENT.success:
+      // TODO: Remove once we have multiple ppms
+      let officePPM = get(state, 'office.officePPMs[0]');
+      let newPPM = Object.assign({}, officePPM, {
+        advance: action.payload,
+      });
       return Object.assign({}, state, {
         reimbursementIsApproving: false,
-        officePPMs: [action.payload],
+        officePPMs: [newPPM],
       });
     case APPROVE_REIMBURSEMENT.failure:
       return Object.assign({}, state, {

@@ -67,6 +67,10 @@ type ApproveReimbursementHandler HandlerContext
 func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
+	if !session.IsOfficeUser() {
+		return officeop.NewApproveReimbursementUnauthorized()
+	}
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	reimbursementID, _ := uuid.FromString(params.ReimbursementID.String())
 

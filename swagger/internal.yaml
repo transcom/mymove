@@ -2243,7 +2243,7 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /reimbursement/{reimbursement_id}/approve:
+  /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
       description: Sets the status of the reimbursement to APPROVED.
@@ -2252,7 +2252,7 @@ paths:
         - office
       parameters:
         - in: path
-          name: reimbursement_id
+          name: reimbursementId
           type: string
           format: uuid
           required: true
