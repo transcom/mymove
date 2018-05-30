@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/personally_procured_move/some_id/approve", nil)
+	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApprovePPMParams{
@@ -51,7 +51,9 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	handler := ApprovePPMHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := ApprovePPMHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

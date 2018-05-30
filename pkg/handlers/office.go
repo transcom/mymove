@@ -3,10 +3,12 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 )
 
 // ApproveMoveHandler approves a move via POST /moves/{moveId}/approve
@@ -34,7 +36,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
 }
 
-// ApprovePPMHandler approves a move via POST /moves/{moveId}/ppm/{ppmId}/approve
+// ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
 type ApprovePPMHandler HandlerContext
 
 // Handle ... approves a Personally Procured Move from a request payload
@@ -49,11 +51,21 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		return responseForError(h.logger, err)
 	}
 
+	moveID := ppm.MoveID
 	ppm.Status = models.PPMStatusAPPROVED
 
 	verrs, err := h.db.ValidateAndUpdate(ppm)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	err = notifications.SendNotification(
+		notifications.NewMoveApproved(h.db, h.logger, session, moveID),
+		h.sesService,
+	)
+	if err != nil {
+		h.logger.Error("problem sending email to user", zap.Error(err))
+		return newErrResponse(500)
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
