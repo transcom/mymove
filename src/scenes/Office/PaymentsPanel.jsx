@@ -51,6 +51,7 @@ class PaymentsTable extends Component {
       );
     }
   };
+
   render() {
     const advance = this.props.advance;
 

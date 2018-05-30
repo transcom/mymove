@@ -66,6 +66,33 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
+  renderTabStatus = () => {
+    if (this.props.officePPM.status === 'APPROVED') {
+      if (this.props.officePPM.advance.status === 'APPROVED') {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
+            pending
+          </span>
+        );
+      } else {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            Payment Requested
+          </span>
+        );
+      }
+    } else {
+      return (
+        <span className="status">
+          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+          In review
+        </span>
+      );
+    }
+  };
+
   render() {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
@@ -143,23 +170,7 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                {ppm.status === 'APPROVED' ? (
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon approval-ready"
-                      icon={faCheck}
-                    />
-                    Move pending
-                  </span>
-                ) : (
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon approval-waiting"
-                      icon={faClock}
-                    />
-                    In review
-                  </span>
-                )}
+                {this.renderTabStatus()}
               </NavTab>
             </RoutedTabs>
 
