@@ -46,7 +46,7 @@ class QueueTable extends Component {
     return (
       <div>
         <h1>Queue: {titles[this.props.queueType]}</h1>
-        <div>
+        <div className="queue-table">
           <ReactTable
             columns={[
               {
