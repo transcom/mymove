@@ -26,7 +26,9 @@ class Queues extends Component {
           <QueueList />
         </div>
         <div className="usa-width-five-sixths">
-          <QueueTable queueType={this.props.match.params.queueType} />
+          <div className="queue-table-scrollable">
+            <QueueTable queueType={this.props.match.params.queueType} />
+          </div>
         </div>
       </div>
     );
