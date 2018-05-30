@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"bytes"
-	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -48,10 +47,6 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 		}
 
 		// Returns the message ID. Should we store that somewhere?
-		fmt.Printf("input is: %v\n", input)
-		fmt.Printf("svc is: %v\n", svc)
-		//fmt.Printf("function is: %v\n", svc.SendRawEmail)
-
 		_, err = svc.SendRawEmail(&input)
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")

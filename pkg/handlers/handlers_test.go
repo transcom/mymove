@@ -33,7 +33,6 @@ type HandlerSuite struct {
 type mockSESClient struct {
 	sesiface.SESAPI
 	mock.Mock
-	Suite *HandlerSuite
 }
 
 func (suite *HandlerSuite) SetupTest() {
@@ -157,11 +156,11 @@ func (suite *HandlerSuite) closeFile(file *os.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
-// SendRawEmail is a mock of the actual "SendRawEmail" function provided by SES.
+// SendRawEmail is a mock of the actual SendRawEmail() function provided by SES.
 // TODO: There is probably a better way to mock this.
 func (*mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	messageId := "test"
-	output := ses.SendRawEmailOutput{MessageId: &messageId}
+	messageID := "test"
+	output := ses.SendRawEmailOutput{MessageId: &messageID}
 	return &output, nil
 }
 
