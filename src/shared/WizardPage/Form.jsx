@@ -28,13 +28,15 @@ export class WizardFormPage extends Component {
     this.state = { transitionFunc: null };
   }
   componentDidUpdate(prevProps) {
-    Object.keys(this.props.additionalValues).forEach(key => {
-      if (
-        this.props.additionalValues[key] !== prevProps.additionalValues[key]
-      ) {
-        this.props.change(key, this.props.additionalValues[key]);
-      }
-    });
+    if (this.props.additionalValues) {
+      Object.keys(this.props.additionalValues).forEach(key => {
+        if (
+          this.props.additionalValues[key] !== prevProps.additionalValues[key]
+        ) {
+          this.props.change(key, this.props.additionalValues[key]);
+        }
+      });
+    }
 
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.serverError) window.scrollTo(0, 0);
