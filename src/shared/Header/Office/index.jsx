@@ -19,11 +19,6 @@ function QueueHeader() {
         </div>
       </div>
       <div className="officeHeaderTwo">
-        <NavLink to="/" aria-label="Transcom PPP Office Home">
-          <button>Queues</button>
-        </NavLink>
-      </div>
-      <div className="officeHeaderThree">
         <ul className="usa-nav-primary">
           <li>
             <Email />
