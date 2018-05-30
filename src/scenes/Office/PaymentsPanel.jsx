@@ -16,8 +16,48 @@ class PaymentsTable extends Component {
     this.props.approveReimbursement(this.props.advance.id);
   };
 
+  renderAction = () => {
+    debugger;
+    if (this.props.ppm.status === 'APPROVED') {
+      if (this.props.advance.status === 'APPROVED') {
+        console.log('SECOND IF ', this.props.advance.status);
+        return <div>{/* Further actions to come*/}</div>;
+      } else {
+        console.log('FIRST IF ', this.props.advance.status);
+        return (
+          <React.Fragment>
+            <div onClick={this.approveReimbursement}>
+              <FontAwesomeIcon
+                aria-hidden
+                className="icon approval-ready"
+                icon={faCheck}
+                title="Approve"
+              />
+              <span className="tooltiptext">Approve</span>
+            </div>
+          </React.Fragment>
+        );
+      }
+    } else {
+      debugger;
+      console.log('PPM STATUS ', this.props.ppm.status);
+      console.log('ELSE ', this.props.advance.status);
+      return (
+        <React.Fragment>
+          <FontAwesomeIcon
+            aria-hidden
+            className="icon approval-blocked"
+            icon={faCheck}
+            title="Can't approve payment until shipment is approved."
+          />
+          <span className="tooltiptext">
+            Can't approve payment until shipment is approved.
+          </span>
+        </React.Fragment>
+      );
+    }
+  };
   render() {
-    const ppm = this.props.ppm;
     const advance = this.props.advance;
 
     return (
@@ -75,33 +115,7 @@ class PaymentsTable extends Component {
                     )}
                   </td>
                   <td className="payment-table-column-content">
-                    <span className="tooltip">
-                      {ppm.status === 'APPROVED' ? (
-                        <React.Fragment>
-                          <div onClick={this.approveReimbursement}>
-                            <FontAwesomeIcon
-                              aria-hidden
-                              className="icon approval-ready"
-                              icon={faCheck}
-                              title="Approve"
-                            />
-                            <span className="tooltiptext">Approve</span>
-                          </div>
-                        </React.Fragment>
-                      ) : (
-                        <React.Fragment>
-                          <FontAwesomeIcon
-                            aria-hidden
-                            className="icon approval-blocked"
-                            icon={faCheck}
-                            title="Can't approve payment until shipment is approved."
-                          />
-                          <span className="tooltiptext">
-                            Can't approve payment until shipment is approved.
-                          </span>
-                        </React.Fragment>
-                      )}
-                    </span>
+                    <span className="tooltip">{this.renderAction()}</span>
                     {/* Disabling unimplemented feature for now.
                     <span className="tooltip">
                       <FontAwesomeIcon
@@ -140,7 +154,6 @@ class PaymentsTable extends Component {
 }
 
 const mapStateToProps = state => ({
-  initialValues: {},
   ppm: get(state, 'office.officePPMs[0]', {}),
   advance: get(state, 'office.officePPMs[0].advance', {}),
   hasError: false,
