@@ -19,6 +19,9 @@ export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_PPM_ESTIMATE',
 );
+export const GET_PPM_MAX_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
+  'GET_PPM_MAX_ESTIMATE',
+);
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
@@ -33,6 +36,10 @@ function formatPpmEstimate(estimate) {
 function formatSitEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
   return `$${(estimate / 100).toFixed(2)}`;
+}
+
+function calculateMaxAdvance(estimate) {
+  return estimate / 100 * 0.6;
 }
 
 // Action creation
@@ -51,6 +58,21 @@ export function getPpmWeightEstimate(
   weightEstimate,
 ) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
+  return function(dispatch, getState) {
+    dispatch(action.start());
+    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
+}
+
+export function getPpmMaxWeightEstimate(
+  moveDate,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
+  const action = ReduxHelpers.generateAsyncActions('GET_PPM_MAX_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
     return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
@@ -231,6 +253,27 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateError: true,
         hasEstimateInProgress: false,
         rateEngineError: action.error,
+      });
+    case GET_PPM_MAX_ESTIMATE.start:
+      return Object.assign({}, state, {
+        hasMaxEstimateSuccess: false,
+        hasMaxEstimateInProgress: true,
+      });
+    case GET_PPM_MAX_ESTIMATE.success:
+      return Object.assign({}, state, {
+        maxIncentive: calculateMaxAdvance(action.payload.range_max),
+        hasMaxEstimateSuccess: true,
+        hasMaxEstimateError: false,
+        hasMaxEstimateInProgress: false,
+        error: null,
+      });
+    case GET_PPM_MAX_ESTIMATE.failure:
+      return Object.assign({}, state, {
+        incentive: null,
+        hasMaxEstimateSuccess: false,
+        hasMaxEstimateError: true,
+        hasMaxEstimateInProgress: false,
+        error: action.error,
       });
     case GET_SIT_ESTIMATE.start:
       return Object.assign({}, state, {
