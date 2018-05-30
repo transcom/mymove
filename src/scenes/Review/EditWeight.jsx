@@ -73,7 +73,7 @@ let EditWeightForm = props => {
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (incentiveMax && advanceAmt && incentiveMax < advanceAmt) {
+  if (incentiveMax && advanceAmt && incentiveMax < advanceAmt / 100) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
@@ -152,7 +152,7 @@ let EditWeightForm = props => {
             <div className="display-value">
               <p>Advance</p>
               <p>
-                <strong>${initialValues.advance.requested_amount}</strong>
+                <strong>${initialValues.advance.requested_amount / 100}</strong>
               </p>
             </div>
           )}

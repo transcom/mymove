@@ -9,6 +9,7 @@ import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
+import Alert from 'shared/Alert';
 
 import './DateAndLocation.css';
 
@@ -74,6 +75,7 @@ export class DateAndLocation extends Component {
       currentOrders,
       initialValues,
       sitReimbursement,
+      hasEstimateError,
     } = this.props;
     return (
       <DateAndLocationWizardForm
@@ -156,6 +158,15 @@ export class DateAndLocation extends Component {
                 your receipts to submit with your PPM paperwork.
               </div>
             )}
+            {hasEstimateError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Could not retrieve estimate">
+                  There was an issue retrieving an estimate for how much you
+                  could be reimbursed for private storage. You still qualify but
+                  may need to talk with your local PPPO.
+                </Alert>
+              </div>
+            )}
           </Fragment>
         )}
       </DateAndLocationWizardForm>
@@ -181,6 +192,7 @@ function mapStateToProps(state) {
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlements(state),
+    hasEstimateError: state.ppm.hasEstimateError,
   };
   const defaultPickupZip = get(
     state.serviceMember,

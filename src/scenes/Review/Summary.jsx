@@ -327,7 +327,7 @@ export class Summary extends Component {
                   {currentPpm.has_requested_advance && (
                     <tr>
                       <td> Advance: </td>
-                      <td> ${currentPpm.advance.requested_amount}</td>
+                      <td> ${currentPpm.advance.requested_amount / 100}</td>
                     </tr>
                   )}
                 </tbody>

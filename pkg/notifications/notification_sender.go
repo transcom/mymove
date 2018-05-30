@@ -5,7 +5,6 @@ import (
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
-	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
@@ -25,7 +24,6 @@ type emailContent struct {
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-// nil should be passed in for svc outside of tests
 func SendNotification(notification notification, svc sesiface.SESAPI) error {
 	emails, err := notification.emails()
 	if err != nil {
@@ -36,16 +34,6 @@ func SendNotification(notification notification, svc sesiface.SESAPI) error {
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
-	if svc == nil {
-		session, err := session.NewSession(&aws.Config{
-			Region: aws.String(os.Getenv("AWS_SES_REGION")),
-		})
-		if err != nil {
-			return errors.Wrap(err, "Failed to create a new AWS client config provider")
-		}
-		svc = ses.New(session)
-	}
-
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email)
 		if err != nil {

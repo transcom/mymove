@@ -27,3 +27,21 @@ table.numeric-info th {
     margin-left: 0em;
   }
 }
+
+.whole_box {
+  overflow: hidden;
+}
+
+.top-buffered {
+  margin-top:1em;
+}
+
+.ppmquestion {
+  font-weight: bold;
+  margin-top: 1em;
+}
+
+
+.ppmmuted {
+  color: grey;
+}
