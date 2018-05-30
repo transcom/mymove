@@ -22,6 +22,26 @@
   margin-right: 5%;
 }
 
+
+/* Queue list page */
+.queue-columns {
+  position: relative;
+}
+
+.queue-menu-column {
+  margin-right: 3rem;
+  width: 18rem;
+  position: absolute;
+}
+
+.queue-list-column {
+  margin-left: 22rem;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  text-align: left;
+}
+
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
 .grid-wide {
   max-width: 2000px;
