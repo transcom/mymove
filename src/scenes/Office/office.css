@@ -258,7 +258,7 @@ head .panel-subhead {
     position: absolute;
     z-index: 1;
     top: 60px;
-    margin-left: -105px;
+    margin-left: -112px;
 }
 
 .tooltip .tooltiptext::after {
