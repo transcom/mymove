@@ -65,11 +65,11 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
-	req = suite.authenticateOfficeRequest(req, reimbursement.Move.Orders.ServiceMember.User)
-
+	req = suite.authenticateOfficeRequest(req, officeUser)
 	params := officeop.ApproveReimbursementParams{
 		HTTPRequest:     req,
 		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
@@ -84,5 +84,5 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	okResponse := response.(*officeop.ApproveReimbursementOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, okResponse.Payload.Status)
+	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }

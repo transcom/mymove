@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, isEmpty } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -9,8 +9,6 @@ import { formatDate } from './helpers';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
-import faPencil from '@fortawesome/fontawesome-free-solid/faPencilAlt';
-import faTimes from '@fortawesome/fontawesome-free-solid/faTimes';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 class PaymentsTable extends Component {
@@ -33,9 +31,9 @@ class PaymentsTable extends Component {
               <th className="payment-table-column-title">Disbursement</th>
               <th className="payment-table-column-title">Requested on</th>
               <th className="payment-table-column-title">Status</th>
-              <th className="payment-table-column-title" />
+              <th className="payment-table-column-title">Actions</th>
             </tr>
-            {ppm ? (
+            {!isEmpty(advance) ? (
               <React.Fragment>
                 <tr>
                   <th className="payment-table-subheader" colSpan="6">
@@ -104,6 +102,7 @@ class PaymentsTable extends Component {
                         </React.Fragment>
                       )}
                     </span>
+                    {/* Disabling unimplemented feature for now.
                     <span className="tooltip">
                       <FontAwesomeIcon
                         aria-hidden
@@ -122,6 +121,7 @@ class PaymentsTable extends Component {
                       />
                       <span className="tooltiptext">Edit</span>
                     </span>
+                    */}
                   </td>
                 </tr>
               </React.Fragment>

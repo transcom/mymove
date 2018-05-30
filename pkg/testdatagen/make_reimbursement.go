@@ -1,6 +1,8 @@
 package testdatagen
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -12,7 +14,7 @@ func MakeDraftReimbursement(db *pop.Connection) (models.Reimbursement, error) {
 	reimbursement := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
 	if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
-		return models.Reimbursement{}, err
+		panic(fmt.Sprintf("validation erros: %v, saving error: %s", verrs, err))
 	}
 
 	return reimbursement, nil
@@ -24,7 +26,7 @@ func MakeRequestedReimbursement(db *pop.Connection) (models.Reimbursement, error
 	reimbursement := models.BuildRequestedReimbursement(2000, models.MethodOfReceiptDIRECTDEPOSIT)
 
 	if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
-		return models.Reimbursement{}, err
+		panic(fmt.Sprintf("validation erros: %v, saving error: %s", verrs, err))
 	}
 
 	return reimbursement, nil
