@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
-	// "github.com/transcom/mymove/pkg/app"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -20,10 +19,8 @@ type MethodOfReceipt string
 const (
 	// MethodOfReceiptMILPAY captures enum value MIL_PAY
 	MethodOfReceiptMILPAY MethodOfReceipt = "MIL_PAY"
-	// MethodOfReceiptDIRECTDEPOSIT captures enum value DIRECTDESPOSIT
-	MethodOfReceiptDIRECTDEPOSIT = "DIRECT_DEPOSIT"
-	// MethodOfReceiptOTHER captures enum value OTHER
-	MethodOfReceiptOTHER MethodOfReceipt = "OTHER"
+	// MethodOfReceiptOTHERDD captures enum value OTHER_DD
+	MethodOfReceiptOTHERDD MethodOfReceipt = "OTHER_DD"
 	// MethodOfReceiptGTCC captures enum value GTCC
 	MethodOfReceiptGTCC MethodOfReceipt = "GTCC"
 )
@@ -146,8 +143,7 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	validMethodsOfReceipt := []string{
 		string(MethodOfReceiptMILPAY),
-		string(MethodOfReceiptDIRECTDEPOSIT),
-		string(MethodOfReceiptOTHER),
+		string(MethodOfReceiptOTHERDD),
 		string(MethodOfReceiptGTCC),
 	}
 

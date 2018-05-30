@@ -23,7 +23,7 @@ func MakeDraftReimbursement(db *pop.Connection) (models.Reimbursement, error) {
 // MakeRequestedReimbursement creates a single requested status Reimbursement
 func MakeRequestedReimbursement(db *pop.Connection) (models.Reimbursement, error) {
 
-	reimbursement := models.BuildRequestedReimbursement(2000, models.MethodOfReceiptDIRECTDEPOSIT)
+	reimbursement := models.BuildRequestedReimbursement(2000, models.MethodOfReceiptGTCC)
 
 	if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
 		panic(fmt.Sprintf("validation erros: %v, saving error: %s", verrs, err))

@@ -91,7 +91,11 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 		return responseForError(h.logger, err)
 	}
 
-	reimbursement.Status = models.ReimbursementStatusAPPROVED
+	err = reimbursement.Approve()
+	if err != nil {
+		h.logger.Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return responseForError(h.logger, err)
+	}
 
 	verrs, err := h.db.ValidateAndUpdate(reimbursement)
 	if err != nil || verrs.HasAny() {

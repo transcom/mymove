@@ -1320,11 +1320,11 @@ definitions:
     title: Method of Receipt
     enum:
       - MIL_PAY
-      - OTHER
+      - OTHER_DD
       - GTCC
     x-display-value:
       MIL_PAY: Direct deposit to MilPay
-      OTHER: Direct deposit to other account
+      OTHER_DD: Direct deposit to other account
       GTCC: GTCC
   MoveStatus:
     type: string
