@@ -72,7 +72,11 @@ function Header() {
       {/* Gov banner END */}
       <div className="my-move-header">
         <div className="usa-nav-container">
-          <div className="usa-navbar ">
+          <div className="my-move-login">
+            <Email />
+            <LoginButton />
+          </div>
+          <div className="usa-navbar">
             <div className="usa-logo" id="basic-logo">
               <em className="usa-logo-text">
                 <NavLink to="/" title="my.move.mil" aria-label="my.move.mil">
@@ -81,16 +85,6 @@ function Header() {
               </em>
             </div>
           </div>
-          <nav className="usa-nav">
-            <ul className="usa-nav-primary usa-accordion">
-              <li>
-                <Email />
-              </li>
-              <li>
-                <LoginButton />
-              </li>
-            </ul>
-          </nav>
         </div>
       </div>
     </header>
