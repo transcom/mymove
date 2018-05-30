@@ -274,7 +274,7 @@ We are piggy-backing on the migration system for importing static datasets. This
 To create a secure migration:
 
 * You create a regular Fizz migration, as described in the previous section.
-* The body of the Fizz migration should be of the format: `exec(./apply-secure-migration.sh ${FILENAME})`.
+* The body of the Fizz migration should be of the format: `exec('./apply-secure-migration.sh ${FILENAME}')`.
 * `${FILENAME}` should be the same as the name of the migration that Fizz created for you, except with an `.sql` extension.
 * Make a test migration
   * Create an SQL file with a mock version of the data (nothing sensitive,) and save it in `migrations/secure-dev/${FILENAME}`.
