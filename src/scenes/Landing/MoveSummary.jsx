@@ -9,6 +9,7 @@ import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
+import { ppmInfoPacket } from 'shared/constants';
 
 const DutyStationContactInfo = props => {
   const { dutyStation, origin } = props;
@@ -150,7 +151,13 @@ export const MoveSummary = props => {
                     <div className="titled_block">
                       <div className="title">Documents</div>
                       <div className="details-links">
-                        <a>PPM Info Packet</a>
+                        <a
+                          href={ppmInfoPacket}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          PPM Info Packet
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -195,8 +202,11 @@ export const MoveSummary = props => {
                           advance against your PPM payment before your move is
                           done.
                         </div>
-                        <button className="usa-button-secondary">
-                          Request Payment
+                        <button
+                          className="usa-button-secondary"
+                          disabled={true}
+                        >
+                          Request Payment - Coming Soon!
                         </button>
                       </div>
                     </div>
@@ -217,7 +227,6 @@ export const MoveSummary = props => {
                         <div className="title">Documents</div>
                         <div className="details-links">
                           <a>PPM Info Packet</a>
-                          <a>Advance paperwork</a>
                         </div>
                       </div>
                     </div>
@@ -253,8 +262,11 @@ export const MoveSummary = props => {
                           advance against your PPM payment before your move is
                           done.
                         </div>
-                        <button className="usa-button-secondary">
-                          Request Payment
+                        <button
+                          className="usa-button-secondary"
+                          disabled={true}
+                        >
+                          Request Payment - Coming Soon!
                         </button>
                       </div>
                     </div>
@@ -275,7 +287,6 @@ export const MoveSummary = props => {
                         <div className="title">Documents</div>
                         <div className="details-links">
                           <a>PPM Info Packet</a>
-                          <a>Advance paperwork</a>
                         </div>
                       </div>
                     </div>
