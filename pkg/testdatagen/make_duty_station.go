@@ -11,8 +11,12 @@ import (
 
 // MakeDutyStation creates a single DutyStation
 func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessages.Affiliation, address models.Address) (models.DutyStation, error) {
-	var station models.DutyStation
+	transportationOffice, err := MakeTransportationOffice(db)
+	if err != nil {
+		log.Panic(err)
+	}
 
+	var station models.DutyStation
 	verrs, err := db.ValidateAndSave(&address)
 	if err != nil {
 		log.Panic(err)
@@ -22,10 +26,12 @@ func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessag
 	}
 
 	station = models.DutyStation{
-		Name:        name,
-		Affiliation: affiliation,
-		AddressID:   address.ID,
-		Address:     address,
+		Name:                   name,
+		Affiliation:            affiliation,
+		AddressID:              address.ID,
+		Address:                address,
+		TransportationOfficeID: transportationOffice.ID,
+		TransportationOffice:   transportationOffice,
 	}
 
 	verrs, err = db.ValidateAndSave(&station)

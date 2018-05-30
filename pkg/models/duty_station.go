@@ -21,7 +21,7 @@ type DutyStation struct {
 	Affiliation            internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
 	AddressID              uuid.UUID                    `json:"address_id" db:"address_id"`
 	Address                Address                      `belongs_to:"address"`
-	TransportationOfficeID *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
+	TransportationOfficeID uuid.UUID                    `json:"transportation_office_id" db:"transportation_office_id"`
 	TransportationOffice   TransportationOffice         `belongs_to:"transportation_offices"`
 }
 
