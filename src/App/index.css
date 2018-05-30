@@ -27,3 +27,7 @@ img._fix-ie-11-height {
   font-size: 0.9em;
   float: right;
 }
+
+.align-center {
+  text-align: center;
+}
