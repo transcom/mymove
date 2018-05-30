@@ -88,7 +88,6 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (*TransportationOffice, error) {
 	var dutyStation DutyStation
 
-	// err := db.Q().Eager("TransportationOffice.Address", "TransportationOffice.PhoneLines").Find(&dutyStation, dutyStationID)
 	err := db.Q().Eager("TransportationOffice").Find(&dutyStation, dutyStationID)
 	if err != nil {
 		return nil, err

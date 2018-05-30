@@ -19,7 +19,7 @@ func MakeTransportationOffice(db *pop.Connection) (models.TransportationOffice, 
 		AddressID: address.ID,
 		Address:   address,
 		Latitude:  1.23445,
-		Longitude: 23.34455,
+		Longitude: -23.34455,
 	}
 
 	verrs, err := db.ValidateAndSave(&office)

@@ -25,8 +25,6 @@ func payloadForTransportationOfficeModel(office *models.TransportationOffice) *i
 		Name:       swag.String(office.Name),
 		Address:    payloadForAddressModel(&office.Address),
 		PhoneLines: phoneLines,
-		Latitude:   swag.Float64(office.Latitude),
-		Longitude:  swag.Float64(office.Longitude),
 	}
 	return payload
 }

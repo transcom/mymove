@@ -102,9 +102,11 @@ definitions:
           example: 212-555-5555
       latitude:
         type: number
+        format: float
         example: 29.382973
       longitude:
         type: number
+        format: float
         example: -98.62759
       created_at:
         type: string
@@ -116,8 +118,6 @@ definitions:
       - id
       - name
       - address
-      - latitude
-      - longitude
       - created_at
       - updated_at
   DutyStationsPayload:
