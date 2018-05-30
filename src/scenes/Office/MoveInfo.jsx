@@ -30,8 +30,6 @@ import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamati
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
-import './office.css';
-
 const BasicsTabContent = props => {
   return (
     <React.Fragment>
