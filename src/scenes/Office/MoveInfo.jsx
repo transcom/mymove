@@ -68,7 +68,10 @@ class MoveInfo extends Component {
 
   renderPPMTabStatus = () => {
     if (this.props.officePPM.status === 'APPROVED') {
-      if (this.props.ppmAdvance.status === 'APPROVED') {
+      if (
+        this.props.ppmAdvance.status === 'APPROVED' ||
+        !this.props.ppmAdvance.status
+      ) {
         return (
           <span className="status">
             <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
