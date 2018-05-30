@@ -9,9 +9,11 @@ import (
 	"runtime/debug"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
+	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -24,6 +26,13 @@ type HandlerSuite struct {
 	db           *pop.Connection
 	logger       *zap.Logger
 	filesToClose []*os.File
+	sesService   sesiface.SESAPI
+}
+
+type mockSESClient struct {
+	sesiface.SESAPI
+	mock.Mock
+	Suite *HandlerSuite
 }
 
 func (suite *HandlerSuite) SetupTest() {
@@ -147,6 +156,25 @@ func (suite *HandlerSuite) closeFile(file *os.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
+/*
+func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
+	args := m.Called(input)
+
+	testEmail := m.Suite.GetTestEmailContent()
+	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
+	m.Suite.Equal(notifications.SenderEmail(), *input.Source)
+
+	message := string(input.RawMessage.Data)
+	m.Suite.Contains(message, testEmail.subject)
+	m.Suite.Contains(message, testEmail.htmlBody)
+	m.Suite.Contains(message, testEmail.textBody)
+	m.Suite.Contains(message, testEmail.recipientEmail)
+	m.Suite.Contains(message, notifications.SenderEmail())
+
+	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
+}
+*/
+
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -159,6 +187,21 @@ func TestHandlerSuite(t *testing.T) {
 	if err != nil {
 		log.Panic(err)
 	}
-	hs := &HandlerSuite{db: db, logger: logger}
+
+	// Setup mock SES Service
+	mockSVC := mockSESClient{}
+	/*
+		messageID := "a"
+		mockSVC := mockSESClient{Suite: suite}
+		mockSVC.On("SendRawEmail", mock.Anything).Return(
+			&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
+	*/
+
+	hs := &HandlerSuite{
+		db:         db,
+		logger:     logger,
+		sesService: &mockSVC,
+	}
+
 	suite.Run(t, hs)
 }

@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
+	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApprovePPMParams{

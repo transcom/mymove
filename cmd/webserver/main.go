@@ -105,6 +105,7 @@ func main() {
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
+	awsSesRegion := flag.String("aws_ses_region", "", "AWS region used for SES")
 
 	flag.Parse()
 
@@ -136,20 +137,6 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	// Setup Amazon SES (email) service
-	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-	// below. I'm not shaving that yak today.
-	session, err := awssession.NewSession(&aws.Config{
-		Region: aws.String(os.Getenv("AWS_SES_REGION")),
-	})
-	if err != nil {
-		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
-	}
-	ses = ses.New(session)
-
-	// Serves files out of build folder
-	clientHandler := http.FileServer(http.Dir(*build))
-
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
 	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
@@ -167,6 +154,21 @@ func main() {
 	if *noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
 	}
+
+	// Setup Amazon SES (email) service
+	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+	// below.
+	sesSession, err := awssession.NewSession(&aws.Config{
+		Region: aws.String(awsSesRegion),
+	})
+	if err != nil {
+		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+	}
+	sesService = ses.New(sesSession)
+	handlerContext.setSesService(sesService)
+
+	// Serves files out of build folder
+	clientHandler := http.FileServer(http.Dir(*build))
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
