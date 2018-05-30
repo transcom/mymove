@@ -30,7 +30,7 @@ func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessag
 		Affiliation:            affiliation,
 		AddressID:              address.ID,
 		Address:                address,
-		TransportationOfficeID: transportationOffice.ID,
+		TransportationOfficeID: &transportationOffice.ID,
 		TransportationOffice:   transportationOffice,
 	}
 

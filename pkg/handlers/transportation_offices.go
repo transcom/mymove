@@ -34,7 +34,6 @@ type ShowDutyStationTransportationOfficeHandler HandlerContext
 
 // Handle retrieves the transportation office in the system for a given duty station ID
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
-	// #nosec swagger verifies uuid format
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
 	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, dutyStationID)
 	if err != nil {

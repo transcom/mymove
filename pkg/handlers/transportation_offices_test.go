@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"net/http"
 	"net/http/httptest"
 
 	transportationofficeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/transportation_offices"
@@ -33,6 +34,7 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 }
 
 func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
+
 	station, _ := testdatagen.MakeDutyStationWithoutTransportationOffice(suite.db, "Air Station Yuma", internalmessages.AffiliationMARINES,
 		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
 
@@ -46,10 +48,8 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffic
 	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
 	response := showHandler.Handle(params)
 
-	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
-	okResponse := response.(*transportationofficeop.ShowDutyStationTransportationOfficeOK)
+	suite.Assertions.IsType(&errResponse{}, response)
+	errResponse := response.(*errResponse)
 
-	// Expect zero values for transportation office response
-	suite.Assertions.Equal("", *okResponse.Payload.Name)
-	suite.Assertions.Equal(0, len(okResponse.Payload.PhoneLines))
+	suite.Assertions.Equal(http.StatusNotFound, errResponse.code)
 }
