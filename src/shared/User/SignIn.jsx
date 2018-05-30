@@ -11,7 +11,9 @@ const SignIn = () => (
       </p>
       <p>
         Right now, use of this system is by invitation only. If you haven't
-        received an invitation, please go to DPS to schedule your move.
+        received an invitation, please go to{' '}
+        <a href="https://eta.sddc.army.mil/ETASSOPortal/default.aspx">DPS</a> to
+        schedule your move.
       </p>
       <p>
         Over the coming months, we'll be rolling this new tool out to more and
