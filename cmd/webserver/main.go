@@ -159,13 +159,13 @@ func main() {
 	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
 	// below.
 	sesSession, err := awssession.NewSession(&aws.Config{
-		Region: aws.String(awsSesRegion),
+		Region: aws.String(*awsSesRegion),
 	})
 	if err != nil {
 		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 	}
-	sesService = ses.New(sesSession)
-	handlerContext.setSesService(sesService)
+	sesService := ses.New(sesSession)
+	handlerContext.SetSesService(sesService)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
