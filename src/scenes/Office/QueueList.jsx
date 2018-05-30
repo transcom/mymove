@@ -13,11 +13,6 @@ export default class QueueList extends Component {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/queues/troubleshooting" activeClassName="usa-current">
-              <span>Troubleshooting</span>
-            </NavLink>
-          </li>
-          <li>
             <NavLink to="/queues/ppm" activeClassName="usa-current">
               <span>PPMs</span>
             </NavLink>
