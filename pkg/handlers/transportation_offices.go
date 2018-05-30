@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
@@ -12,7 +11,7 @@ import (
 )
 
 func payloadForTransportationOfficeModel(office *models.TransportationOffice) *internalmessages.TransportationOffice {
-	phoneLines := make([]string, len(office.PhoneLines))
+	var phoneLines []string
 	for _, phoneLine := range office.PhoneLines {
 		if phoneLine.Type == "voice" {
 			phoneLines = append(phoneLines, phoneLine.Number)
@@ -37,12 +36,10 @@ type ShowDutyStationTransportationOfficeHandler HandlerContext
 func (h ShowDutyStationTransportationOfficeHandler) Handle(params transportationofficeop.ShowDutyStationTransportationOfficeParams) middleware.Responder {
 	// #nosec swagger verifies uuid format
 	dutyStationID, _ := uuid.FromString(params.DutyStationID.String())
-	fmt.Println("DUty station id", dutyStationID)
 	transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, dutyStationID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
 	transportationOfficePayload := payloadForTransportationOfficeModel(transportationOffice)
 
 	return transportationofficeop.NewShowDutyStationTransportationOfficeOK().WithPayload(transportationOfficePayload)

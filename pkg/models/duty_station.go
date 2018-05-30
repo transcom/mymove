@@ -22,7 +22,7 @@ type DutyStation struct {
 	AddressID              uuid.UUID                    `json:"address_id" db:"address_id"`
 	Address                Address                      `belongs_to:"address"`
 	TransportationOfficeID *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   *TransportationOffice        `belongs_to:"transportation_offices"`
+	TransportationOffice   TransportationOffice         `belongs_to:"transportation_offices"`
 }
 
 // DutyStations is not required by pop and may be deleted
@@ -82,4 +82,15 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	}
 
 	return stations, nil
+}
+
+// FetchDutyStationTransportationOffice returns a transportation office for a duty station
+func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (*TransportationOffice, error) {
+	var dutyStation DutyStation
+
+	err := db.Q().Eager("TransportationOffice.Address", "TransportationOffice.PhoneLines").Find(&dutyStation, dutyStationID)
+	if err != nil {
+		return nil, err
+	}
+	return &dutyStation.TransportationOffice, nil
 }

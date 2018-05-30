@@ -1,0 +1,22 @@
+add_column("duty_stations", "transportation_office_id", "uuid", {"null": true})
+
+raw("UPDATE \
+	duty_stations \
+SET \
+	transportation_office_id = transportation_offices.id \
+FROM \
+	transportation_offices WHERE duty_stations.name = transportation_offices.name;")
+
+raw("UPDATE duty_stations SET transportation_office_id = '0f4ebcf9-92c8-49bb-96f5-677e442badaa' WHERE name = 'Hurlburt Field AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = 'd1359c20-c762-4b04-9ed6-fd2b9060615b' WHERE name = 'McAlester AAP';")
+raw("UPDATE duty_stations SET transportation_office_id = '3ea05911-86f9-4cf1-8f8e-b5e46ed36d4c' WHERE name = 'NCBC Gulfport';")
+raw("UPDATE duty_stations SET transportation_office_id = '65363850-3cb1-44c7-a7c1-191b28a53479' WHERE name = 'Pine Bluff Arsenal';")
+raw("UPDATE duty_stations SET transportation_office_id = '27c8d71a-c3c6-4a2d-ac1b-874cbf6a5f85' WHERE name = 'USCG Mobile';")
+raw("UPDATE duty_stations SET transportation_office_id = 'dc7c6746-50b5-418a-a925-66dfa19481df' WHERE name = 'Ft McCoy';")
+raw("UPDATE duty_stations SET transportation_office_id = '391ffdd2-47a5-4f6b-bda2-48babe471274' WHERE name = 'Grand Forks AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f4b95759-0f4c-475a-95a6-34e6c119e39d' WHERE name = 'MCMWTC Bridgeport';")
+raw("UPDATE duty_stations SET transportation_office_id = '2c6f2ac9-210c-4053-9770-1ed6225db248' WHERE name = 'Goodfellow AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = '5853ef41-0169-4050-9483-2d2bb382bd4e' WHERE name = 'NAS Corpus Christi';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f69f315c-942a-4ef3-9427-7fee7883ce73' WHERE name = 'NAS Fort Worth';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f5ab88fe-47f8-4b58-99af-41067d6cb60d' WHERE name = 'NAVSUP FLC Panama City';")
+raw("UPDATE duty_stations SET transportation_office_id = 'c8d5f80f-07c9-4d5f-9479-90b02e48c1d1' WHERE name = 'Dugway Proving Grounds';")
