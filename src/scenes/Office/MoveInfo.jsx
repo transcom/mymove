@@ -68,7 +68,7 @@ class MoveInfo extends Component {
 
   renderPPMTabStatus = () => {
     if (this.props.officePPM.status === 'APPROVED') {
-      if (this.props.officePPM.advance.status === 'APPROVED') {
+      if (this.props.ppmAdvance.status === 'APPROVED') {
         return (
           <span className="status">
             <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
@@ -274,6 +274,7 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
+  ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
