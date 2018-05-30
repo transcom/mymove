@@ -31,3 +31,25 @@ func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandler() {
 	suite.Assertions.Equal(dutyStation.TransportationOffice.PhoneLines[0].Number, okResponse.Payload.PhoneLines[0])
 
 }
+
+func (suite *HandlerSuite) TestShowDutyStationTransportationOfficeHandlerNoOffice() {
+	station, _ := testdatagen.MakeDutyStationWithoutTransportationOffice(suite.db, "Air Station Yuma", internalmessages.AffiliationMARINES,
+		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
+
+	path := fmt.Sprintf("/duty_stations/%v/transportation_offices", station.ID.String())
+	req := httptest.NewRequest("GET", path, nil)
+
+	params := transportationofficeop.ShowDutyStationTransportationOfficeParams{
+		HTTPRequest:   req,
+		DutyStationID: *fmtUUID(station.ID),
+	}
+	showHandler := ShowDutyStationTransportationOfficeHandler(NewHandlerContext(suite.db, suite.logger))
+	response := showHandler.Handle(params)
+
+	suite.Assertions.IsType(&transportationofficeop.ShowDutyStationTransportationOfficeOK{}, response)
+	okResponse := response.(*transportationofficeop.ShowDutyStationTransportationOfficeOK)
+
+	// Expect zero values for transportation office response
+	suite.Assertions.Equal("", *okResponse.Payload.Name)
+	suite.Assertions.Equal(0, len(okResponse.Payload.PhoneLines))
+}

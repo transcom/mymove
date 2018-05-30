@@ -51,3 +51,32 @@ func MakeAnyDutyStation(db *pop.Connection) models.DutyStation {
 		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
 	return station
 }
+
+// MakeDutyStationWithoutTransportationOffice returns a duty station with dummy info and no office
+func MakeDutyStationWithoutTransportationOffice(db *pop.Connection, name string, affiliation internalmessages.Affiliation, address models.Address) (models.DutyStation, error) {
+	var station models.DutyStation
+	verrs, err := db.ValidateAndSave(&address)
+	if err != nil {
+		log.Panic(err)
+	}
+	if verrs.Count() != 0 {
+		log.Panic(verrs.Error())
+	}
+
+	station = models.DutyStation{
+		Name:        name,
+		Affiliation: affiliation,
+		AddressID:   address.ID,
+		Address:     address,
+	}
+
+	verrs, err = db.ValidateAndSave(&station)
+	if err != nil {
+		log.Panic(err)
+	}
+	if verrs.Count() != 0 {
+		log.Panic(verrs.Error())
+	}
+
+	return station, err
+}
