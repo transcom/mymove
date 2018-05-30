@@ -16,7 +16,7 @@ class PaymentsTable extends Component {
     this.props.approveReimbursement(this.props.advance.id);
   };
 
-  renderAction = () => {
+  renderAdvanceAction = () => {
     if (this.props.ppm.status === 'APPROVED') {
       if (this.props.advance.status === 'APPROVED') {
         return <div>{/* Further actions to come*/}</div>;
@@ -109,7 +109,9 @@ class PaymentsTable extends Component {
                     )}
                   </td>
                   <td className="payment-table-column-content">
-                    <span className="tooltip">{this.renderAction()}</span>
+                    <span className="tooltip">
+                      {this.renderAdvanceAction()}
+                    </span>
                     {/* Disabling unimplemented feature for now.
                     <span className="tooltip">
                       <FontAwesomeIcon
