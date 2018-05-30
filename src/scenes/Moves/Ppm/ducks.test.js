@@ -209,6 +209,7 @@ describe('Ppm Reducer', () => {
         pendingValue: '',
         rateEngineError: 'No bueno.',
         incentive: null,
+        error: null,
       });
     });
   });

@@ -253,6 +253,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateError: true,
         hasEstimateInProgress: false,
         rateEngineError: action.error,
+        error: null,
       });
     case GET_PPM_MAX_ESTIMATE.start:
       return Object.assign({}, state, {
