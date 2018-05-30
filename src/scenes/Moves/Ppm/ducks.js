@@ -244,7 +244,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
-        error: null,
+        rateEngineError: null,
       });
     case GET_PPM_ESTIMATE.failure:
       return Object.assign({}, state, {
@@ -252,7 +252,8 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
-        error: action.error,
+        rateEngineError: action.error,
+        error: null,
       });
     case GET_PPM_MAX_ESTIMATE.start:
       return Object.assign({}, state, {
@@ -291,7 +292,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
-        error: null,
+        rateEngineError: null,
       });
     case GET_SIT_ESTIMATE.failure:
       return Object.assign({}, state, {
@@ -299,7 +300,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
-        error: action.error,
+        rateEngineError: action.error,
       });
     default:
       return state;
