@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { debounce, get } from 'lodash';
-
+import SaveCancelButtons from './SaveCancelButtons';
 import { push } from 'react-router-redux';
 import { reduxForm } from 'redux-form';
 
@@ -11,7 +11,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import {
   createOrUpdatePpm,
-  loadPpm,
   getPpmWeightEstimate,
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
@@ -52,7 +51,6 @@ const validateWeight = (value, formValues, props, fieldName) => {
 
 let EditWeightForm = props => {
   const {
-    onCancel,
     schema,
     handleSubmit,
     submitting,
@@ -75,7 +73,7 @@ let EditWeightForm = props => {
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (incentiveMax && advanceAmt && incentiveMax < advanceAmt) {
+  if (incentiveMax && advanceAmt && incentiveMax < advanceAmt / 100) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
@@ -154,7 +152,7 @@ let EditWeightForm = props => {
             <div className="display-value">
               <p>Advance</p>
               <p>
-                <strong>${initialValues.advance.requested_amount}</strong>
+                <strong>${initialValues.advance.requested_amount / 100}</strong>
               </p>
             </div>
           )}
@@ -182,12 +180,7 @@ let EditWeightForm = props => {
           </table>
         </div>
       </div>
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -196,19 +189,9 @@ EditWeightForm = reduxForm({
 })(EditWeightForm);
 
 class EditWeight extends Component {
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      !prevProps.loggedInUser.hasSucceeded &&
-      this.props.loggedInUser.hasSucceeded
-    ) {
-      this.props.loadPpm(this.props.match.params.moveId);
-    }
+  componentDidMount() {
+    window.scrollTo(0, 0);
   }
-
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
 
   debouncedGetPpmWeightEstimate = debounce(
     this.props.getPpmWeightEstimate,
@@ -239,7 +222,7 @@ class EditWeight extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
@@ -263,7 +246,6 @@ class EditWeight extends Component {
             initialValues={currentPpm}
             incentive={incentive}
             onSubmit={this.updatePpm}
-            onCancel={this.returnToReview}
             onWeightChange={this.onWeightChange}
             entitlement={entitlement}
             schema={schema}
@@ -277,7 +259,6 @@ class EditWeight extends Component {
 function mapStateToProps(state) {
   return {
     ...state.ppm,
-    loggedInUser: get(state, 'loggedInUser'),
     error: get(state, 'serviceMember.error') || state.ppm.hasEstimateError,
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlements(state),
@@ -291,7 +272,7 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createOrUpdatePpm, getPpmWeightEstimate, loadPpm },
+    { push, createOrUpdatePpm, getPpmWeightEstimate },
     dispatch,
   );
 }

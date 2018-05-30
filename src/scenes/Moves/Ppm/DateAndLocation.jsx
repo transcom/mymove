@@ -9,6 +9,7 @@ import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
+import Alert from 'shared/Alert';
 
 import './DateAndLocation.css';
 
@@ -17,10 +18,6 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Date & Locations';
-  }
-
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
@@ -78,6 +75,7 @@ export class DateAndLocation extends Component {
       currentOrders,
       initialValues,
       sitReimbursement,
+      hasEstimateError,
     } = this.props;
     return (
       <DateAndLocationWizardForm
@@ -160,6 +158,15 @@ export class DateAndLocation extends Component {
                 your receipts to submit with your PPM paperwork.
               </div>
             )}
+            {hasEstimateError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Could not retrieve estimate">
+                  There was an issue retrieving an estimate for how much you
+                  could be reimbursed for private storage. You still qualify but
+                  may need to talk with your local PPPO.
+                </Alert>
+              </div>
+            )}
           </Fragment>
         )}
       </DateAndLocationWizardForm>
@@ -182,17 +189,14 @@ function mapStateToProps(state) {
       {},
     ),
     ...state.ppm,
-    ...state.loggedInUser,
-    currentOrders:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
-      get(state.orders, 'currentOrders'),
-    currentPpm: get(state.ppm, 'currentPpm'),
+    currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlements(state),
+    hasEstimateError: state.ppm.hasEstimateError,
   };
   const defaultPickupZip = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.residential_address.postal_code',
+    state.serviceMember,
+    'currentServiceMember.residential_address.postal_code',
   );
   props.initialValues = props.currentPpm
     ? props.currentPpm

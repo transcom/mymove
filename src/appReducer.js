@@ -23,7 +23,7 @@ export const appReducer = combineReducers({
   loggedInUser: loggedInUserReducer,
   swagger: swaggerReducer,
   submittedIssues: issuesReducer,
-  submittedMoves: moveReducer,
+  moves: moveReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,

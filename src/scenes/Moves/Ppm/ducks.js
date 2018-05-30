@@ -1,4 +1,4 @@
-import { get, find, every, isNumber } from 'lodash';
+import { get, every, isNumber } from 'lodash';
 import {
   CreatePpm,
   UpdatePpm,
@@ -19,6 +19,9 @@ export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_PPM_ESTIMATE',
 );
+export const GET_PPM_MAX_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
+  'GET_PPM_MAX_ESTIMATE',
+);
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
@@ -33,6 +36,10 @@ function formatPpmEstimate(estimate) {
 function formatSitEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
   return `$${(estimate / 100).toFixed(2)}`;
+}
+
+function calculateMaxAdvance(estimate) {
+  return estimate / 100 * 0.6;
 }
 
 // Action creation
@@ -51,6 +58,21 @@ export function getPpmWeightEstimate(
   weightEstimate,
 ) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
+  return function(dispatch, getState) {
+    dispatch(action.start());
+    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
+      .then(item => dispatch(action.success(item)))
+      .catch(error => dispatch(action.error(error)));
+  };
+}
+
+export function getPpmMaxWeightEstimate(
+  moveDate,
+  originZip,
+  destZip,
+  weightEstimate,
+) {
+  const action = ReduxHelpers.generateAsyncActions('GET_PPM_MAX_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
     return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
@@ -110,21 +132,11 @@ export function loadPpm(moveId) {
     const state = getState();
     const currentPpm = state.ppm.currentPpm;
     if (!currentPpm) {
-      // Load PPM from loggedInUser if available
-      const loadedMoves = get(
-        state,
-        'loggedInUser.loggedInUser.service_member.orders.0.moves',
-        [],
-      );
-      const matchingMove = find(loadedMoves, ['id', moveId]);
-      if (get(matchingMove, 'personally_procured_moves.length')) {
-        dispatch(action.success(matchingMove.personally_procured_moves));
-      } else {
-        GetPpm(moveId)
-          .then(item => dispatch(action.success(item)))
-          .catch(error => dispatch(action.error(error)));
-      }
+      return GetPpm(moveId)
+        .then(item => dispatch(action.success(item)))
+        .catch(error => dispatch(action.error(error)));
     }
+    return Promise.resolve();
   };
 }
 // Reducer
@@ -145,7 +157,7 @@ const initialState = {
 export function ppmReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
-      // Initilize state when we get the logged in user
+      // Initialize state when we get the logged in user
       const user = action.payload;
       const currentPpm = get(
         user,
@@ -232,7 +244,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
-        error: null,
+        rateEngineError: null,
       });
     case GET_PPM_ESTIMATE.failure:
       return Object.assign({}, state, {
@@ -240,6 +252,28 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
+        rateEngineError: action.error,
+        error: null,
+      });
+    case GET_PPM_MAX_ESTIMATE.start:
+      return Object.assign({}, state, {
+        hasMaxEstimateSuccess: false,
+        hasMaxEstimateInProgress: true,
+      });
+    case GET_PPM_MAX_ESTIMATE.success:
+      return Object.assign({}, state, {
+        maxIncentive: calculateMaxAdvance(action.payload.range_max),
+        hasMaxEstimateSuccess: true,
+        hasMaxEstimateError: false,
+        hasMaxEstimateInProgress: false,
+        error: null,
+      });
+    case GET_PPM_MAX_ESTIMATE.failure:
+      return Object.assign({}, state, {
+        incentive: null,
+        hasMaxEstimateSuccess: false,
+        hasMaxEstimateError: true,
+        hasMaxEstimateInProgress: false,
         error: action.error,
       });
     case GET_SIT_ESTIMATE.start:
@@ -258,7 +292,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
-        error: null,
+        rateEngineError: null,
       });
     case GET_SIT_ESTIMATE.failure:
       return Object.assign({}, state, {
@@ -266,7 +300,7 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
-        error: action.error,
+        rateEngineError: action.error,
       });
     default:
       return state;

@@ -6,9 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { Field } from 'redux-form';
 
-import { createOrders, updateOrders, showCurrentOrders } from './ducks';
-import { createMove } from 'scenes/Moves/ducks';
-import { loadServiceMember } from 'scenes/ServiceMembers/ducks';
+import { createOrders, updateOrders } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
@@ -27,7 +25,7 @@ export class Orders extends Component {
     const pendingValues = Object.assign({}, this.props.formData.values);
     // Update if orders object already extant
     if (pendingValues) {
-      pendingValues['service_member_id'] = this.props.currentServiceMember.id;
+      pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       if (this.props.currentOrders) {
@@ -38,40 +36,17 @@ export class Orders extends Component {
     }
   };
 
-  componentDidMount() {
-    // If we have a logged in user at mount time, do our loading then.
-    if (this.props.currentServiceMember) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
-  }
-
-  componentDidUpdate(prevProps, prevState) {
-    // If we don't have a service member yet, fetch it and the current orders when loggedInUser loads.
-    if (
-      !prevProps.currentServiceMember &&
-      this.props.currentServiceMember &&
-      !this.props.currentOrders
-    ) {
-      const serviceMemberID = this.props.currentServiceMember.id;
-      this.props.showCurrentOrders(serviceMemberID);
-    }
-  }
-
   render() {
     const {
       pages,
       pageKey,
-      hasSubmitSuccess,
       error,
       currentOrders,
-      currentServiceMember,
+      serviceMemberId,
+      hasSubmitSuccess,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
-    const serviceMemberId = currentServiceMember
-      ? currentServiceMember.id
-      : null;
     return (
       <OrdersWizardForm
         handleSubmit={this.handleSubmit}
@@ -122,28 +97,20 @@ function mapDispatchToProps(dispatch) {
     {
       updateOrders,
       createOrders,
-      showCurrentOrders,
-      loadServiceMember,
-      createMove,
     },
     dispatch,
   );
 }
 
 function mapStateToProps(state) {
-  const error = state.loggedInUser.error || state.orders.error;
-  const hasSubmitSuccess =
-    state.loggedInUser.hasSubmitSuccess || state.orders.hasSubmitSuccess;
   const props = {
-    currentServiceMember: get(
-      state,
-      'loggedInUser.loggedInUser.service_member',
-    ),
+    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formData: state.form[formName],
     currentOrders: state.orders.currentOrders,
-    error,
-    hasSubmitSuccess,
+    hasSubmitSuccess: state.orders.currentOrders
+      ? state.orders.hasSubmitSuccess
+      : state.moves.hasSubmitSuccess,
   };
   return props;
 }

@@ -4,9 +4,6 @@ import ordersIcon from 'shared/images/orders-icon.png';
 import 'scenes/ServiceMembers/ServiceMembers.css';
 
 export class TransitionToOrders extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Transition to Station Orders';
-  }
   render() {
     return (
       <div className="usa-grid">
