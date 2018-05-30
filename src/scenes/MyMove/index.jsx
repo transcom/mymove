@@ -86,14 +86,14 @@ export class AppWrapper extends Component {
                       component={Shipments}
                     />
                     <Route path="/feedback" component={Feedback} />
-                  <Route
-                    path="/privacy-and-security-policy"
-                    component={PrivacyPolicyStatement}
-                  />
-                  <Route
-                    path="/accessibility"
-                    component={AccessibilityStatement}
-                  />
+                    <Route
+                      path="/privacy-and-security-policy"
+                      component={PrivacyPolicyStatement}
+                    />
+                    <Route
+                      path="/accessibility"
+                      component={AccessibilityStatement}
+                    />
                     {getWorkflowRoutes(props)}
                     <PrivateRoute
                       exact
