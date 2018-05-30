@@ -16,15 +16,19 @@ import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
 
+import './office.css';
+
 class Queues extends Component {
   render() {
     return (
-      <div className="usa-grid grid-wide">
-        <div className="usa-width-one-sixth">
+      <div className="usa-grid grid-wide queue-columns">
+        <div className="queue-menu-column">
           <QueueList />
         </div>
-        <div className="usa-width-five-sixths">
-          <QueueTable queueType={this.props.match.params.queueType} />
+        <div className="queue-list-column">
+          <div className="queue-table-scrollable">
+            <QueueTable queueType={this.props.match.params.queueType} />
+          </div>
         </div>
       </div>
     );
