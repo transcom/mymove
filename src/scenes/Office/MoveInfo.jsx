@@ -66,7 +66,7 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
-  renderTabStatus = () => {
+  renderPPMTabStatus = () => {
     if (this.props.officePPM.status === 'APPROVED') {
       if (this.props.officePPM.advance.status === 'APPROVED') {
         return (
@@ -170,7 +170,7 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                {this.renderTabStatus()}
+                {this.renderPPMTabStatus()}
               </NavTab>
             </RoutedTabs>
 
