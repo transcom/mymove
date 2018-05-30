@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TransportationOffice is a PPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
+// TransportationOffice is a PPPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
 // otherwise its a pointer to the actual shipping office.
 type TransportationOffice struct {
 	ID               uuid.UUID             `json:"id" db:"id"`
@@ -51,4 +51,15 @@ func (t *TransportationOffice) ValidateCreate(tx *pop.Connection) (*validate.Err
 // This method is not required and may be deleted.
 func (t *TransportationOffice) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchDutyStationTransportationOffice returns a transportation office for a duty station
+func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (*TransportationOffice, error) {
+	var dutyStation DutyStation
+
+	err := db.Q().Eager("TransportationOffice").Find(&dutyStation, dutyStationID)
+	if err != nil {
+		return nil, err
+	}
+	return dutyStation.TransportationOffice, nil
 }
