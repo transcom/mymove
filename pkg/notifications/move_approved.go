@@ -1,6 +1,8 @@
 package notifications
 
 import (
+	"fmt"
+
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
