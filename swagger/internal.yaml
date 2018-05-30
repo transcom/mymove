@@ -1268,6 +1268,7 @@ definitions:
     properties:
       requested_amount:
         type: integer
+        format: cents
         minimum: 0
         title: Requested Amount
         description: unit is cents
@@ -1286,6 +1287,7 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       requested_amount:
         type: integer
+        format: cents
         minimum: 0
         title: Requested Amount
         description: unit is cents
@@ -1294,6 +1296,7 @@ definitions:
       status:
         $ref: "#/definitions/ReimbursementStatus"
       requested_date:
+        x-nullable: true
         type: string
         example: "2018-04-26"
         format: date
@@ -1301,8 +1304,6 @@ definitions:
     required:
       - requested_amount
       - method_of_receipt
-      - status
-      - requested_date
   ReimbursementStatus:
     x-nullable: true
     type: string
