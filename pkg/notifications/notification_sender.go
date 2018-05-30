@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"bytes"
+	"fmt"
 	"os"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -43,10 +44,14 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 		input := ses.SendRawEmailInput{
 			Destinations: []*string{aws.String(email.recipientEmail)},
 			RawMessage:   &ses.RawMessage{Data: rawMessage},
-			Source:       aws.String(SenderEmail()),
+			Source:       aws.String(senderEmail()),
 		}
 
 		// Returns the message ID. Should we store that somewhere?
+		fmt.Printf("input is: %v\n", input)
+		fmt.Printf("svc is: %v\n", svc)
+		//fmt.Printf("function is: %v\n", svc.SendRawEmail)
+
 		_, err = svc.SendRawEmail(&input)
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
@@ -58,7 +63,7 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 
 func formatRawEmailMessage(email emailContent) ([]byte, error) {
 	m := gomail.NewMessage()
-	m.SetHeader("From", SenderEmail())
+	m.SetHeader("From", senderEmail())
 	m.SetHeader("To", email.recipientEmail)
 	m.SetHeader("Subject", email.subject)
 	m.SetBody("text/plain", email.textBody)
@@ -77,6 +82,6 @@ func formatRawEmailMessage(email emailContent) ([]byte, error) {
 }
 
 // SenderEmail returns the "noreply" sender address for this environment
-func SenderEmail() string {
+func senderEmail() string {
 	return "noreply@" + os.Getenv("AWS_SES_DOMAIN")
 }

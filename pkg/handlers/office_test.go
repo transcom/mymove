@@ -51,7 +51,9 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	handler := ApprovePPMHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := ApprovePPMHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

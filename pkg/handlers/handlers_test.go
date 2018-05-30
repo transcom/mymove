@@ -9,6 +9,7 @@ import (
 	"runtime/debug"
 	"testing"
 
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
@@ -156,24 +157,13 @@ func (suite *HandlerSuite) closeFile(file *os.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
-/*
-func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	args := m.Called(input)
-
-	testEmail := m.Suite.GetTestEmailContent()
-	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
-	m.Suite.Equal(notifications.SenderEmail(), *input.Source)
-
-	message := string(input.RawMessage.Data)
-	m.Suite.Contains(message, testEmail.subject)
-	m.Suite.Contains(message, testEmail.htmlBody)
-	m.Suite.Contains(message, testEmail.textBody)
-	m.Suite.Contains(message, testEmail.recipientEmail)
-	m.Suite.Contains(message, notifications.SenderEmail())
-
-	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
+// SendRawEmail is a mock of the actual "SendRawEmail" function provided by SES.
+// TODO: There is probably a better way to mock this.
+func (*mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
+	messageId := "test"
+	output := ses.SendRawEmailOutput{MessageId: &messageId}
+	return &output, nil
 }
-*/
 
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
@@ -190,12 +180,6 @@ func TestHandlerSuite(t *testing.T) {
 
 	// Setup mock SES Service
 	mockSVC := mockSESClient{}
-	/*
-		messageID := "a"
-		mockSVC := mockSESClient{Suite: suite}
-		mockSVC.On("SendRawEmail", mock.Anything).Return(
-			&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
-	*/
 
 	hs := &HandlerSuite{
 		db:         db,
