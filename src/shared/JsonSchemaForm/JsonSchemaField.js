@@ -61,6 +61,23 @@ const configureNumberField = (swaggerField, props) => {
   return props;
 };
 
+// TODO: This field should be smarter, it should store int-cents in the redux store
+// but allow the user to enter in dollars.
+// On first pass, that did not seem striaghtforward.
+const configureCentsField = (swaggerField, props) => {
+  props.type = 'text';
+  props.validate.push(validator.isNumber);
+
+  if (swaggerField.maximum != null) {
+    props.validate.push(validator.maximum(swaggerField.maximum / 100));
+  }
+  if (swaggerField.minimum != null) {
+    props.validate.push(validator.minimum(swaggerField.minimum / 100));
+  }
+
+  return props;
+};
+
 const configureTelephoneField = (swaggerField, props) => {
   props.normalize = validator.normalizePhone;
   props.validate.push(
@@ -294,7 +311,11 @@ const createSchemaField = (
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
-    fieldProps = configureNumberField(swaggerField, fieldProps);
+    if (swaggerField.format === 'cents') {
+      fieldProps = configureCentsField(swaggerField, fieldProps);
+    } else {
+      fieldProps = configureNumberField(swaggerField, fieldProps);
+    }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
     if (fieldFormat === 'date') {
