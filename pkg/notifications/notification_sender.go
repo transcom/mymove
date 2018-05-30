@@ -76,7 +76,6 @@ func formatRawEmailMessage(email emailContent) ([]byte, error) {
 	return buf.Bytes(), nil
 }
 
-// SenderEmail returns the "noreply" sender address for this environment
 func senderEmail() string {
 	return "noreply@" + os.Getenv("AWS_SES_DOMAIN")
 }
