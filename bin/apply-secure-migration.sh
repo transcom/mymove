@@ -37,7 +37,7 @@ case $SECURE_MIGRATION_SOURCE in
     psql_ssl_mode="?sslmode=require"
     ;;
   *)
-    echo "Unknown migration source. Exiting."
+    echo "Unknown migration source (${SECURE_MIGRATION_SOURCE}). Exiting."
     exit 1
     ;;
 esac
