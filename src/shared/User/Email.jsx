@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 
 export class Email extends React.Component {
   render() {
-    return (
-      <span>{this.props.isLoggedIn && <span>{this.props.email}</span>}</span>
-    );
+    if (!this.props.isLoggedIn) return <span />;
+    else return <span>{this.props.email}</span>;
   }
 }
 

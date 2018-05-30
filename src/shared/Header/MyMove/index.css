@@ -4,18 +4,47 @@
 	text-decoration: none;
 }
 
-.my-move-header,
-.my-move-header .usa-nav,
-.my-move-header .usa-accordion,
-.my-move-header .usa-accordion-bordered {
+.my-move-header {
 	color: #ffffff;
 	background-color: #0071bc;
-	padding-top: 0.5rem;
 }
 
-.my-move-header .usa-navbar {
-	height: 2em;
-	margin: 1rem 0rem 1rem 0rem;
+.my-move-login {
+	float: right;
+	margin: 0.8rem 1.5rem;
+}
+
+.my-move-login a {
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.my-move-login span {
+	display: none;
+}
+
+@media screen and (min-width: 951px) {
+	.my-move-header .usa-navbar {
+		height: 4rem;
+	}
+
+	.my-move-header .usa-nav-container {
+		padding-bottom: 1rem;
+		padding-top: 1rem;
+	}
+
+	.my-move-login {
+		margin: 1.5rem 0;
+	}
+
+	.my-move-login a {
+		font-size: 1.5rem;
+	}
+
+	.my-move-login span {
+		display: inline;
+		margin-right: 2rem;
+	}
 }
 
 @media print {
