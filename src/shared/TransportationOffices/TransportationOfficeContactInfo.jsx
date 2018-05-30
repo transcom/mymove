@@ -23,14 +23,18 @@ export class TransportationOfficeContactInfo extends Component {
       get(dutyStation, 'name') !== transportationOfficeName
         ? transportationOffice.name
         : 'Transportation Office';
-    if (!get(transportationOffice, 'id')) return <div />;
+    const contactInfo = Boolean(get(transportationOffice, 'phone_lines[0]'));
     return (
       <div className="titled_block">
-        <strong>{dutyStation.name}</strong>
+        {dutyStation && <strong>{dutyStation.name}</strong>}
         <div>
           {isOrigin ? 'Origin' : 'Destination'} {officeName}
         </div>
-        <div>{get(transportationOffice, 'phone_lines[0]')}</div>
+        <div>
+          {contactInfo
+            ? get(transportationOffice, 'phone_lines[0]')
+            : 'Contact Info Not Available'}
+        </div>
       </div>
     );
   }

@@ -8,6 +8,6 @@ describe('TransportationOfficeContactInfo tests', () => {
   it('renders without crashing', () => {
     const div = document.createElement('div');
     wrapper = shallow(<TransportationOfficeContactInfo />, div);
-    expect(wrapper.find('div').length).toEqual(1);
+    expect(wrapper.find('div').length).toEqual(3);
   });
 });
