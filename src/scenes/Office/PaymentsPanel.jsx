@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 
 import { approveReimbursement } from './ducks';
 import { no_op } from 'shared/utils';
-import { formatDate } from './helpers';
+import { formatCents, formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -78,7 +78,9 @@ class PaymentsTable extends Component {
                 <tr>
                   <td className="payment-table-column-content">Advance </td>
                   <td className="payment-table-column-content">
-                    ${get(advance, 'requested_amount', '').toLocaleString()}.00
+                    ${formatCents(
+                      get(advance, 'requested_amount', ''),
+                    ).toLocaleString()}
                   </td>
                   <td className="payment-table-column-content">
                     {advance.method_of_receipt}
