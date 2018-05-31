@@ -152,7 +152,6 @@ function mapStateToProps(state) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
-      debugger;
       let values = getFormValues(formName)(state);
       return [
         serviceMember.id,
