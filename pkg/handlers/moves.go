@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -131,11 +132,14 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForError(h.logger, err)
 	}
 
-	//TODO: update PPM status too
+	err = move.Submit()
+	if err != nil {
+		h.logger.Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
+		return responseForError(h.logger, err)
+	}
 
-	move.Status = models.MoveStatusSUBMITTED
-
-	verrs, err := h.db.ValidateAndUpdate(move)
+	// Transaction to save move and dependencies
+	verrs, err := models.SaveMoveStatuses(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
