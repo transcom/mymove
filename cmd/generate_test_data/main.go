@@ -50,6 +50,7 @@ func main() {
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakePPMData(db)
+		testdatagen.MakeReimbursementData(db)
 		_, err = testdatagen.MakeServiceMember(db)
 		if err == nil {
 			_, err = testdatagen.MakeBackupContact(db)
