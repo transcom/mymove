@@ -2,13 +2,7 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import {
-  reduxForm,
-  getFormValues,
-  getFormMeta,
-  isValid,
-  FormSection,
-} from 'redux-form';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
