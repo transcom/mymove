@@ -15,12 +15,23 @@ func MakeServiceMember(db *pop.Connection) (models.ServiceMember, error) {
 		return models.ServiceMember{}, err
 	}
 
+	residentialAddress, err := MakeAddress(db)
+	if err != nil {
+		return models.ServiceMember{}, err
+	}
+	backupMailingAddress, err := MakeAddress(db)
+	if err != nil {
+		return models.ServiceMember{}, err
+	}
+
 	serviceMember := models.ServiceMember{
-		UserID:        user.ID,
-		User:          user,
-		FirstName:     models.StringPointer("Leo"),
-		LastName:      models.StringPointer("Spacemen"),
-		PersonalEmail: models.StringPointer("leo@example.com"),
+		UserID:                 user.ID,
+		User:                   user,
+		FirstName:              models.StringPointer("Leo"),
+		LastName:               models.StringPointer("Spacemen"),
+		PersonalEmail:          models.StringPointer("leo@example.com"),
+		ResidentialAddressID:   &residentialAddress.ID,
+		BackupMailingAddressID: &backupMailingAddress.ID,
 	}
 
 	verrs, err := db.ValidateAndSave(&serviceMember)
