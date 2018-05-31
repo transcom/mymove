@@ -15,6 +15,7 @@ import issuesReducer from 'scenes/SubmittedFeedback/ducks';
 import { shipmentsReducer } from 'scenes/Shipments/ducks';
 import { signedCertificationReducer } from 'scenes/Legalese/ducks';
 import { documentReducer } from 'shared/Uploader/ducks';
+import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
 
@@ -33,6 +34,7 @@ export const appReducer = combineReducers({
   feedback: feedbackReducer,
   signedCertification: signedCertificationReducer,
   upload: documentReducer,
+  review: reviewReducer,
   office: officeReducer,
   transportationOffices: transportationOfficeReducer,
 });

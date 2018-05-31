@@ -188,6 +188,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session.IDToken = openIDSession.IDToken
 	session.Email = openIDUser.Email
+	h.logger.Info("New Login", zap.String("OID_User", openIDUser.UserID), zap.String("OID_Email", openIDUser.Email), zap.String("Host", session.Hostname))
 
 	userIdentity, err := models.FetchUserIdentity(h.db, openIDUser.UserID)
 	if err == nil { // Someone we know already
@@ -200,9 +201,25 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else if session.IsOfficeApp() {
-			h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+			// In case they managed to login before the office_user record was created
+			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.OfficeUserID = officeUser.ID
+			officeUser.UserID = &userIdentity.ID
+			err = h.db.Save(officeUser)
+			if err != nil {
+				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
 		}
 		session.FirstName = userIdentity.FirstName()
 		session.LastName = userIdentity.LastName()

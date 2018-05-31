@@ -21,14 +21,10 @@ func payloadForServiceMemberModel(storage FileStorer, serviceMember models.Servi
 		orders[i] = orderPayload
 	}
 
-	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, 0)
-	if serviceMember.BackupContacts != nil {
-		contacts := *serviceMember.BackupContacts
-		contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(contacts))
-		for i, contact := range contacts {
-			contactPayload := payloadForBackupContactModel(contact)
-			contactPayloads[i] = &contactPayload
-		}
+	contactPayloads := make(internalmessages.IndexServiceMemberBackupContactsPayload, len(serviceMember.BackupContacts))
+	for i, contact := range serviceMember.BackupContacts {
+		contactPayload := payloadForBackupContactModel(contact)
+		contactPayloads[i] = &contactPayload
 	}
 
 	serviceMemberPayload := internalmessages.ServiceMemberPayload{

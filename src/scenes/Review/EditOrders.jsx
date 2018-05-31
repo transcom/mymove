@@ -15,6 +15,7 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
+import { editBegin, editSuccessful } from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -111,12 +112,17 @@ class EditOrders extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
           this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
       });
   };
+
+  componentDidMount() {
+    this.props.editBegin();
+  }
 
   render() {
     const {
@@ -187,6 +193,8 @@ function mapDispatchToProps(dispatch) {
       updateOrders,
       addUploads,
       deleteUploads,
+      editBegin,
+      editSuccessful,
     },
     dispatch,
   );

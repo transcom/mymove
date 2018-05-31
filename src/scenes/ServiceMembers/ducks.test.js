@@ -13,10 +13,10 @@ import { get } from 'lodash';
 import loggedInUserPayload, {
   emptyPayload,
 } from 'shared/User/sampleLoggedInUserPayload';
+import sampleLoggedInUserPayload from '../../shared/User/sampleLoggedInUserPayload';
 const smPayload = { ...loggedInUserPayload.payload.service_member };
 const expectedSM = {
   affiliation: 'ARMY',
-  backup_contacts: [],
   backup_mailing_address: {
     city: 'Washington',
     postal_code: '20021',
@@ -60,6 +60,8 @@ const expectedSM = {
   updated_at: '2018-05-25T21:39:10.484Z',
   user_id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
 };
+const expectedBackupContacts =
+  loggedInUserPayload.payload.service_member.backup_contacts;
 describe('Service Member Reducer', () => {
   describe('GET_LOGGED_IN_USER', () => {
     it('should handle SUCCESS', () => {
@@ -67,6 +69,7 @@ describe('Service Member Reducer', () => {
       const newState = serviceMemberReducer({}, loggedInUserPayload);
       expect(newState).toEqual({
         currentServiceMember: { ...expectedSM },
+        currentBackupContacts: expectedBackupContacts,
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -76,6 +79,7 @@ describe('Service Member Reducer', () => {
       const newState = serviceMemberReducer({}, emptyPayload);
       expect(newState).toEqual({
         currentServiceMember: null,
+        currentBackupContacts: [],
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -124,6 +128,7 @@ describe('Service Member Reducer', () => {
 
       expect(newState).toEqual({
         currentServiceMember: expectedSM,
+        currentBackupContacts: expectedBackupContacts,
         hasSubmitError: false,
         hasSubmitSuccess: true,
       });

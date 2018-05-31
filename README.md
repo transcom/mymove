@@ -277,7 +277,7 @@ To create a secure migration:
 * The body of the Fizz migration should be of the format: `exec('./apply-secure-migration.sh ${FILENAME}')`.
 * `${FILENAME}` should be the same as the name of the migration that Fizz created for you, except with an `.sql` extension.
 * Make a test migration
-  * Create an SQL file with a mock version of the data (nothing sensitive,) and save it in `migrations/secure-dev/${FILENAME}`.
+  * Create an SQL file with a mock version of the data (nothing sensitive,) and save it in `local_migrations/${FILENAME}`.
   * **This migration will be run every time migrations are run against a dev or testing database.**
   * Test the migration with: `make db_dev_reset && make db_dev_migrate`.
   * You should see your test migration run.
