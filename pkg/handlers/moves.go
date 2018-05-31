@@ -132,25 +132,14 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForError(h.logger, err)
 	}
 
-	//TODO: update PPM status too
-
-	move.Status = models.MoveStatusSUBMITTED
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance != nil {
-			err = ppm.Advance.Request()
-			if err != nil {
-				h.logger.Error("Attempted to request reimbursement, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(ppm.Advance.Status)))
-				return responseForError(h.logger, err)
-			}
-			verrs, err := h.db.ValidateAndUpdate(ppm.Advance)
-			if err != nil || verrs.HasAny() {
-				return responseForVErrors(h.logger, verrs, err)
-			}
-		}
+	err = move.Submit()
+	if err != nil {
+		h.logger.Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
+		return responseForError(h.logger, err)
 	}
 
-	verrs, err := h.db.ValidateAndUpdate(move)
+	// Transaction to save move and dependencies
+	verrs, err := models.SaveMoveStatuses(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
