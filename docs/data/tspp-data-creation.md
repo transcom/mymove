@@ -28,7 +28,7 @@ Now, let's get those discount rates in. The file you need now will include the l
 `\copy` in psql terminal is a simpler way of getting this into the db because it requires less in the way of user permissions (unlike the `COPY` command). Use your absolute path for where you stored those CSV files.
 
 `\copy temp_tsp_discount_rates FROM '/add/filename/for/discount/rates/file.csv' WITH CSV HEADER;`
-(You'll need to do this for each file you're importing and processing.)
+(You'll need to do this for each file you're importing and processing. You _could_ copypasta them together, but these rows tend to have 500,000 rows or more. Let Postgres do the work.)
 
 Now, let's get those best value scores. This file will likely have "TDL scores" in the title. Key columns are RANK and BVS.
 
@@ -59,7 +59,7 @@ Use the `\copy` command in psql again to import the TDL scores. Use your absolut
 
 Now let's combine the important parts of both data sources into one table, which we'll begin to shape into a full set of TSPP data.
 
-If you wanted to create the empty table separately of the command below, these are the column details.
+If you wanted to create the empty table separately of the command below, these are the column details. You don't need to, though.
 
 ```SQL
 DROP TABLE IF EXISTS tdl_scores_and_discounts;
@@ -80,7 +80,7 @@ CREATE TABLE tdl_scores_and_discounts (
 );
 ```
 
-This will create and populate the table described above with the relevant, overlapping details from the table imported earlier with BVSes and the table with discount rates:
+Do this instead. This will create and populate the table described above with the relevant, overlapping details from the table imported earlier with BVSes and the table with discount rates:
 
 ```SQL
 CREATE TABLE tdl_scores_and_discounts AS
@@ -95,7 +95,7 @@ CREATE TABLE tdl_scores_and_discounts AS
 Add a TDL ID column to fill with this next update:
 `ALTER TABLE tdl_scores_and_discounts ADD COLUMN tdl_id uuid;`
 
-Sometimes the data provided to us represents fields (destination, most recently) in different ways. Here's how to alter the destination column to match other data sources - to change 'REGION 1' to just '1' to make the next step work:
+Sometimes the data provided to us represents fields (destination, most recently) in different ways. Here's how to alter the destination column to match other data sources (most notably the TDL table) - to change 'REGION 1' to just '1' to make the next step work:
 
 ```SQL
 UPDATE tdl_scores_and_discounts
@@ -105,13 +105,12 @@ UPDATE tdl_scores_and_discounts
 Add TDL IDs to the rows in our interim table:
 
 ```SQL
-CREATE TABLE tdl_scores_and_discounts AS
-  SELECT s.market, s.origin, s.destination, s.cos, s.scac, s.bvs, dr.lh_rate, dr.sit_rate FROM temp_tdl_scores AS s
-  LEFT JOIN temp_tsp_discount_rates as dr
-  ON s.origin = dr.origin
-  AND s.destination = dr.destination
-  AND s.cos = dr.cos
-  AND s.scac = dr.scac;
+UPDATE tdl_scores_and_discounts as tsd
+SET    tdl_id = tdl.id
+FROM   traffic_distribution_lists as tdl
+WHERE  tdl.source_rate_area = tsd.origin
+  AND tdl.destination_region = tsd.destination
+  AND tdl.code_of_service = tsd.cos;
   ```
 
 Make room for TSP IDs:

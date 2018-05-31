@@ -25,6 +25,7 @@ repo
 executables
 mymove
 ADRs
+copypasta
 homebrew
 PostgreSQL
 EditorConfig
