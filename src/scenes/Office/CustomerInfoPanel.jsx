@@ -2,10 +2,17 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+import {
+  reduxForm,
+  getFormValues,
+  getFormMeta,
+  isValid,
+  FormSection,
+} from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
 import { updateServiceMember } from './ducks';
 import {
@@ -177,7 +184,10 @@ const CustomerInfoEdit = props => {
 const formName = 'office_move_info_customer_info';
 
 let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
-CustomerInfoPanel = reduxForm({ form: formName })(CustomerInfoPanel);
+CustomerInfoPanel = reduxForm({
+  form: formName,
+  validate: validateRequiredFields,
+})(CustomerInfoPanel);
 
 function mapStateToProps(state) {
   let customerInfo = get(state, 'office.officeServiceMember', {});
