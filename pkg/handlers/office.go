@@ -65,7 +65,8 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	)
 	if err != nil {
 		h.logger.Error("problem sending email to user", zap.Error(err))
-		return newErrResponse(500)
+		// TODO how should we handle this error?
+		// return newErrResponse(500)
 	}
 
 	ppmPayload := payloadForPPMModel(*ppm)
