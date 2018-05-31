@@ -13,6 +13,7 @@ import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
+import { editBegin, editSuccessful } from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -81,12 +82,17 @@ class EditProfile extends Component {
     return this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
+        this.props.editSuccessful();
         this.props.history.goBack();
       } else {
         window.scrollTo(0, 0);
       }
     });
   };
+
+  componentDidMount() {
+    this.props.editBegin();
+  }
 
   render() {
     const {
@@ -141,7 +147,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, updateServiceMember }, dispatch);
+  return bindActionCreators(
+    { push, updateServiceMember, editBegin, editSuccessful },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditProfile);
