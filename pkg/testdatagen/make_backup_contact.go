@@ -37,6 +37,10 @@ func MakeBackupContact(db *pop.Connection, serviceMemberID *uuid.UUID) (models.B
 		log.Panic(verrs.Error())
 	}
 
+	if err = db.Load(&backupContact, "ServiceMember"); err != nil {
+		return models.BackupContact{}, err
+	}
+
 	return backupContact, err
 }
 

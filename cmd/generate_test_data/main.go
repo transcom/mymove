@@ -51,7 +51,7 @@ func main() {
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakePPMData(db)
 		testdatagen.MakeReimbursementData(db)
-		_, err = testdatagen.MakeServiceMember(db)
+		_, err = testdatagen.MakeExtendedServiceMember(db)
 	}
 	if err != nil {
 		log.Panic(err)
