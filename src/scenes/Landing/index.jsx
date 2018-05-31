@@ -6,10 +6,13 @@ import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 import { MoveSummary } from './MoveSummary';
 
-import { createServiceMember } from 'scenes/ServiceMembers/ducks';
+import {
+  createServiceMember,
+  isProfileComplete,
+} from 'scenes/ServiceMembers/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import { loadLoggedInUser } from 'shared/User/ducks';
-import { getNextIncompletePage } from 'scenes/MyMove/getWorkflowRoutes';
+import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
 import SignIn from 'shared/User/SignIn';
 export class Landing extends Component {
@@ -22,16 +25,15 @@ export class Landing extends Component {
       createdServiceMemberIsLoading,
       loggedInUserSuccess,
       createServiceMember,
+      isProfileComplete,
     } = this.props;
     if (loggedInUserSuccess) {
+      console.log(this.props);
       if (!createdServiceMemberIsLoading && isEmpty(serviceMember)) {
         // Once the logged in user loads, if the service member doesn't
         // exist we need to dispatch creating one, once.
         createServiceMember({});
-      } else if (
-        !isEmpty(serviceMember) &&
-        !serviceMember.is_profile_complete
-      ) {
+      } else if (!isEmpty(serviceMember) && !isProfileComplete) {
         // If the service member exists, but is not complete, redirect to next incomplete page.
         this.resumeMove();
       }
@@ -52,8 +54,18 @@ export class Landing extends Component {
   };
 
   resumeMove = () => {
-    const { serviceMember, orders, move, ppm } = this.props;
-    this.props.push(getNextIncompletePage(serviceMember, orders, move, ppm));
+    this.props.push(this.getNextIncompletePage());
+  };
+
+  getNextIncompletePage = () => {
+    const { serviceMember, orders, move, ppm, backupContacts } = this.props;
+    return getNextIncompletePageInternal(
+      serviceMember,
+      orders,
+      move,
+      ppm,
+      backupContacts,
+    );
   };
   render() {
     const {
@@ -61,6 +73,7 @@ export class Landing extends Component {
       loggedInUserIsLoading,
       loggedInUserSuccess,
       loggedInUserError,
+      isProfileComplete,
       createdServiceMemberError,
       moveSubmitSuccess,
       entitlement,
@@ -96,7 +109,7 @@ export class Landing extends Component {
 
             {isLoggedIn &&
               !isEmpty(serviceMember) &&
-              serviceMember.is_profile_complete && (
+              isProfileComplete && (
                 <MoveSummary
                   entitlement={entitlement}
                   profile={serviceMember}
@@ -116,7 +129,9 @@ export class Landing extends Component {
 
 const mapStateToProps = state => ({
   isLoggedIn: state.user.isLoggedIn,
+  isProfileComplete: isProfileComplete(state),
   serviceMember: state.serviceMember.currentServiceMember || {},
+  backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
   move: state.moves.currentMove || {},
   ppm: state.ppm.currentPpm || {},

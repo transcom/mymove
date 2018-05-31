@@ -128,10 +128,8 @@ const pages = {
   },
   '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: always,
-    isComplete: sm => {
-      return (
-        sm.is_profile_complete || get(sm, 'backup_contacts', []).length > 0
-      );
+    isComplete: (sm, orders, move, ppm, backup_contacts) => {
+      return sm.is_profile_complete || backup_contacts.length > 0;
     },
     render: (key, pages) => ({ match }) => (
       <BackupContact pages={pages} pageKey={key} match={match} />
@@ -271,10 +269,11 @@ export const getNextIncompletePage = (
   orders = {},
   move = {},
   ppm = {},
+  backupContacts = [],
 ) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(service_member, orders, move, ppm),
+    p => !p.isComplete(service_member, orders, move, ppm, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(service_member, 'id'),
