@@ -201,17 +201,35 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else if session.IsOfficeApp() {
-			h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
-			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
-			return
+			// In case they managed to login before the office_user record was created
+			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.OfficeUserID = officeUser.ID
+			officeUser.UserID = &userIdentity.ID
+			err = h.db.Save(officeUser)
+			if err != nil {
+				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
 		}
 		session.FirstName = userIdentity.FirstName()
 		session.LastName = userIdentity.LastName()
 		session.Middle = userIdentity.Middle()
 
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
+		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 
 		var officeUser *models.OfficeUser
+
 		if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 			officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
@@ -225,7 +243,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
-		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil { // Successfully created the user
 			session.UserID = user.ID
 			if officeUser != nil {
