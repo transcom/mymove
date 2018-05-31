@@ -40,7 +40,7 @@ type ServiceMember struct {
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
 	Orders                 Orders                              `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
+	BackupContacts         BackupContacts                      `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation                         `belongs_to:"duty_stations"`
 }
@@ -259,7 +259,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.DutyStationID == nil {
 		return false
 	}
-	if s.BackupContacts == nil {
+	if len(s.BackupContacts) == 0 {
 		return false
 	}
 	// All required fields have a set value

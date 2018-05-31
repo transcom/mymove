@@ -30,7 +30,6 @@ import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
-import { indexBackupContacts } from 'scenes/ServiceMembers/ducks';
 import FailWhale from 'shared/FailWhale';
 import { no_op } from 'shared/utils';
 
@@ -48,12 +47,6 @@ export class AppWrapper extends Component {
     this.props.loadSchema();
   }
 
-  componentWillUpdate(newProps) {
-    //HACK: this is not loading properly in loadLoggedInUser
-    if (this.props.currentServiceMemberId !== newProps.currentServiceMemberId) {
-      this.props.indexBackupContacts(newProps.currentServiceMemberId);
-    }
-  }
   componentDidCatch(error, info) {
     this.setState({
       hasError: true,
@@ -152,9 +145,6 @@ const mapStateToProps = state => {
   };
 };
 const mapDispatchToProps = dispatch =>
-  bindActionCreators(
-    { push, loadSchema, loadLoggedInUser, indexBackupContacts },
-    dispatch,
-  );
+  bindActionCreators({ push, loadSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(AppWrapper);

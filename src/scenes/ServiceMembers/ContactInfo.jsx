@@ -88,6 +88,7 @@ export class ContactInfo extends Component {
           <SwaggerField
             fieldName="text_message_is_preferred"
             swagger={schema}
+            disabled={true}
           />
           <SwaggerField fieldName="email_is_preferred" swagger={schema} />
         </fieldset>

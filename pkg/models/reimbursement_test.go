@@ -9,7 +9,7 @@ import (
 )
 
 func (suite *ModelSuite) TestReimbursementStateMachine() {
-	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHER)
+	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHERDD)
 
 	err := reimbursement.Request()
 	suite.Nil(err)
@@ -40,7 +40,7 @@ func (suite *ModelSuite) TestReimbursementStateMachine() {
 }
 
 func (suite *ModelSuite) TestBasicReimbursement() {
-	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHER)
+	reimbursement := BuildDraftReimbursement(1200, MethodOfReceiptOTHERDD)
 
 	reimbursement.Request()
 

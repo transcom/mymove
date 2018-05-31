@@ -13,7 +13,16 @@ export default {
     id: 'b46e651e-9d1c-4be5-bb88-bba58e817696',
     service_member: {
       affiliation: 'ARMY',
-      backup_contacts: [],
+      backup_contacts: [
+        {
+          createdAt: '2018-05-31T00:02:57.302Z',
+          email: 'foo@bar.com',
+          id: '03b2979d-8046-437b-a6e4-11dbe251a912',
+          name: 'Foo',
+          permission: 'NONE',
+          updated_at: '2018-05-31T00:02:57.302Z',
+        },
+      ],
       backup_mailing_address: {
         city: 'Washington',
         postal_code: '20021',
