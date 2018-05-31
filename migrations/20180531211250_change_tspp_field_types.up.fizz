@@ -1,0 +1,3 @@
+change_column("transportation_service_provider_performances", "best_value_score", "numeric", {})
+change_column("transportation_service_provider_performances", "linehaul_rate", "numeric", {})
+change_column("transportation_service_provider_performances", "sit_rate", "numeric", {})
