@@ -47,8 +47,8 @@ const BasicsTabContent = props => {
 const PPMTabContent = props => {
   return (
     <React.Fragment>
-      <PPMEstimatesPanel title="Estimate" />
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <PPMEstimatesPanel title="Estimate" moveId={props.match.params.moveId} />
     </React.Fragment>
   );
 };
@@ -64,6 +64,36 @@ class MoveInfo extends Component {
 
   approvePPM = () => {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
+  renderPPMTabStatus = () => {
+    if (this.props.officePPM.status === 'APPROVED') {
+      if (
+        this.props.ppmAdvance.status === 'APPROVED' ||
+        !this.props.ppmAdvance.status
+      ) {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
+            pending
+          </span>
+        );
+      } else {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            Payment Requested
+          </span>
+        );
+      }
+    } else {
+      return (
+        <span className="status">
+          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+          In review
+        </span>
+      );
+    }
   };
 
   render() {
@@ -143,23 +173,7 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                {ppm.status === 'APPROVED' ? (
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon approval-ready"
-                      icon={faCheck}
-                    />
-                    Move pending
-                  </span>
-                ) : (
-                  <span className="status">
-                    <FontAwesomeIcon
-                      className="icon approval-waiting"
-                      icon={faClock}
-                    />
-                    In review
-                  </span>
-                )}
+                {this.renderPPMTabStatus()}
               </NavTab>
             </RoutedTabs>
 
@@ -263,6 +277,7 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
+  ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });

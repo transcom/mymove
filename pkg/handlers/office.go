@@ -71,3 +71,37 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	ppmPayload := payloadForPPMModel(*ppm)
 	return officeop.NewApprovePPMOK().WithPayload(&ppmPayload)
 }
+
+// ApproveReimbursementHandler approves a move via POST /reimbursement/{reimbursementId}/approve
+type ApproveReimbursementHandler HandlerContext
+
+// Handle ... approves a Reimbursement from a request payload
+func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursementParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	if !session.IsOfficeUser() {
+		return officeop.NewApproveReimbursementUnauthorized()
+	}
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	reimbursementID, _ := uuid.FromString(params.ReimbursementID.String())
+
+	reimbursement, err := models.FetchReimbursement(h.db, session, reimbursementID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = reimbursement.Approve()
+	if err != nil {
+		h.logger.Error("Attempted to approve, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(reimbursement)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	reimbursementPayload := payloadForReimbursementModel(reimbursement)
+	return officeop.NewApproveReimbursementOK().WithPayload(reimbursementPayload)
+}
