@@ -2,6 +2,8 @@ import React from 'react';
 
 import { get } from 'lodash';
 import moment from 'moment';
+
+import TransportationOfficeContactInfo from 'shared/TransportationOffices/TransportationOfficeContactInfo';
 import './MoveSummary.css';
 import ppmCar from './images/ppm-car.svg';
 import truck from 'shared/icon/truck-gray.svg';
@@ -9,22 +11,6 @@ import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
-
-const DutyStationContactInfo = props => {
-  const { dutyStation, origin } = props;
-  const stationName = get(dutyStation, 'name');
-  if (!stationName) return <div />;
-  return (
-    <div className="titled_block">
-      <a>{stationName}</a>
-      <div className="Todo">
-        {origin ? 'Origin' : 'Destination'} Transportation Office
-      </div>
-      <div className="Todo">PPPO</div>
-      <div className="Todo">(210) 671-2821</div>
-    </div>
-  );
-};
 
 export const MoveSummary = props => {
   const {
@@ -44,6 +30,9 @@ export const MoveSummary = props => {
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
+  const hasSitString = ppm.has_sit
+    ? `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`
+    : 'Not requested';
   return (
     <div className="whole_box">
       <h2>
@@ -139,13 +128,7 @@ export const MoveSummary = props => {
                       <div className="title">Details</div>
                       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                       <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                      <div>
-                        {ppm.has_sit
-                          ? `Temp. Storage: ${
-                              ppm.days_in_storage
-                            } days ${privateStorageString}`
-                          : 'Not requested'}{' '}
-                      </div>
+                      <div>{hasSitString}</div>
                     </div>
                     <div className="titled_block">
                       <div className="title">Documents</div>
@@ -205,13 +188,7 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                        <div>
-                          {ppm.has_sit
-                            ? `Temp. Storage: ${
-                                ppm.days_in_storage
-                              } days ${privateStorageString}`
-                            : 'Not requested'}{' '}
-                        </div>
+                        <div>{hasSitString}</div>
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>
@@ -263,13 +240,7 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                        <div>
-                          {ppm.has_sit
-                            ? `Temp. Storage: ${
-                                ppm.days_in_storage
-                              } days ${privateStorageString}`
-                            : 'Not requested'}{' '}
-                        </div>
+                        <div>{hasSitString}</div>
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>
@@ -310,11 +281,11 @@ export const MoveSummary = props => {
 
         <div className="contact_block">
           <div className="title">Contacts</div>
-          <DutyStationContactInfo
+          <TransportationOfficeContactInfo
             dutyStation={profile.current_station}
-            origin
+            isOrigin={true}
           />
-          <DutyStationContactInfo
+          <TransportationOfficeContactInfo
             dutyStation={get(orders, 'new_duty_station')}
           />
         </div>
