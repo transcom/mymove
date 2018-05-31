@@ -40,6 +40,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
           )}
           <EditablePanel
             title={this.props.title}
+            className={this.props.className}
             onSave={this.save}
             onToggle={this.toggleEditable}
             isEditable={isEditable}
