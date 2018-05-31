@@ -1,1 +1,1 @@
-exec(./apply-secure-migration.sh 20180529024018_add_initial_office_users.up.sql)
+exec('./apply-secure-migration.sh 20180529024018_add_initial_office_users.up.sql')

@@ -9,6 +9,7 @@ import {
   LoadPPMs,
   ApproveBasics,
   ApprovePPM,
+  ApproveReimbursement,
 } from './api.js';
 
 import { UpdateOrders } from 'scenes/Orders/api.js';
@@ -26,6 +27,7 @@ const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
+const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -60,6 +62,12 @@ const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
+const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
+
+export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
+  approveReimbursementType,
+);
+
 // MULTIPLE-RESOURCE ACTION TYPES
 
 const UPDATE_BACKUP_INFO = ReduxHelpers.generateAsyncActionTypes(
@@ -75,8 +83,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -128,6 +134,10 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
   ApprovePPM,
 );
 
+export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
+  approveReimbursementType,
+  ApproveReimbursement,
+);
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to
@@ -437,6 +447,27 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_PPM.failure:
       return Object.assign({}, state, {
         ppmIsApproving: false,
+        error: action.error.message,
+      });
+
+    // REIMBURSEMENT STATUS
+    case APPROVE_REIMBURSEMENT.start:
+      return Object.assign({}, state, {
+        reimbursementIsApproving: true,
+      });
+    case APPROVE_REIMBURSEMENT.success:
+      // TODO: Remove once we have multiple ppms
+      let officePPM = get(state, 'officePPMs[0]');
+      let newPPM = Object.assign({}, officePPM, {
+        advance: action.payload,
+      });
+      return Object.assign({}, state, {
+        reimbursementIsApproving: false,
+        officePPMs: [newPPM],
+      });
+    case APPROVE_REIMBURSEMENT.failure:
+      return Object.assign({}, state, {
+        reimbursementIsApproving: false,
         error: action.error.message,
       });
 
