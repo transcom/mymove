@@ -193,9 +193,10 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSummitMoveForApprovalHandler() {
+func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	ppm, _ := testdatagen.MakePPM(suite.db)
+	move := ppm.Move
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/submit", nil)
@@ -215,4 +216,8 @@ func (suite *HandlerSuite) TestSummitMoveForApprovalHandler() {
 
 	// And: Returned query to have an approved status
 	suite.Assertions.Equal(internalmessages.MoveStatusSUBMITTED, okResponse.Payload.Status)
+	// And: Expect move's PPM's advance to have "Requested" status
+	suite.Assertions.Equal(
+		internalmessages.ReimbursementStatusREQUESTED,
+		*okResponse.Payload.PersonallyProcuredMoves[0].Advance.Status)
 }

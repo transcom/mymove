@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -134,6 +135,20 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	//TODO: update PPM status too
 
 	move.Status = models.MoveStatusSUBMITTED
+
+	for _, ppm := range move.PersonallyProcuredMoves {
+		if ppm.Advance != nil {
+			err = ppm.Advance.Request()
+			if err != nil {
+				h.logger.Error("Attempted to request reimbursement, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(ppm.Advance.Status)))
+				return responseForError(h.logger, err)
+			}
+			verrs, err := h.db.ValidateAndUpdate(ppm.Advance)
+			if err != nil || verrs.HasAny() {
+				return responseForVErrors(h.logger, verrs, err)
+			}
+		}
+	}
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
