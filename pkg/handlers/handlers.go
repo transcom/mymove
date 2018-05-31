@@ -145,6 +145,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
+	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler(context)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
@@ -176,6 +178,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
+	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler(context)
 
 	return internalAPI.Serve(nil)
 }

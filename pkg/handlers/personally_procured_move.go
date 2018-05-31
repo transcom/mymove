@@ -25,8 +25,8 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		EstimatedIncentive:            personallyProcuredMove.EstimatedIncentive,
 		PlannedMoveDate:               fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
-		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
 		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
 		HasSit:                        personallyProcuredMove.HasSit,
 		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
@@ -159,6 +159,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		if payload.Advance != nil {
 			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
 			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
+
 			if ppm.Advance != nil {
 				ppm.Advance.MethodOfReceipt = methodOfReceipt
 				ppm.Advance.RequestedAmount = requestedAmount

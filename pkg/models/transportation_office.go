@@ -8,7 +8,7 @@ import (
 	"time"
 )
 
-// TransportationOffice is a PPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
+// TransportationOffice is a PPPO, PPSO or JPPSO. If it is its own shipping office, ShippingOffice will be nil,
 // otherwise its a pointer to the actual shipping office.
 type TransportationOffice struct {
 	ID               uuid.UUID             `json:"id" db:"id"`

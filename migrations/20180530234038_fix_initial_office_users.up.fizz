@@ -1,0 +1,1 @@
+exec('./apply-secure-migration.sh 20180530234038_fix_initial_office_users.up.sql')
