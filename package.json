@@ -76,6 +76,9 @@
     },
     "/logout": {
       "target": "http://localhost:8080"
+    },
+    "/downloads": {
+      "target": "http://localhost:8080"
     }
   },
   "version": "0.1.0",
