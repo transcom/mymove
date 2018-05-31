@@ -65,6 +65,8 @@ definitions:
         $ref: '#/definitions/Address'
       affiliation:
         $ref: '#/definitions/Affiliation'
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
       created_at:
         type: string
         format: date-time
@@ -76,6 +78,46 @@ definitions:
       - name
       - address
       - affiliation
+      - created_at
+      - updated_at
+  TransportationOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        format: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
+          type: string
+          format: telephone
+          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          example: 212-555-5555
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
       - created_at
       - updated_at
   DutyStationsPayload:
@@ -2730,7 +2772,7 @@ paths:
           description: Search string for duty stations
       responses:
         200:
-          description: the instance of the service member backup contact
+          description: the instance of the duty station
           schema:
             $ref: '#/definitions/DutyStationsPayload'
         400:
@@ -2741,6 +2783,35 @@ paths:
           description: user is not authorized
         404:
           description: matching duty station not found
+        500:
+          description: internal server error
+  /duty_stations/{dutyStationId}/transportation_office:
+    get:
+      summary: Returns the transportation office for a given duty station
+      description: Returns the given duty station's transportation office
+      operationId: showDutyStationTransportationOffice
+      tags:
+        - transportation_offices
+      parameters:
+        - in: path
+          name: dutyStationId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the duty station
+      responses:
+        200:
+          description: the instance of the transportation office for a duty station
+          schema:
+            $ref: '#/definitions/TransportationOffice'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: transportation office not found
         500:
           description: internal server error
   /queues/{queueType}:
