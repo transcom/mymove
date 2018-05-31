@@ -13,6 +13,7 @@ import { updateBackupContact } from 'scenes/ServiceMembers/ducks';
 import SaveCancelButtons from './SaveCancelButtons';
 import './Review.css';
 import profileImage from './images/profile.png';
+import { editBegin, editSuccessful } from './ducks';
 
 const editBackupContactFormName = 'edit_backup_contact';
 
@@ -36,6 +37,7 @@ EditBackupContactForm = reduxForm({
 
 class EditBackupContact extends Component {
   componentDidMount() {
+    this.props.editBegin();
     window.scrollTo(0, 0);
   }
 
@@ -48,6 +50,7 @@ class EditBackupContact extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
           this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
@@ -100,7 +103,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, updateBackupContact }, dispatch);
+  return bindActionCreators(
+    { push, updateBackupContact, editBegin, editSuccessful },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditBackupContact);
