@@ -232,7 +232,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Documents</div>
                         <div className="details-links">
-                          <a>PPM Info Packet</a>
+                          <a
+                            href={ppmInfoPacket}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            PPM Info Packet
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -292,7 +298,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Documents</div>
                         <div className="details-links">
-                          <a>PPM Info Packet</a>
+                          <a
+                            href={ppmInfoPacket}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            PPM Info Packet
+                          </a>
                         </div>
                       </div>
                     </div>
