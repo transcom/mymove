@@ -74,9 +74,13 @@ const validateAdvanceForm = (values, form) => {
     return { has_requested_advance: 'Esimate in progress.' };
   }
 
-  if (form.maxIncentive) {
-    if (parseFloat(values.requested_amount) > parseFloat(form.maxIncentive)) {
-      return { requested_amount: `Must be less than ${form.maxIncentive}` };
+  if (values.maxIncentive) {
+    if (parseFloat(values.requested_amount) > parseFloat(values.maxIncentive)) {
+      return {
+        requested_amount: `Must be less than ${formatMaxAdvance(
+          values.maxIncentive,
+        )}`,
+      };
     }
   }
 };
@@ -305,7 +309,7 @@ export class PpmWeight extends Component {
         hasSucceeded={hasSubmitSuccess}
         initialValues={advanceInitialValues}
         serverError={error}
-        additionalValues={{ hasEstimateInProgress }}
+        additionalValues={{ hasEstimateInProgress, maxIncentive }}
       >
         {error && (
           <div className="usa-width-one-whole error-message">
