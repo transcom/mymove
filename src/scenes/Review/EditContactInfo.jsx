@@ -10,6 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
+import { editBegin, editSuccessful } from './ducks';
 import 'scenes/ServiceMembers/ServiceMembers.css';
 import './Review.css';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -140,12 +141,18 @@ class EditContact extends Component {
     return this.props.updateServiceMember(serviceMember).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
+        this.props.editSuccessful();
         this.props.history.goBack();
       } else {
         window.scrollTo(0, 0);
       }
     });
   };
+
+  componentDidMount() {
+    this.props.editBegin();
+  }
+
   render() {
     const {
       error,
@@ -202,7 +209,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, updateServiceMember }, dispatch);
+  return bindActionCreators(
+    { push, updateServiceMember, editBegin, editSuccessful },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditContact);

@@ -72,6 +72,26 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// Submit submits the Move
+func (m *Move) Submit() error {
+	if m.Status != MoveStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, "Submit")
+	}
+
+	m.Status = MoveStatusSUBMITTED
+
+	//TODO: update PPM status too
+	for _, ppm := range m.PersonallyProcuredMoves {
+		if ppm.Advance != nil {
+			err := ppm.Advance.Request()
+			if err != nil {
+				return err
+			}
+		}
+	}
+	return nil
+}
+
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
@@ -215,4 +235,42 @@ func createNewMove(db *pop.Connection,
 	// the only way we get here is if we got a unique constraint error maxLocatorAttempts times.
 	verrs := validate.NewErrors()
 	return nil, verrs, ErrLocatorGeneration
+}
+
+// SaveMoveStatuses safely saves a Move status and its associated PPMs' Advances' statuses.
+// TODO: Add functionality to save more than just status on these objects
+func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		for _, ppm := range move.PersonallyProcuredMoves {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+			}
+			// TODO: Add back in once we are updating PPM Status
+			// if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
+			// 	responseVErrors.Append(verrs)
+			// 	responseError = errors.Wrap(err, "Error Saving PPM")
+			// 	return transactionError
+			// }
+		}
+
+		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Move")
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return responseVErrors, responseError
 }

@@ -30,7 +30,6 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 	// TODO: add clause `JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id`
 	var query string
 
-	// TODO: update mapping of new/draft and ppm/approved to reflect expanding functionality of queue, once troubleshooting is enabled
 	if lifecycleState == "new" {
 		query = `
 			SELECT moves.ID,
@@ -46,9 +45,9 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			WHERE moves.status = 'DRAFT'
+			WHERE moves.status = 'SUBMITTED'
 		`
-	} else if lifecycleState == "ppm" { // TODO: this should eventually only be APPROVED, not including SUBMITTED
+	} else if lifecycleState == "ppm" {
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
@@ -63,7 +62,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
-			WHERE moves.status IN ('SUBMITTED', 'APPROVED')
+			WHERE moves.status = 'APPROVED'
 		`
 	} else {
 		query = `

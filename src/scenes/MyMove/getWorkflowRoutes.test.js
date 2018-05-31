@@ -339,6 +339,57 @@ describe('when getting the next incomplete page', () => {
         expect(result).toEqual('/service-member/foo/backup-contacts');
       });
     });
+    describe('when backup contacts is complete', () => {
+      it('returns the order transition page', () => {
+        const backupContacts = [
+          {
+            createdAt: '2018-05-31T00:02:57.302Z',
+            email: 'foo@bar.com',
+            id: '03b2979d-8046-437b-a6e4-11dbe251a912',
+            name: 'Foo',
+            permission: 'NONE',
+            updated_at: '2018-05-31T00:02:57.302Z',
+          },
+        ];
+        const sm = {
+          ...service_member,
+          is_profile_complete: false,
+          edipi: '1234567890',
+          has_social_security_number: true,
+          rank: 'E_6',
+          affiliation: 'Marines',
+          last_name: 'foo',
+          first_name: 'foo',
+          phone_is_preferred: true,
+          telephone: '666-666-6666',
+          personal_email: 'foo@bar.com',
+          current_station: {
+            id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
+            name: 'Blue Grass Army Depot',
+          },
+          residential_address: {
+            city: 'Atlanta',
+            postal_code: '30030',
+            state: 'GA',
+            street_address_1: 'xxx',
+          },
+          backup_mailing_address: {
+            city: 'Atlanta',
+            postal_code: '30030',
+            state: 'GA',
+            street_address_1: 'zzz',
+          },
+        };
+        const result = getNextIncompletePage(
+          sm,
+          undefined,
+          undefined,
+          undefined,
+          backupContacts,
+        );
+        expect(result).toEqual('/orders/');
+      });
+    });
   });
   describe('when the profile is complete', () => {
     // service_member.is_profile_complete = true;
