@@ -2,11 +2,12 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { updateBackupInfo } from './ducks';
 
+import { validateRequiredFields } from 'shared/JsonSchemaForm';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelField } from 'shared/EditablePanel';
 
@@ -93,16 +94,26 @@ const BackupInfoEdit = props => {
           <SwaggerField
             fieldName="street_address_1"
             {...backupMailingAddressProps}
+            required
           />
           <SwaggerField
             fieldName="street_address_2"
             {...backupMailingAddressProps}
           />
-          <SwaggerField fieldName="city" {...backupMailingAddressProps} />
-          <SwaggerField fieldName="state" {...backupMailingAddressProps} />
+          <SwaggerField
+            fieldName="city"
+            {...backupMailingAddressProps}
+            required
+          />
+          <SwaggerField
+            fieldName="state"
+            {...backupMailingAddressProps}
+            required
+          />
           <SwaggerField
             fieldName="postal_code"
             {...backupMailingAddressProps}
+            required
           />
         </FormSection>
       </div>
@@ -113,7 +124,10 @@ const BackupInfoEdit = props => {
 const formName = 'office_move_info_backup_info';
 
 let BackupInfoPanel = editablePanel(BackupInfoDisplay, BackupInfoEdit);
-BackupInfoPanel = reduxForm({ form: formName })(BackupInfoPanel);
+BackupInfoPanel = reduxForm({
+  form: formName,
+  validate: validateRequiredFields,
+})(BackupInfoPanel);
 
 function mapStateToProps(state) {
   let serviceMember = get(state, 'office.officeServiceMember', {});
@@ -125,6 +139,7 @@ function mapStateToProps(state) {
       backupContact: backupContact,
       backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     },
+
     addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
     backupContactSchema: get(
       state,
@@ -134,7 +149,10 @@ function mapStateToProps(state) {
     backupMailingAddress: get(serviceMember, 'backup_mailing_address', {}),
     backupContact: backupContact,
 
+    // editablePanel
+    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
+      debugger;
       let values = getFormValues(formName)(state);
       return [
         serviceMember.id,

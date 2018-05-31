@@ -90,6 +90,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     PPMEstimate: state.office.officePPMs[0], // unsure about this
     isUpdating: false,
+    formIsValid: true,
   };
 }
 
