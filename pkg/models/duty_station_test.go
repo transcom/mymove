@@ -3,6 +3,7 @@ package models_test
 import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *ModelSuite) TestFindDutyStations() {
@@ -58,4 +59,19 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 	}
 
 	suite.verifyValidationErrors(station, expErrors)
+}
+func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
+	t := suite.T()
+	dutyStation, _ := testdatagen.MakeDutyStation(suite.db, "Air Station Yuma", internalmessages.AffiliationMARINES,
+		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
+
+	office, err := models.FetchDutyStationTransportationOffice(suite.db, dutyStation.ID)
+	if err != nil {
+		t.Errorf("Find transportation office error: %v", err)
+	}
+
+	if office.PhoneLines[0].Number != "(510) 555-5555" {
+		t.Error("phone number should be loaded")
+	}
+
 }
