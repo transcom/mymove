@@ -223,11 +223,13 @@ head .panel-subhead {
   display: none;
 }
 
+/*PPM PAYMENT PANEL*/
 .payment-panel {
   border: solid #f1f1f1;
   border-width: 3px;
   width: 100%;
   empty-cells: hide;
+  margin-bottom: 18px;
 }
 
 .payment-table {
@@ -277,6 +279,25 @@ head .panel-subhead {
   position: relative;
 }
 
+.approval-ready {
+  color: green;
+  cursor: pointer;
+}
+
+.approval-waiting {
+  color: #fdb81e;
+}
+
+.approval-blocked {
+  color: gray;
+}
+
+.payment-action {
+  color: #0071bc;
+  cursor: pointer;
+}
+
+/*TOOLTIP*/
 .tooltip .tooltiptext {
     visibility: hidden;
     width: 200px;
@@ -304,22 +325,4 @@ head .panel-subhead {
 
 .tooltip:hover .tooltiptext {
   visibility: visible;
-}
-
-.approval-ready {
-  color: green;
-  cursor: pointer;
-}
-
-.approval-waiting {
-  color: #fdb81e;
-}
-
-.approval-blocked {
-  color: gray;
-}
-
-.payment-action {
-  color: #0071bc;
-  cursor: pointer;
 }
