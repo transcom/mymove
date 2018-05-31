@@ -38,6 +38,8 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 		return newErrResponse(http.StatusForbidden)
 	case models.ErrInvalidPatchGate:
 		return newErrResponse(http.StatusBadRequest)
+	case models.ErrInvalidTransition:
+		return newErrResponse(http.StatusBadRequest)
 	default:
 		logger.Error("Unexpected db error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError)

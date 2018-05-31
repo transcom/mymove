@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -18,8 +19,8 @@ type MethodOfReceipt string
 const (
 	// MethodOfReceiptMILPAY captures enum value MIL_PAY
 	MethodOfReceiptMILPAY MethodOfReceipt = "MIL_PAY"
-	// MethodOfReceiptOTHER captures enum value OTHER
-	MethodOfReceiptOTHER MethodOfReceipt = "OTHER"
+	// MethodOfReceiptOTHERDD captures enum value OTHER_DD
+	MethodOfReceiptOTHERDD MethodOfReceipt = "OTHER_DD"
 	// MethodOfReceiptGTCC captures enum value GTCC
 	MethodOfReceiptGTCC MethodOfReceipt = "GTCC"
 )
@@ -142,7 +143,7 @@ func (r *Reimbursement) Validate(tx *pop.Connection) (*validate.Errors, error) {
 
 	validMethodsOfReceipt := []string{
 		string(MethodOfReceiptMILPAY),
-		string(MethodOfReceiptOTHER),
+		string(MethodOfReceiptOTHERDD),
 		string(MethodOfReceiptGTCC),
 	}
 
@@ -163,4 +164,19 @@ func (r *Reimbursement) ValidateCreate(tx *pop.Connection) (*validate.Errors, er
 // This method is not required and may be deleted.
 func (r *Reimbursement) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchReimbursement Fetches and Validates a Reimbursement model
+func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
+	var reimbursement Reimbursement
+	err := db.Q().Find(&reimbursement, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, err
+	}
+
+	return &reimbursement, nil
 }
