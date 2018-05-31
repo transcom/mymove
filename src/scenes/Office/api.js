@@ -107,3 +107,16 @@ export async function ApprovePPM(moveId, ppmId) {
   checkResponse(response, 'failed to approve ppm due to server error');
   return response.body;
 }
+
+// PPM status
+export async function ApproveReimbursement(reimbursementId) {
+  const client = await getClient();
+  const response = await client.apis.office.approveReimbursement({
+    reimbursementId,
+  });
+  checkResponse(
+    response,
+    'failed to approve reimbursement due to server error',
+  );
+  return response.body;
+}

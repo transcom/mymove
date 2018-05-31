@@ -14,13 +14,15 @@ import (
 
 // DutyStation represents a military duty station for a specific affiliation
 type DutyStation struct {
-	ID          uuid.UUID                    `json:"id" db:"id"`
-	CreatedAt   time.Time                    `json:"created_at" db:"created_at"`
-	UpdatedAt   time.Time                    `json:"updated_at" db:"updated_at"`
-	Name        string                       `json:"name" db:"name"`
-	Affiliation internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
-	AddressID   uuid.UUID                    `json:"address_id" db:"address_id"`
-	Address     Address                      `belongs_to:"address"`
+	ID                     uuid.UUID                    `json:"id" db:"id"`
+	CreatedAt              time.Time                    `json:"created_at" db:"created_at"`
+	UpdatedAt              time.Time                    `json:"updated_at" db:"updated_at"`
+	Name                   string                       `json:"name" db:"name"`
+	Affiliation            internalmessages.Affiliation `json:"affiliation" db:"affiliation"`
+	AddressID              uuid.UUID                    `json:"address_id" db:"address_id"`
+	Address                Address                      `belongs_to:"address"`
+	TransportationOfficeID *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
+	TransportationOffice   *TransportationOffice        `belongs_to:"transportation_offices"`
 }
 
 // DutyStations is not required by pop and may be deleted
@@ -80,4 +82,28 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 	}
 
 	return stations, nil
+}
+
+// FetchDutyStationTransportationOffice returns a transportation office for a duty station
+func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (*TransportationOffice, error) {
+	var dutyStation DutyStation
+
+	err := db.Q().Eager("TransportationOffice").Find(&dutyStation, dutyStationID)
+	if err != nil {
+		return nil, err
+	}
+
+	if dutyStation.TransportationOffice == nil {
+		return nil, ErrFetchNotFound
+	}
+
+	if err = db.Load(dutyStation.TransportationOffice, "Address"); err != nil {
+		return nil, err
+	}
+
+	if err = db.Load(dutyStation.TransportationOffice, "PhoneLines"); err != nil {
+		return nil, err
+	}
+
+	return dutyStation.TransportationOffice, nil
 }

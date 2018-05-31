@@ -1,0 +1,46 @@
+add_column("duty_stations", "transportation_office_id", "uuid", {"null": true})
+
+raw("UPDATE \
+	duty_stations \
+SET \
+	transportation_office_id = transportation_offices.id \
+FROM \
+	transportation_offices WHERE duty_stations.name = transportation_offices.name;")
+
+raw("UPDATE duty_stations SET transportation_office_id = '0f4ebcf9-92c8-49bb-96f5-677e442badaa' WHERE name = 'Hurlburt Field AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = 'd1359c20-c762-4b04-9ed6-fd2b9060615b' WHERE name = 'McAlester AAP';")
+raw("UPDATE duty_stations SET transportation_office_id = '3ea05911-86f9-4cf1-8f8e-b5e46ed36d4c' WHERE name = 'NCBC Gulfport';")
+raw("UPDATE duty_stations SET transportation_office_id = '65363850-3cb1-44c7-a7c1-191b28a53479' WHERE name = 'Pine Bluff Arsenal';")
+raw("UPDATE duty_stations SET transportation_office_id = '27c8d71a-c3c6-4a2d-ac1b-874cbf6a5f85' WHERE name = 'USCG Mobile';")
+raw("UPDATE duty_stations SET transportation_office_id = 'dc7c6746-50b5-418a-a925-66dfa19481df' WHERE name = 'Ft McCoy';")
+raw("UPDATE duty_stations SET transportation_office_id = '391ffdd2-47a5-4f6b-bda2-48babe471274' WHERE name = 'Grand Forks AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f4b95759-0f4c-475a-95a6-34e6c119e39d' WHERE name = 'MCMWTC Bridgeport';")
+raw("UPDATE duty_stations SET transportation_office_id = '2c6f2ac9-210c-4053-9770-1ed6225db248' WHERE name = 'Goodfellow AFB';")
+raw("UPDATE duty_stations SET transportation_office_id = '5853ef41-0169-4050-9483-2d2bb382bd4e' WHERE name = 'NAS Corpus Christi';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f69f315c-942a-4ef3-9427-7fee7883ce73' WHERE name = 'NAS Fort Worth';")
+raw("UPDATE duty_stations SET transportation_office_id = 'f5ab88fe-47f8-4b58-99af-41067d6cb60d' WHERE name = 'NAVSUP FLC Panama City';")
+raw("UPDATE duty_stations SET transportation_office_id = 'c8d5f80f-07c9-4d5f-9479-90b02e48c1d1' WHERE name = 'Dugway Proving Grounds';")
+raw("UPDATE duty_stations SET transportation_office_id = 'a468eb8d-79c5-4c01-93d7-9c0f557b7b9f' WHERE name = 'Schiever AFB';")
+raw("UPDATE duty_stations SET name = 'Schriever AFB' WHERE name = 'Schiever AFB';")
+
+raw("UPDATE office_phone_lines SET number = '(325) 696-2029' WHERE id = '8571c681-d07a-402d-84d5-f3cdbbcd84d5';")
+raw("UPDATE office_phone_lines SET number = '461-2029' WHERE id = '6ac2b71e-9265-4dce-8ee4-5cfcb4994f48';")
+raw("UPDATE office_phone_lines SET number = '487-1849' WHERE id = '44deedce-4e0f-45f3-a28a-df9becc1b528';")
+raw("UPDATE office_phone_lines SET number = '(919) 722-5458' WHERE id = 'c5bd8d97-7027-4f3d-b7d4-c388bcf3c26c';")
+raw("DELETE FROM office_phone_lines WHERE id = 'b3825327-aa6c-4271-ad58-243b9713bb87';")
+raw("UPDATE transportation_offices SET name = 'Goodfellow AFB' WHERE id = '2c6f2ac9-210c-4053-9770-1ed6225db248';")
+
+raw("DELETE FROM office_emails WHERE transportation_office_id = 'cb9ed11a-653d-4706-a1e0-e5cabae52012';")
+raw("DELETE FROM office_phone_lines WHERE transportation_office_id = 'cb9ed11a-653d-4706-a1e0-e5cabae52012';")
+raw("DELETE FROM transportation_offices WHERE id = 'cb9ed11a-653d-4706-a1e0-e5cabae52012';")
+raw("DELETE FROM addresses WHERE id = 'c177f914-afbb-4cf2-99e9-dc4225c3b25c';")
+
+raw("DELETE FROM office_emails WHERE transportation_office_id = '062b7518-837b-4689-84c9-774ea855827c';")
+raw("DELETE FROM office_phone_lines WHERE transportation_office_id = '062b7518-837b-4689-84c9-774ea855827c';")
+raw("DELETE FROM transportation_offices WHERE id = '062b7518-837b-4689-84c9-774ea855827c';")
+raw("DELETE FROM addresses WHERE id = '73bd7f82-c47a-4434-8fea-058b6aae0836';")
+
+raw("DELETE FROM office_emails WHERE transportation_office_id = '107ba886-72bc-4ba0-9405-a0a4f9683910';")
+raw("DELETE FROM office_phone_lines WHERE transportation_office_id = '107ba886-72bc-4ba0-9405-a0a4f9683910';")
+raw("DELETE FROM transportation_offices WHERE id = '107ba886-72bc-4ba0-9405-a0a4f9683910';")
+raw("DELETE FROM addresses WHERE id = '7d94b848-abb7-4922-9cee-7f191f345a6a';")

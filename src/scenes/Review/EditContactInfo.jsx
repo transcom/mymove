@@ -53,6 +53,7 @@ let EditContactForm = props => {
           <SwaggerField
             fieldName="text_message_is_preferred"
             swagger={serviceMemberSchema}
+            disabled={true}
           />
           <SwaggerField
             fieldName="email_is_preferred"

@@ -32,7 +32,7 @@ img.status_icon {
 }
 
 .title {
-  font-weight: bold;
+  font-weight: bolder;
 }
 
 .step {
@@ -62,4 +62,8 @@ a {
 
 .contact_block {
   margin-top: 2em;
+}
+
+.contact_block .title {
+  font-size: 2.2rem;
 }

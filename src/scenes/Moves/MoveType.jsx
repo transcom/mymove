@@ -72,9 +72,6 @@ class BigButtonGroup extends Component {
                     </div>
                   );
                 }, this)}
-                <p className="move-type-button-more-info Todo">
-                  <a href="about:blank">more information</a>
-                </p>
               </div>
             )}
           </div>
@@ -180,8 +177,18 @@ export class MoveType extends Component {
     // const selectedOption =
     //   pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
-      <div className="usa-grid-full">
-        <h2> Select a Move Type</h2>
+      <div className="usa-grid-full select-move-type">
+        <h2>
+          {' '}
+          Select a move type{' '}
+          <a
+            href="https://www.move.mil/moving-guide"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Learn More
+          </a>
+        </h2>
         <BigButtonGroupWithSize
           selectedOption={currentOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
