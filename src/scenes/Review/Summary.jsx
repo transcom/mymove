@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
+import Alert from 'shared/Alert';
 import './Review.css';
 export class Summary extends Component {
   render() {
@@ -91,6 +92,11 @@ export class Summary extends Component {
       : 'Not requested';
     return (
       <Fragment>
+        {this.props.reviewState.editSuccess && (
+          <Alert type="success" heading="Success">
+            Your changes have been saved.
+          </Alert>
+        )}
         <h3>Profile and Orders</h3>
         <div className="usa-grid-full review-content">
           <div className="usa-width-one-half review-section">
@@ -365,6 +371,7 @@ function mapStateToProps(state) {
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
+    reviewState: state.review,
   };
 }
 export default withRouter(connect(mapStateToProps)(Summary));
