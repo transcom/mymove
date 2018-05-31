@@ -96,7 +96,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
-            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/migrations/secure-dev
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - run: make tools_build
       - run: make server_build_docker

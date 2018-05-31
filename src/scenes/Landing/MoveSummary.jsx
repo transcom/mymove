@@ -11,6 +11,7 @@ import ppmDraft from './images/ppm-draft.png';
 import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
+import { ppmInfoPacket } from 'shared/constants';
 
 export const MoveSummary = props => {
   const {
@@ -133,7 +134,13 @@ export const MoveSummary = props => {
                     <div className="titled_block">
                       <div className="title">Documents</div>
                       <div className="details-links">
-                        <a>PPM Info Packet</a>
+                        <a
+                          href={ppmInfoPacket}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          PPM Info Packet
+                        </a>
                       </div>
                     </div>
                   </div>
@@ -167,9 +174,15 @@ export const MoveSummary = props => {
                           receipts. For more information, read the PPM info
                           packet.
                         </div>
-                        <button className="usa-button-secondary">
-                          Read PPM Info Packet
-                        </button>
+                        <a
+                          href={ppmInfoPacket}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          <button className="usa-button-secondary">
+                            Read PPM Info Packet
+                          </button>
+                        </a>
                       </div>
                       <div className="step">
                         <div className="title">Next step: Request Payment</div>
@@ -178,8 +191,11 @@ export const MoveSummary = props => {
                           advance against your PPM payment before your move is
                           done.
                         </div>
-                        <button className="usa-button-secondary">
-                          Request Payment
+                        <button
+                          className="usa-button-secondary"
+                          disabled={true}
+                        >
+                          Request Payment - Coming Soon!
                         </button>
                       </div>
                     </div>
@@ -193,8 +209,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Documents</div>
                         <div className="details-links">
-                          <a>PPM Info Packet</a>
-                          <a>Advance paperwork</a>
+                          <a
+                            href={ppmInfoPacket}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            PPM Info Packet
+                          </a>
                         </div>
                       </div>
                     </div>
@@ -230,8 +251,11 @@ export const MoveSummary = props => {
                           advance against your PPM payment before your move is
                           done.
                         </div>
-                        <button className="usa-button-secondary">
-                          Request Payment
+                        <button
+                          className="usa-button-secondary"
+                          disabled={true}
+                        >
+                          Request Payment - Coming Soon!
                         </button>
                       </div>
                     </div>
@@ -245,8 +269,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Documents</div>
                         <div className="details-links">
-                          <a>PPM Info Packet</a>
-                          <a>Advance paperwork</a>
+                          <a
+                            href={ppmInfoPacket}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                          >
+                            PPM Info Packet
+                          </a>
                         </div>
                       </div>
                     </div>

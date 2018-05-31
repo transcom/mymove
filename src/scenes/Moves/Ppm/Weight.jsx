@@ -74,72 +74,103 @@ const validateAdvanceForm = (values, form) => {
     return { has_requested_advance: 'Esimate in progress.' };
   }
 
-  if (form.maxIncentive) {
-    if (parseFloat(values.requested_amount) > parseFloat(form.maxIncentive)) {
-      return { requested_amount: `Must be less than ${form.maxIncentive}` };
+  if (values.maxIncentive) {
+    if (parseFloat(values.requested_amount) > parseFloat(values.maxIncentive)) {
+      return {
+        requested_amount: `Must be less than ${formatMaxAdvance(
+          values.maxIncentive,
+        )}`,
+      };
     }
   }
 };
 
 const requestAdvanceFormName = 'request_advance';
-let RequestAdvanceForm = props => {
-  const { schema, hasRequestedAdvance, maxIncentive } = props;
-  let maxAdvance = '';
-  if (maxIncentive) {
-    maxAdvance = formatMaxAdvance(maxIncentive);
-  }
-  return (
-    <div className="whole_box">
-      <div>
-        <div className="usa-width-one-whole">
-          <div className="usa-width-two-thirds">
-            <div className="ppmquestion">
-              Would you like an advance of up to 60% of your PPM incentive? ({
-                maxAdvance
-              })
+class RequestAdvanceForm extends Component {
+  state = { showInfo: false };
+
+  openInfo = () => {
+    this.setState({ showInfo: true });
+  };
+  closeInfo = () => {
+    this.setState({ showInfo: false });
+  };
+
+  render() {
+    const { schema, hasRequestedAdvance, maxIncentive } = this.props;
+    let maxAdvance = '';
+    if (maxIncentive) {
+      maxAdvance = formatMaxAdvance(maxIncentive);
+    }
+    return (
+      <div className="whole_box">
+        <div>
+          <div className="usa-width-one-whole">
+            <div className="usa-width-two-thirds">
+              <div className="ppmquestion">
+                Would you like an advance of up to 60% of your PPM incentive? ({
+                  maxAdvance
+                })
+              </div>
+              <div className="ppmmuted">
+                We recommend paying for expenses with your government travel
+                card, rather than getting an advance.{' '}
+                <a onClick={this.openInfo}>Why?</a>
+              </div>
             </div>
-            <div className="ppmmuted">
-              We recommend paying for expenses with your government travel card,
-              rather than getting an advance.{' '}
-              <a href="/unknown" className="Todo">
-                Why?
-              </a>
+            <div className="usa-width-one-third">
+              <Field name="has_requested_advance" component={YesNoBoolean} />
             </div>
           </div>
-          <div className="usa-width-one-third">
-            <Field name="has_requested_advance" component={YesNoBoolean} />
-          </div>
+          {this.state.showInfo && (
+            <div className="usa-width-one-whole top-buffered">
+              <Alert type="info" className="usa-width-one-whole" heading="">
+                Most of the time it is simpler for you to use your government
+                travel card for moving expenses rather than receiving a direct
+                deposit advance. Not only do you save the effort of filling out
+                the necessary forms to set up direct deposit, you eliminate any
+                chance that the Government may unexpectedly garnish a part of
+                your paycheck to recoup advance overages in the event that you
+                move less weight than you originally estimated or take longer
+                than 45 days to request payment upon arriving at your
+                destination. <a onClick={this.closeInfo}>Close</a>
+              </Alert>
+            </div>
+          )}
+          {hasRequestedAdvance && (
+            <div className="usa-width-one-whole top-buffered">
+              <Alert type="info" heading="">
+                We recommend that Service Families be cautious when requesting
+                an advance on PPM expenses. Because your final incentive is
+                affected by the amount of weight you actually move, if you
+                request a full advance and then move less weight than
+                anticipated, you may have to pay back some of your advance to
+                the military. If you would like to use a more specific move
+                calculator to estimate your anticipated shipment weight, you can
+                do that{' '}
+                <a href="https://www.move.mil/resources/weight-estimator">
+                  here
+                </a>.
+              </Alert>
+              <SwaggerField
+                fieldName="requested_amount"
+                swagger={schema.properties.advance}
+                title={requestedTitle(maxAdvance)}
+                required
+              />
+              <SwaggerField
+                fieldName="method_of_receipt"
+                swagger={schema.properties.advance}
+                title={methodTitle}
+                required
+              />
+            </div>
+          )}
         </div>
-        {hasRequestedAdvance && (
-          <div className="usa-width-one-whole top-buffered">
-            <Alert type="info" heading="">
-              We recommend that Service Families be cautious when requesting an
-              advance on PPM expenses. Because your final incentive is affected
-              by the amount of weight you actually move, if you request a full
-              advance and then move less weight than anticipated, you may have
-              to pay back some of your advance to the military. If you would
-              like to use a more specific move calculator to estimate your
-              anticipated shipment weight, you can do that{' '}
-              <a href="https://www.move.mil/resources/weight-estimator">here</a>.
-            </Alert>
-            <SwaggerField
-              fieldName="requested_amount"
-              swagger={schema.properties.advance}
-              title={requestedTitle(maxAdvance)}
-              required
-            />
-            <SwaggerField
-              fieldName="method_of_receipt"
-              swagger={schema.properties.advance}
-              title={methodTitle}
-              required
-            />
-          </div>
-        )}
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 const WeightWizardForm = reduxifyWizardForm(
   requestAdvanceFormName,
@@ -278,7 +309,7 @@ export class PpmWeight extends Component {
         hasSucceeded={hasSubmitSuccess}
         initialValues={advanceInitialValues}
         serverError={error}
-        additionalValues={{ hasEstimateInProgress }}
+        additionalValues={{ hasEstimateInProgress, maxIncentive }}
       >
         {error && (
           <div className="usa-width-one-whole error-message">

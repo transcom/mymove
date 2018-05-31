@@ -18,6 +18,15 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
+  state = { showInfo: false };
+
+  openInfo = () => {
+    this.setState({ showInfo: true });
+  };
+  closeInfo = () => {
+    this.setState({ showInfo: false });
+  };
+
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
@@ -115,8 +124,21 @@ export class DateAndLocation extends Component {
               required
             />
             <span className="grey">
-              Making additional stops may decrease your PPM incentive.
+              Making additional stops may decrease your PPM incentive.{' '}
+              <a onClick={this.openInfo}>Why</a>
             </span>
+            {this.state.showInfo && (
+              <Alert type="info" heading="">
+                Your PPM incentive is based primarily off two factors -- the
+                weight of your household goods and the base rate it would cost
+                the government to transport your household goods between your
+                destination and origin. When you add additional stops, your
+                overall PPM incentive will change to account for any deviations
+                from the standard route and to account for the fact that not
+                100% of your household goods travelled the entire way from
+                origin to destination. <a onClick={this.closeInfo}>Close</a>
+              </Alert>
+            )}
           </Fragment>
         )}
         <h3>Destination Location</h3>
