@@ -259,6 +259,7 @@ func main() {
 
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	root.Handle(pat.Get("/downloads/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
 
