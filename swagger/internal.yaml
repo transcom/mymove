@@ -559,7 +559,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -660,7 +660,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -748,7 +748,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
