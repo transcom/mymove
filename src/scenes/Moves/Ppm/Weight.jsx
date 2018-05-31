@@ -76,7 +76,11 @@ const validateAdvanceForm = (values, form) => {
 
   if (values.maxIncentive) {
     if (parseFloat(values.requested_amount) > parseFloat(values.maxIncentive)) {
-      return { requested_amount: `Must be less than ${values.maxIncentive}` };
+      return {
+        requested_amount: `Must be less than ${formatMaxAdvance(
+          values.maxIncentive,
+        )}`,
+      };
     }
   }
 };
