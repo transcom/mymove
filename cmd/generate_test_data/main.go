@@ -52,10 +52,6 @@ func main() {
 		testdatagen.MakePPMData(db)
 		testdatagen.MakeReimbursementData(db)
 		_, err = testdatagen.MakeServiceMember(db)
-		if err == nil {
-			_, err = testdatagen.MakeBackupContact(db)
-
-		}
 	}
 	if err != nil {
 		log.Panic(err)
