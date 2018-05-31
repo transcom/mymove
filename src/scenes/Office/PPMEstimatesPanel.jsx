@@ -87,8 +87,8 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.PersonallyProcuredMovePayload',
     ),
     hasError: false,
-    errorMessage: state.office.error,
-    PPMEstimate: state.office.officePPMs[0], // unsure about this
+    errorMessage: get(state, 'office.error'),
+    PPMEstimate: get(state, 'office.officePPMs[0]', {}),
     isUpdating: false,
   };
 }

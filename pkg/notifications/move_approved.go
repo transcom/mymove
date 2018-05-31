@@ -55,13 +55,26 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	// TODO: add proper content for the approval email
-	// https://www.pivotaltracker.com/story/show/157942298
+	// Set up various text segments. Copy comes from here:
+	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
+	// TODO: we will want some sort of templating system
+	introText := `Your move has been approved and you are ready to move! Please review the PPM info sheet attached to this email for more detailed instructions.`
+
+	nextStepsText := `Next steps:`
+
+	ppmText := ""
+	if move.PersonallyProcuredMoves != nil {
+		ppmText = `For your “Do-it-Yourself” shipment, you can begin your move whenever you are ready. Be sure to save your weight tickets and any receipts associated with your move for when you request payment later on in the process.`
+	}
+
+	// TODO: Add the PPPO contact info
+	closingText := `If you have any questions, contact your origin PPPO.`
+
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "Move Approved",
-		htmlBody:       "Congrats!<br>Your move has been approved!",
-		textBody:       "Congrats! Your move has been approved!",
+		subject:        "MOVE.MIL: Your move has been approved.",
+		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s<br/>%s", introText, nextStepsText, ppmText, closingText),
+		textBody:       fmt.Sprintf("%s\n%s\n%s\n%s", introText, nextStepsText, ppmText, closingText),
 	}
 
 	m.logger.Info("Sent move approval email to service member",
