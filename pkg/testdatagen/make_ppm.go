@@ -40,7 +40,7 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 	return *ppm, nil
 }
 
-// MakePPMData creates 5 PPMs (and in turn a more and set of Orders for each)
+// MakePPMData creates 3 PPMs (and in turn a move and set of orders for each)
 func MakePPMData(db *pop.Connection) {
 	for i := 0; i < 3; i++ {
 		MakePPM(db)

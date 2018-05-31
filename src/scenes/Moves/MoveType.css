@@ -44,6 +44,13 @@ ul {
   color: rgb(55, 155, 252);
 }
 
+.select-move-type h2 a {
+  font-size: 14px;
+}
+
+.select-move-type h2 a:visited {
+  color: #0071bc;
+}
 /* This matches the width at which submit buttons go full-width for mobile devices */
 @media only screen and (max-width: 481px) {
   .move-type-button {

@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
 
 	// And: the context contains the auth values
-	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
+	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
 	params := officeop.ApprovePPMParams{
@@ -51,7 +51,9 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	}
 
 	// And: a ppm is approved
-	handler := ApprovePPMHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := ApprovePPMHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
@@ -60,4 +62,29 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 	// And: Returned query to have an approved status
 	suite.Assertions.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
+}
+
+func (suite *HandlerSuite) TestApproveReimbursementHandler() {
+	// Given: a set of orders, a move, user and servicemember
+	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
+	req = suite.authenticateOfficeRequest(req, officeUser)
+	params := officeop.ApproveReimbursementParams{
+		HTTPRequest:     req,
+		ReimbursementID: strfmt.UUID(reimbursement.ID.String()),
+	}
+
+	// And: a reimbursement is approved
+	handler := ApproveReimbursementHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&officeop.ApproveReimbursementOK{}, response)
+	okResponse := response.(*officeop.ApproveReimbursementOK)
+
+	// And: Returned query to have an approved status
+	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }

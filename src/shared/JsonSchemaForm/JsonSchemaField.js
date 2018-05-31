@@ -17,9 +17,15 @@ const parseNumberField = value => {
 };
 
 // ----- Field configuration -----
-const createCheckbox = (fieldName, field, nameAttr) => {
+const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
   return (
-    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
+    <Field
+      id={fieldName}
+      name={nameAttr}
+      component="input"
+      type="checkbox"
+      disabled={isDisabled}
+    />
   );
 };
 
@@ -276,7 +282,7 @@ const createSchemaField = (
   if (swaggerField.type === 'boolean' && !component) {
     return (
       <Fragment key={fieldName}>
-        {createCheckbox(fieldName, swaggerField, nameAttr)}
+        {createCheckbox(fieldName, swaggerField, nameAttr, disabled)}
         <label htmlFor={fieldName} className="usa-input-label">
           {title || swaggerField.title || fieldName}
         </label>
