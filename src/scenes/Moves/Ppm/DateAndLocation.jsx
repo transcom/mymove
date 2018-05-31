@@ -46,6 +46,7 @@ export class DateAndLocation extends Component {
   };
 
   getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
+    if (!pickupZip || !destZip) return;
     if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
       this.props.getPpmSitEstimate(
         moveDate,

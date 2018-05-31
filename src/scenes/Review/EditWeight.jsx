@@ -14,6 +14,7 @@ import {
   getPpmWeightEstimate,
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
+import { editBegin, editSuccessful } from './ducks';
 
 import './Review.css';
 import './EditWeight.css';
@@ -190,6 +191,7 @@ EditWeightForm = reduxForm({
 
 class EditWeight extends Component {
   componentDidMount() {
+    this.props.editBegin();
     window.scrollTo(0, 0);
   }
 
@@ -222,6 +224,7 @@ class EditWeight extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
           this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
@@ -272,7 +275,13 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createOrUpdatePpm, getPpmWeightEstimate },
+    {
+      push,
+      createOrUpdatePpm,
+      getPpmWeightEstimate,
+      editBegin,
+      editSuccessful,
+    },
     dispatch,
   );
 }

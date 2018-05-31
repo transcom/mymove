@@ -13,7 +13,7 @@ import { Link } from 'react-router-dom';
 
 import editablePanel from './editablePanel';
 import { loadEntitlements, updateOrdersInfo } from './ducks';
-import { formatDate } from './helpers';
+import { formatDate } from 'shared/formatters';
 
 import {
   PanelSwaggerField,

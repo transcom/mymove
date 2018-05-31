@@ -18,7 +18,7 @@ import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
 import PPMEstimatesPanel from './PPMEstimatesPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
-import { formatDate } from './helpers';
+import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -48,7 +48,11 @@ const PPMTabContent = props => {
   return (
     <React.Fragment>
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
-      <PPMEstimatesPanel title="Estimate" moveId={props.match.params.moveId} />
+      <PPMEstimatesPanel
+        className="disable-edit"
+        title="Estimate"
+        moveId={props.match.params.moveId}
+      />
     </React.Fragment>
   );
 };

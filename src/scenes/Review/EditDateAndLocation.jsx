@@ -13,6 +13,7 @@ import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
+import { editBegin, editSuccessful } from './ducks';
 
 const sitEstimateDebounceTime = 300;
 
@@ -131,6 +132,7 @@ class EditDateAndLocation extends Component {
       return this.props.createOrUpdatePpm(moveId, pendingValues).then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
+          this.props.editSuccessful();
           this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
@@ -168,6 +170,11 @@ class EditDateAndLocation extends Component {
       entitlement.sum,
     );
   };
+
+  componentDidMount() {
+    this.props.editBegin();
+  }
+
   render() {
     const {
       initialValues,
@@ -240,7 +247,7 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createOrUpdatePpm, getPpmSitEstimate },
+    { push, createOrUpdatePpm, getPpmSitEstimate, editBegin, editSuccessful },
     dispatch,
   );
 }
