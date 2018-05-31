@@ -8,8 +8,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeServiceMember creates a single ServiceMember and associated User, Addresses,
-// and Backup Contact.
+// MakeServiceMember creates a single ServiceMember and associated User.
 func MakeServiceMember(db *pop.Connection) (models.ServiceMember, error) {
 	user, err := MakeUser(db)
 	if err != nil {
