@@ -1,4 +1,4 @@
-import { pick, without, cloneDeep } from 'lodash';
+import { pick, without, cloneDeep, get } from 'lodash';
 import {
   GetServiceMember,
   UpdateServiceMember,
@@ -107,7 +107,7 @@ const initialState = {
 };
 const reshape = sm => {
   if (!sm) return null;
-  return pick(sm, without(Object.keys(sm || {}), 'orders'));
+  return pick(sm, without(Object.keys(sm || {}), 'orders', 'backup_contacts'));
 };
 const upsertBackUpContact = (contact, state) => {
   const newState = cloneDeep(state);
@@ -119,6 +119,11 @@ export function serviceMemberReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentServiceMember: reshape(action.payload.service_member),
+        currentBackupContacts: get(
+          action,
+          'payload.service_member.backup_contacts',
+          [],
+        ),
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -164,6 +169,7 @@ export function serviceMemberReducer(state = initialState, action) {
     case GET_SERVICE_MEMBER.success:
       return Object.assign({}, state, {
         currentServiceMember: reshape(action.payload),
+        currentBackupContacts: action.payload.backup_contacts,
         hasSubmitSuccess: true,
         hasSubmitError: false,
       });

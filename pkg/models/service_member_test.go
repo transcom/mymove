@@ -69,7 +69,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 
 	var backupContacts BackupContacts
 	backupContacts = append(backupContacts, fakeBackupContact)
-	servicemember.BackupContacts = &backupContacts
+	servicemember.BackupContacts = backupContacts
 	// Then: IsProfileComplete should return true
 	if servicemember.IsProfileComplete() != true {
 		t.Error("Expected profile to be complete.")
