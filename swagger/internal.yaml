@@ -1363,11 +1363,9 @@ definitions:
     enum:
       - MIL_PAY
       - OTHER_DD
-      - GTCC
     x-display-value:
       MIL_PAY: Direct deposit to MilPay
       OTHER_DD: Direct deposit to other account
-      GTCC: GTCC
   MoveStatus:
     type: string
     title: Move status
