@@ -226,10 +226,8 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		session.Middle = userIdentity.Middle()
 
 	} else if err == models.ErrFetchNotFound { // Never heard of them so far
-		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 
 		var officeUser *models.OfficeUser
-
 		if session.IsOfficeApp() { // Look to see if we have OfficeUser with this email address
 			officeUser, err = models.FetchOfficeUserByEmail(h.db, session.Email)
 			if err == models.ErrFetchNotFound {
@@ -243,6 +241,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil { // Successfully created the user
 			session.UserID = user.ID
 			if officeUser != nil {
