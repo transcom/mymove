@@ -266,15 +266,16 @@ export function ppmReducer(state = initialState, action) {
         hasMaxEstimateSuccess: true,
         hasMaxEstimateError: false,
         hasMaxEstimateInProgress: false,
-        error: null,
+        rateEngineError: null,
       });
     case GET_PPM_MAX_ESTIMATE.failure:
       return Object.assign({}, state, {
-        incentive: null,
+        maxIncentive: null,
         hasMaxEstimateSuccess: false,
         hasMaxEstimateError: true,
         hasMaxEstimateInProgress: false,
-        error: action.error,
+        rateEngineError: action.error,
+        error: null,
       });
     case GET_SIT_ESTIMATE.start:
       return Object.assign({}, state, {
