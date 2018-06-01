@@ -1,0 +1,1 @@
+change_column("transportation_service_provider_performances", "best_value_score", "double precision", {})
