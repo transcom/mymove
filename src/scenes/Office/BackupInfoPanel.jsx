@@ -75,12 +75,8 @@ const BackupInfoEdit = props => {
 
         <FormSection name="backupContact">
           <SwaggerField fieldName="name" {...backupContactProps} required />
-          <SwaggerField
-            fieldName="telephone"
-            {...backupContactProps}
-            required
-          />
-          <SwaggerField fieldName="email" {...backupContactProps} />
+          <SwaggerField fieldName="telephone" {...backupContactProps} />
+          <SwaggerField fieldName="email" {...backupContactProps} required />
 
           <div className="panel-subhead">Authorization</div>
           <SwaggerField fieldName="permission" {...backupContactProps} />
