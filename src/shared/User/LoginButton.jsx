@@ -6,7 +6,7 @@ const LoginButton = props => {
   if (!props.isLoggedIn) {
     return (
       <React.Fragment>
-        {isDevelopment && <a href="/devlocal-auth/users">Local Sign In</a>}
+        {isDevelopment && <a href="/devlocal-auth/login">Local Sign In</a>}
         <a href="/auth/login-gov">Sign In</a>
       </React.Fragment>
     );

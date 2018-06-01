@@ -62,13 +62,11 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.New("users").Parse(`
 		<h1>Select a user to login</h1>
 		{{range .}}
-			<p>
-				<a href="/devlocal-auth/login?id={{.ID}}">{{.Email}}</a>
-				{{if .OfficeUserID}}
-					office
-				{{else}}
-					mymove
-				{{end}}
+			<p id="{{.ID}}">
+				<form method="post" action="/devlocal-auth/login">
+				{{.Email}}
+				({{if .OfficeUserID}}office{{else}}mymove{{end}})
+				<button name="id" value="{{.ID}}">Login</button>
 			</p>
 		{{else}}
 			<p><em>No users in the system!</em></p>
@@ -111,10 +109,10 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	lURL := h.landingURL(session)
 
-	userID := r.URL.Query().Get("id")
+	userID := r.PostFormValue("id")
 	if userID == "" {
 		h.logger.Error("No user id specified")
-		http.Redirect(w, r, "/devlocal-auth/users", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/devlocal-auth/login", http.StatusTemporaryRedirect)
 		return
 	}
 
@@ -155,7 +153,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	h.logger.Info("logged in", zap.Any("session", session))
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-	http.Redirect(w, r, lURL, http.StatusTemporaryRedirect)
+	http.Redirect(w, r, lURL, http.StatusSeeOther)
 }
 
 // LocalLogoutHandler handles logging the user out of login.gov
