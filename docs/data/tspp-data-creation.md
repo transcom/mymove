@@ -129,8 +129,6 @@ Check the types of the BVS, LH discount rate, and SIT discount rate fields in th
 
 ```SQL
 ALTER TABLE transportation_service_provider_performances ALTER COLUMN best_value_score TYPE numeric;
-ALTER TABLE transportation_service_provider_performances ALTER COLUMN linehaul_rate TYPE numeric;
-ALTER TABLE transportation_service_provider_performances ALTER COLUMN sit_rate TYPE numeric;
 ```
 
 Let's put it all into the TSPP table. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below:
@@ -140,6 +138,14 @@ INSERT INTO transportation_service_provider_performances (id, performance_period
   SELECT uuid_generate_v4() as id, '2018-05-15' as performance_period_start, '2018-07-31' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate, sit_rate
   FROM tdl_scores_and_discounts;
   ```
+
+You'll also need to convert the `sit_rate` and `linehaul_rate` columns - these figures represent percentages, often as whole numbers, and they need to be decimal representations of percentages. This will take care of it:
+
+```SQL
+update transportation_service_provider_performances
+  SET linehaul_rate = linehaul_rate/100,
+  sit_rate = sit_rate/100;
+```
 
 Vacuum up now that the party's over.
 
