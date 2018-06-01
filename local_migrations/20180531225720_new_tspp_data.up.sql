@@ -5,6 +5,8 @@
 --   * BVS scores are randomly assigned in the range: (90, 50)
 --   * Linehaul & SIT discount rates are randomly assinged in the range: (.30, .10)
 
+TRUNCATE transportation_service_provider_performances;
+
 COPY public.transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, quality_band, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate) FROM stdin;
 002fb87a-f6f9-4a00-b712-2d3c0af0ea86  2018-05-15  2018-07-31  8f166861-b8c4-4a8f-a43e-77ed5e745086  \N  0 77  243f8be2-5ba8-4574-a8e0-62da9728a95a  2018-04-19 21:58:15.394294  2018-04-19 21:58:15.394294  2018-05-15 00:00:00 2018-09-30 00:00:00 0.274573460593819596  0.101304009556770325
 00b3f33a-3d35-43d1-92ca-056695edf1db  2018-05-15  2018-07-31  40c610e3-f95e-43c3-b6d3-c618aeddfb3d  \N  0 64  7a5eff1c-09a8-4d6e-b8fd-f50572522180  2018-04-19 21:58:15.394294  2018-04-19 21:58:15.394294  2018-05-15 00:00:00 2018-09-30 00:00:00 0.260856951493769862  0.20364941535517575
