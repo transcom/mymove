@@ -2,11 +2,9 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+
 import editablePanel from './editablePanel';
-
-import { no_op_action } from 'shared/utils';
-
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -132,6 +130,7 @@ PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state) {
   let PPMEstimate = get(state, 'office.officePPMs[0]', {});
+  let officeMove = get(state, 'office.officeMove', {});
 
   return {
     // reduxForm
@@ -147,7 +146,13 @@ function mapStateToProps(state) {
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,
     isUpdating: false,
-    formIsValid: true,
+
+    // editablePanel
+    formIsValid: isValid(formName)(state),
+    getUpdateArgs: function() {
+      let values = getFormValues(formName)(state);
+      return [officeMove.id, values.PPMEstimate.id, values.PPMEstimate];
+    },
   };
 }
 
