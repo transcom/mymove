@@ -92,7 +92,7 @@ export class PpmSize extends Component {
                 <strong>How much are you entitled to move?</strong>
               </p>
               <p>
-                {entitlement.total.toLocaleString()} lbs. +{' '}
+                {entitlement.weight.toLocaleString()} lbs. +{' '}
                 {entitlement.pro_gear.toLocaleString()} lbs. of pro-gear +{' '}
                 {entitlement.pro_gear_spouse.toLocaleString()} lbs. of spouse's
                 pro-gear
