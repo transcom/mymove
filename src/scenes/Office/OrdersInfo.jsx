@@ -7,7 +7,7 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { loadMoveDependencies } from './ducks.js';
-import { formatDate, formatDateTime } from './helpers';
+import { formatDate, formatDateTime } from 'shared/formatters';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 

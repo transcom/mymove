@@ -3,6 +3,7 @@ import {
   GET_PPM,
   GET_SIT_ESTIMATE,
   GET_PPM_ESTIMATE,
+  GET_PPM_MAX_ESTIMATE,
   ppmReducer,
 } from './ducks';
 import loggedInUserPayload, {
@@ -209,6 +210,43 @@ describe('Ppm Reducer', () => {
         pendingValue: '',
         rateEngineError: 'No bueno.',
         incentive: null,
+        error: null,
+      });
+    });
+  });
+
+  describe('GET_PPM_MAX_ESTIMATE', () => {
+    it('Should handle SUCCESS', () => {
+      const initialState = {};
+      const newState = ppmReducer(initialState, {
+        type: GET_PPM_MAX_ESTIMATE.success,
+        payload: { range_min: 21505, range_max: 44403 },
+      });
+
+      expect(newState).toEqual({
+        maxIncentive: 266.41799999999995,
+        hasMaxEstimateSuccess: true,
+        hasMaxEstimateError: false,
+        hasMaxEstimateInProgress: false,
+        rateEngineError: null,
+      });
+    });
+
+    it('Should handle FAILURE', () => {
+      const initialState = { pendingValue: '' };
+
+      const newState = ppmReducer(initialState, {
+        type: GET_PPM_MAX_ESTIMATE.failure,
+        error: 'No bueno.',
+      });
+      // using special error here so it is not caught by WizardPage handling
+      expect(newState).toEqual({
+        hasMaxEstimateError: true,
+        hasMaxEstimateInProgress: false,
+        hasMaxEstimateSuccess: false,
+        pendingValue: '',
+        rateEngineError: 'No bueno.',
+        maxIncentive: null,
         error: null,
       });
     });
