@@ -141,7 +141,7 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {serviceMember.id}</li>
+              <li>ID# {serviceMember.edipi}</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -159,7 +159,7 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              <li className="Todo">KKFA to HAFC</li>
+              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
