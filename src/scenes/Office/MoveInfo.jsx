@@ -225,8 +225,9 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
+              {/* Disabling until features implemented
               <button>Troubleshoot</button>
-              <button>Cancel Move</button>
+              <button>Cancel Move</button> */}
             </div>
             <div className="documents">
               <h2 className="usa-heading">
