@@ -47,9 +47,11 @@ const requestedTitle = maxAdvance => {
   return (
     <Fragment>
       <div className="ppmquestion">How much advance do you want?</div>
-      <div className="ppmmuted">
-        Up to {maxAdvance} (60% of your PPM incentive)
-      </div>
+      {maxAdvance && (
+        <div className="ppmmuted">
+          Up to {maxAdvance} (60% of your PPM incentive)
+        </div>
+      )}
     </Fragment>
   );
 };
@@ -71,17 +73,19 @@ const formatMaxAdvance = maxAdvance => {
 
 const validateAdvanceForm = (values, form) => {
   if (values.hasEstimateInProgress) {
-    return { has_requested_advance: 'Esimate in progress.' };
+    return { has_requested_advance: 'Estimate in progress.' };
   }
 
-  if (values.maxIncentive) {
-    if (parseFloat(values.requested_amount) > parseFloat(values.maxIncentive)) {
-      return {
-        requested_amount: `Must be less than ${formatMaxAdvance(
-          values.maxIncentive,
-        )}`,
-      };
-    }
+  let maxIncentive = values.maxIncentive;
+  if (!maxIncentive) {
+    maxIncentive = 20000000; // This is about as big a number as postgres will take from us right now.
+    // the back office can check anything egregious here.
+  }
+
+  if (parseFloat(values.requested_amount) > parseFloat(maxIncentive)) {
+    return {
+      requested_amount: `Must be less than ${formatMaxAdvance(maxIncentive)}`,
+    };
   }
 };
 
@@ -108,9 +112,8 @@ class RequestAdvanceForm extends Component {
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               <div className="ppmquestion">
-                Would you like an advance of up to 60% of your PPM incentive? ({
-                  maxAdvance
-                })
+                Would you like an advance of up to 60% of your PPM incentive?{' '}
+                {maxAdvance && '(' + maxAdvance + ')'}
               </div>
               <div className="ppmmuted">
                 We recommend paying for expenses with your government travel
@@ -344,8 +347,9 @@ export class PpmWeight extends Component {
                 <div className="usa-width-one-whole error-message">
                   <Alert type="warning" heading="Could not retrieve estimate">
                     There was an issue retrieving an estimate for your
-                    incentive. You still qualify but may need to talk with your
-                    local PPPO.
+                    incentive. You still qualify, but need to talk with your
+                    local transportation office which you can look up on{' '}
+                    <a href="move.mil">move.mil</a>
                   </Alert>
                 </div>
               </Fragment>
