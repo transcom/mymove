@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { setPendingPpmSize } from './ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
-
+import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
 import carGray from 'shared/icon/car-gray.svg';
 import trailerGray from 'shared/icon/trailer-gray.svg';
@@ -87,17 +87,7 @@ export class PpmSize extends Component {
           <Fragment>
             <h3>How much will you move?</h3>
 
-            <div className="entitlement-container">
-              <p>
-                <strong>How much are you entitled to move?</strong>
-              </p>
-              <p>
-                {entitlement.weight.toLocaleString()} lbs. +{' '}
-                {entitlement.pro_gear.toLocaleString()} lbs. of pro-gear +{' '}
-                {entitlement.pro_gear_spouse.toLocaleString()} lbs. of spouse's
-                pro-gear
-              </p>
-            </div>
+            <EntitlementBar entitlement={entitlement} />
 
             <BigButtonGroup
               selectedOption={selectedOption}

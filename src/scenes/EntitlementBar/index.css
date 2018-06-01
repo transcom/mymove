@@ -1,0 +1,9 @@
+.entitlement-container {
+  background-color: #c8c8c8;
+  padding: 0.7em;
+  margin-bottom: 3rem;
+}
+
+.entitlement-container > p {
+  margin: 0;
+}
