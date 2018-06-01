@@ -2,6 +2,7 @@ package notifications
 
 import (
 	"fmt"
+	"net/url"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -58,7 +59,20 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 	// Set up various text segments. Copy comes from here:
 	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
 	// TODO: we will want some sort of templating system
-	introText := `Your move has been approved and you are ready to move! Please review the PPM info sheet attached to this email for more detailed instructions.`
+
+	ppmInfoSheetURL := url.URL{
+		Scheme: "https",
+		Host:   m.session.Hostname,
+		Path:   "downloads/ppm_info_sheet.pdf",
+	}
+
+	introText := `Your move has been approved and you are ready to move!`
+	if move.PersonallyProcuredMoves != nil {
+		introText = fmt.Sprintf("%s %s %s",
+			introText,
+			`Please review the PPM info sheet for more detailed instructions: `,
+			ppmInfoSheetURL.String())
+	}
 
 	nextStepsText := `Next steps:`
 
