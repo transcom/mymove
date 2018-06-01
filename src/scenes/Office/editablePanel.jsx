@@ -15,9 +15,12 @@ export default function editablePanel(DisplayComponent, EditComponent) {
     }
 
     save = () => {
-      let args = this.props.getUpdateArgs();
-      this.props.update(...args);
-      this.toggleEditable();
+      let isValid = this.props.formIsValid;
+      if (isValid) {
+        let args = this.props.getUpdateArgs();
+        this.props.update(...args);
+        this.toggleEditable();
+      }
     };
 
     toggleEditable = () => {
@@ -44,6 +47,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
             onSave={this.save}
             onToggle={this.toggleEditable}
             isEditable={isEditable}
+            isValid={this.props.formIsValid}
           >
             <Content {...this.props} />
           </EditablePanel>
@@ -54,9 +58,9 @@ export default function editablePanel(DisplayComponent, EditComponent) {
 
   Wrapper.propTypes = {
     update: PropTypes.func.isRequired,
-    moveId: PropTypes.string.isRequired,
     title: PropTypes.string.isRequired,
     isUpdating: PropTypes.bool,
+    formIsValid: PropTypes.bool.isRequired,
   };
 
   return Wrapper;

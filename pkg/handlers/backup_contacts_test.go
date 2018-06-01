@@ -58,7 +58,7 @@ func (suite *HandlerSuite) TestCreateBackupContactHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
 	req := httptest.NewRequest("GET", indexPath, nil)
@@ -86,7 +86,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandler() {
 func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 	otherServiceMember, _ := testdatagen.MakeServiceMember(suite.db)
 
 	indexPath := fmt.Sprintf("/service_member/%v/backup_contacts", contact.ServiceMember.ID.String())
@@ -112,7 +112,7 @@ func (suite *HandlerSuite) TestIndexBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("GET", showPath, nil)
@@ -136,7 +136,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandler() {
 func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 	otherServiceMember, _ := testdatagen.MakeServiceMember(suite.db)
 
 	showPath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestShowBackupContactsHandlerWrongUser() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
 	req := httptest.NewRequest("PUT", updatePath, nil)
@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestUpdateBackupContactsHandler() {
 func (suite *HandlerSuite) TestUpdateBackupContactsHandlerWrongUser() {
 	t := suite.T()
 
-	contact, _ := testdatagen.MakeBackupContact(suite.db)
+	contact, _ := testdatagen.MakeBackupContact(suite.db, nil)
 	otherServiceMember, _ := testdatagen.MakeServiceMember(suite.db)
 
 	updatePath := fmt.Sprintf("/service_member/%v/backup_contacts/%v", contact.ServiceMember.ID.String(), contact.ID.String())
