@@ -247,9 +247,18 @@ func main() {
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
-	authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
-	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
-	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
+
+	if *env == "dev" {
+		// Use dev local authentication
+		authMux.Handle(pat.Get("/login-gov"), authentication.NewUserListHandler(authContext, dbConnection))
+		authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewAssignUserHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+		authMux.Handle(pat.Get("/logout"), authentication.NewLocalLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
+	} else {
+		// Use login.gov authentication
+		authMux.Handle(pat.Get("/login-gov"), authentication.RedirectHandler{Context: authContext})
+		authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
+		authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
+	}
 
 	if *storageBackend == "filesystem" {
 		// Add a file handler to provide access to files uploaded in development
