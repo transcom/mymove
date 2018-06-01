@@ -63,7 +63,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		<h1>Select a user to login</h1>
 		{{range .}}
 			<p>
-				<a href="/auth/login-gov/callback?id={{.ID}}">{{.Email}}</a>
+				<a href="/devlocal-auth/login?id={{.ID}}">{{.Email}}</a>
 				{{if .OfficeUserID}}
 					office
 				{{else}}
@@ -114,7 +114,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	userID := r.URL.Query().Get("id")
 	if userID == "" {
 		h.logger.Error("No user id specified")
-		http.Redirect(w, r, "/login-gov", http.StatusTemporaryRedirect)
+		http.Redirect(w, r, "/devlocal-auth/users", http.StatusTemporaryRedirect)
 		return
 	}
 

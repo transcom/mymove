@@ -1,9 +1,18 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { isDevelopment } from 'shared/constants';
 
 const LoginButton = props => {
-  if (!props.isLoggedIn) return <a href="/auth/login-gov">Sign In</a>;
-  else return <a href="/auth/logout">Sign Out</a>;
+  if (!props.isLoggedIn) {
+    return (
+      <React.Fragment>
+        {isDevelopment && <a href="/devlocal-auth/users">Local Sign In</a>}
+        <a href="/auth/login-gov">Sign In</a>
+      </React.Fragment>
+    );
+  } else {
+    return <a href="/auth/logout">Sign Out</a>;
+  }
 };
 
 function mapStateToProps(state) {

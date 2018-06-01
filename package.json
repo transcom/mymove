@@ -74,6 +74,9 @@
     "/auth": {
       "target": "http://localhost:8080"
     },
+    "/devlocal-auth": {
+      "target": "http://localhost:8080"
+    },
     "/logout": {
       "target": "http://localhost:8080"
     },
