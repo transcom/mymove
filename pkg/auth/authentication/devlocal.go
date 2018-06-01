@@ -155,32 +155,3 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 	http.Redirect(w, r, lURL, http.StatusSeeOther)
 }
-
-// LocalLogoutHandler handles logging the user out of login.gov
-type LocalLogoutHandler struct {
-	Context
-	clientAuthSecretKey string
-	noSessionTimeout    bool
-}
-
-// NewLocalLogoutHandler creates a new LocalLogoutHandler
-func NewLocalLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout bool) LocalLogoutHandler {
-	handler := LocalLogoutHandler{
-		Context:             ac,
-		clientAuthSecretKey: clientAuthSecretKey,
-		noSessionTimeout:    noSessionTimeout,
-	}
-	return handler
-}
-
-// LocalLogoutHandler clears the current session without contacting login.gov
-func (h LocalLogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	session := auth.SessionFromRequestContext(r)
-	if session != nil {
-		redirectURL := h.landingURL(session)
-		session.IDToken = ""
-		session.UserID = uuid.Nil
-		auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
-		http.Redirect(w, r, redirectURL, http.StatusTemporaryRedirect)
-	}
-}
