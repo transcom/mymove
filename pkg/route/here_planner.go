@@ -80,9 +80,10 @@ func (p *herePlanner) getAddressLatLong(responses chan addressLatLong, address *
 		if err != nil {
 			p.logger.Info("Got non-200 response from HERE. Unable to read response body.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
 			latLongResponse.err = errors.Wrap(err, "non-200 HERE Response")
+		} else {
+			p.logger.Info("Got non-200 response from HERE routing.", zap.Int("http_status", resp.StatusCode), zap.String("here_error", string(bodyBytes)), zap.Object("address", address))
+			latLongResponse.err = errors.New("error response from HERE")
 		}
-		p.logger.Info("Got non-200 response from HERE routing.", zap.Int("http_status", resp.StatusCode), zap.String("here_error", string(bodyBytes)), zap.Object("address", address))
-		latLongResponse.err = errors.New("error response from HERE")
 	} else {
 		// Decode Json response and check structure
 		locationDecoder := json.NewDecoder(resp.Body)
