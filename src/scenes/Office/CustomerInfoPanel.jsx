@@ -2,10 +2,11 @@ import { get, compact } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues, FormSection } from 'redux-form';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import { validateRequiredFields } from 'shared/JsonSchemaForm';
 
 import { updateServiceMember } from './ducks';
 import {
@@ -177,7 +178,10 @@ const CustomerInfoEdit = props => {
 const formName = 'office_move_info_customer_info';
 
 let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
-CustomerInfoPanel = reduxForm({ form: formName })(CustomerInfoPanel);
+CustomerInfoPanel = reduxForm({
+  form: formName,
+  validate: validateRequiredFields,
+})(CustomerInfoPanel);
 
 function mapStateToProps(state) {
   let customerInfo = get(state, 'office.officeServiceMember', {});
@@ -190,15 +194,19 @@ function mapStateToProps(state) {
 
     addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
 
-    // Wrapper
+    // CustomerInfoEdit
     serviceMemberSchema: get(
       state,
       'swagger.spec.definitions.ServiceMemberPayload',
     ),
+    serviceMember: state.office.officeServiceMember,
+
     hasError: false,
     errorMessage: state.office.error,
-    serviceMember: state.office.officeServiceMember,
     isUpdating: false,
+
+    // editablePanel
+    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       let serviceMember = values.serviceMember;

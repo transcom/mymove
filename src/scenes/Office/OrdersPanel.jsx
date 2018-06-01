@@ -2,7 +2,13 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
+import {
+  reduxForm,
+  Field,
+  FormSection,
+  getFormValues,
+  isValid,
+} from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import editablePanel from './editablePanel';
@@ -168,6 +174,8 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
+    // editablePanel
+    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [
