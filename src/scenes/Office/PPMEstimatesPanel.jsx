@@ -2,12 +2,15 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { no_op_action } from 'shared/utils';
 
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import { createOrUpdatePpm } from 'scenes/Moves/Ppm/ducks';
 
 const EstimatesDisplay = props => {
   const fieldProps = {
@@ -66,8 +69,60 @@ const EstimatesDisplay = props => {
 };
 
 const EstimatesEdit = props => {
-  // const { schema } = props;
-  return <React.Fragment>This is where the editing happens!</React.Fragment>;
+  const schema = props.PPMEstimateSchema;
+  return (
+    <React.Fragment>
+      <FormSection name="PPMEstimate">
+        <div className="editable-panel-column">
+          <SwaggerField fieldName="estimated_incentive" swagger={schema} />
+          <SwaggerField fieldName="weight_estimate" swagger={schema} />
+          <SwaggerField
+            title="Planned departure"
+            fieldName="planned_move_date"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Storage planned"
+            fieldName="days_in_storage"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Storage days"
+            fieldName="days_in_storage"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Max. storage cost"
+            swagger={schema}
+            className="Todo"
+          />
+        </div>
+        <div className="editable-panel-column">
+          <SwaggerField
+            title="Origin zip code"
+            fieldName="pickup_postal_code"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Additional stop zip code"
+            fieldName="additional_pickup_postal_code"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Destination zip code"
+            fieldName="destination_postal_code"
+            swagger={schema}
+          />
+          {/*<SwaggerField
+          title="Distance estimate"
+          fieldName="destination_postal_code"
+          value="863 miles"
+          className="Todo"
+        />*/}
+        </div>
+      </FormSection>
+    </React.Fragment>
+  );
 };
 
 const formName = 'ppm_estimate_and_details';
@@ -76,10 +131,12 @@ let PPMEstimatesPanel = editablePanel(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state) {
+  let PPMEstimate = get(state, 'office.officePPMs[0]', {});
+
   return {
     // reduxForm
     formData: state.form[formName],
-    initialValues: {},
+    initialValues: { PPMEstimate: PPMEstimate },
 
     // Wrapper
     PPMEstimateSchema: get(
@@ -88,7 +145,7 @@ function mapStateToProps(state) {
     ),
     hasError: false,
     errorMessage: get(state, 'office.error'),
-    PPMEstimate: get(state, 'office.officePPMs[0]', {}),
+    PPMEstimate: PPMEstimate,
     isUpdating: false,
     formIsValid: true,
   };
@@ -97,7 +154,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: createOrUpdatePpm,
     },
     dispatch,
   );
