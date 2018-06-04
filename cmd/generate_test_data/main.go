@@ -50,11 +50,8 @@ func main() {
 		testdatagen.MakeTSPPerformanceData(db, *rounds)
 		testdatagen.MakeBlackoutDateData(db)
 		testdatagen.MakePPMData(db)
-		_, err = testdatagen.MakeServiceMember(db)
-		if err == nil {
-			_, err = testdatagen.MakeBackupContact(db)
-
-		}
+		testdatagen.MakeReimbursementData(db)
+		_, err = testdatagen.MakeExtendedServiceMember(db)
 	}
 	if err != nil {
 		log.Panic(err)

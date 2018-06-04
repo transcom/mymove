@@ -24,6 +24,9 @@ __snapshots__
 /bin/tsp-award-queue
 /bin/generate-test-data
 /bin/make-office-user
+/bin/load-office-data
+/bin/load-user-gen
+
 /bin/rateengine
 /bin/soda
 /bin/golint

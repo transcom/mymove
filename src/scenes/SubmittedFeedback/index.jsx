@@ -11,7 +11,6 @@ import { loadIssues } from './ducks';
 
 export class SubmittedFeedback extends Component {
   componentDidMount() {
-    document.title = 'Transcom PPP: Submitted Feedback';
     this.props.loadIssues();
   }
   render() {

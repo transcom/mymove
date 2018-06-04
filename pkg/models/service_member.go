@@ -40,7 +40,7 @@ type ServiceMember struct {
 	SocialSecurityNumberID *uuid.UUID                          `json:"social_security_number_id" db:"social_security_number_id"`
 	SocialSecurityNumber   *SocialSecurityNumber               `belongs_to:"address"`
 	Orders                 Orders                              `has_many:"orders" order_by:"created_at desc"`
-	BackupContacts         *BackupContacts                     `has_many:"backup_contacts"`
+	BackupContacts         BackupContacts                      `has_many:"backup_contacts"`
 	DutyStationID          *uuid.UUID                          `json:"duty_station_id" db:"duty_station_id"`
 	DutyStation            DutyStation                         `belongs_to:"duty_stations"`
 }
@@ -259,7 +259,7 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.DutyStationID == nil {
 		return false
 	}
-	if s.BackupContacts == nil {
+	if len(s.BackupContacts) == 0 {
 		return false
 	}
 	// All required fields have a set value
@@ -270,7 +270,11 @@ func (s *ServiceMember) IsProfileComplete() bool {
 func (s ServiceMember) FetchLatestOrder(db *pop.Connection) (Order, error) {
 	var order Order
 	query := db.Where("service_member_id = $1", s.ID).Order("created_at desc")
-	err := query.Eager("ServiceMember.User", "NewDutyStation.Address", "UploadedOrders.Uploads").First(&order)
+	err := query.Eager("ServiceMember.User",
+		"NewDutyStation.Address",
+		"UploadedOrders.Uploads",
+		"Moves.PersonallyProcuredMoves",
+		"Moves.SignedCertifications").First(&order)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return Order{}, ErrFetchNotFound

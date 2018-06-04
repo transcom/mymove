@@ -1122,7 +1122,7 @@
         </SQLField>
         <SQLField>
             <name><![CDATA[best_value_score]]></name>
-            <type><![CDATA[integer]]></type>
+            <type><![CDATA[numeric]]></type>
             <notNull><![CDATA[1]]></notNull>
             <uid><![CDATA[14365E8F-4C6B-4024-8BE5-6F90D3575B3E]]></uid>
         </SQLField>

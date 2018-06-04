@@ -12,7 +12,6 @@ required = [
   name = "github.com/go-swagger/go-swagger"
   branch = "master"
 
-
 [[constraint]]
   branch = "master"
   name = "github.com/GoASTScanner/gas"

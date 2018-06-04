@@ -1,11 +1,8 @@
-.officeHeaderOne, .officeHeaderTwo, .officeHeaderThree {
-  float: left;
+.officeHeaderOne {
   margin: 1%;
 }
- .officeHeaderThree {
-  width: 40%;
-}
-.officeHeaderFour {
+
+.officeHeaderTwo {
   float: right;
 }
 .forms-shared {

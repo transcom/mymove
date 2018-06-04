@@ -43,7 +43,7 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	fakeBackupAddress, _ := testdatagen.MakeAddress(suite.db)
 	fakeID := uuid.Must(uuid.NewV4())
 
-	servicemember := ServiceMember{
+	serviceMember := ServiceMember{
 		UserID:                 user1.ID,
 		Edipi:                  &edipi,
 		Affiliation:            &affiliation,
@@ -59,19 +59,20 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	}
 
 	// Then: IsProfileComplete should return false
-	if servicemember.IsProfileComplete() != false {
+	if serviceMember.IsProfileComplete() != false {
 		t.Error("Expected profile to be incomplete.")
 	}
 	// When: all required fields are set
 	emailPreferred := true
-	servicemember.EmailIsPreferred = &emailPreferred
-	fakeBackupContact, _ := testdatagen.MakeBackupContact(suite.db)
+	serviceMember.EmailIsPreferred = &emailPreferred
+	testdatagen.MakeBackupContact(suite.db, &serviceMember.ID)
 
-	var backupContacts BackupContacts
-	backupContacts = append(backupContacts, fakeBackupContact)
-	servicemember.BackupContacts = &backupContacts
+	if err = suite.db.Load(&serviceMember, "BackupContacts"); err != nil {
+		t.Errorf("Could not load BackupContacts for serviceMember: %v", err)
+	}
+
 	// Then: IsProfileComplete should return true
-	if servicemember.IsProfileComplete() != true {
+	if serviceMember.IsProfileComplete() != true {
 		t.Error("Expected profile to be complete.")
 	}
 }

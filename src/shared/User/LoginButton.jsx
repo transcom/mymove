@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 
 const LoginButton = props => {
   if (!props.isLoggedIn) return <a href="/auth/login-gov">Sign In</a>;
-  else return <a href="/auth/logout">Log Out</a>;
+  else return <a href="/auth/logout">Sign Out</a>;
 };
 
 function mapStateToProps(state) {

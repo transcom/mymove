@@ -16,7 +16,7 @@ jobs:
             - pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}
       - run:
           name: Install prettier
-          command: npm install prettier
+          command: npm install prettier@~1.12.0
       - run:
           name: Install markdown-spellcheck
           command: npm install markdown-spellcheck
@@ -96,7 +96,7 @@ jobs:
             DB_HOST: localhost
             DB_PORT: 5432
             DB_NAME: test_db
-            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/migrations/secure-dev
+            SECURE_MIGRATION_DIR: /home/circleci/go/src/github.com/transcom/mymove/local_migrations
             SECURE_MIGRATION_SOURCE: local
       - run: make tools_build
       - run: make server_build_docker
@@ -154,7 +154,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.staging.dp3.us/"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my-staging.move.mil/"
     steps: &deploy_app_redirect_steps
       - checkout
       - setup_remote_docker
@@ -171,7 +171,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my.staging.dp3.us/health"
+      - APP_HEALTH_CHECK_URL: "https://my-staging.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
@@ -195,7 +195,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "prod"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.dp3.us/"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.move.mil/"
     steps: *deploy_app_redirect_steps
 
   deploy_prod_app:
@@ -203,7 +203,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "prod"
-      - APP_HEALTH_CHECK_URL: "https://my.dp3.us/health"
+      - APP_HEALTH_CHECK_URL: "https://my.move.mil/health"
     steps: *deploy_app_steps
 
   integration_tests:
@@ -285,10 +285,15 @@ workflows:
             branches:
               only: master
 
-      - deploy_prod_migrations:
+      - approve_prod_deploy:
+          type: approval
           requires:
             - deploy_staging_app_redirect
             - deploy_staging_app
+
+      - deploy_prod_migrations:
+          requires:
+            - approve_prod_deploy
           filters:
             branches:
               only: master

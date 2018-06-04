@@ -3,6 +3,7 @@ package route
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"time"
 
@@ -75,8 +76,14 @@ func (p *herePlanner) getAddressLatLong(responses chan addressLatLong, address *
 		p.logger.Error("Getting response from HERE.", zap.Error(err), zap.Object("address", address))
 		latLongResponse.err = errors.Wrap(err, "calling HERE")
 	} else if resp.StatusCode != 200 {
-		p.logger.Info("Got non-200 response from HERE.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
-		latLongResponse.err = errors.New("error response from HERE")
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			p.logger.Info("Got non-200 response from HERE. Unable to read response body.", zap.Int("http_status", resp.StatusCode), zap.Object("address", address))
+			latLongResponse.err = errors.Wrap(err, "non-200 HERE Response")
+		} else {
+			p.logger.Info("Got non-200 response from HERE routing.", zap.Int("http_status", resp.StatusCode), zap.String("here_error", string(bodyBytes)), zap.Object("address", address))
+			latLongResponse.err = errors.New("error response from HERE")
+		}
 	} else {
 		// Decode Json response and check structure
 		locationDecoder := json.NewDecoder(resp.Body)
@@ -133,7 +140,12 @@ func (p *herePlanner) LatLongTransitDistance(source LatLong, dest LatLong) (int,
 		p.logger.Error("Getting route response from HERE.", zap.Error(err))
 		return 0, errors.Wrap(err, "calling HERE routing")
 	} else if resp.StatusCode != 200 {
-		p.logger.Info("Got non-200 response from HERE routing.", zap.Int("http_status", resp.StatusCode))
+		bodyBytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			p.logger.Info("Got non-200 response from HERE. Unable to read response body.", zap.Int("http_status", resp.StatusCode))
+			return 0, errors.Wrap(err, "bad Here response, bad body read")
+		}
+		p.logger.Info("Got non-200 response from HERE routing.", zap.Int("http_status", resp.StatusCode), zap.String("here_error", string(bodyBytes)))
 		return 0, errors.New("error response from HERE")
 	} else {
 		routeDecoder := json.NewDecoder(resp.Body)

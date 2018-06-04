@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -41,6 +42,7 @@ type HandlerContext struct {
 	noSessionTimeout bool
 	planner          route.Planner
 	storage          FileStorer
+	sesService       sesiface.SESAPI
 }
 
 // NewHandlerContext returns a new HandlerContext with its required private fields set.
@@ -54,6 +56,11 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 // SetFileStorer is a simple setter for storage private field
 func (context *HandlerContext) SetFileStorer(storer FileStorer) {
 	context.storage = storer
+}
+
+// SetSesService is a simple setter for AWS SES private field
+func (context *HandlerContext) SetSesService(sesService sesiface.SESAPI) {
+	context.sesService = sesService
 }
 
 // SetPlanner is a simple setter for the route.Planner private field
@@ -138,6 +145,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
+	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler(context)
+
 	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
@@ -169,6 +178,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
+	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler(context)
 
 	return internalAPI.Serve(nil)
 }

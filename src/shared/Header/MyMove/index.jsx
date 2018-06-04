@@ -7,7 +7,7 @@ import Email from 'shared/User/Email';
 import usaFlag from 'shared/images/us-flag.png';
 import govIcon from 'shared/images/icon-dot-gov.svg';
 import sslIcon from 'shared/images/icon-https.svg';
-
+import './index.css';
 function Header() {
   return (
     <header className="usa-header usa-header-basic" role="banner">
@@ -70,43 +70,22 @@ function Header() {
         </div>
       </div>
       {/* Gov banner END */}
-      <div className="usa-nav-container">
-        <div className="usa-navbar">
-          <button className="usa-menu-btn">Menu</button>
-          <div className="usa-logo" id="basic-logo">
-            <em className="usa-logo-text">
-              <NavLink to="/" title="Home" aria-label="Transcom PPP Home">
-                Transcom PPP
-              </NavLink>
-            </em>
+      <div className="my-move-header">
+        <div className="usa-nav-container">
+          <div className="my-move-login">
+            <Email />
+            <LoginButton />
+          </div>
+          <div className="usa-navbar">
+            <div className="usa-logo" id="basic-logo">
+              <em className="usa-logo-text">
+                <NavLink to="/" title="my.move.mil" aria-label="my.move.mil">
+                  my.move.mil
+                </NavLink>
+              </em>
+            </div>
           </div>
         </div>
-        <nav className="usa-nav">
-          <ul className="usa-nav-primary usa-accordion">
-            <li>
-              <NavLink to="/Feedback" className="usa-nav-link">
-                <span>Report a bug</span>
-              </NavLink>
-            </li>
-            <li>
-              <Email />
-            </li>
-            <li>
-              <LoginButton />
-            </li>
-          </ul>
-          <form className="usa-search usa-search-small">
-            <div role="search">
-              <label className="usa-sr-only" htmlFor="search-field-small">
-                Search small
-              </label>
-              <input id="search-field-small" type="search" name="search" />
-              <button type="submit">
-                <span className="usa-sr-only">Search</span>
-              </button>
-            </div>
-          </form>
-        </nav>
       </div>
     </header>
   );

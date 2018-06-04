@@ -2,7 +2,7 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, getFormValues } from 'redux-form';
+import { reduxForm, getFormValues, isValid } from 'redux-form';
 import editablePanel from './editablePanel';
 
 import { updateOrders } from './ducks';
@@ -77,6 +77,8 @@ function mapStateToProps(state) {
     orders: orders,
     isUpdating: state.office.ordersAreUpdating,
 
+    // editablePanel
+    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       values.new_duty_station_id = values.new_duty_station.id;

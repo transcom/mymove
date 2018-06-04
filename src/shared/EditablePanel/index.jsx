@@ -83,6 +83,7 @@ export class EditablePanel extends Component {
             <button
               className="usa-button editable-panel-save"
               onClick={this.handleSaveClick}
+              disabled={!this.props.isValid}
             >
               Save
             </button>
@@ -122,6 +123,7 @@ EditablePanel.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  isValid: PropTypes.bool.isRequired,
   onToggle: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
 };

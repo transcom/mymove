@@ -54,6 +54,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators({ createOrUpdatePpm }, dispatch);
 }
 function mapStateToProps(state) {
-  return { ...state.ppm, move: state.submittedMoves };
+  return { ...state.ppm, move: state.moves };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(PpmSizeWizardPage);
