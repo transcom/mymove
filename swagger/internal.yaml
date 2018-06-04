@@ -1513,8 +1513,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
-      # TODO: Uncomment below after spouse_has_pro_gear UI is completed
-      # - spouse_has_pro_gear
+      - spouse_has_pro_gear
       - new_duty_station
       - uploaded_orders
       - created_at
@@ -1573,8 +1572,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
-      # TODO: Uncomment below after spouse_has_pro_gear UI is completed
-      # - spouse_has_pro_gear
+      - spouse_has_pro_gear
       - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object

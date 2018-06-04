@@ -172,6 +172,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 	reportByDate time.Time,
 	ordersType internalmessages.OrdersType,
 	hasDependents bool,
+	spouseHasProGear bool,
 	newDutyStation DutyStation) (Order, *validate.Errors, error) {
 
 	var newOrders Order
@@ -199,6 +200,7 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 			ReportByDate:     reportByDate,
 			OrdersType:       ordersType,
 			HasDependents:    hasDependents,
+			SpouseHasProGear: spouseHasProGear,
 			NewDutyStationID: newDutyStation.ID,
 			NewDutyStation:   newDutyStation,
 			UploadedOrders:   uploadedOrders,
