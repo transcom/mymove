@@ -15,7 +15,7 @@ import {
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import { editBegin, editSuccessful } from './ducks';
-
+import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
 import profileImage from './images/profile.png';
@@ -91,19 +91,7 @@ let EditWeightForm = props => {
       <p>
         Changes could impact your move, including the estimated PPM incentive.
       </p>
-      {entitlement && (
-        <div className="edit-ppm-entitlement">
-          <p>
-            <strong>How much are you entitled to move?</strong>
-          </p>
-          <p>
-            {entitlement.total.toLocaleString()} lbs. +{' '}
-            {entitlement.pro_gear.toLocaleString()} lbs. of pro-gear +{' '}
-            {entitlement.pro_gear_spouse.toLocaleString()} lbs. of spouse's
-            pro-gear
-          </p>
-        </div>
-      )}
+      <EntitlementBar entitlement={entitlement} />
       <div className="edit-weight-container">
         <div className="usa-width-one-half">
           <h4 className="sm-heading">Move estimate</h4>

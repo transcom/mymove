@@ -32,7 +32,7 @@ function renderEntitlements(entitlements) {
     <React.Fragment>
       <span className="panel-subhead">Entitlements</span>
       <PanelField title="Household Goods">
-        {get(entitlements, 'total', '').toLocaleString()} lbs
+        {get(entitlements, 'weight', '').toLocaleString()} lbs
       </PanelField>
       <PanelField title="Pro-gear">
         {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
