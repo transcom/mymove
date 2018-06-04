@@ -53,4 +53,4 @@ echo "Applying secure migrations: ${migration_file}"
 
 # Don't share the database password
 set +x
-psql postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode" < "$migration"
+psql -v "ON_ERROR_STOP=1" postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode" < "$migration"
