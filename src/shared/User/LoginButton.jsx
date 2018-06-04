@@ -1,17 +1,25 @@
 import React from 'react';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
+
 import { isDevelopment } from 'shared/constants';
 
 const LoginButton = props => {
   if (!props.isLoggedIn) {
     return (
       <React.Fragment>
-        {isDevelopment && (
-          <a style={{ marginRight: '2em' }} href="/devlocal-auth/login">
+        {props.showDevlocalButton && (
+          <a
+            data-hook="devlocal-signin"
+            style={{ marginRight: '2em' }}
+            href="/devlocal-auth/login"
+          >
             Local Sign In
           </a>
         )}
-        <a href="/auth/login-gov">Sign In</a>
+        <a data-hook="signin" href="/auth/login-gov">
+          Sign In
+        </a>
       </React.Fragment>
     );
   } else {
@@ -22,6 +30,7 @@ const LoginButton = props => {
 function mapStateToProps(state) {
   return {
     isLoggedIn: state.user.isLoggedIn,
+    showDevlocalButton: get(state, 'isDevelopment', isDevelopment),
   };
 }
 export default connect(mapStateToProps)(LoginButton);
