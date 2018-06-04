@@ -2,7 +2,6 @@ package authentication
 
 import (
 	"html/template"
-	// "io"
 	"net/http"
 
 	"github.com/gobuffalo/pop"
