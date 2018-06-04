@@ -14,6 +14,9 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
+
 import './Orders.css';
 
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
@@ -31,6 +34,10 @@ export class Orders extends Component {
       pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
+      if (pendingValues['has_dependents']) {
+        pendingValues['spouse_has_progear'] =
+          pendingValues.spouse_has_progear || false;
+      }
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
@@ -93,6 +100,12 @@ export class Orders extends Component {
               component={YesNoBoolean}
               required
             />
+            <span>
+              <FontAwesomeIcon
+                className="active_link"
+                icon={faQuestionCircle}
+              />
+            </span>
           </Fragment>
         )}
         <Field name="new_duty_station" component={DutyStationSearchBox} />
