@@ -75,6 +75,7 @@ const EstimatesDisplay = props => {
 
 const EstimatesEdit = props => {
   const schema = props.PPMEstimateSchema;
+
   return (
     <React.Fragment>
       <FormSection name="PPMEstimate">
@@ -105,11 +106,13 @@ const EstimatesEdit = props => {
             swagger={schema}
             component={YesNoBoolean}
           />
-          <SwaggerField
-            title="Planned days in storage"
-            fieldName="days_in_storage"
-            swagger={schema}
-          />
+          {get(props, 'formValues.PPMEstimate.has_sit', false) && (
+            <SwaggerField
+              title="Planned days in storage"
+              fieldName="days_in_storage"
+              swagger={schema}
+            />
+          )}
           <SwaggerField
             title="Max cost for XX days"
             swagger={schema}
@@ -155,10 +158,11 @@ PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 function mapStateToProps(state) {
   let PPMEstimate = get(state, 'office.officePPMs[0]', {});
   let officeMove = get(state, 'office.officeMove', {});
+  let formValues = getFormValues(formName)(state);
 
   return {
     // reduxForm
-    formData: state.form[formName],
+    formValues: formValues,
     initialValues: { PPMEstimate: PPMEstimate },
 
     // Wrapper
@@ -174,8 +178,7 @@ function mapStateToProps(state) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
-      let values = getFormValues(formName)(state);
-      return [officeMove.id, values.PPMEstimate.id, values.PPMEstimate];
+      return [officeMove.id, formValues.PPMEstimate.id, formValues.PPMEstimate];
     },
   };
 }
