@@ -141,6 +141,7 @@ function reshapeOrders(orders) {
   return pick(orders, [
     'id',
     'has_dependents',
+    'spouse_has_pro_gear',
     'issue_date',
     'new_duty_station',
     'orders_type',
