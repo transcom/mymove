@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
-import { reduxForm, Field } from 'redux-form';
+import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -16,6 +16,9 @@ import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful } from './ducks';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -50,6 +53,18 @@ let EditOrdersForm = props => {
         swagger={schema}
         component={YesNoBoolean}
       />
+      {get(props, 'formValues.has_dependents', false) && (
+        <Fragment>
+          <SwaggerField
+            fieldName="spouse_has_pro_gear"
+            swagger={props.schema}
+            component={YesNoBoolean}
+          />
+          <span>
+            <FontAwesomeIcon className="active_link" icon={faQuestionCircle} />
+          </span>
+        </Fragment>
+      )}
       <br />
       <Field name="new_duty_station" component={DutyStationSearchBox} />
       <p>Uploads:</p>
@@ -129,6 +144,7 @@ class EditOrders extends Component {
       error,
       schema,
       currentOrders,
+      formValues,
       existingUploads,
       moveIsApproved,
     } = this.props;
@@ -161,6 +177,7 @@ class EditOrders extends Component {
               deleteQueue={this.state.deleteQueue}
               onUpload={this.handleNewUpload}
               onDelete={this.handleDelete}
+              formValues={formValues}
             />
           </div>
         )}
@@ -178,7 +195,7 @@ function mapStateToProps(state) {
       `orders.currentOrders.uploaded_orders.uploads`,
       [],
     ),
-    formData: state.form[editOrdersFormName],
+    formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),

@@ -35,8 +35,8 @@ export class Orders extends Component {
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
       if (pendingValues['has_dependents']) {
-        pendingValues['spouse_has_progear'] =
-          pendingValues.spouse_has_progear || false;
+        pendingValues['spouse_has_pro_gear'] =
+          pendingValues.spouse_has_pro_gear || false;
       }
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
@@ -55,9 +55,6 @@ export class Orders extends Component {
       serviceMemberId,
       hasSubmitSuccess,
     } = this.props;
-    const spouse_hasprogear = get(this.props, 'formValues.spouse_has_pro_gear');
-    console.log(spouse_hasprogear);
-
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
     return (
@@ -98,7 +95,6 @@ export class Orders extends Component {
               fieldName="spouse_has_pro_gear"
               swagger={this.props.schema}
               component={YesNoBoolean}
-              required
             />
             <span>
               <FontAwesomeIcon
@@ -125,7 +121,6 @@ function mapStateToProps(state) {
   const props = {
     serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
-    // formData: state.form[formName],
     formValues: getFormValues(formName)(state),
     currentOrders: state.orders.currentOrders,
     hasSubmitSuccess: state.orders.currentOrders

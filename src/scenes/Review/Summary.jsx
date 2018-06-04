@@ -184,6 +184,18 @@ export class Summary extends Component {
                       yesNoMap[get(currentOrders, 'has_dependents').toString()]}
                   </td>
                 </tr>
+                {currentOrders &&
+                  get(currentOrders, 'spouse_has_pro_gear') && (
+                    <tr>
+                      <td> Spouse Pro Gear?: </td>
+                      <td>
+                        {currentOrders &&
+                          yesNoMap[
+                            get(currentOrders, 'spouse_has_pro_gear').toString()
+                          ]}
+                      </td>
+                    </tr>
+                  )}
                 <tr>
                   <td> Orders Uploaded: </td>
                   <td>
