@@ -7,8 +7,9 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from './editablePanel';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 
-import { createOrUpdatePpm } from 'scenes/Moves/Ppm/ducks';
+import { updatePPM } from 'scenes/Office/ducks';
 
 const EstimatesDisplay = props => {
   const fieldProps = {
@@ -19,21 +20,27 @@ const EstimatesDisplay = props => {
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="estimated_incentive" {...fieldProps} />
+        <PanelSwaggerField
+          title="Incentive estimate"
+          fieldName="estimated_incentive"
+          {...fieldProps}
+        />
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
         <PanelSwaggerField
           title="Planned departure"
           fieldName="planned_move_date"
           {...fieldProps}
         />
-        <PanelField title="Storage planned" fieldName="days_in_storage">
+        <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
         </PanelField>
-        <PanelSwaggerField
-          title="Storage days"
-          fieldName="days_in_storage"
-          {...fieldProps}
-        />
+        {fieldProps.values.has_sit && (
+          <PanelSwaggerField
+            title="Planned days in storage"
+            fieldName="days_in_storage"
+            {...fieldProps}
+          />
+        )}
         <PanelField
           title="Max. storage cost"
           value="Max. storage cost"
@@ -72,25 +79,39 @@ const EstimatesEdit = props => {
     <React.Fragment>
       <FormSection name="PPMEstimate">
         <div className="editable-panel-column">
-          <SwaggerField fieldName="estimated_incentive" swagger={schema} />
-          <SwaggerField fieldName="weight_estimate" swagger={schema} />
           <SwaggerField
-            title="Planned departure"
+            title="Incentive estimate"
+            fieldName="estimated_incentive"
+            swagger={schema}
+            required
+          />
+          <SwaggerField
+            className="short-field"
+            fieldName="weight_estimate"
+            swagger={schema}
+            required
+          />{' '}
+          lbs
+          <SwaggerField
+            title="Planned departure date"
             fieldName="planned_move_date"
             swagger={schema}
+            required
+          />
+          <div className="panel-subhead">Storage</div>
+          <SwaggerField
+            title="Storage planned?"
+            fieldName="has_sit"
+            swagger={schema}
+            component={YesNoBoolean}
           />
           <SwaggerField
-            title="Storage planned"
+            title="Planned days in storage"
             fieldName="days_in_storage"
             swagger={schema}
           />
           <SwaggerField
-            title="Storage days"
-            fieldName="days_in_storage"
-            swagger={schema}
-          />
-          <SwaggerField
-            title="Max. storage cost"
+            title="Max cost for XX days"
             swagger={schema}
             className="Todo"
           />
@@ -100,19 +121,22 @@ const EstimatesEdit = props => {
             title="Origin zip code"
             fieldName="pickup_postal_code"
             swagger={schema}
+            required
           />
           <SwaggerField
             title="Additional stop zip code"
             fieldName="additional_pickup_postal_code"
             swagger={schema}
+            required
           />
           <SwaggerField
             title="Destination zip code"
             fieldName="destination_postal_code"
             swagger={schema}
+            required
           />
           {/*<SwaggerField
-          title="Distance estimate"
+          title="Distance from origin to destination"
           fieldName="destination_postal_code"
           value="863 miles"
           className="Todo"
@@ -159,7 +183,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: createOrUpdatePpm,
+      update: updatePPM,
     },
     dispatch,
   );
