@@ -20,9 +20,7 @@ class QueueTable extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log(this.props.queueType, prevProps.queueType);
     if (this.props.queueType !== prevProps.queueType) {
-      console.log('This got called!');
       this.fetchData();
     }
   }
