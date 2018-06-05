@@ -147,7 +147,9 @@ let EditWeightForm = props => {
             <div className="display-value">
               <p>Advance</p>
               <p>
-                <strong>${initialValues.advance.requested_amount / 100}</strong>
+                <strong>
+                  ${(initialValues.advance.requested_amount / 100).toFixed(2)}
+                </strong>
               </p>
             </div>
           )}

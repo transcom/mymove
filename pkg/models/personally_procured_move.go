@@ -103,6 +103,12 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 		if ppm.HasRequestedAdvance {
 			if ppm.Advance != nil {
+				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
+				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
+					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
+					return transactionError
+				}
+
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
