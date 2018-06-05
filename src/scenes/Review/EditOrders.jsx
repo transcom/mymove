@@ -59,10 +59,17 @@ let EditOrdersForm = props => {
             fieldName="spouse_has_pro_gear"
             swagger={props.schema}
             component={YesNoBoolean}
+            className="wider-label"
+            title={
+              <div>
+                {props.schema.properties.spouse_has_pro_gear.title}{' '}
+                <FontAwesomeIcon
+                  className="active_link"
+                  icon={faQuestionCircle}
+                />
+              </div>
+            }
           />
-          <span>
-            <FontAwesomeIcon className="active_link" icon={faQuestionCircle} />
-          </span>
         </Fragment>
       )}
       <br />
@@ -120,6 +127,8 @@ class EditOrders extends Component {
 
   updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
+    fieldValues.spouse_has_pro_gear =
+      (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     return Promise.all([addUploads, deleteUploads])

@@ -94,13 +94,17 @@ export class Orders extends Component {
               fieldName="spouse_has_pro_gear"
               swagger={this.props.schema}
               component={YesNoBoolean}
+              className="wider-label"
+              title={
+                <div>
+                  {this.props.schema.properties.spouse_has_pro_gear.title}{' '}
+                  <FontAwesomeIcon
+                    className="active_link"
+                    icon={faQuestionCircle}
+                  />
+                </div>
+              }
             />
-            <span>
-              <FontAwesomeIcon
-                className="active_link"
-                icon={faQuestionCircle}
-              />
-            </span>
           </Fragment>
         )}
         <Field name="new_duty_station" component={DutyStationSearchBox} />
