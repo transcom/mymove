@@ -1482,7 +1482,7 @@ definitions:
         title: Are dependents included in your orders?
       spouse_has_pro_gear:
         type: boolean
-        title: Do you have a spouse that will need to move stuff related to their job?
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
@@ -1546,7 +1546,7 @@ definitions:
         title: Are dependents included in your orders?
       spouse_has_pro_gear:
         type: boolean
-        title: Do you have a spouse that will need to move stuff related to their job?
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
