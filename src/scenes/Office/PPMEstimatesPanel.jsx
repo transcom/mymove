@@ -9,7 +9,15 @@ import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 
-import { updatePPM } from 'scenes/Office/ducks';
+import { loadEntitlements, updatePPM } from 'scenes/Office/ducks';
+
+const validateWeight = (value, formValues, props, fieldName) => {
+  if (value && props.entitlement && value > props.entitlement.sum) {
+    return `Cannot be more than full entitlement weight (${
+      props.entitlement.sum
+    } lbs)`;
+  }
+};
 
 const EstimatesDisplay = props => {
   const fieldProps = {
@@ -89,6 +97,7 @@ const EstimatesEdit = props => {
             className="short-field"
             fieldName="weight_estimate"
             swagger={schema}
+            validate={validateWeight}
             required
           />{' '}
           lbs
@@ -172,6 +181,7 @@ function mapStateToProps(state) {
     errorMessage: get(state, 'office.error'),
     PPMEstimate: PPMEstimate,
     isUpdating: false,
+    entitlement: loadEntitlements(state),
 
     // editablePanel
     formIsValid: isValid(formName)(state),
