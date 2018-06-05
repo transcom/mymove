@@ -129,10 +129,7 @@ let EditWeightForm = props => {
           <div className="display-value">
             <p>Estimated Incentive</p>
             <p className={incentiveClass}>
-              <strong>
-                {incentive}
-                {incentive || 'Unable to Calculate'}
-              </strong>
+              <strong>{incentive || 'Unable to Calculate'}</strong>
             </p>
             {initialValues &&
               initialValues.estimated_incentive &&
