@@ -1,7 +1,7 @@
 import { getEntitlements } from './entitlements';
 describe('entitlements', () => {
   describe('when I have dependents', () => {
-    describe('when I my spouse has pro gear', () => {
+    describe('when my spouse has pro gear', () => {
       it('should include spouse progear', () => {
         const entitlements = getEntitlements(`E_2`, true, true);
         expect(entitlements).toEqual({

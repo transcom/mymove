@@ -15,10 +15,9 @@ export function getEntitlements(
   const entitlement = {
     weight: entitlements[rank][totalKey],
     pro_gear: entitlements[rank].pro_gear_weight,
-    pro_gear_spouse:
-      hasDependents && spouseHasProGear
-        ? entitlements[rank].pro_gear_weight_spouse
-        : 0,
+    pro_gear_spouse: spouseHasProGear
+      ? entitlements[rank].pro_gear_weight_spouse
+      : 0,
   };
   entitlement.sum = sum([
     entitlement.weight,
