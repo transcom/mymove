@@ -88,12 +88,9 @@ const EstimatesEdit = props => {
     <React.Fragment>
       <FormSection name="PPMEstimate">
         <div className="editable-panel-column">
-          <SwaggerField
-            title="Incentive estimate"
-            fieldName="estimated_incentive"
-            swagger={schema}
-            required
-          />
+          <PanelField title="Incentive estimate">
+            ${get(props, 'PPMEstimate.estimated_incentive', 0)}
+          </PanelField>
           <SwaggerField
             className="short-field"
             fieldName="weight_estimate"
