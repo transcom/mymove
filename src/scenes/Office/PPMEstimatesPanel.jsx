@@ -92,6 +92,7 @@ const EstimatesEdit = props => {
             title="Incentive estimate"
             fieldName="estimated_incentive"
             swagger={schema}
+            required
           />
           <SwaggerField
             className="short-field"
