@@ -84,7 +84,6 @@ const EstimatesEdit = props => {
             title="Incentive estimate"
             fieldName="estimated_incentive"
             swagger={schema}
-            required
           />
           <SwaggerField
             className="short-field"
@@ -130,7 +129,6 @@ const EstimatesEdit = props => {
             title="Additional stop zip code"
             fieldName="additional_pickup_postal_code"
             swagger={schema}
-            required
           />
           <SwaggerField
             title="Destination zip code"
@@ -178,6 +176,15 @@ function mapStateToProps(state) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
+      if (
+        formValues.PPMEstimate.additional_pickup_postal_code !== '' &&
+        formValues.PPMEstimate.additional_pickup_postal_code !== undefined
+      ) {
+        formValues.PPMEstimate.has_additional_postal_code = true;
+      } else {
+        delete formValues.PPMEstimate.additional_pickup_postal_code;
+        formValues.PPMEstimate.has_additional_postal_code = false;
+      }
       return [officeMove.id, formValues.PPMEstimate.id, formValues.PPMEstimate];
     },
   };
