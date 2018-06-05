@@ -15,8 +15,14 @@ class QueueTable extends Component {
     this.fetchData = this.fetchData.bind(this);
   }
 
+  componentDidMount() {
+    this.fetchData();
+  }
+
   componentDidUpdate(prevProps) {
+    console.log(this.props.queueType, prevProps.queueType);
     if (this.props.queueType !== prevProps.queueType) {
+      console.log('This got called!');
       this.fetchData();
     }
   }
@@ -88,7 +94,6 @@ class QueueTable extends Component {
             ]}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it
-            onFetchData={this.fetchData} // Request new data when things change
             pageSize={this.state.data.length}
             className="-striped -highlight"
             getTrProps={(state, rowInfo) => ({
