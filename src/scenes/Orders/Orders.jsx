@@ -34,10 +34,9 @@ export class Orders extends Component {
       pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
-      if (pendingValues['has_dependents']) {
-        pendingValues['spouse_has_pro_gear'] =
-          pendingValues.spouse_has_pro_gear || false;
-      }
+      pendingValues['spouse_has_pro_gear'] =
+        (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) ||
+        false;
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {

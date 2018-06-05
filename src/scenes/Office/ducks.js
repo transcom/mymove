@@ -213,11 +213,16 @@ export function loadMoveDependencies(moveId) {
 // Selectors
 export function loadEntitlements(state) {
   const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'office.officeOrders.spouse_has_pro_gear',
+    null,
+  );
   const rank = get(state, 'office.officeServiceMember.rank', null);
-  if (isNull(hasDependents) || isNull(rank)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents);
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 // Reducer
