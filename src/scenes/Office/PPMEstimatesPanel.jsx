@@ -89,7 +89,7 @@ const EstimatesEdit = props => {
       <FormSection name="PPMEstimate">
         <div className="editable-panel-column">
           <PanelField title="Incentive estimate">
-            ${get(props, 'PPMEstimate.estimated_incentive', 0)}
+            ${get(props, 'PPMEstimate.estimated_incentive', '')}
           </PanelField>
           <SwaggerField
             className="short-field"
