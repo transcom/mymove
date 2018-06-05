@@ -49,6 +49,8 @@ type PersonallyProcuredMove struct {
 	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
 	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
+	AdvanceWorksheet              Document                     `belongs_to:"documents"`
+	AdvanceWorksheetID            uuid.UUID                    `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
