@@ -12,15 +12,18 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForMoveModel(order models.Order, move models.Move) internalmessages.MovePayload {
+func payloadForMoveModel(storage FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
 	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
 	for _, ppm := range move.PersonallyProcuredMoves {
-		payload := payloadForPPMModel(ppm)
-		ppmPayloads = append(ppmPayloads, &payload)
+		payload, err := payloadForPPMModel(storage, ppm)
+		if err != nil {
+			return nil, err
+		}
+		ppmPayloads = append(ppmPayloads, payload)
 	}
 
-	movePayload := internalmessages.MovePayload{
+	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               fmtDateTime(move.CreatedAt),
 		SelectedMoveType:        move.SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
@@ -30,7 +33,7 @@ func payloadForMoveModel(order models.Order, move models.Move) internalmessages.
 		OrdersID:                fmtUUID(order.ID),
 		Status:                  internalmessages.MoveStatus(move.Status),
 	}
-	return movePayload
+	return movePayload, nil
 }
 
 // CreateMoveHandler creates a new move via POST /move
@@ -54,8 +57,11 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 		}
 		return responseForVErrors(h.logger, verrs, err)
 	}
-	movePayload := payloadForMoveModel(orders, *move)
-	return moveop.NewCreateMoveCreated().WithPayload(&movePayload)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return moveop.NewCreateMoveCreated().WithPayload(movePayload)
 }
 
 // ShowMoveHandler returns a move for a user and move ID
@@ -79,8 +85,11 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 		return responseForError(h.logger, err)
 	}
 
-	movePayload := payloadForMoveModel(orders, *move)
-	return moveop.NewShowMoveOK().WithPayload(&movePayload)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return moveop.NewShowMoveOK().WithPayload(movePayload)
 }
 
 // PatchMoveHandler patches a move via PATCH /moves/{moveId}
@@ -113,8 +122,11 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-	movePayload := payloadForMoveModel(orders, *move)
-	return moveop.NewPatchMoveCreated().WithPayload(&movePayload)
+	movePayload, err := payloadForMoveModel(h.storage, orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return moveop.NewPatchMoveCreated().WithPayload(movePayload)
 }
 
 // SubmitMoveHandler approves a move via POST /moves/{moveId}/submit
@@ -144,6 +156,9 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	movePayload := payloadForMoveModel(move.Orders, *move)
-	return moveop.NewSubmitMoveForApprovalOK().WithPayload(&movePayload)
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
 }
