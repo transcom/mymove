@@ -18,7 +18,8 @@ img._fix-ie-11-height {
 }
 
 .Todo {
-  background-color: yellow;
+  /*background-color: yellow;*/
+  display: none;
 }
 
 .label-optional {

@@ -15,7 +15,7 @@ import {
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import { editBegin, editSuccessful } from './ducks';
-
+import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
 import profileImage from './images/profile.png';
@@ -91,19 +91,7 @@ let EditWeightForm = props => {
       <p>
         Changes could impact your move, including the estimated PPM incentive.
       </p>
-      {entitlement && (
-        <div className="edit-ppm-entitlement">
-          <p>
-            <strong>How much are you entitled to move?</strong>
-          </p>
-          <p>
-            {entitlement.total.toLocaleString()} lbs. +{' '}
-            {entitlement.pro_gear.toLocaleString()} lbs. of pro-gear +{' '}
-            {entitlement.pro_gear_spouse.toLocaleString()} lbs. of spouse's
-            pro-gear
-          </p>
-        </div>
-      )}
+      <EntitlementBar entitlement={entitlement} />
       <div className="edit-weight-container">
         <div className="usa-width-one-half">
           <h4 className="sm-heading">Move estimate</h4>
@@ -120,6 +108,8 @@ let EditWeightForm = props => {
           </div>
           <div>
             {!advanceError &&
+              initialValues &&
+              initialValues.estimated_incentive &&
               dirty && (
                 <div className="usa-alert usa-alert-warning">
                   <div className="usa-alert-body">
@@ -139,9 +129,10 @@ let EditWeightForm = props => {
           <div className="display-value">
             <p>Estimated Incentive</p>
             <p className={incentiveClass}>
-              <strong>{incentive}</strong>
+              <strong>{incentive || 'Unable to Calculate'}</strong>
             </p>
             {initialValues &&
+              initialValues.estimated_incentive &&
               initialValues.estimated_incentive !== incentive && (
                 <p className="subtext">
                   Originally {initialValues.estimated_incentive}
@@ -233,7 +224,14 @@ class EditWeight extends Component {
   };
 
   render() {
-    const { error, schema, currentPpm, entitlement, incentive } = this.props;
+    const {
+      error,
+      schema,
+      currentPpm,
+      entitlement,
+      incentive,
+      hasEstimateError,
+    } = this.props;
 
     return (
       <div className="usa-grid">
@@ -241,6 +239,14 @@ class EditWeight extends Component {
           <div className="usa-width-one-whole error-message">
             <Alert type="error" heading="An error occurred">
               {error.message}
+            </Alert>
+          </div>
+        )}
+        {hasEstimateError && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="warning" heading="Could not retrieve estimate">
+              There was an issue retrieving an estimate for your incentive. You
+              still qualify but may need to talk with your local PPPO.
             </Alert>
           </div>
         )}
@@ -262,7 +268,7 @@ class EditWeight extends Component {
 function mapStateToProps(state) {
   return {
     ...state.ppm,
-    error: get(state, 'serviceMember.error') || state.ppm.hasEstimateError,
+    error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     entitlement: loadEntitlements(state),
     schema: get(

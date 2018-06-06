@@ -2,12 +2,18 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm, Field, FormSection, getFormValues } from 'redux-form';
+import {
+  reduxForm,
+  Field,
+  FormSection,
+  getFormValues,
+  isValid,
+} from 'redux-form';
 import { Link } from 'react-router-dom';
 
 import editablePanel from './editablePanel';
 import { loadEntitlements, updateOrdersInfo } from './ducks';
-import { formatDate } from './helpers';
+import { formatDate } from 'shared/formatters';
 
 import {
   PanelSwaggerField,
@@ -26,7 +32,7 @@ function renderEntitlements(entitlements) {
     <React.Fragment>
       <span className="panel-subhead">Entitlements</span>
       <PanelField title="Household Goods">
-        {get(entitlements, 'total', '').toLocaleString()} lbs
+        {get(entitlements, 'weight', '').toLocaleString()} lbs
       </PanelField>
       <PanelField title="Pro-gear">
         {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
@@ -168,6 +174,8 @@ function mapStateToProps(state) {
     serviceMember: get(state, 'office.officeServiceMember', {}),
     move: get(state, 'office.officeMove', {}),
 
+    // editablePanel
+    formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
       return [

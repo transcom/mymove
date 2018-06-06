@@ -18,7 +18,7 @@ import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
 import PPMEstimatesPanel from './PPMEstimatesPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
-import { formatDate } from './helpers';
+import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -48,11 +48,7 @@ const PPMTabContent = props => {
   return (
     <React.Fragment>
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
-      <PPMEstimatesPanel
-        className="disable-edit"
-        title="Estimate"
-        moveId={props.match.params.moveId}
-      />
+      <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
     </React.Fragment>
   );
 };
@@ -141,7 +137,7 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {serviceMember.id}</li>
+              <li>ID# {serviceMember.edipi}</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -159,7 +155,7 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              <li className="Todo">KKFA to HAFC</li>
+              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
@@ -225,8 +221,9 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
+              {/* Disabling until features implemented
               <button>Troubleshoot</button>
-              <button>Cancel Move</button>
+              <button>Cancel Move</button> */}
             </div>
             <div className="documents">
               <h2 className="usa-heading">
