@@ -301,6 +301,7 @@ definitions:
         x-nullable: true
       estimated_storage_reimbursement:
         type: string
+        example: "$1200"
         title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
@@ -310,6 +311,7 @@ definitions:
         x-nullable: true
       estimated_incentive:
         type: string
+        example: "$1000-2000"
         title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
