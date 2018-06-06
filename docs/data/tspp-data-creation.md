@@ -84,12 +84,18 @@ Do this instead. This will create and populate the table described above with th
 
 ```SQL
 CREATE TABLE tdl_scores_and_discounts AS
-  SELECT s.market, s.origin, s.destination, s.cos, s.scac, s.bvs, dr.lh_rate, dr.sit_rate FROM temp_tdl_scores AS s
-  LEFT JOIN temp_tsp_discount_rates as dr
-  ON s.origin = dr.origin
-  AND s.destination = dr.destination
-  AND s.cos = dr.cos
-  AND s.scac = dr.scac;
+  SELECT
+    s.market, s.origin, s.destination, s.cos, s.scac, s.bvs, dr.lh_rate, dr.sit_rate FROM temp_tdl_scores AS s
+  LEFT JOIN
+    temp_tsp_discount_rates as dr
+  ON
+    s.origin = dr.origin
+  AND
+    s.destination = dr.destination
+  AND
+    s.cos = dr.cos
+  AND
+    s.scac = dr.scac;
   ```
 
 Add a TDL ID column to fill with this next update:
@@ -98,19 +104,27 @@ Add a TDL ID column to fill with this next update:
 Sometimes the data provided to us represents fields (destination, most recently) in different ways. Here's how to alter the destination column to match other data sources (most notably the TDL table) - to change 'REGION 1' to just '1' to make the next step work:
 
 ```SQL
-UPDATE tdl_scores_and_discounts
-  SET destination = RIGHT(destination, char_length(destination) - 7);
+UPDATE
+  tdl_scores_and_discounts
+SET
+  destination = RIGHT(destination, char_length(destination) - 7);
   ```
 
 Add TDL IDs to the rows in our interim table:
 
 ```SQL
-UPDATE tdl_scores_and_discounts as tsd
-SET    tdl_id = tdl.id
-FROM   traffic_distribution_lists as tdl
-WHERE  tdl.source_rate_area = tsd.origin
-  AND tdl.destination_region = tsd.destination
-  AND tdl.code_of_service = tsd.cos;
+UPDATE
+  tdl_scores_and_discounts as tsd
+SET
+  tdl_id = tdl.id
+FROM
+  traffic_distribution_lists as tdl
+WHERE
+  tdl.source_rate_area = tsd.origin
+AND
+  tdl.destination_region = tsd.destination
+AND
+  tdl.code_of_service = tsd.cos;
   ```
 
 Make room for TSP IDs:
@@ -119,33 +133,35 @@ Make room for TSP IDs:
 Import the TSP IDs:
 
 ```SQL
-UPDATE tdl_scores_and_discounts as tsd
-SET tsp_id = tsp.id
-FROM transportation_service_providers tsp
-WHERE tsd.scac = tsp.standard_carrier_alpha_code;
+UPDATE
+  tdl_scores_and_discounts as tsd
+SET
+  tsp_id = tsp.id
+FROM
+  transportation_service_providers tsp
+WHERE
+  tsd.scac = tsp.standard_carrier_alpha_code;
 ```
 
 Check the types of the BVS, LH discount rate, and SIT discount rate fields in the existing TSPP table. They need to be numerics, not ints, lest we lose a LOT of important detail:
 
 ```SQL
-ALTER TABLE transportation_service_provider_performances ALTER COLUMN best_value_score TYPE numeric;
+ALTER TABLE
+  transportation_service_provider_performances ALTER COLUMN best_value_score TYPE numeric;
 ```
 
 Let's put it all into the TSPP table. Use your data's current rate cycle and performance period date in lieu of the hard-coded dates below:
 
 ```SQL
-INSERT INTO transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate)
-  SELECT uuid_generate_v4() as id, '2018-05-15' as performance_period_start, '2018-07-31' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate, sit_rate
-  FROM tdl_scores_and_discounts;
-  ```
-
-You'll also need to convert the `sit_rate` and `linehaul_rate` columns - these figures represent percentages, often as whole numbers, and they need to be decimal representations of percentages. This will take care of it:
-
-```SQL
-update transportation_service_provider_performances
-  SET linehaul_rate = linehaul_rate/100,
-  sit_rate = sit_rate/100;
+INSERT INTO
+  transportation_service_provider_performances (id, performance_period_start, performance_period_end, traffic_distribution_list_id, offer_count, best_value_score, transportation_service_provider_id, created_at, updated_at, rate_cycle_start, rate_cycle_end, linehaul_rate, sit_rate)
+SELECT
+  uuid_generate_v4() as id, '2018-05-15' as performance_period_start, '2018-07-31' as performance_period_end, tdl_id, 0 as offer_count, bvs, tsp_id, now() as created_at, now() as updated_at, '2018-05-15' as rate_cycle_start, '2018-09-30' as rate_cycle_end, lh_rate/100, sit_rate/100
+FROM
+  tdl_scores_and_discounts;
 ```
+
+The `/100` of the `sit_rate` and `linehaul_rate` columns accounts for the differences in representing percentages/decimals across sources. This changes integers into decimal representations that fit into our calculations of rates and reimbursements.
 
 Vacuum up now that the party's over.
 
