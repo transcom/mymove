@@ -57,9 +57,14 @@ PanelSwaggerField.propTypes = {
 };
 
 export class EditablePanel extends Component {
-  handleToggleClick = e => {
+  handleEditClick = e => {
     e.preventDefault();
-    this.props.onToggle();
+    this.props.onEdit();
+  };
+
+  handleCancelClick = e => {
+    e.preventDefault();
+    this.props.onCancel();
   };
 
   handleSaveClick = e => {
@@ -76,7 +81,7 @@ export class EditablePanel extends Component {
           <p>
             <button
               className="usa-button-secondary editable-panel-cancel"
-              onClick={this.handleToggleClick}
+              onClick={this.handleCancelClick}
             >
               Cancel
             </button>
@@ -105,7 +110,7 @@ export class EditablePanel extends Component {
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
           {!this.props.isEditable && (
-            <a className="editable-panel-edit" onClick={this.handleToggleClick}>
+            <a className="editable-panel-edit" onClick={this.handleEditClick}>
               Edit
             </a>
           )}
@@ -124,6 +129,7 @@ EditablePanel.propTypes = {
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
   isValid: PropTypes.bool.isRequired,
-  onToggle: PropTypes.func.isRequired,
+  onCancel: PropTypes.func.isRequired,
+  onEdit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
 };
