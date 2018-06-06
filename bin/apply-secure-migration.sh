@@ -59,6 +59,6 @@ set +x
 # - Any errors in the migration file will cause a failure
 psql \
   --single-transaction \
-  -v "ON_ERROR_STOP=1" \
+  --variable "ON_ERROR_STOP=1" \
   --file="$migration" \
   postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode"
