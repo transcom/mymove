@@ -87,6 +87,9 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.storage, *newPPM)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
 	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 }
 
