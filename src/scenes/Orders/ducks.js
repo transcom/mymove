@@ -123,7 +123,7 @@ export function loadEntitlements(state) {
   const spouseHasProGear = get(
     state,
     'orders.currentOrders.spouse_has_pro_gear',
-    false,
+    null,
   );
   const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
   if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
