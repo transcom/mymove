@@ -1482,6 +1482,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
@@ -1512,6 +1515,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station
       - uploaded_orders
       - created_at
@@ -1542,6 +1546,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
@@ -1567,6 +1574,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
