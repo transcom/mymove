@@ -6,13 +6,3 @@ form.orders_info legend {
   font-size: 1.7rem;
   font-weight: 400;
 }
-
-.active_link {
-  color: #0071bc;
-  cursor: pointer;
-  display: inline-block;
-}
-
-form.orders_info Fragment {
-	display: inline-block;
-}
