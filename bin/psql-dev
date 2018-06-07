@@ -7,7 +7,7 @@ db_password="mysecretpassword"
 command="${*:-}"
 
 if [ -n "${command[*]}" ]; then
-  exec psql postgres://postgres:${db_password}@localhost/dev_db -c "${command}"
+  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:${db_password}@localhost/dev_db -c "${command}"
 else
-  exec psql postgres://postgres:${db_password}@localhost/dev_db
+  exec psql --variable "ON_ERROR_STOP=1" postgres://postgres:${db_password}@localhost/dev_db
 fi
