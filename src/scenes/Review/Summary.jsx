@@ -3,13 +3,19 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
+import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import './Review.css';
+
 export class Summary extends Component {
+  componentDidMount() {
+    this.props.checkEntitlement(this.props.match.params.moveId);
+  }
   render() {
     const {
       currentPpm,
@@ -95,6 +101,12 @@ export class Summary extends Component {
         {this.props.reviewState.editSuccess && (
           <Alert type="success" heading="Success">
             Your changes have been saved.
+          </Alert>
+        )}
+        {this.props.reviewState.error && (
+          <Alert type="error" heading="Error">
+            {this.props.reviewState.error.response.body.message}. Please lower
+            your weight estimate.
           </Alert>
         )}
         <h3>Profile and Orders</h3>
@@ -370,6 +382,8 @@ Summary.propTypes = {
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
+  checkEntitlement: PropTypes.func.isRequired,
+  error: PropTypes.object,
 };
 
 function mapStateToProps(state) {
@@ -386,4 +400,14 @@ function mapStateToProps(state) {
     reviewState: state.review,
   };
 }
-export default withRouter(connect(mapStateToProps)(Summary));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      checkEntitlement,
+    },
+    dispatch,
+  );
+}
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Summary),
+);
