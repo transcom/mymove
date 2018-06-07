@@ -35,6 +35,8 @@ const entitlements = {
   ACADEMY_CADET_MIDSHIPMAN: {
     total_weight_self: 350,
     total_weight_self_plus_dependents: 350,
+    pro_gear_weight: 0,
+    pro_gear_weight_spouse: 0,
   },
   AVIATION_CADET: {
     total_weight_self: 7000,

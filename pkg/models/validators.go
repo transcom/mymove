@@ -111,7 +111,7 @@ func (v *BackupContactPermissionIsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// OrdersTypeIsPresent validates that permission field is present
+// OrdersTypeIsPresent validates that orders type field is present
 type OrdersTypeIsPresent struct {
 	Name  string
 	Field internalmessages.OrdersType
@@ -121,6 +121,21 @@ type OrdersTypeIsPresent struct {
 func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	if string(v.Field) == "" {
 		errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%s can not be blank.", v.Name))
+	}
+}
+
+// CannotHaveSpouseGearWithoutDependents validates that spouseprogear cannot be true if has dependents is false
+type CannotHaveSpouseGearWithoutDependents struct {
+	Name1  string
+	Field1 bool
+	Name2  string
+	Field2 bool
+}
+
+// IsValid adds an error if spouseprogear is true while hasdependents is false
+func (v *CannotHaveSpouseGearWithoutDependents) IsValid(errors *validate.Errors) {
+	if v.Field1 == true && v.Field2 == false {
+		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if there are no dependents.", v.Name1))
 	}
 }
 
