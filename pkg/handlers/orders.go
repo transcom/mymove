@@ -37,6 +37,7 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 		OrdersTypeDetail:    order.OrdersTypeDetail,
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       fmtBool(order.HasDependents),
+		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
 		Moves:               moves,
@@ -80,6 +81,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		time.Time(*payload.ReportByDate),
 		payload.OrdersType,
 		*payload.HasDependents,
+		*payload.SpouseHasProGear,
 		dutyStation)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
@@ -152,6 +154,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.OrdersType = payload.OrdersType
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
+	order.SpouseHasProGear = *payload.SpouseHasProGear
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation
 	order.TAC = payload.Tac

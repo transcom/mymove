@@ -236,7 +236,6 @@ export const SwaggerField = props => {
     onChange,
     validate,
   } = props;
-
   let swaggerField;
   if (swagger.properties) {
     swaggerField = swagger.properties[fieldName];
