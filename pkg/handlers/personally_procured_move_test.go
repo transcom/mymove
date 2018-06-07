@@ -138,13 +138,20 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newMoveDate := time.Now()
 	destinationPostalCode := swag.String("00112")
 	hasAdditionalPostalCode := swag.Bool(true)
+	newHasAdditionalPostalCode := swag.Bool(false)
 	additionalPickupPostalCode := swag.String("90210")
 	hasSit := swag.Bool(true)
-	daysInStorage := swag.Int64(3)
-	newHasAdditionalPostalCode := swag.Bool(false)
 	newHasSit := swag.Bool(false)
+	daysInStorage := swag.Int64(3)
 
 	move, _ := testdatagen.MakeMove(suite.db)
+
+	newAdvanceWorksheet := models.Document{
+		ServiceMember:   move.Orders.ServiceMember,
+		ServiceMemberID: move.Orders.ServiceMemberID,
+		Name:            "uploaded_document",
+	}
+	suite.mustSave(&newAdvanceWorksheet)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                     move.ID,
@@ -155,9 +162,10 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 		DestinationPostalCode:      destinationPostalCode,
 		HasAdditionalPostalCode:    hasAdditionalPostalCode,
 		AdditionalPickupPostalCode: additionalPickupPostalCode,
-		HasSit:        hasSit,
-		DaysInStorage: daysInStorage,
-		Status:        models.PPMStatusDRAFT,
+		HasSit:           hasSit,
+		DaysInStorage:    daysInStorage,
+		Status:           models.PPMStatusDRAFT,
+		AdvanceWorksheet: newAdvanceWorksheet,
 	}
 	suite.mustSave(&ppm1)
 
