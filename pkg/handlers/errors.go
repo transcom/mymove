@@ -53,3 +53,8 @@ func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) m
 	}
 	return responseForError(logger, err)
 }
+
+func responseForConflictErrors(logger *zap.Logger, err error) middleware.Responder {
+	logger.Error("Encountered conflict error", zap.Error(err))
+	return newErrResponse(http.StatusConflict)
+}
