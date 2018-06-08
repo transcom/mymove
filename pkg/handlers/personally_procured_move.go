@@ -15,26 +15,33 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
-	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
-		ID:                         fmtUUID(personallyProcuredMove.ID),
-		CreatedAt:                  fmtDateTime(personallyProcuredMove.CreatedAt),
-		UpdatedAt:                  fmtDateTime(personallyProcuredMove.UpdatedAt),
-		Size:                       personallyProcuredMove.Size,
-		WeightEstimate:             personallyProcuredMove.WeightEstimate,
-		EstimatedIncentive:         personallyProcuredMove.EstimatedIncentive,
-		PlannedMoveDate:            fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
-		PickupPostalCode:           personallyProcuredMove.PickupPostalCode,
-		AdditionalPickupPostalCode: personallyProcuredMove.AdditionalPickupPostalCode,
-		HasAdditionalPostalCode:    personallyProcuredMove.HasAdditionalPostalCode,
-		DestinationPostalCode:      personallyProcuredMove.DestinationPostalCode,
-		HasSit:                     personallyProcuredMove.HasSit,
-		DaysInStorage:              personallyProcuredMove.DaysInStorage,
-		Status:                     internalmessages.PPMStatus(personallyProcuredMove.Status),
-		Mileage:                    personallyProcuredMove.Mileage,
-		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
+
+	documentPayload, err := payloadForDocumentModel(storage, personallyProcuredMove.AdvanceWorksheet)
+	if err != nil {
+		return nil, err
 	}
 
+	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
+		ID:                            fmtUUID(personallyProcuredMove.ID),
+		CreatedAt:                     fmtDateTime(personallyProcuredMove.CreatedAt),
+		UpdatedAt:                     fmtDateTime(personallyProcuredMove.UpdatedAt),
+		Size:                          personallyProcuredMove.Size,
+		WeightEstimate:                personallyProcuredMove.WeightEstimate,
+		EstimatedIncentive:            personallyProcuredMove.EstimatedIncentive,
+		PlannedMoveDate:               fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
+		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
+		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
+		AdditionalPickupPostalCode:    personallyProcuredMove.AdditionalPickupPostalCode,
+		DestinationPostalCode:         personallyProcuredMove.DestinationPostalCode,
+		HasSit:                        personallyProcuredMove.HasSit,
+		DaysInStorage:                 personallyProcuredMove.DaysInStorage,
+		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
+		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
+		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
+		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:    documentPayload,
+	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
 		ppmPayload.IncentiveEstimateMin = &min
@@ -51,7 +58,11 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		max := (*personallyProcuredMove.SITMax).Int64()
 		ppmPayload.SitMax = &max
 	}
-	return ppmPayload
+	if personallyProcuredMove.Mileage != nil {
+		milage := *personallyProcuredMove.Mileage
+		ppmPayload.Mileage = &milage
+	}
+	return &ppmPayload, nil
 }
 
 // CreatePersonallyProcuredMoveHandler creates a PPM
@@ -70,6 +81,13 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	}
 
 	payload := params.CreatePersonallyProcuredMovePayload
+
+	var advance *models.Reimbursement
+	if payload.Advance != nil {
+		a := models.BuildDraftReimbursement(unit.Cents(*payload.Advance.RequestedAmount), models.MethodOfReceipt(*payload.Advance.MethodOfReceipt))
+		advance = &a
+	}
+
 	newPPM, verrs, err := move.CreatePPM(h.db,
 		payload.Size,
 		payload.WeightEstimate,
@@ -82,15 +100,18 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		payload.HasSit,
 		payload.DaysInStorage,
 		payload.EstimatedStorageReimbursement,
-		false,
-		nil)
+		payload.HasRequestedAdvance,
+		advance)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload := payloadForPPMModel(*newPPM)
-	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
+	ppmPayload, err := payloadForPPMModel(h.storage, *newPPM)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 }
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
@@ -113,8 +134,11 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	ppms := move.PersonallyProcuredMoves
 	ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
 	for i, ppm := range ppms {
-		ppmPayload := payloadForPPMModel(ppm)
-		ppmsPayload[i] = &ppmPayload
+		ppmPayload, err := payloadForPPMModel(h.storage, ppm)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		ppmsPayload[i] = ppmPayload
 	}
 	response := ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 	return response
@@ -159,6 +183,30 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 		ppm.HasSit = payload.HasSit
 	}
 
+	if payload.HasRequestedAdvance != nil {
+		ppm.HasRequestedAdvance = *payload.HasRequestedAdvance
+	} else if payload.Advance != nil {
+		ppm.HasRequestedAdvance = true
+	}
+	if ppm.HasRequestedAdvance {
+		if payload.Advance != nil {
+			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
+			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
+
+			if ppm.Advance != nil {
+				ppm.Advance.MethodOfReceipt = methodOfReceipt
+				ppm.Advance.RequestedAmount = requestedAmount
+			} else {
+				var advance models.Reimbursement
+				if ppm.Status == models.PPMStatusDRAFT {
+					advance = models.BuildDraftReimbursement(requestedAmount, methodOfReceipt)
+				} else {
+					advance = models.BuildRequestedReimbursement(requestedAmount, methodOfReceipt)
+				}
+				ppm.Advance = &advance
+			}
+		}
+	}
 }
 
 // PatchPersonallyProcuredMoveHandler Patchs a PPM
@@ -212,13 +260,16 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		)
 	}
 
-	verrs, err := h.db.ValidateAndUpdate(ppm)
+	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload := payloadForPPMModel(*ppm)
-	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 
 }
 

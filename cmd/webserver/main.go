@@ -11,6 +11,7 @@ import (
 
 	"github.com/aws/aws-sdk-go/aws"
 	awssession "github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/ses"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gobuffalo/pop"
 	"github.com/namsral/flag" // This flag package accepts ENV vars as well as cmd line flags
@@ -104,6 +105,7 @@ func main() {
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
+	awsSesRegion := flag.String("aws_ses_region", "", "AWS region used for SES")
 
 	flag.Parse()
 
@@ -135,9 +137,6 @@ func main() {
 		logger.Fatal("Connecting to DB", zap.Error(err))
 	}
 
-	// Serves files out of build folder
-	clientHandler := http.FileServer(http.Dir(*build))
-
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
 	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
@@ -155,6 +154,21 @@ func main() {
 	if *noSessionTimeout {
 		handlerContext.SetNoSessionTimeout()
 	}
+
+	// Setup Amazon SES (email) service
+	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+	// below.
+	sesSession, err := awssession.NewSession(&aws.Config{
+		Region: aws.String(*awsSesRegion),
+	})
+	if err != nil {
+		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+	}
+	sesService := ses.New(sesSession)
+	handlerContext.SetSesService(sesService)
+
+	// Serves files out of build folder
+	clientHandler := http.FileServer(http.Dir(*build))
 
 	// Get route planner for handlers to calculate transit distances
 	// routePlanner := route.NewBingPlanner(logger, bingMapsEndpoint, bingMapsKey)
@@ -196,7 +210,6 @@ func main() {
 	// are added, but the resulting http.Handlers execute in "normal" order
 	// (i.e., the http.Handler returned by the first Middleware added gets
 	// called first).
-	site.Use(logging.LogRequestMiddleware)
 	site.Use(httpsComplianceMiddleware)
 	site.Use(limitBodySizeMiddleware)
 
@@ -206,6 +219,7 @@ func main() {
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
+	root.Use(logging.LogRequestMiddleware)
 	site.Handle(pat.New("/*"), root)
 
 	apiMux := goji.SubMux()
@@ -245,6 +259,7 @@ func main() {
 
 	root.Handle(pat.Get("/static/*"), clientHandler)
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	root.Handle(pat.Get("/downloads/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
 

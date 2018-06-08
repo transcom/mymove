@@ -1,14 +1,15 @@
-import { reject, cloneDeep, concat, includes, get, isNull } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get, isNull } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
   GetOrders,
-  ShowCurrentOrdersAPI,
+  ShowServiceMemberOrders,
 } from './api.js';
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -35,9 +36,9 @@ export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // Actions
-export const showCurrentOrders = ReduxHelpers.generateAsyncActionCreator(
+export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
   showCurrentOrdersType,
-  ShowCurrentOrdersAPI,
+  ShowServiceMemberOrders,
 );
 
 export function createOrders(ordersPayload) {
@@ -75,16 +76,9 @@ export function deleteUpload(uploadId) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
-    const currentOrders = state.orders.currentOrders;
-    if (currentOrders) {
+    if (state.orders.currentOrders) {
       return DeleteUploads(uploadId)
-        .then(() => {
-          const uploads = currentOrders.uploaded_orders.uploads;
-          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
-            return uploadId === upload.id;
-          });
-          dispatch(action.success(currentOrders));
-        })
+        .then(() => dispatch(action.success([uploadId])))
         .catch(err => action.error(err));
     } else {
       return Promise.resolve();
@@ -97,16 +91,9 @@ export function deleteUploads(uploadIds) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(deleteUploadType);
     const state = getState();
-    const currentOrders = cloneDeep(state.orders.currentOrders);
-    if (currentOrders && uploadIds.length) {
+    if (state.orders.currentOrders && uploadIds.length) {
       return DeleteUploads(uploadIds)
-        .then(() => {
-          const uploads = currentOrders.uploaded_orders.uploads;
-          currentOrders.uploaded_orders.uploads = reject(uploads, upload => {
-            return includes(uploadIds, upload.id);
-          });
-          dispatch(action.success(currentOrders));
-        })
+        .then(() => dispatch(action.success(uploadIds)))
         .catch(err => action.error(err));
     } else {
       return Promise.resolve();
@@ -118,33 +105,31 @@ export function addUploads(uploads) {
   return function(dispatch, getState) {
     const action = ReduxHelpers.generateAsyncActions(addUploadsType);
     const state = getState();
-    const currentOrders = state.orders.currentOrders;
-    if (currentOrders) {
-      currentOrders.uploaded_orders.uploads = concat(
-        currentOrders.uploaded_orders.uploads,
-        ...uploads,
+    if (state.orders.currentOrders) {
+      dispatch(action.success(uploads));
+    } else {
+      dispatch(
+        action.error(
+          new Error("attempted to add uploads when orders don't exist"),
+        ),
       );
-      dispatch(action.success(currentOrders));
     }
   };
 }
 
 // Selectors
 export function loadEntitlements(state) {
-  const hasDependents = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.orders.0.has_dependents',
+  const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'orders.currentOrders.spouse_has_pro_gear',
     null,
   );
-  const rank = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.rank',
-    null,
-  );
-  if (isNull(hasDependents) || isNull(rank)) {
+  const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents);
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 // Reducer
@@ -152,14 +137,55 @@ const initialState = {
   currentOrders: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
+  hasLoadSuccess: false,
+  hasLoadError: false,
   error: null,
+};
+function reshapeOrders(orders) {
+  if (!orders) return null;
+  return pick(orders, [
+    'id',
+    'has_dependents',
+    'spouse_has_pro_gear',
+    'issue_date',
+    'new_duty_station',
+    'orders_type',
+    'report_by_date',
+    'service_member_id',
+    'uploaded_orders',
+  ]);
+}
+const removeUploads = (uploadIds, state) => {
+  const newState = cloneDeep(state);
+  newState.currentOrders.uploaded_orders.uploads = reject(
+    state.currentOrders.uploaded_orders.uploads,
+    upload => {
+      return includes(uploadIds, upload.id);
+    },
+  );
+  return newState;
+};
+const insertUploads = (uploads, state) => {
+  const newState = cloneDeep(state);
+  newState.currentOrders.uploaded_orders.uploads = concat(
+    state.currentOrders.uploaded_orders.uploads,
+    ...uploads,
+  );
+  return newState;
 };
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
+    case GET_LOGGED_IN_USER.success:
+      return Object.assign({}, state, {
+        currentOrders: reshapeOrders(
+          get(action.payload, 'service_member.orders.0'),
+        ),
+        hasLoadError: false,
+        hasLoadSuccess: true,
+      });
     case CREATE_OR_UPDATE_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
-        pendingOrdersType: null,
+        currentOrders: reshapeOrders(action.payload),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
@@ -173,16 +199,16 @@ export function ordersReducer(state = initialState, action) {
       });
     case GET_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
-        hasSubmitSuccess: true,
-        hasSubmitError: false,
+        currentOrders: reshapeOrders(action.payload),
+        hasLoadSuccess: true,
+        hasLoadError: false,
         error: null,
       });
     case GET_ORDERS.failure:
       return Object.assign({}, state, {
-        currentOrders: {},
-        hasSubmitSuccess: false,
-        hasSubmitError: true,
+        currentOrders: null,
+        hasLoadSuccess: false,
+        hasLoadError: true,
         error: action.error,
       });
     case SHOW_CURRENT_ORDERS.start:
@@ -192,37 +218,41 @@ export function ordersReducer(state = initialState, action) {
       });
     case SHOW_CURRENT_ORDERS.success:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
+        currentOrders: reshapeOrders(action.payload),
         showCurrentOrdersSuccess: true,
         showCurrentOrdersError: false,
       });
     case SHOW_CURRENT_ORDERS.failure:
-      const error = action.error.statusCode === 404 ? null : action.error;
       return Object.assign({}, state, {
         currentOrders: null,
         showCurrentOrdersError: true,
-        error,
+        error: action.error,
       });
     case DELETE_UPLOAD.success:
-      return Object.assign({}, state, {
-        currentOrders: action.payload,
+      return {
+        ...removeUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
-      });
+      };
     case DELETE_UPLOAD.failure:
       return Object.assign({}, state, {
-        currentOrders: action.payload,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
       });
     case ADD_UPLOADS.success:
-      return Object.assign({}, state, {
-        currentOrders: action.payload,
+      return {
+        ...insertUploads(action.payload, state),
         hasSubmitSuccess: true,
         hasSubmitError: false,
         error: null,
+      };
+    case ADD_UPLOADS.failure:
+      return Object.assign({}, state, {
+        hasSubmitSuccess: false,
+        hasSubmitError: true,
+        error: action.error,
       });
     default:
       return state;

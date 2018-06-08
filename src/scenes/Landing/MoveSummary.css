@@ -13,13 +13,18 @@ img.move_sm {
   display: inline;
   margin-bottom: 0;
   margin-right: 0.3em;
+  padding: 0rem 1.2rem 0rem 0rem;
+}
+
+img.status_icon {
+  margin: 1.2em 1rem 1.5rem 1rem;
 }
 
 .shipment_type {
   background-color: lightgrey;
-  font-size: 1.5em;
+  font-size: 1.1em;
   font-weight: bold;
-  padding: 0.33em;
+  padding: 0.7em;
 }
 
 .shipment_box_contents {
@@ -27,23 +32,23 @@ img.move_sm {
 }
 
 .title {
-  font-weight: bold;
+  font-weight: bolder;
 }
 
-.step{
+.step {
   margin-bottom: 1em;
 }
 
-.step-contents{
+.step-contents {
   overflow: hidden;
-  margin-top: 1em;
+  margin: 1em 1rem 1rem 1rem;
 }
 
-.step-links{
-  margin-top: 1em;
+.step-links {
+  margin: 1em 1rem 1rem 1rem;
 }
 
-.details-links a{
+.details-links a {
   display: block;
 }
 
@@ -57,4 +62,8 @@ a {
 
 .contact_block {
   margin-top: 2em;
+}
+
+.contact_block .title {
+  font-size: 2.2rem;
 }

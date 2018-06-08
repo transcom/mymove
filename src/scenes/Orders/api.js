@@ -1,10 +1,5 @@
 import { getClient, checkResponse } from 'shared/api';
 
-export async function GetSpec() {
-  const client = await getClient();
-  return client.spec;
-}
-
 export async function CreateOrders(orders) {
   const client = await getClient();
   const response = await client.apis.orders.createOrders({
@@ -33,7 +28,7 @@ export async function UpdateOrders(ordersId, ordersPayload) {
   return response.body;
 }
 
-export async function ShowCurrentOrdersAPI(serviceMemberId) {
+export async function ShowServiceMemberOrders(serviceMemberId) {
   const client = await getClient();
   const response = await client.apis.service_members.showServiceMemberOrders({
     serviceMemberId,

@@ -1,6 +1,10 @@
 import { has, sum } from 'lodash';
 
-export function getEntitlements(rank, hasDependents = false) {
+export function getEntitlements(
+  rank,
+  hasDependents = false,
+  spouseHasProGear = false,
+) {
   if (!has(entitlements, rank)) {
     return null;
   }
@@ -8,16 +12,19 @@ export function getEntitlements(rank, hasDependents = false) {
   const totalKey = hasDependents
     ? 'total_weight_self_plus_dependents'
     : 'total_weight_self';
-  return {
-    total: entitlements[rank][totalKey],
+  const entitlement = {
+    weight: entitlements[rank][totalKey],
     pro_gear: entitlements[rank].pro_gear_weight,
-    pro_gear_spouse: entitlements[rank].pro_gear_weight_spouse,
-    sum: sum([
-      entitlements[rank][totalKey],
-      entitlements[rank].pro_gear_weight,
-      entitlements[rank].pro_gear_weight_spouse,
-    ]),
+    pro_gear_spouse: spouseHasProGear
+      ? entitlements[rank].pro_gear_weight_spouse
+      : 0,
   };
+  entitlement.sum = sum([
+    entitlement.weight,
+    entitlement.pro_gear,
+    entitlement.pro_gear_spouse,
+  ]);
+  return entitlement;
 }
 
 /*

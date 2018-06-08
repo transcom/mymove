@@ -12,7 +12,7 @@ import (
 
 // MakeOrder creates a single Move and associated User.
 func MakeOrder(db *pop.Connection) (models.Order, error) {
-	sm, err := MakeServiceMember(db)
+	sm, err := MakeExtendedServiceMember(db)
 	if err != nil {
 		return models.Order{}, err
 	}
@@ -37,6 +37,7 @@ func MakeOrderForServiceMember(db *pop.Connection, sm models.ServiceMember) (mod
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		HasDependents:    true,
+		SpouseHasProGear: true,
 		UploadedOrdersID: document.ID,
 		UploadedOrders:   document,
 		Status:           models.OrderStatusDRAFT,

@@ -2,6 +2,12 @@ NAME = ppp
 DB_DOCKER_CONTAINER = db-dev
 export PGPASSWORD=mysecretpassword
 
+# if S3 access is enabled, wrap webserver in aws-vault command
+# to pass temporary AWS credentials to the binary.
+ifeq ($(STORAGE_BACKEND),s3)
+  AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
+endif
+
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 ensure_pre_commit: .git/hooks/pre-commit
@@ -68,11 +74,11 @@ server_build: server_deps server_generate
 	go build -i -o bin/webserver ./cmd/webserver
 # This command is for running the server by itself, it will serve the compiled frontend on its own
 server_run_standalone: client_build server_build db_dev_run
-	DEBUG_LOGGING=true ./bin/webserver
+	DEBUG_LOGGING=true $(AWS_VAULT) ./bin/webserver
 # This command runs the server behind gin, a hot-reload server
 server_run: server_deps server_generate db_dev_run
 	INTERFACE=localhost DEBUG_LOGGING=true \
-	./bin/gin --build ./cmd/webserver \
+	$(AWS_VAULT) ./bin/gin --build ./cmd/webserver \
 		--bin /bin/webserver \
 		--port 8080 --appPort 8081 \
 		--excludeDir vendor --excludeDir node_modules \
@@ -92,6 +98,9 @@ tools_build: server_deps
 	go build -i -o bin/generate-test-data ./cmd/generate_test_data
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
+	go build -i -o bin/load-office-data ./cmd/load_office_data
+	go build -i -o bin/load-user-gen ./cmd/load_user_gen
+
 
 tsp_run: tools_build db_dev_run
 	./bin/tsp-award-queue

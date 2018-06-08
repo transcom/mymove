@@ -6,13 +6,18 @@
 
 
 # sh doesn't have `-o pipefail`
-set -eu
+set -eux
 
 readonly migration_file="${1:-}"
 psql_ssl_mode=""
 
 if [ -z "${SECURE_MIGRATION_DIR:-}" ]; then
   echo "error: \$SECURE_MIGRATION_DIR needs to be set"
+  exit 1
+fi
+
+if [ -z "${SECURE_MIGRATION_SOURCE:-}" ]; then
+  echo "error: \$SECURE_MIGRATION_SOURCE needs to be set"
   exit 1
 fi
 
@@ -31,6 +36,10 @@ case $SECURE_MIGRATION_SOURCE in
     download_migration_from_s3 "$migration_file"
     psql_ssl_mode="?sslmode=require"
     ;;
+  *)
+    echo "Unknown migration source (${SECURE_MIGRATION_SOURCE}). Exiting."
+    exit 1
+    ;;
 esac
 
 readonly migration="${SECURE_MIGRATION_DIR}/${migration_file}"
@@ -42,4 +51,14 @@ fi
 
 echo "Applying secure migrations: ${migration_file}"
 
-psql postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode" < "$migration"
+# Don't share the database password
+set +x
+
+# Run the migrations file with the following options:
+# - The migration is wrapped in a single transaction
+# - Any errors in the migration file will cause a failure
+psql \
+  --single-transaction \
+  --variable "ON_ERROR_STOP=1" \
+  --file="$migration" \
+  postgres://"${DB_USER}":"$DB_PASSWORD"@"$DB_HOST":"$DB_PORT"/"$DB_NAME""$psql_ssl_mode"

@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
-import { reduxForm, Field } from 'redux-form';
+import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -12,13 +12,10 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import Uploader from 'shared/Uploader';
 import UploadsTable from 'shared/Uploader/UploadsTable';
-
-import {
-  updateOrders,
-  deleteUploads,
-  addUploads,
-  showCurrentOrders,
-} from 'scenes/Orders/ducks';
+import SaveCancelButtons from './SaveCancelButtons';
+import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
+import { editBegin, editSuccessful } from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -27,7 +24,6 @@ const editOrdersFormName = 'edit_orders';
 
 let EditOrdersForm = props => {
   const {
-    onCancel,
     onDelete,
     onUpload,
     schema,
@@ -36,13 +32,11 @@ let EditOrdersForm = props => {
     valid,
     initialValues,
     existingUploads,
-    newUploads,
     deleteQueue,
   } = props;
   const visibleUploads = reject(existingUploads, upload => {
     return includes(deleteQueue, upload.id);
   });
-  const hasUploads = newUploads.length || visibleUploads.length;
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Orders
@@ -56,6 +50,16 @@ let EditOrdersForm = props => {
         swagger={schema}
         component={YesNoBoolean}
       />
+      {get(props, 'formValues.has_dependents', false) && (
+        <Fragment>
+          <SwaggerField
+            fieldName="spouse_has_pro_gear"
+            swagger={props.schema}
+            component={YesNoBoolean}
+            className="wider-label"
+          />
+        </Fragment>
+      )}
       <br />
       <Field name="new_duty_station" component={DutyStationSearchBox} />
       <p>Uploads:</p>
@@ -68,12 +72,7 @@ let EditOrdersForm = props => {
           onChange={onUpload}
         />
       )}
-      <button type="submit" disabled={submitting || !valid || !hasUploads}>
-        Save
-      </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
@@ -105,18 +104,6 @@ class EditOrders extends Component {
     });
   };
 
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
-  componentDidUpdate = prevProps => {
-    // Once service member loads, load the backup contact.
-    if (this.props.serviceMember && !prevProps.serviceMember) {
-      this.props.showCurrentOrders(this.props.serviceMember.id);
-    }
-  };
-
   handleDelete = (e, uploadId) => {
     e.preventDefault();
     this.setState({ deleteQueue: concat(this.state.deleteQueue, uploadId) });
@@ -128,6 +115,8 @@ class EditOrders extends Component {
 
   updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
+    fieldValues.spouse_has_pro_gear =
+      (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
     return Promise.all([addUploads, deleteUploads])
@@ -135,15 +124,28 @@ class EditOrders extends Component {
       .then(() => {
         // This promise resolves regardless of error.
         if (!this.props.hasSubmitError) {
-          this.returnToReview();
+          this.props.editSuccessful();
+          this.props.history.goBack();
         } else {
           window.scrollTo(0, 0);
         }
       });
   };
 
+  componentDidMount() {
+    this.props.editBegin();
+  }
+
   render() {
-    const { error, schema, currentOrders, existingUploads } = this.props;
+    const {
+      error,
+      schema,
+      currentOrders,
+      formValues,
+      existingUploads,
+      moveIsApproved,
+    } = this.props;
+
     return (
       <div className="usa-grid">
         {error && (
@@ -153,19 +155,29 @@ class EditOrders extends Component {
             </Alert>
           </div>
         )}
-        <div className="usa-width-one-whole">
-          <EditOrdersForm
-            initialValues={currentOrders}
-            onSubmit={this.updateOrders}
-            onCancel={this.cancelChanges}
-            schema={schema}
-            existingUploads={existingUploads}
-            newUploads={this.state.newUploads}
-            deleteQueue={this.state.deleteQueue}
-            onUpload={this.handleNewUpload}
-            onDelete={this.handleDelete}
-          />
-        </div>
+        {moveIsApproved && (
+          <div className="usa-width-one-whole error-message">
+            <Alert type="warning" heading="Your move is approved">
+              To make a change to your orders, you will need to contact your
+              local PPPO office.
+            </Alert>
+          </div>
+        )}
+        {!moveIsApproved && (
+          <div className="usa-width-one-whole">
+            <EditOrdersForm
+              initialValues={currentOrders}
+              onSubmit={this.updateOrders}
+              schema={schema}
+              existingUploads={existingUploads}
+              newUploads={this.state.newUploads}
+              deleteQueue={this.state.deleteQueue}
+              onUpload={this.handleNewUpload}
+              onDelete={this.handleDelete}
+              formValues={formValues}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -173,25 +185,31 @@ class EditOrders extends Component {
 
 function mapStateToProps(state) {
   const props = {
-    serviceMember: get(state, 'loggedInUser.loggedInUser.service_member'),
+    currentOrders: state.orders.currentOrders,
     error: get(state, 'orders.error'),
-    hasSubmitError: get(state, 'orders.hasSubmitError'),
-
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
-    formData: state.form[editOrdersFormName],
-    currentOrders: get(state, 'orders.currentOrders'),
     existingUploads: get(
       state,
-      'orders.currentOrders.uploaded_orders.uploads',
+      `orders.currentOrders.uploaded_orders.uploads`,
       [],
     ),
+    formValues: getFormValues(editOrdersFormName)(state),
+    hasSubmitError: get(state, 'orders.hasSubmitError'),
+    moveIsApproved: moveIsApproved(state),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   };
   return props;
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateOrders, addUploads, deleteUploads, showCurrentOrders },
+    {
+      push,
+      updateOrders,
+      addUploads,
+      deleteUploads,
+      editBegin,
+      editSuccessful,
+    },
     dispatch,
   );
 }

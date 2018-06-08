@@ -1,3 +1,12 @@
+.queue-table {
+  font-size: 0.75em;
+  min-width: 1000px;
+}
+
+.queue-table-scrollable {
+  overflow-x: scroll;
+}
+
 .fake-link {
   text-decoration: underline;
   color: blue;
@@ -11,6 +20,26 @@
   display: inline-block;
   width: 45%;
   margin-right: 5%;
+}
+
+
+/* Queue list page */
+.queue-columns {
+  position: relative;
+}
+
+.queue-menu-column {
+  margin-right: 3rem;
+  width: 18rem;
+  position: absolute;
+}
+
+.queue-list-column {
+  margin-left: 22rem;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  text-align: left;
 }
 
 /* Use with .usa-grid for a liquid and nearly full-width grid layout. */
@@ -192,4 +221,108 @@ head .panel-subhead {
 
 .usa-input.duty-station p.location {
   display: none;
+}
+
+/*PPM PAYMENT PANEL*/
+.payment-panel {
+  border: solid #f1f1f1;
+  border-width: 3px;
+  width: 100%;
+  empty-cells: hide;
+  margin-bottom: 18px;
+}
+
+.payment-table {
+  margin: 1em;
+}
+
+.payment-table td,
+.payment-table th {
+  border: none;
+}
+
+.payment-table a {
+  cursor: pointer;
+}
+
+.payment-table .icon {
+  margin: 0 .7em 0 .7em;
+  font-size: 1.7rem;
+  vertical-align: baseline;
+}
+
+.payment-panel-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  background-color: #f1f1f1;
+  padding: 0.4em 1em;
+  border: 3px solid #f1f1f1;
+  width: 100%;
+}
+
+.payment-table .payment-table-column-title {
+  font-weight: bold;
+  font-size: 0.9em;
+  border-bottom: solid 1px #a2a2a2;
+  width: 15%;
+}
+
+.payment-table .payment-table-subheader {
+  font-weight: bold;
+  font-size: 0.9em;
+  border-bottom: solid 1px #f1f1f1;
+}
+
+.payment-table .payment-table-column-content {
+  font-size: 0.8em;
+  border-bottom: solid 1px #f1f1f1;
+  position: relative;
+}
+
+.approval-ready {
+  color: green;
+  cursor: pointer;
+}
+
+.approval-waiting {
+  color: #fdb81e;
+}
+
+.approval-blocked {
+  color: gray;
+}
+
+.payment-action {
+  color: #0071bc;
+  cursor: pointer;
+}
+
+/*TOOLTIP*/
+.tooltip .tooltiptext {
+    visibility: hidden;
+    width: 200px;
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    top: 60px;
+    margin-left: -112px;
+}
+
+.tooltip .tooltiptext::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  margin-left: -5px;
+  border-width: 5px;
+  border-style: solid;
+  border-color: transparent transparent black transparent;
+}
+
+.tooltip:hover .tooltiptext {
+  visibility: visible;
 }

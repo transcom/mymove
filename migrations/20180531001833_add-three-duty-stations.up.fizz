@@ -1,0 +1,10 @@
+raw("INSERT INTO addresses VALUES ('fc288bf0-4991-40db-8f81-06606584237b',  '1630 Martin St', NULL, 'Goldsboro', 'NC', '27531', '2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', NULL, 'United States');")
+raw("INSERT INTO duty_stations VALUES ('64734e49-376a-4ef3-bfd5-0a908b74cb9d', 'Seymour Johnson AFB', 'AIR_FORCE', 'fc288bf0-4991-40db-8f81-06606584237b','2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', 'f760ee76-d386-47d8-9df1-aff8c347fa96' );")
+
+raw("INSERT INTO addresses VALUES ('652386b3-4854-4dfa-a3f5-1267865736e3',  'Joint Base Langley-Eustis', NULL, 'Hampton', 'VA', '23665', '2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', NULL, 'United States');")
+raw("INSERT INTO duty_stations VALUES ('701f28d2-c018-46c9-90a3-67253dafeac6', 'Joint Base Langley-Eustis', 'AIR_FORCE', '652386b3-4854-4dfa-a3f5-1267865736e3','2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', '525af4ce-3656-4ec6-a23d-2df6b4f39b64' );")
+
+raw("INSERT INTO addresses VALUES ('5c442938-3ebc-4cb8-ba96-012516513482',  '3021 McGuire Blvd', NULL, 'Trenton', 'NJ ', '08641', '2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', NULL, 'United States');")
+raw("INSERT INTO duty_stations VALUES ('de8f714f-ae68-4339-b955-c6f7dac8181f', 'Joint Base McGuire-Dix-Lakehurst', 'AIR_FORCE', '5c442938-3ebc-4cb8-ba96-012516513482','2018-05-30 17:27:35.218693', '2018-05-30 17:27:35.218693', '10052404-6cf0-47da-b5bc-42b03e02f904' );")
+
+raw("UPDATE transportation_offices SET name = 'Joint Base Langley-Eustis' WHERE id = '525af4ce-3656-4ec6-a23d-2df6b4f39b64';")

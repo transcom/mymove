@@ -15,20 +15,20 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
+import PaymentsPanel from './PaymentsPanel';
+import PPMEstimatesPanel from './PPMEstimatesPanel';
 import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
-import { formatDate } from './helpers';
+import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
-import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faComments from '@fortawesome/fontawesome-free-solid/faComments';
 import faEmail from '@fortawesome/fontawesome-free-solid/faEnvelope';
-import faExclamationTriangle from '@fortawesome/fontawesome-free-solid/faExclamationTriangle';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
 import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 import faPlayCircle from '@fortawesome/fontawesome-free-solid/faPlayCircle';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
-
-import './office.css';
 
 const BasicsTabContent = props => {
   return (
@@ -44,8 +44,13 @@ const BasicsTabContent = props => {
   );
 };
 
-const PPMTabContent = () => {
-  return <div>PPM</div>;
+const PPMTabContent = props => {
+  return (
+    <React.Fragment>
+      <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
+    </React.Fragment>
+  );
 };
 
 class MoveInfo extends Component {
@@ -59,6 +64,36 @@ class MoveInfo extends Component {
 
   approvePPM = () => {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
+  renderPPMTabStatus = () => {
+    if (this.props.officePPM.status === 'APPROVED') {
+      if (
+        this.props.ppmAdvance.status === 'APPROVED' ||
+        !this.props.ppmAdvance.status
+      ) {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />Move
+            pending
+          </span>
+        );
+      } else {
+        return (
+          <span className="status">
+            <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+            Payment Requested
+          </span>
+        );
+      }
+    } else {
+      return (
+        <span className="status">
+          <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />
+          In review
+        </span>
+      );
+    }
   };
 
   render() {
@@ -102,7 +137,7 @@ class MoveInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>ID# {serviceMember.id}</li>
+              <li>ID# {serviceMember.edipi}</li>
               <li>
                 {serviceMember.telephone}
                 {serviceMember.phone_is_preferred && (
@@ -120,7 +155,7 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              <li className="Todo">KKFA to HAFC</li>
+              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
@@ -138,13 +173,7 @@ class MoveInfo extends Component {
               </NavTab>
               <NavTab to="/ppm">
                 <span className="title">PPM</span>
-                <span className="status">
-                  <FontAwesomeIcon
-                    className="icon"
-                    icon={faExclamationTriangle}
-                  />
-                  Status Goes Here
-                </span>
+                {this.renderPPMTabStatus()}
               </NavTab>
             </RoutedTabs>
 
@@ -192,8 +221,9 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
+              {/* Disabling until features implemented
               <button>Troubleshoot</button>
-              <button>Cancel Move</button>
+              <button>Cancel Move</button> */}
             </div>
             <div className="documents">
               <h2 className="usa-heading">
@@ -248,6 +278,7 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
+  ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });

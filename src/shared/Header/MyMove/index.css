@@ -1,0 +1,56 @@
+.my-move-header a,
+.my-move-header .usa-nav-primary > li > a {
+	color: #ffffff;
+	text-decoration: none;
+}
+
+.my-move-header {
+	color: #ffffff;
+	background-color: #0071bc;
+}
+
+.my-move-login {
+	float: right;
+	margin: 0.8rem 1.5rem;
+}
+
+.my-move-login a {
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+.my-move-login span {
+	display: none;
+}
+
+@media screen and (min-width: 951px) {
+	.my-move-header .usa-navbar {
+		height: 4rem;
+	}
+
+	.my-move-header .usa-nav-container {
+		padding-bottom: 1rem;
+		padding-top: 1rem;
+	}
+
+	.my-move-login {
+		margin: 1.5rem 0;
+	}
+
+	.my-move-login a {
+		font-size: 1.5rem;
+	}
+
+	.my-move-login span {
+		display: inline;
+		margin-right: 2rem;
+	}
+}
+
+@media print {
+  .my-move header,
+  .my-move nav,
+  .my-move footer {
+    display: none;
+  }
+}

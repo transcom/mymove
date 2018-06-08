@@ -164,8 +164,8 @@ func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
 	suite.Assertions.IsType(&certop.IndexSignedCertificationsOK{}, response)
 	okResponse := response.(*certop.IndexSignedCertificationsOK)
 
-	suite.Len(okResponse.Payload, 2)
-	suite.Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
+	suite.Require().Len(okResponse.Payload, 2)
+	suite.Require().Equal(time2.Month(), (time.Time)(*okResponse.Payload[0].Date).Month())
 
 	// Now test that a limit works
 	params.Limit = fmtInt64(1)

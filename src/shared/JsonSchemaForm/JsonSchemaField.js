@@ -17,9 +17,15 @@ const parseNumberField = value => {
 };
 
 // ----- Field configuration -----
-const createCheckbox = (fieldName, field, nameAttr) => {
+const createCheckbox = (fieldName, field, nameAttr, isDisabled) => {
   return (
-    <Field id={fieldName} name={nameAttr} component="input" type="checkbox" />
+    <Field
+      id={fieldName}
+      name={nameAttr}
+      component="input"
+      type="checkbox"
+      disabled={isDisabled}
+    />
   );
 };
 
@@ -57,6 +63,23 @@ const configureNumberField = (swaggerField, props) => {
   }
 
   props.validate.push(validator.isNumber);
+
+  return props;
+};
+
+// TODO: This field should be smarter, it should store int-cents in the redux store
+// but allow the user to enter in dollars.
+// On first pass, that did not seem striaghtforward.
+const configureCentsField = (swaggerField, props) => {
+  props.type = 'text';
+  props.validate.push(validator.isNumber);
+
+  if (swaggerField.maximum != null) {
+    props.validate.push(validator.maximum(swaggerField.maximum / 100));
+  }
+  if (swaggerField.minimum != null) {
+    props.validate.push(validator.minimum(swaggerField.minimum / 100));
+  }
 
   return props;
 };
@@ -211,8 +234,8 @@ export const SwaggerField = props => {
     component,
     title,
     onChange,
+    validate,
   } = props;
-
   let swaggerField;
   if (swagger.properties) {
     swaggerField = swagger.properties[fieldName];
@@ -235,6 +258,7 @@ export const SwaggerField = props => {
     component,
     title,
     onChange,
+    validate,
   );
 };
 
@@ -249,6 +273,7 @@ const createSchemaField = (
   component,
   title,
   onChange,
+  validate,
 ) => {
   // Early return here, this is an edge case for label placement.
   // USWDS CSS only renders a checkbox if it is followed by its label
@@ -256,7 +281,7 @@ const createSchemaField = (
   if (swaggerField.type === 'boolean' && !component) {
     return (
       <Fragment key={fieldName}>
-        {createCheckbox(fieldName, swaggerField, nameAttr)}
+        {createCheckbox(fieldName, swaggerField, nameAttr, disabled)}
         <label htmlFor={fieldName} className="usa-input-label">
           {title || swaggerField.title || fieldName}
         </label>
@@ -276,6 +301,10 @@ const createSchemaField = (
     disabled: disabled,
   };
 
+  if (validate) {
+    fieldProps.validate.push(validate);
+  }
+
   if (fieldProps.always_required) {
     fieldProps.validate.push(validator.isRequired);
   }
@@ -287,7 +316,11 @@ const createSchemaField = (
     fieldProps = configureDropDown(swaggerField, fieldProps);
     children = dropDownChildren(swaggerField);
   } else if (['integer', 'number'].includes(swaggerField.type)) {
-    fieldProps = configureNumberField(swaggerField, fieldProps);
+    if (swaggerField.format === 'cents') {
+      fieldProps = configureCentsField(swaggerField, fieldProps);
+    } else {
+      fieldProps = configureNumberField(swaggerField, fieldProps);
+    }
   } else if (swaggerField.type === 'string') {
     const fieldFormat = swaggerField.format;
     if (fieldFormat === 'date') {

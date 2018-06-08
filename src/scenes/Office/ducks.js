@@ -9,8 +9,10 @@ import {
   LoadPPMs,
   ApproveBasics,
   ApprovePPM,
+  ApproveReimbursement,
 } from './api.js';
 
+import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
 import { UpdateOrders } from 'scenes/Orders/api.js';
 import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
@@ -24,8 +26,10 @@ const updateServiceMemberType = 'UPDATE_SERVICE_MEMBER';
 const loadBackupContactType = 'LOAD_BACKUP_CONTACT';
 const updateBackupContactType = 'UPDATE_BACKUP_CONTACT';
 const loadPPMsType = 'LOAD_PPMS';
+const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
+const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -58,7 +62,15 @@ const UPDATE_BACKUP_CONTACT = ReduxHelpers.generateAsyncActionTypes(
 
 const LOAD_PPMS = ReduxHelpers.generateAsyncActionTypes(loadPPMsType);
 
+const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
+
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
+
+const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
+
+export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
+  approveReimbursementType,
+);
 
 // MULTIPLE-RESOURCE ACTION TYPES
 
@@ -75,8 +87,6 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // SINGLE-RESOURCE ACTION CREATORS
-
-const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
@@ -118,6 +128,11 @@ export const loadPPMs = ReduxHelpers.generateAsyncActionCreator(
   LoadPPMs,
 );
 
+export const updatePPM = ReduxHelpers.generateAsyncActionCreator(
+  updatePPMType,
+  UpdatePpm,
+);
+
 export const approveBasics = ReduxHelpers.generateAsyncActionCreator(
   approveBasicsType,
   ApproveBasics,
@@ -128,6 +143,10 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
   ApprovePPM,
 );
 
+export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
+  approveReimbursementType,
+  ApproveReimbursement,
+);
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to
@@ -203,11 +222,16 @@ export function loadMoveDependencies(moveId) {
 // Selectors
 export function loadEntitlements(state) {
   const hasDependents = get(state, 'office.officeOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'office.officeOrders.spouse_has_pro_gear',
+    null,
+  );
   const rank = get(state, 'office.officeServiceMember.rank', null);
-  if (isNull(hasDependents) || isNull(rank)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents);
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 // Reducer
@@ -218,6 +242,7 @@ const initialState = {
   serviceMemberIsLoading: false,
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
+  ppmIsUpdating: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   ordersHaveLoadError: null,
@@ -232,6 +257,8 @@ const initialState = {
   backupContactsHaveLoadSuccess: false,
   ppmsHaveLoadError: null,
   ppmsHaveLoadSuccess: false,
+  ppmHasUpdateError: null,
+  ppmHasUpdateSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
 };
@@ -407,6 +434,26 @@ export function officeReducer(state = initialState, action) {
         PPMsHaveLoadError: true,
         error: action.error.message,
       });
+    case UPDATE_PPM.start:
+      return Object.assign({}, state, {
+        PPMIsUpdating: true,
+        PPMHasUpdateSuccess: false,
+      });
+    case UPDATE_PPM.success:
+      return Object.assign({}, state, {
+        PPMIsUpdating: false,
+        officePPMs: [action.payload],
+        PPMHasUpdateSuccess: true,
+        PPMHasUpdateError: false,
+      });
+    case UPDATE_PPM.failure:
+      return Object.assign({}, state, {
+        PPMIsUpdating: false,
+        officePPMs: null,
+        PPMHasUpdateSuccess: false,
+        PPMHasUpdateError: true,
+        error: action.error.message,
+      });
 
     // MOVE STATUS
     case APPROVE_BASICS.start:
@@ -437,6 +484,27 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_PPM.failure:
       return Object.assign({}, state, {
         ppmIsApproving: false,
+        error: action.error.message,
+      });
+
+    // REIMBURSEMENT STATUS
+    case APPROVE_REIMBURSEMENT.start:
+      return Object.assign({}, state, {
+        reimbursementIsApproving: true,
+      });
+    case APPROVE_REIMBURSEMENT.success:
+      // TODO: Remove once we have multiple ppms
+      let officePPM = get(state, 'officePPMs[0]');
+      let newPPM = Object.assign({}, officePPM, {
+        advance: action.payload,
+      });
+      return Object.assign({}, state, {
+        reimbursementIsApproving: false,
+        officePPMs: [newPPM],
+      });
+    case APPROVE_REIMBURSEMENT.failure:
+      return Object.assign({}, state, {
+        reimbursementIsApproving: false,
         error: action.error.message,
       });
 

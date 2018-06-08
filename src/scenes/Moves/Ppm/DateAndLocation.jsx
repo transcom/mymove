@@ -9,6 +9,7 @@ import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { loadEntitlements } from 'scenes/Orders/ducks';
+import Alert from 'shared/Alert';
 
 import './DateAndLocation.css';
 
@@ -17,9 +18,14 @@ const formName = 'ppp_date_and_location';
 const DateAndLocationWizardForm = reduxifyWizardForm(formName);
 
 export class DateAndLocation extends Component {
-  componentDidMount() {
-    document.title = 'Transcom PPP: Date & Locations';
-  }
+  state = { showInfo: false };
+
+  openInfo = () => {
+    this.setState({ showInfo: true });
+  };
+  closeInfo = () => {
+    this.setState({ showInfo: false });
+  };
 
   handleSubmit = () => {
     const { sitReimbursement } = this.props;
@@ -40,6 +46,7 @@ export class DateAndLocation extends Component {
   };
 
   getSitEstimate = (moveDate, sitDays, pickupZip, destZip, weight) => {
+    if (!pickupZip || !destZip) return;
     if (sitDays <= 90 && pickupZip.length === 5 && destZip.length === 5) {
       this.props.getPpmSitEstimate(
         moveDate,
@@ -78,6 +85,7 @@ export class DateAndLocation extends Component {
       currentOrders,
       initialValues,
       sitReimbursement,
+      hasEstimateError,
     } = this.props;
     return (
       <DateAndLocationWizardForm
@@ -117,8 +125,21 @@ export class DateAndLocation extends Component {
               required
             />
             <span className="grey">
-              Making additional stops may decrease your PPM incentive.
+              Making additional stops may decrease your PPM incentive.{' '}
+              <a onClick={this.openInfo}>Why</a>
             </span>
+            {this.state.showInfo && (
+              <Alert type="info" heading="">
+                Your PPM incentive is based primarily off two factors -- the
+                weight of your household goods and the base rate it would cost
+                the government to transport your household goods between your
+                destination and origin. When you add additional stops, your
+                overall PPM incentive will change to account for any deviations
+                from the standard route and to account for the fact that not
+                100% of your household goods travelled the entire way from
+                origin to destination. <a onClick={this.closeInfo}>Close</a>
+              </Alert>
+            )}
           </Fragment>
         )}
         <h3>Destination Location</h3>
@@ -160,6 +181,15 @@ export class DateAndLocation extends Component {
                 your receipts to submit with your PPM paperwork.
               </div>
             )}
+            {hasEstimateError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Could not retrieve estimate">
+                  There was an issue retrieving an estimate for how much you
+                  could be reimbursed for private storage. You still qualify but
+                  may need to talk with your local PPPO.
+                </Alert>
+              </div>
+            )}
           </Fragment>
         )}
       </DateAndLocationWizardForm>
@@ -182,17 +212,14 @@ function mapStateToProps(state) {
       {},
     ),
     ...state.ppm,
-    ...state.loggedInUser,
-    currentOrders:
-      get(state.loggedInUser, 'loggedInUser.service_member.orders[0]') ||
-      get(state.orders, 'currentOrders'),
-    currentPpm: get(state.ppm, 'currentPpm'),
+    currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
     entitlement: loadEntitlements(state),
+    hasEstimateError: state.ppm.hasEstimateError,
   };
   const defaultPickupZip = get(
-    state.loggedInUser,
-    'loggedInUser.service_member.residential_address.postal_code',
+    state.serviceMember,
+    'currentServiceMember.residential_address.postal_code',
   );
   props.initialValues = props.currentPpm
     ? props.currentPpm

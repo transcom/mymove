@@ -10,14 +10,15 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
+import { editBegin, editSuccessful } from './ducks';
 import 'scenes/ServiceMembers/ServiceMembers.css';
 import './Review.css';
+import SaveCancelButtons from './SaveCancelButtons';
 
 const editContactFormName = 'edit_contact_info';
 
 let EditContactForm = props => {
   const {
-    onCancel,
     serviceMemberSchema,
     addressSchema,
     handleSubmit,
@@ -53,6 +54,7 @@ let EditContactForm = props => {
           <SwaggerField
             fieldName="text_message_is_preferred"
             swagger={serviceMemberSchema}
+            disabled={true}
           />
           <SwaggerField
             fieldName="email_is_preferred"
@@ -95,26 +97,43 @@ let EditContactForm = props => {
           required
         />
       </FormSection>
-      <button type="submit" disabled={submitting || !valid}>
-        Save
-      </button>
-      <button type="button" disabled={submitting} onClick={onCancel}>
-        Cancel
-      </button>
+      <SaveCancelButtons valid={valid} submitting={submitting} />
     </form>
   );
 };
 
+const validateEditContactFormBools = fields => {
+  return (values, form) => {
+    let errors = {};
+    let prefSelected = false;
+    fields.forEach(fieldName => {
+      if (Boolean(get(values, fieldName))) {
+        prefSelected = true;
+      }
+    });
+    if (!prefSelected) {
+      let valueSection = fields[0].split('.')[0];
+      let field = fields[0].split('.')[1];
+      var errorMsg = {
+        [field]: 'Please select a preferred method of contact.',
+      };
+      var newError = { [valueSection]: errorMsg };
+      return newError;
+    }
+    return errors;
+  };
+};
+
 EditContactForm = reduxForm({
   form: editContactFormName,
+  validate: validateEditContactFormBools([
+    'serviceMember.phone_is_preferred',
+    'serviceMember.text_message_is_preferred',
+    'serviceMember.email_is_preferred',
+  ]),
 })(EditContactForm);
 
 class EditContact extends Component {
-  returnToReview = () => {
-    const reviewAddress = `/moves/${this.props.match.params.moveId}/review`;
-    this.props.push(reviewAddress);
-  };
-
   updateContact = fieldValues => {
     let serviceMember = fieldValues.serviceMember;
     serviceMember.residential_address = fieldValues.resAddress;
@@ -122,12 +141,18 @@ class EditContact extends Component {
     return this.props.updateServiceMember(serviceMember).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
-        this.returnToReview();
+        this.props.editSuccessful();
+        this.props.history.goBack();
       } else {
         window.scrollTo(0, 0);
       }
     });
   };
+
+  componentDidMount() {
+    this.props.editBegin();
+  }
+
   render() {
     const {
       error,
@@ -161,7 +186,6 @@ class EditContact extends Component {
             serviceMemberSchema={serviceMemberSchema}
             addressSchema={addressSchema}
             onSubmit={this.updateContact}
-            onCancel={this.returnToReview}
           />
         </div>
       </div>
@@ -170,13 +194,8 @@ class EditContact extends Component {
 }
 
 function mapStateToProps(state) {
-  let serviceMember = get(
-    state,
-    'loggedInUser.loggedInUser.service_member',
-    {},
-  );
   return {
-    serviceMember: serviceMember,
+    serviceMember: state.serviceMember.currentServiceMember,
     move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
@@ -190,7 +209,10 @@ function mapStateToProps(state) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ push, updateServiceMember }, dispatch);
+  return bindActionCreators(
+    { push, updateServiceMember, editBegin, editSuccessful },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(EditContact);

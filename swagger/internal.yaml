@@ -42,14 +42,14 @@ definitions:
       - ARMY
       - NAVY
       - MARINES
-      - AIRFORCE
-      - COASTGUARD
+      - AIR_FORCE
+      - COAST_GUARD
     x-display-value:
       ARMY: Army
       NAVY: Navy
       MARINES: Marines
-      AIRFORCE: Airforce
-      COASTGUARD: Coastguard
+      AIR_FORCE: Air Force
+      COAST_GUARD: Coast Guard
   DutyStationPayload:
     type: object
     properties:
@@ -65,6 +65,8 @@ definitions:
         $ref: '#/definitions/Address'
       affiliation:
         $ref: '#/definitions/Affiliation'
+      transportation_office:
+        $ref: '#/definitions/TransportationOffice'
       created_at:
         type: string
         format: date-time
@@ -76,6 +78,46 @@ definitions:
       - name
       - address
       - affiliation
+      - created_at
+      - updated_at
+  TransportationOffice:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        format: string
+        example: Fort Bragg North Station
+      address:
+        $ref: '#/definitions/Address'
+      phone_lines:
+        type: array
+        items:
+          type: string
+          format: telephone
+          pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+          example: 212-555-5555
+      latitude:
+        type: number
+        format: float
+        example: 29.382973
+      longitude:
+        type: number
+        format: float
+        example: -98.62759
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+    required:
+      - id
+      - name
+      - address
       - created_at
       - updated_at
   DutyStationsPayload:
@@ -134,6 +176,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -144,7 +187,9 @@ definitions:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
-        $ref: '#/definitions/Reimbursement'
+        $ref: '#/definitions/CreateReimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -197,6 +242,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -205,9 +251,12 @@ definitions:
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -256,21 +305,27 @@ definitions:
         x-nullable: true
       estimated_storage_reimbursement:
         type: string
+        example: "$1200"
         title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
         type: string
+        example: "$1000-2000"
         title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -327,6 +382,7 @@ definitions:
         x-nullable: true
       weight_estimate:
         type: integer
+        minimum: 1
         title: Weight Estimate
         x-nullable: true
       estimated_incentive:
@@ -357,9 +413,12 @@ definitions:
         $ref: '#/definitions/PPMStatus'
       has_requested_advance:
         type: boolean
+        default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
       created_at:
         type: string
         format: date-time
@@ -530,7 +589,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -631,7 +690,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -719,7 +778,7 @@ definitions:
       text_message_is_preferred:
         type: boolean
         x-nullable: true
-        title: Text Message
+        title: Text Message - Coming Soon!
       email_is_preferred:
         type: boolean
         x-nullable: true
@@ -1084,9 +1143,9 @@ definitions:
     x-nullable: true
     title: Dept. indicator
     enum:
-      - AIRFORCE
+      - AIR_FORCE
     x-display-value:
-      AIRFORCE: 57 - United States Air Force
+      AIR_FORCE: 57 - United States Air Force
   IndexShipmentsPayload:
     type: array
     items:
@@ -1275,22 +1334,50 @@ definitions:
       - city
       - state
       - postal_code
-  Reimbursement:
+  CreateReimbursement:
     type: object
     x-nullable: true
     properties:
       requested_amount:
         type: integer
+        format: cents
         minimum: 0
         title: Requested Amount
+        description: unit is cents
+      method_of_receipt:
+        $ref: "#/definitions/MethodOfReceipt"
+    required:
+      - requested_amount
+      - method_of_receipt
+  Reimbursement:
+    type: object
+    x-nullable: true
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      requested_amount:
+        type: integer
+        format: cents
+        minimum: 0
+        title: Requested Amount
+        description: unit is cents
       method_of_receipt:
         $ref: "#/definitions/MethodOfReceipt"
       status:
         $ref: "#/definitions/ReimbursementStatus"
+      requested_date:
+        x-nullable: true
+        type: string
+        example: "2018-04-26"
+        format: date
+        title: Requested Date
     required:
       - requested_amount
       - method_of_receipt
   ReimbursementStatus:
+    x-nullable: true
     type: string
     title: Reimbursement
     enum:
@@ -1300,12 +1387,17 @@ definitions:
       - REJECTED
       - PAID
   MethodOfReceipt:
+    x-nullable: true
     type: string
     title: Method of Receipt
     enum:
       - MIL_PAY
-      - DIRECT_DEPOSIT
-      - OTHER
+      - OTHER_DD
+      - GTCC
+    x-display-value:
+      MIL_PAY: Direct deposit to MilPay
+      OTHER_DD: Direct deposit to other account
+      GTCC: GTCC
   MoveStatus:
     type: string
     title: Move status
@@ -1418,6 +1510,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
@@ -1448,6 +1543,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station
       - uploaded_orders
       - created_at
@@ -1478,6 +1574,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
@@ -1503,6 +1602,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
@@ -2190,31 +2290,25 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
-  /moves/{moveId}/personally_procured_move/{personallyProcuredMoveId}/approve:
+  /reimbursement/{reimbursementId}/approve:
     post:
-      summary: Approves the PPM
-      description: Sets the status of the PPM to APPROVED.
-      operationId: approvePPM
+      summary: Approves the reimbursement
+      description: Sets the status of the reimbursement to APPROVED.
+      operationId: approveReimbursement
       tags:
         - office
       parameters:
         - in: path
-          name: moveId
+          name: reimbursementId
           type: string
           format: uuid
           required: true
-          description: UUID of the move
-        - in: path
-          name: personallyProcuredMoveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the PPM being updated
+          description: UUID of the reimbursement being approved
       responses:
         200:
-          description: updated instance of personally_procured_move
+          description: updated instance of reimbursement
           schema:
-            $ref: '#/definitions/PersonallyProcuredMovePayload'
+            $ref: '#/definitions/Reimbursement'
         400:
           description: invalid request
         401:
@@ -2314,6 +2408,33 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/approve:
+    post:
+      summary: Approves the PPM
+      description: Sets the status of the PPM to APPROVED.
+      operationId: approvePPM
+      tags:
+        - office
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM being updated
+      responses:
+        200:
+          description: updated instance of personally_procured_move
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -2716,7 +2837,7 @@ paths:
           description: Search string for duty stations
       responses:
         200:
-          description: the instance of the service member backup contact
+          description: the instance of the duty station
           schema:
             $ref: '#/definitions/DutyStationsPayload'
         400:
@@ -2727,6 +2848,35 @@ paths:
           description: user is not authorized
         404:
           description: matching duty station not found
+        500:
+          description: internal server error
+  /duty_stations/{dutyStationId}/transportation_office:
+    get:
+      summary: Returns the transportation office for a given duty station
+      description: Returns the given duty station's transportation office
+      operationId: showDutyStationTransportationOffice
+      tags:
+        - transportation_offices
+      parameters:
+        - in: path
+          name: dutyStationId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the duty station
+      responses:
+        200:
+          description: the instance of the transportation office for a duty station
+          schema:
+            $ref: '#/definitions/TransportationOffice'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: transportation office not found
         500:
           description: internal server error
   /queues/{queueType}:

@@ -5,7 +5,7 @@ import IdleTimer from 'react-idle-timer';
 import { isProduction } from 'shared/constants';
 import Alert from 'shared/Alert';
 
-const fifteenMinutesinMilliseconds = 900000;
+const fifteenMinutesInMilliseconds = 900000;
 const tenMinutesInMilliseconds = 600000;
 const oneMinuteInMilliseconds = 60000;
 export class LogoutOnInactivity extends React.Component {
@@ -68,7 +68,7 @@ export class LogoutOnInactivity extends React.Component {
   }
 }
 LogoutOnInactivity.defaultProps = {
-  idleTimeout: fifteenMinutesinMilliseconds,
+  idleTimeout: fifteenMinutesInMilliseconds,
   keepAliveInterval: tenMinutesInMilliseconds,
   logoutAfterWarningTimeout: oneMinuteInMilliseconds,
   keepAliveEndpoint: '/internal/swagger.yaml',

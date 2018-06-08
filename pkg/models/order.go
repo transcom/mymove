@@ -40,6 +40,7 @@ type Order struct {
 	OrdersType          internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
 	OrdersTypeDetail    *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
+	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations"`
 	UploadedOrders      Document                           `belongs_to:"documents"`

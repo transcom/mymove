@@ -27,6 +27,11 @@
   position: relative;
 }
 
+.short-field {
+  max-width: 46rem;
+  display: inline-block;
+}
+
 .editable-panel-content {
   padding-left: 1.7rem;
   padding-right: 1.7rem;
@@ -124,4 +129,8 @@
 .editable-panel.is-editable .panel-subhead {
   margin-top: 3rem;
   display: block;
+}
+
+.disable-edit .editable-panel-edit {
+  display: none;
 }
