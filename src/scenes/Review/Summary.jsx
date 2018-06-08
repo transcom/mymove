@@ -89,9 +89,7 @@ export class Summary extends Component {
       currentPpm,
       'estimated_storage_reimbursement',
     )
-      ? `(spend up to ${
-          currentPpm.estimated_storage_reimbursement
-        } on private storage)`
+      ? `(spend up to ${currentPpm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
       : '';
     const sitDisplay = get(currentPpm, 'has_sit', false)
       ? `${currentPpm.days_in_storage} days ${privateStorageString}`
@@ -104,9 +102,8 @@ export class Summary extends Component {
           </Alert>
         )}
         {this.props.reviewState.error && (
-          <Alert type="error" heading="Error">
-            {this.props.reviewState.error.response.body.message}. Please lower
-            your weight estimate.
+          <Alert type="warning" heading="Warning">
+            {this.props.reviewState.error.response.body.message}
           </Alert>
         )}
         <h3>Profile and Orders</h3>
@@ -348,7 +345,12 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Estimated Weight: </td>
-                    <td> {currentPpm && currentPpm.weight_estimate} lbs</td>
+                    <td>
+                      {' '}
+                      {currentPpm &&
+                        currentPpm.weight_estimate.toLocaleString()}{' '}
+                      lbs
+                    </td>
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
@@ -357,7 +359,12 @@ export class Summary extends Component {
                   {currentPpm.has_requested_advance && (
                     <tr>
                       <td> Advance: </td>
-                      <td> ${currentPpm.advance.requested_amount / 100}</td>
+                      <td>
+                        {' '}
+                        ${(
+                          currentPpm.advance.requested_amount / 100
+                        ).toLocaleString()}
+                      </td>
                     </tr>
                   )}
                 </tbody>

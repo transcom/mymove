@@ -124,16 +124,16 @@ func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// CannotHaveField1WithoutField2 validates that spouseprogear cannot be true if has dependents is false
-type CannotHaveField1WithoutField2 struct {
+// CannotBeTrueIfFalse validates that spouseprogear cannot be true if has dependents is false
+type CannotBeTrueIfFalse struct {
 	Name1  string
 	Field1 bool
 	Name2  string
 	Field2 bool
 }
 
-// IsValid adds an error if spouseprogear is true while hasdependents is false
-func (v *CannotHaveField1WithoutField2) IsValid(errors *validate.Errors) {
+// IsValid adds an error if field1 is true while field2 is false
+func (v *CannotBeTrueIfFalse) IsValid(errors *validate.Errors) {
 	if v.Field1 == true && v.Field2 == false {
 		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if %s is true", v.Name1, v.Name2))
 	}
