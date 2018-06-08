@@ -12,6 +12,7 @@ import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
 import { ppmInfoPacket } from 'shared/constants';
+import { formatCents } from 'shared/formatters';
 
 export const MoveSummary = props => {
   const {
@@ -32,7 +33,7 @@ export const MoveSummary = props => {
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
   const advanceString = ppm.has_requested_advance
-    ? `Advance Requested: $${(ppm.advance.requested_amount / 100).toFixed(2)}`
+    ? `Advance Requested: $${formatCents(ppm.advance.requested_amount)}`
     : '';
   const hasSitString = `Temp. Storage: ${
     ppm.days_in_storage
