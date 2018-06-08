@@ -14,7 +14,12 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) internalmessages.PersonallyProcuredMovePayload {
+func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.PersonallyProcuredMove) (*internalmessages.PersonallyProcuredMovePayload, error) {
+
+	documentPayload, err := payloadForDocumentModel(storage, personallyProcuredMove.AdvanceWorksheet)
+	if err != nil {
+		return nil, err
+	}
 
 	ppmPayload := internalmessages.PersonallyProcuredMovePayload{
 		ID:                            fmtUUID(personallyProcuredMove.ID),
@@ -34,8 +39,9 @@ func payloadForPPMModel(personallyProcuredMove models.PersonallyProcuredMove) in
 		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
 		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
 		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
+		AdvanceWorksheet:    documentPayload,
 	}
-	return ppmPayload
+	return &ppmPayload, nil
 }
 
 // CreatePersonallyProcuredMoveHandler creates a PPM
@@ -80,8 +86,11 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload := payloadForPPMModel(*newPPM)
-	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
+	ppmPayload, err := payloadForPPMModel(h.storage, *newPPM)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewCreatePersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 }
 
 // IndexPersonallyProcuredMovesHandler returns a list of all the PPMs associated with this move.
@@ -104,8 +113,11 @@ func (h IndexPersonallyProcuredMovesHandler) Handle(params ppmop.IndexPersonally
 	ppms := move.PersonallyProcuredMoves
 	ppmsPayload := make(internalmessages.IndexPersonallyProcuredMovePayload, len(ppms))
 	for i, ppm := range ppms {
-		ppmPayload := payloadForPPMModel(ppm)
-		ppmsPayload[i] = &ppmPayload
+		ppmPayload, err := payloadForPPMModel(h.storage, ppm)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		ppmsPayload[i] = ppmPayload
 	}
 	response := ppmop.NewIndexPersonallyProcuredMovesOK().WithPayload(ppmsPayload)
 	return response
@@ -205,7 +217,10 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	ppmPayload := payloadForPPMModel(*ppm)
-	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(&ppmPayload)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 
 }

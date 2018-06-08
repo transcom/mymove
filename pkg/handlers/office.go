@@ -32,8 +32,11 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	movePayload := payloadForMoveModel(move.Orders, *move)
-	return officeop.NewApproveMoveOK().WithPayload(&movePayload)
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return officeop.NewApproveMoveOK().WithPayload(movePayload)
 }
 
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
@@ -69,8 +72,11 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 		// return newErrResponse(500)
 	}
 
-	ppmPayload := payloadForPPMModel(*ppm)
-	return officeop.NewApprovePPMOK().WithPayload(&ppmPayload)
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return officeop.NewApprovePPMOK().WithPayload(ppmPayload)
 }
 
 // ApproveReimbursementHandler approves a move via POST /reimbursement/{reimbursementId}/approve

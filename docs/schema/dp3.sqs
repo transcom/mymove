@@ -1292,8 +1292,8 @@
         <name><![CDATA[public.uploads]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>46.00</x>
-            <y>432.00</y>
+            <x>42.00</x>
+            <y>452.00</y>
         </location>
         <size>
             <width>273.00</width>
@@ -1389,12 +1389,12 @@
         <name><![CDATA[public.personally_procured_moves]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>541.00</x>
-            <y>779.00</y>
+            <x>607.00</x>
+            <y>777.00</y>
         </location>
         <size>
             <width>326.00</width>
-            <height>340.00</height>
+            <height>360.00</height>
         </size>
         <zorder>18</zorder>
         <SQLField>
@@ -1502,6 +1502,20 @@
             <referencesFieldUID><![CDATA[5553E9DE-5E56-40C8-8956-B7AFB71322A6]]></referencesFieldUID>
             <referencesTableUID><![CDATA[581729AC-0E5F-4916-A430-440B089522D2]]></referencesTableUID>
             <uid><![CDATA[8253EB7C-0977-4091-8E5A-3EC5BCBB7548]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[advance_worksheet_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.documents</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.documents]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[91358F14-9379-4D3C-886B-50EF14BDFF2F]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[2CA96DAD-69A2-4DD0-B7C2-90EB450320BD]]></referencesTableUID>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[692004E2-003E-4E63-8572-CCE70D049484]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -1714,8 +1728,8 @@
         <name><![CDATA[transportation_offices]]></name>
         <schema><![CDATA[]]></schema>
         <location>
-            <x>645.00</x>
-            <y>1136.00</y>
+            <x>648.00</x>
+            <y>1180.00</y>
         </location>
         <size>
             <width>675.00</width>
@@ -2081,8 +2095,8 @@
         <name><![CDATA[public.signed_certifications]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>71.00</x>
-            <y>808.00</y>
+            <x>34.00</x>
+            <y>679.00</y>
         </location>
         <size>
             <width>273.00</width>
@@ -2272,8 +2286,8 @@
         <name><![CDATA[office_users]]></name>
         <schema><![CDATA[]]></schema>
         <location>
-            <x>352.00</x>
-            <y>1118.00</y>
+            <x>337.00</x>
+            <y>1175.00</y>
         </location>
         <size>
             <width>227.00</width>
@@ -3041,7 +3055,7 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[1456.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>

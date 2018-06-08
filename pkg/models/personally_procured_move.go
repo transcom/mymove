@@ -49,6 +49,8 @@ type PersonallyProcuredMove struct {
 	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
 	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
+	AdvanceWorksheet              Document                     `belongs_to:"documents"`
+	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -103,6 +105,12 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 		if ppm.HasRequestedAdvance {
 			if ppm.Advance != nil {
+				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
+				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
+					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
+					return transactionError
+				}
+
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")

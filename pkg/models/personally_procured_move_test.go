@@ -38,3 +38,13 @@ func (suite *ModelSuite) TestPPMAdvance() {
 	suite.Nil(err)
 	suite.Equal(fetchedPPM.Advance.Status, ReimbursementStatusREQUESTED, "expected Requested")
 }
+
+func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
+	move, _ := testdatagen.MakeMove(suite.db)
+
+	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
+
+	_, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	suite.Nil(err)
+	suite.True(verrs.HasAny())
+}

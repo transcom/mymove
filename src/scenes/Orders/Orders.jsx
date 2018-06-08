@@ -14,9 +14,6 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { validateAdditionalFields } from 'shared/JsonSchemaForm';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
-
 import './Orders.css';
 
 const validateOrdersForm = validateAdditionalFields(['new_duty_station']);
@@ -95,15 +92,6 @@ export class Orders extends Component {
               swagger={this.props.schema}
               component={YesNoBoolean}
               className="wider-label"
-              title={
-                <div>
-                  {this.props.schema.properties.spouse_has_pro_gear.title}{' '}
-                  <FontAwesomeIcon
-                    className="active_link"
-                    icon={faQuestionCircle}
-                  />
-                </div>
-              }
             />
           </Fragment>
         )}

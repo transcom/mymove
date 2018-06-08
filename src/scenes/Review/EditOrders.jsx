@@ -17,9 +17,6 @@ import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import { editBegin, editSuccessful } from './ducks';
 
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faQuestionCircle from '@fortawesome/fontawesome-free-solid/faQuestionCircle';
-
 import './Review.css';
 import profileImage from './images/profile.png';
 
@@ -60,15 +57,6 @@ let EditOrdersForm = props => {
             swagger={props.schema}
             component={YesNoBoolean}
             className="wider-label"
-            title={
-              <div>
-                {props.schema.properties.spouse_has_pro_gear.title}{' '}
-                <FontAwesomeIcon
-                  className="active_link"
-                  icon={faQuestionCircle}
-                />
-              </div>
-            }
           />
         </Fragment>
       )}
