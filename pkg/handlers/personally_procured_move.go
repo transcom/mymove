@@ -298,14 +298,6 @@ func int64ForComparison(previousValue, newValue *int64) (value int64, valueChang
 	return 0, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) clearCalculatedFields(ppm *models.PersonallyProcuredMove) {
-	ppm.Mileage = nil
-	ppm.PlannedSITMax = nil
-	ppm.SITMax = nil
-	ppm.IncentiveEstimateMin = nil
-	ppm.IncentiveEstimateMax = nil
-}
-
 func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.PersonallyProcuredMove, newOrigin string, newDestination string) error {
 	re := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 	daysInSIT := 0
