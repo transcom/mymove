@@ -6,8 +6,6 @@ import (
 		validating data integrity.
 		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
 	*/
-	"crypto/md5"
-	"encoding/base64"
 	"io"
 	"net/http"
 
@@ -62,43 +60,23 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		return responseForError(h.logger, docErr)
 	}
 
-	/*
-		#nosec - we use md5 because it's required by the S3 API for
-		validating data integrity.
-		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
-	*/
-	hash := md5.New()
-	if _, err := io.Copy(hash, file.Data); err != nil {
-		h.logger.Error("failed to hash uploaded file", zap.Error(err))
-		return uploadop.NewCreateUploadBadRequest()
-	}
-	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
-	if err != nil {
-		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
-		return uploadop.NewCreateUploadBadRequest()
-	}
-
 	if file.Header.Size == 0 {
 		h.logger.Error("File has a length of 0, aborting.")
 		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	buffer := make([]byte, 512)
-	_, err = file.Data.Read(buffer)
+	contentType, err := storage.DetectContentType(data)
 	if err != nil {
-		h.logger.Error("unable to read first 512 bytes of file", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
+		h.logger.Error("could not detect file's content type", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	contentType := http.DetectContentType(buffer)
-
-	_, err = file.Data.Seek(0, io.SeekStart) // seek back to beginning of file
+	checksum, err := computeChecksum(data)
 	if err != nil {
-		h.logger.Error("failed to seek to beginning of uploaded file", zap.Error(err))
-		return uploadop.NewCreateUploadInternalServerError()
+		s.logger.Error("failed to calculate checksum", zap.Error(err))
+		return uploadop.NewCreateUploadBadRequest()
 	}
 
-	checksum := base64.StdEncoding.EncodeToString(hash.Sum(nil))
 	id := uuid.Must(uuid.NewV4())
 
 	newUpload := models.Upload{
@@ -123,11 +101,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	// Push file to S3
 	key := h.storage.Key("documents", documentID.String(), "uploads", id.String())
-	_, err = h.storage.Store(key, file.Data, checksum)
+	result, err := h.storage.Store(key, file.Data)
 	if err != nil {
 		h.logger.Error("failed to store", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
+
+	newUpload.Checksum = result.Checksum
+	newUpload.ContentType = result.ContentType
 
 	// Already validated upload, so just save
 	err = h.db.Create(&newUpload)
