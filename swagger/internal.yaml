@@ -389,6 +389,26 @@ definitions:
         type: string
         title: Estimated Incentive
         x-nullable: true
+      mileage:
+        type: integer
+        title: Distance between origin and destination in miles
+        x-nullable: true
+      planned_sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for maximum SIT duration
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        title: Estimated incentive minimum in cents
+        x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        title: Estimated incentive maximum in cents
+        x-nullable: true
       status:
         $ref: '#/definitions/PPMStatus'
       has_requested_advance:
