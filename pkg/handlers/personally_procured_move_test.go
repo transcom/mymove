@@ -131,7 +131,6 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandler() {
-	t := suite.T()
 	scenario.RunRateEngineScenario1(suite.db)
 
 	initialSize := internalmessages.TShirtSize("S")
@@ -205,39 +204,15 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
 	patchPPMPayload := okResponse.Payload
 
-	if *patchPPMPayload.Size != newSize {
-		t.Error("Size should have been updated.")
-	}
+	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
+	suite.Equal(patchPPMPayload.WeightEstimate, newWeight, "Weight should have been updated.")
 
-	if patchPPMPayload.WeightEstimate != newWeight {
-		t.Error("Weight should have been updated.")
-	}
-
-	if !(*time.Time)(patchPPMPayload.PlannedMoveDate).Equal(newMoveDate) {
-		t.Error("MoveDate should have been updated.")
-	}
-
-	if patchPPMPayload.PickupPostalCode != newPickupPostalCode {
-		t.Error("PickupPostalCode should have been updated.")
-	}
-
-	if patchPPMPayload.DestinationPostalCode != newDestinationPostalCode {
-		t.Error("DestinationPostalCode should have been updated.")
-	}
-
-	if patchPPMPayload.AdditionalPickupPostalCode != nil {
-		t.Error("AdditionalPickupPostalCode should have been updated to nil.")
-	}
-
-	if patchPPMPayload.DaysInStorage != nil {
-		t.Error("AdditionalPostalCode should have been updated to nil.")
-	}
-
-	if patchPPMPayload.Mileage == nil {
-		t.Error("Mileage was not set")
-	} else if *patchPPMPayload.Mileage != 900 {
-		t.Error("Mileage should have been set to 900")
-	}
+	suite.Equal(patchPPMPayload.PickupPostalCode, newPickupPostalCode, "PickupPostalCode should have been updated.")
+	suite.Equal(patchPPMPayload.DestinationPostalCode, newDestinationPostalCode, "DestinationPostalCode should have been updated.")
+	suite.Nil(patchPPMPayload.AdditionalPickupPostalCode, "AdditionalPickupPostalCode should have been updated to nil.")
+	suite.Equal(*(*time.Time)(patchPPMPayload.PlannedMoveDate), newMoveDate, "MoveDate should have been updated.")
+	suite.Nil(patchPPMPayload.DaysInStorage, "AdditionalPostalCode should have been updated to nil.")
+	suite.Equal(*patchPPMPayload.Mileage, int64(900), "Mileage should have been set to 900")
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
