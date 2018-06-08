@@ -298,6 +298,6 @@ In general, focus on testing non-trivial behavior.
 
 ### Adding `ulimit`
 
-Dep appears to open many files simultaneously, particularly as the project matures and depends on more and more third-party repositories. When committing, you may encounter a message like this as a `dep-status` hook error when trying to commit locally: `remote repository does not exist, or is inaccessible: : pipe: too many open files`.
+Dep appears to open many files simultaneously, particularly as the project matures and depends on more and more third-party repositories. You may encounter a message like this as a `dep-status` hook error when trying to commit locally: `remote repository does not exist, or is inaccessible: : pipe: too many open files`.
 
 To fix this, run `ulimit -n 5000` in your terminal. This increases the number of file handles (the details on files that a process holds open) on your system. You can run `ulimit -u` to see how many are currently allowed; you may see a number like 128, 256, or 1418. If running this in your terminal window allows you to complete your commit, you may wish to add it to `/.bash_profile` or whichever system file you use for your terminal settings.
