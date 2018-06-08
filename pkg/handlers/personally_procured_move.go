@@ -41,6 +41,7 @@ func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.Person
 		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
 		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
 		AdvanceWorksheet:    documentPayload,
+		Mileage:             personallyProcuredMove.Mileage,
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -57,10 +58,6 @@ func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.Person
 	if personallyProcuredMove.SITMax != nil {
 		max := (*personallyProcuredMove.SITMax).Int64()
 		ppmPayload.SitMax = &max
-	}
-	if personallyProcuredMove.Mileage != nil {
-		milage := *personallyProcuredMove.Mileage
-		ppmPayload.Mileage = &milage
 	}
 	return &ppmPayload, nil
 }
