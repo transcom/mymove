@@ -1,8 +1,9 @@
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { getFormValues } from 'redux-form';
 
 import { Field } from 'redux-form';
 
@@ -22,12 +23,17 @@ const OrdersWizardForm = reduxifyWizardForm(formName, validateOrdersForm);
 
 export class Orders extends Component {
   handleSubmit = () => {
-    const pendingValues = Object.assign({}, this.props.formData.values);
+    // const pendingValues = Object.assign({}, this.props.formData.values);
+    const pendingValues = Object.assign({}, this.props.formValues);
+
     // Update if orders object already extant
     if (pendingValues) {
       pendingValues['service_member_id'] = this.props.serviceMemberId;
       pendingValues['new_duty_station_id'] = pendingValues.new_duty_station.id;
       pendingValues['has_dependents'] = pendingValues.has_dependents || false;
+      pendingValues['spouse_has_pro_gear'] =
+        (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) ||
+        false;
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
@@ -79,6 +85,16 @@ export class Orders extends Component {
           swagger={this.props.schema}
           component={YesNoBoolean}
         />
+        {get(this.props, 'formValues.has_dependents', false) && (
+          <Fragment>
+            <SwaggerField
+              fieldName="spouse_has_pro_gear"
+              swagger={this.props.schema}
+              component={YesNoBoolean}
+              className="wider-label"
+            />
+          </Fragment>
+        )}
         <Field name="new_duty_station" component={DutyStationSearchBox} />
       </OrdersWizardForm>
     );
@@ -92,6 +108,19 @@ Orders.propTypes = {
   hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
+function mapStateToProps(state) {
+  const props = {
+    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
+    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
+    formValues: getFormValues(formName)(state),
+    currentOrders: state.orders.currentOrders,
+    hasSubmitSuccess: state.orders.currentOrders
+      ? state.orders.hasSubmitSuccess
+      : state.moves.hasSubmitSuccess,
+  };
+  return props;
+}
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
@@ -100,18 +129,5 @@ function mapDispatchToProps(dispatch) {
     },
     dispatch,
   );
-}
-
-function mapStateToProps(state) {
-  const props = {
-    serviceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
-    formData: state.form[formName],
-    currentOrders: state.orders.currentOrders,
-    hasSubmitSuccess: state.orders.currentOrders
-      ? state.orders.hasSubmitSuccess
-      : state.moves.hasSubmitSuccess,
-  };
-  return props;
 }
 export default connect(mapStateToProps, mapDispatchToProps)(Orders);

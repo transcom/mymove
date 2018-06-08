@@ -32,3 +32,7 @@ img._fix-ie-11-height {
 .align-center {
   text-align: center;
 }
+
+.wider-label label{
+  max-width: 100rem;
+}

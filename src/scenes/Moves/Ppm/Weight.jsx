@@ -1,7 +1,7 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { get } from 'lodash';
+import { get, cloneDeep, without, has } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 import { Field } from 'redux-form';
@@ -101,7 +101,7 @@ class RequestAdvanceForm extends Component {
   };
 
   render() {
-    const { schema, hasRequestedAdvance, maxIncentive } = this.props;
+    const { hasRequestedAdvance, maxIncentive, ppmAdvanceSchema } = this.props;
     let maxAdvance = '';
     if (maxIncentive) {
       maxAdvance = formatMaxAdvance(maxIncentive);
@@ -157,13 +157,13 @@ class RequestAdvanceForm extends Component {
               </Alert>
               <SwaggerField
                 fieldName="requested_amount"
-                swagger={schema.properties.advance}
+                swagger={ppmAdvanceSchema}
                 title={requestedTitle(maxAdvance)}
                 required
               />
               <SwaggerField
                 fieldName="method_of_receipt"
-                swagger={schema.properties.advance}
+                swagger={ppmAdvanceSchema}
                 title={methodTitle}
                 required
               />
@@ -278,7 +278,7 @@ export class PpmWeight extends Component {
       error,
       entitlement,
       hasEstimateError,
-      schema,
+      ppmAdvanceSchema,
       advanceFormData,
     } = this.props;
     let currentInfo = null;
@@ -297,10 +297,15 @@ export class PpmWeight extends Component {
       if (requestedAmount) {
         requestedAmount = parseFloat(requestedAmount) / 100;
       }
+      let methodOfReceipt = get(currentPpm, 'advance.method_of_receipt');
+      // GTCC is an invalid method of receipt in PPM advances, so default to direct deposit
+      if (methodOfReceipt === 'GTCC') {
+        methodOfReceipt = 'OTHER_DD';
+      }
       advanceInitialValues = {
         has_requested_advance: currentPpm.has_requested_advance,
         requested_amount: requestedAmount,
-        method_of_receipt: get(currentPpm, 'advance.method_of_receipt'),
+        method_of_receipt: methodOfReceipt,
       };
     }
 
@@ -368,7 +373,7 @@ export class PpmWeight extends Component {
             </table>
 
             <RequestAdvanceForm
-              schema={schema}
+              ppmAdvanceSchema={ppmAdvanceSchema}
               hasRequestedAdvance={hasRequestedAdvance}
               maxIncentive={maxIncentive}
               initialValues={advanceInitialValues}
@@ -419,6 +424,21 @@ function getMiddleWeight(ppm, entitlement) {
   return currentInfo.min + (currentInfo.max - currentInfo.min) / 2;
 }
 function mapStateToProps(state) {
+  const schema = get(
+    state,
+    'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
+    {},
+  );
+  // In scheduling, PPM advances cannot go to GTCC so we filter out that method of payment.
+  let ppmAdvanceSchema = {};
+  if (has(schema, 'properties')) {
+    ppmAdvanceSchema = cloneDeep(schema.properties.advance);
+    ppmAdvanceSchema.properties.method_of_receipt.enum = without(
+      ppmAdvanceSchema.properties.method_of_receipt.enum,
+      'GTCC',
+    );
+  }
+
   const entitlement = loadEntitlements(state);
   const defaultWeight = state.ppm.hasLoadSuccess
     ? getMiddleWeight(state.ppm.currentPpm, entitlement)
@@ -430,11 +450,8 @@ function mapStateToProps(state) {
     ...state.ppm,
     currentWeight,
     entitlement: loadEntitlements(state),
-    schema: get(
-      state,
-      'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
-      {},
-    ),
+    schema: schema,
+    ppmAdvanceSchema: ppmAdvanceSchema,
     advanceFormData: state.form[requestAdvanceFormName],
   };
 
