@@ -19,8 +19,11 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 
 	var moves internalmessages.IndexMovesPayload
 	for _, move := range order.Moves {
-		payload := payloadForMoveModel(order, move)
-		moves = append(moves, &payload)
+		payload, err := payloadForMoveModel(storage, order, move)
+		if err != nil {
+			return nil, err
+		}
+		moves = append(moves, payload)
 	}
 
 	payload := &internalmessages.Orders{
