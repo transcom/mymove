@@ -64,12 +64,8 @@ func (suite *ModelSuite) Test_MakeAdvanceWorksheetInfo() {
 
 	fmt.Println(advanceWorksheet)
 
+	// Replace with actual query use once complete
 	if advanceWorksheet.FirstName == "" {
-		t.Errorf("Well, that's regrettable and strange.")
+		t.Errorf("FirstName should be Leo")
 	}
 }
-
-// Make a test that checks an advance worksheet struct missing something required
-// func Test_MakeFlawedAdvanceWorksheetInfo() {
-
-// }

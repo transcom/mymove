@@ -8,17 +8,10 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
-	// "go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/unit"
 )
-
-// AdvanceWorksheet encapsulates the advance worksheet creation process
-// type AdvanceWorksheet struct {
-//   db     *pop.Connection
-//   logger *zap.Logger
-// }
 
 // AdvanceWorksheet contains the information needed to populate the PPM Advance Worksheet, which is only generated when a PPM advance is requested
 // This pulls information from the service_members, orders, personally_procured_moves, and backup_contacts tables
@@ -78,19 +71,16 @@ func (a *AdvanceWorksheet) Validate(tx *pop.Connection) (*validate.Errors, error
 		&StringIsNilOrNotBlank{Field: a.MiddleName, Name: "MiddleName"},
 		&validators.StringIsPresent{Field: a.LastName, Name: "LastName"},
 		&validators.StringIsPresent{Field: a.PreferredPhoneNumber, Name: "PreferredPhoneNumber"},
-		// &validators.StringIsPresent{Field: a.Edipi, Name: "Edipi"},
-		// &validators.StringIsPresent{Field: a.Rank, Name: "Rank"},
-		// &validators.StringIsPresent{Field: a.Email, Name: "Email"},
+		&StringIsNilOrNotBlank{Field: a.Edipi, Name: "Edipi"},
+		&StringIsNilOrNotBlank{Field: a.Email, Name: "Email"},
 		&validators.TimeIsPresent{Field: a.OrderIssueDate, Name: "OrderIssueDate"},
-		// &validators.StringIsPresent{Field: a.OrdersType, Name: "OrdersType"},
 		&StringIsNilOrNotBlank{Field: a.OrdersNumber, Name: "OrdersNumber"},
 		&StringIsNilOrNotBlank{Field: a.IssuingBranch, Name: "IssuingBranch"},
 		&validators.StringIsPresent{Field: a.NewDutyAssignment, Name: "NewDutyAssignment"},
 		&validators.StringIsPresent{Field: a.AuthorizedOrigin, Name: "AuthorizedOrigin"},
 		&validators.StringIsPresent{Field: a.AuthorizedDestination, Name: "AuthorizedDestination"},
 		&validators.TimeIsPresent{Field: a.ShipmentPickupDate, Name: "ShipmentPickupDate"},
-		// &validators.StringIsPresent{Field: a.CurrentShipmentStatus, Name: "CurrentShipmentStatus"},
-		// &validators.StringIsPresent{Field: a.CurrentPaymentRequestTransactionType, Name: "CurrentPaymentRequestTransactionType"},
+		&Int64IsPresent{Field: a.StorageTotalDays, Name: "StorageTotalDays"},
 		&validators.StringIsPresent{Field: a.TrustedAgentName, Name: "TrustedAgentName"},
 		&validators.TimeIsPresent{Field: a.TrustedAgentAuthorizationDate, Name: "TrustedAgentAuthorizationDate"},
 		&validators.StringIsPresent{Field: a.TrustedAgentEmail, Name: "TrustedAgentEmail"},
