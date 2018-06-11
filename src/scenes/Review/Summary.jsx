@@ -103,7 +103,7 @@ export class Summary extends Component {
         )}
         {this.props.reviewState.error && (
           <Alert type="warning" heading="Warning">
-            {this.props.reviewState.error.response.body.message}
+            {this.props.reviewState.error.response.body.message}.
           </Alert>
         )}
         <h3>Profile and Orders</h3>
