@@ -55,23 +55,28 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	originDutyStation, err := models.FetchDutyStation(m.db, *serviceMember.DutyStationID)
-	if err != nil {
-		return emails, err
+	submittedText := "Your move has been submitted to your local transportation office for review. "
+	if serviceMember.DutyStationID != nil {
+		originDutyStation, err := models.FetchDutyStation(m.db, *serviceMember.DutyStationID)
+		if err != nil {
+			return emails, err
+		}
+
+		destinationDutyStation, err := models.FetchDutyStation(m.db, orders.NewDutyStationID)
+		if err != nil {
+			return emails, err
+		}
+
+		submittedText = fmt.Sprintf(
+			"Your move from %s to %s has been submitted to your local transportation office for review. ",
+			originDutyStation.Name,
+			destinationDutyStation.Name,
+		)
 	}
 
-	destinationDutyStation, err := models.FetchDutyStation(m.db, orders.NewDutyStationID)
-	if err != nil {
-		return emails, err
-	}
-
-	text := fmt.Sprintf(
-		"Your move from %s to %s has been submitted to your local transportation office for review. "+
-			"This process can take up to 3 business days. "+
-			"If you have questions or need expedited processing contact your origin PPPO.",
-		originDutyStation.Name,
-		destinationDutyStation.Name,
-	)
+	text := submittedText +
+		"This process can take up to 3 business days. " +
+		"If you have questions or need expedited processing contact your origin PPPO."
 
 	// TODO: Add PPPO info
 

@@ -82,6 +82,35 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	suite.NotEmpty(email.textBody)
 }
 
+func (suite *NotificationSuite) TestMoveSubmitted() {
+	t := suite.T()
+
+	move, _ := testdatagen.MakeMove(suite.db)
+	notification := MoveSubmitted{
+		db:     suite.db,
+		logger: suite.logger,
+		moveID: move.ID,
+		session: &auth.Session{
+			ServiceMemberID: move.Orders.ServiceMember.ID,
+			ApplicationName: auth.MyApp,
+		},
+	}
+
+	emails, err := notification.emails()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.NotEmpty(email.subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
+}
+
 func (suite *NotificationSuite) TestSendNotification() {
 	t := suite.T()
 
