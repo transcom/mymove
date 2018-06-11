@@ -1,0 +1,5 @@
+add_column("personally_procured_moves", "mileage", "int", {"null": true})
+add_column("personally_procured_moves", "planned_sit_max", "int", {"null": true})
+add_column("personally_procured_moves", "sit_max", "int", {"null": true})
+add_column("personally_procured_moves", "incentive_estimate_min", "int", {"null": true})
+add_column("personally_procured_moves", "incentive_estimate_max", "int", {"null": true})

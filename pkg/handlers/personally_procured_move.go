@@ -11,6 +11,7 @@ import (
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/rateengine"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -40,6 +41,23 @@ func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.Person
 		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
 		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
 		AdvanceWorksheet:    documentPayload,
+		Mileage:             personallyProcuredMove.Mileage,
+	}
+	if personallyProcuredMove.IncentiveEstimateMin != nil {
+		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
+		ppmPayload.IncentiveEstimateMin = &min
+	}
+	if personallyProcuredMove.IncentiveEstimateMax != nil {
+		max := (*personallyProcuredMove.IncentiveEstimateMax).Int64()
+		ppmPayload.IncentiveEstimateMax = &max
+	}
+	if personallyProcuredMove.PlannedSITMax != nil {
+		max := (*personallyProcuredMove.PlannedSITMax).Int64()
+		ppmPayload.PlannedSitMax = &max
+	}
+	if personallyProcuredMove.SITMax != nil {
+		max := (*personallyProcuredMove.SITMax).Int64()
+		ppmPayload.SitMax = &max
 	}
 	return &ppmPayload, nil
 }
@@ -210,7 +228,34 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 
+	originPtr := params.PatchPersonallyProcuredMovePayload.PickupPostalCode
+	destinationPtr := params.PatchPersonallyProcuredMovePayload.DestinationPostalCode
+	weightPtr := params.PatchPersonallyProcuredMovePayload.WeightEstimate
+
+	// Figure out if we have values to compare and, if so, whether the new or old value
+	// should be used in the calculation
+	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
+	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
+	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
+
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
+
+	if originOK && destinationOK && weightOK && (originChanged || destinationChanged || weightChanged) {
+		h.logger.Info("updating PPM calculated fields",
+			zap.String("originZip", origin),
+			zap.String("destinationZip", destination),
+			zap.Int64("weight", weight),
+		)
+		err = h.updateCalculatedFields(ppm, origin, destination)
+		if err != nil {
+			h.logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
+		}
+	} else {
+		h.logger.Info("not recalculating cached PPM fields",
+			zap.String("originZip", origin),
+			zap.String("destinationZip", destination),
+		)
+	}
 
 	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
 	if err != nil || verrs.HasAny() {
@@ -223,4 +268,61 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	}
 	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 
+}
+
+func stringForComparison(previousValue, newValue *string) (value string, valueChanged bool, canCompare bool) {
+	if newValue != nil {
+		if previousValue != nil {
+			return *newValue, *previousValue != *newValue, true
+		}
+		return *newValue, true, true
+	}
+	if previousValue != nil {
+		return *previousValue, false, true
+	}
+
+	return "", false, false
+}
+
+func int64ForComparison(previousValue, newValue *int64) (value int64, valueChanged bool, canCompare bool) {
+	if newValue != nil {
+		if previousValue != nil {
+			return *newValue, *previousValue != *newValue, true
+		}
+		return *newValue, true, true
+	}
+	if previousValue != nil {
+		return *previousValue, false, true
+	}
+
+	return 0, false, false
+}
+
+func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.PersonallyProcuredMove, newOrigin string, newDestination string) error {
+	re := rateengine.NewRateEngine(h.db, h.logger, h.planner)
+	daysInSIT := 0
+	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
+		daysInSIT = int(*ppm.DaysInStorage)
+	}
+
+	lhDiscount, sitDiscount, err := PPMDiscountFetch(h.db, h.logger, newOrigin, newDestination, *ppm.PlannedMoveDate)
+	if err != nil {
+		return err
+	}
+
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), newOrigin, newDestination, *ppm.PlannedMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	if err != nil {
+		return err
+	}
+
+	mileage := int64(cost.LinehaulCostComputation.Mileage)
+	ppm.Mileage = &mileage
+	ppm.PlannedSITMax = &cost.SITFee
+	ppm.SITMax = &cost.SITMax
+	min := cost.GCC.MultiplyFloat64(0.95)
+	max := cost.GCC.MultiplyFloat64(1.05)
+	ppm.IncentiveEstimateMin = &min
+	ppm.IncentiveEstimateMax = &max
+
+	return nil
 }
