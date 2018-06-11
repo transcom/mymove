@@ -101,9 +101,9 @@ export class Summary extends Component {
             Your changes have been saved.
           </Alert>
         )}
-        {this.props.reviewState.error && (
+        {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
           <Alert type="warning" heading="Warning">
-            {this.props.reviewState.error.response.body.message}.
+            {this.props.reviewState.error.response.body.message}
           </Alert>
         )}
         <h3>Profile and Orders</h3>

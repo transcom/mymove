@@ -2926,5 +2926,7 @@ paths:
       responses:
         200:
           description: weight estimate is below allotted entitlement
+        404:
+          description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement

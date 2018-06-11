@@ -4,7 +4,7 @@ import (
 	"log"
 
 	"github.com/gobuffalo/pop"
-
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -50,6 +50,7 @@ func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error)
 	if err != nil {
 		return models.ServiceMember{}, err
 	}
+	E1 := internalmessages.ServiceMemberRankE1
 
 	serviceMember := models.ServiceMember{
 		UserID:                 user.ID,
@@ -57,6 +58,7 @@ func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error)
 		FirstName:              models.StringPointer("Leo"),
 		LastName:               models.StringPointer("Spacemen"),
 		PersonalEmail:          models.StringPointer("leo@example.com"),
+		Rank:                   &E1,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 	}

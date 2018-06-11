@@ -245,11 +245,15 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	// TODO: account for more than 1 PPM, or get ppm by moveid??
-	weightEstimate := *move.PersonallyProcuredMoves[0].WeightEstimate
-	// TODO: ensure none of these values are nil, if so, return error
-	smEntitlement := getEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 
+	// Return 404 if there's no PPM or Rank
+	if len(move.PersonallyProcuredMoves) < 1 || serviceMember.Rank == nil {
+		return entitlementop.NewValidateEntitlementNotFound()
+	}
+	// PPMs are in descending order - this is the last one created
+	weightEstimate := *move.PersonallyProcuredMoves[0].WeightEstimate
+
+	smEntitlement := getEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 	if int(weightEstimate) > smEntitlement {
 		return responseForConflictErrors(h.logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
