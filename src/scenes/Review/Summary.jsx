@@ -8,6 +8,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
+import { loadEntitlements } from 'scenes/Orders/ducks';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import './Review.css';
@@ -26,9 +27,9 @@ export class Summary extends Component {
       schemaOrdersType,
       moveIsApproved,
       serviceMember,
+      entitlement,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
-
     function getFullName() {
       if (!serviceMember) return;
       return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
@@ -103,9 +104,16 @@ export class Summary extends Component {
         )}
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
           <Alert type="warning" heading="Warning">
-            {this.props.reviewState.error.response.body.message}
+            {this.props.reviewState.error.response.body.message}.
           </Alert>
         )}
+        {this.props.reviewState.entitlementChange &&
+          get(this.props.reviewState.error, 'statusCode', false) === false && (
+            <Alert type="warning" heading="Warning">
+              Note that your entitlement has changed. Your weight entitlement is
+              now {entitlement.sum.toLocaleString()} lbs.
+            </Alert>
+          )}
         <h3>Profile and Orders</h3>
         <div className="usa-grid-full review-content">
           <div className="usa-width-one-half review-section">
@@ -405,12 +413,14 @@ function mapStateToProps(state) {
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
     reviewState: state.review,
+    entitlement: loadEntitlements(state),
   };
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       checkEntitlement,
+      loadEntitlements,
     },
     dispatch,
   );
