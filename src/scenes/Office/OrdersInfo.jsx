@@ -6,6 +6,7 @@ import { compact, get } from 'lodash';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
+import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
 
@@ -88,67 +89,10 @@ class OrdersInfo extends Component {
           <div className="usa-width-one-third orders-page-fields">
             <h2 className="usa-heading">{name}</h2>
 
-            <PanelField title="Move Locator">{move.locator}</PanelField>
-            <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
-
-            <h3>
-              Orders {orders.orders_number} ({formatDate(orders.issue_date)})
-            </h3>
-            {uploads.length > 0 && (
-              <p className="uploaded-at">
-                Uploaded{' '}
-                {formatDateTime(orders.uploaded_orders.uploads[0].created_at)}
-              </p>
-            )}
-
-            <PanelSwaggerField
-              fieldName="orders_number"
-              {...ordersFieldsProps}
+            <OrdersViewerPanel
+              title="Orders Viewer"
+              moveId={this.props.move.ID}
             />
-
-            <PanelField
-              title="Date issued"
-              value={formatDate(orders.issue_date)}
-            />
-
-            <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
-            <PanelSwaggerField
-              fieldName="orders_type_detail"
-              {...ordersFieldsProps}
-            />
-
-            <PanelField
-              title="Report by"
-              value={formatDate(orders.report_by_date)}
-            />
-
-            <PanelField title="Current Duty Station">
-              {orders.current_duty_station && orders.current_duty_station.name}
-            </PanelField>
-            <PanelField title="New Duty Station">
-              {orders.new_duty_station && orders.new_duty_station.name}
-            </PanelField>
-
-            {orders.has_dependents && (
-              <PanelField
-                className="Todo"
-                title="Dependents"
-                value="Authorized"
-              />
-            )}
-
-            <PanelSwaggerField
-              title="Dept. Indicator"
-              fieldName="department_indicator"
-              {...ordersFieldsProps}
-            />
-            <PanelSwaggerField
-              title="TAC"
-              fieldName="tac"
-              {...ordersFieldsProps}
-            />
-
-            <PanelField className="Todo" title="Doc status" />
           </div>
         </div>
       </div>
