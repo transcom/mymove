@@ -236,7 +236,7 @@ func RunRateEngineScenario2(db *pop.Connection) error {
 
 	linehaulRate1 := models.Tariff400ngLinehaulRate{
 		DistanceMilesLower: 1601,
-		DistanceMilesUpper: 1701,
+		DistanceMilesUpper: 1801,
 		Type:               "ConusLinehaul",
 		WeightLbsLower:     7400,
 		WeightLbsUpper:     7600,

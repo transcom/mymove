@@ -188,6 +188,8 @@ definitions:
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/CreateReimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -253,6 +255,8 @@ definitions:
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -301,6 +305,7 @@ definitions:
         x-nullable: true
       estimated_storage_reimbursement:
         type: string
+        example: "$1200"
         title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
@@ -310,6 +315,7 @@ definitions:
         x-nullable: true
       estimated_incentive:
         type: string
+        example: "$1000-2000"
         title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
@@ -318,6 +324,8 @@ definitions:
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -381,6 +389,26 @@ definitions:
         type: string
         title: Estimated Incentive
         x-nullable: true
+      mileage:
+        type: integer
+        title: Distance between origin and destination in miles
+        x-nullable: true
+      planned_sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for maximum SIT duration
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        title: Estimated incentive minimum in cents
+        x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        title: Estimated incentive maximum in cents
+        x-nullable: true
       status:
         $ref: '#/definitions/PPMStatus'
       has_requested_advance:
@@ -389,6 +417,8 @@ definitions:
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
       created_at:
         type: string
         format: date-time
@@ -1480,6 +1510,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
@@ -1510,6 +1543,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station
       - uploaded_orders
       - created_at
@@ -1540,6 +1574,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
@@ -1565,6 +1602,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object

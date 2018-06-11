@@ -36,6 +36,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypeBLUEBARK
 	hasDependents := true
+	spouseHasProGear := true
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
@@ -51,6 +52,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 		ReportByDate:        reportByDate,
 		OrdersType:          ordersType,
 		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
 		NewDutyStationID:    dutyStation.ID,
 		NewDutyStation:      dutyStation,
 		UploadedOrdersID:    uploadedOrder.ID,
@@ -73,6 +75,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
 		suite.Equal(order.OrdersType, goodOrder.OrdersType)
 		suite.Equal(order.HasDependents, goodOrder.HasDependents)
+		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
 		suite.Equal(order.NewDutyStation.ID, goodOrder.NewDutyStation.ID)
 	}
 
