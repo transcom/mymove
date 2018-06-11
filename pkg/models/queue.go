@@ -40,7 +40,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date,
+				moves.updated_at as last_modified_date,
 				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -57,7 +57,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date,
+				moves.updated_at as last_modified_date,
 				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
@@ -74,7 +74,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ord.orders_type as orders_type,
 				current_date as move_date,
 				moves.created_at as created_at,
-				current_time as last_modified_date,
+				moves.updated_at as last_modified_date,
 				moves.status as status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
