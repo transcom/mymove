@@ -2,13 +2,20 @@ import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
-import { reduxForm, getFormValues, isValid } from 'redux-form';
+import {
+  reduxForm,
+  getFormValues,
+  isValid,
+  FormSection,
+  Field,
+} from 'redux-form';
 
 import editablePanel from './editablePanel';
 import { updateOrdersInfo } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
@@ -45,38 +52,31 @@ const OrdersViewerDisplay = props => {
         )}
 
         <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
-
         <PanelField title="Date issued" value={formatDate(orders.issue_date)} />
-
         <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
         <PanelSwaggerField
           fieldName="orders_type_detail"
           {...ordersFieldsProps}
         />
-
         <PanelField
           title="Report by"
           value={formatDate(orders.report_by_date)}
         />
-
         <PanelField title="Current Duty Station">
-          {orders.current_duty_station && orders.current_duty_station.name}
+          {get(props.serviceMember, 'current_station.name', '')}
         </PanelField>
         <PanelField title="New Duty Station">
-          {orders.new_duty_station && orders.new_duty_station.name}
+          {get(orders, 'new_duty_station.name', '')}
         </PanelField>
-
         {orders.has_dependents && (
-          <PanelField className="Todo" title="Dependents" value="Authorized" />
+          <PanelField title="Dependents" value="Authorized" />
         )}
-
         <PanelSwaggerField
           title="Dept. Indicator"
           fieldName="department_indicator"
           {...ordersFieldsProps}
         />
         <PanelSwaggerField title="TAC" fieldName="tac" {...ordersFieldsProps} />
-
         <PanelField className="Todo" title="Doc status" />
       </div>
     </React.Fragment>
@@ -87,7 +87,6 @@ const OrdersViewerEdit = props => {
   const orders = props.orders;
   const uploads = [];
   const schema = props.ordersSchema;
-  const serviceMemberSchema = props.serviceMemberSchema;
 
   return (
     <React.Fragment>
@@ -109,54 +108,56 @@ const OrdersViewerEdit = props => {
           </p>
         )}
 
-        <SwaggerField fieldName="orders_number" swagger={schema} />
-
-        <PanelField
-          title="Date issued"
-          fieldName="issue_date"
-          swagger={schema}
-        />
-
-        <SwaggerField fieldName="orders_type" swagger={schema} />
-        <SwaggerField fieldName="orders_type_detail" swagger={schema} />
-
-        <PanelField
-          title="Report by"
-          fieldName="report_by_date"
-          swagger={schema}
-        />
-
-        <SwaggerField
-          title="Current Duty Station"
-          fieldname="current_station"
-          swagger={serviceMemberSchema}
-        />
-
-        <PanelField title="New Duty Station">
-          {orders.new_duty_station && orders.new_duty_station.name}
-        </PanelField>
-
-        {orders.has_dependents && (
+        <FormSection name="orders">
+          <SwaggerField fieldName="orders_number" swagger={schema} />
+          <SwaggerField
+            fieldName="issue_date"
+            swagger={schema}
+            className="half-width"
+          />
+          <SwaggerField fieldName="orders_type" swagger={schema} />
+          <SwaggerField fieldName="orders_type_detail" swagger={schema} />
           <PanelField
-            className="Todo"
-            title="Dependents"
-            fieldName="has_dependents"
+            title="Report by"
+            fieldName="report_by_date"
             swagger={schema}
           />
-        )}
-
-        <SwaggerField
-          title="Dept. Indicator"
-          fieldName="department_indicator"
-          swagger={schema}
-        />
-        <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
-        <PanelField
-          className="Todo"
-          title="Doc status"
-          fieldName="orders_status"
-          swagger={schema}
-        />
+        </FormSection>
+        <FormSection name="serviceMember">
+          <div className="usa-input duty-station">
+            <Field
+              name="current_station"
+              component={DutyStationSearchBox}
+              props={{ title: 'Current Duty Station' }}
+            />
+          </div>
+        </FormSection>
+        <FormSection name="orders">
+          <div className="usa-input duty-station">
+            <Field
+              name="new_duty_station"
+              component={DutyStationSearchBox}
+              props={{ title: 'New Duty Station' }}
+            />
+          </div>
+          <SwaggerField
+            fieldName="has_dependents"
+            swagger={schema}
+            title="Dependents authorized"
+          />
+          <SwaggerField
+            title="Dept. Indicator"
+            fieldName="department_indicator"
+            swagger={schema}
+          />
+          <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
+          <PanelField
+            className="Todo"
+            title="Doc status"
+            fieldName="orders_status"
+            swagger={schema}
+          />
+        </FormSection>
       </div>
     </React.Fragment>
   );
@@ -172,14 +173,10 @@ function mapStateToProps(state) {
     // reduxForm
     initialValues: {
       orders: get(state, 'office.officeOrders', {}),
+      serviceMember: get(state, 'office.officeServiceMember', {}),
     },
 
     ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
-    serviceMemberSchema: get(
-      state,
-      'swagger.spec.definitions.ServiceMemberPayload',
-      {},
-    ),
 
     hasError: false,
     errorMessage: state.office.error,
