@@ -8,7 +8,7 @@ import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { createOrUpdatePpm, getPpmSitEstimate } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import Alert from 'shared/Alert';
 
 import './DateAndLocation.css';
@@ -214,7 +214,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     currentOrders: state.orders.currentOrders,
     formValues: getFormValues(formName)(state),
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlementsFromState(state),
     hasEstimateError: state.ppm.hasEstimateError,
   };
   const defaultPickupZip = get(

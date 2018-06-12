@@ -7,6 +7,7 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
+import { formatCentsRange } from 'shared/formatters';
 import Alert from 'shared/Alert';
 import './Review.css';
 export class Summary extends Component {
@@ -340,7 +341,14 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
-                    <td> {currentPpm && currentPpm.estimated_incentive}</td>
+                    <td>
+                      {' '}
+                      {currentPpm &&
+                        formatCentsRange(
+                          currentPpm.incentive_estimate_min,
+                          currentPpm.incentive_estimate_max,
+                        )}
+                    </td>
                   </tr>
                   {currentPpm.has_requested_advance && (
                     <tr>

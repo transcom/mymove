@@ -2,8 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { setPendingPpmSize } from './ducks';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { setPendingPpmSize, getRawWeightInfo } from './ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import EntitlementBar from 'scenes/EntitlementBar';
 import BigButton from 'shared/BigButton';
 import carGray from 'shared/icon/car-gray.svg';
@@ -11,9 +11,13 @@ import trailerGray from 'shared/icon/trailer-gray.svg';
 import truckGray from 'shared/icon/truck-gray.svg';
 import './Size.css';
 
+function rangeFormatter(range) {
+  return `${range.min.toLocaleString()} - ${range.max.toLocaleString()}`;
+}
+
 class BigButtonGroup extends Component {
   render() {
-    const { onClick, maxWeight } = this.props;
+    const { onClick, weightInfo } = this.props;
     var createButton = (value, firstLine, secondLine, icon, altTag) => {
       var onButtonClick = () => {
         onClick(value);
@@ -38,24 +42,27 @@ class BigButtonGroup extends Component {
         </BigButton>
       );
     };
+    const smallSize = 'S';
+    const medSize = 'M';
+    const largeSize = 'L';
     var small = createButton(
-      'S',
+      smallSize,
       'A few items in your car?',
-      '(approx 50 - 1,000 lbs)',
+      `(approx ${rangeFormatter(weightInfo[smallSize])} lbs)`,
       carGray,
       'car-gray',
     );
     var medium = createButton(
-      'M',
+      medSize,
       'A trailer full of household goods?',
-      '(approx 500 - 2,500 lbs)',
+      `(approx ${rangeFormatter(weightInfo[medSize])} lbs)`,
       trailerGray,
       'trailer-gray',
     );
     var large = createButton(
-      'L',
+      largeSize,
       'A moving truck that you rent yourself?',
-      `(approx 1,500 - ${maxWeight.toLocaleString()} lbs)`,
+      `(approx ${rangeFormatter(weightInfo[largeSize])} lbs)`,
       truckGray,
       'truck-gray',
     );
@@ -79,11 +86,11 @@ export class PpmSize extends Component {
     this.props.setPendingPpmSize(value);
   };
   render() {
-    const { pendingPpmSize, currentPpm, entitlement } = this.props;
+    const { pendingPpmSize, currentPpm, entitlement, weightInfo } = this.props;
     const selectedOption = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <div className="usa-grid-full ppm-size-content">
-        {entitlement && (
+        {weightInfo && (
           <Fragment>
             <h3>How much will you move?</h3>
 
@@ -92,7 +99,7 @@ export class PpmSize extends Component {
             <BigButtonGroup
               selectedOption={selectedOption}
               onClick={this.onMoveTypeSelected}
-              maxWeight={entitlement.sum}
+              weightInfo={weightInfo}
             />
           </Fragment>
         )}
@@ -103,6 +110,7 @@ export class PpmSize extends Component {
 
 PpmSize.propTypes = {
   pendingPpmSize: PropTypes.string,
+  weightInfo: PropTypes.object,
   currentPpm: PropTypes.shape({ id: PropTypes.string, size: PropTypes.string }),
   setPendingPpmSize: PropTypes.func.isRequired,
   entitlement: PropTypes.object,
@@ -111,7 +119,8 @@ PpmSize.propTypes = {
 function mapStateToProps(state) {
   return {
     ...state.ppm,
-    entitlement: loadEntitlements(state),
+    weightInfo: getRawWeightInfo(state),
+    entitlement: loadEntitlementsFromState(state),
   };
 }
 

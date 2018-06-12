@@ -1,8 +1,17 @@
+import { isFinite } from 'lodash';
 import moment from 'moment';
+
+export function formatNumber(num) {
+  if (!isFinite(num)) {
+    return '';
+  }
+
+  return num.toLocaleString();
+}
 
 // Format a number of cents into a string, e.g. $12,345.67
 export function formatCents(cents) {
-  if (!cents) {
+  if (!isFinite(cents)) {
     return '';
   }
 
@@ -10,6 +19,14 @@ export function formatCents(cents) {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   });
+}
+
+export function formatCentsRange(min, max) {
+  if (!isFinite(min) || !isFinite(max)) {
+    return '';
+  }
+
+  return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
 // Format a date and ignore any time values, e.g. 03-Jan-2018

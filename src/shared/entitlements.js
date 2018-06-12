@@ -1,4 +1,4 @@
-import { has, sum } from 'lodash';
+import { get, has, isNull, sum } from 'lodash';
 
 export function getEntitlements(
   rank,
@@ -25,6 +25,20 @@ export function getEntitlements(
     entitlement.pro_gear_spouse,
   ]);
   return entitlement;
+}
+
+export function loadEntitlementsFromState(state) {
+  const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'orders.currentOrders.spouse_has_pro_gear',
+    null,
+  );
+  const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 /*

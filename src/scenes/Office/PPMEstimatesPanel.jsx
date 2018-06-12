@@ -6,6 +6,7 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from './editablePanel';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 
@@ -20,19 +21,21 @@ const validateWeight = (value, formValues, props, fieldName) => {
 };
 
 const EstimatesDisplay = props => {
+  const ppm = props.PPMEstimate;
   const fieldProps = {
-    schema: props.PPMEstimateSchema,
-    values: props.PPMEstimate,
+    schema: props.ppmSchema,
+    values: ppm,
   };
 
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField
-          title="Incentive estimate"
-          fieldName="estimated_incentive"
-          {...fieldProps}
-        />
+        <PanelField title="Incentive estimate">
+          {formatCentsRange(
+            ppm.incentive_estimate_min,
+            ppm.incentive_estimate_max,
+          )}
+        </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
         <PanelSwaggerField
           title="Planned departure"
@@ -82,14 +85,18 @@ const EstimatesDisplay = props => {
 };
 
 const EstimatesEdit = props => {
-  const schema = props.PPMEstimateSchema;
+  const ppm = props.PPMEstimate;
+  const schema = props.ppmSchema;
 
   return (
     <React.Fragment>
       <FormSection name="PPMEstimate">
         <div className="editable-panel-column">
           <PanelField title="Incentive estimate">
-            {get(props, 'PPMEstimate.estimated_incentive', '')}
+            {formatCentsRange(
+              ppm.incentive_estimate_min,
+              ppm.incentive_estimate_max,
+            )}
           </PanelField>
           <SwaggerField
             className="short-field"
@@ -171,7 +178,7 @@ function mapStateToProps(state) {
     initialValues: { PPMEstimate: PPMEstimate },
 
     // Wrapper
-    PPMEstimateSchema: get(
+    ppmSchema: get(
       state,
       'swagger.spec.definitions.PersonallyProcuredMovePayload',
     ),
