@@ -1,6 +1,10 @@
 import { has, sum } from 'lodash';
 
-export function getEntitlements(rank, hasDependents = false) {
+export function getEntitlements(
+  rank,
+  hasDependents = false,
+  spouseHasProGear = false,
+) {
   if (!has(entitlements, rank)) {
     return null;
   }
@@ -11,7 +15,7 @@ export function getEntitlements(rank, hasDependents = false) {
   const entitlement = {
     weight: entitlements[rank][totalKey],
     pro_gear: entitlements[rank].pro_gear_weight,
-    pro_gear_spouse: hasDependents
+    pro_gear_spouse: spouseHasProGear
       ? entitlements[rank].pro_gear_weight_spouse
       : 0,
   };

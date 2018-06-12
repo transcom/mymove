@@ -12,6 +12,7 @@ import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
 import { ppmInfoPacket } from 'shared/constants';
+import { formatCents } from 'shared/formatters';
 
 export const MoveSummary = props => {
   const {
@@ -31,9 +32,12 @@ export const MoveSummary = props => {
   const privateStorageString = get(ppm, 'estimated_storage_reimbursement')
     ? `(up to ${ppm.estimated_storage_reimbursement})`
     : '';
-  const hasSitString = ppm.has_sit
-    ? `Temp. Storage: ${ppm.days_in_storage} days ${privateStorageString}`
-    : 'Not requested';
+  const advanceString = ppm.has_requested_advance
+    ? `Advance Requested: $${formatCents(ppm.advance.requested_amount)}`
+    : '';
+  const hasSitString = `Temp. Storage: ${
+    ppm.days_in_storage
+  } days ${privateStorageString}`;
   return (
     <div className="whole_box">
       <h2>
@@ -129,7 +133,8 @@ export const MoveSummary = props => {
                       <div className="title">Details</div>
                       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                       <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                      <div>{hasSitString}</div>
+                      {ppm.has_sit && <div>{hasSitString}</div>}
+                      {ppm.has_requested_advance && <div>{advanceString}</div>}
                     </div>
                     <div className="titled_block">
                       <div className="title">Documents</div>
@@ -204,7 +209,10 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                        <div>{hasSitString}</div>
+                        {ppm.has_sit && <div>{hasSitString}</div>}
+                        {ppm.has_requested_advance && (
+                          <div>{advanceString}</div>
+                        )}
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>
@@ -264,7 +272,10 @@ export const MoveSummary = props => {
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
                         <div>Incentive (est.): {ppm.estimated_incentive}</div>
-                        <div>{hasSitString}</div>
+                        {ppm.has_sit && <div>{hasSitString}</div>}
+                        {ppm.has_requested_advance && (
+                          <div>{advanceString}</div>
+                        )}
                       </div>
                       <div className="titled_block">
                         <div className="title">Documents</div>

@@ -120,11 +120,16 @@ export function addUploads(uploads) {
 // Selectors
 export function loadEntitlements(state) {
   const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'orders.currentOrders.spouse_has_pro_gear',
+    null,
+  );
   const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
-  if (isNull(hasDependents) || isNull(rank)) {
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
     return null;
   }
-  return getEntitlements(rank, hasDependents);
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
 }
 
 // Reducer
@@ -141,6 +146,7 @@ function reshapeOrders(orders) {
   return pick(orders, [
     'id',
     'has_dependents',
+    'spouse_has_pro_gear',
     'issue_date',
     'new_duty_station',
     'orders_type',
