@@ -109,7 +109,7 @@ export class Summary extends Component {
         )}
         {this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert type="warning" heading="Warning">
+            <Alert type="info" heading="Info">
               Note that your entitlement has changed. Your weight entitlement is
               now {entitlement.sum.toLocaleString()} lbs.
             </Alert>
