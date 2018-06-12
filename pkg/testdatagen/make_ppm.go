@@ -20,7 +20,6 @@ func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
 	ppm, verrs, err := move.CreatePPM(db,
 		&shirt,
 		models.Int64Pointer(8000),
-		models.StringPointer("estimate incentive"),
 		models.TimePointer(DateInsidePeakRateCycle),
 		models.StringPointer("72017"),
 		models.BoolPointer(false),
