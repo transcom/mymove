@@ -10,7 +10,8 @@ endif
 
 # This increases the limit for the number of open files to 5000, which prevents
 # a "too many open files" error during commits.
-ulimit -n 5000
+all:
+	ulimit -n 5000
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
