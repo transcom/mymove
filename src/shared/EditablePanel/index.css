@@ -121,6 +121,11 @@
   width: 51%;
 }
 
+.panel-field.missing .field-value {
+  color:red;
+  font-style: italic;
+}
+
 .field-value-unbold {
   display: inline-block;
   margin-left: 8%;

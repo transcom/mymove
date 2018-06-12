@@ -35,7 +35,6 @@ class OrdersInfo extends Component {
   }
 
   render() {
-    const move = this.props.move;
     const orders = this.props.orders;
     const serviceMember = this.props.serviceMember;
     const name = compact([
@@ -82,7 +81,7 @@ class OrdersInfo extends Component {
             <OrdersViewerPanel
               title={name}
               className="document-viewer"
-              moveId={move.ID}
+              moveId={this.props.match.params.moveId}
             />
           </div>
         </div>
@@ -98,7 +97,6 @@ OrdersInfo.propTypes = {
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
-  move: state.office.officeMove || {},
   orders: state.office.officeOrders || {},
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,

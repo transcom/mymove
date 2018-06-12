@@ -24,7 +24,12 @@ import './office.css';
 
 const OrdersViewerDisplay = props => {
   const orders = props.orders;
-  const uploads = [];
+  const currentDutyStation = get(
+    props.serviceMember,
+    'current_station.name',
+    '',
+  );
+  const uploads = get(orders, 'uploaded_orders.uploads', []);
   const ordersFieldsProps = {
     values: props.orders,
     schema: props.ordersSchema,
@@ -43,7 +48,6 @@ const OrdersViewerDisplay = props => {
             title="Awaiting Review"
           />Orders {orders.orders_number} ({formatDate(orders.issue_date)})
         </span>
-
         {uploads.length > 0 && (
           <p className="uploaded-at">
             Uploaded{' '}
@@ -51,32 +55,95 @@ const OrdersViewerDisplay = props => {
           </p>
         )}
 
-        <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
-        <PanelField title="Date issued" value={formatDate(orders.issue_date)} />
-        <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
-        <PanelSwaggerField
-          fieldName="orders_type_detail"
-          {...ordersFieldsProps}
-        />
-        <PanelField
-          title="Report by"
-          value={formatDate(orders.report_by_date)}
-        />
-        <PanelField title="Current Duty Station">
-          {get(props.serviceMember, 'current_station.name', '')}
-        </PanelField>
-        <PanelField title="New Duty Station">
-          {get(orders, 'new_duty_station.name', '')}
-        </PanelField>
+        {orders.orders_number ? (
+          <PanelSwaggerField fieldName="orders_number" {...ordersFieldsProps} />
+        ) : (
+          <PanelField title="Orders number" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {orders.issue_date ? (
+          <PanelField
+            title="Date issued"
+            value={formatDate(orders.issue_date)}
+          />
+        ) : (
+          <PanelField title="Date issued" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {orders.orders_type ? (
+          <PanelSwaggerField fieldName="orders_type" {...ordersFieldsProps} />
+        ) : (
+          <PanelField title="Orders type" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {orders.orders_type_detail ? (
+          <PanelSwaggerField
+            fieldName="orders_type_detail"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="Orders type detail" className="missing">
+            {' '}
+            Missing
+          </PanelField>
+        )}
+        {orders.report_by_date ? (
+          <PanelField
+            title="Report by"
+            value={formatDate(orders.report_by_date)}
+          />
+        ) : (
+          <PanelField title="Report by" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {currentDutyStation ? (
+          <PanelField title="Current Duty Station">
+            {currentDutyStation}
+          </PanelField>
+        ) : (
+          <PanelField title="Current Duty Station" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {orders.new_duty_station ? (
+          <PanelField title="New Duty Station">
+            {get(orders, 'new_duty_station.name', '')}
+          </PanelField>
+        ) : (
+          <PanelField title="New Duty Station" className="missing">
+            Missing
+          </PanelField>
+        )}
         {orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
-        <PanelSwaggerField
-          title="Dept. Indicator"
-          fieldName="department_indicator"
-          {...ordersFieldsProps}
-        />
-        <PanelSwaggerField title="TAC" fieldName="tac" {...ordersFieldsProps} />
+        {orders.department_indicator ? (
+          <PanelSwaggerField
+            title="Dept. Indicator"
+            fieldName="department_indicator"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="Dept. Indicator" className="missing">
+            Missing
+          </PanelField>
+        )}
+        {orders.tac ? (
+          <PanelSwaggerField
+            title="TAC"
+            fieldName="tac"
+            {...ordersFieldsProps}
+          />
+        ) : (
+          <PanelField title="TAC" className="missing">
+            Missing
+          </PanelField>
+        )}
+
         <PanelField className="Todo" title="Doc status" />
       </div>
     </React.Fragment>
@@ -85,7 +152,7 @@ const OrdersViewerDisplay = props => {
 
 const OrdersViewerEdit = props => {
   const orders = props.orders;
-  const uploads = [];
+  const uploads = get(orders, 'uploaded_orders.uploads', []);
   const schema = props.ordersSchema;
 
   return (
@@ -110,14 +177,10 @@ const OrdersViewerEdit = props => {
 
         <FormSection name="orders">
           <SwaggerField fieldName="orders_number" swagger={schema} />
-          <SwaggerField
-            fieldName="issue_date"
-            swagger={schema}
-            className="half-width"
-          />
+          <SwaggerField fieldName="issue_date" swagger={schema} />
           <SwaggerField fieldName="orders_type" swagger={schema} />
           <SwaggerField fieldName="orders_type_detail" swagger={schema} />
-          <PanelField
+          <SwaggerField
             title="Report by"
             fieldName="report_by_date"
             swagger={schema}
