@@ -1,17 +1,17 @@
-import React, { Component } from 'react';
-import PropTypes from 'prop-types';
+import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compact, get } from 'lodash';
+import { get } from 'lodash';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
 
 import editablePanel from './editablePanel';
-import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import Alert from 'shared/Alert';
-import { loadMoveDependencies, updateOrdersInfo } from './ducks.js';
+import { updateOrdersInfo } from './ducks.js';
 import { formatDate, formatDateTime } from 'shared/formatters';
-
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 import './office.css';
 
@@ -20,7 +20,7 @@ const OrdersViewerDisplay = props => {
   const uploads = [];
   const ordersFieldsProps = {
     values: props.orders,
-    schema: props.schema,
+    schema: props.ordersSchema,
   };
 
   return (
@@ -28,10 +28,15 @@ const OrdersViewerDisplay = props => {
       <div>
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
+        <span className="panel-subhead">
+          <FontAwesomeIcon
+            aria-hidden
+            className="icon approval-waiting"
+            icon={faClock}
+            title="Awaiting Review"
+          />Orders {orders.orders_number} ({formatDate(orders.issue_date)})
+        </span>
 
-        <h3>
-          Orders {orders.orders_number} ({formatDate(orders.issue_date)})
-        </h3>
         {uploads.length > 0 && (
           <p className="uploaded-at">
             Uploaded{' '}
@@ -81,17 +86,22 @@ const OrdersViewerDisplay = props => {
 const OrdersViewerEdit = props => {
   const orders = props.orders;
   const uploads = [];
-  const schema = props.schema;
+  const schema = props.ordersSchema;
+  const serviceMemberSchema = props.serviceMemberSchema;
 
   return (
     <React.Fragment>
       <div>
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
-
-        <h3>
-          Orders {orders.orders_number} ({formatDate(orders.issue_date)})
-        </h3>
+        <span className="panel-subhead">
+          <FontAwesomeIcon
+            aria-hidden
+            className="icon approval-waiting"
+            icon={faClock}
+            title="Awaiting Review"
+          />Orders {orders.orders_number} ({formatDate(orders.issue_date)})
+        </span>
         {uploads.length > 0 && (
           <p className="uploaded-at">
             Uploaded{' '}
@@ -99,7 +109,7 @@ const OrdersViewerEdit = props => {
           </p>
         )}
 
-        <PanelSwaggerField fieldName="orders_number" swagger={schema} />
+        <SwaggerField fieldName="orders_number" swagger={schema} />
 
         <PanelField
           title="Date issued"
@@ -107,8 +117,8 @@ const OrdersViewerEdit = props => {
           swagger={schema}
         />
 
-        <PanelSwaggerField fieldName="orders_type" swagger={schema} />
-        <PanelSwaggerField fieldName="orders_type_detail" swagger={schema} />
+        <SwaggerField fieldName="orders_type" swagger={schema} />
+        <SwaggerField fieldName="orders_type_detail" swagger={schema} />
 
         <PanelField
           title="Report by"
@@ -116,9 +126,12 @@ const OrdersViewerEdit = props => {
           swagger={schema}
         />
 
-        <PanelField title="Current Duty Station">
-          {orders.current_duty_station && orders.current_duty_station.name}
-        </PanelField>
+        <SwaggerField
+          title="Current Duty Station"
+          fieldname="current_station"
+          swagger={serviceMemberSchema}
+        />
+
         <PanelField title="New Duty Station">
           {orders.new_duty_station && orders.new_duty_station.name}
         </PanelField>
@@ -132,12 +145,12 @@ const OrdersViewerEdit = props => {
           />
         )}
 
-        <PanelSwaggerField
+        <SwaggerField
           title="Dept. Indicator"
           fieldName="department_indicator"
           swagger={schema}
         />
-        <PanelSwaggerField title="TAC" fieldName="tac" swagger={schema} />
+        <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
         <PanelField
           className="Todo"
           title="Doc status"
@@ -161,7 +174,12 @@ function mapStateToProps(state) {
       orders: get(state, 'office.officeOrders', {}),
     },
 
-    schema: get(state, 'swagger.spec.definitions.Orders', {}),
+    ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
+    serviceMemberSchema: get(
+      state,
+      'swagger.spec.definitions.ServiceMemberPayload',
+      {},
+    ),
 
     hasError: false,
     errorMessage: state.office.error,
@@ -184,6 +202,7 @@ function mapStateToProps(state) {
     },
   };
 }
+
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {

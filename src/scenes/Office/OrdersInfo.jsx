@@ -8,9 +8,6 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import OrdersViewerPanel from './OrdersViewerPanel';
 import { loadMoveDependencies } from './ducks.js';
-import { formatDate, formatDateTime } from 'shared/formatters';
-
-import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 
 import './office.css';
 
@@ -38,11 +35,6 @@ class OrdersInfo extends Component {
   }
 
   render() {
-    const ordersFieldsProps = {
-      values: this.props.orders,
-      schema: this.props.ordersSchema,
-    };
-
     const move = this.props.move;
     const orders = this.props.orders;
     const serviceMember = this.props.serviceMember;
@@ -87,11 +79,10 @@ class OrdersInfo extends Component {
             {uploads}
           </div>
           <div className="usa-width-one-third orders-page-fields">
-            <h2 className="usa-heading">{name}</h2>
-
             <OrdersViewerPanel
-              title="Orders Viewer"
-              moveId={this.props.move.ID}
+              title={name}
+              className="document-viewer"
+              moveId={move.ID}
             />
           </div>
         </div>
