@@ -1406,11 +1406,13 @@ definitions:
       - SUBMITTED
       - APPROVED
       - COMPLETED
+      - CANCELLED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       COMPLETED: Completed
+      CANCELLED: Cancelled
   PPMStatus:
     type: string
     title: Move status
@@ -1420,12 +1422,14 @@ definitions:
       - APPROVED
       - IN_PROGRESS
       - COMPLETED
+      - CANCELLED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       IN_PROGRESS: In Progress
       COMPLETED: Completed
+      CANCELLED: Cancelled
   OrdersStatus:
     type: string
     title: Move status
@@ -1433,10 +1437,12 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
+      - CANCELLED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
+      CANCELLED: Cancelled
   OrdersType:
     type: string
     title: Orders type
