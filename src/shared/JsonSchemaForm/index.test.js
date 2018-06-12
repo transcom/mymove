@@ -1,10 +1,9 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
 
 import { reduxifyForm } from '.';
 import configureStore from 'redux-mock-store';
-import { shallow, mount, render } from 'enzyme';
+import { mount } from 'enzyme';
 
 const simpleSchema = {
   title: 'A registration form',

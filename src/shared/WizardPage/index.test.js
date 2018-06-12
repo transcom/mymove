@@ -1,5 +1,5 @@
 import React from 'react';
-import { mount, shallow } from 'enzyme';
+import { shallow } from 'enzyme';
 import { WizardPage } from 'shared/WizardPage';
 describe('given a WizardPage', () => {
   let wrapper, buttons;

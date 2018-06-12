@@ -1,9 +1,7 @@
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
 import { NULL_UUID } from 'shared/constants';
 describe('when getting the routes for the current workflow', () => {
-  let profileIsComplete;
   describe('given a complete service member', () => {
-    profileIsComplete = true;
     describe('given a PPM', () => {
       const props = {
         selectedMoveType: 'PPM',
@@ -88,7 +86,6 @@ describe('when getting the routes for the current workflow', () => {
     });
   });
   describe('given an incomplete service member', () => {
-    profileIsComplete = false;
     describe('given no move', () => {
       const props = {
         selectedMoveType: null,

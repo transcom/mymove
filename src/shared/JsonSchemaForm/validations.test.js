@@ -1,5 +1,4 @@
 import React from 'react';
-import ReactDOM from 'react-dom';
 
 import { Provider } from 'react-redux';
 import { reducer as formReducer, reduxForm } from 'redux-form';
@@ -8,7 +7,7 @@ import { createStore, combineReducers } from 'redux';
 import JsonSchemaField from './JsonSchemaField';
 import { recursivelyValidateRequiredFields } from './index';
 
-import { shallow, mount, render } from 'enzyme';
+import { mount } from 'enzyme';
 
 describe('SchemaField tests', () => {
   const formHolster = field => {
@@ -47,7 +46,7 @@ describe('SchemaField tests', () => {
         !expectedError ? 'no error' : `error: ${expectedError}`
       }`, () => {
         let input = subject.find('input');
-        if (input.length == 0) {
+        if (input.length === 0) {
           input = subject.find('textarea');
         }
         input.simulate('change', { target: { value: testValue } });
@@ -267,7 +266,7 @@ describe('SchemaField tests', () => {
     const ssnField = {
       type: 'string',
       format: 'zip',
-      pattern: /^(\d{5}([\-]\d{4})?)$/,
+      pattern: /^(\d{5}([-]\d{4})?)$/,
       example: '61522-3323',
       'x-nullable': true,
       title: 'ZIP Code',

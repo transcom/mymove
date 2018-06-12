@@ -4,8 +4,6 @@ import {
   SUBMIT_FOR_APPROVAL,
   moveReducer,
 } from './ducks';
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
-import { get } from 'lodash';
 import loggedInUserPayload, {
   emptyPayload,
 } from 'shared/User/sampleLoggedInUserPayload';

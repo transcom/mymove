@@ -1,4 +1,4 @@
-import { getClient, checkResponse } from 'shared/api';
+import { getClient } from 'shared/api';
 
 export async function GetSpec() {
   const client = await getClient();

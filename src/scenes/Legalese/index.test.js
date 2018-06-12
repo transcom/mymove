@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { shallow } from 'enzyme';
 import SignedCertification from '.';
 import store from 'shared/store';
 
