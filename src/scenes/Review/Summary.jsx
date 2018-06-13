@@ -11,6 +11,7 @@ import { moveIsApproved } from 'scenes/Moves/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
+import titleCase from 'shared/constants.js';
 import './Review.css';
 
 export class Summary extends Component {
@@ -103,9 +104,9 @@ export class Summary extends Component {
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
           <Alert
             type="warning"
-            heading={`Your changes have been saved and the entitlement has also changed.\n Your estimated weight is above your entitlement.`}
+            heading="Your estimated weight is above your entitlement."
           >
-            {this.props.reviewState.error.response.body.message}.
+            {titleCase(this.props.reviewState.error.response.body.message)}.
           </Alert>
         )}
         {this.props.reviewState.entitlementChange &&
