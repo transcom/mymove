@@ -98,20 +98,24 @@ export class Summary extends Component {
     return (
       <Fragment>
         {this.props.reviewState.editSuccess && (
-          <Alert type="success" heading="Success">
-            Your changes have been saved.
-          </Alert>
+          <Alert type="success" heading="Your changes have been saved." />
         )}
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
-          <Alert type="warning" heading="Warning">
+          <Alert
+            type="warning"
+            heading="Your changes have been saved and the entitlement has also changed. Your estimated weight is above your entitlement."
+          >
             {this.props.reviewState.error.response.body.message}.
           </Alert>
         )}
         {this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
-            <Alert type="info" heading="Info">
-              Note that your entitlement has changed. Your weight entitlement is
-              now {entitlement.sum.toLocaleString()} lbs.
+            <Alert
+              type="info"
+              heading="Your changes have been saved. Note that the entitlement has also changed."
+            >
+              Your weight entitlement is now {entitlement.sum.toLocaleString()}{' '}
+              lbs.
             </Alert>
           )}
         <h3>Profile and Orders</h3>
