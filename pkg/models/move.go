@@ -106,7 +106,7 @@ func (m *Move) Cancel() error {
 	m.Status = MoveStatusCANCELED
 
 	for _, ppm := range m.PersonallyProcuredMoves {
-		err = ppm.Cancel()
+		err := ppm.Cancel()
 		if err != nil {
 			return err
 		}
