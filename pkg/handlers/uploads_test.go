@@ -270,7 +270,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	handler := DeleteUploadHandler(context)
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadCreated)
+	_, ok := response.(*uploadop.DeleteUploadNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
@@ -308,7 +308,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	handler := DeleteUploadsHandler(context)
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadsCreated)
+	_, ok := response.(*uploadop.DeleteUploadsNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}

@@ -96,8 +96,7 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	// This feels a little nonsensical. Maybe a 204 instead?
-	return uploadop.NewDeleteUploadCreated()
+	return uploadop.NewDeleteUploadNoContent()
 }
 
 // DeleteUploadsHandler deletes a collection of uploads
@@ -121,6 +120,5 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 		}
 	}
 
-	// This feels a little nonsensical. Maybe a 204 instead?
-	return uploadop.NewDeleteUploadsCreated()
+	return uploadop.NewDeleteUploadsNoContent()
 }
