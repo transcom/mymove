@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 NAME = ppp
 DB_DOCKER_CONTAINER = db-dev
 export PGPASSWORD=mysecretpassword
@@ -11,7 +13,12 @@ endif
 # This increases the limit for the number of open files to 5000, which prevents
 # a "too many open files" error during commits.
 all:
-	ulimit -n 5000
+	openfilelimit=${ulimit -n}
+	echo $(openfilelimit)
+	if [ $(openfilelimit) -gt 500 ]
+	then
+	  echo "big!"
+	fi
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
