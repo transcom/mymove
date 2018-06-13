@@ -97,7 +97,7 @@ func (m *Move) Submit() error {
 	return nil
 }
 
-// Cancel cancels the Move
+// Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel() error {
 	if m.Status != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
@@ -105,13 +105,12 @@ func (m *Move) Cancel() error {
 
 	m.Status = MoveStatusCANCELED
 
-	//TODO: update PPM status too
-	// for _, ppm := range m.PersonallyProcuredMoves {
-	// 	err = ppm.Cancel()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	for _, ppm := range m.PersonallyProcuredMoves {
+		err = ppm.Cancel()
+		if err != nil {
+			return err
+		}
+	}
 	return nil
 }
 
