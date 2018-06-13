@@ -103,7 +103,7 @@ export class Summary extends Component {
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
           <Alert
             type="warning"
-            heading="Your changes have been saved and the entitlement has also changed. Your estimated weight is above your entitlement."
+            heading={`Your changes have been saved and the entitlement has also changed.\n Your estimated weight is above your entitlement.`}
           >
             {this.props.reviewState.error.response.body.message}.
           </Alert>

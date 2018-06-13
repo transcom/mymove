@@ -255,7 +255,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 
 	smEntitlement := getEntitlement(*serviceMember.Rank, orders.HasDependents, orders.SpouseHasProGear)
 	if int(weightEstimate) > smEntitlement {
-		return responseForConflictErrors(h.logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
+		return responseForConflictErrors(h.logger, fmt.Errorf("your estimated weight of %s lbs is above your weight entitlement of %s lbs. \n You will only be paid for the weight you move up to your weight entitlement", humanize.Comma(weightEstimate), humanize.Comma(int64(smEntitlement))))
 	}
 
 	return entitlementop.NewValidateEntitlementOK()
