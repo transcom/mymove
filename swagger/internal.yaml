@@ -1406,11 +1406,13 @@ definitions:
       - SUBMITTED
       - APPROVED
       - COMPLETED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       COMPLETED: Completed
+      CANCELED: Canceled
   PPMStatus:
     type: string
     title: Move status
@@ -1420,12 +1422,14 @@ definitions:
       - APPROVED
       - IN_PROGRESS
       - COMPLETED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       IN_PROGRESS: In Progress
       COMPLETED: Completed
+      CANCELED: Canceled
   OrdersStatus:
     type: string
     title: Move status
@@ -1433,10 +1437,12 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
+      CANCELED: Canceled
   OrdersType:
     type: string
     title: Orders type
@@ -1501,7 +1507,7 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report by
-      orders_status:
+      status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
