@@ -69,16 +69,23 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	// Can cancel ppm
 	err = ppm.Cancel()
 	suite.Nil(err)
-	suite.Equal(ppm.Status, PPMStatusCANCELED, "expected Canceled")
+	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
 
 	// RESET PPM
 	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
-	suite.Equal(ppm.Status, PPMStatusSUBMITTED, "expected Submitted")
-	// When move is canceled, expect associated PPM to be canceled
+	suite.Equal(PPMStatusSUBMITTED, ppm.Status, "expected Submitted")
+
+	// Associate PPM with the move it's on.
+	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	err = move.Submit()
 	suite.Nil(err)
+	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+
+	// When move is canceled, expect associated PPM to be canceled
 	err = move.Cancel()
 	suite.Nil(err)
-	// PPM has also been canceled
-	suite.Equal(ppm.Status, PPMStatusCANCELED, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+
+	// Associated PPM has also been canceled
+	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
 }

@@ -132,6 +132,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 
 	err := order.Cancel()
 	suite.Nil(err)
-	suite.Equal(order.Status, OrderStatusCANCELED, "expected Canceled")
+	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
 
 }

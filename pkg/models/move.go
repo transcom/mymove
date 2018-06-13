@@ -86,6 +86,13 @@ func (m *Move) Submit() error {
 	m.Status = MoveStatusSUBMITTED
 
 	//TODO: update PPM status too
+	// for i, _ := range m.PersonallyProcuredMoves {
+	// 	err := m.PersonallyProcuredMoves[i].Submit()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
@@ -105,8 +112,10 @@ func (m *Move) Cancel() error {
 
 	m.Status = MoveStatusCANCELED
 
-	for _, ppm := range m.PersonallyProcuredMoves {
-		err := ppm.Cancel()
+	// This will work only if you use the PPM in question rather than a var representing it
+	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Cancel()
 		if err != nil {
 			return err
 		}

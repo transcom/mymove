@@ -69,11 +69,11 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	// Once submitted
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(move.Status, MoveStatusSUBMITTED, "expected Submitted")
+	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// Can cancel move
 	err = move.Cancel()
 	suite.Nil(err)
-	suite.Equal(move.Status, MoveStatusCANCELED, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 
 }
