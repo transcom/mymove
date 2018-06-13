@@ -176,10 +176,14 @@ const OrdersViewerEdit = props => {
         )}
 
         <FormSection name="orders">
-          <SwaggerField fieldName="orders_number" swagger={schema} />
+          <SwaggerField fieldName="orders_number" swagger={schema} required />
           <SwaggerField fieldName="issue_date" swagger={schema} />
-          <SwaggerField fieldName="orders_type" swagger={schema} />
-          <SwaggerField fieldName="orders_type_detail" swagger={schema} />
+          <SwaggerField fieldName="orders_type" swagger={schema} required />
+          <SwaggerField
+            fieldName="orders_type_detail"
+            swagger={schema}
+            required
+          />
           <SwaggerField
             title="Report by"
             fieldName="report_by_date"
