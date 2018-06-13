@@ -112,6 +112,21 @@ func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
 	return url, nil
 }
 
+// DeleteUpload removes an Upload from the database and deletes its file from the
+// storer.
+func (u *Uploader) DeleteUpload(upload *models.Upload) error {
+	key := u.uploadKey(upload)
+
+	if err := u.storer.Delete(key); err != nil {
+		return err
+	}
+
+	if err := models.DeleteUpload(u.db, upload); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (u *Uploader) uploadKey(upload *models.Upload) string {
 	return u.storer.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
 }

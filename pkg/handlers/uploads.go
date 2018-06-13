@@ -91,17 +91,12 @@ func (h DeleteUploadHandler) Handle(params uploadop.DeleteUploadParams) middlewa
 		return responseForError(h.logger, err)
 	}
 
-	key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
-	err = h.storage.Delete(key)
-	if err != nil {
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
+	if err = uploader.DeleteUpload(&upload); err != nil {
 		return responseForError(h.logger, err)
 	}
 
-	err = models.DeleteUpload(h.db, &upload)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
+	// This feels a little nonsensical. Maybe a 204 instead?
 	return uploadop.NewDeleteUploadCreated()
 }
 
@@ -112,6 +107,7 @@ type DeleteUploadsHandler HandlerContext
 func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middleware.Responder {
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 
 	for _, uploadID := range params.UploadIds {
 		uuid, _ := uuid.FromString(uploadID.String())
@@ -120,17 +116,11 @@ func (h DeleteUploadsHandler) Handle(params uploadop.DeleteUploadsParams) middle
 			return responseForError(h.logger, err)
 		}
 
-		key := h.storage.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
-		err = h.storage.Delete(key)
-		if err != nil {
-			return responseForError(h.logger, err)
-		}
-
-		err = models.DeleteUpload(h.db, &upload)
-		if err != nil {
+		if err = uploader.DeleteUpload(&upload); err != nil {
 			return responseForError(h.logger, err)
 		}
 	}
 
+	// This feels a little nonsensical. Maybe a 204 instead?
 	return uploadop.NewDeleteUploadsCreated()
 }
