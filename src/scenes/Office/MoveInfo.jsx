@@ -32,45 +32,24 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 
 const BasicsTabContent = props => {
   return (
-    <React.Fragment>
-      <OrdersPanel
-        title="Orders"
-        className="basics"
-        moveId={props.match.params.moveId}
-      />
+    <div className="basics">
+      <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
       <CustomerInfoPanel
         title="Customer Info"
-        className="basics"
         moveId={props.match.params.moveId}
       />
-      <BackupInfoPanel
-        title="Backup Info"
-        className="basics"
-        moveId={props.match.params.moveId}
-      />
-      <AccountingPanel
-        title="Accounting"
-        className="basics"
-        moveId={props.match.params.moveId}
-      />
-    </React.Fragment>
+      <BackupInfoPanel title="Backup Info" moveId={props.match.params.moveId} />
+      <AccountingPanel title="Accounting" moveId={props.match.params.moveId} />
+    </div>
   );
 };
 
 const PPMTabContent = props => {
   return (
-    <React.Fragment>
-      <PaymentsPanel
-        title="Payments"
-        className="basics"
-        moveId={props.match.params.moveId}
-      />
-      <PPMEstimatesPanel
-        title="Estimates"
-        className="basics"
-        moveId={props.match.params.moveId}
-      />
-    </React.Fragment>
+    <div className="basics">
+      <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
+    </div>
   );
 };
 
