@@ -32,7 +32,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 
 const BasicsTabContent = props => {
   return (
-    <React.Fragment>
+    <div className="basics">
       <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
       <CustomerInfoPanel
         title="Customer Info"
@@ -40,16 +40,16 @@ const BasicsTabContent = props => {
       />
       <BackupInfoPanel title="Backup Info" moveId={props.match.params.moveId} />
       <AccountingPanel title="Accounting" moveId={props.match.params.moveId} />
-    </React.Fragment>
+    </div>
   );
 };
 
 const PPMTabContent = props => {
   return (
-    <React.Fragment>
+    <div className="basics">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
-    </React.Fragment>
+    </div>
   );
 };
 
