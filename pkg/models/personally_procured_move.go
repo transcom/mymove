@@ -87,9 +87,6 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 // State Machine
 // Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
 
-// ErrInvalidTransition is an error representing an invalid transition.
-var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
-
 // Cancel cancels the PPM
 func (p *PersonallyProcuredMove) Cancel() error {
 	if p.Status != PPMStatusSUBMITTED {

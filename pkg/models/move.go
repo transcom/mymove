@@ -77,9 +77,6 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // State Machine
 // Avoid calling Move.Status = ... ever. Use these methods to change the state.
 
-// ErrInvalidTransition is an error representing an invalid transition.
-var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
-
 // Submit submits the Move
 func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {

@@ -92,9 +92,6 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 // State Machine
 // Avoid calling Order.Status = ... ever. Use these methods to change the state.
 
-// ErrInvalidTransition is an error representing an invalid transition.
-var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
-
 // Cancel cancels the Order
 func (o *Order) Cancel() error {
 	if o.Status != OrderStatusSUBMITTED {
