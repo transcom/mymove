@@ -1,6 +1,11 @@
 package storage
 
 import (
+	/*
+		#nosec - we use md5 because it's required by the S3 API for
+		validating data integrity.
+		https://aws.amazon.com/premiumsupport/knowledge-center/data-integrity-s3/
+	*/
 	"crypto/md5"
 	"encoding/base64"
 	"io"
@@ -10,12 +15,17 @@ import (
 )
 
 // StoreResult represents the result of a call to Store().
-type StoreResult struct {
-	Key      string
-	Checksum string
+type StoreResult struct{}
+
+// FileStorer is the set of methods needed to store and retrieve objects.
+type FileStorer interface {
+	Store(string, io.ReadSeeker, string) (*StoreResult, error)
+	Delete(string) error
+	Key(...string) string
+	PresignedURL(string, string) (string, error)
 }
 
-// computeChecksum calculates the MD% checksum for the provided data. It expects that
+// ComputeChecksum calculates the MD% checksum for the provided data. It expects that
 // the passed io object will be seeked to its beginning and will seek back to the
 // beginning after reading its content.
 func ComputeChecksum(data io.ReadSeeker) (string, error) {

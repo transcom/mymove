@@ -26,26 +26,14 @@ func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem 
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (fs *Filesystem) Store(key string, data io.ReadSeeker) (*StoreResult, error) {
+func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
-
-	checksum, err := computeChecksum(data)
-	if err != nil {
-		fs.logger.Error("failed to calculate checksum", zap.Error(err))
-		return nil, err
-	}
-
-	contentType, err := detectContentType(data)
-	if err != nil {
-		fs.logger.Error("failed to detect content type", zap.Error(err))
-		return nil, err
-	}
 
 	/*
 		#nosec - filesystem storage is only used for local development.
 	*/
-	err = os.MkdirAll(dir, 0755)
+	err := os.MkdirAll(dir, 0755)
 	if err != nil {
 		return nil, errors.Wrap(err, "could not create parent directory")
 	}
@@ -60,11 +48,7 @@ func (fs *Filesystem) Store(key string, data io.ReadSeeker) (*StoreResult, error
 	if err != nil {
 		return nil, errors.Wrap(err, "write to disk failed")
 	}
-	return &StoreResult{
-		Key:         key,
-		Checksum:    checksum,
-		ContentType: contentType,
-	}, nil
+	return &StoreResult{}, nil
 }
 
 // Delete deletes the file at the specified key

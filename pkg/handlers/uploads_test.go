@@ -212,7 +212,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadBadRequest)
 	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
+		t.Fatalf("Wrong response type. Expected CreateUploadBadRequest, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})

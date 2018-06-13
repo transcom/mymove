@@ -38,10 +38,7 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResul
 		return nil, errors.Wrap(err, "put to S3 failed")
 	}
 
-	return &StoreResult{
-		Key:      key,
-		Checksum: checksum,
-	}, nil
+	return &StoreResult{}, nil
 }
 
 // Delete deletes an object at a specified key
