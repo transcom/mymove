@@ -27,6 +27,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCOMPLETED captures enum value "COMPLETED"
 	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+	// MoveStatusCANCELED captures enum value "CANCELED"
+	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
 const maxLocatorAttempts = 3
@@ -72,6 +74,12 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// State Machine
+// Avoid calling Move.Status = ... ever. Use these methods to change the state.
+
+// ErrInvalidTransition is an error representing an invalid transition.
+var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
+
 // Submit submits the Move
 func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {
@@ -89,6 +97,24 @@ func (m *Move) Submit() error {
 			}
 		}
 	}
+	return nil
+}
+
+// Cancel cancels the Move
+func (m *Move) Cancel() error {
+	if m.Status != MoveStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	m.Status = MoveStatusCANCELED
+
+	//TODO: update PPM status too
+	// for _, ppm := range m.PersonallyProcuredMoves {
+	// 	err = ppm.Cancel()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 	return nil
 }
 
