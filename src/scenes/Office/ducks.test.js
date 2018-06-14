@@ -1,12 +1,5 @@
 import { APPROVE_REIMBURSEMENT, officeReducer } from './ducks';
 
-import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
-import { get } from 'lodash';
-
-import loggedInUserPayload, {
-  emptyPayload,
-} from 'shared/User/sampleLoggedInUserPayload';
-
 function createAdvance(status) {
   return {
     id: '5d2b211c-0dca-4e6a-b0c0-a987d4fed5fb',
