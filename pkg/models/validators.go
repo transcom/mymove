@@ -124,7 +124,7 @@ func (v *OrdersTypeIsPresent) IsValid(errors *validate.Errors) {
 	}
 }
 
-// CannotBeTrueIfFalse validates that spouseprogear cannot be true if has dependents is false
+// CannotBeTrueIfFalse validates that field1 cannot be true while field2 is false
 type CannotBeTrueIfFalse struct {
 	Name1  string
 	Field1 bool
