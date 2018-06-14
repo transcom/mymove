@@ -403,12 +403,6 @@
   revision = "256dc444b735e061061cf46c809487313d5b0065"
 
 [[projects]]
-  name = "github.com/satori/go.uuid"
-  packages = ["."]
-  revision = "f58768cc1a7a7e77a3bd49e98cdd21419399b6a3"
-  version = "v1.2.0"
-
-[[projects]]
   name = "github.com/segmentio/chamber"
   packages = [".","cmd","store"]
   revision = "3cdac5c59e6f3835307ad034531fd6e4363a5e40"
