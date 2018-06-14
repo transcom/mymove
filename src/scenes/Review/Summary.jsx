@@ -11,7 +11,7 @@ import { moveIsApproved } from 'scenes/Moves/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
-import titleCase from 'shared/constants.js';
+import { titleCase } from 'shared/constants.js';
 import './Review.css';
 
 export class Summary extends Component {
