@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-
 	"net/http/httptest"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
@@ -30,6 +29,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			OrdersID: order.ID,
 			Status:   models.MoveStatus(status),
 		}
+		suite.mustSave(&newMove)
 
 		// Make a PPM
 		newMove.CreatePPM(suite.db,
@@ -47,11 +47,6 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 			true,
 			nil,
 		)
-		suite.mustSave(&newMove)
-
-		// _, verrs, locErr := order.CreateNewMove(suite.db, nil)
-		// suite.False(verrs.HasAny(), "failed to create new move")
-		// suite.Nil(locErr)
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
