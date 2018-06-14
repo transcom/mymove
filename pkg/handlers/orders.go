@@ -43,6 +43,7 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 		Moves:               moves,
 		Tac:                 order.TAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:              internalmessages.OrdersStatus(order.Status),
 	}
 
 	return payload, nil

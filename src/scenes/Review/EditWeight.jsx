@@ -15,7 +15,7 @@ import {
 } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { formatCentsRange } from 'shared/formatters';
-import { editBegin, editSuccessful } from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
@@ -196,6 +196,7 @@ EditWeightForm = reduxForm({
 class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
     window.scrollTo(0, 0);
   }
 
@@ -301,6 +302,7 @@ function mapDispatchToProps(dispatch) {
       getPpmWeightEstimate,
       editBegin,
       editSuccessful,
+      entitlementChangeBegin,
     },
     dispatch,
   );

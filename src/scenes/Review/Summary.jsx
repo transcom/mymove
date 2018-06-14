@@ -3,14 +3,22 @@ import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 import moment from 'moment';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import { formatCentsRange } from 'shared/formatters';
+import { loadEntitlementsFromState } from 'shared/entitlements';
+import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
+import { titleCase } from 'shared/constants.js';
 import './Review.css';
+
 export class Summary extends Component {
+  componentDidMount() {
+    this.props.checkEntitlement(this.props.match.params.moveId);
+  }
   render() {
     const {
       currentPpm,
@@ -21,9 +29,9 @@ export class Summary extends Component {
       schemaOrdersType,
       moveIsApproved,
       serviceMember,
+      entitlement,
     } = this.props;
     const yesNoMap = { true: 'Yes', false: 'No' };
-
     function getFullName() {
       if (!serviceMember) return;
       return `${serviceMember.first_name} ${serviceMember.middle_name || ''} ${
@@ -84,9 +92,7 @@ export class Summary extends Component {
       currentPpm,
       'estimated_storage_reimbursement',
     )
-      ? `(spend up to ${
-          currentPpm.estimated_storage_reimbursement
-        } on private storage)`
+      ? `(spend up to ${currentPpm.estimated_storage_reimbursement.toLocaleString()} on private storage)`
       : '';
     const sitDisplay = get(currentPpm, 'has_sit', false)
       ? `${currentPpm.days_in_storage} days ${privateStorageString}`
@@ -94,10 +100,26 @@ export class Summary extends Component {
     return (
       <Fragment>
         {this.props.reviewState.editSuccess && (
-          <Alert type="success" heading="Success">
-            Your changes have been saved.
+          <Alert type="success" heading="Your changes have been saved." />
+        )}
+        {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
+          <Alert
+            type="warning"
+            heading="Your estimated weight is above your entitlement."
+          >
+            {titleCase(this.props.reviewState.error.response.body.message)}.
           </Alert>
         )}
+        {this.props.reviewState.entitlementChange &&
+          get(this.props.reviewState.error, 'statusCode', false) === false && (
+            <Alert
+              type="info"
+              heading="Your changes have been saved. Note that the entitlement has also changed."
+            >
+              Your weight entitlement is now {entitlement.sum.toLocaleString()}{' '}
+              lbs.
+            </Alert>
+          )}
         <h3>Profile and Orders</h3>
         <div className="usa-grid-full review-content">
           <div className="usa-width-one-half review-section">
@@ -337,7 +359,12 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Estimated Weight: </td>
-                    <td> {currentPpm && currentPpm.weight_estimate} lbs</td>
+                    <td>
+                      {' '}
+                      {currentPpm &&
+                        currentPpm.weight_estimate.toLocaleString()}{' '}
+                      lbs
+                    </td>
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
@@ -353,7 +380,12 @@ export class Summary extends Component {
                   {currentPpm.has_requested_advance && (
                     <tr>
                       <td> Advance: </td>
-                      <td> ${currentPpm.advance.requested_amount / 100}</td>
+                      <td>
+                        {' '}
+                        ${(
+                          currentPpm.advance.requested_amount / 100
+                        ).toLocaleString()}
+                      </td>
                     </tr>
                   )}
                 </tbody>
@@ -378,6 +410,8 @@ Summary.propTypes = {
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
+  checkEntitlement: PropTypes.func.isRequired,
+  error: PropTypes.object,
 };
 
 function mapStateToProps(state) {
@@ -392,6 +426,18 @@ function mapStateToProps(state) {
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
     reviewState: state.review,
+    entitlement: loadEntitlementsFromState(state),
   };
 }
-export default withRouter(connect(mapStateToProps)(Summary));
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators(
+    {
+      checkEntitlement,
+      loadEntitlementsFromState,
+    },
+    dispatch,
+  );
+}
+export default withRouter(
+  connect(mapStateToProps, mapDispatchToProps)(Summary),
+);

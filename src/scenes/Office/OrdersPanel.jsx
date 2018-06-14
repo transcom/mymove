@@ -159,11 +159,6 @@ function mapStateToProps(state) {
     },
 
     ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
-    serviceMemberSchema: get(
-      state,
-      'swagger.spec.definitions.ServiceMemberPayload',
-      {},
-    ),
 
     hasError: false,
     errorMessage: state.office.error,

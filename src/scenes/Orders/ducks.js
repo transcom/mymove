@@ -137,6 +137,7 @@ function reshapeOrders(orders) {
     'report_by_date',
     'service_member_id',
     'uploaded_orders',
+    'status',
   ]);
 }
 const removeUploads = (uploadIds, state) => {
