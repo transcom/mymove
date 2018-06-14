@@ -1507,7 +1507,7 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report by
-      orders_status:
+      status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
@@ -2915,3 +2915,24 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+  /entitlements/{moveId}:
+    get:
+      summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
+      description: Determine whether weight estimate is below entitlement
+      operationId: validateEntitlement
+      tags:
+        - entitlements
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: weight estimate is below allotted entitlement
+        404:
+          description: personally procured move not found
+        409:
+          description: Requested weight estimate is above allotted entitlement
