@@ -56,6 +56,10 @@ export class Landing extends Component {
     this.props.push(this.getNextIncompletePage());
   };
 
+  reviewProfile = () => {
+    this.props.push('profile-review');
+  };
+
   getNextIncompletePage = () => {
     const { serviceMember, orders, move, ppm, backupContacts } = this.props;
     return getNextIncompletePageInternal(
@@ -79,6 +83,7 @@ export class Landing extends Component {
       serviceMember,
       orders,
       move,
+      canceledMove,
       ppm,
     } = this.props;
 
@@ -114,9 +119,11 @@ export class Landing extends Component {
                   profile={serviceMember}
                   orders={orders}
                   move={move}
+                  canceledMove={canceledMove}
                   ppm={ppm}
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
+                  reviewProfile={this.reviewProfile}
                 />
               )}
           </Fragment>
@@ -133,6 +140,7 @@ const mapStateToProps = state => ({
   backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
   move: state.moves.currentMove || {},
+  canceledMove: state.moves.canceledMove || {},
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,

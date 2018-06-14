@@ -6,14 +6,14 @@ import PropTypes from 'prop-types';
 const Alert = props => (
   <div className={`usa-alert usa-alert-${props.type}`}>
     <div className="usa-alert-body">
-      <h3 className="usa-alert-heading">{props.heading}</h3>
+      {props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}
       <p className="usa-alert-text">{props.children}</p>
     </div>
   </div>
 );
 
 Alert.propTypes = {
-  heading: PropTypes.string.isRequired,
+  heading: PropTypes.string,
   children: PropTypes.node,
   type: PropTypes.oneOf(['error', 'warning', 'info', 'success']),
 };
