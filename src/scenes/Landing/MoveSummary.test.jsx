@@ -61,7 +61,7 @@ describe('MoveSummary', () => {
     });
   });
   describe('when a move is in approved state', () => {
-    it('renders submitted content', () => {
+    it('renders approved content', () => {
       const moveObj = { status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
@@ -83,7 +83,7 @@ describe('MoveSummary', () => {
     });
   });
   describe('when a move is in in progress state', () => {
-    it('renders submitted content', () => {
+    it('renders in progress content', () => {
       const moveObj = { status: 'APPROVED' };
       const pastFortNight = moment().subtract(14, 'day');
       const ppmObj = {
