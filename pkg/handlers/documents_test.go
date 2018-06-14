@@ -10,6 +10,7 @@ import (
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -89,7 +90,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	params.HTTPRequest = req
 
 	context := NewHandlerContext(suite.db, suite.logger)
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := ShowDocumentHandler(context)
 	response := handler.Handle(params)

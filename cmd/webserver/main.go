@@ -175,7 +175,7 @@ func main() {
 	routePlanner := route.NewHEREPlanner(logger, hereGeoEndpoint, hereRouteEndpoint, hereAppID, hereAppCode)
 	handlerContext.SetPlanner(routePlanner)
 
-	var storer handlers.FileStorer
+	var storer storage.FileStorer
 	if *storageBackend == "s3" {
 		zap.L().Info("Using s3 storage backend")
 		if len(*s3Bucket) == 0 {

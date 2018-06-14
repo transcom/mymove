@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"log"
-	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
@@ -20,13 +19,14 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type HandlerSuite struct {
 	suite.Suite
 	db           *pop.Connection
 	logger       *zap.Logger
-	filesToClose []*os.File
+	filesToClose []*runtime.File
 	sesService   sesiface.SESAPI
 }
 
@@ -126,33 +126,22 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
+	file, err := uploader.NewLocalFile(fixturePath)
 
-	info, err := os.Stat(fixturePath)
-	if err != nil {
-		suite.T().Fatal(err)
-	}
-	header := multipart.FileHeader{
-		Filename: name,
-		Size:     info.Size(),
-	}
-	data, err := os.Open(fixturePath)
 	if err != nil {
 		suite.T().Error(err)
 	}
-	suite.closeFile(data)
-	return &runtime.File{
-		Header: &header,
-		Data:   data,
-	}
+	suite.closeFile(file)
+	return file
 }
 
 func (suite *HandlerSuite) AfterTest() {
 	for _, file := range suite.filesToClose {
-		file.Close()
+		file.Data.Close()
 	}
 }
 
-func (suite *HandlerSuite) closeFile(file *os.File) {
+func (suite *HandlerSuite) closeFile(file *runtime.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 

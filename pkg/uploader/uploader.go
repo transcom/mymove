@@ -1,6 +1,9 @@
 package uploader
 
 import (
+	"mime/multipart"
+	"os"
+
 	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -19,6 +22,30 @@ type ZeroLengthFile struct {
 
 func (z ZeroLengthFile) Error() string {
 	return z.message
+}
+
+// NewLocalFile creates a *runtime.File from a file on the local filesystem
+func NewLocalFile(filePath string) (*runtime.File, error) {
+	info, err := os.Stat(filePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not stat file")
+	}
+	header := multipart.FileHeader{
+		Filename: info.Name(),
+		Size:     info.Size(),
+	}
+
+	/*
+		#nosec - this path should never come from user input
+	*/
+	data, err := os.Open(filePath)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not open file")
+	}
+	return &runtime.File{
+		Header: &header,
+		Data:   data,
+	}, nil
 }
 
 // Uploader encapsulates a few common processes: creating Uploads for a Document,
