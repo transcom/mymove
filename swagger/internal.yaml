@@ -1507,7 +1507,7 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report by
-      orders_status:
+      status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
