@@ -13,7 +13,7 @@ import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
 import { loadEntitlements } from 'scenes/Orders/ducks';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
-import { editBegin, editSuccessful } from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 
 const sitEstimateDebounceTime = 300;
 
@@ -173,6 +173,7 @@ class EditDateAndLocation extends Component {
 
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
   }
 
   render() {
@@ -247,7 +248,14 @@ function mapStateToProps(state) {
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, createOrUpdatePpm, getPpmSitEstimate, editBegin, editSuccessful },
+    {
+      push,
+      createOrUpdatePpm,
+      getPpmSitEstimate,
+      editBegin,
+      editSuccessful,
+      entitlementChangeBegin,
+    },
     dispatch,
   );
 }
