@@ -13,7 +13,12 @@ import SaveCancelButtons from './SaveCancelButtons';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-import { editBegin, editSuccessful } from './ducks';
+import {
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  entitlementChanged,
+} from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -78,7 +83,9 @@ EditProfileForm = reduxForm({
 class EditProfile extends Component {
   updateProfile = (fieldValues, something, elses) => {
     fieldValues.current_station_id = fieldValues.current_station.id;
-
+    if (fieldValues.rank !== this.props.serviceMember.rank) {
+      this.props.entitlementChanged();
+    }
     return this.props.updateServiceMember(fieldValues).then(() => {
       // This promise resolves regardless of error.
       if (!this.props.hasSubmitError) {
@@ -92,6 +99,7 @@ class EditProfile extends Component {
 
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
   }
 
   render() {
@@ -148,7 +156,14 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateServiceMember, editBegin, editSuccessful },
+    {
+      push,
+      updateServiceMember,
+      editBegin,
+      entitlementChangeBegin,
+      editSuccessful,
+      entitlementChanged,
+    },
     dispatch,
   );
 }

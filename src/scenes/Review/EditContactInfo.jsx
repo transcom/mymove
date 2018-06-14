@@ -10,7 +10,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { updateServiceMember } from 'scenes/ServiceMembers/ducks';
 
-import { editBegin, editSuccessful } from './ducks';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import 'scenes/ServiceMembers/ServiceMembers.css';
 import './Review.css';
 import SaveCancelButtons from './SaveCancelButtons';
@@ -151,6 +151,7 @@ class EditContact extends Component {
 
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
   }
 
   render() {
@@ -210,7 +211,13 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { push, updateServiceMember, editBegin, editSuccessful },
+    {
+      push,
+      updateServiceMember,
+      editBegin,
+      editSuccessful,
+      entitlementChangeBegin,
+    },
     dispatch,
   );
 }

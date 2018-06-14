@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import React from 'react';
 import PropTypes from 'prop-types';
+import './index.css';
 
 //this is taken from https://designsystem.digital.gov/components/alerts/
 const Alert = props => (

@@ -1,0 +1,7 @@
+.usa-alert {
+	white-space: pre-wrap;
+}
+
+.usa-alert.usa-alert-success p{
+	margin-bottom: 1rem;
+}
