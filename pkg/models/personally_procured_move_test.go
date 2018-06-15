@@ -56,7 +56,7 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
-	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 
