@@ -10,7 +10,7 @@ import {
   createServiceMember,
   isProfileComplete,
 } from 'scenes/ServiceMembers/ducks';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
 import Alert from 'shared/Alert';
@@ -151,7 +151,7 @@ const mapStateToProps = state => ({
   createdServiceMemberError: state.serviceMember.error,
   createdServiceMember: state.serviceMember.currentServiceMember,
   moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
-  entitlement: loadEntitlements(state),
+  entitlement: loadEntitlementsFromState(state),
 });
 
 function mapDispatchToProps(dispatch) {
