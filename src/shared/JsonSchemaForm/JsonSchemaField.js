@@ -69,7 +69,7 @@ const configureNumberField = (swaggerField, props) => {
 
 // TODO: This field should be smarter, it should store int-cents in the redux store
 // but allow the user to enter in dollars.
-// On first pass, that did not seem striaghtforward.
+// On first pass, that did not seem straightforward.
 const configureCentsField = (swaggerField, props) => {
   props.type = 'text';
   props.validate.push(validator.isNumber);

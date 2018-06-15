@@ -179,10 +179,6 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
-        x-nullable: true
       has_requested_advance:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
@@ -244,10 +240,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -312,11 +304,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        example: "$1000-2000"
-        title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -384,10 +371,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
         x-nullable: true
       mileage:
         type: integer
