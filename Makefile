@@ -1,5 +1,3 @@
-SHELL := /bin/bash
-
 NAME = ppp
 DB_DOCKER_CONTAINER = db-dev
 export PGPASSWORD=mysecretpassword
