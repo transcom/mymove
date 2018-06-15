@@ -24,7 +24,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         currentPpm: {
           destination_postal_code: '76127',
-          estimated_incentive: '$14954.09 - 16528.21',
+          incentive_estimate_min: 1495409,
+          incentive_estimate_max: 1652821,
           has_additional_postal_code: false,
           has_requested_advance: false,
           has_sit: false,
@@ -39,7 +40,8 @@ describe('Ppm Reducer', () => {
         hasSubmitSuccess: true,
         hasLoadError: false,
         hasLoadSuccess: true,
-        incentive: '$14954.09 - 16528.21',
+        incentive_estimate_min: 1495409,
+        incentive_estimate_max: 1652821,
         pendingPpmSize: 'L',
         pendingPpmWeight: 9000,
         pendingValue: '',
@@ -60,7 +62,8 @@ describe('Ppm Reducer', () => {
         hasSubmitSuccess: true,
         hasLoadError: false,
         hasLoadSuccess: true,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         pendingPpmSize: null,
         pendingPpmWeight: null,
         sitReimbursement: null,
@@ -81,7 +84,8 @@ describe('Ppm Reducer', () => {
         pendingPpmSize: null,
         pendingPpmWeight: null,
         currentPpm: samplePpm,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         sitReimbursement: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
@@ -116,7 +120,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         pendingValue: '',
         currentPpm: samplePpm,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         pendingPpmWeight: null,
         sitReimbursement: null,
         hasLoadError: false,
@@ -187,7 +192,8 @@ describe('Ppm Reducer', () => {
       });
 
       expect(newState).toEqual({
-        incentive: '$215.05 - 444.03',
+        incentive_estimate_min: 21505,
+        incentive_estimate_max: 44403,
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
@@ -209,7 +215,8 @@ describe('Ppm Reducer', () => {
         hasEstimateSuccess: false,
         pendingValue: '',
         rateEngineError: 'No bueno.',
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         error: null,
       });
     });

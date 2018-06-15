@@ -269,6 +269,8 @@ Migrations are run automatically by CircleCI as part of the standard deploy proc
 
 #### Secure Migrations
 
+**NOTICE**: Before adding SSNs or other PII, please consult with Infra.
+
 We are piggy-backing on the migration system for importing static datasets. This approach causes problems if the data isn't public, as all of the migrations are in this open source repository. To address this, we have what are called "secure migrations."
 
 To create a secure migration:
