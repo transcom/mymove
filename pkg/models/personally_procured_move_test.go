@@ -25,7 +25,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
-	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 
@@ -46,7 +46,7 @@ func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 
-	_, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
+	_, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
 	suite.True(verrs.HasAny())
 }

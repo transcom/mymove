@@ -39,7 +39,6 @@ type PersonallyProcuredMove struct {
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
 	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	EstimatedIncentive            *string                      `json:"estimated_incentive" db:"estimated_incentive"`
 	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`

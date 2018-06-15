@@ -13,8 +13,9 @@ import {
   createOrUpdatePpm,
   getPpmWeightEstimate,
 } from 'scenes/Moves/Ppm/ducks';
-import { loadEntitlements } from 'scenes/Orders/ducks';
-import { editBegin, editSuccessful } from './ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
+import { formatCentsRange } from 'shared/formatters';
+import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 import EntitlementBar from 'scenes/EntitlementBar';
 import './Review.css';
 import './EditWeight.css';
@@ -58,27 +59,29 @@ let EditWeightForm = props => {
     valid,
     entitlement,
     dirty,
-    incentive,
+    incentive_estimate_min,
+    incentive_estimate_max,
     onWeightChange,
     initialValues,
   } = props;
-
-  let incentiveMax;
-  if (incentive) {
-    // Is of the form "$500-700"
-    incentiveMax = Number(incentive.split('-')[1]);
-  }
 
   // Error class if below advance amount, otherwise warn class if incentive has changed
   let incentiveClass = '';
   let fieldClass = dirty ? 'warn' : '';
   let advanceError = false;
   const advanceAmt = get(initialValues, 'advance.requested_amount', 0);
-  if (incentiveMax && advanceAmt && incentiveMax < advanceAmt / 100) {
+  if (
+    incentive_estimate_max &&
+    advanceAmt &&
+    incentive_estimate_max < advanceAmt / 100
+  ) {
     advanceError = true;
     incentiveClass = 'error';
     fieldClass = 'error';
-  } else if (get(initialValues, 'estimated_incentive') !== incentive) {
+  } else if (
+    get(initialValues, 'incentive_estimate_min') !== incentive_estimate_min
+  ) {
+    // Min and max are linked, so we only need to check one
     incentiveClass = 'warn';
   }
 
@@ -109,7 +112,7 @@ let EditWeightForm = props => {
           <div>
             {!advanceError &&
               initialValues &&
-              initialValues.estimated_incentive &&
+              initialValues.incentive_estimate_min &&
               dirty && (
                 <div className="usa-alert usa-alert-warning">
                   <div className="usa-alert-body">
@@ -129,13 +132,23 @@ let EditWeightForm = props => {
           <div className="display-value">
             <p>Estimated Incentive</p>
             <p className={incentiveClass}>
-              <strong>{incentive || 'Unable to Calculate'}</strong>
+              <strong>
+                {formatCentsRange(
+                  incentive_estimate_min,
+                  incentive_estimate_max,
+                ) || 'Unable to Calculate'}
+              </strong>
             </p>
             {initialValues &&
-              initialValues.estimated_incentive &&
-              initialValues.estimated_incentive !== incentive && (
+              initialValues.incentive_estimate_min &&
+              initialValues.incentive_estimate_min !==
+                incentive_estimate_min && (
                 <p className="subtext">
-                  Originally {initialValues.estimated_incentive}
+                  Originally{' '}
+                  {formatCentsRange(
+                    initialValues.incentive_estimate_min,
+                    initialValues.incentive_estimate_min,
+                  )}
                 </p>
               )}
           </div>
@@ -183,6 +196,7 @@ EditWeightForm = reduxForm({
 class EditWeight extends Component {
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
     window.scrollTo(0, 0);
   }
 
@@ -210,7 +224,6 @@ class EditWeight extends Component {
     return this.props
       .createOrUpdatePpm(moveId, {
         weight_estimate: values.weight_estimate,
-        estimated_incentive: props.incentive,
       })
       .then(() => {
         // This promise resolves regardless of error.
@@ -229,7 +242,8 @@ class EditWeight extends Component {
       schema,
       currentPpm,
       entitlement,
-      incentive,
+      incentive_estimate_min,
+      incentive_estimate_max,
       hasEstimateError,
     } = this.props;
 
@@ -253,7 +267,8 @@ class EditWeight extends Component {
         <div className="usa-width-one-whole">
           <EditWeightForm
             initialValues={currentPpm}
-            incentive={incentive}
+            incentive_estimate_min={incentive_estimate_min}
+            incentive_estimate_max={incentive_estimate_max}
             onSubmit={this.updatePpm}
             onWeightChange={this.onWeightChange}
             entitlement={entitlement}
@@ -270,7 +285,7 @@ function mapStateToProps(state) {
     ...state.ppm,
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlementsFromState(state),
     schema: get(
       state,
       'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
@@ -287,6 +302,7 @@ function mapDispatchToProps(dispatch) {
       getPpmWeightEstimate,
       editBegin,
       editSuccessful,
+      entitlementChangeBegin,
     },
     dispatch,
   );

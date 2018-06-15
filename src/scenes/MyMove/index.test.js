@@ -13,7 +13,7 @@ describe('AppWrapper tests', () => {
 
   it('renders without crashing', () => {
     const appWrapper = _wrapper.find('div');
-    expect(appWrapper).toBeDefined;
+    expect(appWrapper).toBeDefined();
   });
 
   it('renders Header component', () => {
