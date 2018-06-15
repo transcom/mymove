@@ -10,16 +10,6 @@ ifeq ($(STORAGE_BACKEND),s3)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
 
-# This increases the limit for the number of open files to 5000, which prevents
-# a "too many open files" error during commits.
-all:
-	openfilelimit=${ulimit -n}
-	echo $(openfilelimit)
-	if [ $(openfilelimit) -gt 500 ]
-	then
-	  echo "big!"
-	fi
-
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
 ensure_pre_commit: .git/hooks/pre-commit
