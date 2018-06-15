@@ -23,7 +23,8 @@ const movePayload = {
   personally_procured_moves: [
     {
       destination_postal_code: '76127',
-      estimated_incentive: '$14954.09 - 16528.21',
+      incentive_estimate_min: 1495409,
+      incentive_estimate_max: 1652821,
       has_additional_postal_code: false,
       has_requested_advance: false,
       has_sit: false,

@@ -11,7 +11,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { createOrUpdatePpm, getPpmSitEstimate } from 'scenes/Moves/Ppm/ducks';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import 'scenes/Moves/Ppm/DateAndLocation.css';
 import { editBegin, editSuccessful, entitlementChangeBegin } from './ducks';
 
@@ -229,7 +229,7 @@ function mapStateToProps(state) {
     currentOrders: get(state.orders, 'currentOrders'),
     currentPpm: get(state.ppm, 'currentPpm'),
     formValues: getFormValues(editDateAndLocationFormName)(state),
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlementsFromState(state),
     error: get(state, 'ppm.error'),
     hasSubmitError: get(state, 'ppm.hasSubmitError'),
   };
