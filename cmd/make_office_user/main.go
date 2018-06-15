@@ -20,7 +20,7 @@ func mustSave(db *pop.Connection, model interface{}) {
 
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	email := flag.String("email", "", "The email of the office user to create")
 	firstName := flag.String("first_name", "Testy", "First name of the office user to create")
 	lastName := flag.String("last_name", "McTester", "Last name of the office user to create")

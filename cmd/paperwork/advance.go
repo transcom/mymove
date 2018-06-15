@@ -12,7 +12,7 @@ import (
 
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 
 	moveID := flag.String("move", "", "The move ID to generate advance paperwork for")
 	flag.Parse()
