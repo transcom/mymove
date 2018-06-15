@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/namsral/flag"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/paperwork"
 )
@@ -27,12 +28,19 @@ func main() {
 		log.Fatal(err)
 	}
 
+	logger, err := zap.NewDevelopment()
+
+	if err != nil {
+		log.Fatalf("Failed to initialize Zap logging due to %v", err)
+	}
+
 	if *moveID == "" {
 		log.Fatal("Usage: paperwork -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
+	generator := paperwork.NewGenerator(db, logger)
 	id := uuid.Must(uuid.FromString(*moveID))
-	if err = paperwork.GenerateAdvancePaperwork(db, id); err != nil {
+	if err = generator.GenerateAdvancePaperwork(id); err != nil {
 		log.Fatal(err)
 	}
 }
