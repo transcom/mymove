@@ -1,9 +1,17 @@
-package edi
+package edisegment
 
 import (
 	"math"
 	"strconv"
 )
+
+// Segment represents an EDI segment
+type Segment interface {
+	String(delimeter string) string
+	Parse(parts []string) error
+}
+
+// --- Some helper functions for parsing attributes from X12 EDI segments
 
 // NxToFloat converts strings with the "numeric" EDI attribute type to float64.
 // This is a type with an implied decimal.

@@ -1,9 +1,10 @@
 package invoice
 
 import (
-	"edi"
 	"fmt"
 	"time"
+
+	"github.com/transcom/mymove/pkg/edi/segment"
 )
 
 const dateFormat = "20060102"
@@ -27,11 +28,11 @@ var locationType = map[string]string{
 // Parser859 represents an EDI 859 parser
 type Parser859 struct {
 	invoice  Invoice
-	segments []edi.Segment
+	segments []edisegment.Segment
 }
 
 // NewParser859 creates a new Parser859
-func NewParser859(segments []edi.Segment) *Parser859 {
+func NewParser859(segments []edisegment.Segment) *Parser859 {
 	return &Parser859{segments: segments}
 }
 
@@ -47,18 +48,18 @@ func (p *Parser859) Parse() error {
 		segment := p.segments[i]
 
 		switch segment.(type) {
-		case *edi.B3:
-			err = p.parseB3(*segment.(*edi.B3))
-		case *edi.B3A:
-			err = p.parseB3A(*segment.(*edi.B3A))
-		case *edi.G62:
-			err = p.parseG62(*segment.(*edi.G62))
-		case *edi.LX:
+		case *edisegment.B3:
+			err = p.parseB3(*segment.(*edisegment.B3))
+		case *edisegment.B3A:
+			err = p.parseB3A(*segment.(*edisegment.B3A))
+		case *edisegment.G62:
+			err = p.parseG62(*segment.(*edisegment.G62))
+		case *edisegment.LX:
 			i, err = p.parseLXLoop(i)
-		case *edi.N1:
+		case *edisegment.N1:
 			i, err = p.parseN1Loop(i, nil)
-		case *edi.N9:
-			err = p.parseN9(*segment.(*edi.N9), nil)
+		case *edisegment.N9:
+			err = p.parseN9(*segment.(*edisegment.N9), nil)
 		}
 
 		if err != nil {
@@ -69,7 +70,7 @@ func (p *Parser859) Parse() error {
 	return nil
 }
 
-func (p *Parser859) parseB3(b3 edi.B3) error {
+func (p *Parser859) parseB3(b3 edisegment.B3) error {
 	p.invoice.InvoiceID = b3.InvoiceNumber
 	p.invoice.Shipment.ShipmentID = b3.ShipmentIdentificationNumber
 	if b3.ShipmentMethodOfPayment != "PP" {
@@ -96,14 +97,14 @@ func (p *Parser859) parseB3(b3 edi.B3) error {
 	return nil
 }
 
-func (p *Parser859) parseB3A(b3a edi.B3A) error {
+func (p *Parser859) parseB3A(b3a edisegment.B3A) error {
 	if b3a.TransactionTypeCode != "DI" {
 		return fmt.Errorf("B3A: Expected B3A01 to be DI (debit invoice), got: %s", b3a.TransactionTypeCode)
 	}
 	return nil
 }
 
-func (p *Parser859) parseG62(g62 edi.G62) error {
+func (p *Parser859) parseG62(g62 edisegment.G62) error {
 	date, err := time.Parse(dateFormat, g62.Date)
 	if err != nil {
 		return err
@@ -133,16 +134,16 @@ F:
 	for i++; i < len(p.segments); i++ {
 		segment := p.segments[i]
 		switch segment.(type) {
-		case *edi.L0:
+		case *edisegment.L0:
 			i, err = p.parseL0Loop(i, &lineItem)
-		case *edi.L5:
-			lineItem.Descriptions = append(lineItem.Descriptions, segment.(*edi.L5).LadingDescription)
-		case *edi.L7:
-			lineItem.ItemCode = segment.(*edi.L7).TariffItemNumber
-		case *edi.N1:
+		case *edisegment.L5:
+			lineItem.Descriptions = append(lineItem.Descriptions, segment.(*edisegment.L5).LadingDescription)
+		case *edisegment.L7:
+			lineItem.ItemCode = segment.(*edisegment.L7).TariffItemNumber
+		case *edisegment.N1:
 			i, err = p.parseN1Loop(i, &lineItem)
-		case *edi.N9:
-			err = p.parseN9(*segment.(*edi.N9), &lineItem)
+		case *edisegment.N9:
+			err = p.parseN9(*segment.(*edisegment.N9), &lineItem)
 		default:
 			break F
 		}
@@ -153,13 +154,13 @@ F:
 	}
 
 	p.invoice.LineItems = append(p.invoice.LineItems, lineItem)
-	return nil, i - 1
+	return i - 1, nil
 }
 
 func (p *Parser859) parseL0Loop(i int, lineItem *LineItem) (int, error) {
 	charge := LineItemCharge{}
 	segment := p.segments[i] // L0 segment
-	err := p.parseL0(*segment.(*edi.L0), &charge)
+	err := p.parseL0(*segment.(*edisegment.L0), &charge)
 	if err != nil {
 		return i, err
 	}
@@ -168,10 +169,10 @@ F:
 	for i++; i < len(p.segments); i++ {
 		segment = p.segments[i]
 		switch segment.(type) {
-		case *edi.L1:
-			err = p.parseL1(*segment.(*edi.L1), &charge)
-		case *edi.MEA:
-			err = p.parseMEA(*segment.(*edi.MEA), &charge)
+		case *edisegment.L1:
+			err = p.parseL1(*segment.(*edisegment.L1), &charge)
+		case *edisegment.MEA:
+			err = p.parseMEA(*segment.(*edisegment.MEA), &charge)
 		default:
 			break F
 		}
@@ -185,7 +186,7 @@ F:
 	return i - 1, nil
 }
 
-func (p *Parser859) parseL0(l0 edi.L0, charge *LineItemCharge) error {
+func (p *Parser859) parseL0(l0 edisegment.L0, charge *LineItemCharge) error {
 	switch l0.BilledRatedAsQualifier {
 	case "CF": // Cubic foot
 		charge.VolumeCubicFeet = l0.BilledRatedAsQuantity
@@ -213,7 +214,7 @@ func (p *Parser859) parseL0(l0 edi.L0, charge *LineItemCharge) error {
 	return nil
 }
 
-func (p *Parser859) parseL1(l1 edi.L1, charge *LineItemCharge) error {
+func (p *Parser859) parseL1(l1 edisegment.L1, charge *LineItemCharge) error {
 	if l1.RateValueQualifier != "RC" {
 		return fmt.Errorf("L1: expected L103 to be RC, got %s", l1.RateValueQualifier)
 	}
@@ -224,7 +225,7 @@ func (p *Parser859) parseL1(l1 edi.L1, charge *LineItemCharge) error {
 	return nil
 }
 
-func (p *Parser859) parseMEA(mea edi.MEA, charge *LineItemCharge) error {
+func (p *Parser859) parseMEA(mea edisegment.MEA, charge *LineItemCharge) error {
 	switch mea.MeasurementReferenceIDCode {
 	case "BC":
 		if mea.MeasurementQualifier == "B" {
@@ -251,7 +252,7 @@ func (p *Parser859) parseMEA(mea edi.MEA, charge *LineItemCharge) error {
 }
 
 func (p *Parser859) parseN1Loop(i int, lineItem *LineItem) (int, error) {
-	n1 := *p.segments[i].(*edi.N1)
+	n1 := *p.segments[i].(*edisegment.N1)
 	switch n1.EntityIdentifierCode {
 	case "RG":
 		if n1.IdentificationCodeQualifier == "27" { // 27 = GBLOC
@@ -272,7 +273,7 @@ func (p *Parser859) parseN1Loop(i int, lineItem *LineItem) (int, error) {
 		}
 		i++
 		location := Location{Name: n1.Name, LocationType: t}
-		n4, ok := p.segments[i].(*edi.N4)
+		n4, ok := p.segments[i].(*edisegment.N4)
 		if !ok {
 			return i, fmt.Errorf("Missing expected N4 in N1 loop")
 		}
@@ -288,7 +289,7 @@ func (p *Parser859) parseN1Loop(i int, lineItem *LineItem) (int, error) {
 	return i, nil
 }
 
-func (p *Parser859) parseN4(n4 edi.N4, location *Location) error {
+func (p *Parser859) parseN4(n4 edisegment.N4, location *Location) error {
 	location.City = n4.CityName
 	location.State = n4.StateOrProvinceCode
 	location.PostalCode = n4.PostalCode
@@ -304,7 +305,7 @@ func (p *Parser859) parseN4(n4 edi.N4, location *Location) error {
 	return nil
 }
 
-func (p *Parser859) parseN9(n9 edi.N9, lineItem *LineItem) error {
+func (p *Parser859) parseN9(n9 edisegment.N9, lineItem *LineItem) error {
 	switch n9.ReferenceIdentificationQualifier {
 	case "0L":
 		if lineItem == nil {

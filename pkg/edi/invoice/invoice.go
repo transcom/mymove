@@ -9,7 +9,7 @@ type Invoice struct {
 	InvoiceDate  time.Time
 	InvoiceID    string
 	Shipment     Shipment
-	LineItems    []InvoiceLineItem
+	LineItems    []LineItem
 	NetAmountDue float64
 }
 
@@ -31,7 +31,7 @@ type LineItem struct {
 	Descriptions       []string
 	Charge             LineItemCharge
 	ItemCode           string
-	Locations          []InvoiceLocation
+	Locations          []Location
 	Note               string
 	SITControlNumber   string
 	SyncadaMatchNumber string
