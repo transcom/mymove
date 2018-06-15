@@ -35,7 +35,6 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		newMove.CreatePPM(suite.db,
 			nil,
 			models.Int64Pointer(8000),
-			models.StringPointer("estimate incentive"),
 			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
 			models.StringPointer("72017"),
 			models.BoolPointer(false),
