@@ -13,15 +13,15 @@ func (suite *ModelSuite) TestReimbursementStateMachine() {
 
 	err := reimbursement.Request()
 	suite.Nil(err)
-	suite.Equal(reimbursement.Status, ReimbursementStatusREQUESTED, "expected Requested")
+	suite.Equal(ReimbursementStatusREQUESTED, reimbursement.Status, "expected Requested")
 
 	err = reimbursement.Approve()
 	suite.Nil(err)
-	suite.Equal(reimbursement.Status, ReimbursementStatusAPPROVED, "expected Approved")
+	suite.Equal(ReimbursementStatusAPPROVED, reimbursement.Status, "expected Approved")
 
 	err = reimbursement.Pay()
 	suite.Nil(err)
-	suite.Equal(reimbursement.Status, ReimbursementStatusPAID, "expected Paid")
+	suite.Equal(ReimbursementStatusPAID, reimbursement.Status, "expected Paid")
 
 	err = reimbursement.Reject()
 	suite.Equal(ErrInvalidTransition, errors.Cause(err))
