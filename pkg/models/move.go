@@ -27,6 +27,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCOMPLETED captures enum value "COMPLETED"
 	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+	// MoveStatusCANCELED captures enum value "CANCELED"
+	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
 const maxLocatorAttempts = 3
@@ -72,6 +74,9 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// State Machine
+// Avoid calling Move.Status = ... ever. Use these methods to change the state.
+
 // Submit submits the Move
 func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {
@@ -81,12 +86,38 @@ func (m *Move) Submit() error {
 	m.Status = MoveStatusSUBMITTED
 
 	//TODO: update PPM status too
+	// for i, _ := range m.PersonallyProcuredMoves {
+	// 	err := m.PersonallyProcuredMoves[i].Submit()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
 			if err != nil {
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+// Cancel cancels the Move and its associated PPMs
+func (m *Move) Cancel() error {
+	if m.Status != MoveStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	m.Status = MoveStatusCANCELED
+
+	// This will work only if you use the PPM in question rather than a var representing it
+	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Cancel()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
