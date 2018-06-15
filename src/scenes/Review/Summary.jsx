@@ -8,7 +8,8 @@ import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
 import { moveIsApproved } from 'scenes/Moves/ducks';
-import { loadEntitlements } from 'scenes/Orders/ducks';
+import { formatCentsRange } from 'shared/formatters';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 import { checkEntitlement } from './ducks';
 import Alert from 'shared/Alert';
 import { titleCase } from 'shared/constants.js';
@@ -367,7 +368,14 @@ export class Summary extends Component {
                   </tr>
                   <tr>
                     <td> Estimated PPM Incentive: </td>
-                    <td> {currentPpm && currentPpm.estimated_incentive}</td>
+                    <td>
+                      {' '}
+                      {currentPpm &&
+                        formatCentsRange(
+                          currentPpm.incentive_estimate_min,
+                          currentPpm.incentive_estimate_max,
+                        )}
+                    </td>
                   </tr>
                   {currentPpm.has_requested_advance && (
                     <tr>
@@ -418,14 +426,14 @@ function mapStateToProps(state) {
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
     reviewState: state.review,
-    entitlement: loadEntitlements(state),
+    entitlement: loadEntitlementsFromState(state),
   };
 }
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       checkEntitlement,
-      loadEntitlements,
+      loadEntitlementsFromState,
     },
     dispatch,
   );
