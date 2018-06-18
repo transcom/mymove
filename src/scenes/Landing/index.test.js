@@ -1,9 +1,7 @@
+import 'raf/polyfill';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
 import { Landing } from '.';
-import { no_op } from 'shared/utils';
 
 describe('HomePage tests', () => {
   let wrapper;
