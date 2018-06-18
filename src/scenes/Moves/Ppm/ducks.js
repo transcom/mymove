@@ -20,9 +20,6 @@ export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_PPM_ESTIMATE',
 );
-export const GET_PPM_MAX_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
-  'GET_PPM_MAX_ESTIMATE',
-);
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
@@ -30,10 +27,6 @@ export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 function formatSitEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
   return `$${(estimate / 100).toFixed(2)}`;
-}
-
-function calculateMaxAdvance(estimate) {
-  return estimate / 100 * 0.6;
 }
 
 // Action creation
@@ -52,21 +45,6 @@ export function getPpmWeightEstimate(
   weightEstimate,
 ) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
-  return function(dispatch, getState) {
-    dispatch(action.start());
-    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
-  };
-}
-
-export function getPpmMaxWeightEstimate(
-  moveDate,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM_MAX_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
     return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
@@ -157,6 +135,12 @@ export function getRawWeightInfo(state) {
   };
 }
 
+export function getMaxAdvance(state) {
+  const maxIncentive = get(state, 'ppm.currentPpm.incentive_estimate_max');
+  // we are using 20000000 since it is the largest number MacRae found that could be stored in table
+  // and we don't want to block the user from requesting an advance if the rate engine fails
+  return maxIncentive ? 0.6 * maxIncentive : 20000000;
+}
 export function getSelectedWeightInfo(state) {
   const weightInfo = getRawWeightInfo(state);
   const ppm = get(state, 'ppm.currentPpm', null);
@@ -302,28 +286,6 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
-        rateEngineError: action.error,
-        error: null,
-      });
-    case GET_PPM_MAX_ESTIMATE.start:
-      return Object.assign({}, state, {
-        hasMaxEstimateSuccess: false,
-        hasMaxEstimateInProgress: true,
-      });
-    case GET_PPM_MAX_ESTIMATE.success:
-      return Object.assign({}, state, {
-        maxIncentive: calculateMaxAdvance(action.payload.range_max),
-        hasMaxEstimateSuccess: true,
-        hasMaxEstimateError: false,
-        hasMaxEstimateInProgress: false,
-        rateEngineError: null,
-      });
-    case GET_PPM_MAX_ESTIMATE.failure:
-      return Object.assign({}, state, {
-        maxIncentive: null,
-        hasMaxEstimateSuccess: false,
-        hasMaxEstimateError: true,
-        hasMaxEstimateInProgress: false,
         rateEngineError: action.error,
         error: null,
       });

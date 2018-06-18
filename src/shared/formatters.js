@@ -29,6 +29,7 @@ export function formatCentsRange(min, max) {
   return `$${formatCents(min)} - ${formatCents(max)}`;
 }
 
+//Note: below are formatters for the office app, but not the service member app
 // Format a date and ignore any time values, e.g. 03-Jan-2018
 export function formatDate(date) {
   if (date) {
