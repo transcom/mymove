@@ -62,7 +62,7 @@ class BigButtonGroup extends Component {
             {(!isMobile || (isSelected && !this.state.isHidden)) && (
               <div>
                 {Object.keys(prosList || {}).map(function(key) {
-                  const pros = prosList[key];
+                  const pros = prosList[key]; // eslint-disable-line security/detect-object-injection
                   return (
                     <div key={key.toString()}>
                       <p>{key}</p>

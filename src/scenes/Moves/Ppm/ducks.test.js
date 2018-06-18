@@ -3,7 +3,6 @@ import {
   GET_PPM,
   GET_SIT_ESTIMATE,
   GET_PPM_ESTIMATE,
-  GET_PPM_MAX_ESTIMATE,
   ppmReducer,
   getMaxAdvance,
 } from './ducks';

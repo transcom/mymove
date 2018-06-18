@@ -149,7 +149,7 @@ export function getSelectedWeightInfo(state) {
   }
 
   const size = ppm ? ppm.size : 'L';
-  return weightInfo[size];
+  return weightInfo[size]; // eslint-disable-line security/detect-object-injection
 }
 
 // Reducer
