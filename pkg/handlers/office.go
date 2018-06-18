@@ -52,14 +52,28 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
+	// Canceling move with result in canceled associated PPMs
 	err = move.Cancel()
 	if err != nil {
-		h.logger.Error("Attempted to cancel, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return responseForError(h.logger, err)
+	}
+	// If move is canceled, orders must be canceled
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	err = orders.Cancel()
+	if err != nil {
+		h.logger.Error("Attempted to cancel orders, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
 		return responseForError(h.logger, err)
 	}
 
 	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+	verrs, err = h.db.ValidateAndUpdate(orders)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
