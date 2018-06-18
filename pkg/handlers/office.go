@@ -39,6 +39,38 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 	return officeop.NewApproveMoveOK().WithPayload(movePayload)
 }
 
+// CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
+type CancelMoveHandler HandlerContext
+
+// Handle ... cancels a Move from a request payload
+func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = move.Cancel()
+	if err != nil {
+		h.logger.Error("Attempted to cancel, got invalid transition", zap.Error(err), zap.String("reimbursement_status", string(reimbursement.Status)))
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err := h.db.ValidateAndUpdate(move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return officeop.NewCancelMoveOK().WithPayload(movePayload)
+}
+
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
 type ApprovePPMHandler HandlerContext
 

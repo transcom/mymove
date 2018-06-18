@@ -459,6 +459,9 @@ definitions:
         $ref: '#/definitions/SelectedMoveType'
       status:
         $ref: '#/definitions/MoveStatus'
+      cancel_reason:
+        type: string
+        example: "Change of orders"
       created_at:
         type: string
         format: date-time
