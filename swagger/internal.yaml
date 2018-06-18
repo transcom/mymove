@@ -179,10 +179,6 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
-        x-nullable: true
       has_requested_advance:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
@@ -244,10 +240,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -312,11 +304,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        example: "$1000-2000"
-        title: Estimated Incentive
         x-nullable: true
       has_requested_advance:
         type: boolean
@@ -384,10 +371,6 @@ definitions:
         type: integer
         minimum: 1
         title: Weight Estimate
-        x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
         x-nullable: true
       mileage:
         type: integer
@@ -2915,3 +2898,24 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+  /entitlements/{moveId}:
+    get:
+      summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
+      description: Determine whether weight estimate is below entitlement
+      operationId: validateEntitlement
+      tags:
+        - entitlements
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: weight estimate is below allotted entitlement
+        404:
+          description: personally procured move not found
+        409:
+          description: Requested weight estimate is above allotted entitlement
