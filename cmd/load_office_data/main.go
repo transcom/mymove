@@ -108,7 +108,7 @@ func splitOnNewLineAndCommaThenJoin(s string) string {
 
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	jsonFile := flag.String("jsonFile", "", "Json File name to load - should be a *.json file containing PPO data")
 	// xmlFile := flag.String("xmlFile", "", "XML File name to load - should be a *.xlsx file containing PPPO-PPSO relationships")
 	flag.Parse()
