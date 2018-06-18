@@ -12,7 +12,7 @@ import ppmSubmitted from './images/ppm-submitted.png';
 import ppmApproved from './images/ppm-approved.png';
 import ppmInProgress from './images/ppm-in-progress.png';
 import { ppmInfoPacket } from 'shared/constants';
-import { formatCents } from 'shared/formatters';
+import { formatCents, formatCentsRange } from 'shared/formatters';
 
 export const MoveSummary = props => {
   const {
@@ -132,7 +132,13 @@ export const MoveSummary = props => {
                     <div className="titled_block">
                       <div className="title">Details</div>
                       <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-                      <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                      <div>
+                        Incentive (est.):{' '}
+                        {formatCentsRange(
+                          ppm.incentive_estimate_min,
+                          ppm.incentive_estimate_max,
+                        )}
+                      </div>
                       {ppm.has_sit && <div>{hasSitString}</div>}
                       {ppm.has_requested_advance && <div>{advanceString}</div>}
                     </div>
@@ -208,7 +214,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-                        <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                        <div>
+                          Incentive (est.):{' '}
+                          {formatCentsRange(
+                            ppm.incentive_estimate_min,
+                            ppm.incentive_estimate_max,
+                          )}
+                        </div>
                         {ppm.has_sit && <div>{hasSitString}</div>}
                         {ppm.has_requested_advance && (
                           <div>{advanceString}</div>
@@ -271,7 +283,13 @@ export const MoveSummary = props => {
                       <div className="titled_block">
                         <div className="title">Details</div>
                         <div>Weight (est.): {ppm.weight_estimate} lbs</div>
-                        <div>Incentive (est.): {ppm.estimated_incentive}</div>
+                        <div>
+                          Incentive (est.):{' '}
+                          {formatCentsRange(
+                            ppm.incentive_estimate_min,
+                            ppm.incentive_estimate_max,
+                          )}
+                        </div>
                         {ppm.has_sit && <div>{hasSitString}</div>}
                         {ppm.has_requested_advance && (
                           <div>{advanceString}</div>

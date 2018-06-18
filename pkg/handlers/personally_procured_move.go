@@ -28,7 +28,6 @@ func payloadForPPMModel(storage FileStorer, personallyProcuredMove models.Person
 		UpdatedAt:                     fmtDateTime(personallyProcuredMove.UpdatedAt),
 		Size:                          personallyProcuredMove.Size,
 		WeightEstimate:                personallyProcuredMove.WeightEstimate,
-		EstimatedIncentive:            personallyProcuredMove.EstimatedIncentive,
 		PlannedMoveDate:               fmtDatePtr(personallyProcuredMove.PlannedMoveDate),
 		PickupPostalCode:              personallyProcuredMove.PickupPostalCode,
 		HasAdditionalPostalCode:       personallyProcuredMove.HasAdditionalPostalCode,
@@ -88,7 +87,6 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 	newPPM, verrs, err := move.CreatePPM(h.db,
 		payload.Size,
 		payload.WeightEstimate,
-		payload.EstimatedIncentive,
 		(*time.Time)(payload.PlannedMoveDate),
 		payload.PickupPostalCode,
 		payload.HasAdditionalPostalCode,
@@ -148,9 +146,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	}
 	if payload.WeightEstimate != nil {
 		ppm.WeightEstimate = payload.WeightEstimate
-	}
-	if payload.EstimatedIncentive != nil {
-		ppm.EstimatedIncentive = payload.EstimatedIncentive
 	}
 	if payload.PlannedMoveDate != nil {
 		ppm.PlannedMoveDate = (*time.Time)(payload.PlannedMoveDate)
