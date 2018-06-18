@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.6
+  version: 0.0.7
   title: MyMove Orders Gateway
   license:
     name: MIT
@@ -368,6 +368,11 @@ definitions:
           If supplied, this is the preferred form of address or preferred human-readable title. This is especially useful when a rank has multiple possible titles. For example, in the Army, an E-4 can be either a Specialist or a Corporal. In the Navy, there are dozens of possible job titles and ratings for enlisted sailors. In the Marine Corps, an E-8 can be either a Master Sergeant or a First Sergeant, and they do care about the distinction.
 
           If omitted, MyMove will show the member the default name for the provided rank and affiliation.
+      dateOfBirth:
+        type: string
+        description: |
+          Date of Birth. Provide this if it is known, especially when POST-ing a Revision using the member's SSN as the memberId. In this case, the Orders Gateway will need to retrieve the member's EDIPI from DMDC's Identity Web Services, which expects first name, last name, date of birth, and SSN to guarantee a single EDIPI match.
+        format: date
     required:
       - givenName
       - familyName
