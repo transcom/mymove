@@ -55,14 +55,17 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	submittedText := "Your move has been submitted to your local transportation office for review. "
+	destinationDutyStation, err := models.FetchDutyStation(m.db, orders.NewDutyStationID)
+	if err != nil {
+		return emails, err
+	}
+	submittedText := fmt.Sprintf(
+		"Your move to %s has been submitted to your local transportation office for review. ",
+		destinationDutyStation.Name,
+	)
+
 	if serviceMember.DutyStationID != nil {
 		originDutyStation, err := models.FetchDutyStation(m.db, *serviceMember.DutyStationID)
-		if err != nil {
-			return emails, err
-		}
-
-		destinationDutyStation, err := models.FetchDutyStation(m.db, orders.NewDutyStationID)
 		if err != nil {
 			return emails, err
 		}
