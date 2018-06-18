@@ -1,3 +1,4 @@
+import 'raf/polyfill';
 import { getPagesInFlow, getNextIncompletePage } from './getWorkflowRoutes';
 import { NULL_UUID } from 'shared/constants';
 describe('when getting the routes for the current workflow', () => {

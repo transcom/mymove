@@ -11,12 +11,12 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
-import { formatCentsRange, formatNumber } from 'shared/formatters';
+import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
 import {
   getPpmWeightEstimate,
   createOrUpdatePpm,
-  getPpmMaxWeightEstimate,
   getSelectedWeightInfo,
+  getMaxAdvance,
 } from './ducks';
 
 import 'react-rangeslider/lib/index.css';
@@ -26,11 +26,9 @@ const requestedTitle = maxAdvance => {
   return (
     <Fragment>
       <div className="ppmquestion">How much advance do you want?</div>
-      {maxAdvance && (
-        <div className="ppmmuted">
-          Up to {maxAdvance} (60% of your PPM incentive)
-        </div>
-      )}
+      <div className="ppmmuted">
+        Up to ${formatCents(maxAdvance)} (60% of your PPM incentive)
+      </div>
     </Fragment>
   );
 };
@@ -46,24 +44,16 @@ const methodTitle = (
   </Fragment>
 );
 
-const formatMaxAdvance = maxAdvance => {
-  return `$${maxAdvance.toFixed(2)}`;
-};
-
 const validateAdvanceForm = (values, form) => {
   if (values.hasEstimateInProgress) {
     return { has_requested_advance: 'Estimate in progress.' };
   }
 
-  let maxIncentive = values.maxIncentive;
-  if (!maxIncentive) {
-    maxIncentive = 20000000; // This is about as big a number as postgres will take from us right now.
-    // the back office can check anything egregious here.
-  }
+  const maxAdvance = values.maxAdvance;
 
-  if (parseFloat(values.requested_amount) > parseFloat(maxIncentive)) {
+  if (parseFloat(values.requested_amount) > maxAdvance / 100) {
     return {
-      requested_amount: `Must be less than ${formatMaxAdvance(maxIncentive)}`,
+      requested_amount: `Must be less than $${formatCents(maxAdvance)}`,
     };
   }
 };
@@ -80,19 +70,16 @@ class RequestAdvanceForm extends Component {
   };
 
   render() {
-    const { hasRequestedAdvance, maxIncentive, ppmAdvanceSchema } = this.props;
-    let maxAdvance = '';
-    if (maxIncentive) {
-      maxAdvance = formatMaxAdvance(maxIncentive);
-    }
+    const { hasRequestedAdvance, maxAdvance, ppmAdvanceSchema } = this.props;
     return (
       <div className="whole_box">
         <div>
           <div className="usa-width-one-whole">
             <div className="usa-width-two-thirds">
               <div className="ppmquestion">
-                Would you like an advance of up to 60% of your PPM incentive?{' '}
-                {maxAdvance && '(' + maxAdvance + ')'}
+                Would you like an advance of up to 60% of your PPM incentive? (${formatCents(
+                  maxAdvance,
+                )})
               </div>
               <div className="ppmmuted">
                 We recommend paying for expenses with your government travel
@@ -190,7 +177,7 @@ export class PpmWeight extends Component {
   // it runs even if the incentive has been set before since data changes on previous pages could
   // affect it
   updateIncentive() {
-    const { currentWeight, currentPpm, selectedWeightInfo } = this.props;
+    const { currentWeight, currentPpm } = this.props;
     const weight_estimate = get(this.props, 'currentPpm.weight_estimate');
     if (
       ![this.state.pendingPpmWeight, weight_estimate].includes(currentWeight)
@@ -203,13 +190,6 @@ export class PpmWeight extends Component {
         currentWeight,
       );
     }
-
-    this.props.getPpmMaxWeightEstimate(
-      currentPpm.planned_move_date,
-      currentPpm.pickup_postal_code,
-      currentPpm.destination_postal_code,
-      selectedWeightInfo.max,
-    );
   }
   handleSubmit = () => {
     const { createOrUpdatePpm, advanceFormData } = this.props;
@@ -252,11 +232,11 @@ export class PpmWeight extends Component {
       currentPpm,
       incentive_estimate_min,
       incentive_estimate_max,
+      maxAdvance,
       pages,
       pageKey,
       hasSubmitSuccess,
       hasLoadSuccess,
-      maxIncentive,
       hasEstimateInProgress,
       error,
       hasEstimateError,
@@ -295,7 +275,11 @@ export class PpmWeight extends Component {
         hasSucceeded={hasSubmitSuccess}
         initialValues={advanceInitialValues}
         serverError={error}
-        additionalValues={{ hasEstimateInProgress, maxIncentive }}
+        additionalValues={{
+          hasEstimateInProgress,
+          incentive_estimate_max,
+          maxAdvance,
+        }}
       >
         {error && (
           <div className="usa-width-one-whole error-message">
@@ -361,7 +345,7 @@ export class PpmWeight extends Component {
             <RequestAdvanceForm
               ppmAdvanceSchema={ppmAdvanceSchema}
               hasRequestedAdvance={hasRequestedAdvance}
-              maxIncentive={maxIncentive}
+              maxAdvance={maxAdvance}
               initialValues={advanceInitialValues}
             />
 
@@ -419,6 +403,7 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
+    maxAdvance: getMaxAdvance(state),
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
@@ -433,7 +418,6 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       getPpmWeightEstimate,
-      getPpmMaxWeightEstimate,
       createOrUpdatePpm,
     },
     dispatch,
