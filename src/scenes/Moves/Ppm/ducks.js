@@ -135,6 +135,12 @@ export function getRawWeightInfo(state) {
   };
 }
 
+export function getMaxAdvance(state) {
+  const maxIncentive = get(state, 'ppm.currentPpm.incentive_estimate_max');
+  // we are using 20000000 since it is the largest number MacRae found that could be stored in table
+  // and we don't want to block the user from requesting an advance if the rate engine fails
+  return maxIncentive ? 0.6 * maxIncentive : 20000000;
+}
 export function getSelectedWeightInfo(state) {
   const weightInfo = getRawWeightInfo(state);
   const ppm = get(state, 'ppm.currentPpm', null);

@@ -16,6 +16,7 @@ import {
   getPpmWeightEstimate,
   createOrUpdatePpm,
   getSelectedWeightInfo,
+  getMaxAdvance,
 } from './ducks';
 
 import 'react-rangeslider/lib/index.css';
@@ -48,11 +49,9 @@ const validateAdvanceForm = (values, form) => {
     return { has_requested_advance: 'Estimate in progress.' };
   }
 
-  const maxAdvance = values.incentive_estimate_max
-    ? 0.6 * values.incentive_estimate_max
-    : 20000000;
+  const maxAdvance = values.maxAdvance;
 
-  if (parseFloat(values.requested_amount) > parseFloat(maxAdvance / 100)) {
+  if (parseFloat(values.requested_amount) > maxAdvance / 100) {
     return {
       requested_amount: `Must be less than $${formatCents(maxAdvance)}`,
     };
@@ -71,12 +70,7 @@ class RequestAdvanceForm extends Component {
   };
 
   render() {
-    const {
-      hasRequestedAdvance,
-      incentive_estimate_max,
-      ppmAdvanceSchema,
-    } = this.props;
-    const maxAdvance = 0.6 * incentive_estimate_max;
+    const { hasRequestedAdvance, maxAdvance, ppmAdvanceSchema } = this.props;
     return (
       <div className="whole_box">
         <div>
@@ -238,6 +232,7 @@ export class PpmWeight extends Component {
       currentPpm,
       incentive_estimate_min,
       incentive_estimate_max,
+      maxAdvance,
       pages,
       pageKey,
       hasSubmitSuccess,
@@ -283,6 +278,7 @@ export class PpmWeight extends Component {
         additionalValues={{
           hasEstimateInProgress,
           incentive_estimate_max,
+          maxAdvance,
         }}
       >
         {error && (
@@ -349,7 +345,7 @@ export class PpmWeight extends Component {
             <RequestAdvanceForm
               ppmAdvanceSchema={ppmAdvanceSchema}
               hasRequestedAdvance={hasRequestedAdvance}
-              incentive_estimate_max={incentive_estimate_max}
+              maxAdvance={maxAdvance}
               initialValues={advanceInitialValues}
             />
 
@@ -407,6 +403,7 @@ function mapStateToProps(state) {
 
   const props = {
     ...state.ppm,
+    maxAdvance: getMaxAdvance(state),
     selectedWeightInfo: getSelectedWeightInfo(state),
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
