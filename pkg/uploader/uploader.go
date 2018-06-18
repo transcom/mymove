@@ -113,9 +113,6 @@ func (u *Uploader) CreateUpload(documentID uuid.UUID, userID uuid.UUID, file *ru
 		return nil, nil, err
 	}
 
-	newUpload.Checksum = checksum
-	newUpload.ContentType = contentType
-
 	// Already validated upload, so just save
 	err = u.db.Create(newUpload)
 	if err != nil {
