@@ -61,7 +61,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	reason := ""
+	reason := "Just joking"
 
 	// Can't cancel a move with DRAFT status
 	err = move.Cancel(reason)
@@ -76,6 +76,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(&reason, move.CancelReason, "expected 'Just joking'")
 
 }
 
