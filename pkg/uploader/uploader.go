@@ -15,14 +15,8 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-// ZeroLengthFile represents an error caused by a file with no content
-type ZeroLengthFile struct {
-	message string
-}
-
-func (z ZeroLengthFile) Error() string {
-	return z.message
-}
+// ErrZeroLengthFile represents an error caused by a file with no content
+var ErrZeroLengthFile = errors.New("File has length of 0")
 
 // NewLocalFile creates a *runtime.File from a file on the local filesystem
 func NewLocalFile(filePath string) (*runtime.File, error) {
@@ -70,7 +64,7 @@ func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStor
 // the file's metadata.
 func (u *Uploader) CreateUpload(documentID uuid.UUID, userID uuid.UUID, file *runtime.File) (*models.Upload, *validate.Errors, error) {
 	if file.Header.Size == 0 {
-		return nil, nil, errors.WithStack(&ZeroLengthFile{"File has length of 0"})
+		return nil, nil, ErrZeroLengthFile
 	}
 
 	contentType, err := storage.DetectContentType(file.Data)
@@ -116,6 +110,7 @@ func (u *Uploader) CreateUpload(documentID uuid.UUID, userID uuid.UUID, file *ru
 	// Already validated upload, so just save
 	err = u.db.Create(newUpload)
 	if err != nil {
+		// TODO clean up orphaned S3 file
 		u.logger.Error("DB Insertion", zap.Error(err))
 		return nil, nil, err
 	}

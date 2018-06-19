@@ -92,3 +92,18 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	suite.Equal(upload.ContentType, "application/pdf")
 	suite.Equal(upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
 }
+
+func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
+	document, err := testdatagen.MakeDocument(suite.db, nil, "")
+	if err != nil {
+		suite.T().Fatalf("couldn't create document: %s", err)
+	}
+
+	up := NewUploader(suite.db, suite.logger, suite.storer)
+	file := suite.fixture("empty.pdf")
+
+	upload, verrs, err := up.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	suite.Equal(err, ErrZeroLengthFile)
+	suite.Nil(verrs, "failed to validate upload")
+	suite.Nil(upload, "returned an upload when erroring")
+}

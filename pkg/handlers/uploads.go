@@ -57,13 +57,11 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
 	newUpload, verrs, err := uploader.CreateUpload(document.ID, session.UserID, file)
 	if err != nil {
-		switch err := errors.Cause(err).(type) {
-		case *uploaderpkg.ZeroLengthFile:
+		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
 			return uploadop.NewCreateUploadBadRequest()
-		default:
-			h.logger.Error("Failed to create upload", zap.Error(err))
-			return uploadop.NewCreateUploadInternalServerError()
 		}
+		h.logger.Error("Failed to create upload", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
 	} else if verrs != nil {
 		payload := createFailedValidationPayload(verrs)
 		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
