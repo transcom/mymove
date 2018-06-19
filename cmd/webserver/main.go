@@ -71,7 +71,7 @@ func main() {
 
 	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
