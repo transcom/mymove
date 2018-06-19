@@ -37,6 +37,7 @@
   margin-bottom: 0;
 }
 
+
 .examples-table {
   margin-top: 3rem;
 }
@@ -53,9 +54,9 @@
 .examples-table th,
 .examples-table td {
   border: none;
-  white-space: nowrap;
   padding-top: 0.5rem;
   padding-bottom: 0.5rem;
+  padding-right: 0.5rem;
 }
 
 .examples-table th {

@@ -27,6 +27,8 @@ const (
 	MoveStatusAPPROVED MoveStatus = "APPROVED"
 	// MoveStatusCOMPLETED captures enum value "COMPLETED"
 	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
+	// MoveStatusCANCELED captures enum value "CANCELED"
+	MoveStatusCANCELED MoveStatus = "CANCELED"
 )
 
 const maxLocatorAttempts = 3
@@ -46,6 +48,7 @@ type Move struct {
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
 }
 
 // Moves is not required by pop and may be deleted
@@ -72,6 +75,9 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// State Machine
+// Avoid calling Move.Status = ... ever. Use these methods to change the state.
+
 // Submit submits the Move
 func (m *Move) Submit() error {
 	if m.Status != MoveStatusDRAFT {
@@ -81,12 +87,43 @@ func (m *Move) Submit() error {
 	m.Status = MoveStatusSUBMITTED
 
 	//TODO: update PPM status too
+	// for i, _ := range m.PersonallyProcuredMoves {
+	// 	err := m.PersonallyProcuredMoves[i].Submit()
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
+
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
 			if err != nil {
 				return err
 			}
+		}
+	}
+	return nil
+}
+
+// Cancel cancels the Move and its associated PPMs
+func (m *Move) Cancel(reason string) error {
+	if m.Status != MoveStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	m.Status = MoveStatusCANCELED
+
+	// If a reason was submitted, add it to the move record.
+	if reason != "" {
+		m.CancelReason = &reason
+	}
+
+	// This will work only if you use the PPM in question rather than a var representing it
+	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Cancel()
+		if err != nil {
+			return err
 		}
 	}
 	return nil
@@ -271,4 +308,14 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 	})
 
 	return responseVErrors, responseError
+}
+
+// FetchMoveForAdvancePaperwork returns a Move with all of the associations required
+// to generate the Advance paperwork.
+func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, error) {
+	var move Move
+	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
+		return move, errors.Wrap(err, "could not load move")
+	}
+	return move, nil
 }

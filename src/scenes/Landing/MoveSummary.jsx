@@ -203,7 +203,7 @@ const ApprovedMoveSummary = props => {
               <div className="status_box usa-width-two-thirds">
                 {!moveInProgress && (
                   <div className="step">
-                    <div className="title">Next step: Get ready to move</div>
+                    <div className="title">Next Step: Get ready to move</div>
                     <div>
                       Remember to save your weight tickets and expense receipts.
                       For more information, read the PPM info packet.
@@ -220,7 +220,7 @@ const ApprovedMoveSummary = props => {
                   </div>
                 )}
                 <div className="step">
-                  <div className="title">Next step: Request Payment</div>
+                  <div className="title">Next Step: Request Payment</div>
                   <div>
                     Request a PPM payment, a storage payment, or an advance
                     against your PPM payment before your move is done.

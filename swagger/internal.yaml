@@ -467,6 +467,9 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      cancel_reason:
+        type: string
+        x-nullable: true
     required:
       - id
       - orders_id
