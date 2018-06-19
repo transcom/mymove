@@ -26,8 +26,9 @@ __snapshots__
 /bin/make-office-user
 /bin/load-office-data
 /bin/load-user-gen
-
+/bin/paperwork
 /bin/rateengine
+
 /bin/soda
 /bin/golint
 /bin/swagger
