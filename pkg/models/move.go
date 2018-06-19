@@ -48,6 +48,7 @@ type Move struct {
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
 }
 
 // Moves is not required by pop and may be deleted
