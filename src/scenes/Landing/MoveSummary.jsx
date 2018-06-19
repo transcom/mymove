@@ -316,6 +316,13 @@ const MoveInfoHeader = props => {
   );
 };
 
+const moveSummaryStatusComponents = {
+  DRAFT: DraftMoveSummary,
+  SUBMITTED: SubmittedMoveSummary,
+  APPROVED: ApprovedMoveSummary,
+  CANCELED: CanceledMoveSummary,
+};
+
 export const MoveSummary = props => {
   const {
     profile,
@@ -329,6 +336,7 @@ export const MoveSummary = props => {
     reviewProfile,
   } = props;
   const status = get(move, 'status', 'DRAFT');
+  const StatusComponent = moveSummaryStatusComponents[status];
   return (
     <Fragment>
       {canceledMove && (
@@ -343,47 +351,15 @@ export const MoveSummary = props => {
       )}
 
       <div className="whole_box">
-        {
-          {
-            DRAFT: (
-              <DraftMoveSummary
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                resumeMove={resumeMove}
-              />
-            ),
-            SUBMITTED: (
-              <SubmittedMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-              />
-            ),
-            APPROVED: (
-              <ApprovedMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-              />
-            ),
-            CANCELED: (
-              <CanceledMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                reviewProfile={reviewProfile}
-              />
-            ),
-          }[status]
-        }
+        <StatusComponent
+          ppm={ppm}
+          orders={orders}
+          profile={profile}
+          move={move}
+          entitlement={entitlement}
+          resumeMove={resumeMove}
+          reviewProfile={reviewProfile}
+        />
 
         <div className="sidebar usa-width-one-fourth">
           <button
