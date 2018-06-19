@@ -64,7 +64,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	reason := ""
 
 	// Can't cancel a move with DRAFT status
-	err = move.Cancel(&reason)
+	err = move.Cancel(reason)
 	suite.Equal(ErrInvalidTransition, errors.Cause(err))
 
 	// Once submitted
@@ -73,7 +73,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// Can cancel move
-	err = move.Cancel(&reason)
+	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 
@@ -95,7 +95,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// Can cancel move, and status changes as expected
-	err = move.Cancel(&reason)
+	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")

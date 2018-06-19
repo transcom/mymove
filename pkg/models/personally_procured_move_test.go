@@ -83,7 +83,7 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 
 	// When move is canceled, expect associated PPM to be canceled
 	reason := "Orders changed"
-	err = move.Cancel(&reason)
+	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
 
