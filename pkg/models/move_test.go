@@ -98,5 +98,6 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	err = move.Cancel(&reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 
 }
