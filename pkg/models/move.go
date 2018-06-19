@@ -106,12 +106,17 @@ func (m *Move) Submit() error {
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (m *Move) Cancel() error {
+func (m *Move) Cancel(reason *string) error {
 	if m.Status != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
 	m.Status = MoveStatusCANCELED
+
+	// If a reason was submitted, add it to the move record.
+	if *reason != "" {
+		m.CancelReason = reason
+	}
 
 	// This will work only if you use the PPM in question rather than a var representing it
 	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
