@@ -34,7 +34,7 @@ func checkHeaders(headers []string) {
 
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	test := flag.Bool("test", false, "Whether to generate testy mcTest emails")
 	flag.Parse()
 

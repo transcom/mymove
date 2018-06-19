@@ -99,14 +99,19 @@ const OrdersEdit = props => {
             fieldName="orders_number"
             swagger={schema}
             className="half-width"
+            required
           />
           <SwaggerField
             fieldName="issue_date"
             swagger={schema}
             className="half-width"
           />
-          <SwaggerField fieldName="orders_type" swagger={schema} />
-          <SwaggerField fieldName="orders_type_detail" swagger={schema} />
+          <SwaggerField fieldName="orders_type" swagger={schema} required />
+          <SwaggerField
+            fieldName="orders_type_detail"
+            swagger={schema}
+            required
+          />
           <SwaggerField fieldName="report_by_date" swagger={schema} />
         </FormSection>
 
@@ -159,11 +164,6 @@ function mapStateToProps(state) {
     },
 
     ordersSchema: get(state, 'swagger.spec.definitions.Orders', {}),
-    serviceMemberSchema: get(
-      state,
-      'swagger.spec.definitions.ServiceMemberPayload',
-      {},
-    ),
 
     hasError: false,
     errorMessage: state.office.error,

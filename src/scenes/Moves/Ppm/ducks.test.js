@@ -3,8 +3,8 @@ import {
   GET_PPM,
   GET_SIT_ESTIMATE,
   GET_PPM_ESTIMATE,
-  GET_PPM_MAX_ESTIMATE,
   ppmReducer,
+  getMaxAdvance,
 } from './ducks';
 import loggedInUserPayload, {
   emptyPayload,
@@ -24,7 +24,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         currentPpm: {
           destination_postal_code: '76127',
-          estimated_incentive: '$14954.09 - 16528.21',
+          incentive_estimate_min: 1495409,
+          incentive_estimate_max: 1652821,
           has_additional_postal_code: false,
           has_requested_advance: false,
           has_sit: false,
@@ -39,7 +40,8 @@ describe('Ppm Reducer', () => {
         hasSubmitSuccess: true,
         hasLoadError: false,
         hasLoadSuccess: true,
-        incentive: '$14954.09 - 16528.21',
+        incentive_estimate_min: 1495409,
+        incentive_estimate_max: 1652821,
         pendingPpmSize: 'L',
         pendingPpmWeight: 9000,
         pendingValue: '',
@@ -60,7 +62,8 @@ describe('Ppm Reducer', () => {
         hasSubmitSuccess: true,
         hasLoadError: false,
         hasLoadSuccess: true,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         pendingPpmSize: null,
         pendingPpmWeight: null,
         sitReimbursement: null,
@@ -81,7 +84,8 @@ describe('Ppm Reducer', () => {
         pendingPpmSize: null,
         pendingPpmWeight: null,
         currentPpm: samplePpm,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         sitReimbursement: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
@@ -116,7 +120,8 @@ describe('Ppm Reducer', () => {
       expect(newState).toEqual({
         pendingValue: '',
         currentPpm: samplePpm,
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         pendingPpmWeight: null,
         sitReimbursement: null,
         hasLoadError: false,
@@ -187,7 +192,8 @@ describe('Ppm Reducer', () => {
       });
 
       expect(newState).toEqual({
-        incentive: '$215.05 - 444.03',
+        incentive_estimate_min: 21505,
+        incentive_estimate_max: 44403,
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
@@ -209,46 +215,24 @@ describe('Ppm Reducer', () => {
         hasEstimateSuccess: false,
         pendingValue: '',
         rateEngineError: 'No bueno.',
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         error: null,
       });
     });
   });
-
-  describe('GET_PPM_MAX_ESTIMATE', () => {
-    it('Should handle SUCCESS', () => {
-      const initialState = {};
-      const newState = ppmReducer(initialState, {
-        type: GET_PPM_MAX_ESTIMATE.success,
-        payload: { range_min: 21505, range_max: 44403 },
-      });
-
-      expect(newState).toEqual({
-        maxIncentive: 266.41799999999995,
-        hasMaxEstimateSuccess: true,
-        hasMaxEstimateError: false,
-        hasMaxEstimateInProgress: false,
-        rateEngineError: null,
+  describe('getMaxAdvance', () => {
+    describe('when there is a max estimated incentive', () => {
+      const state = { ppm: { incentive_estimate_max: 10000 } };
+      it('should return 60% of max estimated incentive', () => {
+        expect(getMaxAdvance(state)).toEqual(6000);
       });
     });
-
-    it('Should handle FAILURE', () => {
-      const initialState = { pendingValue: '' };
-
-      const newState = ppmReducer(initialState, {
-        type: GET_PPM_MAX_ESTIMATE.failure,
-        error: 'No bueno.',
-      });
-      // using special error here so it is not caught by WizardPage handling
-      expect(newState).toEqual({
-        hasMaxEstimateError: true,
-        hasMaxEstimateInProgress: false,
-        hasMaxEstimateSuccess: false,
-        pendingValue: '',
-        rateEngineError: 'No bueno.',
-        maxIncentive: null,
-        error: null,
-      });
+  });
+  describe('when there is no max estimated incentive', () => {
+    const state = {};
+    it('should return 60% of max estimated incentive', () => {
+      expect(getMaxAdvance(state)).toEqual(20000000);
     });
   });
 });

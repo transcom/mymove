@@ -26,6 +26,8 @@ const (
 	PPMStatusAPPROVED PPMStatus = "APPROVED"
 	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
 	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
+	// PPMStatusCANCELED captures enum value "CANCELED"
+	PPMStatusCANCELED PPMStatus = "CANCELED"
 )
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
@@ -37,7 +39,6 @@ type PersonallyProcuredMove struct {
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
 	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	EstimatedIncentive            *string                      `json:"estimated_incentive" db:"estimated_incentive"`
 	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
@@ -80,6 +81,19 @@ func (p *PersonallyProcuredMove) ValidateCreate(tx *pop.Connection) (*validate.E
 // This method is not required and may be deleted.
 func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// State Machine
+// Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
+
+// Cancel cancels the PPM
+func (p *PersonallyProcuredMove) Cancel() error {
+	if p.Status != PPMStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	p.Status = PPMStatusCANCELED
+	return nil
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model

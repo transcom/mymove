@@ -13,7 +13,7 @@ import (
 // querying the db for them again.
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	rounds := flag.String("rounds", "none", "If not using premade scenarios: Specify none (no awards), full (1 full round of awards), or half (partial round of awards)")
 	numTSP := flag.Int("numTSP", 15, "If not using premade scenarios: Specify the number of TSPs you'd like to create")
 	scenario := flag.Int("scenario", 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6.")

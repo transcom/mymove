@@ -15,7 +15,12 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
-import { editBegin, editSuccessful } from './ducks';
+import {
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  entitlementChanged,
+} from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -119,6 +124,12 @@ class EditOrders extends Component {
       (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
+    if (
+      fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
+      fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
+    ) {
+      this.props.entitlementChanged();
+    }
     return Promise.all([addUploads, deleteUploads])
       .then(() => this.props.updateOrders(fieldValues.id, fieldValues))
       .then(() => {
@@ -134,6 +145,7 @@ class EditOrders extends Component {
 
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
   }
 
   render() {
@@ -208,7 +220,9 @@ function mapDispatchToProps(dispatch) {
       addUploads,
       deleteUploads,
       editBegin,
+      entitlementChangeBegin,
       editSuccessful,
+      entitlementChanged,
     },
     dispatch,
   );
