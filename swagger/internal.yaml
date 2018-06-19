@@ -459,9 +459,6 @@ definitions:
         $ref: '#/definitions/SelectedMoveType'
       status:
         $ref: '#/definitions/MoveStatus'
-      cancel_reason:
-        type: string
-        example: "Change of orders"
       created_at:
         type: string
         format: date-time
@@ -472,6 +469,7 @@ definitions:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
       cancel_reason:
         type: string
+        example: "Change of orders"
         x-nullable: true
     required:
       - id
@@ -2417,6 +2415,12 @@ paths:
           format: uuid
           required: true
           description: UUID of the move
+        - in: body
+          name: reason
+          schema:
+            type: string
+          required: true
+          description: reason for cancelation of move
       responses:
         200:
           description: returns updated (canceled) move object

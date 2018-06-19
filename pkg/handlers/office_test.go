@@ -36,6 +36,37 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	suite.Assertions.Equal(internalmessages.MoveStatusAPPROVED, okResponse.Payload.Status)
 }
 
+func (suite *HandlerSuite) TestCancelMoveHandler() {
+	// Given: a set of orders, a move, and office user
+	order, _ := testdatagen.MakeOrder(suite.db)
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
+	req = suite.authenticateOfficeRequest(req, officeUser)
+
+	params := officeop.CancelMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+	}
+	params.Reason = &internalmessages.Reason("Orders revoked.")
+
+	// And: a move is canceled
+	handler := CancelMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&officeop.CancelMoveOK{}, response)
+	okResponse := response.(*officeop.CancelMoveOK)
+
+	// And: Returned query to have an canceled status
+	suite.Assertions.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
+}
+
 func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm, _ := testdatagen.MakePPM(suite.db)
