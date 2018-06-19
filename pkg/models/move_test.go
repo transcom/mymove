@@ -76,6 +76,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Nil(move.CancelReason)
 
 }
 
