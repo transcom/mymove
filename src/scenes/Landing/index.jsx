@@ -83,7 +83,6 @@ export class Landing extends Component {
       serviceMember,
       orders,
       move,
-      canceledMove,
       ppm,
     } = this.props;
 
@@ -119,7 +118,6 @@ export class Landing extends Component {
                   profile={serviceMember}
                   orders={orders}
                   move={move}
-                  canceledMove={canceledMove}
                   ppm={ppm}
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
@@ -140,7 +138,6 @@ const mapStateToProps = state => ({
   backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
   move: state.moves.currentMove || {},
-  canceledMove: state.moves.canceledMove || null,
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,

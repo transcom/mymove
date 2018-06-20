@@ -21,7 +21,6 @@ describe('MoveSummary', () => {
     serviceMember,
     ordersObj,
     moveObj,
-    canceledMoveObj,
     ppmObj,
     editMoveFn,
     resumeMoveFn,
@@ -32,7 +31,6 @@ describe('MoveSummary', () => {
         profile={serviceMember}
         orders={ordersObj}
         move={moveObj}
-        canceledMove={canceledMoveObj}
         ppm={ppmObj}
         editMove={editMoveFn}
         resumeMove={resumeMoveFn}
@@ -43,7 +41,6 @@ describe('MoveSummary', () => {
   describe('when a move is in canceled state', () => {
     it('renders submitted content', () => {
       const moveObj = { status: 'CANCELED' };
-      const canceledMoveObj = moveObj;
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -55,7 +52,6 @@ describe('MoveSummary', () => {
         serviceMember,
         ordersObj,
         moveObj,
-        canceledMoveObj,
         ppmObj,
         editMoveFn,
         resumeMoveFn,
@@ -72,7 +68,6 @@ describe('MoveSummary', () => {
   describe('when a move is in submitted state', () => {
     it('renders submitted content', () => {
       const moveObj = { status: 'SUBMITTED' };
-      const canceledMoveObj = { status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -84,7 +79,6 @@ describe('MoveSummary', () => {
         serviceMember,
         ordersObj,
         moveObj,
-        canceledMoveObj,
         ppmObj,
         editMoveFn,
         resumeMoveFn,
@@ -103,7 +97,6 @@ describe('MoveSummary', () => {
   describe('when a move is in approved state', () => {
     it('renders approved content', () => {
       const moveObj = { status: 'APPROVED' };
-      const canceledMoveObj = { status: 'CANCELED' };
       const futureFortNight = moment().add(14, 'day');
       const ppmObj = {
         planned_move_date: futureFortNight,
@@ -115,7 +108,6 @@ describe('MoveSummary', () => {
         serviceMember,
         ordersObj,
         moveObj,
-        canceledMoveObj,
         ppmObj,
         editMoveFn,
         resumeMoveFn,
@@ -134,7 +126,6 @@ describe('MoveSummary', () => {
   describe('when a move is in in progress state', () => {
     it('renders in progress content', () => {
       const moveObj = { status: 'APPROVED' };
-      const canceledMoveObj = { status: 'CANCELED' };
       const pastFortNight = moment().subtract(14, 'day');
       const ppmObj = {
         planned_move_date: pastFortNight,
@@ -146,7 +137,6 @@ describe('MoveSummary', () => {
         serviceMember,
         ordersObj,
         moveObj,
-        canceledMoveObj,
         ppmObj,
         editMoveFn,
         resumeMoveFn,

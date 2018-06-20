@@ -5,7 +5,7 @@ import { get, cloneDeep, without, has } from 'lodash';
 import PropTypes from 'prop-types';
 import Slider from 'react-rangeslider'; //todo: pull from node_modules, override
 import { Field } from 'redux-form';
-
+import { getFormValues } from 'redux-form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -192,20 +192,20 @@ export class PpmWeight extends Component {
     }
   }
   handleSubmit = () => {
-    const { createOrUpdatePpm, advanceFormData } = this.props;
+    const { createOrUpdatePpm, advanceFormValues } = this.props;
     const moveId = this.props.match.params.moveId;
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
     };
 
-    if (advanceFormData.values.has_requested_advance) {
+    if (advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
       const requestedAmount = Math.round(
-        parseFloat(advanceFormData.values.requested_amount) * 100,
+        parseFloat(advanceFormValues.requested_amount) * 100,
       );
       ppmBody.advance = {
         requested_amount: requestedAmount,
-        method_of_receipt: advanceFormData.values.method_of_receipt,
+        method_of_receipt: advanceFormValues.method_of_receipt,
       };
     } else {
       ppmBody.has_requested_advance = false;
@@ -241,12 +241,12 @@ export class PpmWeight extends Component {
       error,
       hasEstimateError,
       ppmAdvanceSchema,
-      advanceFormData,
+      advanceFormValues,
       selectedWeightInfo,
     } = this.props;
     const hasRequestedAdvance = get(
-      advanceFormData,
-      'values.has_requested_advance',
+      advanceFormValues,
+      'has_requested_advance',
       false,
     );
     let advanceInitialValues = null;
@@ -408,7 +408,7 @@ function mapStateToProps(state) {
     currentWeight: get(state, 'ppm.currentPpm.weight_estimate'),
     schema: schema,
     ppmAdvanceSchema: ppmAdvanceSchema,
-    advanceFormData: state.form[requestAdvanceFormName],
+    advanceFormValues: getFormValues(requestAdvanceFormName)(state),
   };
 
   return props;

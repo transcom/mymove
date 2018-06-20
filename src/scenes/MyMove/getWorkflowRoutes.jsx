@@ -272,6 +272,7 @@ const pages = {
 };
 export const getPagesInFlow = state =>
   Object.keys(pages).filter(pageKey => {
+    // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
     return page.isInFlow(state);
   });
@@ -296,6 +297,7 @@ export const getNextIncompletePage = (
 export const getWorkflowRoutes = props => {
   const pageList = getPagesInFlow(props);
   return Object.keys(pages).map(key => {
+    // eslint-disable-next-line security/detect-object-injection
     const currPage = pages[key];
     if (currPage.isInFlow(props)) {
       const render = currPage.render(

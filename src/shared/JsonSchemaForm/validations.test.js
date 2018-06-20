@@ -244,7 +244,7 @@ describe('SchemaField tests', () => {
     const emailField = {
       type: 'string',
       format: 'x-email',
-      pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$',
+      pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$', // eslint-disable-line
       example: 'john_bob@example.com',
       'x-nullable': true,
       title: 'Personal Email Address',
@@ -266,7 +266,7 @@ describe('SchemaField tests', () => {
     const ssnField = {
       type: 'string',
       format: 'zip',
-      pattern: /^(\d{5}([-]\d{4})?)$/,
+      pattern: /^(\d{5}([-]\d{4})?)$/, // eslint-disable-line
       example: '61522-3323',
       'x-nullable': true,
       title: 'ZIP Code',
