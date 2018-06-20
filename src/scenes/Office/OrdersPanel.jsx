@@ -27,7 +27,7 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
-function renderEntitlements(entitlements) {
+function renderEntitlements(entitlements, orders) {
   return (
     <React.Fragment>
       <span className="panel-subhead">Entitlements</span>
@@ -37,9 +37,11 @@ function renderEntitlements(entitlements) {
       <PanelField title="Pro-gear">
         {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
       </PanelField>
-      <PanelField title="Spouse pro-gear">
-        {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
-      </PanelField>
+      {orders.spouse_has_pro_gear && (
+        <PanelField title="Spouse pro-gear">
+          {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
+        </PanelField>
+      )}
       <PanelField className="Todo" title="Short-term storage">
         90 days
       </PanelField>
@@ -80,7 +82,7 @@ const OrdersDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements)}
+        {renderEntitlements(props.entitlements, props.orders)}
         {props.orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
@@ -136,9 +138,14 @@ const OrdersEdit = props => {
         </FormSection>
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements)}
+        {renderEntitlements(props.entitlements, props.orders)}
 
         <FormSection name="orders">
+          <SwaggerField
+            fieldName="spouse_has_pro_gear"
+            swagger={schema}
+            title="Spouse has pro gear"
+          />
           <SwaggerField
             fieldName="has_dependents"
             swagger={schema}
