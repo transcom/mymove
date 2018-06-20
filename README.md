@@ -355,13 +355,13 @@ This will let you walk through the caught spelling errors one-by-one and choose 
 
 If you have problems connecting to PostgreSQL, or running related scripts, make sure you aren't already running a PostgreSQL daemon. You may see errors like:
 
-```
+```text
 Migrator: problem creating schema migrations: couldn't start a new transaction: could not create new transaction: pq: role "postgres" does not exist
 ```
 
 or
 
-```
+```text
 Migrator: problem creating schema migrations: couldn't start a new transaction: could not create new transaction: pq: database "dev_db" does not exist
 ```
 
