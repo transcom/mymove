@@ -327,7 +327,6 @@ export const MoveSummary = props => {
   const {
     profile,
     move,
-    canceledMove,
     orders,
     ppm,
     editMove,
@@ -339,11 +338,11 @@ export const MoveSummary = props => {
   const StatusComponent = moveSummaryStatusComponents[status];
   return (
     <Fragment>
-      {canceledMove && (
+      {status === 'CANCELED' && (
         <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to{' '}
           {get(orders, 'new_duty_station.name')} with the move locator ID{' '}
-          {get(canceledMove, 'locator')} was cancelled.
+          {get(move, 'locator')} was canceled.
         </Alert>
       )}
 

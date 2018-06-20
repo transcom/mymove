@@ -70,7 +70,6 @@ export const moveIsApproved = state =>
 // Reducer
 const initialState = {
   currentMove: null,
-  canceledMove: null,
   pendingMoveType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
@@ -92,7 +91,6 @@ export function moveReducer(state = initialState, action) {
       const moves = get(action.payload, 'service_member.orders.0.moves', []);
       return Object.assign({}, state, {
         currentMove: reshapeMove(head(moves)),
-        canceledMove: find(moves, ['status', 'CANCELED']),
         hasLoadError: false,
         hasLoadSuccess: true,
       });
