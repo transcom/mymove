@@ -61,9 +61,10 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
+	reason := ""
 
 	// Can't cancel a move with DRAFT status
-	err = move.Cancel()
+	err = move.Cancel(reason)
 	suite.Equal(ErrInvalidTransition, errors.Cause(err))
 
 	// Once submitted
@@ -72,8 +73,32 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
 
 	// Can cancel move
-	err = move.Cancel()
+	err = move.Cancel(reason)
 	suite.Nil(err)
 	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Nil(move.CancelReason)
+
+}
+
+func (suite *ModelSuite) TestMoveCancellationWithReason() {
+	order1, _ := testdatagen.MakeOrder(suite.db)
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	reason := "SM's orders revoked"
+
+	// Check to ensure move shows SUBMITTED before Cancel()
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+
+	// Can cancel move, and status changes as expected
+	err = move.Cancel(reason)
+	suite.Nil(err)
+	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 
 }

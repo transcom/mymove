@@ -178,7 +178,7 @@ export const MoveSummary = props => {
                     <div className="status_box usa-width-two-thirds">
                       <div className="step">
                         <div className="title">
-                          Next step: Get ready to move
+                          Next Step: Get ready to move
                         </div>
                         <div>
                           Remember to save your weight tickets and expense
@@ -196,7 +196,7 @@ export const MoveSummary = props => {
                         </a>
                       </div>
                       <div className="step">
-                        <div className="title">Next step: Request Payment</div>
+                        <div className="title">Next Step: Request Payment</div>
                         <div>
                           Request a PPM payment, a storage payment, or an
                           advance against your PPM payment before your move is
@@ -265,7 +265,7 @@ export const MoveSummary = props => {
                   <div className="step-contents">
                     <div className="status_box usa-width-two-thirds">
                       <div className="step">
-                        <div className="title">Next step: Request payment</div>
+                        <div className="title">Next Step: Request payment</div>
                         <div>
                           Request a PPM payment, a storage payment, or an
                           advance against your PPM payment before your move is

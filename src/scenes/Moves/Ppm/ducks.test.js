@@ -223,7 +223,7 @@ describe('Ppm Reducer', () => {
   });
   describe('getMaxAdvance', () => {
     describe('when there is a max estimated incentive', () => {
-      const state = { ppm: { currentPpm: { incentive_estimate_max: 10000 } } };
+      const state = { ppm: { incentive_estimate_max: 10000 } };
       it('should return 60% of max estimated incentive', () => {
         expect(getMaxAdvance(state)).toEqual(6000);
       });
