@@ -29,8 +29,8 @@ class ProfileReview extends Component {
     return (
       <WizardPage
         handleSubmit={this.resumeMove}
-        pageList={[]}
-        pageKey={''}
+        pageList={this.props.pages}
+        pageKey={this.props.pageKey}
         pageIsValid={true}
       >
         <h1>Profile Review</h1>
