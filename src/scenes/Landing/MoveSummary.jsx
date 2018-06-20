@@ -340,13 +340,10 @@ export const MoveSummary = props => {
   return (
     <Fragment>
       {canceledMove && (
-        <Alert type="info">
+        <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to{' '}
           {get(orders, 'new_duty_station.name')} with the move locator ID{' '}
-          {get(canceledMove, 'locator')} was cancelled. Contact your local PPPO{' '}
-          {get(profile, 'current_station.name')} at{' '}
-          {get(profile, 'current_station.transportation_office.phone_lines.0')}{' '}
-          if you have any questions.
+          {get(canceledMove, 'locator')} was cancelled.
         </Alert>
       )}
 
