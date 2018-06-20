@@ -138,9 +138,7 @@ const pages = {
   },
   '/service-member/:serviceMemberId/transition': {
     isInFlow: always,
-    isComplete: orders => {
-      return get(orders, 'status', 'DRAFT') === 'CANCELED';
-    },
+    isComplete: always,
     render: (key, pages) => ({ match }) => (
       <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <TransitionToOrders />
@@ -149,7 +147,7 @@ const pages = {
   },
   '/orders/': {
     isInFlow: always,
-    isComplete: orders =>
+    isComplete: (sm, orders) =>
       every([
         orders.orders_type,
         orders.issue_date,
