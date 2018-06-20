@@ -12,11 +12,14 @@ export function getEntitlements(
   const totalKey = hasDependents
     ? 'total_weight_self_plus_dependents'
     : 'total_weight_self';
+  // eslint-disable-next-line security/detect-object-injection
+  const rankEntitlement = entitlements[rank];
   const entitlement = {
-    weight: entitlements[rank][totalKey],
-    pro_gear: entitlements[rank].pro_gear_weight,
+    // eslint-disable-next-line security/detect-object-injection
+    weight: rankEntitlement[totalKey],
+    pro_gear: rankEntitlement.pro_gear_weight,
     pro_gear_spouse: spouseHasProGear
-      ? entitlements[rank].pro_gear_weight_spouse
+      ? rankEntitlement.pro_gear_weight_spouse
       : 0,
   };
   entitlement.sum = sum([
