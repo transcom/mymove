@@ -26,6 +26,8 @@ const (
 	OrderStatusSUBMITTED OrderStatus = "SUBMITTED"
 	// OrderStatusAPPROVED captures enum value "APPROVED"
 	OrderStatusAPPROVED OrderStatus = "APPROVED"
+	// OrderStatusCANCELED captures enum value "CANCELED"
+	OrderStatusCANCELED OrderStatus = "CANCELED"
 )
 
 // Order is a set of orders received by a service member
@@ -40,6 +42,7 @@ type Order struct {
 	OrdersType          internalmessages.OrdersType        `json:"orders_type" db:"orders_type"`
 	OrdersTypeDetail    *internalmessages.OrdersTypeDetail `json:"orders_type_detail" db:"orders_type_detail"`
 	HasDependents       bool                               `json:"has_dependents" db:"has_dependents"`
+	SpouseHasProGear    bool                               `json:"spouse_has_pro_gear" db:"spouse_has_pro_gear"`
 	NewDutyStationID    uuid.UUID                          `json:"new_duty_station_id" db:"new_duty_station_id"`
 	NewDutyStation      DutyStation                        `belongs_to:"duty_stations"`
 	UploadedOrders      Document                           `belongs_to:"documents"`
@@ -66,6 +69,7 @@ func (o *Order) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: string(o.Status), Name: "Status"},
 		&StringIsNilOrNotBlank{Field: o.TAC, Name: "Transportation Accounting Code"},
 		&StringIsNilOrNotBlank{Field: o.DepartmentIndicator, Name: "Department Indicator"},
+		&CannotBeTrueIfFalse{Field1: o.SpouseHasProGear, Name1: "SpouseHasProGear", Field2: o.HasDependents, Name2: "HasDependents"},
 	), nil
 }
 
@@ -84,6 +88,19 @@ func (o *Order) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // SaveOrder saves an order
 func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 	return db.ValidateAndSave(order)
+}
+
+// State Machine
+// Avoid calling Order.Status = ... ever. Use these methods to change the state.
+
+// Cancel cancels the Order
+func (o *Order) Cancel() error {
+	if o.Status != OrderStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	o.Status = OrderStatusCANCELED
+	return nil
 }
 
 // FetchOrder returns orders only if it is allowed for the given user to access those orders.

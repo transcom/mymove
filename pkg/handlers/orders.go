@@ -19,8 +19,11 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 
 	var moves internalmessages.IndexMovesPayload
 	for _, move := range order.Moves {
-		payload := payloadForMoveModel(order, move)
-		moves = append(moves, &payload)
+		payload, err := payloadForMoveModel(storage, order, move)
+		if err != nil {
+			return nil, err
+		}
+		moves = append(moves, payload)
 	}
 
 	payload := &internalmessages.Orders{
@@ -34,11 +37,13 @@ func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmes
 		OrdersTypeDetail:    order.OrdersTypeDetail,
 		NewDutyStation:      payloadForDutyStationModel(order.NewDutyStation),
 		HasDependents:       fmtBool(order.HasDependents),
+		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
 		UploadedOrders:      documentPayload,
 		OrdersNumber:        order.OrdersNumber,
 		Moves:               moves,
 		Tac:                 order.TAC,
 		DepartmentIndicator: (*internalmessages.DeptIndicator)(order.DepartmentIndicator),
+		Status:              internalmessages.OrdersStatus(order.Status),
 	}
 
 	return payload, nil
@@ -77,6 +82,7 @@ func (h CreateOrdersHandler) Handle(params ordersop.CreateOrdersParams) middlewa
 		time.Time(*payload.ReportByDate),
 		payload.OrdersType,
 		*payload.HasDependents,
+		*payload.SpouseHasProGear,
 		dutyStation)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
@@ -149,6 +155,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	order.OrdersType = payload.OrdersType
 	order.OrdersTypeDetail = payload.OrdersTypeDetail
 	order.HasDependents = *payload.HasDependents
+	order.SpouseHasProGear = *payload.SpouseHasProGear
 	order.NewDutyStationID = dutyStation.ID
 	order.NewDutyStation = dutyStation
 	order.TAC = payload.Tac

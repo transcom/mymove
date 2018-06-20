@@ -18,6 +18,7 @@ type LinehaulCostComputation struct {
 	DestinationLinehaulFactor unit.Cents
 	ShorthaulCharge           unit.Cents
 	LinehaulChargeTotal       unit.Cents
+	Mileage                   int
 }
 
 // Scale scales a cost computation by a multiplicative factor
@@ -97,6 +98,8 @@ func (re *RateEngine) linehaulChargeComputation(weight unit.Pound, originZip5 st
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine mileage")
 	}
+	cost.Mileage = mileage
+
 	cost.BaseLinehaul, err = re.baseLinehaul(mileage, weight, date)
 	if err != nil {
 		return cost, errors.Wrap(err, "Failed to determine base linehaul charge")

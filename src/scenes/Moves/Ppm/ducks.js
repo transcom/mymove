@@ -1,4 +1,4 @@
-import { get, every, isNumber } from 'lodash';
+import { get, every, isNull, isNumber } from 'lodash';
 import {
   CreatePpm,
   UpdatePpm,
@@ -8,6 +8,7 @@ import {
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { loadEntitlementsFromState } from 'shared/entitlements';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -19,27 +20,13 @@ export const GET_PPM = ReduxHelpers.generateAsyncActionTypes('GET_PPM');
 export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_PPM_ESTIMATE',
 );
-export const GET_PPM_MAX_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
-  'GET_PPM_MAX_ESTIMATE',
-);
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
 
-function formatPpmEstimate(estimate) {
-  // Range values arrive in cents, so convert to dollars
-  const range_min = (estimate.range_min / 100).toFixed(2);
-  const range_max = (estimate.range_max / 100).toFixed(2);
-  return `$${range_min} - ${range_max}`;
-}
-
 function formatSitEstimate(estimate) {
   // Range values arrive in cents, so convert to dollars
   return `$${(estimate / 100).toFixed(2)}`;
-}
-
-function calculateMaxAdvance(estimate) {
-  return estimate / 100 * 0.6;
 }
 
 // Action creation
@@ -58,21 +45,6 @@ export function getPpmWeightEstimate(
   weightEstimate,
 ) {
   const action = ReduxHelpers.generateAsyncActions('GET_PPM_ESTIMATE');
-  return function(dispatch, getState) {
-    dispatch(action.start());
-    return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
-      .then(item => dispatch(action.success(item)))
-      .catch(error => dispatch(action.error(error)));
-  };
-}
-
-export function getPpmMaxWeightEstimate(
-  moveDate,
-  originZip,
-  destZip,
-  weightEstimate,
-) {
-  const action = ReduxHelpers.generateAsyncActions('GET_PPM_MAX_ESTIMATE');
   return function(dispatch, getState) {
     dispatch(action.start());
     return GetPpmWeightEstimate(moveDate, originZip, destZip, weightEstimate)
@@ -139,6 +111,47 @@ export function loadPpm(moveId) {
     return Promise.resolve();
   };
 }
+
+// Selectors
+export function getRawWeightInfo(state) {
+  const entitlement = loadEntitlementsFromState(state);
+  if (isNull(entitlement)) {
+    return null;
+  }
+
+  return {
+    S: {
+      min: 50,
+      max: 1000,
+    },
+    M: {
+      min: 500,
+      max: 2500,
+    },
+    L: {
+      min: 1500,
+      max: entitlement.sum,
+    },
+  };
+}
+
+export function getMaxAdvance(state) {
+  const maxIncentive = get(state, 'ppm.incentive_estimate_max');
+  // we are using 20000000 since it is the largest number MacRae found that could be stored in table
+  // and we don't want to block the user from requesting an advance if the rate engine fails
+  return maxIncentive ? 0.6 * maxIncentive : 20000000;
+}
+export function getSelectedWeightInfo(state) {
+  const weightInfo = getRawWeightInfo(state);
+  const ppm = get(state, 'ppm.currentPpm', null);
+  if (isNull(weightInfo) || isNull(ppm)) {
+    return null;
+  }
+
+  const size = ppm ? ppm.size : 'L';
+  return weightInfo[size];
+}
+
 // Reducer
 const initialState = {
   pendingPpmSize: null,
@@ -168,7 +181,8 @@ export function ppmReducer(state = initialState, action) {
         currentPpm: currentPpm,
         pendingPpmSize: get(currentPpm, 'size', null),
         pendingPpmWeight: get(currentPpm, 'weight_estimate', null),
-        incentive: get(currentPpm, 'estimated_incentive', null),
+        incentive_estimate_min: get(currentPpm, 'incentive_estimate_min', null),
+        incentive_estimate_max: get(currentPpm, 'incentive_estimate_max', null),
         sitReimbursement: get(
           currentPpm,
           'estimated_storage_reimbursement',
@@ -192,7 +206,16 @@ export function ppmReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_PPM.success:
       return Object.assign({}, state, {
         currentPpm: action.payload,
-        incentive: get(action.payload, 'estimated_incentive', null),
+        incentive_estimate_min: get(
+          action.payload,
+          'incentive_estimate_min',
+          null,
+        ),
+        incentive_estimate_max: get(
+          action.payload,
+          'incentive_estimate_max',
+          null,
+        ),
         sitReimbursement: get(
           action.payload,
           'estimated_storage_reimbursement',
@@ -217,7 +240,16 @@ export function ppmReducer(state = initialState, action) {
       return Object.assign({}, state, {
         currentPpm: get(action.payload, '0', null),
         pendingPpmWeight: get(action.payload, '0.weight_estimate', null),
-        incentive: get(action.payload, '0.estimated_incentive', null),
+        incentive_estimate_min: get(
+          action.payload,
+          '0.incentive_estimate_min',
+          null,
+        ),
+        incentive_estimate_max: get(
+          action.payload,
+          '0.incentive_estimate_max',
+          null,
+        ),
         sitReimbursement: get(
           action.payload,
           '0.estimated_storage_reimbursement',
@@ -240,7 +272,8 @@ export function ppmReducer(state = initialState, action) {
       });
     case GET_PPM_ESTIMATE.success:
       return Object.assign({}, state, {
-        incentive: formatPpmEstimate(action.payload),
+        incentive_estimate_min: action.payload.range_min,
+        incentive_estimate_max: action.payload.range_max,
         hasEstimateSuccess: true,
         hasEstimateError: false,
         hasEstimateInProgress: false,
@@ -248,32 +281,11 @@ export function ppmReducer(state = initialState, action) {
       });
     case GET_PPM_ESTIMATE.failure:
       return Object.assign({}, state, {
-        incentive: null,
+        incentive_estimate_min: null,
+        incentive_estimate_max: null,
         hasEstimateSuccess: false,
         hasEstimateError: true,
         hasEstimateInProgress: false,
-        rateEngineError: action.error,
-        error: null,
-      });
-    case GET_PPM_MAX_ESTIMATE.start:
-      return Object.assign({}, state, {
-        hasMaxEstimateSuccess: false,
-        hasMaxEstimateInProgress: true,
-      });
-    case GET_PPM_MAX_ESTIMATE.success:
-      return Object.assign({}, state, {
-        maxIncentive: calculateMaxAdvance(action.payload.range_max),
-        hasMaxEstimateSuccess: true,
-        hasMaxEstimateError: false,
-        hasMaxEstimateInProgress: false,
-        rateEngineError: null,
-      });
-    case GET_PPM_MAX_ESTIMATE.failure:
-      return Object.assign({}, state, {
-        maxIncentive: null,
-        hasMaxEstimateSuccess: false,
-        hasMaxEstimateError: true,
-        hasMaxEstimateInProgress: false,
         rateEngineError: action.error,
         error: null,
       });

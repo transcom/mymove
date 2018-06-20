@@ -4,8 +4,11 @@ import (
 	"net/http"
 
 	"github.com/felixge/httpsnoop"
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
+
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // Config configures a Zap logger based on the environment string and debugLevel
@@ -32,12 +35,24 @@ func Config(env string, debugLogging bool) (*zap.Logger, error) {
 // LogRequestMiddleware generates an HTTP/HTTPS request logs using Zap
 func LogRequestMiddleware(inner http.Handler) http.Handler {
 	mw := func(w http.ResponseWriter, r *http.Request) {
-		var protocol string
+		var protocol, officeUserID, serviceMemberID, userID string
 
 		if r.TLS == nil {
 			protocol = "http"
 		} else {
 			protocol = "https"
+		}
+
+		session := auth.SessionFromRequestContext(r)
+		if session.UserID != uuid.Nil {
+			userID = session.UserID.String()
+		}
+		if session.IsServiceMember() {
+			serviceMemberID = session.ServiceMemberID.String()
+		}
+
+		if session.IsOfficeUser() {
+			officeUserID = session.OfficeUserID.String()
 		}
 
 		metrics := httpsnoop.CaptureMetrics(inner, w, r)
@@ -47,14 +62,17 @@ func LogRequestMiddleware(inner http.Handler) http.Handler {
 			zap.Duration("duration", metrics.Duration),
 			zap.String("host", r.Host),
 			zap.String("method", r.Method),
+			zap.String("office-user-id", officeUserID),
 			zap.String("protocol", protocol),
 			zap.String("protocol-version", r.Proto),
 			zap.String("referer", r.Header.Get("referer")),
 			zap.Int64("resp-size-bytes", metrics.Written),
 			zap.Int("resp-status", metrics.Code),
+			zap.String("service-member-id", serviceMemberID),
 			zap.String("source", r.RemoteAddr),
 			zap.String("url", r.URL.String()),
 			zap.String("user-agent", r.UserAgent()),
+			zap.String("user-id", userID),
 			zap.String("x-amzn-trace-id", r.Header.Get("x-amzn-trace-id")),
 			zap.String("x-forwarded-for", r.Header.Get("x-forwarded-for")),
 			zap.String("x-forwarded-host", r.Header.Get("x-forwarded-host")),

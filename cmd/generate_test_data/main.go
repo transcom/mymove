@@ -13,7 +13,7 @@ import (
 // querying the db for them again.
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
-	env := flag.String("env", "development", "The environment to run in, configures the database, presently.")
+	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	rounds := flag.String("rounds", "none", "If not using premade scenarios: Specify none (no awards), full (1 full round of awards), or half (partial round of awards)")
 	numTSP := flag.Int("numTSP", 15, "If not using premade scenarios: Specify the number of TSPs you'd like to create")
 	scenario := flag.Int("scenario", 0, "Specify which scenario you'd like to run. Current options: 1, 2, 3, 4, 5, 6.")
@@ -40,6 +40,21 @@ func main() {
 	} else if *scenario == 5 {
 		err = tdgs.RunRateEngineScenario1(db)
 	} else if *scenario == 6 {
+		query := `DELETE FROM transportation_service_provider_performances;
+				  DELETE FROM transportation_service_providers;
+				  DELETE FROM traffic_distribution_lists;
+				  DELETE FROM tariff400ng_zip3s;
+				  DELETE FROM tariff400ng_zip5_rate_areas;
+				  DELETE FROM tariff400ng_service_areas;
+				  DELETE FROM tariff400ng_linehaul_rates;
+				  DELETE FROM tariff400ng_shorthaul_rates;
+				  DELETE FROM tariff400ng_full_pack_rates;
+				  DELETE FROM tariff400ng_full_unpack_rates;`
+
+		err = db.RawQuery(query).Exec()
+		if err != nil {
+			log.Panic(err)
+		}
 		err = tdgs.RunRateEngineScenario2(db)
 	} else {
 		// Can this be less repetitive without being overly clever?

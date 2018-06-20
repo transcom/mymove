@@ -1,10 +1,10 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, concat, includes, map, reject } from 'lodash';
 
 import { push } from 'react-router-redux';
-import { reduxForm, Field } from 'redux-form';
+import { getFormValues, reduxForm, Field } from 'redux-form';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -15,7 +15,12 @@ import UploadsTable from 'shared/Uploader/UploadsTable';
 import SaveCancelButtons from './SaveCancelButtons';
 import { updateOrders, deleteUploads, addUploads } from 'scenes/Orders/ducks';
 import { moveIsApproved } from 'scenes/Moves/ducks';
-import { editBegin, editSuccessful } from './ducks';
+import {
+  editBegin,
+  editSuccessful,
+  entitlementChangeBegin,
+  entitlementChanged,
+} from './ducks';
 
 import './Review.css';
 import profileImage from './images/profile.png';
@@ -50,6 +55,16 @@ let EditOrdersForm = props => {
         swagger={schema}
         component={YesNoBoolean}
       />
+      {get(props, 'formValues.has_dependents', false) && (
+        <Fragment>
+          <SwaggerField
+            fieldName="spouse_has_pro_gear"
+            swagger={props.schema}
+            component={YesNoBoolean}
+            className="wider-label"
+          />
+        </Fragment>
+      )}
       <br />
       <Field name="new_duty_station" component={DutyStationSearchBox} />
       <p>Uploads:</p>
@@ -105,8 +120,16 @@ class EditOrders extends Component {
 
   updateOrders = fieldValues => {
     fieldValues.new_duty_station_id = fieldValues.new_duty_station.id;
+    fieldValues.spouse_has_pro_gear =
+      (fieldValues.has_dependents && fieldValues.spouse_has_pro_gear) || false;
     let addUploads = this.props.addUploads(this.state.newUploads);
     let deleteUploads = this.props.deleteUploads(this.state.deleteQueue);
+    if (
+      fieldValues.has_dependents !== this.props.currentOrders.has_dependents ||
+      fieldValues.spouse_has_pro_gear !== this.props.spouse_has_pro_gear
+    ) {
+      this.props.entitlementChanged();
+    }
     return Promise.all([addUploads, deleteUploads])
       .then(() => this.props.updateOrders(fieldValues.id, fieldValues))
       .then(() => {
@@ -122,6 +145,7 @@ class EditOrders extends Component {
 
   componentDidMount() {
     this.props.editBegin();
+    this.props.entitlementChangeBegin();
   }
 
   render() {
@@ -129,6 +153,7 @@ class EditOrders extends Component {
       error,
       schema,
       currentOrders,
+      formValues,
       existingUploads,
       moveIsApproved,
     } = this.props;
@@ -161,6 +186,7 @@ class EditOrders extends Component {
               deleteQueue={this.state.deleteQueue}
               onUpload={this.handleNewUpload}
               onDelete={this.handleDelete}
+              formValues={formValues}
             />
           </div>
         )}
@@ -178,7 +204,7 @@ function mapStateToProps(state) {
       `orders.currentOrders.uploaded_orders.uploads`,
       [],
     ),
-    formData: state.form[editOrdersFormName],
+    formValues: getFormValues(editOrdersFormName)(state),
     hasSubmitError: get(state, 'orders.hasSubmitError'),
     moveIsApproved: moveIsApproved(state),
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
@@ -194,7 +220,9 @@ function mapDispatchToProps(dispatch) {
       addUploads,
       deleteUploads,
       editBegin,
+      entitlementChangeBegin,
       editSuccessful,
+      entitlementChanged,
     },
     dispatch,
   );

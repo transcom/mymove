@@ -23,6 +23,11 @@ export default function editablePanel(DisplayComponent, EditComponent) {
       }
     };
 
+    cancel = () => {
+      this.props.reset();
+      this.toggleEditable();
+    };
+
     toggleEditable = () => {
       this.setState({
         isEditable: !this.state.isEditable,
@@ -45,7 +50,8 @@ export default function editablePanel(DisplayComponent, EditComponent) {
             title={this.props.title}
             className={this.props.className}
             onSave={this.save}
-            onToggle={this.toggleEditable}
+            onEdit={this.toggleEditable}
+            onCancel={this.cancel}
             isEditable={isEditable}
             isValid={this.props.formIsValid}
           >

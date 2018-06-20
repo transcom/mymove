@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"fmt"
-
 	"net/http/httptest"
 
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
@@ -32,9 +31,21 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		}
 		suite.mustSave(&newMove)
 
-		_, verrs, locErr := order.CreateNewMove(suite.db, nil)
-		suite.False(verrs.HasAny(), "failed to create new move")
-		suite.Nil(locErr)
+		// Make a PPM
+		newMove.CreatePPM(suite.db,
+			nil,
+			models.Int64Pointer(8000),
+			models.TimePointer(testdatagen.DateInsidePeakRateCycle),
+			models.StringPointer("72017"),
+			models.BoolPointer(false),
+			nil,
+			models.StringPointer("60605"),
+			models.BoolPointer(false),
+			nil,
+			models.StringPointer("estimate sit"),
+			true,
+			nil,
+		)
 
 		// And: the context contains the auth values
 		path := "/queues/" + queueType
@@ -51,6 +62,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 		// Then: Expect a 200 status code
 		okResponse := showResponse.(*queueop.ShowQueueOK)
+		fmt.Printf("status: %v res: %v", status, okResponse)
 		moveQueueItem := okResponse.Payload[0]
 
 		// And: Returned query to include our added move

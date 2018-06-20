@@ -20,11 +20,13 @@ func (suite *HandlerSuite) TestCreateOrder() {
 	req = suite.authenticateRequest(req, sm)
 
 	hasDependents := true
+	spouseHasProGear := true
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	payload := &internalmessages.CreateUpdateOrders{
 		HasDependents:    fmtBool(hasDependents),
+		SpouseHasProGear: fmtBool(spouseHasProGear),
 		IssueDate:        fmtDate(issueDate),
 		ReportByDate:     fmtDate(reportByDate),
 		OrdersType:       ordersType,
@@ -83,6 +85,7 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	payload := &internalmessages.CreateUpdateOrders{
 		OrdersNumber:        fmtString("123456"),
 		HasDependents:       fmtBool(order.HasDependents),
+		SpouseHasProGear:    fmtBool(order.SpouseHasProGear),
 		IssueDate:           fmtDate(order.IssueDate),
 		ReportByDate:        fmtDate(order.ReportByDate),
 		OrdersType:          newOrdersType,

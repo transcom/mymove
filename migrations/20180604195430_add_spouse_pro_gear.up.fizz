@@ -1,0 +1,2 @@
+add_column("orders", "spouse_has_pro_gear", "bool", {"default": false})
+change_column("orders", "spouse_has_pro_gear", "bool", {})

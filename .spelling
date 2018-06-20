@@ -3,6 +3,16 @@
 # global dictionary is at the start, file overrides afterwards
 # one word per line, to define a file override use ' - filename'
 # where filename is relative to this configuration file
+CSVs
+TDLs
+linehaul
+txt
+LH_RATE
+SIT_RATE
+BVSes
+numerics
+ints
+TSPPs
 datasets
 filename
 accessors
@@ -15,6 +25,7 @@ repo
 executables
 mymove
 ADRs
+copypasta
 homebrew
 PostgreSQL
 EditorConfig
@@ -251,3 +262,4 @@ dp3.sqs
  - docs/frontend.md
 _Regenerate
  - ./README.md
+ - docs/data/tspp-data-creation.md

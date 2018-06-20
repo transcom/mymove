@@ -1,4 +1,4 @@
-import { reject, pick, cloneDeep, concat, includes, get, isNull } from 'lodash';
+import { reject, pick, cloneDeep, concat, includes, get } from 'lodash';
 import {
   CreateOrders,
   UpdateOrders,
@@ -7,7 +7,6 @@ import {
 } from './api.js';
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
-import { getEntitlements } from 'shared/entitlements.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 
@@ -117,16 +116,6 @@ export function addUploads(uploads) {
   };
 }
 
-// Selectors
-export function loadEntitlements(state) {
-  const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
-  const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
-  if (isNull(hasDependents) || isNull(rank)) {
-    return null;
-  }
-  return getEntitlements(rank, hasDependents);
-}
-
 // Reducer
 const initialState = {
   currentOrders: null,
@@ -141,12 +130,14 @@ function reshapeOrders(orders) {
   return pick(orders, [
     'id',
     'has_dependents',
+    'spouse_has_pro_gear',
     'issue_date',
     'new_duty_station',
     'orders_type',
     'report_by_date',
     'service_member_id',
     'uploaded_orders',
+    'status',
   ]);
 }
 const removeUploads = (uploadIds, state) => {

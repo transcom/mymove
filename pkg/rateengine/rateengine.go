@@ -11,6 +11,9 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
+// MaxSITDays is the maximum number of days of SIT that will be reimbursed.
+const MaxSITDays = 90
+
 // RateEngine encapsulates the TSP rate engine process
 type RateEngine struct {
 	db      *pop.Connection
@@ -23,6 +26,7 @@ type CostComputation struct {
 	LinehaulCostComputation
 	NonLinehaulCostComputation
 	SITFee unit.Cents
+	SITMax unit.Cents
 	GCC    unit.Cents
 }
 
@@ -32,6 +36,7 @@ func (c *CostComputation) Scale(factor float64) {
 	c.NonLinehaulCostComputation.Scale(factor)
 
 	c.SITFee = c.SITFee.MultiplyFloat64(factor)
+	c.SITMax = c.SITMax.MultiplyFloat64(factor)
 	c.GCC = c.GCC.MultiplyFloat64(factor)
 }
 
@@ -47,6 +52,7 @@ func (c CostComputation) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 	encoder.AddInt("DestinationServiceFee", c.DestinationServiceFee.Int())
 	encoder.AddInt("PackFee", c.PackFee.Int())
 	encoder.AddInt("UnpackFee", c.UnpackFee.Int())
+	encoder.AddInt("SITMax", c.SITMax.Int())
 	encoder.AddInt("SITFee", c.SITFee.Int())
 
 	encoder.AddInt("GCC", c.GCC.Int())
@@ -102,9 +108,19 @@ func (re *RateEngine) ComputePPM(
 	destinationZip3 := Zip5ToZip3(destinationZip5)
 	sit, err := re.SitCharge(weight.ToCWT(), daysInSIT, destinationZip3, date, true)
 	if err != nil {
+		re.logger.Info("Can't calculate sit")
 		return
 	}
 	sitFee := sitDiscount.Apply(sit)
+
+	/// Max SIT
+	maxSIT, err := re.SitCharge(weight.ToCWT(), MaxSITDays, destinationZip3, date, true)
+	if err != nil {
+		re.logger.Info("Can't calculate max sit")
+		return
+	}
+	// Note that SIT has a different discount rate than [non]linehaul charges
+	maxSITFee := sitDiscount.Apply(maxSIT)
 
 	// Totals
 	gcc := linehaulCostComputation.LinehaulChargeTotal +
@@ -117,6 +133,7 @@ func (re *RateEngine) ComputePPM(
 		LinehaulCostComputation:    linehaulCostComputation,
 		NonLinehaulCostComputation: nonLinehaulCostComputation,
 		SITFee: sitFee,
+		SITMax: maxSITFee,
 		GCC:    gcc,
 	}
 

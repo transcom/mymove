@@ -1,6 +1,10 @@
-import { has, sum } from 'lodash';
+import { get, has, isNull, sum } from 'lodash';
 
-export function getEntitlements(rank, hasDependents = false) {
+export function getEntitlements(
+  rank,
+  hasDependents = false,
+  spouseHasProGear = false,
+) {
   if (!has(entitlements, rank)) {
     return null;
   }
@@ -11,7 +15,7 @@ export function getEntitlements(rank, hasDependents = false) {
   const entitlement = {
     weight: entitlements[rank][totalKey],
     pro_gear: entitlements[rank].pro_gear_weight,
-    pro_gear_spouse: hasDependents
+    pro_gear_spouse: spouseHasProGear
       ? entitlements[rank].pro_gear_weight_spouse
       : 0,
   };
@@ -23,6 +27,20 @@ export function getEntitlements(rank, hasDependents = false) {
   return entitlement;
 }
 
+export function loadEntitlementsFromState(state) {
+  const hasDependents = get(state, 'orders.currentOrders.has_dependents', null);
+  const spouseHasProGear = get(
+    state,
+    'orders.currentOrders.spouse_has_pro_gear',
+    null,
+  );
+  const rank = get(state, 'serviceMember.currentServiceMember.rank', null);
+  if (isNull(hasDependents) || isNull(spouseHasProGear) || isNull(rank)) {
+    return null;
+  }
+  return getEntitlements(rank, hasDependents, spouseHasProGear);
+}
+
 /*
  * These entitlements are pulled from the move.mil source code
  * Source: https://github.com/deptofdefense/move.mil/blob/master/lib/data/entitlements.yml
@@ -31,6 +49,8 @@ const entitlements = {
   ACADEMY_CADET_MIDSHIPMAN: {
     total_weight_self: 350,
     total_weight_self_plus_dependents: 350,
+    pro_gear_weight: 0,
+    pro_gear_weight_spouse: 0,
   },
   AVIATION_CADET: {
     total_weight_self: 7000,

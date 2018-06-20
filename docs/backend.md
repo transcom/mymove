@@ -23,6 +23,8 @@
     * [General](#general)
     * [Models](#models)
     * [Miscellaneous Tips](#miscellaneous-tips)
+* [Environment settings](#environment-settings)
+  * [Adding `ulimit`](#adding-ulimit)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -291,3 +293,11 @@ In general, focus on testing non-trivial behavior.
 
 * Use `golang` instead of `go` in Google searches.
 * Try to use the standard lib as much as possible, especially when learning.
+
+## Environment settings
+
+### Adding `ulimit`
+
+Dep appears to open many files simultaneously, particularly as the project matures and depends on more and more third-party repositories. You may encounter a message like this as a `dep-status` hook error when trying to commit locally: `remote repository does not exist, or is inaccessible: : pipe: too many open files`.
+
+To fix this, run `ulimit -n 5000` in your terminal. This increases the number of file handles (the details on files that a process holds open) on your system. You can run `ulimit -n` to see how many are currently allowed; you may see a number like 128 or 256. (Run `ulimit -a` to see all current limits on your system, including pipe size, stack size, and user processes.) If running this in your terminal window allows you to complete your commit, you may wish to add it to `/.bash_profile` or whichever system file you use for your terminal settings.

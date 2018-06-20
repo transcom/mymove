@@ -179,15 +179,13 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
-        x-nullable: true
       has_requested_advance:
         type: boolean
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/CreateReimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   UpdatePersonallyProcuredMovePayload:
     type: object
     properties:
@@ -243,16 +241,14 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
-        x-nullable: true
       has_requested_advance:
         type: boolean
         default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PatchPersonallyProcuredMovePayload:
     type: object
     properties:
@@ -301,6 +297,7 @@ definitions:
         x-nullable: true
       estimated_storage_reimbursement:
         type: string
+        example: "$1200"
         title: Estimated Storage Reimbursement
         x-nullable: true
       weight_estimate:
@@ -308,16 +305,14 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
-        x-nullable: true
       has_requested_advance:
         type: boolean
         default: false
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
   PersonallyProcuredMovePayload:
     type: object
     properties:
@@ -377,9 +372,25 @@ definitions:
         minimum: 1
         title: Weight Estimate
         x-nullable: true
-      estimated_incentive:
-        type: string
-        title: Estimated Incentive
+      mileage:
+        type: integer
+        title: Distance between origin and destination in miles
+        x-nullable: true
+      planned_sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for the planned SIT duration
+        x-nullable: true
+      sit_max:
+        type: integer
+        title: Maximum SIT reimbursement for maximum SIT duration
+        x-nullable: true
+      incentive_estimate_min:
+        type: integer
+        title: Estimated incentive minimum in cents
+        x-nullable: true
+      incentive_estimate_max:
+        type: integer
+        title: Estimated incentive maximum in cents
         x-nullable: true
       status:
         $ref: '#/definitions/PPMStatus'
@@ -389,6 +400,8 @@ definitions:
         title: Would you like an advance of up to 60% of your PPM incentive?
       advance:
         $ref: '#/definitions/Reimbursement'
+      advance_worksheet:
+        $ref: '#/definitions/DocumentPayload'
       created_at:
         type: string
         format: date-time
@@ -454,6 +467,9 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      cancel_reason:
+        type: string
+        x-nullable: true
     required:
       - id
       - orders_id
@@ -1376,11 +1392,13 @@ definitions:
       - SUBMITTED
       - APPROVED
       - COMPLETED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       COMPLETED: Completed
+      CANCELED: Canceled
   PPMStatus:
     type: string
     title: Move status
@@ -1390,12 +1408,14 @@ definitions:
       - APPROVED
       - IN_PROGRESS
       - COMPLETED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       IN_PROGRESS: In Progress
       COMPLETED: Completed
+      CANCELED: Canceled
   OrdersStatus:
     type: string
     title: Move status
@@ -1403,10 +1423,12 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
+      - CANCELED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
+      CANCELED: Canceled
   OrdersType:
     type: string
     title: Orders type
@@ -1471,7 +1493,7 @@ definitions:
         format: date
         example: "2018-04-26"
         title:  Report by
-      orders_status:
+      status:
         $ref: '#/definitions/OrdersStatus'
       orders_type:
         $ref: "#/definitions/OrdersType"
@@ -1480,6 +1502,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station:
         $ref: '#/definitions/DutyStationPayload'
       uploaded_orders:
@@ -1510,6 +1535,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station
       - uploaded_orders
       - created_at
@@ -1540,6 +1566,9 @@ definitions:
       has_dependents:
         type: boolean
         title: Are dependents included in your orders?
+      spouse_has_pro_gear:
+        type: boolean
+        title: Do you have a spouse who will need to move items related to their occupation (also known as spouse pro-gear)?
       new_duty_station_id:
         type: string
         format: uuid
@@ -1565,6 +1594,7 @@ definitions:
       - report_by_date
       - orders_type
       - has_dependents
+      - spouse_has_pro_gear
       - new_duty_station_id
   InvalidRequestResponsePayload:
     type: object
@@ -2871,3 +2901,24 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized to access this queue
+  /entitlements/{moveId}:
+    get:
+      summary: Validates that the stored weight estimate is below the allotted entitlement range for a service member
+      description: Determine whether weight estimate is below entitlement
+      operationId: validateEntitlement
+      tags:
+        - entitlements
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: weight estimate is below allotted entitlement
+        404:
+          description: personally procured move not found
+        409:
+          description: Requested weight estimate is above allotted entitlement

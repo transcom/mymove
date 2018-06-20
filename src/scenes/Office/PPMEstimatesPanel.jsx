@@ -2,37 +2,56 @@ import { get } from 'lodash';
 import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { reduxForm } from 'redux-form';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
+
 import editablePanel from './editablePanel';
-
-import { no_op_action } from 'shared/utils';
-
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
+import { formatCentsRange } from 'shared/formatters';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
+
+import { loadEntitlements, updatePPM } from 'scenes/Office/ducks';
+
+const validateWeight = (value, formValues, props, fieldName) => {
+  if (value && props.entitlement && value > props.entitlement.sum) {
+    return `Cannot be more than full entitlement weight (${
+      props.entitlement.sum
+    } lbs)`;
+  }
+};
 
 const EstimatesDisplay = props => {
+  const ppm = props.PPMEstimate;
   const fieldProps = {
-    schema: props.PPMEstimateSchema,
-    values: props.PPMEstimate,
+    schema: props.ppmSchema,
+    values: ppm,
   };
 
   return (
     <React.Fragment>
       <div className="editable-panel-column">
-        <PanelSwaggerField fieldName="estimated_incentive" {...fieldProps} />
+        <PanelField title="Incentive estimate">
+          {formatCentsRange(
+            ppm.incentive_estimate_min,
+            ppm.incentive_estimate_max,
+          )}
+        </PanelField>
         <PanelSwaggerField fieldName="weight_estimate" {...fieldProps} />
         <PanelSwaggerField
           title="Planned departure"
           fieldName="planned_move_date"
           {...fieldProps}
         />
-        <PanelField title="Storage planned" fieldName="days_in_storage">
+        <PanelField title="Storage planned" fieldName="has_sit">
           {fieldProps.values.has_sit ? 'Yes' : 'No'}
         </PanelField>
-        <PanelSwaggerField
-          title="Storage days"
-          fieldName="days_in_storage"
-          {...fieldProps}
-        />
+        {fieldProps.values.has_sit && (
+          <PanelSwaggerField
+            title="Planned days in storage"
+            fieldName="days_in_storage"
+            {...fieldProps}
+          />
+        )}
         <PanelField
           title="Max. storage cost"
           value="Max. storage cost"
@@ -66,8 +85,81 @@ const EstimatesDisplay = props => {
 };
 
 const EstimatesEdit = props => {
-  // const { schema } = props;
-  return <React.Fragment>This is where the editing happens!</React.Fragment>;
+  const ppm = props.PPMEstimate;
+  const schema = props.ppmSchema;
+
+  return (
+    <React.Fragment>
+      <FormSection name="PPMEstimate">
+        <div className="editable-panel-column">
+          <PanelField title="Incentive estimate">
+            {formatCentsRange(
+              ppm.incentive_estimate_min,
+              ppm.incentive_estimate_max,
+            )}
+          </PanelField>
+          <SwaggerField
+            className="short-field"
+            fieldName="weight_estimate"
+            swagger={schema}
+            validate={validateWeight}
+            required
+          />{' '}
+          lbs
+          <SwaggerField
+            title="Planned departure date"
+            fieldName="planned_move_date"
+            swagger={schema}
+            required
+          />
+          <div className="panel-subhead">Storage</div>
+          <SwaggerField
+            title="Storage planned?"
+            fieldName="has_sit"
+            swagger={schema}
+            component={YesNoBoolean}
+          />
+          {get(props, 'formValues.PPMEstimate.has_sit', false) && (
+            <SwaggerField
+              title="Planned days in storage"
+              fieldName="days_in_storage"
+              swagger={schema}
+            />
+          )}
+          <SwaggerField
+            title="Max cost for XX days"
+            swagger={schema}
+            className="Todo"
+          />
+        </div>
+        <div className="editable-panel-column">
+          <SwaggerField
+            title="Origin zip code"
+            fieldName="pickup_postal_code"
+            swagger={schema}
+            required
+          />
+          <SwaggerField
+            title="Additional stop zip code"
+            fieldName="additional_pickup_postal_code"
+            swagger={schema}
+          />
+          <SwaggerField
+            title="Destination zip code"
+            fieldName="destination_postal_code"
+            swagger={schema}
+            required
+          />
+          {/*<SwaggerField
+          title="Distance from origin to destination"
+          fieldName="destination_postal_code"
+          value="863 miles"
+          className="Todo"
+        />*/}
+        </div>
+      </FormSection>
+    </React.Fragment>
+  );
 };
 
 const formName = 'ppm_estimate_and_details';
@@ -76,28 +168,47 @@ let PPMEstimatesPanel = editablePanel(EstimatesDisplay, EstimatesEdit);
 PPMEstimatesPanel = reduxForm({ form: formName })(PPMEstimatesPanel);
 
 function mapStateToProps(state) {
+  let PPMEstimate = get(state, 'office.officePPMs[0]', {});
+  let officeMove = get(state, 'office.officeMove', {});
+  let formValues = getFormValues(formName)(state);
+
   return {
     // reduxForm
-    formData: state.form[formName],
-    initialValues: {},
+    formValues: formValues,
+    initialValues: { PPMEstimate: PPMEstimate },
 
     // Wrapper
-    PPMEstimateSchema: get(
+    ppmSchema: get(
       state,
       'swagger.spec.definitions.PersonallyProcuredMovePayload',
     ),
     hasError: false,
     errorMessage: get(state, 'office.error'),
-    PPMEstimate: get(state, 'office.officePPMs[0]', {}),
+    PPMEstimate: PPMEstimate,
     isUpdating: false,
-    formIsValid: true,
+    entitlement: loadEntitlements(state),
+
+    // editablePanel
+    formIsValid: isValid(formName)(state),
+    getUpdateArgs: function() {
+      if (
+        formValues.PPMEstimate.additional_pickup_postal_code !== '' &&
+        formValues.PPMEstimate.additional_pickup_postal_code !== undefined
+      ) {
+        formValues.PPMEstimate.has_additional_postal_code = true;
+      } else {
+        delete formValues.PPMEstimate.additional_pickup_postal_code;
+        formValues.PPMEstimate.has_additional_postal_code = false;
+      }
+      return [officeMove.id, formValues.PPMEstimate.id, formValues.PPMEstimate];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: no_op_action,
+      update: updatePPM,
     },
     dispatch,
   );

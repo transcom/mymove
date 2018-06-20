@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // PPMStatus represents the status of an order record's lifecycle
@@ -25,6 +26,8 @@ const (
 	PPMStatusAPPROVED PPMStatus = "APPROVED"
 	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
 	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
+	// PPMStatusCANCELED captures enum value "CANCELED"
+	PPMStatusCANCELED PPMStatus = "CANCELED"
 )
 
 // PersonallyProcuredMove is the portion of a move that a service member performs themselves
@@ -36,7 +39,6 @@ type PersonallyProcuredMove struct {
 	UpdatedAt                     time.Time                    `json:"updated_at" db:"updated_at"`
 	Size                          *internalmessages.TShirtSize `json:"size" db:"size"`
 	WeightEstimate                *int64                       `json:"weight_estimate" db:"weight_estimate"`
-	EstimatedIncentive            *string                      `json:"estimated_incentive" db:"estimated_incentive"`
 	PlannedMoveDate               *time.Time                   `json:"planned_move_date" db:"planned_move_date"`
 	PickupPostalCode              *string                      `json:"pickup_postal_code" db:"pickup_postal_code"`
 	HasAdditionalPostalCode       *bool                        `json:"has_additional_postal_code" db:"has_additional_postal_code"`
@@ -45,10 +47,17 @@ type PersonallyProcuredMove struct {
 	HasSit                        *bool                        `json:"has_sit" db:"has_sit"`
 	DaysInStorage                 *int64                       `json:"days_in_storage" db:"days_in_storage"`
 	EstimatedStorageReimbursement *string                      `json:"estimated_storage_reimbursement" db:"estimated_storage_reimbursement"`
+	Mileage                       *int64                       `json:"mileage" db:"mileage"`
+	PlannedSITMax                 *unit.Cents                  `json:"planned_sit_max" db:"planned_sit_max"`
+	SITMax                        *unit.Cents                  `json:"sit_max" db:"sit_max"`
+	IncentiveEstimateMin          *unit.Cents                  `json:"incentive_estimate_min" db:"incentive_estimate_min"`
+	IncentiveEstimateMax          *unit.Cents                  `json:"incentive_estimate_max" db:"incentive_estimate_max"`
 	Status                        PPMStatus                    `json:"status" db:"status"`
 	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
 	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
+	AdvanceWorksheet              Document                     `belongs_to:"documents"`
+	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 }
 
 // PersonallyProcuredMoves is a list of PPMs
@@ -72,6 +81,19 @@ func (p *PersonallyProcuredMove) ValidateCreate(tx *pop.Connection) (*validate.E
 // This method is not required and may be deleted.
 func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// State Machine
+// Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
+
+// Cancel cancels the PPM
+func (p *PersonallyProcuredMove) Cancel() error {
+	if p.Status != PPMStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Cancel")
+	}
+
+	p.Status = PPMStatusCANCELED
+	return nil
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
@@ -103,6 +125,12 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 
 		if ppm.HasRequestedAdvance {
 			if ppm.Advance != nil {
+				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
+				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
+					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
+					return transactionError
+				}
+
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")
