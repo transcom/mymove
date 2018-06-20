@@ -28,6 +28,7 @@ export class Summary extends Component {
       schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
+      moveIsCanceled,
       serviceMember,
       entitlement,
     } = this.props;

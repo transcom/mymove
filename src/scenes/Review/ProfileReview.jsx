@@ -1,22 +1,36 @@
-import { no_op } from 'shared/utils';
+import PropTypes from 'prop-types';
 import WizardPage from 'shared/WizardPage';
 import React, { Component } from 'react';
-import Summary from './Summary';
+import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
+import { push } from 'react-router-redux';
 
-export default class ProfileReview extends Component {
+import Summary from './Summary';
+import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
+
+class ProfileReview extends Component {
   componentDidMount() {
     window.scrollTo(0, 0);
   }
+  resumeMove = () => {
+    this.props.push(this.getNextIncompletePage());
+  };
+  getNextIncompletePage = () => {
+    const { serviceMember, orders, move, ppm, backupContacts } = this.props;
+    return getNextIncompletePageInternal(
+      serviceMember,
+      orders,
+      move,
+      ppm,
+      backupContacts,
+    );
+  };
   render() {
-    const { pages, pageKey } = this.props;
-    console.log(pages, pageKey);
-    console.log(this.props);
-
     return (
       <WizardPage
-        handleSubmit={no_op}
-        pageList={pages}
-        pageKey={pageKey}
+        handleSubmit={this.resumeMove}
+        pageList={[]}
+        pageKey={''}
         pageIsValid={true}
       >
         <h1>Profile Review</h1>
@@ -29,3 +43,17 @@ export default class ProfileReview extends Component {
     );
   }
 }
+
+ProfileReview.propTypes = {
+  currentServiceMember: PropTypes.object,
+};
+
+function mapStateToProps(state) {
+  return {
+    serviceMember: state.serviceMember.currentServiceMember,
+  };
+}
+function mapDispatchToProps(dispatch) {
+  return bindActionCreators({ push }, dispatch);
+}
+export default connect(mapStateToProps, mapDispatchToProps)(ProfileReview);

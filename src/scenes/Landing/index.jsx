@@ -140,7 +140,7 @@ const mapStateToProps = state => ({
   backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
   move: state.moves.currentMove || {},
-  canceledMove: state.moves.canceledMove || {},
+  canceledMove: state.moves.canceledMove || null,
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,

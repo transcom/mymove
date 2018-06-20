@@ -14,7 +14,7 @@ const Alert = props => (
 );
 
 Alert.propTypes = {
-  heading: PropTypes.string,
+  heading: PropTypes.string.isRequired,
   children: PropTypes.node,
   type: PropTypes.oneOf(['error', 'warning', 'info', 'success']),
 };

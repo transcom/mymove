@@ -25,7 +25,6 @@ import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import Review from 'scenes/Review/Review';
-import ProfileReview from 'scenes/Review/ProfileReview';
 import Agreement from 'scenes/Legalese';
 
 const PageNotInFlow = ({ location }) => (
@@ -137,21 +136,11 @@ const pages = {
     ),
     description: 'Backup contacts',
   },
-  '/profile-review': {
-    isInFlow: always,
-    isComplete: (sm, orders, move, ppm) => {
-      return (
-        get(move, 'status', 'DRAFT') === 'CANCELED' ||
-        get(orders, 'status', 'DRAFT') === 'CANCELED'
-      );
-    },
-    render: (key, pages) => ({ match }) => (
-      <ProfileReview pages={pages} pageKey={key} match={match} />
-    ),
-  },
   '/service-member/:serviceMemberId/transition': {
     isInFlow: always,
-    isComplete: always,
+    isComplete: orders => {
+      return get(orders, 'status', 'DRAFT') === 'CANCELED';
+    },
     render: (key, pages) => ({ match }) => (
       <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <TransitionToOrders />
@@ -160,7 +149,7 @@ const pages = {
   },
   '/orders/': {
     isInFlow: always,
-    isComplete: (sm, orders) =>
+    isComplete: orders =>
       every([
         orders.orders_type,
         orders.issue_date,

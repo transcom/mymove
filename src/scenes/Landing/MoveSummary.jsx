@@ -15,7 +15,7 @@ import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 
-const CanceledMoveSummary = props => {
+export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
   const currentStation = get(profile, 'current_station');
   const stationPhone = get(
@@ -57,7 +57,7 @@ const CanceledMoveSummary = props => {
   );
 };
 
-const DraftMoveSummary = props => {
+export const DraftMoveSummary = props => {
   const { orders, profile, move, entitlement, resumeMove } = props;
   return (
     <Fragment>
@@ -112,7 +112,7 @@ const DraftMoveSummary = props => {
   );
 };
 
-const SubmittedMoveSummary = props => {
+export const SubmittedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   return (
     <Fragment>
@@ -170,7 +170,7 @@ const SubmittedMoveSummary = props => {
   );
 };
 
-const ApprovedMoveSummary = props => {
+export const ApprovedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   const moveInProgress = moment(
     ppm.planned_move_date,
@@ -220,7 +220,7 @@ const ApprovedMoveSummary = props => {
                   </div>
                 )}
                 <div className="step">
-                  <div className="title">Next Step: Request Payment</div>
+                  <div className="title">Next Step: Request payment</div>
                   <div>
                     Request a PPM payment, a storage payment, or an advance
                     against your PPM payment before your move is done.
@@ -316,6 +316,13 @@ const MoveInfoHeader = props => {
   );
 };
 
+const moveSummaryStatusComponents = {
+  DRAFT: DraftMoveSummary,
+  SUBMITTED: SubmittedMoveSummary,
+  APPROVED: ApprovedMoveSummary,
+  CANCELED: CanceledMoveSummary,
+};
+
 export const MoveSummary = props => {
   const {
     profile,
@@ -329,61 +336,28 @@ export const MoveSummary = props => {
     reviewProfile,
   } = props;
   const status = get(move, 'status', 'DRAFT');
+  const StatusComponent = moveSummaryStatusComponents[status];
   return (
     <Fragment>
       {canceledMove && (
-        <Alert type="info">
+        <Alert type="info" heading="Your move was canceled">
           Your move from {get(profile, 'current_station.name')} to{' '}
           {get(orders, 'new_duty_station.name')} with the move locator ID{' '}
-          {get(canceledMove, 'locator')} was cancelled. Contact your local PPPO{' '}
-          {get(profile, 'current_station.name')} at{' '}
-          {get(profile, 'current_station.transportation_office.phone_lines.0')}{' '}
-          if you have any questions.
+          {get(canceledMove, 'locator')} was cancelled.
         </Alert>
       )}
 
       <div className="whole_box">
-        {
-          {
-            DRAFT: (
-              <DraftMoveSummary
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                resumeMove={resumeMove}
-              />
-            ),
-            SUBMITTED: (
-              <SubmittedMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-              />
-            ),
-            APPROVED: (
-              <ApprovedMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-              />
-            ),
-            CANCELED: (
-              <CanceledMoveSummary
-                ppm={ppm}
-                orders={orders}
-                profile={profile}
-                move={move}
-                entitlement={entitlement}
-                reviewProfile={reviewProfile}
-              />
-            ),
-          }[status]
-        }
+        <StatusComponent
+          className="status-component"
+          ppm={ppm}
+          orders={orders}
+          profile={profile}
+          move={move}
+          entitlement={entitlement}
+          resumeMove={resumeMove}
+          reviewProfile={reviewProfile}
+        />
 
         <div className="sidebar usa-width-one-fourth">
           <button
