@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
@@ -14,7 +14,7 @@ const BackupMailingWizardForm = reduxifyWizardForm(formName);
 
 export class BackupMailingAddress extends Component {
   handleSubmit = () => {
-    const newAddress = { backup_mailing_address: this.props.formData.values };
+    const newAddress = { backup_mailing_address: this.props.values };
     this.props.updateServiceMember(newAddress);
   };
 
@@ -80,7 +80,7 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swagger.spec.definitions.Address', {}),
-    formData: state.form[formName],
+    values: getFormValues(formName)(state),
     ...state.serviceMember,
   };
 }

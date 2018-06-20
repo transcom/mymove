@@ -21,6 +21,7 @@ export class PpmSizeWizardPage extends Component {
       let weight = currentPpm.weight_estimate;
       if (!isFinite(weight)) {
         // Initialize weight to be mid-range
+        // eslint-disable-next-line security/detect-object-injection
         let weightRange = weightInfo[pendingPpmSize];
         weight = weightRange.min + (weightRange.max - weightRange.min) / 2;
       }

@@ -60,9 +60,11 @@ export class Summary extends Component {
       };
       const preferredMethods = [];
       Object.keys(prefs).forEach(propertyName => {
+        /* eslint-disable */
         if (serviceMember[propertyName]) {
           preferredMethods.push(prefs[propertyName]);
         }
+        /* eslint-enable */
       });
       return preferredMethods.join(', ');
     }
