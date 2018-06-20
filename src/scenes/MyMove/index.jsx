@@ -20,14 +20,13 @@ import EditContactInfo from 'scenes/Review/EditContactInfo';
 import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
-import ProfileReview from 'scenes/Review/ProfileReview';
 import Header from 'shared/Header/MyMove';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-
+import { moveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
@@ -121,10 +120,7 @@ export class AppWrapper extends Component {
                       path="/moves/:moveId/review/edit-weight"
                       component={EditWeight}
                     />
-                    <PrivateRoute
-                      path="/profile-review"
-                      component={ProfileReview}
-                    />
+
                     <Route component={NoMatch} />
                   </Switch>
                 )}
@@ -147,6 +143,7 @@ const mapStateToProps = state => {
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
     selectedMoveType: get(state, 'moves.currentMove.selected_move_type', 'PPM'), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
     moveId: get(state, 'moves.currentMove.id'),
+    moveIsCanceled: moveIsCanceled(state),
   };
 };
 const mapDispatchToProps = dispatch =>

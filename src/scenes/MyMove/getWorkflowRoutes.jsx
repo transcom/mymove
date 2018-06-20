@@ -12,6 +12,8 @@ import ContactInfo from 'scenes/ServiceMembers/ContactInfo';
 import ResidentialAddress from 'scenes/ServiceMembers/ResidentialAddress';
 import BackupMailingAddress from 'scenes/ServiceMembers/BackupMailingAddress';
 import BackupContact from 'scenes/ServiceMembers/BackupContact';
+import ProfileReview from 'scenes/Review/ProfileReview';
+
 import TransitionToOrders from 'scenes/ServiceMembers/TransitionToOrders';
 import Orders from 'scenes/Orders/Orders';
 import DutyStation from 'scenes/ServiceMembers/DutyStation';
@@ -60,6 +62,8 @@ const stub = (key, pages, description) => ({ match }) => (
 );
 
 const always = () => true;
+const myFirstRodeo = props => !props.moveIsCanceled;
+const notMyFirstRodeo = props => props.moveIsCanceled;
 const hasHHG = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
@@ -69,7 +73,7 @@ const isCombo = ({ selectedMoveType }) =>
 
 const pages = {
   '/service-member/:serviceMemberId/create': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: sm =>
       sm.is_profile_complete || every([sm.rank, sm.edipi, sm.affiliation]),
     render: (key, pages) => ({ match }) => (
@@ -77,7 +81,7 @@ const pages = {
     ),
   },
   '/service-member/:serviceMemberId/name': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: sm =>
       sm.is_profile_complete || every([sm.first_name, sm.last_name]),
     render: (key, pages) => ({ match }) => (
@@ -85,7 +89,7 @@ const pages = {
     ),
   },
   '/service-member/:serviceMemberId/contact-info': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: sm =>
       sm.is_profile_complete ||
       (every([sm.telephone, sm.personal_email]) &&
@@ -99,7 +103,7 @@ const pages = {
     ),
   },
   '/service-member/:serviceMemberId/duty-station': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
 
     // api for duty station always returns an object, even when duty station is not set
     // if there is no duty station, that object will have a null uuid
@@ -112,14 +116,14 @@ const pages = {
     description: 'current duty station',
   },
   '/service-member/:serviceMemberId/residence-address': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: sm => sm.is_profile_complete || Boolean(sm.residential_address),
     render: (key, pages) => ({ match }) => (
       <ResidentialAddress pages={pages} pageKey={key} match={match} />
     ),
   },
   '/service-member/:serviceMemberId/backup-mailing-address': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: sm =>
       sm.is_profile_complete || Boolean(sm.backup_mailing_address),
     render: (key, pages) => ({ match }) => (
@@ -127,7 +131,7 @@ const pages = {
     ),
   },
   '/service-member/:serviceMemberId/backup-contacts': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: (sm, orders, move, ppm, backup_contacts) => {
       return sm.is_profile_complete || backup_contacts.length > 0;
     },
@@ -136,13 +140,21 @@ const pages = {
     ),
     description: 'Backup contacts',
   },
+  //todo: does this need serviceMemberId
   '/service-member/:serviceMemberId/transition': {
-    isInFlow: always,
+    isInFlow: myFirstRodeo,
     isComplete: always,
     render: (key, pages) => ({ match }) => (
       <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
         <TransitionToOrders />
       </WizardPage>
+    ),
+  },
+  '/profile-review': {
+    isInFlow: notMyFirstRodeo,
+    isComplete: always,
+    render: (key, pages) => ({ match }) => (
+      <ProfileReview pages={pages} pageKey={key} match={match} />
     ),
   },
   '/orders/': {
