@@ -67,6 +67,9 @@ export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
 export const moveIsApproved = state =>
   get(state, 'moves.currentMove.status') === 'APPROVED';
 
+export const moveIsCanceled = state =>
+  get(state, 'moves.currentMove.status') === 'CANCELED';
+
 // Reducer
 const initialState = {
   currentMove: null,
