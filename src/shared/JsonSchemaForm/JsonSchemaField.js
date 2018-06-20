@@ -36,6 +36,7 @@ const configureDropDown = (swaggerField, props) => {
 };
 
 const dropDownChildren = (swaggerField, props) => {
+  /* eslint-disable security/detect-object-injection */
   return (
     <Fragment>
       <option />
@@ -46,6 +47,7 @@ const dropDownChildren = (swaggerField, props) => {
       ))}
     </Fragment>
   );
+  /* eslint-enable security/detect-object-injection */
 };
 
 const configureNumberField = (swaggerField, props) => {
@@ -238,6 +240,7 @@ export const SwaggerField = props => {
   } = props;
   let swaggerField;
   if (swagger.properties) {
+    // eslint-disable-next-line security/detect-object-injection
     swaggerField = swagger.properties[fieldName];
   }
 
@@ -246,6 +249,7 @@ export const SwaggerField = props => {
   }
 
   if (required) {
+    // eslint-disable-next-line security/detect-object-injection
     swaggerField[ALWAYS_REQUIRED_KEY] = true;
   }
 
@@ -295,6 +299,7 @@ const createSchemaField = (
   fieldProps.title = title || swaggerField.title || fieldName;
   fieldProps.component = renderInputField;
   fieldProps.validate = [];
+  // eslint-disable-next-line security/detect-object-injection
   fieldProps.always_required = swaggerField[ALWAYS_REQUIRED_KEY];
 
   let inputProps = {

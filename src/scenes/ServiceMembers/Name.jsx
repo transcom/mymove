@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import { getFormValues } from 'redux-form';
 import { updateServiceMember } from './ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -14,7 +14,7 @@ const NameWizardForm = reduxifyWizardForm(formName);
 
 export class Name extends Component {
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = this.props.values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
       this.props.updateServiceMember(patch);
@@ -80,7 +80,7 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateServiceMemberPayload',
       {},
     ),
-    formData: state.form[formName],
+    values: getFormValues(formName)(state),
     ...state.serviceMember,
   };
 }
