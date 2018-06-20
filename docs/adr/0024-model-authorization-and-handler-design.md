@@ -39,3 +39,5 @@ We conducted a white-boarding session to demonstrate three different options:
 * `+` Putting the fetched models into the context is a common go pattern
 * `-` It might be complex to implement, and reflection is always worrisome
 * `-` data accessors other than handlers have to re-implement this.
+
+something something
