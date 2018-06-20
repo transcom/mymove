@@ -53,30 +53,28 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		return responseForError(h.logger, err)
 	}
 
-	// Canceling move with result in canceled associated PPMs
+	// Canceling move will result in canceled associated PPMs
 	err = move.Cancel(*params.Reason)
 	if err != nil {
 		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return responseForError(h.logger, err)
 	}
-	// If move is canceled, orders must be canceled
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-	err = orders.Cancel()
-	if err != nil {
-		h.logger.Error("Attempted to cancel orders, got invalid transition", zap.Error(err), zap.String("orders_status", string(orders.Status)))
-		return responseForError(h.logger, err)
-	}
 
+	// Save move, orders, and PPMs statuses
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-	verrs, err = h.db.ValidateAndUpdate(&orders)
+	verrs, err = h.db.ValidateAndUpdate(&move.Orders)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	for i := range move.PersonallyProcuredMoves {
+		verrs, err = h.db.ValidateAndUpdate(move.PersonallyProcuredMoves[i])
+		if err != nil || verrs.HasAny() {
+			return responseForVErrors(h.logger, verrs, err)
+		}
 	}
 
 	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)

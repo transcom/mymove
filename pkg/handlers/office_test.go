@@ -39,24 +39,27 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
-	orders, _ := testdatagen.MakeOrder(suite.db)
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
 	var selectedType = internalmessages.SelectedMoveTypePPM
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	suite.Nil(err)
 
 	// Move is submitted
 	err = move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
-	suite.mustSave(move)
 
-	// Orders are submitted
+	// And: Orders are submitted and saved on move
 	err = orders.Submit()
 	suite.Nil(err)
 	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
 	suite.mustSave(&orders)
+	move.Orders = orders
+	suite.mustSave(move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
@@ -79,7 +82,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	okResponse := response.(*officeop.CancelMoveOK)
 
 	// And: Returned query to have an canceled status
-	suite.Assertions.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
+	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 }
 
 func (suite *HandlerSuite) TestApprovePPMHandler() {
@@ -107,7 +110,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	okResponse := response.(*officeop.ApprovePPMOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
+	suite.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
 }
 
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
@@ -132,5 +135,5 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	okResponse := response.(*officeop.ApproveReimbursementOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
+	suite.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }
