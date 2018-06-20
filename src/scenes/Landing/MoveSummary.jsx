@@ -15,7 +15,7 @@ import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
 
-const CanceledMoveSummary = props => {
+export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
   const currentStation = get(profile, 'current_station');
   const stationPhone = get(
@@ -57,7 +57,7 @@ const CanceledMoveSummary = props => {
   );
 };
 
-const DraftMoveSummary = props => {
+export const DraftMoveSummary = props => {
   const { orders, profile, move, entitlement, resumeMove } = props;
   return (
     <Fragment>
@@ -112,7 +112,7 @@ const DraftMoveSummary = props => {
   );
 };
 
-const SubmittedMoveSummary = props => {
+export const SubmittedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   return (
     <Fragment>
@@ -170,7 +170,7 @@ const SubmittedMoveSummary = props => {
   );
 };
 
-const ApprovedMoveSummary = props => {
+export const ApprovedMoveSummary = props => {
   const { ppm, orders, profile, move, entitlement } = props;
   const moveInProgress = moment(
     ppm.planned_move_date,
@@ -220,7 +220,7 @@ const ApprovedMoveSummary = props => {
                   </div>
                 )}
                 <div className="step">
-                  <div className="title">Next Step: Request Payment</div>
+                  <div className="title">Next Step: Request payment</div>
                   <div>
                     Request a PPM payment, a storage payment, or an advance
                     against your PPM payment before your move is done.
@@ -352,6 +352,7 @@ export const MoveSummary = props => {
 
       <div className="whole_box">
         <StatusComponent
+          className="status-component"
           ppm={ppm}
           orders={orders}
           profile={profile}

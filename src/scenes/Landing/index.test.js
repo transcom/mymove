@@ -8,7 +8,7 @@ import configureStore from 'redux-mock-store';
 import { shallow, mount } from 'enzyme';
 
 import { Landing } from '.';
-import { MoveSummary } from './MoveSummary';
+import { MoveSummary, DraftMoveSummary } from './MoveSummary';
 
 describe('HomePage tests', () => {
   let wrapper;
@@ -93,6 +93,8 @@ describe('HomePage tests', () => {
           wrapper
             .find(MoveSummary)
             .dive()
+            .find('.status-component')
+            .dive()
             .find('.step')
             .find('div.title')
             .first()
@@ -133,6 +135,8 @@ describe('HomePage tests', () => {
         expect(
           wrapper
             .find(MoveSummary)
+            .dive()
+            .find('.status-component')
             .dive()
             .find('.step')
             .find('div.title')
