@@ -85,7 +85,15 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if session != nil {
 		redirectURL := h.landingURL(session)
 		if session.IDToken != "" {
-			logoutURL := h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
+			var logoutURL string
+			// All users logged in via devlocal-auth will have this IDToken. We
+			// don't want to make a call to login.gov for a logout URL as it will
+			// fail for devlocal-auth'ed users.
+			if session.IDToken == "devlocal" {
+				logoutURL = "/"
+			} else {
+				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
+			}
 			session.IDToken = ""
 			session.UserID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
