@@ -335,7 +335,7 @@ export const MoveSummary = props => {
     reviewProfile,
   } = props;
   const status = get(move, 'status', 'DRAFT');
-  const StatusComponent = moveSummaryStatusComponents[status];
+  const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   return (
     <Fragment>
       {status === 'CANCELED' && (
