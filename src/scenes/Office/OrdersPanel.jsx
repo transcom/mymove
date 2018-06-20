@@ -146,7 +146,7 @@ const OrdersEdit = props => {
             swagger={schema}
             title="Dependents authorized"
           />
-          {props.orders.has_dependents && (
+          {get(props, 'formValues.orders.has_dependents', false) && (
             <SwaggerField
               fieldName="spouse_has_pro_gear"
               swagger={schema}
@@ -165,8 +165,11 @@ let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
 OrdersPanel = reduxForm({ form: formName })(OrdersPanel);
 
 function mapStateToProps(state) {
+  let formValues = getFormValues(formName)(state);
+
   return {
     // reduxForm
+    formValues: formValues,
     initialValues: {
       orders: get(state, 'office.officeOrders', {}),
       serviceMember: get(state, 'office.officeServiceMember', {}),
@@ -186,12 +189,11 @@ function mapStateToProps(state) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
-      let values = getFormValues(formName)(state);
       return [
         get(state, 'office.officeOrders.id'),
-        values.orders,
+        formValues.orders,
         get(state, 'office.officeServiceMember.id'),
-        values.serviceMember,
+        formValues.serviceMember,
       ];
     },
   };
