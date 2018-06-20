@@ -142,15 +142,17 @@ const OrdersEdit = props => {
 
         <FormSection name="orders">
           <SwaggerField
-            fieldName="spouse_has_pro_gear"
-            swagger={schema}
-            title="Spouse has pro gear"
-          />
-          <SwaggerField
             fieldName="has_dependents"
             swagger={schema}
             title="Dependents authorized"
           />
+          {props.orders.has_dependents && (
+            <SwaggerField
+              fieldName="spouse_has_pro_gear"
+              swagger={schema}
+              title="Spouse has pro gear"
+            />
+          )}
         </FormSection>
       </div>
     </React.Fragment>
