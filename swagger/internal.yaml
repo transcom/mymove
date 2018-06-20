@@ -2419,6 +2419,7 @@ paths:
           name: reason
           schema:
             type: string
+            example: "Orders canceled"
           required: true
           description: reason for cancelation of move
       responses:
@@ -2431,7 +2432,7 @@ paths:
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to approve this move
+          description: not authorized to cancel this move
         409:
           description: the move is not in a state to be canceled
           schema:
