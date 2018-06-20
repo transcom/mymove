@@ -7,6 +7,7 @@ import (
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -38,12 +39,24 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
-	order, _ := testdatagen.MakeOrder(suite.db)
+	orders, _ := testdatagen.MakeOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypePPM
-	move, verrs, err := order1.CreateNewMove(suite.db, &selectedType)
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+
+	// Move is submitted
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.mustSave(move)
+
+	// Orders are submitted
+	err = orders.Submit()
+	suite.Nil(err)
+	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
+	suite.mustSave(&orders)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
@@ -53,7 +66,9 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
-	params.Reason = &internalmessages.Reason("Orders revoked.")
+	// And params include the cancel reason
+	reason := "Orders revoked."
+	params.Reason = &reason
 
 	// And: a move is canceled
 	handler := CancelMoveHandler(NewHandlerContext(suite.db, suite.logger))

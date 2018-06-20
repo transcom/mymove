@@ -74,7 +74,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
-	verrs, err = h.db.ValidateAndUpdate(orders)
+	verrs, err = h.db.ValidateAndUpdate(&orders)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
