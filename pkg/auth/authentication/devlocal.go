@@ -63,23 +63,23 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	t := template.Must(template.New("users").Parse(`
 		<h1>Select an existing user</h1>
 		{{range .}}
-			<p id="{{.ID}}">
-				<form method="post" action="/devlocal-auth/login">
+			<form method="post" action="/devlocal-auth/login">
+				<p id="{{.ID}}">
 					{{.Email}}
 					({{if .OfficeUserID}}office{{else}}mymove{{end}})
 					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
-				</form>
-			</p>
+				</p>
+			</form>
 		{{else}}
 			<p><em>No users in the system!</em></p>
 		{{end}}
 
 		<h1>Create a new user</h1>
-		<p>
-			<form method="post" action="/devlocal-auth/new">
+		<form method="post" action="/devlocal-auth/new">
+			<p>
 				<button type="submit" data-hook="new-user-login">Login as New User</button>
-			</form>
-		</p>
+			</p>
+		</form>
 	`))
 	err = t.Execute(w, identities)
 	if err != nil {
