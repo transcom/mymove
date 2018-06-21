@@ -72,6 +72,37 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
+	err := db.Q().Eager().Find(&serviceMember, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return ServiceMember{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return ServiceMember{}, err
+	}
+	// TODO: Handle case where more than one user is authorized to modify serviceMember
+	if session.IsMyApp() && serviceMember.ID != session.ServiceMemberID {
+		return ServiceMember{}, ErrFetchForbidden
+	}
+
+	// TODO: Remove this when Pop's eager loader stops populating blank structs into these fields
+	if serviceMember.ResidentialAddressID == nil {
+		serviceMember.ResidentialAddress = nil
+	}
+	if serviceMember.BackupMailingAddressID == nil {
+		serviceMember.BackupMailingAddress = nil
+	}
+	if serviceMember.SocialSecurityNumberID == nil {
+		serviceMember.SocialSecurityNumber = nil
+	}
+
+	return serviceMember, nil
+}
+
+// FetchSMDutyStationPhone returns a service member only if it is allowed for the given user to access that service member.
+// It will eager load a service member's current duty station, with its associated transportation office, and office_phone_numbers.
+func FetchSMDutyStationPhone(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
+	var serviceMember ServiceMember
 	err := db.Q().Eager("DutyStation.TransportationOffice.PhoneLines").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {

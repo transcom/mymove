@@ -47,7 +47,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchServiceMember(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchSMDutyStationPhone(m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
