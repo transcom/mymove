@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -170,7 +171,6 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 			ppm.EstimatedStorageReimbursement = nil
 		} else if *payload.HasSit == true {
 			ppm.DaysInStorage = payload.DaysInStorage
-			ppm.EstimatedStorageReimbursement = payload.EstimatedStorageReimbursement
 		}
 		ppm.HasSit = payload.HasSit
 	}
@@ -226,22 +226,31 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	originPtr := params.PatchPersonallyProcuredMovePayload.PickupPostalCode
 	destinationPtr := params.PatchPersonallyProcuredMovePayload.DestinationPostalCode
 	weightPtr := params.PatchPersonallyProcuredMovePayload.WeightEstimate
+	datePtr := params.PatchPersonallyProcuredMovePayload.PlannedMoveDate
+	daysPtr := params.PatchPersonallyProcuredMovePayload.DaysInStorage
 
 	// Figure out if we have values to compare and, if so, whether the new or old value
 	// should be used in the calculation
 	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
 	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
 	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
+	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
+	daysInStorage, daysChanged, daysOK := int64ForComparison(ppm.DaysInStorage, daysPtr)
+
+	valuesOK := originOK && destinationOK && weightOK && dateOK && daysOK
+	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
 
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
-	if originOK && destinationOK && weightOK && (originChanged || destinationChanged || weightChanged) {
+	if valuesOK && valuesChanged {
 		h.logger.Info("updating PPM calculated fields",
 			zap.String("originZip", origin),
 			zap.String("destinationZip", destination),
 			zap.Int64("weight", weight),
+			zap.Time("date", date),
+			zap.Int64("daysInStorage", daysInStorage),
 		)
-		err = h.updateCalculatedFields(ppm, origin, destination)
+		err = h.updateCalculatedFields(ppm)
 		if err != nil {
 			h.logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 		}
@@ -293,19 +302,46 @@ func int64ForComparison(previousValue, newValue *int64) (value int64, valueChang
 	return 0, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.PersonallyProcuredMove, newOrigin string, newDestination string) error {
+func dateForComparison(previousValue, newValue *time.Time) (value time.Time, valueChanged bool, canCompare bool) {
+	if newValue != nil {
+		if previousValue != nil {
+			return *newValue, previousValue.Equal(*newValue), true
+		}
+		return *newValue, true, true
+	}
+	if previousValue != nil {
+		return *previousValue, false, true
+	}
+
+	return value, false, false
+}
+
+func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.PersonallyProcuredMove) error {
 	re := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
 		daysInSIT = int(*ppm.DaysInStorage)
 	}
 
-	lhDiscount, sitDiscount, err := PPMDiscountFetch(h.db, h.logger, newOrigin, newDestination, *ppm.PlannedMoveDate)
+	lhDiscount, sitDiscount, err := PPMDiscountFetch(h.db, h.logger, *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate)
 	if err != nil {
 		return err
 	}
 
-	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), newOrigin, newDestination, *ppm.PlannedMoveDate, daysInSIT, lhDiscount, sitDiscount)
+	// Update SIT estimate
+	if ppm.HasSit != nil && *ppm.HasSit == true {
+		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
+		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
+		sitTotal, err := re.SitCharge(cwtWeight, int(*ppm.DaysInStorage), sitZip3, *ppm.PlannedMoveDate, true)
+		if err != nil {
+			return err
+		}
+		sitCharge := float64(sitDiscount.Apply(sitTotal))
+		reimbursementString := fmt.Sprintf("$%.2f", sitCharge/100)
+		ppm.EstimatedStorageReimbursement = &reimbursementString
+	}
+
+	cost, err := re.ComputePPM(unit.Pound(*ppm.WeightEstimate), *ppm.PickupPostalCode, *ppm.DestinationPostalCode, *ppm.PlannedMoveDate, daysInSIT, lhDiscount, sitDiscount)
 	if err != nil {
 		return err
 	}
