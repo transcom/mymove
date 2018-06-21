@@ -26,18 +26,18 @@ func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *sess
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
-func (s *S3) Store(key string, data io.ReadSeeker, md5 string) (*StoreResult, error) {
+func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
 	input := &s3.PutObjectInput{
 		Bucket:     &s.bucket,
 		Key:        &key,
 		Body:       data,
-		ContentMD5: &md5,
+		ContentMD5: &checksum,
 	}
 
-	_, err := s.client.PutObject(input)
-	if err != nil {
+	if _, err := s.client.PutObject(input); err != nil {
 		return nil, errors.Wrap(err, "put to S3 failed")
 	}
+
 	return &StoreResult{}, nil
 }
 
@@ -62,7 +62,7 @@ func (s *S3) Key(args ...string) string {
 	return path.Join(args...)
 }
 
-// PresignedURL returns a URL that provides access to a file for 15 mintes.
+// PresignedURL returns a URL that provides access to a file for 15 minutes.
 func (s *S3) PresignedURL(key string, contentType string) (string, error) {
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket:              &s.bucket,

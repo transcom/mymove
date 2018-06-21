@@ -4,6 +4,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
@@ -52,7 +53,17 @@ func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
 }
 
 func (suite *ModelSuite) TestPPMStateMachine() {
-	move, _ := testdatagen.MakeMove(suite.db)
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
+	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
+	suite.mustSave(&orders)
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	move.Orders = orders
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
 
@@ -70,23 +81,4 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	err = ppm.Cancel()
 	suite.Nil(err)
 	suite.Equal(PPMStatusCANCELED, ppm.Status, "expected Canceled")
-
-	// RESET PPM
-	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
-	suite.Equal(PPMStatusSUBMITTED, ppm.Status, "expected Submitted")
-
-	// Associate PPM with the move it's on.
-	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
-	err = move.Submit()
-	suite.Nil(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
-
-	// When move is canceled, expect associated PPM to be canceled
-	reason := "Orders changed"
-	err = move.Cancel(reason)
-	suite.Nil(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
-
-	// Associated PPM has also been canceled
-	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
 }
