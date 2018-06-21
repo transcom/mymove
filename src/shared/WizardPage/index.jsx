@@ -153,6 +153,7 @@ WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
   isAsync: PropTypes.bool.isRequired,
   hasSucceeded: (props, propName) => {
+    //eslint-disable-next-line
     if (props['isAsync'] && typeof props[propName] !== 'boolean') {
       return new Error('Async WizardPages must have hasSucceeded boolean prop');
     }

@@ -170,6 +170,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler(context)
+	internalAPI.OfficeCancelMoveHandler = CancelMoveHandler(context)
 
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler(context)
 

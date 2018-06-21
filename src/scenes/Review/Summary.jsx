@@ -60,9 +60,11 @@ export class Summary extends Component {
       };
       const preferredMethods = [];
       Object.keys(prefs).forEach(propertyName => {
+        /* eslint-disable */
         if (serviceMember[propertyName]) {
           preferredMethods.push(prefs[propertyName]);
         }
+        /* eslint-enable */
       });
       return preferredMethods.join(', ');
     }
@@ -97,29 +99,40 @@ export class Summary extends Component {
     const sitDisplay = get(currentPpm, 'has_sit', false)
       ? `${currentPpm.days_in_storage} days ${privateStorageString}`
       : 'Not requested';
+    const editSuccessBlurb = this.props.reviewState.editSuccess
+      ? 'Your changes have been saved. '
+      : '';
     return (
       <Fragment>
-        {this.props.reviewState.editSuccess && (
-          <Alert type="success" heading="Your changes have been saved." />
-        )}
         {get(this.props.reviewState.error, 'statusCode', false) === 409 && (
           <Alert
             type="warning"
-            heading="Your estimated weight is above your entitlement."
+            heading={
+              editSuccessBlurb +
+              'Your estimated weight is above your entitlement.'
+            }
           >
             {titleCase(this.props.reviewState.error.response.body.message)}.
           </Alert>
         )}
+        {this.props.reviewState.editSuccess &&
+          !this.props.reviewState.entitlementChange &&
+          get(this.props.reviewState.error, 'statusCode', false) === false && (
+            <Alert type="success" heading={editSuccessBlurb} />
+          )}
         {this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert
               type="info"
-              heading="Your changes have been saved. Note that the entitlement has also changed."
+              heading={
+                editSuccessBlurb + 'Note that the entitlement has also changed.'
+              }
             >
               Your weight entitlement is now {entitlement.sum.toLocaleString()}{' '}
               lbs.
             </Alert>
           )}
+
         <h3>Profile and Orders</h3>
         <div className="usa-grid-full review-content">
           <div className="usa-width-one-half review-section">

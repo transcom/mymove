@@ -7,7 +7,7 @@ import './index.css';
 const Alert = props => (
   <div className={`usa-alert usa-alert-${props.type}`}>
     <div className="usa-alert-body">
-      <h3 className="usa-alert-heading">{props.heading}</h3>
+      {props.heading && <h3 className="usa-alert-heading">{props.heading}</h3>}
       <p className="usa-alert-text">{props.children}</p>
     </div>
   </div>

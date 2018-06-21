@@ -48,6 +48,7 @@ type Move struct {
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
 }
 
 // Moves is not required by pop and may be deleted
@@ -105,12 +106,17 @@ func (m *Move) Submit() error {
 }
 
 // Cancel cancels the Move and its associated PPMs
-func (m *Move) Cancel() error {
+func (m *Move) Cancel(reason string) error {
 	if m.Status != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
 	m.Status = MoveStatusCANCELED
+
+	// If a reason was submitted, add it to the move record.
+	if reason != "" {
+		m.CancelReason = &reason
+	}
 
 	// This will work only if you use the PPM in question rather than a var representing it
 	// i.e. you can't use _, ppm := range PPMs, has to be PPMS[i] as below
@@ -120,13 +126,20 @@ func (m *Move) Cancel() error {
 			return err
 		}
 	}
+
+	// TODO: Orders can exist after related moves are canceled
+	err := m.Orders.Cancel()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders").Find(&move, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound

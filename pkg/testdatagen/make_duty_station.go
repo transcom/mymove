@@ -31,7 +31,7 @@ func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessag
 		AddressID:              address.ID,
 		Address:                address,
 		TransportationOfficeID: &transportationOffice.ID,
-		TransportationOffice:   &transportationOffice,
+		TransportationOffice:   transportationOffice,
 	}
 
 	verrs, err = db.ValidateAndSave(&station)

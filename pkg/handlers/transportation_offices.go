@@ -10,7 +10,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForTransportationOfficeModel(office *models.TransportationOffice) *internalmessages.TransportationOffice {
+func payloadForTransportationOfficeModel(office models.TransportationOffice) *internalmessages.TransportationOffice {
 	var phoneLines []string
 	for _, phoneLine := range office.PhoneLines {
 		if phoneLine.Type == "voice" {

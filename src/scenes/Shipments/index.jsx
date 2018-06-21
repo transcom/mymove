@@ -58,10 +58,11 @@ export class Shipments extends Component {
     const cards = [];
     for (let tdl in groupedShipments) {
       const tdlID = tdl.substr(0, 6);
+      const shipments = groupedShipments[tdl]; // eslint-disable-line security/detect-object-injection
       cards.push(
         <div className="tdl-box" key={tdlID}>
           <h3>TDL #{tdlID}</h3>
-          <ShipmentCards shipments={groupedShipments[tdl]} />
+          <ShipmentCards shipments={shipments} />
         </div>,
       );
     }

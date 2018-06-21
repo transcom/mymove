@@ -24,12 +24,14 @@ PanelField.propTypes = {
 
 export const SwaggerValue = props => {
   const { fieldName, schema, values } = props;
+  /* eslint-disable security/detect-object-injection */
   const swaggerProps = schema.properties[fieldName];
 
   let value = values[fieldName];
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
   }
+  /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;
 };
 SwaggerValue.propTypes = {

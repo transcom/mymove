@@ -1,0 +1,10 @@
+# Lines starting with '#' are comments.
+# Each line is a file pattern followed by one or more owners.
+
+# Order is important. The last matching pattern has the most precedence.
+# So if a pull request only matches a later pattern, only those later code
+# owners will be requested for a review.
+# Add language specific code owners if it becomes relevant
+
+# ADRs are architectural decisions that, at least for now, should all be run by Nick
+/docs/adr/* @ntwyman
