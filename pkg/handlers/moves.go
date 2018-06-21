@@ -10,7 +10,6 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
 )
 
@@ -163,38 +162,4 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForError(h.logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
-}
-
-// CancelMoveHandler cancels a move via $method $path
-type CancelMoveHandler HandlerContext
-
-// Handle cancels a move
-func (h CancelMoveHandler) Handle(params moveop.SubmitMoveForCancellationParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	/* #nosec UUID is pattern matched by swagger which checks the format */
-	moveID, _ := uuid.FromString(params.MoveID.String())
-
-	move, err := models.FetchMove(h.db, session, moveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	err = move.Cancel()
-	if err != nil {
-		h.logger.Error("Failed to change move status to cancel", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
-		return responseForError(h.logger, err)
-	}
-
-	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveStatuses(h.db, move)
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-	return moveop.NewSubmitMoveForCancellationOK().WithPayload(movePayload)
 }

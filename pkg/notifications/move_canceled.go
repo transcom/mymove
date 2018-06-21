@@ -59,21 +59,18 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 	// Set up various text segments. Copy comes from here:
 	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
 	// TODO: we will want some sort of templating system
-	// TODO: there is currently (6/20) no cancel email text in the doc above, so what's here is placeholder/suggested
 
 	introText := `Your move has been canceled.`
-	if move.PersonallyProcuredMoves != nil {
-		introText = fmt.Sprintf("%s", introText)
-	}
-
-	// TODO: Add the PPPO contact info
-	closingText := `If you have any questions, contact your origin PPPO.`
+	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was cancelled.",
+		serviceMember.DutyStation.Name, orders.NewDutyStation.Name, move.Locator)
+	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
+		serviceMember.DutyStation.Name, serviceMember.DutyStation.TransportationOffice.PhoneLines[0].Number)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
 		subject:        "MOVE.MIL: Your move has been canceled.",
-		htmlBody:       fmt.Sprintf("%s<br/>%s", introText, closingText),
-		textBody:       fmt.Sprintf("%s\n%s", introText, closingText),
+		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s", introText, nextSteps, closingText),
+		textBody:       fmt.Sprintf("%s\n%s\n%s", introText, nextSteps, closingText),
 	}
 
 	m.logger.Info("Sent move cancellation email to service member",
