@@ -10,13 +10,14 @@ import (
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForMoveModel(storage FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
+func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
 	var ppmPayloads internalmessages.IndexPersonallyProcuredMovePayload
 	for _, ppm := range move.PersonallyProcuredMoves {
-		payload, err := payloadForPPMModel(storage, ppm)
+		payload, err := payloadForPPMModel(storer, ppm)
 		if err != nil {
 			return nil, err
 		}
