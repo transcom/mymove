@@ -11,7 +11,7 @@ import (
 )
 
 func payloadForDutyStationModel(station models.DutyStation) *internalmessages.DutyStationPayload {
-	return &internalmessages.DutyStationPayload{
+	payload := internalmessages.DutyStationPayload{
 		ID:          fmtUUID(station.ID),
 		CreatedAt:   fmtDateTime(station.CreatedAt),
 		UpdatedAt:   fmtDateTime(station.UpdatedAt),
@@ -19,6 +19,12 @@ func payloadForDutyStationModel(station models.DutyStation) *internalmessages.Du
 		Affiliation: &station.Affiliation,
 		Address:     payloadForAddressModel(&station.Address),
 	}
+
+	if station.TransportationOfficeID != nil {
+		payload.TransportationOffice = payloadForTransportationOfficeModel(station.TransportationOffice)
+	}
+
+	return &payload
 }
 
 // SearchDutyStationsHandler returns a list of all issues

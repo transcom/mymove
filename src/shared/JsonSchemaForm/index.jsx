@@ -5,6 +5,7 @@ import SchemaField, { ALWAYS_REQUIRED_KEY } from './JsonSchemaField';
 import { isEmpty, uniq } from 'lodash';
 import { reduxForm, Field } from 'redux-form';
 import './index.css';
+/* eslint-disable security/detect-object-injection */
 
 const renderGroupOrField = (fieldName, fields, uiSchema, nameSpace) => {
   /*TODO:

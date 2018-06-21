@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import { getFormValues } from 'redux-form';
 import { Field } from 'redux-form';
 import { get } from 'lodash';
 import { updateServiceMember } from './ducks';
@@ -47,7 +47,7 @@ export class DutyStation extends Component {
   };
 
   handleSubmit = (somethings, elses) => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = this.props.values;
     if (pendingValues) {
       this.props.updateServiceMember({
         current_station_id: pendingValues.current_station.id,
@@ -100,7 +100,7 @@ function mapStateToProps(state) {
       ? currentServiceMember.current_station
       : null;
   const props = {
-    formData: state.form[dutyStationFormName],
+    values: getFormValues(dutyStationFormName)(state),
     existingStation: dutyStation,
     ...state.serviceMember,
   };
