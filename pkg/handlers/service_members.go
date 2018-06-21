@@ -9,15 +9,16 @@ import (
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForServiceMemberModel(storage FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
+func payloadForServiceMemberModel(storer storage.FileStorer, serviceMember models.ServiceMember) *internalmessages.ServiceMemberPayload {
 
 	var dutyStationPayload *internalmessages.DutyStationPayload
 	dutyStationPayload = payloadForDutyStationModel(serviceMember.DutyStation)
 	orders := make([]*internalmessages.Orders, len(serviceMember.Orders))
 	for i, order := range serviceMember.Orders {
-		orderPayload, _ := payloadForOrdersModel(storage, order)
+		orderPayload, _ := payloadForOrdersModel(storer, order)
 		orders[i] = orderPayload
 	}
 
