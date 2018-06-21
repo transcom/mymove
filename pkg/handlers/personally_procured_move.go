@@ -223,42 +223,15 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 		return ppmop.NewPatchPersonallyProcuredMoveBadRequest()
 	}
 
-	originPtr := params.PatchPersonallyProcuredMovePayload.PickupPostalCode
-	destinationPtr := params.PatchPersonallyProcuredMovePayload.DestinationPostalCode
-	weightPtr := params.PatchPersonallyProcuredMovePayload.WeightEstimate
-	datePtr := params.PatchPersonallyProcuredMovePayload.PlannedMoveDate
-	daysPtr := params.PatchPersonallyProcuredMovePayload.DaysInStorage
-
-	// Figure out if we have values to compare and, if so, whether the new or old value
-	// should be used in the calculation
-	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
-	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
-	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
-	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
-	daysInStorage, daysChanged, daysOK := int64ForComparison(ppm.DaysInStorage, daysPtr)
-
-	valuesOK := originOK && destinationOK && weightOK && dateOK && daysOK
-	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
+	needsEstimatesRecalculated := h.ppmNeedsEstimatesRecalculated(ppm, params.PatchPersonallyProcuredMovePayload)
 
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
-	if valuesOK && valuesChanged {
-		h.logger.Info("updating PPM calculated fields",
-			zap.String("originZip", origin),
-			zap.String("destinationZip", destination),
-			zap.Int64("weight", weight),
-			zap.Time("date", date),
-			zap.Int64("daysInStorage", daysInStorage),
-		)
+	if needsEstimatesRecalculated {
 		err = h.updateCalculatedFields(ppm)
 		if err != nil {
 			h.logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 		}
-	} else {
-		h.logger.Info("not recalculating cached PPM fields",
-			zap.String("originZip", origin),
-			zap.String("destinationZip", destination),
-		)
 	}
 
 	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
@@ -272,6 +245,41 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	}
 	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
 
+}
+
+// ppmNeedsEstimatesRecalculated determines whether the fields that comprise
+// the PPM incentive and SIT estimate calculations have changed, necessitating a recalculation
+func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *models.PersonallyProcuredMove, patch *internalmessages.PatchPersonallyProcuredMovePayload) bool {
+	originPtr := patch.PickupPostalCode
+	destinationPtr := patch.DestinationPostalCode
+	weightPtr := patch.WeightEstimate
+	datePtr := patch.PlannedMoveDate
+	daysPtr := patch.DaysInStorage
+
+	// Figure out if we have values to compare and, if so, whether the new or old value
+	// should be used in the calculation
+	origin, originChanged, originOK := stringForComparison(ppm.PickupPostalCode, originPtr)
+	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
+	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
+	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
+	daysInStorage, daysChanged, daysOK := int64ForComparison(ppm.DaysInStorage, daysPtr)
+
+	valuesOK := originOK && destinationOK && weightOK && dateOK && daysOK
+	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
+
+	needsUpdate := valuesOK && valuesChanged
+
+	if needsUpdate {
+		h.logger.Info("updating PPM calculated fields",
+			zap.String("originZip", origin),
+			zap.String("destinationZip", destination),
+			zap.Int64("weight", weight),
+			zap.Time("date", date),
+			zap.Int64("daysInStorage", daysInStorage),
+		)
+	}
+
+	return needsUpdate
 }
 
 func stringForComparison(previousValue, newValue *string) (value string, valueChanged bool, canCompare bool) {
