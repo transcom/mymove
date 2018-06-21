@@ -76,9 +76,9 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
-		subject:        "MOVE.MIL: Your move has been canceled.",
-		htmlBody:       fmt.Sprintf("%s<br/>%s<br/>%s", introText, nextSteps, closingText),
-		textBody:       fmt.Sprintf("%s\n%s\n%s", introText, nextSteps, closingText),
+		subject:        fmt.Sprintf("MOVE.MIL: %s", introText),
+		htmlBody:       fmt.Sprintf("%s<br/>%s", nextSteps, closingText),
+		textBody:       fmt.Sprintf("%s\n%s", nextSteps, closingText),
 	}
 
 	m.logger.Info("Sent move cancellation email to service member",
