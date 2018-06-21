@@ -6,6 +6,7 @@ import {
   SubmitMoveForApproval,
 } from './api.js';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { fetchActive } from 'shared/utils';
 
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 // Types
@@ -73,6 +74,7 @@ export const moveIsCanceled = state =>
 // Reducer
 const initialState = {
   currentMove: null,
+  activeMove: null,
   pendingMoveType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
@@ -92,8 +94,17 @@ export function moveReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       const moves = get(action.payload, 'service_member.orders.0.moves', []);
+      const activeOrders = get(
+        action.payload,
+        'service_member.orders.' +
+          fetchActive(get(action.payload, 'service_member.orders')),
+      );
+      const activeMove = activeOrders
+        ? activeOrders.moves[fetchActive(activeOrders.moves)]
+        : null;
       return Object.assign({}, state, {
         currentMove: reshapeMove(head(moves)),
+        activeMove: reshapeMove(activeMove),
         hasLoadError: false,
         hasLoadSuccess: true,
       });

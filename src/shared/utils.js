@@ -1,3 +1,5 @@
+import { get, includes, findIndex } from 'lodash';
+
 export const no_op = () => undefined;
 export const no_op_action = () => {
   return function(dispatch) {
@@ -23,3 +25,18 @@ export const upsert = (arr, newValue) => {
     arr.push(newValue);
   }
 };
+
+export function fetchActive(foos) {
+  // Active moves, orders, or ppms cannot have a status of completed or canceled
+  const activeIndex = findIndex(foos, function(o) {
+    return includes(
+      ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS'],
+      get(o, 'status'),
+    );
+  }); // -1 is returned if no index is found
+  if (activeIndex !== -1) {
+    return activeIndex;
+  } else {
+    return null;
+  }
+}

@@ -58,6 +58,7 @@ export default {
           has_dependents: false,
           id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
           issue_date: '2018-05-11',
+          status: 'DRAFT',
           moves: [
             {
               created_at: '2018-05-25T21:36:10.235Z',

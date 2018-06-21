@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
-import { moveIsApproved, moveIsCanceled } from 'scenes/Moves/ducks';
+import { moveIsApproved } from 'scenes/Moves/ducks';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { checkEntitlement } from './ducks';
@@ -17,10 +17,13 @@ import './Review.css';
 
 export class Summary extends Component {
   componentDidMount() {
-    this.props.checkEntitlement(this.props.match.params.moveId);
+    if (get(this.props.match.params, 'moveId')) {
+      this.props.checkEntitlement(this.props.match.params.moveId);
+    }
   }
   render() {
     const {
+      activeMove,
       currentPpm,
       currentBackupContacts,
       currentOrders,
@@ -28,7 +31,6 @@ export class Summary extends Component {
       schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
-      moveIsCanceled,
       serviceMember,
       entitlement,
     } = this.props;
@@ -179,7 +181,7 @@ export class Summary extends Component {
                 </tr>
               </tbody>
             </table>
-            {!moveIsCanceled && (
+            {activeMove && (
               <table>
                 <tbody>
                   <tr>
@@ -325,7 +327,7 @@ export class Summary extends Component {
           </div>
         </div>
         {currentPpm &&
-          !moveIsCanceled && (
+          activeMove && (
             <div className="usa-grid-full ppm-container">
               <h3>
                 <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move
@@ -446,13 +448,13 @@ function mapStateToProps(state) {
     currentPpm: state.ppm.currentPpm,
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: state.moves.currentMove,
+    activeMove: state.moves.activeMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
-    moveIsCanceled: moveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };

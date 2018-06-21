@@ -15,6 +15,13 @@ const expectedMove = {
   selected_move_type: 'PPM',
   status: 'DRAFT',
 };
+const activeMove = {
+  id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
+  locator: 'WUMGLQ',
+  orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
+  selected_move_type: 'PPM',
+  status: 'DRAFT',
+};
 const movePayload = {
   created_at: '2018-05-25T21:36:10.235Z',
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
@@ -48,6 +55,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        activeMove: { ...activeMove },
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -59,6 +67,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: null,
+        activeMove: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });
