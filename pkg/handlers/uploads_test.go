@@ -1,11 +1,9 @@
 package handlers
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
-	"path"
 
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
@@ -13,69 +11,9 @@ import (
 
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/storage"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
-
-type putFile struct {
-	key      string
-	body     io.ReadSeeker
-	checksum string
-}
-
-type fakeS3Storage struct {
-	putFiles    []putFile
-	willSucceed bool
-}
-
-func (fake *fakeS3Storage) Key(args ...string) string {
-	return path.Join(args...)
-}
-
-func (fake *fakeS3Storage) Delete(key string) error {
-	itemIndex := -1
-	for i, f := range fake.putFiles {
-		if f.key == key {
-			itemIndex = i
-			break
-		}
-	}
-	if itemIndex == -1 {
-		return errors.New("can't delete item that doesn't exist")
-	}
-	// Remove file from putFiles
-	fake.putFiles = append(fake.putFiles[:itemIndex], fake.putFiles[itemIndex+1:]...)
-	return nil
-}
-
-func (fake *fakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*storage.StoreResult, error) {
-	file := putFile{
-		key:      key,
-		body:     data,
-		checksum: md5,
-	}
-	fake.putFiles = append(fake.putFiles, file)
-	buf := []byte{}
-	_, err := data.Read(buf)
-	if err != nil {
-		return nil, err
-	}
-	if fake.willSucceed {
-		return &storage.StoreResult{}, nil
-	}
-	return nil, errors.New("failed to push")
-}
-
-func (fake *fakeS3Storage) PresignedURL(key string, contentType string) (string, error) {
-	url := fmt.Sprintf("https://example.com/dir/%s?contentType=%s&signed=test", key, contentType)
-	return url, nil
-}
-
-func newFakeS3Storage(willSucceed bool) *fakeS3Storage {
-	return &fakeS3Storage{
-		willSucceed: willSucceed,
-	}
-}
 
 func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadParams) {
 	t := suite.T()
@@ -92,7 +30,7 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	return document, params
 }
 
-func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *fakeS3Storage) middleware.Responder {
+func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, serviceMember models.ServiceMember, fakeS3 *storageTest.FakeS3Storage) middleware.Responder {
 	req := &http.Request{}
 	req = suite.authenticateRequest(req, serviceMember)
 
@@ -108,7 +46,7 @@ func makeRequest(suite *HandlerSuite, params uploadop.CreateUploadParams, servic
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	t := suite.T()
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
@@ -129,16 +67,16 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}
 
-	if len(fakeS3.putFiles) != 1 {
-		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.putFiles))
+	if len(fakeS3.PutFiles) != 1 {
+		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.PutFiles))
 	}
 
 	key := fmt.Sprintf("documents/%s/uploads/%s", document.ID, upload.ID)
-	if fakeS3.putFiles[0].key != key {
-		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.putFiles[0].key)
+	if fakeS3.PutFiles[0].Key != key {
+		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.PutFiles[0].Key)
 	}
 
-	pos, err := fakeS3.putFiles[0].body.Seek(0, io.SeekCurrent)
+	pos, err := fakeS3.PutFiles[0].Body.Seek(0, io.SeekCurrent)
 	if err != nil {
 		t.Fatalf("Could't check position in uploaded file: %s", err)
 	}
@@ -152,7 +90,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 	t := suite.T()
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	_, params := createPrereqs(suite)
 
 	// Create a user that is not associated with the move
@@ -178,7 +116,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	t := suite.T()
 
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
@@ -204,7 +142,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	t := suite.T()
 
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 	document, params := createPrereqs(suite)
 
 	params.File = suite.fixture("empty.pdf")
@@ -212,7 +150,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	_, ok := response.(*uploadop.CreateUploadBadRequest)
 	if !ok {
-		t.Fatalf("Wrong response type. Expected CreateUploadNotFound, got %T", response)
+		t.Fatalf("Wrong response type. Expected CreateUploadBadRequest, got %T", response)
 	}
 
 	count, err := suite.db.Count(&models.Upload{})
@@ -228,7 +166,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithZeroLengthFile() {
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 	t := suite.T()
-	fakeS3 := newFakeS3Storage(false)
+	fakeS3 := storageTest.NewFakeS3Storage(false)
 	document, params := createPrereqs(suite)
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
@@ -249,7 +187,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailure() {
 }
 
 func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload, err := testdatagen.MakeUpload(suite.db, nil)
 	suite.Nil(err)
@@ -270,7 +208,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	handler := DeleteUploadHandler(context)
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadCreated)
+	_, ok := response.(*uploadop.DeleteUploadNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}
@@ -279,7 +217,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 }
 
 func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
-	fakeS3 := newFakeS3Storage(true)
+	fakeS3 := storageTest.NewFakeS3Storage(true)
 
 	upload1, err := testdatagen.MakeUpload(suite.db, nil)
 	suite.Nil(err)
@@ -308,7 +246,7 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	handler := DeleteUploadsHandler(context)
 	response := handler.Handle(params)
 
-	_, ok := response.(*uploadop.DeleteUploadsCreated)
+	_, ok := response.(*uploadop.DeleteUploadsNoContent)
 	suite.True(ok)
 
 	queriedUpload := models.Upload{}

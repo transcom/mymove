@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-
+import { getFormValues } from 'redux-form';
 import {
   updateServiceMember,
   createBackupContact,
@@ -134,6 +134,7 @@ class ContactForm extends Component {
 
 const validateContact = (values, form) => {
   let requiredErrors = {};
+  /* eslint-disable security/detect-object-injection */
   ['name', 'email'].forEach(requiredFieldName => {
     if (
       values[requiredFieldName] === undefined ||
@@ -142,6 +143,7 @@ const validateContact = (values, form) => {
       requiredErrors[requiredFieldName] = 'Required.';
     }
   });
+  /* eslint-enable security/detect-object-injection */
   return requiredErrors;
 };
 
@@ -159,7 +161,7 @@ export class BackupContact extends Component {
   }
 
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = this.props.values;
 
     if (pendingValues.telephone === '') {
       pendingValues.telephone = null;
@@ -255,7 +257,7 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateServiceMemberBackupContactPayload',
       {},
     ),
-    formData: state.form[formName],
+    values: getFormValues(formName)(state),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(BackupContact);

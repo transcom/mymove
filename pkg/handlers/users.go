@@ -8,13 +8,14 @@ import (
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForUserModel(storage FileStorer, user *models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
+func payloadForUserModel(storer storage.FileStorer, user *models.User, serviceMember *models.ServiceMember) *internalmessages.LoggedInUserPayload {
 	var smPayload *internalmessages.ServiceMemberPayload
 
 	if serviceMember != nil {
-		smPayload = payloadForServiceMemberModel(storage, *serviceMember)
+		smPayload = payloadForServiceMemberModel(storer, *serviceMember)
 	}
 
 	userPayload := internalmessages.LoggedInUserPayload{

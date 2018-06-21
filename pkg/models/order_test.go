@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/gobuffalo/uuid"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -34,7 +35,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeBLUEBARK
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hasDependents := true
 	spouseHasProGear := true
 	uploadedOrder := Document{
@@ -101,7 +102,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
-	ordersType := internalmessages.OrdersTypeBLUEBARK
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
 	hasDependents := true
 	spouseHasProGear := true
 	uploadedOrder := Document{
@@ -124,14 +125,76 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 		NewDutyStation:      dutyStation,
 		UploadedOrdersID:    uploadedOrder.ID,
 		UploadedOrders:      uploadedOrder,
-		Status:              OrderStatusSUBMITTED,
+		Status:              OrderStatusDRAFT,
 		TAC:                 &TAC,
 		DepartmentIndicator: &deptIndicator,
 	}
 	suite.mustSave(&order)
 
+	// Can't cancel Orders with DRAFT status
 	err := order.Cancel()
+	suite.Equal(ErrInvalidTransition, errors.Cause(err))
+
+	// Submit Orders
+	err = order.Submit()
+	suite.Nil(err)
+	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
+
+	// Can cancel orders
+	err = order.Cancel()
 	suite.Nil(err)
 	suite.Equal(OrderStatusCANCELED, order.Status, "expected Canceled")
+}
+
+func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
+	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
+
+	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hasDependents := true
+	spouseHasProGear := true
+	uploadedOrder := Document{
+		ServiceMember:   serviceMember1,
+		ServiceMemberID: serviceMember1.ID,
+		Name:            UploadedOrdersDocumentName,
+	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
+	selectedType := internalmessages.SelectedMoveTypeCOMBO
+	suite.mustSave(&uploadedOrder)
+	orders := Order{
+		ServiceMemberID:     serviceMember1.ID,
+		ServiceMember:       serviceMember1,
+		IssueDate:           issueDate,
+		ReportByDate:        reportByDate,
+		OrdersType:          ordersType,
+		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
+		NewDutyStationID:    dutyStation.ID,
+		NewDutyStation:      dutyStation,
+		UploadedOrdersID:    uploadedOrder.ID,
+		UploadedOrders:      uploadedOrder,
+		Status:              OrderStatusSUBMITTED,
+		TAC:                 &TAC,
+		DepartmentIndicator: &deptIndicator,
+	}
+	suite.mustSave(&orders)
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	move.Orders = orders
+	suite.mustSave(move)
+
+	err = move.Submit()
+	suite.Nil(err)
+
+	reason := "Mistaken identity"
+	err = move.Cancel(reason)
+	suite.Nil(err)
+	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 
 }

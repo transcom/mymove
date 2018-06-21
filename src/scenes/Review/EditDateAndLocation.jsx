@@ -157,6 +157,7 @@ class EditDateAndLocation extends Component {
   getDebouncedSitEstimate = (e, value, _, field) => {
     const { currentPpm, formValues } = this.props;
     const estimateValues = cloneDeep(formValues);
+    // eslint-disable-next-line
     estimateValues[field] = value;
     this.debouncedSitEstimate(
       estimateValues.planned_move_date,

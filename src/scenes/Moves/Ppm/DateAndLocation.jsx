@@ -62,7 +62,7 @@ export class DateAndLocation extends Component {
   getDebouncedSitEstimate = (e, value, _, field) => {
     const { formValues, entitlement } = this.props;
     const estimateValues = cloneDeep(formValues);
-    estimateValues[field] = value;
+    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
     this.debouncedSitEstimate(
       estimateValues.planned_move_date,
       estimateValues.days_in_storage,
