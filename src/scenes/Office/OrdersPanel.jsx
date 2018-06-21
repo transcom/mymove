@@ -27,7 +27,7 @@ import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLinkAlt';
 
-function renderEntitlements(entitlements) {
+function renderEntitlements(entitlements, orders) {
   return (
     <React.Fragment>
       <span className="panel-subhead">Entitlements</span>
@@ -37,9 +37,11 @@ function renderEntitlements(entitlements) {
       <PanelField title="Pro-gear">
         {get(entitlements, 'pro_gear', '').toLocaleString()} lbs
       </PanelField>
-      <PanelField title="Spouse pro-gear">
-        {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
-      </PanelField>
+      {orders.spouse_has_pro_gear && (
+        <PanelField title="Spouse pro-gear">
+          {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
+        </PanelField>
+      )}
       <PanelField className="Todo" title="Short-term storage">
         90 days
       </PanelField>
@@ -80,7 +82,7 @@ const OrdersDisplay = props => {
         </PanelField>
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements)}
+        {renderEntitlements(props.entitlements, props.orders)}
         {props.orders.has_dependents && (
           <PanelField title="Dependents" value="Authorized" />
         )}
@@ -136,7 +138,7 @@ const OrdersEdit = props => {
         </FormSection>
       </div>
       <div className="editable-panel-column">
-        {renderEntitlements(props.entitlements)}
+        {renderEntitlements(props.entitlements, props.orders)}
 
         <FormSection name="orders">
           <SwaggerField
@@ -144,6 +146,13 @@ const OrdersEdit = props => {
             swagger={schema}
             title="Dependents authorized"
           />
+          {get(props, 'formValues.orders.has_dependents', false) && (
+            <SwaggerField
+              fieldName="spouse_has_pro_gear"
+              swagger={schema}
+              title="Spouse has pro gear"
+            />
+          )}
         </FormSection>
       </div>
     </React.Fragment>
@@ -156,8 +165,11 @@ let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
 OrdersPanel = reduxForm({ form: formName })(OrdersPanel);
 
 function mapStateToProps(state) {
+  let formValues = getFormValues(formName)(state);
+
   return {
     // reduxForm
+    formValues: formValues,
     initialValues: {
       orders: get(state, 'office.officeOrders', {}),
       serviceMember: get(state, 'office.officeServiceMember', {}),
@@ -177,12 +189,11 @@ function mapStateToProps(state) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
-      let values = getFormValues(formName)(state);
       return [
         get(state, 'office.officeOrders.id'),
-        values.orders,
+        formValues.orders,
         get(state, 'office.officeServiceMember.id'),
-        values.serviceMember,
+        formValues.serviceMember,
       ];
     },
   };
