@@ -146,11 +146,18 @@ const OrdersEdit = props => {
             swagger={schema}
             title="Dependents authorized"
           />
-          {get(props, 'formValues.orders.has_dependents', false) && (
+          {get(props, 'formValues.orders.has_dependents', false) ? (
             <SwaggerField
               fieldName="spouse_has_pro_gear"
               swagger={schema}
               title="Spouse has pro gear"
+            />
+          ) : (
+            <SwaggerField
+              fieldName="spouse_has_pro_gear"
+              swagger={schema}
+              title="Spouse has pro gear"
+              disabled
             />
           )}
         </FormSection>
