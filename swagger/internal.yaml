@@ -2568,8 +2568,8 @@ paths:
           required: true
           description: UUID of the upload to be deleted
       responses:
-        201:
-          description: deleted upload
+        204:
+          description: deleted
         400:
           description: invalid request
           schema:
@@ -2597,8 +2597,8 @@ paths:
           required: true
           description: Array of UUIDs to be deleted
       responses:
-        201:
-          description: deleted uploads
+        204:
+          description: deleted
         400:
           description: invalid request
           schema:

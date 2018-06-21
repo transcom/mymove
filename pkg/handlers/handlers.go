@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"io"
 	"log"
 	"net/http"
 	"strings"
@@ -24,14 +23,6 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
-// FileStorer is the set of methods needed to store and retrieve objects.
-type FileStorer interface {
-	Store(string, io.ReadSeeker, string) (*storage.StoreResult, error)
-	Delete(string) error
-	Key(...string) string
-	PresignedURL(string, string) (string, error)
-}
-
 // HandlerContext contains dependencies that are shared between all handlers.
 // Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
@@ -41,7 +32,7 @@ type HandlerContext struct {
 	cookieSecret     string
 	noSessionTimeout bool
 	planner          route.Planner
-	storage          FileStorer
+	storage          storage.FileStorer
 	sesService       sesiface.SESAPI
 }
 
@@ -54,7 +45,7 @@ func NewHandlerContext(db *pop.Connection, logger *zap.Logger) HandlerContext {
 }
 
 // SetFileStorer is a simple setter for storage private field
-func (context *HandlerContext) SetFileStorer(storer FileStorer) {
+func (context *HandlerContext) SetFileStorer(storer storage.FileStorer) {
 	context.storage = storer
 }
 
