@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
 import PropTypes from 'prop-types';
-
+import { getFormValues } from 'redux-form';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import CertificationText from './CertificationText';
 import Alert from 'shared/Alert';
@@ -40,7 +40,7 @@ export class SignedCertification extends Component {
   }
 
   handleSubmit = () => {
-    const pendingValues = this.props.formData.values;
+    const pendingValues = this.props.values;
     const { latestSignedCertification } = this.props;
 
     if (latestSignedCertification) {
@@ -157,7 +157,7 @@ function mapStateToProps(state) {
       {},
     ),
     hasLoggedInUser: state.loggedInUser.hasSucceeded,
-    formData: state.form[formName],
+    values: getFormValues(formName)(state),
     ...state.signedCertification,
     has_sit: get(state.ppm, 'currentPpm.has_sit', false),
     has_advance: get(state.ppm, 'currentPpm.has_requested_advance', false),

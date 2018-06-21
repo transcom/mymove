@@ -29,6 +29,8 @@ export class WizardFormPage extends Component {
   }
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
+      /* eslint-disable security/detect-object-injection */
+
       Object.keys(this.props.additionalValues).forEach(key => {
         if (
           this.props.additionalValues[key] !== prevProps.additionalValues[key]
@@ -37,6 +39,7 @@ export class WizardFormPage extends Component {
         }
       });
     }
+    /* eslint-enable security/detect-object-injection */
 
     if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.serverError) window.scrollTo(0, 0);

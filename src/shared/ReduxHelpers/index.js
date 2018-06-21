@@ -10,7 +10,7 @@ function generateActionTypes(resourceName, actionTypes) {
   if (!resourceName) throw new Error('No resource name provided');
   let actions = {};
   actionTypes.forEach(actionType => {
-    actions[actionType] = actionName(resourceName, actionType);
+    actions[actionType] = actionName(resourceName, actionType); // eslint-disable-line security/detect-object-injection
   });
   return actions;
 }

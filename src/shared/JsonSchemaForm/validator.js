@@ -56,7 +56,7 @@ const normalizePhone = (value, previousValue) => {
     if (i === 3 || i === 6) {
       normalizedPhone += '-';
     }
-    normalizedPhone += onlyNums[i];
+    normalizedPhone += onlyNums[i]; // eslint-disable-line security/detect-object-injection
   }
   return normalizedPhone;
 };
@@ -74,7 +74,7 @@ const normalizeSSN = (value, previousValue) => {
     if (i === 3 || i === 5) {
       normalizedSSN += '-';
     }
-    normalizedSSN += onlyNums[i];
+    normalizedSSN += onlyNums[i]; // eslint-disable-line security/detect-object-injection
   }
   return normalizedSSN;
 };
@@ -92,7 +92,7 @@ const normalizeZip = (value, previousValue) => {
     if (i === 5) {
       normalizedZip += '-';
     }
-    normalizedZip += onlyNums[i];
+    normalizedZip += onlyNums[i]; // eslint-disable-line security/detect-object-injection
   }
   return normalizedZip;
 };

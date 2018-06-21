@@ -9,17 +9,18 @@ import (
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForOrdersModel(storage FileStorer, order models.Order) (*internalmessages.Orders, error) {
-	documentPayload, err := payloadForDocumentModel(storage, order.UploadedOrders)
+func payloadForOrdersModel(storer storage.FileStorer, order models.Order) (*internalmessages.Orders, error) {
+	documentPayload, err := payloadForDocumentModel(storer, order.UploadedOrders)
 	if err != nil {
 		return nil, err
 	}
 
 	var moves internalmessages.IndexMovesPayload
 	for _, move := range order.Moves {
-		payload, err := payloadForMoveModel(storage, order, move)
+		payload, err := payloadForMoveModel(storer, order, move)
 		if err != nil {
 			return nil, err
 		}
