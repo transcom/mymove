@@ -93,6 +93,16 @@ func SaveOrder(db *pop.Connection, order *Order) (*validate.Errors, error) {
 // State Machine
 // Avoid calling Order.Status = ... ever. Use these methods to change the state.
 
+// Submit submits the Order
+func (o *Order) Submit() error {
+	if o.Status != OrderStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, "Submit")
+	}
+
+	o.Status = OrderStatusSUBMITTED
+	return nil
+}
+
 // Cancel cancels the Order
 func (o *Order) Cancel() error {
 	if o.Status != OrderStatusSUBMITTED {

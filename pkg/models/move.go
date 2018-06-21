@@ -126,13 +126,20 @@ func (m *Move) Cancel(reason string) error {
 			return err
 		}
 	}
+
+	// TODO: Orders can exist after related moves are canceled
+	err := m.Orders.Cancel()
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders").Find(&move, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
