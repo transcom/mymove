@@ -1,8 +1,10 @@
 package authentication
 
 import (
+	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -59,17 +61,25 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	t := template.Must(template.New("users").Parse(`
-		<h1>Select a user to login</h1>
+		<h1>Select an existing user</h1>
 		{{range .}}
 			<p id="{{.ID}}">
 				<form method="post" action="/devlocal-auth/login">
-				{{.Email}}
-				({{if .OfficeUserID}}office{{else}}mymove{{end}})
-				<button name="id" value="{{.ID}}">Login</button>
+					{{.Email}}
+					({{if .OfficeUserID}}office{{else}}mymove{{end}})
+					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
+				</form>
 			</p>
 		{{else}}
 			<p><em>No users in the system!</em></p>
 		{{end}}
+
+		<h1>Create a new user</h1>
+		<p>
+			<form method="post" action="/devlocal-auth/new">
+				<button type="submit" data-hook="new-user-login">Login as New User</button>
+			</form>
+		</p>
 	`))
 	err = t.Execute(w, identities)
 	if err != nil {
@@ -78,13 +88,18 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-// AssignUserHandler processes a callback from login.gov
-type AssignUserHandler struct {
+type devlocalAuthHandler struct {
 	Context
 	db                  *pop.Connection
 	clientAuthSecretKey string
 	noSessionTimeout    bool
 }
+
+// AssignUserHandler logs a user in directly
+type AssignUserHandler devlocalAuthHandler
+
+// CreateUserHandler creates and then logs in a new user
+type CreateUserHandler devlocalAuthHandler
 
 // NewAssignUserHandler creates a new AssignUserHandler
 func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) AssignUserHandler {
@@ -99,15 +114,6 @@ func NewAssignUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey st
 
 // AssignUserHandler logs in a user locally
 func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-
-	session := auth.SessionFromRequestContext(r)
-	if session == nil {
-		h.logger.Error("Session missing")
-		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
-		return
-	}
-	lURL := h.landingURL(session)
-
 	userID := r.PostFormValue("id")
 	if userID == "" {
 		h.logger.Error("No user id specified")
@@ -124,7 +130,54 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 	}
 
-	userIdentity, err := models.FetchUserIdentity(h.db, user.LoginGovUUID.String())
+	loginUser(devlocalAuthHandler(h), user, w, r)
+}
+
+// NewCreateUserHandler creates a new CreateUserHandler
+func NewCreateUserHandler(ac Context, db *pop.Connection, clientAuthSecretKey string, noSessionTimeout bool) CreateUserHandler {
+	handler := CreateUserHandler{
+		Context:             ac,
+		db:                  db,
+		clientAuthSecretKey: clientAuthSecretKey,
+		noSessionTimeout:    noSessionTimeout,
+	}
+	return handler
+}
+
+// CreateUserHandler creates a user and logs them in
+func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	id := uuid.Must(uuid.NewV4())
+
+	now := time.Now()
+	email := fmt.Sprintf("%s@example.com", now.Format("20060102150405"))
+
+	user := models.User{
+		LoginGovUUID:  id,
+		LoginGovEmail: email,
+	}
+
+	verrs, err := h.db.ValidateAndSave(&user)
+	if err != nil {
+		h.logger.Error("could not create user", zap.Error(err))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+	if verrs.Count() != 0 {
+		h.logger.Error("validation errors creating user", zap.Stringer("errors", verrs))
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+	}
+
+	loginUser(devlocalAuthHandler(h), &user, w, r)
+}
+
+func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWriter, r *http.Request) {
+	session := auth.SessionFromRequestContext(r)
+	if session == nil {
+		handler.logger.Error("Session missing")
+		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+		return
+	}
+
+	userIdentity, err := models.FetchUserIdentity(handler.db, user.LoginGovUUID.String())
 	if err == nil { // Someone we know already
 		session.IDToken = "devlocal"
 		session.UserID = userIdentity.ID
@@ -136,7 +189,7 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
 		} else if session.IsOfficeApp() {
-			h.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
+			handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 			return
 		}
@@ -145,12 +198,14 @@ func (h AssignUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		session.LastName = userIdentity.LastName()
 		session.Middle = userIdentity.Middle()
 	} else {
-		h.logger.Error("Error loading Identity.", zap.Error(err))
+		handler.logger.Error("Error loading Identity.", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
 		return
 	}
 
-	h.logger.Info("logged in", zap.Any("session", session))
-	auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
+	handler.logger.Info("logged in", zap.Any("session", session))
+	auth.WriteSessionCookie(w, session, handler.clientAuthSecretKey, handler.noSessionTimeout, handler.logger)
+
+	lURL := handler.landingURL(session)
 	http.Redirect(w, r, lURL, http.StatusSeeOther)
 }
