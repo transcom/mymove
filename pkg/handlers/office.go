@@ -71,7 +71,8 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	for i := range move.PersonallyProcuredMoves {
-		verrs, err = h.db.ValidateAndUpdate(move.PersonallyProcuredMoves[i])
+		ppm := move.PersonallyProcuredMoves[i]
+		verrs, err = h.db.ValidateAndUpdate(&ppm)
 		if err != nil || verrs.HasAny() {
 			return responseForVErrors(h.logger, verrs, err)
 		}

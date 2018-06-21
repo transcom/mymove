@@ -56,6 +56,14 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
+	if serviceMember.DutyStation.Name == "" || orders.NewDutyStation.Name == "" {
+		return emails, fmt.Errorf("missing current or new duty station for service member")
+	}
+
+	if serviceMember.DutyStation.TransportationOffice.PhoneLines == nil {
+		return emails, fmt.Errorf("missing contact information for origin PPPO")
+	}
+
 	// Set up various text segments. Copy comes from here:
 	// https://docs.google.com/document/d/1bgE0Q_-_c93uruMP8dcNSHugXo8Pidz6YFojWBKn1Gg/edit#heading=h.h3ys1ur2qhpn
 	// TODO: we will want some sort of templating system

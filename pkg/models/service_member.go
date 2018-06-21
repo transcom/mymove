@@ -72,7 +72,7 @@ func (s *ServiceMember) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 // This method is thereby a useful way of performing access control checks.
 func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID) (ServiceMember, error) {
 	var serviceMember ServiceMember
-	err := db.Q().Eager().Find(&serviceMember, id)
+	err := db.Q().Eager("DutyStation.TransportationOffice.PhoneLines").Find(&serviceMember, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return ServiceMember{}, ErrFetchNotFound
