@@ -1,8 +1,6 @@
 {
   "name": "app-{{environment}}",
   "image": "{{image}}",
-  "cpu": 1024,
-  "memoryReservation": 256,
   "portMappings": [
     {
       "containerPort": 8443,
