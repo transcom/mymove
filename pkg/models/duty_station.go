@@ -50,6 +50,12 @@ func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, erro
 	return validate.NewErrors(), nil
 }
 
+// DutyStationTransportInfo contains all info needed for notifications emails
+type DutyStationTransportInfo struct {
+	Name       string
+	PhoneLines []string
+}
+
 // FetchDutyStation returns a station for a given id
 func FetchDutyStation(tx *pop.Connection, id uuid.UUID) (DutyStation, error) {
 	var station DutyStation

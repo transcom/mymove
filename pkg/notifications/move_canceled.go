@@ -47,7 +47,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	serviceMember, err := models.FetchSMDutyStationPhone(m.db, m.session, orders.ServiceMemberID)
+	serviceMember, err := models.FetchServiceMember(m.db, m.session, orders.ServiceMemberID)
 	if err != nil {
 		return emails, err
 	}
@@ -56,11 +56,16 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	if serviceMember.DutyStation.Name == "" || orders.NewDutyStation.Name == "" {
+	dsTransportInfo, err := serviceMember.FetchDSContactInfo(m.db, m.session)
+	if err != nil {
+		return emails, err
+	}
+
+	if dsTransportInfo.Name == "" || orders.NewDutyStation.Name == "" {
 		return emails, fmt.Errorf("missing current or new duty station for service member")
 	}
 
-	if serviceMember.DutyStation.TransportationOffice.PhoneLines == nil {
+	if dsTransportInfo.PhoneLines == nil {
 		return emails, fmt.Errorf("missing contact information for origin PPPO")
 	}
 
@@ -70,9 +75,9 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 
 	introText := `Your move has been canceled.`
 	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was cancelled.",
-		serviceMember.DutyStation.Name, orders.NewDutyStation.Name, move.Locator)
+		dsTransportInfo.Name, orders.NewDutyStation.Name, move.Locator)
 	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
-		serviceMember.DutyStation.Name, serviceMember.DutyStation.TransportationOffice.PhoneLines[0].Number)
+		dsTransportInfo.Name, dsTransportInfo.PhoneLines[0])
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
