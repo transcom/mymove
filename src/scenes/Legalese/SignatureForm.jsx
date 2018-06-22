@@ -4,7 +4,6 @@ import './SignatureForm.css';
 import validator from 'shared/JsonSchemaForm/validator';
 
 function SignatureForm(props) {
-  const { pristine, invalid, submitting } = props;
   return (
     <div>
       <h3>SIGNATURE</h3>

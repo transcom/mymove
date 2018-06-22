@@ -3,8 +3,8 @@ import {
   GET_PPM,
   GET_SIT_ESTIMATE,
   GET_PPM_ESTIMATE,
-  GET_PPM_MAX_ESTIMATE,
   ppmReducer,
+  getMaxAdvance,
 } from './ducks';
 import loggedInUserPayload, {
   emptyPayload,
@@ -221,41 +221,18 @@ describe('Ppm Reducer', () => {
       });
     });
   });
-
-  describe('GET_PPM_MAX_ESTIMATE', () => {
-    it('Should handle SUCCESS', () => {
-      const initialState = {};
-      const newState = ppmReducer(initialState, {
-        type: GET_PPM_MAX_ESTIMATE.success,
-        payload: { range_min: 21505, range_max: 44403 },
-      });
-
-      expect(newState).toEqual({
-        maxIncentive: 266.41799999999995,
-        hasMaxEstimateSuccess: true,
-        hasMaxEstimateError: false,
-        hasMaxEstimateInProgress: false,
-        rateEngineError: null,
+  describe('getMaxAdvance', () => {
+    describe('when there is a max estimated incentive', () => {
+      const state = { ppm: { incentive_estimate_max: 10000 } };
+      it('should return 60% of max estimated incentive', () => {
+        expect(getMaxAdvance(state)).toEqual(6000);
       });
     });
-
-    it('Should handle FAILURE', () => {
-      const initialState = { pendingValue: '' };
-
-      const newState = ppmReducer(initialState, {
-        type: GET_PPM_MAX_ESTIMATE.failure,
-        error: 'No bueno.',
-      });
-      // using special error here so it is not caught by WizardPage handling
-      expect(newState).toEqual({
-        hasMaxEstimateError: true,
-        hasMaxEstimateInProgress: false,
-        hasMaxEstimateSuccess: false,
-        pendingValue: '',
-        rateEngineError: 'No bueno.',
-        maxIncentive: null,
-        error: null,
-      });
+  });
+  describe('when there is no max estimated incentive', () => {
+    const state = {};
+    it('should return 60% of max estimated incentive', () => {
+      expect(getMaxAdvance(state)).toEqual(20000000);
     });
   });
 });

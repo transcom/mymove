@@ -467,6 +467,10 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      cancel_reason:
+        type: string
+        example: "Change of orders"
+        x-nullable: true
     required:
       - id
       - orders_id
@@ -2397,6 +2401,44 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /moves/{moveId}/cancel:
+    post:
+      summary: Cancels a move
+      description: Cancels the basic details of a move. The status of the move will be updated to CANCELED
+      operationId: cancelMove
+      tags:
+        - office
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: reason
+          schema:
+            type: string
+            example: "Orders canceled"
+          required: true
+          description: reason for cancelation of move
+      responses:
+        200:
+          description: returns updated (canceled) move object
+          schema:
+            $ref: '#/definitions/MovePayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to cancel this move
+        409:
+          description: the move is not in a state to be canceled
+          schema:
+            $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM
@@ -2526,8 +2568,8 @@ paths:
           required: true
           description: UUID of the upload to be deleted
       responses:
-        201:
-          description: deleted upload
+        204:
+          description: deleted
         400:
           description: invalid request
           schema:
@@ -2555,8 +2597,8 @@ paths:
           required: true
           description: Array of UUIDs to be deleted
       responses:
-        201:
-          description: deleted uploads
+        204:
+          description: deleted
         400:
           description: invalid request
           schema:

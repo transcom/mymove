@@ -45,6 +45,7 @@ class BigButtonGroup extends Component {
     const smallSize = 'S';
     const medSize = 'M';
     const largeSize = 'L';
+    /* eslint-disable security/detect-object-injection */
     var small = createButton(
       smallSize,
       'A few items in your car?',
@@ -66,7 +67,7 @@ class BigButtonGroup extends Component {
       truckGray,
       'truck-gray',
     );
-
+    /* eslint-enable security/detect-object-injection */
     return (
       <div>
         <div className="usa-width-one-third">{small}</div>

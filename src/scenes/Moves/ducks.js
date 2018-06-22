@@ -1,4 +1,4 @@
-import { get, pick } from 'lodash';
+import { get, head, pick } from 'lodash';
 import {
   CreateMove,
   UpdateMove,
@@ -88,10 +88,9 @@ function reshapeMove(move) {
 export function moveReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
+      const moves = get(action.payload, 'service_member.orders.0.moves', []);
       return Object.assign({}, state, {
-        currentMove: reshapeMove(
-          get(action.payload, 'service_member.orders.0.moves.0'),
-        ),
+        currentMove: reshapeMove(head(moves)),
         hasLoadError: false,
         hasLoadSuccess: true,
       });

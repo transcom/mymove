@@ -56,6 +56,10 @@ export class Landing extends Component {
     this.props.push(this.getNextIncompletePage());
   };
 
+  reviewProfile = () => {
+    this.props.push('profile-review');
+  };
+
   getNextIncompletePage = () => {
     const { serviceMember, orders, move, ppm, backupContacts } = this.props;
     return getNextIncompletePageInternal(
@@ -117,6 +121,7 @@ export class Landing extends Component {
                   ppm={ppm}
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
+                  reviewProfile={this.reviewProfile}
                 />
               )}
           </Fragment>

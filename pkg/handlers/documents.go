@@ -11,13 +11,14 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/storage"
 )
 
-func payloadForDocumentModel(storage FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
+func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
 	for i, upload := range document.Uploads {
-		key := storage.Key("documents", document.ID.String(), "uploads", upload.ID.String())
-		url, err := storage.PresignedURL(key, upload.ContentType)
+		key := storer.Key("documents", document.ID.String(), "uploads", upload.ID.String())
+		url, err := storer.PresignedURL(key, upload.ContentType)
 		if err != nil {
 			return nil, err
 		}
