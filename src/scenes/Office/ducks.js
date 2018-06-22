@@ -189,6 +189,10 @@ export function updateOrdersInfo(
       serviceMember.current_station_id = serviceMember.current_station.id;
       await dispatch(updateServiceMember(serviceMemberId, serviceMember));
 
+      if (!orders.has_dependents) {
+        orders.spouse_has_pro_gear = false;
+      }
+
       orders.new_duty_station_id = orders.new_duty_station.id;
       await dispatch(updateOrders(ordersId, orders));
       return dispatch(actions.success());
