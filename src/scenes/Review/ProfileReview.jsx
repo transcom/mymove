@@ -33,7 +33,7 @@ class ProfileReview extends Component {
         pageKey={this.props.pageKey}
         pageIsValid={true}
       >
-        <h1>Profile Review</h1>
+        <h1>Review your Profile</h1>
         <p>
           Has anything changed since your last move? Please check your info
           below, especially your Rank.

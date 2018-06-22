@@ -68,13 +68,13 @@ export const SubmitForApproval = ReduxHelpers.generateAsyncActionCreator(
 export const moveIsApproved = state =>
   get(state, 'moves.currentMove.status') === 'APPROVED';
 
-export const moveIsCanceled = state =>
-  get(state, 'moves.currentMove.status') === 'CANCELED';
+export const lastMoveIsCanceled = state =>
+  get(state, 'moves.latestMove.status') === 'CANCELED';
 
 // Reducer
 const initialState = {
   currentMove: null,
-  activeMove: null,
+  latestMove: null,
   pendingMoveType: null,
   hasSubmitError: false,
   hasSubmitSuccess: false,
@@ -103,8 +103,8 @@ export function moveReducer(state = initialState, action) {
         ? activeOrders.moves[fetchActive(activeOrders.moves)]
         : null;
       return Object.assign({}, state, {
-        currentMove: reshapeMove(head(moves)),
-        activeMove: reshapeMove(activeMove),
+        latestMove: reshapeMove(head(moves)),
+        currentMove: reshapeMove(activeMove),
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -115,6 +115,7 @@ export function moveReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(action.payload),
+        latestMove: {},
         pendingMoveType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
@@ -123,6 +124,7 @@ export function moveReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_MOVE.failure:
       return Object.assign({}, state, {
         currentMove: {},
+        latestMove: {},
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
@@ -130,6 +132,7 @@ export function moveReducer(state = initialState, action) {
     case GET_MOVE.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(action.payload),
+        latestMove: {},
         hasLoadSuccess: true,
         hasLoadError: false,
         error: null,
@@ -137,6 +140,7 @@ export function moveReducer(state = initialState, action) {
     case GET_MOVE.failure:
       return Object.assign({}, state, {
         currentMove: {},
+        latestMove: {},
         hasLoadSuccess: false,
         hasLoadError: true,
         error: action.error,

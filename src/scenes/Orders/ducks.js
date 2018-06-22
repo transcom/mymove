@@ -127,20 +127,6 @@ const initialState = {
   hasLoadError: false,
   error: null,
 };
-// function getActiveOrders(allOrders) {
-//   // Active orders cannot have a status of completed or canceled
-//   const activeOrderIndex = findIndex(
-//     allOrders,
-//     function(o) {
-//       return includes(['DRAFT', 'SUBMITTED', 'APPROVED'], get(o, 'status'))
-//     }
-//   )  // -1 is returned if no index is found
-//   if (activeOrderIndex !== -1) {
-//     return 'service_member.orders.' + activeOrderIndex
-//   } else {
-//     return null
-//   }
-// }
 function reshapeOrders(orders) {
   if (!orders) return null;
   return pick(orders, [

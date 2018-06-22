@@ -15,7 +15,7 @@ const expectedMove = {
   selected_move_type: 'PPM',
   status: 'DRAFT',
 };
-const activeMove = {
+const latestMove = {
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
   locator: 'WUMGLQ',
   orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
@@ -55,7 +55,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
-        activeMove: { ...activeMove },
+        latestMove: { ...latestMove },
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -67,7 +67,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: null,
-        activeMove: null,
+        latestMove: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -85,6 +85,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        latestMove: {},
         error: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
@@ -102,6 +103,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
+        latestMove: {},
         error: 'No bueno.',
         hasSubmitError: true,
         hasSubmitSuccess: false,
@@ -119,6 +121,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        latestMove: {},
         error: null,
         hasLoadError: false,
         hasLoadSuccess: true,
@@ -135,6 +138,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
+        latestMove: {},
         hasLoadError: true,
         hasLoadSuccess: false,
         error: 'No bueno.',

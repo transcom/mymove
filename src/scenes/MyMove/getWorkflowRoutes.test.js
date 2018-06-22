@@ -31,7 +31,7 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
     describe('given a canceled PPM', () => {
-      const props = { moveIsCanceled: true, selectedMoveType: 'PPM' };
+      const props = { lastMoveIsCanceled: true, selectedMoveType: 'PPM' };
       const pages = getPagesInFlow(props);
       it('getPagesInFlow returns profile review, the order and move pages', () => {
         expect(pages).toEqual([

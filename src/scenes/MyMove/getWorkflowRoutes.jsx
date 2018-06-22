@@ -62,8 +62,8 @@ const stub = (key, pages, description) => ({ match }) => (
 );
 
 const always = () => true;
-const myFirstRodeo = props => !props.moveIsCanceled;
-const notMyFirstRodeo = props => props.moveIsCanceled;
+const myFirstRodeo = props => !props.lastMoveIsCanceled;
+const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasHHG = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
