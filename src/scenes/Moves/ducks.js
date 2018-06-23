@@ -95,6 +95,7 @@ export function moveReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       const moves = get(action.payload, 'service_member.orders.0.moves', []);
       const activeOrders = get(
+        // TODO: make sure this is compatible with no moves in system or completed past moves.
         action.payload,
         'service_member.orders.' +
           fetchActive(get(action.payload, 'service_member.orders')),
