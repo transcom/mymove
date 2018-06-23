@@ -86,13 +86,17 @@ export class Summary extends Component {
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
 
-    const rootAddress = `/moves/${this.props.match.params.moveId}/review`;
+    const rootAddress = `/moves/review`;
+    const rootAddressWithMoveId = `/moves/${
+      this.props.match.params.moveId
+    }/review`;
     const editProfileAddress = rootAddress + '/edit-profile';
     const editBackupContactAddress = rootAddress + '/edit-backup-contact';
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
-    const editOrdersAddress = rootAddress + '/edit-orders';
-    const editDateAndLocationAddress = rootAddress + '/edit-date-and-location';
-    const editWeightAddress = rootAddress + '/edit-weight';
+    const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
+    const editDateAndLocationAddress =
+      rootAddressWithMoveId + '/edit-date-and-location';
+    const editWeightAddress = rootAddressWithMoveId + '/edit-weight';
     const privateStorageString = get(
       currentPpm,
       'estimated_storage_reimbursement',

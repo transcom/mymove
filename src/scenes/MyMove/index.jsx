@@ -95,17 +95,17 @@ export class AppWrapper extends Component {
                     />
                     <PrivateRoute
                       exact
-                      path="/moves/:moveId/review/edit-profile"
+                      path="/moves/review/edit-profile"
                       component={EditProfile}
                     />
                     <PrivateRoute
                       exact
-                      path="/moves/:moveId/review/edit-backup-contact"
+                      path="/moves/review/edit-backup-contact"
                       component={EditBackupContact}
                     />
                     <PrivateRoute
                       exact
-                      path="/moves/:moveId/review/edit-contact-info"
+                      path="/moves/review/edit-contact-info"
                       component={EditContactInfo}
                     />
                     <PrivateRoute
