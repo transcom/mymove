@@ -23,6 +23,7 @@ export class Summary extends Component {
   }
   render() {
     const {
+      currentMove,
       currentPpm,
       currentBackupContacts,
       currentOrders,
@@ -127,7 +128,8 @@ export class Summary extends Component {
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="success" heading={editSuccessBlurb} />
           )}
-        {this.props.reviewState.entitlementChange &&
+        {currentMove &&
+          this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert
               type="info"
