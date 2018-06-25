@@ -8,10 +8,8 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForReimbursementModel(r *models.Reimbursement) *internalmessages.Reimbursement {
-	if r == nil {
-		return nil
-	}
+func payloadForReimbursementModel(r models.Reimbursement) *internalmessages.Reimbursement {
+
 	methodOfReceipt := internalmessages.MethodOfReceipt(r.MethodOfReceipt)
 	status := internalmessages.ReimbursementStatus(r.Status)
 

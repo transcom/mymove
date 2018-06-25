@@ -39,9 +39,11 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		EstimatedStorageReimbursement: personallyProcuredMove.EstimatedStorageReimbursement,
 		Status:              internalmessages.PPMStatus(personallyProcuredMove.Status),
 		HasRequestedAdvance: &personallyProcuredMove.HasRequestedAdvance,
-		Advance:             payloadForReimbursementModel(personallyProcuredMove.Advance),
 		AdvanceWorksheet:    documentPayload,
 		Mileage:             personallyProcuredMove.Mileage,
+	}
+	if personallyProcuredMove.AdvanceID != nil {
+		ppmPayload.Advance = payloadForReimbursementModel(personallyProcuredMove.Advance)
 	}
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
@@ -79,10 +81,9 @@ func (h CreatePersonallyProcuredMoveHandler) Handle(params ppmop.CreatePersonall
 
 	payload := params.CreatePersonallyProcuredMovePayload
 
-	var advance *models.Reimbursement
+	var advance models.Reimbursement
 	if payload.Advance != nil {
-		a := models.BuildDraftReimbursement(unit.Cents(*payload.Advance.RequestedAmount), models.MethodOfReceipt(*payload.Advance.MethodOfReceipt))
-		advance = &a
+		advance = models.BuildDraftReimbursement(unit.Cents(*payload.Advance.RequestedAmount), models.MethodOfReceipt(*payload.Advance.MethodOfReceipt))
 	}
 
 	newPPM, verrs, err := move.CreatePPM(h.db,
@@ -186,7 +187,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 			methodOfReceipt := models.MethodOfReceipt(*payload.Advance.MethodOfReceipt)
 			requestedAmount := unit.Cents(*payload.Advance.RequestedAmount)
 
-			if ppm.Advance != nil {
+			if ppm.AdvanceID != nil {
 				ppm.Advance.MethodOfReceipt = methodOfReceipt
 				ppm.Advance.RequestedAmount = requestedAmount
 			} else {
@@ -196,7 +197,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 				} else {
 					advance = models.BuildRequestedReimbursement(requestedAmount, methodOfReceipt)
 				}
-				ppm.Advance = &advance
+				ppm.Advance = advance
 			}
 		}
 	}

@@ -55,7 +55,7 @@ type PersonallyProcuredMove struct {
 	Status                        PPMStatus                    `json:"status" db:"status"`
 	HasRequestedAdvance           bool                         `json:"has_requested_advance" db:"has_requested_advance"`
 	AdvanceID                     *uuid.UUID                   `json:"advance_id" db:"advance_id"`
-	Advance                       *Reimbursement               `belongs_to:"reimbursements"`
+	Advance                       Reimbursement                `belongs_to:"reimbursements"`
 	AdvanceWorksheet              Document                     `belongs_to:"documents"`
 	AdvanceWorksheetID            *uuid.UUID                   `json:"advance_worksheet_id" db:"advance_worksheet_id"`
 }
@@ -124,7 +124,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 		transactionError := errors.New("Rollback The transaction")
 
 		if ppm.HasRequestedAdvance {
-			if ppm.Advance != nil {
+			if ppm.AdvanceID != nil {
 				// GTCC isn't a valid method of receipt for PPM Advances, so reject if that's the case.
 				if ppm.Advance.MethodOfReceipt == MethodOfReceiptGTCC {
 					responseVErrors.Add("MethodOfReceipt", "GTCC is not a valid receipt method for PPM Advances.")
@@ -145,22 +145,21 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 		} else {
 			if ppm.AdvanceID != nil {
 				// If HasRequstedAdvance is false, we need to delete the record
-				if ppm.Advance == nil {
-					reimbursement := Reimbursement{}
-					err := db.Find(&reimbursement, *ppm.AdvanceID)
-					if err != nil {
-						responseError = errors.Wrap(err, "Error finding Advance for Advance ID")
-						return transactionError
-					}
-					ppm.Advance = &reimbursement
+				reimbursement := Reimbursement{}
+				err := db.Find(&reimbursement, *ppm.AdvanceID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error finding Advance for Advance ID")
+					return transactionError
 				}
-				err := db.Destroy(ppm.Advance)
+				ppm.Advance = reimbursement
+
+				err = db.Destroy(ppm.Advance)
 				if err != nil {
 					responseError = errors.Wrap(err, "Error Deleting Advance record")
 					return transactionError
 				}
 				ppm.AdvanceID = nil
-				ppm.Advance = nil
+				ppm.Advance = Reimbursement{}
 			}
 		}
 

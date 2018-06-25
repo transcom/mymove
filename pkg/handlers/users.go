@@ -1,8 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
+	// "go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	userop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/users"
@@ -46,7 +47,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	var response middleware.Responder
 	if err != nil {
-		h.logger.Error("Error retrieving service_member", zap.Error(err))
+		fmt.Println("ERROR IN HANDLER", err)
+		// h.logger.Error("Error retrieving service_member", zap.Error(err))
 		response = userop.NewShowLoggedInUserUnauthorized()
 	} else {
 		userPayload := payloadForUserModel(h.storage, user, serviceMember)

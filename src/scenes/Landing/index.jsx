@@ -136,7 +136,7 @@ const mapStateToProps = state => ({
   serviceMember: state.serviceMember.currentServiceMember || {},
   backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
-  move: state.moves.latestMove || {},
+  move: state.moves.latestMove || state.moves.currentMove || {},
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,
