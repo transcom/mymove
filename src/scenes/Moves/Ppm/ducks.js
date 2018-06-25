@@ -172,26 +172,23 @@ export function ppmReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       // Initialize state when we get the logged in user
-      // Todo: clean this up and make consistent
-      let activeOrders,
-        activePpm = null;
-      activeOrders = get(
+      const activeOrders = get(
         action.payload,
         'service_member.orders.' +
-          fetchActive(get(action.payload, 'service_member.orders'), null),
+          fetchActive(get(action.payload, 'service_member.orders')),
       );
-      const activeMove = activeOrders
-        ? activeOrders.moves[fetchActive(activeOrders.moves)]
-        : null;
-
-      if (activeMove) {
-        activePpm = get(
-          activeMove,
-          'personally_procured_moves.' +
-            fetchActive(activeMove.personally_procured_moves),
-          null,
-        );
-      }
+      console.log('active orders in ppm ducks', activeOrders);
+      const activeMove = get(
+        activeOrders,
+        'moves.' + [fetchActive(get(activeOrders, 'moves'))],
+      );
+      console.log('active move', activeMove);
+      const activePpm = get(
+        activeMove,
+        'personally_procured_moves.' +
+          [fetchActive(get(activeMove, 'personally_procured_moves'))],
+      );
+      console.log('active ppm', activePpm);
       return Object.assign({}, state, {
         currentPpm: activePpm,
         pendingPpmSize: get(activePpm, 'size', null),

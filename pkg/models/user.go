@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -58,11 +59,13 @@ func GetFullServiceMemberProfile(db *pop.Connection, session *auth.Session) (*Se
 		"Orders.NewDutyStation.TransportationOffice.Address",
 		"Orders.NewDutyStation.TransportationOffice.PhoneLines",
 		"Orders.UploadedOrders.Uploads",
-		"Orders.Moves.PersonallyProcuredMoves.Advance",
+		// "Orders.Moves.PersonallyProcuredMoves.Advance",
+		"Orders.Moves.PersonallyProcuredMoves",
 		"BackupContacts",
 		"User",
 	).All(&serviceMembers)
 	if err != nil {
+		fmt.Println("ERROR", err)
 		return nil, err
 	}
 

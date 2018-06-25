@@ -28,6 +28,10 @@ export const upsert = (arr, newValue) => {
 
 // Get index of active object in array of objects
 export function fetchActive(foos) {
+  if (!foos) {
+    console.log('NO FOOS???');
+    return null;
+  }
   // Active moves, orders, or ppms cannot have a status of completed or canceled
   const activeIndex = findIndex(foos, function(o) {
     return includes(

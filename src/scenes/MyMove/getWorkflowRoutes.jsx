@@ -248,7 +248,7 @@ const pages = {
   },
   '/moves/:moveId/ppm-incentive': {
     isInFlow: hasPPM,
-    isComplete: (sm, orders, move, ppm) => get(ppm, 'weight', null),
+    isComplete: (sm, orders, move, ppm) => get(ppm, 'weight_estimate', null),
     render: (key, pages) => ({ match }) => (
       <PpmWeight pages={pages} pageKey={key} match={match} />
     ),
