@@ -52,8 +52,27 @@ func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, erro
 
 // DutyStationTransportInfo contains all info needed for notifications emails
 type DutyStationTransportInfo struct {
-	Name       string
-	PhoneLines []string
+	Name      string `db:"name"`
+	PhoneLine string `db:"number"`
+}
+
+// FetchDSContactInfo loads a duty station's associated transportation office and its first listed office phone number.
+func (d *DutyStation) FetchDSContactInfo(db *pop.Connection) (*DutyStationTransportInfo, error) {
+	DSTransportInfo := DutyStationTransportInfo{}
+	query := `SELECT d.name, opl.number
+		FROM duty_stations as d
+		JOIN office_phone_lines as opl
+		ON d.transportation_office_id = opl.transportation_office_id
+		WHERE d.id = $1
+		LIMIT 1`
+	err := db.RawQuery(query, d.ID).First(&DSTransportInfo)
+	if err != nil {
+		return nil, err
+	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
+		return nil, ErrFetchNotFound
+	}
+
+	return &DSTransportInfo, nil
 }
 
 // FetchDutyStation returns a station for a given id

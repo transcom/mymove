@@ -99,42 +99,6 @@ func FetchServiceMember(db *pop.Connection, session *auth.Session, id uuid.UUID)
 	return serviceMember, nil
 }
 
-// FetchDSContactInfo returns a service member only if it is allowed for the given user to access that service member.
-// It will eager load a service member's current duty station, with its associated transportation office, and office_phone_numbers.
-func (s *ServiceMember) FetchDSContactInfo(db *pop.Connection, session *auth.Session) (*DutyStationTransportInfo, error) {
-	DSTransportInfo := DutyStationTransportInfo{}
-	phoneNumbers := []string{}
-	phoneQuery := `SELECT office_phone_lines.number
-					FROM transportation_offices
-					JOIN office_phone_lines on office_phone_lines.transportation_office_id = transportation_offices.ID
-					JOIN duty_stations ON duty_stations.transportation_office_id = transportation_offices.ID
-					JOIN service_members ON service_members.duty_station_ID = duty_stations.ID
-					WHERE service_members.id = $1`
-	err := db.RawQuery(phoneQuery, s.ID).All(&phoneNumbers)
-	if err != nil {
-		return nil, err
-	} else if len(phoneNumbers) == 0 {
-		return nil, ErrFetchNotFound
-	}
-
-	var name string
-	officeNameQuery := `SELECT duty_stations.name
-					FROM duty_stations
-					JOIN service_members ON service_members.duty_station_ID = duty_stations.ID
-					WHERE service_members.id = $1`
-	err = db.RawQuery(officeNameQuery, s.ID).First(&name)
-	if err != nil {
-		return nil, err
-	} else if name == "" {
-		return nil, ErrFetchNotFound
-	}
-
-	DSTransportInfo.Name = name
-	DSTransportInfo.PhoneLines = phoneNumbers
-
-	return &DSTransportInfo, nil
-}
-
 // SaveServiceMember takes a serviceMember with Address structs and coordinates saving it all in a transaction
 func SaveServiceMember(dbConnection *pop.Connection, serviceMember *ServiceMember) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()

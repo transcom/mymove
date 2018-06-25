@@ -56,17 +56,13 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		return emails, fmt.Errorf("no email found for service member")
 	}
 
-	dsTransportInfo, err := serviceMember.FetchDSContactInfo(m.db, m.session)
+	dsTransportInfo, err := serviceMember.DutyStation.FetchDSContactInfo(m.db)
 	if err != nil {
 		return emails, err
 	}
 
-	if dsTransportInfo.Name == "" || orders.NewDutyStation.Name == "" {
-		return emails, fmt.Errorf("missing current or new duty station for service member")
-	}
-
-	if dsTransportInfo.PhoneLines == nil {
-		return emails, fmt.Errorf("missing contact information for origin PPPO")
+	if orders.NewDutyStation.Name == "" {
+		return emails, fmt.Errorf("missing new duty station for service member")
 	}
 
 	// Set up various text segments. Copy comes from here:
@@ -77,7 +73,7 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 	nextSteps := fmt.Sprintf("Your move from %s to %s with the move locator ID %s was cancelled.",
 		dsTransportInfo.Name, orders.NewDutyStation.Name, move.Locator)
 	closingText := fmt.Sprintf("Contact your local PPPO %s at %s if you have any questions.",
-		dsTransportInfo.Name, dsTransportInfo.PhoneLines[0])
+		dsTransportInfo.Name, dsTransportInfo.PhoneLine)
 
 	smEmail := emailContent{
 		recipientEmail: *serviceMember.PersonalEmail,
