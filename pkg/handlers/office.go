@@ -61,20 +61,9 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	// Save move, orders, and PPMs statuses
-	verrs, err := h.db.ValidateAndUpdate(move)
+	verrs, err := models.SaveMoveStatuses(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
-	}
-	verrs, err = h.db.ValidateAndUpdate(&move.Orders)
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	for i := range move.PersonallyProcuredMoves {
-		verrs, err = h.db.ValidateAndUpdate(move.PersonallyProcuredMoves[i])
-		if err != nil || verrs.HasAny() {
-			return responseForVErrors(h.logger, verrs, err)
-		}
 	}
 
 	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
