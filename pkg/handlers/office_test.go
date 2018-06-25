@@ -12,10 +12,28 @@ import (
 )
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
-	// Given: and office User
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	// Given: a set of orders, a move, office user and servicemember user
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	suite.Nil(err)
+
+	// Move is submitted
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+
+	// And: Orders are submitted and saved on move
+	err = orders.Submit()
+	suite.Nil(err)
+	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
+	suite.mustSave(&orders)
+	move.Orders = orders
+	suite.mustSave(move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
