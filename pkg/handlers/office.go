@@ -81,10 +81,10 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 		notifications.NewMoveCanceled(h.db, h.logger, session, moveID),
 		h.sesService,
 	)
+
 	if err != nil {
 		h.logger.Error("problem sending email to user", zap.Error(err))
-		// TODO how should we handle this error?
-		// return newErrResponse(500)
+		return responseForError(h.logger, err)
 	}
 
 	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
@@ -123,8 +123,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	)
 	if err != nil {
 		h.logger.Error("problem sending email to user", zap.Error(err))
-		// TODO how should we handle this error?
-		// return newErrResponse(500)
+		return responseForError(h.logger, err)
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)

@@ -71,7 +71,6 @@ func (d *DutyStation) FetchDSContactInfo(db *pop.Connection) (*DutyStationTransp
 	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
 		return nil, ErrFetchNotFound
 	}
-
 	return &DSTransportInfo, nil
 }
 
