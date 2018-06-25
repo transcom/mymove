@@ -1,0 +1,222 @@
+package edicostedinvoice
+
+import (
+	"errors"
+	"fmt"
+
+	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/edi/segment"
+	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
+)
+
+const delimiter = "~"
+const dateFormat = "20060102"
+
+// Generate858C generates an EDI X12 858C transaction set
+func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, error) {
+	// TODO: enerate transaction set header and stuffs
+	transaction := ""
+	for index, shipment := range shipments {
+		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
+		if err != nil {
+			return transaction, err
+		}
+		shipment858c, err := generate858CShipment(shipment, index+1)
+		if err != nil {
+			return transaction, err
+		}
+		transaction += shipment858c
+	}
+	return transaction, nil
+}
+
+func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, error) {
+	transaction := formatST(sequenceNum)
+
+	seg, err := formatBX(shipment)
+	if err != nil {
+		return "", err
+	}
+	transaction += seg
+
+	seg, err = formatN9s(shipment)
+	if err != nil {
+		return "", err
+	}
+	transaction += seg
+
+	/*
+		seg, err = formatG62s(shipment, db)
+		if err != nil {
+			return "", err
+		}
+		transaction += seg
+	*/
+
+	seg, err = formatAddressInfo(shipment)
+	if err != nil {
+		return "", err
+	}
+	transaction += seg
+
+	seg, err = formatAccountingInfo(shipment)
+	if err != nil {
+		return "", err
+	}
+	transaction += seg
+
+	seg, err = formatLinehaul()
+	if err != nil {
+		return "", err
+	}
+	transaction += seg
+
+	return transaction, nil
+}
+
+func formatST(sequenceNum int) string {
+	st := edisegment.ST{
+		TransactionSetIdentifierCode: "858",
+		TransactionSetControlNumber:  fmt.Sprintf("%04d", sequenceNum),
+	}
+	return st.String(delimiter)
+}
+
+func formatBX(shipment models.Shipment) (string, error) {
+	/*
+		if shipment.TransportationServiceProviderID == nil {
+			return "", errors.New("Shipment is missing TSP ID")
+		}
+		var tsp models.TransportationServiceProvider
+		err := db.Find(&tsp, shipment.TransportationServiceProviderID)
+		if err != nil {
+			return "", err
+		}
+	*/
+	bx := edisegment.BX{
+		TransactionSetPurposeCode:    "00",        // Original
+		TransactionMethodTypeCode:    "J",         // Motor
+		ShipmentMethodOfPayment:      "PP",        // Prepaid by seller
+		ShipmentIdentificationNumber: "TODO:GBL",  // GBL
+		StandardCarrierAlphaCode:     "TODO:SCAC", // tsp.StandardCarrierAlphaCode,
+		ShipmentQualifier:            "4",         // HHG Bill of Lading
+	}
+	return bx.String(delimiter), nil
+}
+
+func formatN9s(shipment models.Shipment) (string, error) {
+	n9s := []edisegment.N9{
+		edisegment.N9{
+			ReferenceIdentificationQualifier: "DY", // DoD transportation service code #
+			ReferenceIdentification:          "SC", // Shipment & cost information
+		},
+		// TODO: CN - ?
+		// TODO: 6O - ?
+		// TODO: PQ - alternate carrier identifier
+		edisegment.N9{
+			ReferenceIdentificationQualifier: "OQ", // Order number
+			ReferenceIdentification:          "TODO:OrdersNumber",
+			FreeFormDescription:              "TODO:BranchOfService",
+			Date:                             "TODO:OrdersDate",
+		},
+		// TODO: BL - bill of lading
+	}
+
+	str := ""
+	for _, n9 := range n9s {
+		str += n9.String(delimiter)
+	}
+	return str, nil
+}
+
+/*
+func formatG62s(shipment models.Shipment, db *pop.Connection) (string, error) {
+	g62s := []edisegment.G62{
+		edisegment.G62{
+			DateQualifier: "10", // Requested ship date/pick-up date
+			Date:          shipment.RequestedPickupDate.Format(dateFormat),
+		},
+		edisegment.G62{
+			DateQualifier: "54", // Deliver no later than date
+			Date:          "TODO:DeliverNoLaterDate",
+		},
+		edisegment.G62{
+			DateQualifier: "84", // Bill of Lading initiated date
+			Date:          "TODO:GBLInitDate",
+		},
+		edisegment.G62{
+			DateQualifier: "86", // Actual pick up date
+			Date:          "TODO:ActualPickupDate",
+		},
+	}
+
+	str := ""
+	for _, g62 := range g62s {
+		str += g62.String(delimiter)
+	}
+	return str, nil
+}
+*/
+
+func formatAddressInfo(shipment models.Shipment) (string, error) {
+	name := ""
+	if shipment.Move.Orders.ServiceMember.LastName != nil {
+		name = *shipment.Move.Orders.ServiceMember.LastName
+	}
+	if shipment.PickupAddress == nil {
+		return "", errors.New("Shipment is missing pick up address")
+	}
+	street2 := ""
+	if shipment.PickupAddress.StreetAddress2 != nil {
+		street2 = *shipment.PickupAddress.StreetAddress2
+	}
+	country := "US"
+	if shipment.PickupAddress.Country != nil {
+		country = *shipment.PickupAddress.Country
+	}
+	segments := []edisegment.Segment{
+		// Ship from address
+		&edisegment.N1{
+			EntityIdentifierCode: "SF", // Ship From
+			Name:                 name,
+		},
+		&edisegment.N3{
+			AddressInformation1: shipment.PickupAddress.StreetAddress1,
+			AddressInformation2: street2,
+		},
+		&edisegment.N4{
+			CityName:            shipment.PickupAddress.City,
+			StateOrProvinceCode: shipment.PickupAddress.State,
+			PostalCode:          shipment.PickupAddress.PostalCode,
+			CountryCode:         country,
+			LocationQualifier:   "TODO", // CY (county), IP (postal), or RA (rate area)",
+			LocationIdentifier:  "TODO",
+		},
+		//
+	}
+	str := ""
+	for _, seg := range segments {
+		str += seg.String(delimiter)
+	}
+
+	return str, nil
+}
+
+func formatAccountingInfo(shipment models.Shipment) (string, error) {
+	fa1 := edisegment.FA1{
+		AgencyQualifierCode: edisegment.AffiliationToAgency[internalmessages.AffiliationAIRFORCE], // TODO: get correct agency
+	}
+
+	fa2 := edisegment.FA2{
+		BreakdownStructureDetailCode: "TA",   // TAC
+		FinancialInformationCode:     "NAL8", // TODO: sample TAC
+	}
+
+	return fa1.String(delimiter) + fa2.String(delimiter), nil
+}
+
+func formatLinehaul() (string, error) {
+	return "", nil
+}

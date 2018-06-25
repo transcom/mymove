@@ -33,7 +33,6 @@ func (s *N4) String(delimiter string) string {
 func (s *N4) Parse(parts []string) error {
 	expectedNumElements := 6
 	if len(parts) != expectedNumElements {
-		fmt.Printf("what")
 		return fmt.Errorf("N4: Wrong number of fields, expected %d, got %d", expectedNumElements, len(parts))
 	}
 

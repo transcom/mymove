@@ -10,6 +10,7 @@ type N9 struct {
 	ReferenceIdentificationQualifier string
 	ReferenceIdentification          string
 	FreeFormDescription              string
+	Date                             string
 }
 
 // String converts N9 to its X12 single line string representation
@@ -19,6 +20,7 @@ func (s *N9) String(delimiter string) string {
 		s.ReferenceIdentificationQualifier,
 		s.ReferenceIdentification,
 		s.FreeFormDescription,
+		s.Date,
 	}
 	return strings.Join(elements, delimiter) + "\n"
 }
@@ -35,7 +37,7 @@ func (s *N9) Parse(elements []string) error {
 		s.FreeFormDescription = elements[2]
 	}
 	if numElements > 3 {
-		s.FreeFormDescription = elements[3]
+		s.Date = elements[3]
 	}
 	return nil
 }
