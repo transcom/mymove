@@ -229,7 +229,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	patchPPMWithPayload(ppm, params.PatchPersonallyProcuredMovePayload)
 
 	if needsEstimatesRecalculated {
-		err = h.updateCalculatedFields(ppm)
+		err = h.updateEstimates(ppm)
 		if err != nil {
 			h.logger.Error("Unable to set calculated fields on PPM", zap.Error(err))
 		}
@@ -325,7 +325,7 @@ func dateForComparison(previousValue, newValue *time.Time) (value time.Time, val
 	return value, false, false
 }
 
-func (h PatchPersonallyProcuredMoveHandler) updateCalculatedFields(ppm *models.PersonallyProcuredMove) error {
+func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.PersonallyProcuredMove) error {
 	re := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 	daysInSIT := 0
 	if ppm.HasSit != nil && *ppm.HasSit && ppm.DaysInStorage != nil {
