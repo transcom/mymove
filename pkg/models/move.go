@@ -46,7 +46,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	status                  MoveStatus                         `json:"status" db:"status"`
+	status                  MoveStatus                         `db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
 }
@@ -78,7 +78,7 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // State Machine
 // Use these methods to change the state.
 
-// Get the Status of a move
+// Status returns the status of a move
 func (m *Move) Status() MoveStatus {
 	return m.status
 }
