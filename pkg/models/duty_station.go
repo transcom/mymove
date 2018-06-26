@@ -57,7 +57,10 @@ type DutyStationTransportInfo struct {
 }
 
 // FetchDSContactInfo loads a duty station's associated transportation office and its first listed office phone number.
-func (d *DutyStation) FetchDSContactInfo(db *pop.Connection) (*DutyStationTransportInfo, error) {
+func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStationTransportInfo, error) {
+	if dutyStationID == nil {
+		return nil, ErrFetchNotFound
+	}
 	DSTransportInfo := DutyStationTransportInfo{}
 	query := `SELECT d.name, opl.number
 		FROM duty_stations as d
@@ -65,7 +68,7 @@ func (d *DutyStation) FetchDSContactInfo(db *pop.Connection) (*DutyStationTransp
 		ON d.transportation_office_id = opl.transportation_office_id
 		WHERE d.id = $1
 		LIMIT 1`
-	err := db.RawQuery(query, d.ID).First(&DSTransportInfo)
+	err := db.RawQuery(query, *dutyStationID).First(&DSTransportInfo)
 	if err != nil {
 		return nil, err
 	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
