@@ -2,7 +2,6 @@ package notifications
 
 import (
 	"fmt"
-	// "net/url"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
