@@ -57,8 +57,10 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
+	// Orders has service member with transportation office and phone nums
 	orders, err := testdatagen.MakeOrder(suite.db)
 	suite.Nil(err)
+
 	var selectedType = internalmessages.SelectedMoveTypePPM
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
@@ -83,16 +85,18 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
+	// And params include the cancel reason
+	reason := "Orders revoked."
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
+		Reason:      &reason,
 	}
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	params.Reason = &reason
 
 	// And: a move is canceled
-	handler := CancelMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := CancelMoveHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
