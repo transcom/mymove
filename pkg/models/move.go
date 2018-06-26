@@ -59,7 +59,7 @@ type Moves []Move
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
-		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
+		&validators.StringIsPresent{Field: string(m.GetStatus()), Name: "Status"},
 	), nil
 }
 
@@ -76,15 +76,26 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // State Machine
-// Avoid calling Move.Status = ... ever. Use these methods to change the state.
+// Use these methods to change the state.
+
+// GetStatus returns the status of a move
+func (m *Move) GetStatus() MoveStatus {
+	return m.Status
+}
+
+// SetStatus sets the status of a move
+func (m *Move) SetStatus(status MoveStatus) error {
+	m.Status = status
+	return nil
+}
 
 // Submit submits the Move
 func (m *Move) Submit() error {
-	if m.Status != MoveStatusDRAFT {
+	if m.GetStatus() != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 
-	m.Status = MoveStatusSUBMITTED
+	m.SetStatus(MoveStatusSUBMITTED)
 
 	//TODO: update PPM status too
 	// for i, _ := range m.PersonallyProcuredMoves {
@@ -107,21 +118,21 @@ func (m *Move) Submit() error {
 
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status != MoveStatusSUBMITTED {
+	if m.GetStatus() != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 
-	m.Status = MoveStatusAPPROVED
+	m.SetStatus(MoveStatusAPPROVED)
 	return nil
 }
 
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
-	if m.Status != MoveStatusSUBMITTED {
+	if m.GetStatus() != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
-	m.Status = MoveStatusCANCELED
+	m.SetStatus(MoveStatusCANCELED)
 
 	// If a reason was submitted, add it to the move record.
 	if reason != "" {
