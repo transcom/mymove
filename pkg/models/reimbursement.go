@@ -167,16 +167,16 @@ func (r *Reimbursement) ValidateUpdate(tx *pop.Connection) (*validate.Errors, er
 }
 
 // FetchReimbursement Fetches and Validates a Reimbursement model
-func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (Reimbursement, error) {
+func FetchReimbursement(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Reimbursement, error) {
 	var reimbursement Reimbursement
 	err := db.Q().Find(&reimbursement, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return Reimbursement{}, ErrFetchNotFound
+			return nil, ErrFetchNotFound
 		}
 		// Otherwise, it's an unexpected err so we return that.
-		return Reimbursement{}, err
+		return nil, err
 	}
 
-	return reimbursement, nil
+	return &reimbursement, nil
 }

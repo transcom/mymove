@@ -95,7 +95,7 @@ func (m *Move) Submit() error {
 	// }
 
 	for _, ppm := range m.PersonallyProcuredMoves {
-		if ppm.AdvanceID != nil {
+		if ppm.Advance != nil {
 			err := ppm.Advance.Request()
 			if err != nil {
 				return err
@@ -170,7 +170,7 @@ func (m Move) CreatePPM(db *pop.Connection,
 	daysInStorage *int64,
 	estimatedStorageReimbursement *string,
 	hasRequestedAdvance bool,
-	advance Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
+	advance *Reimbursement) (*PersonallyProcuredMove, *validate.Errors, error) {
 
 	newPPM := PersonallyProcuredMove{
 		MoveID:                     m.ID,
@@ -289,7 +289,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 		transactionError := errors.New("Rollback The transaction")
 
 		for _, ppm := range move.PersonallyProcuredMoves {
-			if ppm.AdvanceID != nil {
+			if ppm.Advance != nil {
 				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
 					responseVErrors.Append(verrs)
 					responseError = errors.Wrap(err, "Error Saving Advance")

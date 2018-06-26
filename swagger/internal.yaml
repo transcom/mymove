@@ -24,16 +24,8 @@ definitions:
       service_member:
         $ref: "#/definitions/ServiceMemberPayload"
         x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
     required:
       - id
-      - created_at
-      - updated_at
   Affiliation:
     type: string
     x-nullable: true

@@ -58,8 +58,8 @@ func GetFullServiceMemberProfile(db *pop.Connection, session *auth.Session) (*Se
 		"Orders.NewDutyStation.TransportationOffice.Address",
 		"Orders.NewDutyStation.TransportationOffice.PhoneLines",
 		"Orders.UploadedOrders.Uploads",
-		// "Orders.Moves.PersonallyProcuredMoves.Advance",
-		"Orders.Moves.PersonallyProcuredMoves",
+		"Orders.Moves.PersonallyProcuredMoves.Advance",
+		// "Orders.Moves.PersonallyProcuredMoves",
 		"BackupContacts",
 		"User",
 	).All(&serviceMembers)
