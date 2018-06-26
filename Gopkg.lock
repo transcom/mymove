@@ -195,6 +195,7 @@
   name = "github.com/go-openapi/runtime"
   packages = [
     ".",
+    "flagext",
     "logger",
     "middleware",
     "middleware/denco",
@@ -769,6 +770,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "9f0e5b318f5cfd7346207ae9f97b16bb5c4443ebb9b40b5dbff6ed081f1ad566"
+  inputs-digest = "1435b3190b5c7f670106fc8e6a6c46120d3ca15fd14486e22b89f71b3072c539"
   solver-name = "gps-cdcl"
   solver-version = 1
