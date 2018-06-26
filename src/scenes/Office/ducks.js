@@ -10,6 +10,7 @@ import {
   ApproveBasics,
   ApprovePPM,
   ApproveReimbursement,
+  CancelMove,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -30,6 +31,7 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
+const cancelMoveType = 'CANCEL_MOVE';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -67,6 +69,8 @@ const UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(updatePPMType);
 const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
+
+const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,
@@ -146,6 +150,11 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
   ApproveReimbursement,
+);
+
+export const cancelMove = ReduxHelpers.generateAsyncActionCreator(
+  cancelMoveType,
+  CancelMove,
 );
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
@@ -247,6 +256,7 @@ const initialState = {
   backupContactsAreLoading: false,
   ppmsAreLoading: false,
   ppmIsUpdating: false,
+  moveIsCanceling: false,
   moveHasLoadError: null,
   moveHasLoadSuccess: false,
   ordersHaveLoadError: null,
@@ -265,6 +275,8 @@ const initialState = {
   ppmHasUpdateSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
+  moveHasCancelError: false,
+  moveHasCancelSuccess: false,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -472,6 +484,20 @@ export function officeReducer(state = initialState, action) {
     case APPROVE_BASICS.failure:
       return Object.assign({}, state, {
         basicsIsApproving: false,
+        error: action.error.message,
+      });
+    case CANCEL_MOVE.start:
+      return Object.assign({}, state, {
+        moveIsCanceling: true,
+      });
+    case CANCEL_MOVE.success:
+      return Object.assign({}, state, {
+        moveIsCanceling: false,
+        officeMove: action.payload,
+      });
+    case CANCEL_MOVE.failure:
+      return Object.assign({}, state, {
+        moveIsCanceling: false,
         error: action.error.message,
       });
 

@@ -17,7 +17,12 @@ import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
 import PPMEstimatesPanel from './PPMEstimatesPanel';
-import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
+import {
+  loadMoveDependencies,
+  approveBasics,
+  approvePPM,
+  cancelMove,
+} from './ducks.js';
 import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -53,6 +58,29 @@ const PPMTabContent = props => {
   );
 };
 
+const CancelPanel = props => {
+  if (props.showCancelPanel) {
+    return (
+      <div className="cancel-panel">
+        <h2 className="extras usa-heading">Cancel Move</h2>
+        <div className="extras subheader">
+          Why?
+          <form>
+            <input type="text" />
+            <a onClick={props.closeConfirmCancel}>Nevermind</a>
+            <button onClick={props.cancelMove}>Cancel Move</button>
+          </form>
+        </div>
+      </div>
+    );
+  } else {
+    return <button onClick={props.openConfirmCancel}>Cancel</button>;
+  }
+};
+
+// this.setState(cancelReason) = value
+// react text area docs (handle change fnc)
+
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -64,6 +92,19 @@ class MoveInfo extends Component {
 
   approvePPM = () => {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
+  cancelMove = () => {
+    this.props.cancelMove(this.props.officeMove.id);
+  };
+
+  state = { confirmCancelMove: false, cancelReason: '' };
+
+  openConfirmCancel = () => {
+    this.setState({ confirmCancelMove: true });
+  };
+  closeConfirmCancel = () => {
+    this.setState({ confirmCancelMove: false });
   };
 
   renderPPMTabStatus = () => {
@@ -221,12 +262,18 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
+              <CancelPanel
+                cancelMove={this.cancelMove}
+                closeConfirmCancel={this.closeConfirmCancel}
+                showCancelPanel={this.state.confirmCancelMove}
+                openConfirmCancel={this.openConfirmCancel}
+              />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
-              <button>Cancel Move</button> */}
+              */}
             </div>
             <div className="documents">
-              <h2 className="usa-heading">
+              <h2 className="extras usa-heading">
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
@@ -285,7 +332,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, approveBasics, approvePPM },
+    { loadMoveDependencies, approveBasics, approvePPM, cancelMove },
     dispatch,
   );
 

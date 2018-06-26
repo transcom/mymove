@@ -108,7 +108,7 @@ export async function ApprovePPM(moveId, ppmId) {
   return response.body;
 }
 
-// PPM status
+// Reimbursement status
 export async function ApproveReimbursement(reimbursementId) {
   const client = await getClient();
   const response = await client.apis.office.approveReimbursement({
@@ -117,6 +117,21 @@ export async function ApproveReimbursement(reimbursementId) {
   checkResponse(
     response,
     'failed to approve reimbursement due to server error',
+  );
+  return response.body;
+}
+
+// Move status
+export async function CancelMove(moveId, reason) {
+  const client = await getClient();
+  debugger;
+  const response = await client.apis.office.cancelMove({
+    moveId,
+    reason,
+  });
+  checkResponse(
+    response,
+    'failed to cancel move and associated dependencies due to server error',
   );
   return response.body;
 }
