@@ -13,27 +13,17 @@ import (
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Given: a set of orders, a move, office user and servicemember user
-	orders, err := testdatagen.MakeOrder(suite.db)
+	move, err := testdatagen.MakeMove(suite.db)
 	suite.Nil(err)
-	var selectedType = internalmessages.SelectedMoveTypePPM
-	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
-	suite.Nil(err)
-	suite.False(verrs.HasAny(), "failed to validate move")
+	// Given: an office User
 	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
 	suite.Nil(err)
 
-	// Move is submitted
+	// Move is submitted and saved
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(models.MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
-
-	// And: Orders are submitted and saved on move
-	err = orders.Submit()
-	suite.Nil(err)
-	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
-	suite.mustSave(&orders)
-	move.Orders = orders
-	suite.mustSave(move)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.mustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -57,8 +47,10 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
+	// Orders has service member with transportation office and phone nums
 	orders, err := testdatagen.MakeOrder(suite.db)
 	suite.Nil(err)
+
 	var selectedType = internalmessages.SelectedMoveTypePPM
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
@@ -83,16 +75,18 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
+	// And params include the cancel reason
+	reason := "Orders revoked."
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
+		Reason:      &reason,
 	}
-	// And params include the cancel reason
-	reason := "Orders revoked."
-	params.Reason = &reason
 
 	// And: a move is canceled
-	handler := CancelMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := CancelMoveHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

@@ -52,6 +52,8 @@ func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error)
 	}
 	E1 := internalmessages.ServiceMemberRankE1
 
+	station := MakeAnyDutyStation(db)
+
 	serviceMember := models.ServiceMember{
 		UserID:                 user.ID,
 		User:                   user,
@@ -61,6 +63,8 @@ func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error)
 		Rank:                   &E1,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
+		DutyStationID:          &station.ID,
+		DutyStation:            station,
 	}
 
 	verrs, err := db.ValidateAndSave(&serviceMember)
