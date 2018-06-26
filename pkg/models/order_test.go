@@ -194,7 +194,7 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	reason := "Mistaken identity"
 	err = move.Cancel(reason)
 	suite.Nil(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.GetStatus(), "expected Canceled")
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 
 }

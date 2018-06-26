@@ -25,7 +25,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Move is submitted
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(models.MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 
 	// And: Orders are submitted and saved on move
 	err = orders.Submit()
@@ -69,7 +69,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Move is submitted
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(models.MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 
 	// And: Orders are submitted and saved on move
 	err = orders.Submit()

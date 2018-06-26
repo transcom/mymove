@@ -27,8 +27,8 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 
 		newMove := models.Move{
 			OrdersID: order.ID,
-			status:   models.MoveStatus(status),
 		}
+		newMove.SetStatus(models.MoveStatus(status))
 		suite.mustSave(&newMove)
 
 		// Make a PPM

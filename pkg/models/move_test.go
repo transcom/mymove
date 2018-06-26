@@ -70,12 +70,12 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 	// Check to ensure move shows SUBMITTED before Cancel()
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 
 	// Can cancel move, and status changes as expected
 	err = move.Cancel(reason)
 	suite.Nil(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.GetStatus(), "expected Canceled")
 	suite.Equal(&reason, move.CancelReason, "expected 'SM's orders revoked'")
 
 }
@@ -101,12 +101,12 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	// Once submitted
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 
 	// Can cancel move
 	err = move.Cancel(reason)
 	suite.Nil(err)
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.GetStatus(), "expected Canceled")
 	suite.Nil(move.CancelReason)
 }
 
@@ -136,14 +136,14 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 
 	// When move is canceled, expect associated PPM and Order to be canceled
 	reason := "Orders changed"
 	err = move.Cancel(reason)
 	suite.Nil(err)
 
-	suite.Equal(MoveStatusCANCELED, move.Status, "expected Canceled")
+	suite.Equal(MoveStatusCANCELED, move.GetStatus(), "expected Canceled")
 	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 }

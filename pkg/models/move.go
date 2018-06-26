@@ -78,9 +78,15 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 // State Machine
 // Use these methods to change the state.
 
-// Status returns the status of a move
-func (m *Move) Status() MoveStatus {
+// GetStatus returns the status of a move
+func (m *Move) GetStatus() MoveStatus {
 	return m.status
+}
+
+// SetStatus sets the status of a move
+func (m *Move) SetStatus(status MoveStatus) error {
+	m.status = status
+	return nil
 }
 
 // Submit submits the Move

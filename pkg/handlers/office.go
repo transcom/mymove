@@ -56,7 +56,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	// Canceling move will result in canceled associated PPMs
 	err = move.Cancel(*params.Reason)
 	if err != nil {
-		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status())))
+		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.GetStatus())))
 		return responseForError(h.logger, err)
 	}
 
