@@ -4,6 +4,7 @@ import (
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"html/template"
 	"log"
 	"net/http"
 	"path"
@@ -106,6 +107,9 @@ func main() {
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 	awsSesRegion := flag.String("aws_ses_region", "", "AWS region used for SES")
+
+	newRelicApplicationID := flag.String("new_relic_application_id", "", "App ID for New Relic Browser")
+	newRelicLicenseKey := flag.String("new_relic_license_key", "", "License key for New Relic Browser")
 
 	flag.Parse()
 
@@ -270,7 +274,11 @@ func main() {
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/downloads/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
-	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
+
+	// Serve index.html to all requests that haven't matches a previous route,
+	// injecting New Relic credentials for use on the client side.
+	indexTemplate := template.Must(template.ParseFiles(path.Join(*build, "index.html")))
+	root.HandleFunc(pat.Get("/*"), indexHandler(indexTemplate, *newRelicApplicationID, *newRelicLicenseKey))
 
 	// Start http/https listener(s)
 	errChan := make(chan error)
@@ -296,6 +304,18 @@ func main() {
 func fileHandler(entrypoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, entrypoint)
+	}
+}
+
+func indexHandler(template *template.Template, newRelicApplicationID, newRelicLicenseKey string) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		data := map[string]string{
+			"NewRelicApplicationID": newRelicApplicationID,
+			"NewRelicLicenseKey":    newRelicLicenseKey,
+		}
+		if err := template.Execute(w, data); err != nil {
+			logger.Fatal("could not render index template", zap.Error(err))
+		}
 	}
 }
 
