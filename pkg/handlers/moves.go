@@ -32,7 +32,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		UpdatedAt:               fmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                fmtUUID(order.ID),
-		Status:                  internalmessages.MoveStatus(move.Status),
+		Status:                  internalmessages.MoveStatus(move.Status()),
 	}
 	return movePayload, nil
 }
@@ -147,7 +147,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 
 	err = move.Submit()
 	if err != nil {
-		h.logger.Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status)))
+		h.logger.Error("Failed to change move status to submit", zap.String("move_id", moveID.String()), zap.String("move_status", string(move.Status())))
 		return responseForError(h.logger, err)
 	}
 

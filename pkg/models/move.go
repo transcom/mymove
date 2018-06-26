@@ -46,7 +46,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	Status                  MoveStatus                         `json:"status" db:"status"`
+	status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
 }
@@ -59,7 +59,7 @@ type Moves []Move
 func (m *Move) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.OrdersID, Name: "OrdersID"},
-		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
+		&validators.StringIsPresent{Field: string(m.status), Name: "Status"},
 	), nil
 }
 
@@ -76,15 +76,20 @@ func (m *Move) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 }
 
 // State Machine
-// Avoid calling Move.Status = ... ever. Use these methods to change the state.
+// Use these methods to change the state.
+
+// Get the Status of a move
+func (m *Move) Status() MoveStatus {
+	return m.status
+}
 
 // Submit submits the Move
 func (m *Move) Submit() error {
-	if m.Status != MoveStatusDRAFT {
+	if m.status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Submit")
 	}
 
-	m.Status = MoveStatusSUBMITTED
+	m.status = MoveStatusSUBMITTED
 
 	//TODO: update PPM status too
 	// for i, _ := range m.PersonallyProcuredMoves {
@@ -107,21 +112,21 @@ func (m *Move) Submit() error {
 
 // Approve approves the Move
 func (m *Move) Approve() error {
-	if m.Status != MoveStatusSUBMITTED {
+	if m.status != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Approve")
 	}
 
-	m.Status = MoveStatusAPPROVED
+	m.status = MoveStatusAPPROVED
 	return nil
 }
 
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
-	if m.Status != MoveStatusSUBMITTED {
+	if m.status != MoveStatusSUBMITTED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
-	m.Status = MoveStatusCANCELED
+	m.status = MoveStatusCANCELED
 
 	// If a reason was submitted, add it to the move record.
 	if reason != "" {
@@ -268,7 +273,7 @@ func createNewMove(db *pop.Connection,
 			OrdersID:         ordersID,
 			Locator:          generateLocator(),
 			SelectedMoveType: selectedType,
-			Status:           MoveStatusDRAFT,
+			status:           MoveStatusDRAFT,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
 		if verrs.HasAny() {
