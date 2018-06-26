@@ -22,7 +22,7 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Move is submitted and saved
 	err = move.Submit()
 	suite.Nil(err)
-	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.Equal(models.MoveStatusSUBMITTED, move.GetStatus(), "expected Submitted")
 	suite.mustSave(&move)
 
 	// And: the context contains the auth values
