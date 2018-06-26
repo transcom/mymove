@@ -570,7 +570,7 @@ describe('when getting the next incomplete page', () => {
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
             size: 'L',
-            weight: 555,
+            weight_estimate: 555,
           },
         );
         expect(result).toEqual('/moves/bar/review');

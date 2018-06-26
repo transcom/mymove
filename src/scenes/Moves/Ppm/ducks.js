@@ -177,18 +177,16 @@ export function ppmReducer(state = initialState, action) {
         'service_member.orders.' +
           fetchActive(get(action.payload, 'service_member.orders')),
       );
-      console.log('active orders in ppm ducks', activeOrders);
       const activeMove = get(
         activeOrders,
         'moves.' + [fetchActive(get(activeOrders, 'moves'))],
       );
-      console.log('active move', activeMove);
       const activePpm = get(
         activeMove,
         'personally_procured_moves.' +
           [fetchActive(get(activeMove, 'personally_procured_moves'))],
+        null,
       );
-      console.log('active ppm', activePpm);
       return Object.assign({}, state, {
         currentPpm: activePpm,
         pendingPpmSize: get(activePpm, 'size', null),

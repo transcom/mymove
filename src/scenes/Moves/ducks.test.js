@@ -85,7 +85,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
-        latestMove: {},
+        latestMove: null,
         error: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
@@ -103,7 +103,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
-        latestMove: {},
+        latestMove: null,
         error: 'No bueno.',
         hasSubmitError: true,
         hasSubmitSuccess: false,

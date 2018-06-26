@@ -121,7 +121,7 @@ export function moveReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_MOVE.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(action.payload),
-        latestMove: {},
+        latestMove: null,
         pendingMoveType: null,
         hasSubmitSuccess: true,
         hasSubmitError: false,
@@ -130,7 +130,7 @@ export function moveReducer(state = initialState, action) {
     case CREATE_OR_UPDATE_MOVE.failure:
       return Object.assign({}, state, {
         currentMove: {},
-        latestMove: {},
+        latestMove: null,
         hasSubmitSuccess: false,
         hasSubmitError: true,
         error: action.error,
