@@ -41,6 +41,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
+    * [Postgres Issues](#postgres-issues)
 
 Regenerate with "bin/generate-md-toc.sh"
 
