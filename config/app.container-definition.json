@@ -52,11 +52,11 @@
     },
     {
       "name": "HTTP_MY_SERVER_NAME",
-      "value": "my{{web_fqdn_suffix}}"
+      "value": "my.{{domain}}"
     },
     {
       "name": "HTTP_OFFICE_SERVER_NAME",
-      "value": "office{{web_fqdn_suffix}}"
+      "value": "office.{{domain}}"
     },
     {
       "name": "AWS_S3_BUCKET_NAME",
@@ -84,7 +84,7 @@
     },
     {
       "name": "AWS_SES_DOMAIN",
-      "value": "{{email_domain}}"
+      "value": "{{domain}}"
     },
     {
       "name": "AWS_SES_REGION",
