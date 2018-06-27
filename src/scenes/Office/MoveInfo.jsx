@@ -58,48 +58,6 @@ const PPMTabContent = props => {
   );
 };
 
-// const ConfirmCancel = props => {
-//   if (props.confirmCancelMove) {
-//     return (
-//       <div className="cancel-panel">
-//         <h2 className="extras usa-heading">Cancel Move</h2>
-//         <div className="extras content">
-//           Why?
-//           <form>
-//             <textarea />
-//             <a onClick={props.closeCancelReason}>Nevermind</a>
-//             <button onClick={props.cancelMove}>Cancel Move</button>
-//           </form>
-//         </div>
-//       </div>
-//     );
-//   } else {
-//     return (
-//       <button
-//         className="usa-button-secondary"
-//         onClick={props.openCancelReason}
-//       >
-//         Cancel Move
-//       </button>
-//     );
-//   }
-// };
-
-// export class CancelPanel extends Component {
-//   handleSubmit = values => {
-//     this.props.cancelMove(this.props.officeMove.ID, values);
-//   };
-
-//   setConfirmState = () => {
-//     this.setState({ displayState: 'Confirm' });
-//   };
-//   setCancelState = () => {
-//     this.setState({ displayState: 'Cancel' });
-//   };
-//   setButtonState = () => {
-//     this.setState({ displayState: 'Button' });
-//   };
-
 const CancelPanel = props => {
   if (props.displayState === 'Cancel') {
     return (
