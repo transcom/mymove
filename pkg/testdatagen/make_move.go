@@ -35,7 +35,7 @@ func MakeMoveData(db *pop.Connection) {
 
 	for i := 0; i < 2; i++ {
 		move, _ := MakeMove(db)
-		move.Status = models.MoveStatusAPPROVED
+		move.Approve()
 		db.ValidateAndUpdate(&move)
 	}
 }
