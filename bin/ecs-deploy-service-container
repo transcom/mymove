@@ -37,16 +37,10 @@ readonly container_name=${name}-${environment}
 
 readonly zone_name="move.mil"
 
-# TODO: Just use "domain" (below) when we stop using dashed hostnames.
-web_fqdn_suffix=-${environment}.${zone_name}
-[[ $environment = prod ]] && web_fqdn_suffix=.$zone_name
-readonly web_fqdn_suffix
-
-# TODO: Rename to "domain" when we stop using dashed hostnames.
 # use environment subdomain unless we're deploying prod
-email_domain=${environment}.${zone_name}
-[[ $environment = prod ]] && email_domain=$zone_name
-readonly email_domain
+domain=${environment}.${zone_name}
+[[ $environment = prod ]] && domain=$zone_name
+readonly domain
 
 
 check_arn() {
@@ -84,7 +78,7 @@ db_host=$(aws rds describe-db-instances --db-instance-identifier "$rds" --query 
 readonly db_host
 
 # create the container definition from the json template
-container_definition_json=$(perl -pe "s|{{db_host}}|$db_host|g; s|{{email_domain}}|$email_domain|g; s|{{environment}}|$environment|g; s|{{image}}|$image|g; s|{{web_fqdn_suffix}}|$web_fqdn_suffix|g;" "$template")
+container_definition_json=$(perl -pe "s|{{db_host}}|$db_host|g; s|{{domain}}|$domain|g; s|{{environment}}|$environment|g; s|{{image}}|$image|g;" "$template")
 readonly container_definition_json
 
 # create new task definition with the given image
