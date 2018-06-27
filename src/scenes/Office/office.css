@@ -132,10 +132,13 @@
   font-family: sans-serif;
 }
 
-.extras.subheader {
-  font-weight: bold;
+.extras.content {
   margin-top: 2rem;
   font-family: sans-serif;
+}
+
+.extras button {
+  float: right;
 }
 
 .documents {

@@ -63,10 +63,10 @@ const CancelPanel = props => {
     return (
       <div className="cancel-panel">
         <h2 className="extras usa-heading">Cancel Move</h2>
-        <div className="extras subheader">
+        <div className="extras content">
           Why?
           <form>
-            <input type="text" />
+            <textarea />
             <a onClick={props.closeConfirmCancel}>Nevermind</a>
             <button onClick={props.cancelMove}>Cancel Move</button>
           </form>
@@ -74,7 +74,14 @@ const CancelPanel = props => {
       </div>
     );
   } else {
-    return <button onClick={props.openConfirmCancel}>Cancel</button>;
+    return (
+      <button
+        className="usa-button-secondary"
+        onClick={props.openConfirmCancel}
+      >
+        Cancel Move
+      </button>
+    );
   }
 };
 
