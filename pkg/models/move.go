@@ -107,7 +107,7 @@ func (m *Move) Submit() error {
 
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
-	if m.Status != MoveStatusSUBMITTED {
+	if m.Status != MoveStatusSUBMITTED && m.Status != MoveStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 

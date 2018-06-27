@@ -105,7 +105,7 @@ func (o *Order) Submit() error {
 
 // Cancel cancels the Order
 func (o *Order) Cancel() error {
-	if o.Status != OrderStatusSUBMITTED {
+	if o.Status != OrderStatusSUBMITTED && o.Status != OrderStatusDRAFT {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
