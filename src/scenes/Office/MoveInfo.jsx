@@ -58,27 +58,81 @@ const PPMTabContent = props => {
   );
 };
 
+// const ConfirmCancel = props => {
+//   if (props.confirmCancelMove) {
+//     return (
+//       <div className="cancel-panel">
+//         <h2 className="extras usa-heading">Cancel Move</h2>
+//         <div className="extras content">
+//           Why?
+//           <form>
+//             <textarea />
+//             <a onClick={props.closeCancelReason}>Nevermind</a>
+//             <button onClick={props.cancelMove}>Cancel Move</button>
+//           </form>
+//         </div>
+//       </div>
+//     );
+//   } else {
+//     return (
+//       <button
+//         className="usa-button-secondary"
+//         onClick={props.openCancelReason}
+//       >
+//         Cancel Move
+//       </button>
+//     );
+//   }
+// };
+
+// export class CancelPanel extends Component {
+//   handleSubmit = values => {
+//     this.props.cancelMove(this.props.officeMove.ID, values);
+//   };
+
+//   setConfirmState = () => {
+//     this.setState({ displayState: 'Confirm' });
+//   };
+//   setCancelState = () => {
+//     this.setState({ displayState: 'Cancel' });
+//   };
+//   setButtonState = () => {
+//     this.setState({ displayState: 'Button' });
+//   };
+
 const CancelPanel = props => {
-  if (props.showCancelPanel) {
+  if (props.displayState === 'Cancel') {
     return (
       <div className="cancel-panel">
         <h2 className="extras usa-heading">Cancel Move</h2>
         <div className="extras content">
+          <Alert type="warning">Are you sure you want to cancel move?</Alert>
+          <div className="extras buttons">
+            <a onClick={props.setButtonState}>No, nevermind</a>
+            <button onSubmit={props.handleSubmit}>Yes, cancel move</button>
+          </div>
+        </div>
+      </div>
+    );
+  } else if (props.displayState === 'Confirm') {
+    return (
+      <div className="cancel-panel">
+        <h2 className="extras usa-heading">Cancel move</h2>
+        <div className="extras content">
           Why?
           <form>
             <textarea />
-            <a onClick={props.closeConfirmCancel}>Nevermind</a>
-            <button onClick={props.cancelMove}>Cancel Move</button>
+            <div className="extras buttons">
+              <a onClick={props.setButtonState}>Nevermind</a>
+              <button onClick={props.setCancelState}>Cancel Move</button>
+            </div>
           </form>
         </div>
       </div>
     );
-  } else {
+  } else if (props.displayState === 'Button') {
     return (
-      <button
-        className="usa-button-secondary"
-        onClick={props.openConfirmCancel}
-      >
+      <button className="usa-button-secondary" onClick={props.setConfirmState}>
         Cancel Move
       </button>
     );
@@ -105,13 +159,17 @@ class MoveInfo extends Component {
     this.props.cancelMove(this.props.officeMove.id);
   };
 
-  state = { confirmCancelMove: false, cancelReason: '' };
+  // Cancel panel
+  state = { displayState: 'Button', cancelReason: '' };
 
-  openConfirmCancel = () => {
-    this.setState({ confirmCancelMove: true });
+  setConfirmState = () => {
+    this.setState({ displayState: 'Confirm' });
   };
-  closeConfirmCancel = () => {
-    this.setState({ confirmCancelMove: false });
+  setCancelState = () => {
+    this.setState({ displayState: 'Cancel' });
+  };
+  setButtonState = () => {
+    this.setState({ displayState: 'Button' });
   };
 
   renderPPMTabStatus = () => {
@@ -270,10 +328,11 @@ class MoveInfo extends Component {
                 {ppm.status === 'APPROVED' && check}
               </button>
               <CancelPanel
+                displayState={this.state.displayState}
                 cancelMove={this.cancelMove}
-                closeConfirmCancel={this.closeConfirmCancel}
-                showCancelPanel={this.state.confirmCancelMove}
-                openConfirmCancel={this.openConfirmCancel}
+                setConfirmState={this.setConfirmState}
+                setCancelState={this.setCancelState}
+                setButtonState={this.setButtonState}
               />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
