@@ -22,13 +22,18 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="social_security_number').type('123456789');
   cy.get('select[name="rank"]').select('E-9');
   cy.next();
-
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/name/);
+  });
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //name
   cy.get('button.next').should('be.disabled');
   cy.get('input[name="first_name"]').type('Jane');
   cy.get('input[name="last_name"]').type('Doe');
   cy.next();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/contact-info/);
+  });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //contact info
@@ -40,6 +45,9 @@ function serviceMemberProfile(reloadAfterEveryPage) {
     .check({ force: true })
     .should('be.checked');
   cy.next();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/duty-station/);
+  });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //duty station
@@ -50,6 +58,11 @@ function serviceMemberProfile(reloadAfterEveryPage) {
     .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
 
   cy.next();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(
+      /^\/service-member\/[^/]+\/residence-address/,
+    );
+  });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //residential-address
@@ -59,6 +72,11 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').type('80913');
   cy.next();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(
+      /^\/service-member\/[^/]+\/backup-mailing-address/,
+    );
+  });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   // backup address
@@ -68,12 +86,19 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').type('80913');
   cy.next();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-contacts/);
+  });
 
   if (reloadAfterEveryPage) cy.visit('/'); // make sure picks up in right place
   //backup contact
   cy.get('input[name="name"]').type('Douglas Glass');
   cy.get('input[name="email"]').type('doug@glass.net');
   cy.next();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/transition/);
+  });
 
   //transition
   // cy.next();
