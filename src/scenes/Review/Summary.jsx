@@ -86,6 +86,11 @@ export class Summary extends Component {
       if (!date) return;
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
+    const currentStation = get(serviceMember, 'current_station');
+    const stationPhone = get(
+      currentStation,
+      'transportation_office.phone_lines.0',
+    );
 
     const rootAddress = `/moves/review`;
     const rootAddressWithMoveId = `/moves/${
@@ -429,7 +434,9 @@ export class Summary extends Component {
           )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office.
+            *To change these fields, contact your local PPPO office at{' '}
+            {get(currentStation, 'name')}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
       </Fragment>

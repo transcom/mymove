@@ -16,11 +16,11 @@ const expectedMove = {
   status: 'DRAFT',
 };
 const latestMove = {
-  id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
-  locator: 'WUMGLQ',
-  orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
+  id: '593cc830-1a3e-44b3-ba5a-8809f02d000',
+  locator: 'BLABLA',
+  orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b00',
   selected_move_type: 'PPM',
-  status: 'DRAFT',
+  status: 'CANCELED',
 };
 const movePayload = {
   created_at: '2018-05-25T21:36:10.235Z',
@@ -121,7 +121,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
-        latestMove: {},
+        latestMove: null,
         error: null,
         hasLoadError: false,
         hasLoadSuccess: true,
@@ -138,7 +138,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
-        latestMove: {},
+        latestMove: null,
         hasLoadError: true,
         hasLoadSuccess: false,
         error: 'No bueno.',

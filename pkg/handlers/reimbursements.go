@@ -12,7 +12,6 @@ func payloadForReimbursementModel(r *models.Reimbursement) *internalmessages.Rei
 	if r == nil {
 		return nil
 	}
-
 	methodOfReceipt := internalmessages.MethodOfReceipt(r.MethodOfReceipt)
 	status := internalmessages.ReimbursementStatus(r.Status)
 

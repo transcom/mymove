@@ -93,7 +93,7 @@ function reshapeMove(move) {
 export function moveReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
-      const allOrdersMoves = get(
+      const lastOrdersMoves = get(
         action.payload,
         'service_member.orders.0.moves',
         [],
@@ -110,7 +110,7 @@ export function moveReducer(state = initialState, action) {
         null,
       );
       return Object.assign({}, state, {
-        latestMove: reshapeMove(head(allOrdersMoves)),
+        latestMove: reshapeMove(head(lastOrdersMoves)),
         currentMove: reshapeMove(activeMove),
         hasLoadError: false,
         hasLoadSuccess: true,
@@ -139,7 +139,7 @@ export function moveReducer(state = initialState, action) {
     case GET_MOVE.success:
       return Object.assign({}, state, {
         currentMove: reshapeMove(action.payload),
-        latestMove: {},
+        latestMove: null,
         hasLoadSuccess: true,
         hasLoadError: false,
         error: null,
@@ -147,7 +147,7 @@ export function moveReducer(state = initialState, action) {
     case GET_MOVE.failure:
       return Object.assign({}, state, {
         currentMove: {},
-        latestMove: {},
+        latestMove: null,
         hasLoadSuccess: false,
         hasLoadError: true,
         error: action.error,

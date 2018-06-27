@@ -143,7 +143,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 				return transactionError
 			}
 		} else {
-			if ppm.Advance != nil {
+			if ppm.AdvanceID != nil {
 				// If HasRequestedAdvance is false, we need to delete the record
 				if ppm.Advance == nil {
 					reimbursement := Reimbursement{}

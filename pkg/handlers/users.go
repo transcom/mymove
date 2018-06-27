@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	// "fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
@@ -34,10 +33,15 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	// Load duty station and transportation office association
 	if serviceMember.DutyStationID != nil {
+		dutyStation, err := models.FetchDutyStation(h.db, *serviceMember.DutyStationID)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, *serviceMember.DutyStationID)
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
+		serviceMember.DutyStation = dutyStation
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
 

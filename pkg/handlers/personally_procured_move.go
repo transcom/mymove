@@ -43,7 +43,6 @@ func payloadForPPMModel(storer storage.FileStorer, personallyProcuredMove models
 		AdvanceWorksheet:    documentPayload,
 		Mileage:             personallyProcuredMove.Mileage,
 	}
-
 	if personallyProcuredMove.IncentiveEstimateMin != nil {
 		min := (*personallyProcuredMove.IncentiveEstimateMin).Int64()
 		ppmPayload.IncentiveEstimateMin = &min

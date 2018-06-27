@@ -25,4 +25,33 @@ describe('utils', () => {
       });
     });
   });
+  describe('fetch Active', () => {
+    describe('when there are no foos', () => {
+      const foos = null;
+      let res = utils.fetchActive(foos);
+      it('should return null', () => {
+        expect(res).toEqual(null);
+      });
+    });
+    describe('when there are some active and some inactive foos', () => {
+      const foos = [
+        { status: 'CANCELED', id: 'foo' },
+        { status: 'DRAFT', id: 'foo' },
+      ];
+      let res = utils.fetchActive(foos);
+      it('should return the index ofthe active foo', () => {
+        expect(res).toEqual(1);
+      });
+    });
+    describe('when there are only inactive foos', () => {
+      const foos = [
+        { status: 'CANCELED', id: 'foo' },
+        { status: 'COMPLETED', id: 'foo' },
+      ];
+      let res = utils.fetchActive(foos);
+      it('should return null', () => {
+        expect(res).toEqual(null);
+      });
+    });
+  });
 });
