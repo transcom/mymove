@@ -90,7 +90,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 
 // Cancel cancels the PPM
 func (p *PersonallyProcuredMove) Cancel() error {
-	if p.Status == PPMStatusCOMPLETED && p.Status != PPMStatusCANCELED {
+	if p.Status == PPMStatusCOMPLETED || p.Status == PPMStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
