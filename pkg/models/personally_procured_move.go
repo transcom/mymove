@@ -26,6 +26,8 @@ const (
 	PPMStatusAPPROVED PPMStatus = "APPROVED"
 	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
 	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
+	// PPMStatusCOMPLETED captures enum value "COMPLETED"
+	PPMStatusCOMPLETED PPMStatus = "COMPLETED"
 	// PPMStatusCANCELED captures enum value "CANCELED"
 	PPMStatusCANCELED PPMStatus = "CANCELED"
 )
@@ -88,7 +90,7 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 
 // Cancel cancels the PPM
 func (p *PersonallyProcuredMove) Cancel() error {
-	if p.Status != PPMStatusSUBMITTED && p.Status != PPMStatusDRAFT {
+	if p.Status == PPMStatusCOMPLETED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
