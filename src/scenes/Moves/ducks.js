@@ -99,14 +99,15 @@ export function moveReducer(state = initialState, action) {
         [],
       );
       const activeOrders = get(
-        // TODO: make sure this is compatible with no moves in system or completed past moves.
         action.payload,
         'service_member.orders.' +
           fetchActive(get(action.payload, 'service_member.orders')),
+        [],
       );
       const activeMove = get(
         activeOrders,
         'moves.' + [fetchActive(get(activeOrders, 'moves'))],
+        null,
       );
       return Object.assign({}, state, {
         latestMove: reshapeMove(head(allOrdersMoves)),

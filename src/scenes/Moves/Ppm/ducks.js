@@ -176,10 +176,12 @@ export function ppmReducer(state = initialState, action) {
         action.payload,
         'service_member.orders.' +
           fetchActive(get(action.payload, 'service_member.orders')),
+        [],
       );
       const activeMove = get(
         activeOrders,
         'moves.' + [fetchActive(get(activeOrders, 'moves'))],
+        null,
       );
       const activePpm = get(
         activeMove,
