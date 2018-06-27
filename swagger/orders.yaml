@@ -1,7 +1,7 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.7
+  version: 0.0.8
   title: MyMove Orders Gateway
   license:
     name: MIT
@@ -273,13 +273,11 @@ definitions:
         type: string
         description: The date and time that these orders were cut. If omitted, the current date and time will be used.
         format: date-time
-      pcaWithoutPcs:
+      noCostMove:
         type: boolean
         description: |
-          Permanent Change of Assignment without Permanent Change of Station. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
-
-          If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and should authorize move expenses.
-
+          No Cost Move. If true, then these orders do not authorize any move expenses. If omitted or false, then these orders are a PCS and should authorize move expenses.
+          One scenario that leads to a no-cost move is a Permanent Change of Assignment without Permanent Change of Station. A PCA without PCS happens when a member is assigned to a new unit at the same duty station, or to a new duty station geographically close to the current duty station.
           It is not unheard of for the initial revision of orders to have this set to false and then later to be amended to true and vice-versa.
       tdyEnRoute:
         type: boolean
@@ -302,10 +300,12 @@ definitions:
         type: string
         description: Earliest date that the service member is allowed to report for duty at the new duty station. If omitted, the member is allowed to report as early as desired.
         format: date
+        x-nullable: true
       reportNoLaterThan:
         type: string
         description: Latest date that the service member is allowed to report for duty at the new duty station. Should be included for most Orders types, but can be missing for Separation / Retirement Orders.
         format: date
+        x-nullable: true
       pcsAccounting:
         $ref: '#/definitions/Accounting'
       ntsAccounting:
@@ -373,6 +373,7 @@ definitions:
         description: |
           Date of Birth. Provide this if it is known, especially when POST-ing a Revision using the member's SSN as the memberId. In this case, the Orders Gateway will need to retrieve the member's EDIPI from DMDC's Identity Web Services, which expects first name, last name, date of birth, and SSN to guarantee a single EDIPI match.
         format: date
+        x-nullable: true
     required:
       - givenName
       - familyName
