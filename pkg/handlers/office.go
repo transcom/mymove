@@ -25,7 +25,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForError(h.logger, err)
 	}
 
-	move.Status = models.MoveStatusAPPROVED
+	move.Approve()
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
