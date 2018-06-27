@@ -122,12 +122,13 @@ export async function ApproveReimbursement(reimbursementId) {
 }
 
 // Move status
-export async function CancelMove(moveId, reason) {
+export async function CancelMove(moveId, cancelReason) {
   const client = await getClient();
-  debugger;
   const response = await client.apis.office.cancelMove({
     moveId,
-    reason,
+    cancelMove: {
+      cancel_reason: cancelReason,
+    },
   });
   checkResponse(
     response,

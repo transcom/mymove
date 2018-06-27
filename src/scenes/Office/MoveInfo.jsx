@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Switch, Redirect, Link } from 'react-router-dom';
+import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
+import { push } from 'react-router-redux';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -58,47 +58,72 @@ const PPMTabContent = props => {
   );
 };
 
-const CancelPanel = props => {
-  if (props.displayState === 'Cancel') {
-    return (
-      <div className="cancel-panel">
-        <h2 className="extras usa-heading">Cancel Move</h2>
-        <div className="extras content">
-          <Alert type="warning">Are you sure you want to cancel move?</Alert>
-          <div className="extras buttons">
-            <a onClick={props.setButtonState}>No, nevermind</a>
-            <button onSubmit={props.handleSubmit}>Yes, cancel move</button>
+class CancelPanel extends Component {
+  state = { displayState: 'Button', cancelReason: '' };
+
+  setConfirmState = () => {
+    this.setState({ displayState: 'Confirm' });
+  };
+
+  setCancelState = () => {
+    if (this.state.cancelReason !== '') {
+      this.setState({ displayState: 'Cancel' });
+    }
+  };
+
+  setButtonState = () => {
+    this.setState({ displayState: 'Button' });
+  };
+
+  handleChange = event => {
+    this.setState({ cancelReason: event.target.value });
+  };
+
+  cancelMove = event => {
+    event.preventDefault();
+    this.props.cancelMove(this.state.cancelReason);
+    this.props.push('/queues');
+  };
+
+  render() {
+    if (this.state.displayState === 'Cancel') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Cancel Move</h2>
+          <div className="extras content">
+            <Alert type="warning" heading="Cancelation Warning">
+              Are you sure you want to cancel the entire move?
+            </Alert>
+            <div className="extras buttons">
+              <a onClick={this.setButtonState}>No, nevermind</a>
+              <button onClick={this.cancelMove}>Yes, cancel move</button>
+            </div>
           </div>
         </div>
-      </div>
-    );
-  } else if (props.displayState === 'Confirm') {
-    return (
-      <div className="cancel-panel">
-        <h2 className="extras usa-heading">Cancel move</h2>
-        <div className="extras content">
-          Why?
-          <form>
-            <textarea />
+      );
+    } else if (this.state.displayState === 'Confirm') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Cancel move</h2>
+          <div className="extras content">
+            Why is the move being cancelled?
+            <textarea required onChange={this.handleChange} />
             <div className="extras buttons">
-              <a onClick={props.setButtonState}>Nevermind</a>
-              <button onClick={props.setCancelState}>Cancel Move</button>
+              <a onClick={this.setButtonState}>Nevermind</a>
+              <button onClick={this.setCancelState}>Cancel entire move</button>
             </div>
-          </form>
+          </div>
         </div>
-      </div>
-    );
-  } else if (props.displayState === 'Button') {
-    return (
-      <button className="usa-button-secondary" onClick={props.setConfirmState}>
-        Cancel Move
-      </button>
-    );
+      );
+    } else if (this.state.displayState === 'Button') {
+      return (
+        <button className="usa-button-secondary" onClick={this.setConfirmState}>
+          Cancel Move
+        </button>
+      );
+    }
   }
-};
-
-// this.setState(cancelReason) = value
-// react text area docs (handle change fnc)
+}
 
 class MoveInfo extends Component {
   componentDidMount() {
@@ -113,21 +138,8 @@ class MoveInfo extends Component {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
   };
 
-  cancelMove = () => {
-    this.props.cancelMove(this.props.officeMove.id);
-  };
-
-  // Cancel panel
-  state = { displayState: 'Button', cancelReason: '' };
-
-  setConfirmState = () => {
-    this.setState({ displayState: 'Confirm' });
-  };
-  setCancelState = () => {
-    this.setState({ displayState: 'Cancel' });
-  };
-  setButtonState = () => {
-    this.setState({ displayState: 'Button' });
+  cancelMove = cancelReason => {
+    this.props.cancelMove(this.props.officeMove.id, cancelReason);
   };
 
   renderPPMTabStatus = () => {
@@ -285,13 +297,7 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
-              <CancelPanel
-                displayState={this.state.displayState}
-                cancelMove={this.cancelMove}
-                setConfirmState={this.setConfirmState}
-                setCancelState={this.setCancelState}
-                setButtonState={this.setButtonState}
-              />
+              <CancelPanel cancelMove={this.cancelMove} />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
               */}
