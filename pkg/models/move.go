@@ -306,12 +306,18 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 					return transactionError
 				}
 			}
-			// TODO: Add back in once we are updating PPM Status
-			// if verrs, err := db.ValidateAndSave(ppm); verrs.HasAny() || err != nil {
-			// 	responseVErrors.Append(verrs)
-			// 	responseError = errors.Wrap(err, "Error Saving PPM")
-			// 	return transactionError
-			// }
+
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving PPM")
+				return transactionError
+			}
+		}
+
+		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Saving Orders")
+			return transactionError
 		}
 
 		if verrs, err := db.ValidateAndSave(move); verrs.HasAny() || err != nil {
