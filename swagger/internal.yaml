@@ -287,11 +287,6 @@ definitions:
         minimum: 0
         maximum: 90
         x-nullable: true
-      estimated_storage_reimbursement:
-        type: string
-        example: "$1200"
-        title: Estimated Storage Reimbursement
-        x-nullable: true
       weight_estimate:
         type: integer
         minimum: 1
