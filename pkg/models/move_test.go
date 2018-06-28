@@ -147,3 +147,38 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	suite.Equal(PPMStatusCANCELED, move.PersonallyProcuredMoves[0].Status, "expected Canceled")
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 }
+
+func (suite *ModelSuite) TestSaveMoveStatusesFail() {
+	// Given: A move with Orders with unacceptable status
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
+	orders.Status = ""
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	move.Orders = orders
+
+	verrs, err = SaveMoveStatuses(suite.db, move)
+	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
+}
+
+func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
+	// Given: A move with Orders with acceptable status
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
+	orders.Status = OrderStatusSUBMITTED
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	move.Orders = orders
+
+	verrs, err = SaveMoveStatuses(suite.db, move)
+	suite.False(verrs.HasAny(), "failed to save valid statuses")
+	suite.Nil(err)
+}
