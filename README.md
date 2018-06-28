@@ -141,14 +141,6 @@ If you are stuck on this step you may need to see the section on Troubleshooting
 
 In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
-You can verify the server is working as follows:
-
-`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}" -H "Content-Type: application/json"`
-
-from which the response should be like
-
-`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "description": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
-
 Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
 ### Setup: Client
@@ -156,6 +148,8 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 1. `make client_run`
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
+
+If both the server and client are running, you should be able to view the Swagger UI at <http://localhost:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 
