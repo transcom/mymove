@@ -25,7 +25,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForError(h.logger, err)
 	}
 
-	move.Status = models.MoveStatusAPPROVED
+	move.Approve()
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
@@ -37,6 +37,50 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForError(h.logger, err)
 	}
 	return officeop.NewApproveMoveOK().WithPayload(movePayload)
+}
+
+// CancelMoveHandler cancels a move via POST /moves/{moveId}/cancel
+type CancelMoveHandler HandlerContext
+
+// Handle ... cancels a Move from a request payload
+func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	// Canceling move will result in canceled associated PPMs
+	err = move.Cancel(*params.Reason)
+	if err != nil {
+		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
+		return responseForError(h.logger, err)
+	}
+
+	// Save move, orders, and PPMs statuses
+	verrs, err := models.SaveMoveStatuses(h.db, move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	err = notifications.SendNotification(
+		notifications.NewMoveCanceled(h.db, h.logger, session, moveID),
+		h.sesService,
+	)
+
+	if err != nil {
+		h.logger.Error("problem sending email to user", zap.Error(err))
+		return responseForError(h.logger, err)
+	}
+
+	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return officeop.NewCancelMoveOK().WithPayload(movePayload)
 }
 
 // ApprovePPMHandler approves a move via POST /personally_procured_moves/{personallyProcuredMoveId}/approve
@@ -68,8 +112,7 @@ func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.R
 	)
 	if err != nil {
 		h.logger.Error("problem sending email to user", zap.Error(err))
-		// TODO how should we handle this error?
-		// return newErrResponse(500)
+		return responseForError(h.logger, err)
 	}
 
 	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)

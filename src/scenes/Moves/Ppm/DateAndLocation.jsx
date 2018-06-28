@@ -28,17 +28,13 @@ export class DateAndLocation extends Component {
   };
 
   handleSubmit = () => {
-    const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code =
         pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
-      if (pendingValues.has_sit) {
-        pendingValues.estimated_storage_reimbursement = sitReimbursement;
-      } else {
+      if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
-        pendingValues.estimated_storage_reimbursement = null;
       }
       const moveId = this.props.match.params.moveId;
       this.props.createOrUpdatePpm(moveId, pendingValues);
@@ -66,7 +62,7 @@ export class DateAndLocation extends Component {
   getDebouncedSitEstimate = (e, value, _, field) => {
     const { formValues, entitlement } = this.props;
     const estimateValues = cloneDeep(formValues);
-    estimateValues[field] = value;
+    estimateValues[field] = value; // eslint-disable-line security/detect-object-injection
     this.debouncedSitEstimate(
       estimateValues.planned_move_date,
       estimateValues.days_in_storage,

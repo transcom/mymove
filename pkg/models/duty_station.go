@@ -22,7 +22,7 @@ type DutyStation struct {
 	AddressID              uuid.UUID                    `json:"address_id" db:"address_id"`
 	Address                Address                      `belongs_to:"address"`
 	TransportationOfficeID *uuid.UUID                   `json:"transportation_office_id" db:"transportation_office_id"`
-	TransportationOffice   *TransportationOffice        `belongs_to:"transportation_offices"`
+	TransportationOffice   TransportationOffice         `belongs_to:"transportation_offices"`
 }
 
 // DutyStations is not required by pop and may be deleted
@@ -48,6 +48,33 @@ func (d *DutyStation) ValidateCreate(tx *pop.Connection) (*validate.Errors, erro
 // This method is not required and may be deleted.
 func (d *DutyStation) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// DutyStationTransportInfo contains all info needed for notifications emails
+type DutyStationTransportInfo struct {
+	Name      string `db:"name"`
+	PhoneLine string `db:"number"`
+}
+
+// FetchDSContactInfo loads a duty station's associated transportation office and its first listed office phone number.
+func FetchDSContactInfo(db *pop.Connection, dutyStationID *uuid.UUID) (*DutyStationTransportInfo, error) {
+	if dutyStationID == nil {
+		return nil, ErrFetchNotFound
+	}
+	DSTransportInfo := DutyStationTransportInfo{}
+	query := `SELECT d.name, opl.number
+		FROM duty_stations as d
+		JOIN office_phone_lines as opl
+		ON d.transportation_office_id = opl.transportation_office_id
+		WHERE d.id = $1
+		LIMIT 1`
+	err := db.RawQuery(query, *dutyStationID).First(&DSTransportInfo)
+	if err != nil {
+		return nil, err
+	} else if DSTransportInfo.Name == "" || DSTransportInfo.PhoneLine == "" {
+		return nil, ErrFetchNotFound
+	}
+	return &DSTransportInfo, nil
 }
 
 // FetchDutyStation returns a station for a given id
@@ -85,24 +112,16 @@ func FindDutyStations(tx *pop.Connection, search string) (DutyStations, error) {
 }
 
 // FetchDutyStationTransportationOffice returns a transportation office for a duty station
-func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (*TransportationOffice, error) {
+func FetchDutyStationTransportationOffice(db *pop.Connection, dutyStationID uuid.UUID) (TransportationOffice, error) {
 	var dutyStation DutyStation
 
-	err := db.Q().Eager("TransportationOffice").Find(&dutyStation, dutyStationID)
+	err := db.Q().Eager("TransportationOffice.Address", "TransportationOffice.PhoneLines").Find(&dutyStation, dutyStationID)
 	if err != nil {
-		return nil, err
+		return TransportationOffice{}, err
 	}
 
-	if dutyStation.TransportationOffice == nil {
-		return nil, ErrFetchNotFound
-	}
-
-	if err = db.Load(dutyStation.TransportationOffice, "Address"); err != nil {
-		return nil, err
-	}
-
-	if err = db.Load(dutyStation.TransportationOffice, "PhoneLines"); err != nil {
-		return nil, err
+	if dutyStation.TransportationOfficeID == nil {
+		return TransportationOffice{}, ErrFetchNotFound
 	}
 
 	return dutyStation.TransportationOffice, nil

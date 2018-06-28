@@ -154,7 +154,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my-staging.move.mil/"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.staging.move.mil/"
     steps: &deploy_app_redirect_steps
       - checkout
       - setup_remote_docker
@@ -171,13 +171,13 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my-staging.move.mil/health"
+      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker
       - deploy:
           name: Deploy app service
-          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT
+          command: bin/ecs-deploy-service-container app config/app.container-definition.json ${AWS_ACCOUNT_ID}.dkr.ecr.${AWS_DEFAULT_REGION}.amazonaws.com/app:git-${CIRCLE_SHA1} $APP_ENVIRONMENT FARGATE
       - run:
           name: Health check app site
           command: for retry in `seq 1 10`; do if curl -f -sS -o /dev/null $APP_HEALTH_CHECK_URL; then echo Passed.; exit 0; else sleep $(($retry*3)); fi; done; exit 1

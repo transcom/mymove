@@ -120,6 +120,7 @@ export class AppWrapper extends Component {
                       path="/moves/:moveId/review/edit-weight"
                       component={EditWeight}
                     />
+                    <PrivateRoute path="/profile-review" component={NoMatch} />
                     <Route component={NoMatch} />
                   </Switch>
                 )}

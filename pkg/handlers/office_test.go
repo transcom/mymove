@@ -7,14 +7,23 @@ import (
 
 	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
-	// Given: and office User
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	// Given: a set of orders, a move, office user and servicemember user
+	move, err := testdatagen.MakeMove(suite.db)
+	suite.Nil(err)
+	// Given: an office User
+	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	suite.Nil(err)
+
+	// Move is submitted and saved
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.mustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -34,6 +43,58 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 
 	// And: Returned query to have an approved status
 	suite.Assertions.Equal(internalmessages.MoveStatusAPPROVED, okResponse.Payload.Status)
+}
+
+func (suite *HandlerSuite) TestCancelMoveHandler() {
+	// Given: a set of orders, a move, and office user
+	// Orders has service member with transportation office and phone nums
+	orders, err := testdatagen.MakeOrder(suite.db)
+	suite.Nil(err)
+
+	var selectedType = internalmessages.SelectedMoveTypePPM
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	suite.Nil(err)
+
+	// Move is submitted
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+
+	// And: Orders are submitted and saved on move
+	err = orders.Submit()
+	suite.Nil(err)
+	suite.Equal(models.OrderStatusSUBMITTED, orders.Status, "expected Submitted")
+	suite.mustSave(&orders)
+	move.Orders = orders
+	suite.mustSave(move)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("POST", "/moves/some_id/cancel", nil)
+	req = suite.authenticateOfficeRequest(req, officeUser)
+
+	// And params include the cancel reason
+	reason := "Orders revoked."
+	params := officeop.CancelMoveParams{
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		Reason:      &reason,
+	}
+
+	// And: a move is canceled
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := CancelMoveHandler(context)
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&officeop.CancelMoveOK{}, response)
+	okResponse := response.(*officeop.CancelMoveOK)
+
+	// And: Returned query to have an canceled status
+	suite.Equal(internalmessages.MoveStatusCANCELED, okResponse.Payload.Status)
 }
 
 func (suite *HandlerSuite) TestApprovePPMHandler() {
@@ -61,7 +122,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 	okResponse := response.(*officeop.ApprovePPMOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
+	suite.Equal(internalmessages.PPMStatusAPPROVED, okResponse.Payload.Status)
 }
 
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
@@ -86,5 +147,5 @@ func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	okResponse := response.(*officeop.ApproveReimbursementOK)
 
 	// And: Returned query to have an approved status
-	suite.Assertions.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
+	suite.Equal(internalmessages.ReimbursementStatusAPPROVED, *okResponse.Payload.Status)
 }
