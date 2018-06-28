@@ -93,9 +93,13 @@ class CancelPanel extends Component {
             <Alert type="warning" heading="Cancelation Warning">
               Are you sure you want to cancel the entire move?
             </Alert>
-            <div className="extras buttons">
-              <a onClick={this.setButtonState}>No, never mind</a>
-              <button onClick={this.cancelMove}>Yes, cancel move</button>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>No, never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.cancelMove}>Yes, cancel move</button>
+              </div>
             </div>
           </div>
         </div>
@@ -103,13 +107,19 @@ class CancelPanel extends Component {
     } else if (this.state.displayState === 'Confirm') {
       return (
         <div className="cancel-panel">
-          <h2 className="extras usa-heading">Cancel move</h2>
+          <h2 className="extras usa-heading">Cancel Move</h2>
           <div className="extras content">
             Why is the move being canceled?
             <textarea required onChange={this.handleChange} />
-            <div className="extras buttons">
-              <a onClick={this.setButtonState}>Never mind</a>
-              <button onClick={this.setCancelState}>Cancel entire move</button>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>Never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.setCancelState}>
+                  Cancel entire move
+                </button>
+              </div>
             </div>
           </div>
         </div>

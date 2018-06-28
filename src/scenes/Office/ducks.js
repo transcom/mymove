@@ -70,7 +70,9 @@ const APPROVE_BASICS = ReduxHelpers.generateAsyncActionTypes(approveBasicsType);
 
 const APPROVE_PPM = ReduxHelpers.generateAsyncActionTypes(approvePPMType);
 
-const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(cancelMoveType);
+export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
+  cancelMoveType,
+);
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,

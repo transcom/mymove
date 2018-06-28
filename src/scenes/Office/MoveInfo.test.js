@@ -23,6 +23,9 @@ const PPMsHaveLoadError = null;
 const PPMsHaveLoadSuccess = false;
 const loadDependenciesHasError = null;
 const loadDependenciesHasSuccess = false;
+const moveIsCanceling = false;
+const moveHasCancelError = null;
+const moveHasCancelSuccess = false;
 const match = {
   params: { moveID: '123456' },
   url: 'www.nino.com',
@@ -56,6 +59,9 @@ describe('Loads MoveInfo', () => {
             loadDependenciesHasSuccess={loadDependenciesHasSuccess}
             match={match}
             loadMoveDependencies={dummyFunc}
+            moveIsCanceling={moveIsCanceling}
+            moveHasCancelError={moveHasCancelError}
+            moveHasCancelSuccess={moveHasCancelSuccess}
           />
         </MockRouter>
       </Provider>,
