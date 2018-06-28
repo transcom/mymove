@@ -77,10 +77,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
+	reasonPayload := &internalmessages.CancelMove{
+		CancelReason: &reason,
+	}
 	params := officeop.CancelMoveParams{
-		HTTPRequest:             req,
-		MoveID:                  strfmt.UUID(move.ID.String()),
-		CancelMove.CancelReason: &reason,
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		CancelMove:  reasonPayload,
 	}
 
 	// And: a move is canceled
