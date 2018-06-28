@@ -30,6 +30,17 @@ Cypress.Commands.add('signInAsNewUser', () => {
   cy.contains('Local Sign In').click();
   cy.contains('Login as New User').click();
 });
+Cypress.Commands.add('signInAsOfficeUser', () => {
+  cy.visit('/');
+  cy.contains('Local Sign In').click();
+  // This assumes a single office user
+  // A better choice would be a known email address
+  cy
+    .get('p')
+    .contains('office')
+    .find('button')
+    .click();
+});
 Cypress.Commands.add('next', () => {
   cy
     .get('button.next')
