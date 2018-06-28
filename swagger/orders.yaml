@@ -1,13 +1,13 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.8
+  version: 0.0.9
   title: MyMove Orders Gateway
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
 host: orders.move.mil
-basePath: /v0
+basePath: /orders/v0
 schemes:
   - http
 paths:
