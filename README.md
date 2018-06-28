@@ -41,6 +41,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Spellcheck](#spellcheck)
     * [Tips for staying sane](#tips-for-staying-sane)
   * [Troubleshooting](#troubleshooting)
+    * [Postgres Issues](#postgres-issues)
 
 Regenerate with "bin/generate-md-toc.sh"
 
@@ -85,7 +86,7 @@ _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to 
 export PATH=$(go env GOPATH)/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
@@ -118,7 +119,7 @@ The following commands will get mymove running on your machine for the first tim
 
 * Install Go with Homebrew. Make sure you do not have other installations.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
-* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/).
+* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
