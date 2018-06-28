@@ -70,6 +70,8 @@ If you drop the `--global` flag these settings will only apply to the current re
 
 For web-based Git operations, GitHub will use your primary email unless you choose "Keep my email address private". If you don't want to set your work address as primary, please [turn on the privacy setting](https://github.com/settings/emails).
 
+Note that with 2-factor-authentication enabled, in order to push local code to GitHub, you need to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as your password.
+
 ### Project location
 
 All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
