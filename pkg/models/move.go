@@ -117,7 +117,8 @@ func (m *Move) Approve() error {
 
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
-	if m.Status != MoveStatusSUBMITTED {
+	// We can cancel any move that isn't already complete.
+	if m.Status == MoveStatusCOMPLETED || m.Status == MoveStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
