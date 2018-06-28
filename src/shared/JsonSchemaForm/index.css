@@ -23,3 +23,7 @@ h1.sm-heading {
 h2.sm-heading-2 {
   font-size: 2.5rem;
 }
+
+.DayPicker {
+   border: 0.1rem solid #5b616b;
+}
