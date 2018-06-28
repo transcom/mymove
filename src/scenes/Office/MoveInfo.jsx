@@ -1,12 +1,11 @@
 import React, { Component } from 'react';
-import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
-import { Switch, Redirect, Link } from 'react-router-dom';
+import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -17,7 +16,12 @@ import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
 import PPMEstimatesPanel from './PPMEstimatesPanel';
-import { loadMoveDependencies, approveBasics, approvePPM } from './ducks.js';
+import {
+  loadMoveDependencies,
+  approveBasics,
+  approvePPM,
+  cancelMove,
+} from './ducks.js';
 import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -53,6 +57,85 @@ const PPMTabContent = props => {
   );
 };
 
+class CancelPanel extends Component {
+  state = { displayState: 'Button', cancelReason: '' };
+
+  setConfirmState = () => {
+    this.setState({ displayState: 'Confirm' });
+  };
+
+  setCancelState = () => {
+    if (this.state.cancelReason !== '') {
+      this.setState({ displayState: 'Cancel' });
+    }
+  };
+
+  setButtonState = () => {
+    this.setState({ displayState: 'Button' });
+  };
+
+  handleChange = event => {
+    this.setState({ cancelReason: event.target.value });
+  };
+
+  cancelMove = event => {
+    event.preventDefault();
+    this.props.cancelMove(this.state.cancelReason);
+    this.setState({ displayState: 'Redirect' });
+  };
+
+  render() {
+    if (this.state.displayState === 'Cancel') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Cancel Move</h2>
+          <div className="extras content">
+            <Alert type="warning" heading="Cancelation Warning">
+              Are you sure you want to cancel the entire move?
+            </Alert>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>No, never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.cancelMove}>Yes, cancel move</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Confirm') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Cancel Move</h2>
+          <div className="extras content">
+            Why is the move being canceled?
+            <textarea required onChange={this.handleChange} />
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>Never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.setCancelState}>
+                  Cancel entire move
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Button') {
+      return (
+        <button className="usa-button-secondary" onClick={this.setConfirmState}>
+          Cancel Move
+        </button>
+      );
+    } else if (this.state.displayState === 'Redirect') {
+      return <Redirect to="/" />;
+    }
+  }
+}
+
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
@@ -64,6 +147,10 @@ class MoveInfo extends Component {
 
   approvePPM = () => {
     this.props.approvePPM(this.props.officeMove.id, this.props.officePPM.id);
+  };
+
+  cancelMove = cancelReason => {
+    this.props.cancelMove(this.props.officeMove.id, cancelReason);
   };
 
   renderPPMTabStatus = () => {
@@ -221,12 +308,13 @@ class MoveInfo extends Component {
                 Approve PPM
                 {ppm.status === 'APPROVED' && check}
               </button>
+              <CancelPanel cancelMove={this.cancelMove} />
               {/* Disabling until features implemented
               <button>Troubleshoot</button>
-              <button>Cancel Move</button> */}
+              */}
             </div>
             <div className="documents">
-              <h2 className="usa-heading">
+              <h2 className="extras usa-heading">
                 Documents
                 <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
               </h2>
@@ -285,7 +373,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, approveBasics, approvePPM },
+    { loadMoveDependencies, approveBasics, approvePPM, cancelMove },
     dispatch,
   );
 
