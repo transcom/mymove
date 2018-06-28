@@ -1,8 +1,6 @@
 package models_test
 
 import (
-	"github.com/pkg/errors"
-
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	. "github.com/transcom/mymove/pkg/models"
@@ -70,10 +68,6 @@ func (suite *ModelSuite) TestPPMStateMachine() {
 	ppm, verrs, err := move.CreatePPM(suite.db, nil, nil, nil, nil, nil, nil, nil, nil, nil, nil, true, &advance)
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
-
-	// Can't cancel a PPM with DRAFT status
-	err = ppm.Cancel()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
 
 	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
 
