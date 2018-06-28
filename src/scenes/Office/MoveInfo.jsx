@@ -94,7 +94,7 @@ class CancelPanel extends Component {
               Are you sure you want to cancel the entire move?
             </Alert>
             <div className="extras buttons">
-              <a onClick={this.setButtonState}>No, nevermind</a>
+              <a onClick={this.setButtonState}>No, never mind</a>
               <button onClick={this.cancelMove}>Yes, cancel move</button>
             </div>
           </div>
@@ -105,10 +105,10 @@ class CancelPanel extends Component {
         <div className="cancel-panel">
           <h2 className="extras usa-heading">Cancel move</h2>
           <div className="extras content">
-            Why is the move being cancelled?
+            Why is the move being canceled?
             <textarea required onChange={this.handleChange} />
             <div className="extras buttons">
-              <a onClick={this.setButtonState}>Nevermind</a>
+              <a onClick={this.setButtonState}>Never mind</a>
               <button onClick={this.setCancelState}>Cancel entire move</button>
             </div>
           </div>
