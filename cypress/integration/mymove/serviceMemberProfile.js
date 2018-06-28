@@ -3,13 +3,10 @@ describe('setting up service member profile', function() {
   beforeEach(() => {
     cy.signInAsNewUser();
   });
-  afterEach(() => {
-    cy.contains('Sign Out').click();
-  });
   it('progresses thru forms', function() {
     serviceMemberProfile();
   });
-  it('starts finishing the service member profile', function() {
+  it('restarts app after every page', function() {
     serviceMemberProfile(true);
   });
 });
