@@ -2,7 +2,6 @@ package models_test
 
 import (
 	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -93,10 +92,6 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	reason := ""
 	move.Orders = orders
-
-	// Can't cancel a move with DRAFT status
-	err = move.Cancel(reason)
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
 
 	// Once submitted
 	err = move.Submit()

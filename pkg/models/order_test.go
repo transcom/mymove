@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/gobuffalo/uuid"
-	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -131,12 +130,8 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	}
 	suite.mustSave(&order)
 
-	// Can't cancel Orders with DRAFT status
-	err := order.Cancel()
-	suite.Equal(ErrInvalidTransition, errors.Cause(err))
-
 	// Submit Orders
-	err = order.Submit()
+	err := order.Submit()
 	suite.Nil(err)
 	suite.Equal(OrderStatusSUBMITTED, order.Status, "expected Submitted")
 
