@@ -116,17 +116,13 @@ EditDateAndLocationForm = reduxForm({ form: editDateAndLocationFormName })(
 
 class EditDateAndLocation extends Component {
   handleSubmit = () => {
-    const { sitReimbursement } = this.props;
     const pendingValues = Object.assign({}, this.props.formValues);
     if (pendingValues) {
       pendingValues.has_additional_postal_code =
         pendingValues.has_additional_postal_code || false;
       pendingValues.has_sit = pendingValues.has_sit || false;
-      if (pendingValues.has_sit) {
-        pendingValues.estimated_storage_reimbursement = sitReimbursement;
-      } else {
+      if (!pendingValues.has_sit) {
         pendingValues.days_in_storage = null;
-        pendingValues.estimated_storage_reimbursement = null;
       }
       const moveId = this.props.match.params.moveId;
       return this.props.createOrUpdatePpm(moveId, pendingValues).then(() => {
@@ -159,7 +155,7 @@ class EditDateAndLocation extends Component {
   );
 
   getDebouncedSitEstimate = (e, value, _, field) => {
-    const { formValues, entitlement } = this.props;
+    const { currentPpm, formValues } = this.props;
     const estimateValues = cloneDeep(formValues);
     // eslint-disable-next-line
     estimateValues[field] = value;
@@ -168,7 +164,7 @@ class EditDateAndLocation extends Component {
       estimateValues.days_in_storage,
       estimateValues.pickup_postal_code,
       estimateValues.destination_postal_code,
-      entitlement.sum,
+      currentPpm.weight_estimate,
     );
   };
 
