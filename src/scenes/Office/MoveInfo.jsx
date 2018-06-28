@@ -6,7 +6,6 @@ import { get, capitalize } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
-import { push } from 'react-router-redux';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -82,7 +81,7 @@ class CancelPanel extends Component {
   cancelMove = event => {
     event.preventDefault();
     this.props.cancelMove(this.state.cancelReason);
-    this.props.push('/queues');
+    this.setState({ displayState: 'Redirect' });
   };
 
   render() {
@@ -121,6 +120,8 @@ class CancelPanel extends Component {
           Cancel Move
         </button>
       );
+    } else if (this.state.displayState === 'Redirect') {
+      return <Redirect to="/" />;
     }
   }
 }
