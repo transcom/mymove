@@ -18,7 +18,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="edipi"]').type('1234567890');
   cy.get('input[name="social_security_number').type('123456789');
   cy.get('select[name="rank"]').select('E-9');
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/name/);
   });
@@ -27,7 +27,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('button.next').should('be.disabled');
   cy.get('input[name="first_name"]').type('Jane');
   cy.get('input[name="last_name"]').type('Doe');
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/contact-info/);
   });
@@ -41,7 +41,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
     .not('[disabled]')
     .check({ force: true })
     .should('be.checked');
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/duty-station/);
   });
@@ -54,7 +54,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
     .first()
     .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
 
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(
       /^\/service-member\/[^/]+\/residence-address/,
@@ -68,7 +68,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').type('80913');
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(
       /^\/service-member\/[^/]+\/backup-mailing-address/,
@@ -82,7 +82,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy.get('input[name="city"]').type('Anytown');
   cy.get('select[name="state"]').select('CO');
   cy.get('input[name="postal_code"]').type('80913');
-  cy.next();
+  cy.nextPage();
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/backup-contacts/);
   });
@@ -91,12 +91,12 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   //backup contact
   cy.get('input[name="name"]').type('Douglas Glass');
   cy.get('input[name="email"]').type('doug@glass.net');
-  cy.next();
+  cy.nextPage();
 
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/transition/);
   });
 
   //transition
-  // cy.next();
+  // cy.nextPage();
 }

@@ -30,7 +30,8 @@ Cypress.Commands.add('signInAsNewUser', () => {
   cy.contains('Local Sign In').click();
   cy.contains('Login as New User').click();
 });
-Cypress.Commands.add('next', () => {
+
+Cypress.Commands.add('nextPage', () => {
   cy
     .get('button.next')
     .should('be.enabled')
