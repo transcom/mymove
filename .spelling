@@ -255,11 +255,14 @@ boolean
 SQLEditor
 schema.sql
 dp3.sqs
+eslint
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
  - docs/adr/0007-swagger-client.md
  - README.md
  - docs/frontend.md
+ - ./docs/frontend.md
 _Regenerate
  - ./README.md
  - docs/data/tspp-data-creation.md
+_Do_

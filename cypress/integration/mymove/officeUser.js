@@ -24,5 +24,12 @@ function officeUserViewsMoves() {
     .get('button')
     .contains('Approve Basics')
     .click();
-  // cy.get('button').contains('Approve PPM').should('.not.be.disabled');
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .should('be.enabled');
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .click();
 }
