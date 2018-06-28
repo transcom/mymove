@@ -36,7 +36,6 @@ export const DELETE_UPLOAD = ReduxHelpers.generateAsyncActionTypes(
 );
 
 // Actions
-// Todo: filter active order here?
 export const showServiceMemberOrders = ReduxHelpers.generateAsyncActionCreator(
   showCurrentOrdersType,
   ShowServiceMemberOrders,
@@ -163,7 +162,6 @@ const insertUploads = (uploads, state) => {
 export function ordersReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
-      // Handle only getting a single orders not a list
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(
           get(

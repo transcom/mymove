@@ -461,7 +461,7 @@ function mapStateToProps(state) {
     currentPpm: state.ppm.currentPpm,
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: state.moves.currentMove,
-    latestMove: state.moves.latestMove,
+    // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),

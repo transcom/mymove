@@ -37,7 +37,6 @@ export class Orders extends Component {
       if (this.props.currentOrders) {
         this.props.updateOrders(this.props.currentOrders.id, pendingValues);
       } else {
-        // A move gets created in the create orders handler
         this.props.createOrders(pendingValues);
       }
     }

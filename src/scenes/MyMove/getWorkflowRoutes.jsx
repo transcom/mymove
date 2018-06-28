@@ -62,6 +62,7 @@ const stub = (key, pages, description) => ({ match }) => (
 );
 
 const always = () => true;
+// Todo: update this when moves can be completed
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 const hasHHG = ({ selectedMoveType }) =>
@@ -140,7 +141,6 @@ const pages = {
     ),
     description: 'Backup contacts',
   },
-  //todo: does this need serviceMemberId
   '/service-member/:serviceMemberId/transition': {
     isInFlow: myFirstRodeo,
     isComplete: always,

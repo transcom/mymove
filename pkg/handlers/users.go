@@ -33,10 +33,12 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	// Load duty station and transportation office association
 	if serviceMember.DutyStationID != nil {
+		// Fetch associations on duty station
 		dutyStation, err := models.FetchDutyStation(h.db, *serviceMember.DutyStationID)
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
+		// Fetch duty station transportation office
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, *serviceMember.DutyStationID)
 		if err != nil {
 			return responseForError(h.logger, err)
@@ -57,7 +59,8 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 		serviceMember.Orders[0] = orders
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
-		// Load associations on PPM
+
+		// Load associations on PPM if they exist
 		if len(serviceMember.Orders[0].Moves) > 0 {
 			if len(serviceMember.Orders[0].Moves[0].PersonallyProcuredMoves) > 0 {
 				// TODO: load advances on all ppms for the latest order's move
