@@ -126,15 +126,25 @@
   padding-top: 2rem;
 }
 
+.extras.usa-heading {
+  margin-top: 0;
+  font-size: 2rem;
+  font-family: sans-serif;
+}
+
+.extras.content {
+  margin-top: 2rem;
+  font-family: sans-serif;
+}
+
+.extras.options {
+  margin-top: 1rem;
+}
+
 .documents {
   border: solid 1px black;
   padding: 1em;
   margin-top: 1em;
-}
-
-.documents .usa-heading {
-  margin-top: 0;
-  font-size: 2rem;
 }
 
 .documents .usa-heading .icon {
@@ -145,6 +155,12 @@
 
 .documents .document .icon {
   margin-right: 0.3em;
+}
+
+.cancel-panel {
+  border: solid 2px navy;
+  padding: 1em;
+  margin-top: 1em;
 }
 
 .orders-page-column {
