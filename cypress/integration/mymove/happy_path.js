@@ -1,7 +1,8 @@
 /* global cy */
 function signInAsNewUser() {
-  cy.contains('Local Sign In').click();
-  cy.contains('Login as New User').click();
+  cy.request('POST', '/devlocal-auth/new');
+  cy.getCookie('session_token').should('exist');
+  cy.visit('/');
 }
 function next() {
   cy
