@@ -2919,6 +2919,7 @@ paths:
           - new
           - troubleshooting
           - ppm
+          - all
           required: true
           description: Queue type to show
       responses:
