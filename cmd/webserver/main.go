@@ -313,7 +313,10 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 		"NewRelicApplicationID": newRelicApplicationID,
 		"NewRelicLicenseKey":    newRelicLicenseKey,
 	}
-	newRelicTemplate := template.Must(template.ParseFiles(path.Join(buildDir, "new_relic.html")))
+	newRelicTemplate, err := template.ParseFiles(path.Join(buildDir, "new_relic.html"))
+	if err != nil {
+		logger.Fatal("could not load new_relic.html template: run make client_build", zap.Error(err))
+	}
 	newRelicHTML := bytes.NewBuffer([]byte{})
 	if err := newRelicTemplate.Execute(newRelicHTML, data); err != nil {
 		logger.Fatal("could not render new_relic.html template", zap.Error(err))
@@ -323,7 +326,7 @@ func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, lo
 	// #nosec - indexPath does not come from user input
 	indexHTML, err := ioutil.ReadFile(indexPath)
 	if err != nil {
-		logger.Fatal("could not read index.html template", zap.Error(err))
+		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
 	}
 	mergedHTML := bytes.Replace(indexHTML, []byte(`<script type="new-relic-placeholder"></script>`), newRelicHTML.Bytes(), 1)
 
