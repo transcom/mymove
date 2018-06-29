@@ -15,6 +15,13 @@ const expectedMove = {
   selected_move_type: 'PPM',
   status: 'DRAFT',
 };
+const latestMove = {
+  id: '593cc830-1a3e-44b3-ba5a-8809f02d000',
+  locator: 'BLABLA',
+  orders_id: '51953e97-25a7-430c-ba6d-3bd980a38b00',
+  selected_move_type: 'PPM',
+  status: 'CANCELED',
+};
 const movePayload = {
   created_at: '2018-05-25T21:36:10.235Z',
   id: '593cc830-1a3e-44b3-ba5a-8809f02dfa7d',
@@ -48,6 +55,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        latestMove: { ...latestMove },
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -59,6 +67,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: null,
+        latestMove: null,
         hasLoadError: false,
         hasLoadSuccess: true,
       });
@@ -76,6 +85,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        latestMove: null,
         error: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
@@ -93,6 +103,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
+        latestMove: null,
         error: 'No bueno.',
         hasSubmitError: true,
         hasSubmitSuccess: false,
@@ -110,6 +121,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: { ...expectedMove },
+        latestMove: null,
         error: null,
         hasLoadError: false,
         hasLoadSuccess: true,
@@ -126,6 +138,7 @@ describe('move Reducer', () => {
 
       expect(newState).toEqual({
         currentMove: {},
+        latestMove: null,
         hasLoadError: true,
         hasLoadSuccess: false,
         error: 'No bueno.',

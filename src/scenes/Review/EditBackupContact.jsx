@@ -92,7 +92,6 @@ function mapStateToProps(state) {
   return {
     backupContacts: state.serviceMember.currentBackupContacts,
     serviceMember: state.serviceMember.currentServiceMember,
-    move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.updateBackupContactError'),
     schema: get(
