@@ -188,9 +188,9 @@ pre_commit_tests:
 
 clean:
 	rm .*.stamp || true
-	rm -rf ./node_modules || true
-	rm -rf ./vendor || true
-	rm -rf ./pkg/gen || true
+	rm -rf ./node_modules
+	rm -rf ./vendor
+	rm -rf ./pkg/gen
 	rm -rf $$GOPATH/pkg/dep/sources || true
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
