@@ -41,6 +41,10 @@ describe.skip('setting up service member profile', function() {
       expect(loc.pathname).to.match(/^\/moves\/[^/]+\/ppm-incentive/);
     });
 
+    cy.get('.rangeslider__handle').click();
+
+    cy.get('.incentive').contains('$');
+
     cy.nextPage();
 
     cy.location().should(loc => {
