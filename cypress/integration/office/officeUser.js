@@ -2,7 +2,7 @@
 describe('office user finds the move', function() {
   beforeEach(() => {
     Cypress.config('baseUrl', 'http://officelocal:4000');
-    cy.signInAsOfficeUser();
+    cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
   });
   it('office user views moves in queue new moves', function() {
     officeUserViewsMoves();
@@ -18,7 +18,7 @@ function officeUserViewsMoves() {
   // Find move and open it
   cy
     .get('div')
-    .contains('H9VSGX')
+    .contains('VGHEIS')
     .dblclick();
 
   // Verify basics and edit
@@ -57,7 +57,7 @@ function officeUserViewsMoves() {
   // Find move and open it
   cy
     .get('div')
-    .contains('H9VSGX')
+    .contains('VGHEIS')
     .dblclick();
 
   // Verify PPM

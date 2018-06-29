@@ -30,6 +30,25 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
+	// Service member with a new move
+	nowTime := time.Now()
+	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
+		ServiceMember: models.ServiceMember{
+			ID: uuid.FromStringOrNil("94ced723-fabc-42af-b9ee-87f8986bb5c9"),
+		},
+		Move: models.Move{
+			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
+			Locator: "VGHEIS",
+			// Status:  models.MoveStatusSUBMITTED,
+		},
+		PersonallyProcuredMove: models.PersonallyProcuredMove{
+			PlannedMoveDate: &nowTime,
+			// Status:          models.PPMStatusSUBMITTED,
+		},
+	})
+	ppm0.Move.Submit()
+	save(db, &ppm0.Move)
+
 	// Service member with a move in progress
 	pastTime := time.Now().AddDate(0, 0, -10)
 	ppm1 := testdatagen.MakePPM(db, testdatagen.Assertions{

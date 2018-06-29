@@ -44,18 +44,6 @@ Cypress.Commands.add('signInAsUser', userId => {
     .then(() => cy.visit('/'));
 });
 
-Cypress.Commands.add('signInAsOfficeUser', () => {
-  cy.visit('/');
-  cy.contains('Local Sign In').click();
-  // This assumes a single office user
-  // A better choice would be a known email address
-  cy
-    .get('p')
-    .contains('office')
-    .find('button')
-    .click();
-});
-
 Cypress.Commands.add('nextPage', () => {
   cy
     .get('button.next')
