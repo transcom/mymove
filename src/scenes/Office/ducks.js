@@ -279,10 +279,7 @@ const initialState = {
   loadDependenciesHasSuccess: false,
   moveHasCancelError: false,
   moveHasCancelSuccess: false,
-  flashMessage: {
-    title: '',
-    body: '',
-  },
+  flashMessage: false,
 };
 
 export function officeReducer(state = initialState, action) {
@@ -495,20 +492,19 @@ export function officeReducer(state = initialState, action) {
     case CANCEL_MOVE.start:
       return Object.assign({}, state, {
         moveIsCanceling: true,
-        flashMessage: {
-          title: 'Move X for Customer Y has been cancelled.', // Need check here and move details
-          body: 'An email confirmation has been sent to the customer.',
-        },
+        flashMessage: true,
       });
     case CANCEL_MOVE.success:
       return Object.assign({}, state, {
         moveIsCanceling: false,
         officeMove: action.payload,
+        flashMessage: true,
       });
     case CANCEL_MOVE.failure:
       return Object.assign({}, state, {
         moveIsCanceling: false,
         error: action.error.message,
+        flashMessage: false,
       });
 
     // PPM STATUS

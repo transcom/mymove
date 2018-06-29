@@ -27,7 +27,10 @@ class Queues extends Component {
         </div>
         <div className="queue-list-column">
           <div className="queue-table-scrollable">
-            <QueueTable queueType={this.props.match.params.queueType} />
+            <QueueTable
+              queueType={this.props.match.params.queueType}
+              flashMessage={this.props.flashMessage}
+            />
           </div>
         </div>
       </div>
@@ -76,6 +79,7 @@ OfficeWrapper.defaultProps = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
+  flashMessage: state.office.flashMessage,
 });
 
 const mapDispatchToProps = dispatch =>
