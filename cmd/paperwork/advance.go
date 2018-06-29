@@ -2,19 +2,29 @@ package main
 
 import (
 	"log"
+	"path"
+	"path/filepath"
 
+	"github.com/aws/aws-sdk-go/aws"
+	awssession "github.com/aws/aws-sdk-go/aws/session"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 	"github.com/namsral/flag"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/paperwork"
+	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/uploader"
 )
 
 func main() {
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
-
+	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
+	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
+	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
+	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 	moveID := flag.String("move", "", "The move ID to generate advance paperwork for")
 	flag.Parse()
 
@@ -38,7 +48,36 @@ func main() {
 		log.Fatal("Usage: paperwork -move <29cb984e-c70d-46f0-926d-cd89e07a6ec3>")
 	}
 
-	generator := paperwork.NewGenerator(db, logger)
+	var storer storage.FileStorer
+	if *storageBackend == "s3" {
+		zap.L().Info("Using s3 storage backend")
+		if len(*s3Bucket) == 0 {
+			log.Fatalln(errors.New("must provide aws_s3_bucket_name parameter, exiting"))
+		}
+		if *s3Region == "" {
+			log.Fatalln(errors.New("Must provide aws_s3_region parameter, exiting"))
+		}
+		if *s3KeyNamespace == "" {
+			log.Fatalln(errors.New("Must provide aws_s3_key_namespace parameter, exiting"))
+		}
+		aws := awssession.Must(awssession.NewSession(&aws.Config{
+			Region: s3Region,
+		}))
+
+		storer = storage.NewS3(*s3Bucket, *s3KeyNamespace, logger, aws)
+	} else {
+		zap.L().Info("Using filesystem storage backend")
+		absTmpPath, err := filepath.Abs("tmp")
+		if err != nil {
+			log.Fatalln(errors.New("could not get absolute path for tmp"))
+		}
+		storagePath := path.Join(absTmpPath, "storage")
+		webRoot := "/" + "storage"
+		storer = storage.NewFilesystem(storagePath, webRoot, logger)
+	}
+	uploader := uploader.NewUploader(db, logger, storer)
+	generator := paperwork.NewGenerator(db, logger, uploader)
+
 	id := uuid.Must(uuid.FromString(*moveID))
 	if err = generator.GenerateAdvancePaperwork(id); err != nil {
 		log.Fatal(err)
