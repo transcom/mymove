@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"log"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -10,46 +9,54 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeOrder creates a single Move and associated User.
-func MakeOrder(db *pop.Connection) (models.Order, error) {
-	sm, err := MakeExtendedServiceMember(db)
-	if err != nil {
-		return models.Order{}, err
+// MakeOrder creates a single Order and associated data.
+func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
+	// Create new relational data if not provided
+	sm := assertions.Order.ServiceMember
+	if isZeroUUID(assertions.Order.ServiceMemberID) {
+		sm = MakeExtendedServiceMember(db, assertions)
 	}
 
-	return MakeOrderForServiceMember(db, sm)
-}
+	station := assertions.Order.NewDutyStation
+	if isZeroUUID(assertions.Order.NewDutyStationID) {
+		station = MakeAnyDutyStation(db)
+	}
 
-// MakeOrderForServiceMember makes an order for a given service member
-func MakeOrderForServiceMember(db *pop.Connection, sm models.ServiceMember) (models.Order, error) {
-	var order models.Order
+	document := assertions.Order.UploadedOrders
+	if isZeroUUID(assertions.Order.UploadedOrdersID) {
+		document = MakeDocument(db, Assertions{
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+				Name:            models.UploadedOrdersDocumentName,
+			},
+		})
+	}
 
-	station := MakeAnyDutyStation(db)
-
-	document, _ := MakeDocument(db, &sm, models.UploadedOrdersDocumentName)
-
-	order = models.Order{
-		ServiceMemberID:  sm.ID,
+	order := models.Order{
 		ServiceMember:    sm,
-		NewDutyStationID: station.ID,
+		ServiceMemberID:  sm.ID,
 		NewDutyStation:   station,
+		NewDutyStationID: station.ID,
+		UploadedOrders:   document,
+		UploadedOrdersID: document.ID,
 		IssueDate:        time.Date(2018, time.March, 15, 0, 0, 0, 0, time.UTC),
 		ReportByDate:     time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC),
 		OrdersType:       internalmessages.OrdersTypePERMANENTCHANGEOFSTATION,
 		HasDependents:    true,
 		SpouseHasProGear: true,
-		UploadedOrdersID: document.ID,
-		UploadedOrders:   document,
 		Status:           models.OrderStatusDRAFT,
 	}
 
-	verrs, err := db.ValidateAndSave(&order)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	// Overwrite values with those from assertions
+	mergeModels(&order, assertions.Order)
 
-	return order, err
+	mustCreate(db, &order)
+
+	return order
+}
+
+// MakeDefaultOrder return an Order with default values
+func MakeDefaultOrder(db *pop.Connection) models.Order {
+	return MakeOrder(db, Assertions{})
 }

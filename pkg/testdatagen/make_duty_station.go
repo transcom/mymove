@@ -11,10 +11,7 @@ import (
 
 // MakeDutyStation creates a single DutyStation
 func MakeDutyStation(db *pop.Connection, name string, affiliation internalmessages.Affiliation, address models.Address) (models.DutyStation, error) {
-	transportationOffice, err := MakeTransportationOffice(db)
-	if err != nil {
-		log.Panic(err)
-	}
+	transportationOffice := MakeTransportationOffice(db)
 
 	var station models.DutyStation
 	verrs, err := db.ValidateAndSave(&address)

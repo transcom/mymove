@@ -138,5 +138,5 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 
 // CreateNewMove creates a move associated with these Orders
 func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
-	return createNewMove(db, o.ID, moveType)
+	return createNewMove(db, *o, moveType)
 }

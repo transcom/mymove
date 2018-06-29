@@ -41,8 +41,10 @@ client_deps: .client_deps.stamp
 	yarn install
 	bin/copy_swagger_ui.sh
 	touch .client_deps.stamp
-client_build: client_deps
+.client_build.stamp: $(shell find src -type f)
 	yarn build
+	touch .client_build.stamp
+client_build: client_deps .client_build.stamp
 client_run: client_deps
 	yarn start
 client_test: client_deps
@@ -133,8 +135,8 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	go test -coverprofile=coverage.out -p 1 -count 1 $$(go list ./... | grep -v \\/pkg\\/gen\\/ | grep -v \\/cmd\\/)
 	go tool cover -html=coverage.out
 
-e2e_test: client_deps
-	yarn e2e-test
+e2e_test: server_deps server_generate client_build db_e2e_init
+	./bin/run-e2e-test
 
 db_dev_run:
 	# The version of the postgres container should match production as closely
@@ -166,6 +168,14 @@ db_dev_migrate_down: server_deps db_dev_run
 		./soda -c ../config/database.yml -p ../migrations migrate down
 db_build_docker:
 	docker build -f Dockerfile.migrations -t ppp-migrations:dev .
+
+db_e2e_init: tools_build db_dev_run db_test_reset
+	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
+
+db_e2e_reset: tools_build db_dev_run
+	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
+		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
