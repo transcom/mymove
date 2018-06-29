@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
@@ -147,4 +149,24 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
 	}
 	return outputFile.Name(), nil
+}
+
+// MergeLocalFiles creates a PDF containing the images at the specified paths.
+//
+// The content type of the image is inferred from its extension. If this proves to
+// be insufficient, storage.DetectContentType and contentTypeToImageType above can
+// be used.
+func (g *Generator) MergeLocalFiles(paths []string) (string, error) {
+	// path and type for each image
+	images := make([]inputFile, 0)
+
+	for _, path := range paths {
+		extension := filepath.Ext(path)[1:]
+		images = append(images, inputFile{
+			Path:        path,
+			ContentType: strings.ToUpper(extension),
+		})
+	}
+
+	return g.pdfFromImages(images)
 }
