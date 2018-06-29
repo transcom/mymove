@@ -251,7 +251,7 @@ func main() {
 	authMux.Handle(pat.Get("/login-gov/callback"), authentication.NewCallbackHandler(authContext, dbConnection, *clientAuthSecretKey, *noSessionTimeout))
 	authMux.Handle(pat.Get("/logout"), authentication.NewLogoutHandler(authContext, *clientAuthSecretKey, *noSessionTimeout))
 
-	if *env == "development" {
+	if *env == "development" || *env == "test" {
 		zap.L().Info("Enabling devlocal auth")
 		localAuthMux := goji.SubMux()
 		root.Handle(pat.New("/devlocal-auth/*"), localAuthMux)
