@@ -68,7 +68,7 @@ Adhere to Airbnb's [JavaScript Style Guide](https://github.com/airbnb/javascript
 
 ### Linting
 
-* CRA runs ESLint on the dev server. No additional configuration is available unless the app is ejected.
+* CRA runs ESLint on the dev server. We are using [create-app-rewired](https://github.com/timarney/react-app-rewired) to configure eslint to use a security package requested by the DOD.
 
 ### File Layout & Naming
 
@@ -151,7 +151,7 @@ Has plugins for most out the box, but setting up Prettier is tricky. See [the do
 ### vi
 
 * [vim-prettier](github.com:prettier/vim-prettier)
-* [vim-javascript](pangloss/vim-javascript.git )
+* [vim-javascript](pangloss/vim-javascript.git)
 * [editorconfig](editorconfig/editorconfig-vim.git)
 
 ### Browser Extensions
@@ -185,11 +185,11 @@ Important JS patterns and features to understand.
 
 Various resources on React, Redux, etc, for a variety of learning styles.
 
-* *Read*: [React Tutorial](https://reactjs.org/tutorial/tutorial.html) - Official tutorial from React. I (Alexi) personally found this cumbersome. If you stick with it you’ll learn the basics.
-* *Watch*: [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux) - Free 30 video series by the author of Redux.
-* *Watch*: [ReactJS / Redux Tutorial](https://www.youtube.com/playlist?list=PL55RiY5tL51rrC3sh8qLiYHqUV3twEYU_) - ~60 minutes of YouTube videos that will get you up and running with React and Redux. The content is useful, the guy’s voice can be a bit of a challenge.
-* *Watch*: [This video](https://www.youtube.com/watch?list=PLb0IAmt7-GS188xDYE-u1ShQmFFGbrk0v&v=nYkdrAPrdcw) from the introduction of Flux can be useful for some high-level background about the pattern (the MVC bashing is overdone, but otherwise this video is useful.)
-* *Do*: Roll your own React app! Make a little project of your own. This works well if you’re more hands-on. Here are some rough steps, but you’ll need to do a bit of filling-in-the-blanks:
+* _Read_: [React Tutorial](https://reactjs.org/tutorial/tutorial.html) - Official tutorial from React. I (Alexi) personally found this cumbersome. If you stick with it you’ll learn the basics.
+* _Watch_: [Getting Started with Redux](https://egghead.io/courses/getting-started-with-redux) - Free 30 video series by the author of Redux.
+* _Watch_: [ReactJS / Redux Tutorial](https://www.youtube.com/playlist?list=PL55RiY5tL51rrC3sh8qLiYHqUV3twEYU_) - ~60 minutes of YouTube videos that will get you up and running with React and Redux. The content is useful, the guy’s voice can be a bit of a challenge.
+* _Watch_: [This video](https://www.youtube.com/watch?list=PLb0IAmt7-GS188xDYE-u1ShQmFFGbrk0v&v=nYkdrAPrdcw) from the introduction of Flux can be useful for some high-level background about the pattern (the MVC bashing is overdone, but otherwise this video is useful.)
+* _Do_: Roll your own React app! Make a little project of your own. This works well if you’re more hands-on. Here are some rough steps, but you’ll need to do a bit of filling-in-the-blanks:
   * Use [create-react-app](https://github.com/facebookincubator/create-react-app) to bootstrap a new React project.
   * Figure out how to run the app live (hint: yarn start)
   * Find and skim through some of the important files it made: `index.hmtl`, `index.js`, `App.js`. What do these look like they’re doing?
