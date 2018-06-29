@@ -3,6 +3,7 @@ import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
+import Alert from 'shared/Alert';
 
 class QueueTable extends Component {
   constructor() {
@@ -47,8 +48,12 @@ class QueueTable extends Component {
       ppm: 'PPMs',
     };
 
+    // if (state.flashMessage.title)
     return (
       <div>
+        <Alert type="success" heading="Success">
+          Move #ABC89 for Johnson, Casey has been cancelled <br />
+        </Alert>
         <h1>Queue: {titles[this.props.queueType]}</h1>
         <div className="queue-table">
           <ReactTable
