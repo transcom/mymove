@@ -4,7 +4,7 @@ set -eu -o pipefail
 
 # Runs both the webserver and Cypress in parallel
 trap "kill %1" SIGINT
-LOGIN_GOV_CALLBACK_PORT=4000 ENV=test LOCAL_STORAGE_PATH=cypress ./bin/webserver --port 4000 &
+STORAGE_BACKEND=s3 LOGIN_GOV_CALLBACK_PORT=4000 ENV=test LOCAL_STORAGE_PATH=cypress ./bin/webserver --port 4000 &
 npx cypress open || true
 
 # Terminate the background webserver
