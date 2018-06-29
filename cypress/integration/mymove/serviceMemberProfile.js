@@ -6,7 +6,7 @@ describe('setting up service member profile', function() {
   it('progresses thru forms', function() {
     serviceMemberProfile();
   });
-  it('restarts app after every page', function() {
+  it.skip('restarts app after every page', function() {
     serviceMemberProfile(true);
   });
 });
