@@ -191,7 +191,7 @@ clean:
 	rm -rf ./node_modules
 	rm -rf ./vendor
 	rm -rf ./pkg/gen
-	rm -rf $$GOPATH/pkg/dep/sources || true
+	rm -rf $$GOPATH/pkg/dep/sources
 
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_deps server_build server_run_standalone server_run server_run_dev server_build_docker server_run_only_docker server_test
