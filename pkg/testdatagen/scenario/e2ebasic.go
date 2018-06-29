@@ -39,11 +39,9 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("0db80bd6-de75-439e-bf89-deaafa1d0dc8"),
 			Locator: "VGHEIS",
-			// Status:  models.MoveStatusSUBMITTED,
 		},
 		PersonallyProcuredMove: models.PersonallyProcuredMove{
 			PlannedMoveDate: &nowTime,
-			// Status:          models.PPMStatusSUBMITTED,
 		},
 	})
 	ppm0.Move.Submit()
@@ -65,6 +63,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
+	save(db, &ppm1.Move)
 
 	// Service member with a move approved, but not in progress
 	futureTime := time.Now().AddDate(0, 0, 10)
@@ -82,4 +81,5 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
+	save(db, &ppm2.Move)
 }
