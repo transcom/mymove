@@ -164,11 +164,7 @@ export function ordersReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(
-          get(
-            action.payload,
-            'service_member.orders.' +
-              fetchActive(get(action.payload, 'service_member.orders')),
-          ),
+          fetchActive(get(action.payload, 'service_member.orders')),
         ),
         hasLoadError: false,
         hasLoadSuccess: true,

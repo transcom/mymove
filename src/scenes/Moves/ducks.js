@@ -98,17 +98,12 @@ export function moveReducer(state = initialState, action) {
         'service_member.orders.0.moves',
         [],
       );
-      const activeOrders = get(
-        action.payload,
-        'service_member.orders.' +
-          fetchActive(get(action.payload, 'service_member.orders')),
-        [],
+      const activeOrders = fetchActive(
+        get(action.payload, 'service_member.orders'),
       );
-      const activeMove = get(
-        activeOrders,
-        'moves.' + [fetchActive(get(activeOrders, 'moves'))],
-        null,
-      );
+
+      const activeMove = fetchActive(get(activeOrders, 'moves'));
+
       return Object.assign({}, state, {
         latestMove: reshapeMove(head(lastOrdersMoves)),
         currentMove: reshapeMove(activeMove),

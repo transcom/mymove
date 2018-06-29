@@ -1,4 +1,4 @@
-import { get, includes, findIndex } from 'lodash';
+import { get, includes, findIndex, find } from 'lodash';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -26,21 +26,13 @@ export const upsert = (arr, newValue) => {
   }
 };
 
-// Get index of active object in array of objects
 export function fetchActive(foos) {
-  if (!foos) {
-    return null;
-  }
-  // Active moves, orders, or ppms cannot have a status of completed or canceled
-  const activeIndex = findIndex(foos, function(o) {
-    return includes(
-      ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS'],
-      get(o, 'status'),
-    );
-  }); // -1 is returned if no index is found
-  if (activeIndex !== -1) {
-    return activeIndex;
-  } else {
-    return null;
-  }
+  return (
+    find(foos, i =>
+      includes(
+        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS'],
+        get(i, 'status'),
+      ),
+    ) || null
+  );
 }
