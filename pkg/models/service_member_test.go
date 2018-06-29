@@ -39,9 +39,9 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	lastName := "sally"
 	telephone := "510 555-5555"
 	email := "bobsally@gmail.com"
-	fakeAddress, _ := testdatagen.MakeAddress(suite.db)
-	fakeBackupAddress, _ := testdatagen.MakeAddress(suite.db)
-	fakeID := uuid.Must(uuid.NewV4())
+	fakeAddress := testdatagen.MakeDefaultAddress(suite.db)
+	fakeBackupAddress := testdatagen.MakeDefaultAddress(suite.db)
+	station := testdatagen.MakeAnyDutyStation(suite.db)
 
 	serviceMember := ServiceMember{
 		UserID:                 user1.ID,
@@ -52,10 +52,9 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 		LastName:               &lastName,
 		Telephone:              &telephone,
 		PersonalEmail:          &email,
-		ResidentialAddress:     &fakeAddress,
-		BackupMailingAddress:   &fakeBackupAddress,
-		SocialSecurityNumberID: &fakeID,
-		DutyStationID:          &fakeID,
+		ResidentialAddressID:   &fakeAddress.ID,
+		BackupMailingAddressID: &fakeBackupAddress.ID,
+		DutyStationID:          &station.ID,
 	}
 
 	// Then: IsProfileComplete should return false
@@ -65,9 +64,24 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 	// When: all required fields are set
 	emailPreferred := true
 	serviceMember.EmailIsPreferred = &emailPreferred
-	testdatagen.MakeBackupContact(suite.db, &serviceMember.ID)
 
-	if err = suite.db.Load(&serviceMember, "BackupContacts"); err != nil {
+	newSsn := SocialSecurityNumber{}
+	newSsn.SetEncryptedHash("555-55-5555")
+	suite.mustSave(&newSsn)
+	serviceMember.SocialSecurityNumber = &newSsn
+	serviceMember.SocialSecurityNumberID = &newSsn.ID
+
+	suite.mustSave(&serviceMember)
+
+	contactAssertions := testdatagen.Assertions{
+		BackupContact: BackupContact{
+			ServiceMember:   serviceMember,
+			ServiceMemberID: serviceMember.ID,
+		},
+	}
+	testdatagen.MakeBackupContact(suite.db, contactAssertions)
+
+	if err = suite.db.Load(&serviceMember); err != nil {
 		t.Errorf("Could not load BackupContacts for serviceMember: %v", err)
 	}
 
@@ -78,11 +92,11 @@ func (suite *ModelSuite) TestIsProfileCompleteWithIncompleteSM() {
 }
 
 func (suite *ModelSuite) TestFetchServiceMember() {
-	user1, _ := testdatagen.MakeUser(suite.db)
-	user2, _ := testdatagen.MakeUser(suite.db)
+	user1 := testdatagen.MakeDefaultUser(suite.db)
+	user2 := testdatagen.MakeDefaultUser(suite.db)
 
 	firstName := "Oliver"
-	resAddress, _ := testdatagen.MakeAddress(suite.db)
+	resAddress := testdatagen.MakeDefaultAddress(suite.db)
 	sm := ServiceMember{
 		User:                 user1,
 		UserID:               user1.ID,

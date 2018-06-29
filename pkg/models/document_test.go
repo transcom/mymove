@@ -8,10 +8,7 @@ import (
 func (suite *ModelSuite) Test_DocumentCreate() {
 	t := suite.T()
 
-	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
-	if err != nil {
-		t.Fatalf("could not create move: %v", err)
-	}
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	document := models.Document{
 		ServiceMemberID: serviceMember.ID,

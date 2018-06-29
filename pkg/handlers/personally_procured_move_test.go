@@ -17,8 +17,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreatePPMHandler() {
-	user1, _ := testdatagen.MakeServiceMember(suite.db)
-	orders, _ := testdatagen.MakeOrder(suite.db)
+	user1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
 	move, verrs, locErr := orders.CreateNewMove(suite.db, &selectedType)
@@ -66,8 +66,8 @@ func (suite *HandlerSuite) TestIndexPPMHandler() {
 	t := suite.T()
 
 	// Given: moves and associated PPMs
-	move1, _ := testdatagen.MakeMove(suite.db)
-	move2, _ := testdatagen.MakeMove(suite.db)
+	move1 := testdatagen.MakeDefaultMove(suite.db)
+	move2 := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move1.ID,
@@ -151,7 +151,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newPickupPostalCode := swag.String("32168")
 	newDestinationPostalCode := swag.String("29400")
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
@@ -227,7 +227,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29400")
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:                move.ID,
@@ -283,8 +283,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
 	initialMoveDate := time.Now().Add(-2 * 24 * time.Hour)
 	newMoveDate := time.Now()
 
-	user2, _ := testdatagen.MakeServiceMember(suite.db)
-	move, _ := testdatagen.MakeMove(suite.db)
+	user2 := testdatagen.MakeDefaultServiceMember(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:          move.ID,
@@ -325,8 +325,8 @@ func (suite *HandlerSuite) TestPatchPPMHandlerWrongMoveID() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	orders, _ := testdatagen.MakeOrder(suite.db)
-	orders1, _ := testdatagen.MakeOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders1 := testdatagen.MakeDefaultOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
@@ -378,7 +378,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerNoMove() {
 	initialWeight := swag.Int64(1)
 	newWeight := swag.Int64(5)
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	badMoveID := uuid.Must(uuid.NewV4())
 
@@ -422,7 +422,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := swag.Int64(1)
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,
@@ -495,7 +495,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	initialSize := internalmessages.TShirtSize("S")
 	initialWeight := swag.Int64(1)
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	ppm1 := models.PersonallyProcuredMove{
 		MoveID:         move.ID,

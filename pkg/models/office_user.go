@@ -13,7 +13,7 @@ import (
 type OfficeUser struct {
 	ID                     uuid.UUID            `json:"id" db:"id"`
 	UserID                 *uuid.UUID           `json:"user_id" db:"user_id"`
-	User                   *User                `belongs_to:"user"`
+	User                   User                 `belongs_to:"user"`
 	LastName               string               `json:"last_name" db:"last_name"`
 	FirstName              string               `json:"first_name" db:"first_name"`
 	MiddleInitials         *string              `json:"middle_initials" db:"middle_initials"`
