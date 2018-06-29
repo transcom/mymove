@@ -27,8 +27,9 @@
 
 Cypress.Commands.add('signInAsNewUser', () => {
   cy.visit('/');
-  cy.contains('Local Sign In').click();
-  cy.contains('Login as New User').click();
+  cy.request('POST', 'devlocal-auth/new').then(() => cy.visit('/'));
+  //  cy.contains('Local Sign In').click();
+  //  cy.contains('Login as New User').click();
 });
 
 Cypress.Commands.add('nextPage', () => {
