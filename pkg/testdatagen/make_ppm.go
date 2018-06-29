@@ -11,7 +11,7 @@ import (
 func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
 	shirt := internalmessages.TShirtSizeM
 	defaultAdvance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
-	mustSave(db, &defaultAdvance)
+	mustCreate(db, &defaultAdvance)
 
 	// Create new Move if not provided
 	move := assertions.PersonallyProcuredMove.Move
@@ -41,7 +41,7 @@ func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcure
 	// Overwrite values with those from assertions
 	mergeModels(&ppm, assertions.PersonallyProcuredMove)
 
-	mustSave(db, &ppm)
+	mustCreate(db, &ppm)
 
 	// Add the ppm we just created to the move.ppm array
 	ppm.Move.PersonallyProcuredMoves = append(ppm.Move.PersonallyProcuredMoves, ppm)

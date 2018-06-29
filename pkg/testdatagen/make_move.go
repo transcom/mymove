@@ -28,7 +28,7 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 	// Overwrite values with those from assertions
 	mergeModels(&move, assertions.Move)
 
-	mustSave(db, &move)
+	mustCreate(db, &move)
 
 	return move
 }

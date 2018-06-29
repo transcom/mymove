@@ -25,7 +25,7 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 
 	mergeModels(&upload, assertions.Upload)
 
-	mustSave(db, &upload)
+	mustCreate(db, &upload)
 
 	return upload
 }

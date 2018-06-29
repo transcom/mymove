@@ -18,7 +18,7 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 		Longitude: -23.34455,
 	}
 
-	mustSave(db, &office)
+	mustCreate(db, &office)
 
 	var phoneLines []models.OfficePhoneLine
 	phoneLine := models.OfficePhoneLine{
@@ -29,7 +29,7 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 		Type:                   "voice",
 	}
 	phoneLines = append(phoneLines, phoneLine)
-	mustSave(db, &phoneLine)
+	mustCreate(db, &phoneLine)
 
 	office.PhoneLines = phoneLines
 	mustSave(db, &office)

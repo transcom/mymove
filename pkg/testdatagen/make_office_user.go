@@ -28,7 +28,7 @@ func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser
 
 	mergeModels(&officeUser, assertions.OfficeUser)
 
-	mustSave(db, &officeUser)
+	mustCreate(db, &officeUser)
 
 	return officeUser
 }

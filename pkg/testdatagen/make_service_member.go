@@ -9,7 +9,7 @@ import (
 // MakeServiceMember creates a single ServiceMember with associated data.
 func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	user := assertions.ServiceMember.User
-	if isZeroUUID(assertions.Order.ServiceMemberID) {
+	if isZeroUUID(assertions.ServiceMember.UserID) {
 		user = MakeUser(db, assertions)
 	}
 
@@ -24,7 +24,7 @@ func MakeServiceMember(db *pop.Connection, assertions Assertions) models.Service
 	// Overwrite values with those from assertions
 	mergeModels(&serviceMember, assertions.ServiceMember)
 
-	mustSave(db, &serviceMember)
+	mustCreate(db, &serviceMember)
 
 	return serviceMember
 }

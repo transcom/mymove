@@ -17,7 +17,7 @@ func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 	// Overwrite values with those from assertions
 	mergeModels(&user, assertions.User)
 
-	mustSave(db, &user)
+	mustCreate(db, &user)
 
 	return user
 }

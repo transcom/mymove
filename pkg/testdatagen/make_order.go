@@ -24,12 +24,13 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	document := assertions.Order.UploadedOrders
 	if isZeroUUID(assertions.Order.UploadedOrdersID) {
-		document = models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-			Name:            models.UploadedOrdersDocumentName,
-		}
-		mustSave(db, &document)
+		document = MakeDocument(db, Assertions{
+			Document: models.Document{
+				ServiceMemberID: sm.ID,
+				ServiceMember:   sm,
+				Name:            models.UploadedOrdersDocumentName,
+			},
+		})
 	}
 
 	order := models.Order{
@@ -50,7 +51,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 	// Overwrite values with those from assertions
 	mergeModels(&order, assertions.Order)
 
-	mustSave(db, &order)
+	mustCreate(db, &order)
 
 	return order
 }

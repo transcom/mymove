@@ -11,7 +11,7 @@ func MakeDraftReimbursement(db *pop.Connection) (models.Reimbursement, error) {
 
 	reimbursement := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
 
-	mustSave(db, &reimbursement)
+	mustCreate(db, &reimbursement)
 
 	return reimbursement, nil
 }
@@ -21,7 +21,7 @@ func MakeRequestedReimbursement(db *pop.Connection) (models.Reimbursement, error
 
 	reimbursement := models.BuildRequestedReimbursement(2000, models.MethodOfReceiptGTCC)
 
-	mustSave(db, &reimbursement)
+	mustCreate(db, &reimbursement)
 
 	return reimbursement, nil
 }

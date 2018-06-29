@@ -22,7 +22,7 @@ func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
 	// Overwrite values with those from assertions
 	mergeModels(&document, assertions.Document)
 
-	mustSave(db, &document)
+	mustCreate(db, &document)
 
 	return document
 }

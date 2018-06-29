@@ -21,7 +21,7 @@ func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 
 	mergeModels(&address, assertions.Address)
 
-	mustSave(db, &address)
+	mustCreate(db, &address)
 
 	return address
 }
