@@ -66,7 +66,7 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 			LEFT JOIN personally_procured_moves AS ppm ON moves.id = ppm.move_id
 			WHERE moves.status = 'APPROVED'
 		`
-	} else {
+	} else if lifecycleState == "all" {
 		query = `
 			SELECT moves.ID,
 				COALESCE(sm.edipi, '*missing*') as edipi,
