@@ -1,36 +1,33 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeDocument creates a single Document.
-func MakeDocument(db *pop.Connection, serviceMember *models.ServiceMember, name string) (models.Document, error) {
-	if serviceMember == nil {
-		newServiceMember, err := MakeServiceMember(db)
-		if err != nil {
-			log.Panic(err)
-		}
-		serviceMember = &newServiceMember
+func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
+	sm := assertions.Document.ServiceMember
+	if isZeroUUID(assertions.Document.ServiceMemberID) {
+		sm = MakeServiceMember(db, assertions)
 	}
 
 	document := models.Document{
-		ServiceMemberID: serviceMember.ID,
-		ServiceMember:   *serviceMember,
-		Name:            name,
+		ServiceMemberID: sm.ID,
+		ServiceMember:   sm,
+		Name:            "Default name",
 	}
 
-	verrs, err := db.ValidateAndSave(&document)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	// Overwrite values with those from assertions
+	mergeModels(&document, assertions.Document)
 
-	return document, err
+	mustSave(db, &document)
+
+	return document
+}
+
+// MakeDefaultDocument returns a Document with default values
+func MakeDefaultDocument(db *pop.Connection) models.Document {
+	return MakeDocument(db, Assertions{})
 }

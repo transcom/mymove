@@ -1,18 +1,16 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeServiceMember creates a single ServiceMember and associated User.
-func MakeServiceMember(db *pop.Connection) (models.ServiceMember, error) {
-	user, err := MakeUser(db)
-	if err != nil {
-		return models.ServiceMember{}, err
+// MakeServiceMember creates a single ServiceMember with associated data.
+func MakeServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+	user := assertions.ServiceMember.User
+	if isZeroUUID(assertions.Order.ServiceMemberID) {
+		user = MakeUser(db, assertions)
 	}
 
 	serviceMember := models.ServiceMember{
@@ -23,43 +21,30 @@ func MakeServiceMember(db *pop.Connection) (models.ServiceMember, error) {
 		PersonalEmail: models.StringPointer("leo@example.com"),
 	}
 
-	verrs, err := db.ValidateAndSave(&serviceMember)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	// Overwrite values with those from assertions
+	mergeModels(&serviceMember, assertions.ServiceMember)
 
-	return serviceMember, err
+	mustSave(db, &serviceMember)
+
+	return serviceMember
+}
+
+// MakeDefaultServiceMember returns a service member with default options
+func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
+	return MakeServiceMember(db, Assertions{})
 }
 
 // MakeExtendedServiceMember creates a single ServiceMember and associated User, Addresses,
 // and Backup Contact.
-func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error) {
-	user, err := MakeUser(db)
-	if err != nil {
-		return models.ServiceMember{}, err
-	}
-
-	residentialAddress, err := MakeAddress(db)
-	if err != nil {
-		return models.ServiceMember{}, err
-	}
-	backupMailingAddress, err := MakeAddress(db)
-	if err != nil {
-		return models.ServiceMember{}, err
-	}
+func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
+	residentialAddress := MakeDefaultAddress(db)
+	backupMailingAddress := MakeDefaultAddress(db)
 	E1 := internalmessages.ServiceMemberRankE1
 
 	station := MakeAnyDutyStation(db)
 
-	serviceMember := models.ServiceMember{
-		UserID:                 user.ID,
-		User:                   user,
-		FirstName:              models.StringPointer("Leo"),
-		LastName:               models.StringPointer("Spacemen"),
-		PersonalEmail:          models.StringPointer("leo@example.com"),
+	// Combine extended SM defaults with assertions
+	smDefaults := models.ServiceMember{
 		Rank:                   &E1,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
@@ -67,25 +52,28 @@ func MakeExtendedServiceMember(db *pop.Connection) (models.ServiceMember, error)
 		DutyStation:            station,
 	}
 
-	verrs, err := db.ValidateAndSave(&serviceMember)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
+	mergeModels(&smDefaults, assertions.ServiceMember)
+
+	serviceMemberAssertions := Assertions{
+		ServiceMember: smDefaults,
 	}
 
-	_, err = MakeBackupContact(db, &serviceMember.ID)
-	if err != nil {
-		log.Panic(err)
-	}
+	serviceMember := MakeServiceMember(db, serviceMemberAssertions)
 
-	return serviceMember, err
+	contactAssertions := Assertions{
+		BackupContact: models.BackupContact{
+			ServiceMember:   serviceMember,
+			ServiceMemberID: serviceMember.ID,
+		},
+	}
+	MakeBackupContact(db, contactAssertions)
+
+	return serviceMember
 }
 
 // MakeServiceMemberData created 5 ServiceMembers (and in turn a User for each)
 func MakeServiceMemberData(db *pop.Connection) {
 	for i := 0; i < 5; i++ {
-		MakeServiceMember(db)
+		MakeDefaultServiceMember(db)
 	}
 }

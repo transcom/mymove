@@ -13,7 +13,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 	// Given: a set of orders, user and servicemember
-	orders, _ := testdatagen.MakeOrder(suite.db)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders/orderid/moves", nil)
 	req = suite.authenticateRequest(req, orders.ServiceMember)
@@ -40,7 +40,7 @@ func (suite *HandlerSuite) TestCreateMoveHandlerAllValues() {
 
 func (suite *HandlerSuite) TestPatchMoveHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -69,9 +69,9 @@ func (suite *HandlerSuite) TestPatchMoveHandler() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
-	anotherUser, _ := testdatagen.MakeServiceMember(suite.db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains a different user
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 	// Given: a logged in user and no Move
-	user, _ := testdatagen.MakeServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	moveUUID := uuid.Must(uuid.NewV4())
 
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoMove() {
 
 func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("PATCH", "/moves/some_id", nil)
@@ -148,7 +148,7 @@ func (suite *HandlerSuite) TestPatchMoveHandlerNoType() {
 func (suite *HandlerSuite) TestShowMoveHandler() {
 
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -173,9 +173,9 @@ func (suite *HandlerSuite) TestShowMoveHandler() {
 
 func (suite *HandlerSuite) TestShowMoveWrongUser() {
 	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	// And: another logged in user
-	anotherUser, _ := testdatagen.MakeServiceMember(suite.db)
+	anotherUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values for not logged-in user
 	req := httptest.NewRequest("GET", "/moves/some_id", nil)
@@ -195,7 +195,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm, _ := testdatagen.MakePPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 
 	// And: the context contains the auth values

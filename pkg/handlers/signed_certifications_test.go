@@ -17,7 +17,7 @@ import (
 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandler() {
 	t := suite.T()
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -61,7 +61,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 		LoginGovEmail: "email2@example.com",
 	}
 	suite.mustSave(&user2)
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
@@ -96,7 +96,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerMismatchedUser() 
 func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 	t := suite.T()
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	date := time.Now()
 	certPayload := internalmessages.CreateSignedCertificationPayload{
 		CertificationText: swag.String("lorem ipsum"),
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestCreateSignedCertificationHandlerBadMoveID() {
 }
 
 func (suite *HandlerSuite) TestIndexSignedCertificationsHandler() {
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	time1 := time.Date(2018, time.January, 1, 1, 1, 1, 1, time.UTC)
 	cert1 := models.SignedCertification{

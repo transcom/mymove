@@ -14,10 +14,7 @@ import (
 func (suite *ModelSuite) Test_BackupContactCreate() {
 	t := suite.T()
 
-	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
-	if err != nil {
-		t.Fatalf("could not create service member: %v", err)
-	}
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	newContact := models.BackupContact{
 		ServiceMemberID: serviceMember.ID,
@@ -54,8 +51,8 @@ func (suite *ModelSuite) Test_BackupContactValidations() {
 func (suite *ModelSuite) Test_FetchBackupContact() {
 	t := suite.T()
 
-	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
-	serviceMember2, _ := testdatagen.MakeServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	backupContact := models.BackupContact{
 		ServiceMemberID: serviceMember1.ID,

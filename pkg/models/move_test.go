@@ -21,8 +21,8 @@ func (suite *ModelSuite) TestBasicMoveInstantiation() {
 }
 
 func (suite *ModelSuite) TestFetchMove() {
-	order1, _ := testdatagen.MakeOrder(suite.db)
-	order2, _ := testdatagen.MakeOrder(suite.db)
+	order1 := testdatagen.MakeDefaultOrder(suite.db)
+	order2 := testdatagen.MakeDefaultOrder(suite.db)
 
 	session := &auth.Session{
 		UserID:          order1.ServiceMember.UserID,
@@ -53,8 +53,7 @@ func (suite *ModelSuite) TestFetchMove() {
 }
 
 func (suite *ModelSuite) TestMoveCancellationWithReason() {
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
@@ -80,8 +79,7 @@ func (suite *ModelSuite) TestMoveCancellationWithReason() {
 }
 
 func (suite *ModelSuite) TestMoveStateMachine() {
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
@@ -107,8 +105,7 @@ func (suite *ModelSuite) TestMoveStateMachine() {
 
 func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	// Given: A move with Orders, PPM and Move all in submitted state
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 
@@ -145,8 +142,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 
 func (suite *ModelSuite) TestSaveMoveStatusesFail() {
 	// Given: A move with Orders with unacceptable status
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = ""
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
@@ -162,8 +158,7 @@ func (suite *ModelSuite) TestSaveMoveStatusesFail() {
 
 func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
 	// Given: A move with Orders with acceptable status
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO

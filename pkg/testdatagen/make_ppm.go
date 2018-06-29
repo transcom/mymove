@@ -8,40 +8,55 @@ import (
 )
 
 // MakePPM creates a single Personally Procured Move and its associated Move and Orders
-func MakePPM(db *pop.Connection) (models.PersonallyProcuredMove, error) {
-	move, err := MakeMove(db)
-	if err != nil {
-		return models.PersonallyProcuredMove{}, err
-	}
-
+func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
 	shirt := internalmessages.TShirtSizeM
-	advance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	defaultAdvance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	mustSave(db, &defaultAdvance)
 
-	ppm, verrs, err := move.CreatePPM(db,
-		&shirt,
-		models.Int64Pointer(8000),
-		models.TimePointer(DateInsidePeakRateCycle),
-		models.StringPointer("72017"),
-		models.BoolPointer(false),
-		nil,
-		models.StringPointer("60605"),
-		models.BoolPointer(false),
-		nil,
-		models.StringPointer("estimate sit"),
-		true,
-		&advance,
-	)
-
-	if verrs.HasAny() || err != nil {
-		return models.PersonallyProcuredMove{}, err
+	// Create new Move if not provided
+	move := assertions.PersonallyProcuredMove.Move
+	if isZeroUUID(assertions.PersonallyProcuredMove.MoveID) {
+		move = MakeMove(db, assertions)
 	}
 
-	return *ppm, nil
+	ppm := models.PersonallyProcuredMove{
+		Move:                          move,
+		MoveID:                        move.ID,
+		Size:                          &shirt,
+		WeightEstimate:                models.Int64Pointer(8000),
+		PlannedMoveDate:               models.TimePointer(DateInsidePeakRateCycle),
+		PickupPostalCode:              models.StringPointer("72017"),
+		HasAdditionalPostalCode:       models.BoolPointer(false),
+		AdditionalPickupPostalCode:    nil,
+		DestinationPostalCode:         models.StringPointer("60605"),
+		HasSit:                        models.BoolPointer(false),
+		DaysInStorage:                 nil,
+		Status:                        models.PPMStatusDRAFT,
+		HasRequestedAdvance:           true,
+		Advance:                       &defaultAdvance,
+		AdvanceID:                     &defaultAdvance.ID,
+		EstimatedStorageReimbursement: models.StringPointer("estimate sit"),
+	}
+
+	// Overwrite values with those from assertions
+	mergeModels(&ppm, assertions.PersonallyProcuredMove)
+
+	mustSave(db, &ppm)
+
+	// Add the ppm we just created to the move.ppm array
+	ppm.Move.PersonallyProcuredMoves = append(ppm.Move.PersonallyProcuredMoves, ppm)
+
+	return ppm
+}
+
+// MakeDefaultPPM makes a PPM with default values
+func MakeDefaultPPM(db *pop.Connection) models.PersonallyProcuredMove {
+	return MakePPM(db, Assertions{})
 }
 
 // MakePPMData creates 3 PPMs (and in turn a move and set of orders for each)
 func MakePPMData(db *pop.Connection) {
 	for i := 0; i < 3; i++ {
-		MakePPM(db)
+		MakeDefaultPPM(db)
 	}
 }

@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
 
@@ -10,24 +8,21 @@ import (
 )
 
 // MakeUser creates a single User.
-func MakeUser(db *pop.Connection) (models.User, error) {
-	id, err := uuid.NewV4()
-	if err != nil {
-		log.Panic(err)
-	}
-
+func MakeUser(db *pop.Connection, assertions Assertions) models.User {
 	user := models.User{
-		LoginGovUUID:  id,
+		LoginGovUUID:  uuid.Must(uuid.NewV4()),
 		LoginGovEmail: "first.last@login.gov.test",
 	}
 
-	verrs, err := db.ValidateAndSave(&user)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	// Overwrite values with those from assertions
+	mergeModels(&user, assertions.User)
 
-	return user, err
+	mustSave(db, &user)
+
+	return user
+}
+
+// MakeDefaultUser makes a user with default values
+func MakeDefaultUser(db *pop.Connection) models.User {
+	return MakeUser(db, Assertions{})
 }
