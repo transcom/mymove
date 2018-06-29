@@ -135,7 +135,7 @@ type CannotBeTrueIfFalse struct {
 // IsValid adds an error if field1 is true while field2 is false
 func (v *CannotBeTrueIfFalse) IsValid(errors *validate.Errors) {
 	if v.Field1 == true && v.Field2 == false {
-		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if %s is true", v.Name1, v.Name2))
+		errors.Add(validators.GenerateKey(v.Name1), fmt.Sprintf("%s can not be true if %s is false", v.Name1, v.Name2))
 	}
 }
 

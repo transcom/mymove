@@ -270,6 +270,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
 	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
+	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
 	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
 }

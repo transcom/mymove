@@ -12,10 +12,18 @@ import (
 )
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
-	// Given: a set of orders, a move, user and servicemember
-	move, _ := testdatagen.MakeMove(suite.db)
-	// Given: and office User
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	// Given: a set of orders, a move, office user and servicemember user
+	move, err := testdatagen.MakeMove(suite.db)
+	suite.Nil(err)
+	// Given: an office User
+	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	suite.Nil(err)
+
+	// Move is submitted and saved
+	err = move.Submit()
+	suite.Nil(err)
+	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
+	suite.mustSave(&move)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/moves/some_id/approve", nil)
@@ -69,10 +77,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
+	reasonPayload := &internalmessages.CancelMove{
+		CancelReason: &reason,
+	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
-		Reason:      &reason,
+		CancelMove:  reasonPayload,
 	}
 
 	// And: a move is canceled

@@ -256,6 +256,8 @@ SQLEditor
 schema.sql
 dp3.sqs
 IPs
+eslint
+_do_
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/data/tspp-data-creation.md
  - docs/backend.md

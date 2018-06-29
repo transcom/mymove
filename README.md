@@ -71,6 +71,8 @@ If you drop the `--global` flag these settings will only apply to the current re
 
 For web-based Git operations, GitHub will use your primary email unless you choose "Keep my email address private". If you don't want to set your work address as primary, please [turn on the privacy setting](https://github.com/settings/emails).
 
+Note that with 2-factor-authentication enabled, in order to push local code to GitHub through HTTPS, you need to [create a personal access token](https://gist.github.com/ateucher/4634038875263d10fb4817e5ad3d332f) and use that as your password.
+
 ### Project location
 
 All of Go's tooling expects Go code to be checked out in a specific location. Please read about [Go workspaces](https://golang.org/doc/code.html#Workspaces) for a full explanation. If you just want to get started, then decide where you want all your go code to live and configure the GOPATH environment variable accordingly. For example, if you want your go code to live at `~/code/go`, you should add the following like to your `.bash_profile`:
@@ -87,7 +89,7 @@ _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to 
 export PATH=$(go env GOPATH)/bin:$PATH
 ```
 
-Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
+Once that's done, you have go installed, and you've re-sourced your profile, you can checkout this repository by running `go get github.com/transcom/mymove/cmd/webserver` (This will emit an error "can't load package:" or multiple errors with "Cannot find package" but will have cloned the source correctly). You will then find the code at `$GOPATH/src/github.com/transcom/mymove`
 
 If you have already checked out the code somewhere else, you can just move it to be in the above location and everything will work correctly.
 
@@ -120,7 +122,7 @@ The following commands will get mymove running on your machine for the first tim
 
 * Install Go with Homebrew. Make sure you do not have other installations.
 * Run `bin/prereqs` and install everything it tells you to. _Do not configure PostgreSQL to automatically start at boot time or the DB commands will not work correctly!_
-* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/).
+* For managing local environment variables, we're using [direnv](https://direnv.net/). You need to [configure your shell to use it](https://direnv.net/). For bash, add the command `eval "$(direnv hook bash)"` to whichever file loads upon opening bash (likely `~./bash_profile`, though instructions say `~/.bashrc`).
 * Run `direnv allow` to load up the `.envrc` file. Add a `.envrc.local` file with any values it asks you to define.
 * Run `make deps`.
 * [EditorConfig](http://editorconfig.org/) allows us to manage editor configuration (like indent sizes,) with a [file](https://github.com/transcom/ppp/blob/master/.editorconfig) in the repo. Install the appropriate plugin in your editor to take advantage of that.
@@ -142,14 +144,6 @@ If you are stuck on this step you may need to see the section on Troubleshooting
 
 In rare cases, you may want to run the server standalone, in which case you can run `make server_run_standalone`. This will build both the client and the server and this invocation can be relied upon to be serving the client JS on its own rather than relying on webpack doing so as when you run `make client_run`. You can run this without running `make client_run` and the whole app should work.
 
-You can verify the server is working as follows:
-
-`> curl http://localhost:8080/api/v1/issues --data "{ \"description\": \"This is a test issue\"}" -H "Content-Type: application/json"`
-
-from which the response should be like
-
-`{"id":"d5735bc0-7553-4d80-a42d-ea1e50bbcfc4", "description": "This is a test issue", "created_at": "2018-01-04 14:47:28.894988", "updated_at": "2018-01-04 14:47:28.894988"}`
-
 Dependencies are managed by [dep](https://github.com/golang/dep). New dependencies are automatically detected in import statements. To add a new dependency to the project, import it in a source file and then run `dep ensure`
 
 ### Setup: Client
@@ -157,6 +151,8 @@ Dependencies are managed by [dep](https://github.com/golang/dep). New dependenci
 1. `make client_run`
 
 The above will start the webpack dev server, serving the front-end on port 3000. If paired with `make server_run` then the whole app will work, the webpack dev server proxies all API calls through to the server.
+
+If both the server and client are running, you should be able to view the Swagger UI at <http://localhost:3000/api/v1/docs>.  If it does not, try running `make client_build` (this only needs to be run the first time).
 
 Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 

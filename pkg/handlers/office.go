@@ -25,7 +25,7 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForError(h.logger, err)
 	}
 
-	move.Status = models.MoveStatusAPPROVED
+	move.Approve()
 
 	verrs, err := h.db.ValidateAndUpdate(move)
 	if err != nil || verrs.HasAny() {
@@ -54,27 +54,16 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	// Canceling move will result in canceled associated PPMs
-	err = move.Cancel(*params.Reason)
+	err = move.Cancel(*params.CancelMove.CancelReason)
 	if err != nil {
 		h.logger.Error("Attempted to cancel move, got invalid transition", zap.Error(err), zap.String("move_status", string(move.Status)))
 		return responseForError(h.logger, err)
 	}
 
 	// Save move, orders, and PPMs statuses
-	verrs, err := h.db.ValidateAndUpdate(move)
+	verrs, err := models.SaveMoveStatuses(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
-	}
-	verrs, err = h.db.ValidateAndUpdate(&move.Orders)
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	for i := range move.PersonallyProcuredMoves {
-		verrs, err = h.db.ValidateAndUpdate(&move.PersonallyProcuredMoves[i])
-		if err != nil || verrs.HasAny() {
-			return responseForVErrors(h.logger, verrs, err)
-		}
 	}
 
 	err = notifications.SendNotification(
