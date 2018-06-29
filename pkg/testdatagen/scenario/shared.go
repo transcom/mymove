@@ -8,6 +8,11 @@ import (
 	"github.com/gobuffalo/pop"
 )
 
+// NamedScenario is a data generation scenario that has a name
+type NamedScenario struct {
+	Name string
+}
+
 // May15_2018 is a date in May 2018
 var May15_2018 = time.Date(2018, time.May, 15, 0, 0, 0, 0, time.UTC)
 

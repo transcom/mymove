@@ -13,7 +13,7 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateOrder() {
-	sm, _ := testdatagen.MakeServiceMember(suite.db)
+	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 	station := testdatagen.MakeAnyDutyStation(suite.db)
 
 	req := httptest.NewRequest("POST", "/orders", nil)
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreateOrder() {
 }
 
 func (suite *HandlerSuite) TestShowOrder() {
-	order, _ := testdatagen.MakeOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("GET", path, nil)
@@ -71,7 +71,7 @@ func (suite *HandlerSuite) TestShowOrder() {
 }
 
 func (suite *HandlerSuite) TestUpdateOrder() {
-	order, _ := testdatagen.MakeOrder(suite.db)
+	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	path := fmt.Sprintf("/orders/%v", order.ID.String())
 	req := httptest.NewRequest("PUT", path, nil)

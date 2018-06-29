@@ -28,8 +28,8 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 
 func (suite *ModelSuite) TestFetchOrder() {
 
-	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
-	serviceMember2, _ := testdatagen.MakeServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -96,7 +96,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {
-	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
@@ -142,7 +142,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 }
 
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
-	serviceMember1, _ := testdatagen.MakeServiceMember(suite.db)
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)

@@ -12,10 +12,7 @@ import (
 func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 	t := suite.T()
 
-	unknownUser, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Fatal("couldn't create a user")
-	}
+	unknownUser := testdatagen.MakeDefaultUser(suite.db)
 
 	params := userop.NewShowLoggedInUserParams()
 	req := httptest.NewRequest("GET", "/users/logged_in", nil)
@@ -47,10 +44,7 @@ func (suite *HandlerSuite) TestUnknownLoggedInUserHandler() {
 func (suite *HandlerSuite) TestServiceMemberLoggedInUserHandler() {
 	t := suite.T()
 
-	smUser, err := testdatagen.MakeUser(suite.db)
-	if err != nil {
-		t.Fatal("couldn't create a user")
-	}
+	smUser := testdatagen.MakeDefaultUser(suite.db)
 
 	firstName := "Joseph"
 	serviceMember := models.ServiceMember{

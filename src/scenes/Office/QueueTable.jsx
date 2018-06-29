@@ -46,6 +46,7 @@ class QueueTable extends Component {
       new: 'New Moves',
       troubleshooting: 'Troubleshooting',
       ppm: 'PPMs',
+      all: 'All Moves',
     };
 
     // if (state.flashMessage.title)

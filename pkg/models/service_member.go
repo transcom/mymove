@@ -249,10 +249,10 @@ func (s *ServiceMember) IsProfileComplete() bool {
 	if s.PhoneIsPreferred == nil && s.TextMessageIsPreferred == nil && s.EmailIsPreferred == nil {
 		return false
 	}
-	if s.ResidentialAddress == nil {
+	if s.ResidentialAddressID == nil {
 		return false
 	}
-	if s.BackupMailingAddress == nil {
+	if s.BackupMailingAddressID == nil {
 		return false
 	}
 	if s.SocialSecurityNumberID == nil {

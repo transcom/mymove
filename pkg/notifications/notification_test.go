@@ -55,8 +55,8 @@ func (n testNotification) emails() ([]emailContent, error) {
 func (suite *NotificationSuite) TestMoveApproved() {
 	t := suite.T()
 
-	approver, _ := testdatagen.MakeUser(suite.db)
-	move, _ := testdatagen.MakeMove(suite.db)
+	approver := testdatagen.MakeDefaultUser(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	notification := MoveApproved{
 		db:     suite.db,
 		logger: suite.logger,

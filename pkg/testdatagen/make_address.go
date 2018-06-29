@@ -1,8 +1,6 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
@@ -10,7 +8,7 @@ import (
 )
 
 // MakeAddress creates a single Address and associated service member.
-func MakeAddress(db *pop.Connection) (models.Address, error) {
+func MakeAddress(db *pop.Connection, assertions Assertions) models.Address {
 	address := models.Address{
 		StreetAddress1: "123 Any Street",
 		StreetAddress2: swag.String("P.O. Box 12345"),
@@ -21,13 +19,14 @@ func MakeAddress(db *pop.Connection) (models.Address, error) {
 		Country:        swag.String("US"),
 	}
 
-	verrs, err := db.ValidateAndSave(&address)
-	if err != nil {
-		log.Fatal(err)
-	}
-	if verrs.Count() != 0 {
-		log.Fatal(verrs.Error())
-	}
+	mergeModels(&address, assertions.Address)
 
-	return address, err
+	mustCreate(db, &address)
+
+	return address
+}
+
+// MakeDefaultAddress makes an Address with default values
+func MakeDefaultAddress(db *pop.Connection) models.Address {
+	return MakeAddress(db, Assertions{})
 }
