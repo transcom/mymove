@@ -52,7 +52,7 @@ func isZeroUUID(testID uuid.UUID) bool {
 // dst should be a pointer the struct you are merging into
 func mergeModels(dst, src interface{}) {
 	noErr(
-		mergo.Merge(dst, src, mergo.WithTransformers(customTransformer{})),
+		mergo.Merge(dst, src, mergo.WithOverride, mergo.WithTransformers(customTransformer{})),
 	)
 }
 
