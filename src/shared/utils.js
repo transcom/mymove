@@ -1,4 +1,4 @@
-import { get, includes, findIndex, find } from 'lodash';
+import { get, includes, find } from 'lodash';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
