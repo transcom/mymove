@@ -18,7 +18,7 @@ import (
 
 func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 	// Given: A servicemember and a user
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 
 	newServiceMember := models.ServiceMember{
 		UserID: user.ID,
@@ -46,8 +46,8 @@ func (suite *HandlerSuite) TestShowServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 	// Given: Servicemember trying to load another
-	notLoggedInUser, _ := testdatagen.MakeServiceMember(suite.db)
-	loggedInUser, _ := testdatagen.MakeServiceMember(suite.db)
+	notLoggedInUser := testdatagen.MakeDefaultServiceMember(suite.db)
+	loggedInUser := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	req := httptest.NewRequest("GET", fmt.Sprintf("/service_members/%s", notLoggedInUser.ID.String()), nil)
 	req = suite.authenticateRequest(req, loggedInUser)
@@ -68,7 +68,7 @@ func (suite *HandlerSuite) TestShowServiceMemberWrongUser() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 	// Given: A logged-in user
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 
 	// When: a new ServiceMember is posted
 	newServiceMemberPayload := internalmessages.CreateServiceMemberPayload{
@@ -114,7 +114,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberHandlerAllValues() {
 
 func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 	// Given: A logged-in user
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 	session := &auth.Session{
 		UserID:          user.ID,
 		ApplicationName: auth.MyApp,
@@ -162,7 +162,7 @@ func (suite *HandlerSuite) TestSubmitServiceMemberSSN() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 	// Given: a logged in user
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 
 	// TODO: add more fields to change
 	var origEdipi = "2342342344"
@@ -234,8 +234,8 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandler() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 	// Given: a logged in user
-	user, _ := testdatagen.MakeUser(suite.db)
-	user2, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
+	user2 := testdatagen.MakeDefaultUser(suite.db)
 
 	var origEdipi = "2342342344"
 	var newEdipi = "9999999999"
@@ -270,7 +270,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerWrongUser() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 	// Given: a logged in user
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 
 	servicememberUUID := uuid.Must(uuid.NewV4())
 
@@ -300,7 +300,7 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoServiceMember() {
 
 func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 	// Given: a logged in user with a servicemember
-	user, _ := testdatagen.MakeUser(suite.db)
+	user := testdatagen.MakeDefaultUser(suite.db)
 
 	var origEdipi = "4444444444"
 	newServiceMember := models.ServiceMember{
@@ -327,8 +327,14 @@ func (suite *HandlerSuite) TestPatchServiceMemberHandlerNoChange() {
 }
 
 func (suite *HandlerSuite) TestShowServiceMemberOrders() {
-	order1, _ := testdatagen.MakeOrder(suite.db)
-	order2, _ := testdatagen.MakeOrderForServiceMember(suite.db, order1.ServiceMember)
+	order1 := testdatagen.MakeDefaultOrder(suite.db)
+	order2Assertions := testdatagen.Assertions{
+		Order: models.Order{
+			ServiceMember:   order1.ServiceMember,
+			ServiceMemberID: order1.ServiceMemberID,
+		},
+	}
+	order2 := testdatagen.MakeOrder(suite.db, order2Assertions)
 
 	req := httptest.NewRequest("GET", "/service_members/some_id/current_orders", nil)
 	req = suite.authenticateRequest(req, order1.ServiceMember)

@@ -78,10 +78,7 @@ func TestUploaderSuite(t *testing.T) {
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFile() {
-	document, err := testdatagen.MakeDocument(suite.db, nil, "")
-	if err != nil {
-		suite.T().Fatalf("couldn't create document: %s", err)
-	}
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	up := NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
@@ -94,10 +91,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 }
 
 func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
-	document, err := testdatagen.MakeDocument(suite.db, nil, "")
-	if err != nil {
-		suite.T().Fatalf("couldn't create document: %s", err)
-	}
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	up := NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")

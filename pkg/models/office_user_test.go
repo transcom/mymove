@@ -33,7 +33,7 @@ func (suite *ModelSuite) Test_BasicOfficeUser() {
 		Email:     "sally.work@government.gov",
 		Telephone: "(907) 555-1212",
 		UserID:    &sally.ID,
-		User:      &sally,
+		User:      sally,
 		TransportationOfficeID: office.ID,
 	}
 	suite.mustSave(&user)

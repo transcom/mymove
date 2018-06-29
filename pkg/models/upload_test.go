@@ -10,7 +10,7 @@ import (
 func (suite *ModelSuite) Test_UploadCreate() {
 	t := suite.T()
 
-	document, _ := testdatagen.MakeDocument(suite.db, nil, "")
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
@@ -35,7 +35,7 @@ func (suite *ModelSuite) Test_UploadCreate() {
 func (suite *ModelSuite) Test_UploadCreateWithID() {
 	t := suite.T()
 
-	document, _ := testdatagen.MakeDocument(suite.db, nil, "")
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	id := uuid.Must(uuid.NewV4())
 	upload := models.Upload{
