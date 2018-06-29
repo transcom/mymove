@@ -10,7 +10,12 @@
 [[projects]]
   branch = "master"
   name = "github.com/GoASTScanner/gas"
-  packages = [".","cmd/gas","output","rules"]
+  packages = [
+    ".",
+    "cmd/gas",
+    "output",
+    "rules"
+  ]
   revision = "4ae8c95b4097691ea5b2b0c5060f4ca0413dfcef"
 
 [[projects]]
@@ -33,7 +38,41 @@
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
-  packages = ["aws","aws/awserr","aws/awsutil","aws/client","aws/client/metadata","aws/corehandlers","aws/credentials","aws/credentials/ec2rolecreds","aws/credentials/endpointcreds","aws/credentials/stscreds","aws/defaults","aws/ec2metadata","aws/endpoints","aws/request","aws/session","aws/signer/v4","internal/sdkio","internal/sdkrand","internal/shareddefaults","private/protocol","private/protocol/json/jsonutil","private/protocol/jsonrpc","private/protocol/query","private/protocol/query/queryutil","private/protocol/rest","private/protocol/restxml","private/protocol/xml/xmlutil","service/s3","service/ses","service/ses/sesiface","service/ssm","service/ssm/ssmiface","service/sts"]
+  packages = [
+    "aws",
+    "aws/awserr",
+    "aws/awsutil",
+    "aws/client",
+    "aws/client/metadata",
+    "aws/corehandlers",
+    "aws/credentials",
+    "aws/credentials/ec2rolecreds",
+    "aws/credentials/endpointcreds",
+    "aws/credentials/stscreds",
+    "aws/defaults",
+    "aws/ec2metadata",
+    "aws/endpoints",
+    "aws/request",
+    "aws/session",
+    "aws/signer/v4",
+    "internal/sdkio",
+    "internal/sdkrand",
+    "internal/shareddefaults",
+    "private/protocol",
+    "private/protocol/json/jsonutil",
+    "private/protocol/jsonrpc",
+    "private/protocol/query",
+    "private/protocol/query/queryutil",
+    "private/protocol/rest",
+    "private/protocol/restxml",
+    "private/protocol/xml/xmlutil",
+    "service/s3",
+    "service/ses",
+    "service/ses/sesiface",
+    "service/ssm",
+    "service/ssm/ssmiface",
+    "service/sts"
+  ]
   revision = "5f796043d63bfddca929cfbcffce01e5a894aad5"
   version = "v1.13.52"
 
@@ -52,7 +91,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/codegangsta/gin"
-  packages = [".","lib"]
+  packages = [
+    ".",
+    "lib"
+  ]
   revision = "cafe2ce98974a3dcca6b92ce393a91a0b58b8133"
 
 [[projects]]
@@ -142,13 +184,25 @@
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/loads"
-  packages = [".","fmts"]
+  packages = [
+    ".",
+    "fmts"
+  ]
   revision = "2a2b323bab96e6b1fdee110e57d959322446e9c9"
 
 [[projects]]
   branch = "master"
   name = "github.com/go-openapi/runtime"
-  packages = [".","flagext","logger","middleware","middleware/denco","middleware/header","middleware/untyped","security"]
+  packages = [
+    ".",
+    "flagext",
+    "logger",
+    "middleware",
+    "middleware/denco",
+    "middleware/header",
+    "middleware/untyped",
+    "security"
+  ]
   revision = "c0cae94704c76c8643896d8054080f91e920105b"
 
 [[projects]]
@@ -184,7 +238,14 @@
 [[projects]]
   branch = "master"
   name = "github.com/go-swagger/go-swagger"
-  packages = ["cmd/swagger","cmd/swagger/commands","cmd/swagger/commands/generate","cmd/swagger/commands/initcmd","generator","scan"]
+  packages = [
+    "cmd/swagger",
+    "cmd/swagger/commands",
+    "cmd/swagger/commands/generate",
+    "cmd/swagger/commands/initcmd",
+    "generator",
+    "scan"
+  ]
   revision = "4125f30a469148d35d0dc429f6c4596f178c8b2a"
 
 [[projects]]
@@ -207,7 +268,18 @@
 
 [[projects]]
   name = "github.com/gobuffalo/pop"
-  packages = [".","associations","columns","fizz","fizz/translators","nulls","soda","soda/cmd","soda/cmd/generate","soda/cmd/schema"]
+  packages = [
+    ".",
+    "associations",
+    "columns",
+    "fizz",
+    "fizz/translators",
+    "nulls",
+    "soda",
+    "soda/cmd",
+    "soda/cmd/generate",
+    "soda/cmd/schema"
+  ]
   revision = "addd35fa30f151cdee20971b635abf6dc631837c"
   version = "v4.5.8"
 
@@ -219,7 +291,10 @@
 
 [[projects]]
   name = "github.com/gobuffalo/validate"
-  packages = [".","validators"]
+  packages = [
+    ".",
+    "validators"
+  ]
   revision = "42d8db6e06e617cdedcc7a849d6690a2cb5a8d28"
   version = "v2.0.0"
 
@@ -244,7 +319,18 @@
 [[projects]]
   branch = "master"
   name = "github.com/hashicorp/hcl"
-  packages = [".","hcl/ast","hcl/parser","hcl/printer","hcl/scanner","hcl/strconv","hcl/token","json/parser","json/scanner","json/token"]
+  packages = [
+    ".",
+    "hcl/ast",
+    "hcl/parser",
+    "hcl/printer",
+    "hcl/scanner",
+    "hcl/strconv",
+    "hcl/token",
+    "json/parser",
+    "json/scanner",
+    "json/token"
+  ]
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
@@ -267,7 +353,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/jmoiron/sqlx"
-  packages = [".","reflectx"]
+  packages = [
+    ".",
+    "reflectx"
+  ]
   revision = "2aeb6a910c2b94f2d5eb53d9895d80e27264ec41"
 
 [[projects]]
@@ -278,7 +367,10 @@
 
 [[projects]]
   name = "github.com/kisielk/gotool"
-  packages = [".","internal/load"]
+  packages = [
+    ".",
+    "internal/load"
+  ]
   revision = "80517062f582ea3340cd4baf70e86d539ae7d84d"
   version = "v1.0.0"
 
@@ -297,7 +389,10 @@
 [[projects]]
   branch = "master"
   name = "github.com/lib/pq"
-  packages = [".","oid"]
+  packages = [
+    ".",
+    "oid"
+  ]
   revision = "d34b9ff171c21ad295489235aec8b6626023cd04"
 
 [[projects]]
@@ -309,18 +404,29 @@
 [[projects]]
   branch = "master"
   name = "github.com/mailru/easyjson"
-  packages = ["buffer","jlexer","jwriter"]
+  packages = [
+    "buffer",
+    "jlexer",
+    "jwriter"
+  ]
   revision = "8b799c424f57fa123fc63a99d6383bc6e4c02578"
 
 [[projects]]
   branch = "master"
   name = "github.com/markbates/going"
-  packages = ["defaults","randx","wait"]
+  packages = [
+    "defaults",
+    "randx",
+    "wait"
+  ]
   revision = "0576708c56cea02331f864fe6e157ac7841923e4"
 
 [[projects]]
   name = "github.com/markbates/goth"
-  packages = [".","providers/openidConnect"]
+  packages = [
+    ".",
+    "providers/openidConnect"
+  ]
   revision = "282ed1a1bfe41f8de308e4910398fedb289c55c3"
   version = "v1.45.6"
 
@@ -332,7 +438,12 @@
 
 [[projects]]
   name = "github.com/mattn/anko"
-  packages = ["ast","core","parser","vm"]
+  packages = [
+    "ast",
+    "core",
+    "parser",
+    "vm"
+  ]
   revision = "e9c5c0ca86cf129292c56ddbddc4fff027844d65"
   version = "v0.0.4"
 
@@ -374,7 +485,17 @@
 
 [[projects]]
   name = "github.com/nbutton23/zxcvbn-go"
-  packages = [".","adjacency","data","entropy","frequency","match","matching","scoring","utils/math"]
+  packages = [
+    ".",
+    "adjacency",
+    "data",
+    "entropy",
+    "frequency",
+    "match",
+    "matching",
+    "scoring",
+    "utils/math"
+  ]
   revision = "eafdab6b0663b4b528c35975c8b0e78be6e25261"
   version = "v0.1"
 
@@ -404,7 +525,11 @@
 
 [[projects]]
   name = "github.com/segmentio/chamber"
-  packages = [".","cmd","store"]
+  packages = [
+    ".",
+    "cmd",
+    "store"
+  ]
   revision = "3cdac5c59e6f3835307ad034531fd6e4363a5e40"
   version = "v2.1.0"
 
@@ -416,7 +541,10 @@
 
 [[projects]]
   name = "github.com/spf13/afero"
-  packages = [".","mem"]
+  packages = [
+    ".",
+    "mem"
+  ]
   revision = "63644898a8da0bc22138abf860edaf5277b6102e"
   version = "v1.1.0"
 
@@ -458,7 +586,12 @@
 
 [[projects]]
   name = "github.com/stretchr/testify"
-  packages = ["assert","mock","require","suite"]
+  packages = [
+    "assert",
+    "mock",
+    "require",
+    "suite"
+  ]
   revision = "12b6f73e6084dad08a7c6e575284b177ecafbc71"
   version = "v1.2.1"
 
@@ -488,20 +621,35 @@
 
 [[projects]]
   name = "go.uber.org/zap"
-  packages = [".","buffer","internal/bufferpool","internal/color","internal/exit","zapcore"]
+  packages = [
+    ".",
+    "buffer",
+    "internal/bufferpool",
+    "internal/color",
+    "internal/exit",
+    "zapcore"
+  ]
   revision = "eeedf312bc6c57391d84767a4cd413f02a917974"
   version = "v1.8.0"
 
 [[projects]]
   name = "goji.io"
-  packages = [".","internal","pat","pattern"]
+  packages = [
+    ".",
+    "internal",
+    "pat",
+    "pattern"
+  ]
   revision = "0d89ff54b2c18c9c4ba530e32496aef902d3c6cd"
   version = "v2.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/crypto"
-  packages = ["bcrypt","blowfish"]
+  packages = [
+    "bcrypt",
+    "blowfish"
+  ]
   revision = "1a580b3eff7814fc9b40602fd35256c63b50f491"
 
 [[projects]]
@@ -513,13 +661,20 @@
 [[projects]]
   branch = "master"
   name = "golang.org/x/net"
-  packages = ["context","context/ctxhttp","idna"]
+  packages = [
+    "context",
+    "context/ctxhttp",
+    "idna"
+  ]
   revision = "57065200b4b034a1c8ad54ff77069408c2218ae6"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/oauth2"
-  packages = [".","internal"]
+  packages = [
+    ".",
+    "internal"
+  ]
   revision = "cdc340f7c179dbbfa4afd43b7614e8fcadde4269"
 
 [[projects]]
@@ -536,19 +691,52 @@
 
 [[projects]]
   name = "golang.org/x/text"
-  packages = ["collate","collate/build","internal/colltab","internal/gen","internal/tag","internal/triegen","internal/ucd","language","secure/bidirule","transform","unicode/bidi","unicode/cldr","unicode/norm","unicode/rangetable","width"]
+  packages = [
+    "collate",
+    "collate/build",
+    "internal/colltab",
+    "internal/gen",
+    "internal/tag",
+    "internal/triegen",
+    "internal/ucd",
+    "language",
+    "secure/bidirule",
+    "transform",
+    "unicode/bidi",
+    "unicode/cldr",
+    "unicode/norm",
+    "unicode/rangetable",
+    "width"
+  ]
   revision = "f21a4dfb5e38f5895301dc265a8def02365cc3d0"
   version = "v0.3.0"
 
 [[projects]]
   branch = "master"
   name = "golang.org/x/tools"
-  packages = ["go/ast/astutil","go/buildutil","go/gcexportdata","go/internal/gcimporter","go/loader","go/types/typeutil","imports","internal/fastwalk"]
+  packages = [
+    "go/ast/astutil",
+    "go/buildutil",
+    "go/gcexportdata",
+    "go/internal/gcimporter",
+    "go/loader",
+    "go/types/typeutil",
+    "imports",
+    "internal/fastwalk"
+  ]
   revision = "28aef64757f4d432485ab970b094e1af8b301e84"
 
 [[projects]]
   name = "google.golang.org/appengine"
-  packages = ["internal","internal/base","internal/datastore","internal/log","internal/remote_api","internal/urlfetch","urlfetch"]
+  packages = [
+    "internal",
+    "internal/base",
+    "internal/datastore",
+    "internal/log",
+    "internal/remote_api",
+    "internal/urlfetch",
+    "urlfetch"
+  ]
   revision = "150dc57a1b433e64154302bdc40b6bb8aefa313a"
   version = "v1.0.0"
 
@@ -561,7 +749,10 @@
 [[projects]]
   branch = "v2"
   name = "gopkg.in/mgo.v2"
-  packages = ["bson","internal/json"]
+  packages = [
+    "bson",
+    "internal/json"
+  ]
   revision = "3f83fa5005286a7fe593b055f0d7771a7dce4655"
 
 [[projects]]

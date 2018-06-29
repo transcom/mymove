@@ -154,7 +154,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my-staging.move.mil/"
+      - APP_REDIRECT_HEALTH_CHECK_URL: "http://my.staging.move.mil/"
     steps: &deploy_app_redirect_steps
       - checkout
       - setup_remote_docker
@@ -171,7 +171,7 @@ jobs:
       - image: trussworks/circleci-docker-primary:4bb9cacfdfa1fbc995e89204f030264843f5bc91
     environment:
       - APP_ENVIRONMENT: "staging"
-      - APP_HEALTH_CHECK_URL: "https://my-staging.move.mil/health"
+      - APP_HEALTH_CHECK_URL: "https://my.staging.move.mil/health"
     steps: &deploy_app_steps
       - checkout
       - setup_remote_docker

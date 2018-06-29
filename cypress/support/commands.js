@@ -27,9 +27,23 @@
 
 Cypress.Commands.add('signInAsNewUser', () => {
   cy.visit('/');
-  cy.contains('Local Sign In').click();
-  cy.contains('Login as New User').click();
+  cy.request('POST', 'devlocal-auth/new').then(() => cy.visit('/'));
+  //  cy.contains('Local Sign In').click();
+  //  cy.contains('Login as New User').click();
 });
+
+Cypress.Commands.add('signInAsUser', userId => {
+  cy.visit('/');
+  cy
+    .request({
+      method: 'POST',
+      url: '/devlocal-auth/login',
+      form: true,
+      body: { id: userId },
+    })
+    .then(() => cy.visit('/'));
+});
+
 Cypress.Commands.add('signInAsOfficeUser', () => {
   cy.visit('/');
   cy.contains('Local Sign In').click();
@@ -41,9 +55,25 @@ Cypress.Commands.add('signInAsOfficeUser', () => {
     .find('button')
     .click();
 });
-Cypress.Commands.add('next', () => {
+
+Cypress.Commands.add('nextPage', () => {
   cy
     .get('button.next')
     .should('be.enabled')
     .click();
+});
+
+//from https://github.com/cypress-io/cypress/issues/669
+//not quite working yet
+Cypress.Commands.add('upload_file', (selector, fileUrl, type = '') => {
+  return cy
+    .fixture(fileUrl, 'base64')
+    .then(Cypress.Blob.base64StringToBlob)
+    .then(blob => {
+      const nameSegments = fileUrl.split('/');
+      const name = nameSegments[nameSegments.length - 1];
+      const testFile = new File([blob], name, { type });
+      const event = { dataTransfer: { files: [testFile] } };
+      return cy.get(selector).trigger('drop', event);
+    });
 });
