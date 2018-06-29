@@ -334,6 +334,18 @@
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
+  name = "github.com/hhrutter/pdfcpu"
+  packages = [
+    "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
+    "pkg/pdfcpu"
+  ]
+  revision = "d8343a4c98430531d4b27ecabb176379f6fa2a0b"
+  version = "v0.1.14"
+
+[[projects]]
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
@@ -364,6 +376,12 @@
   packages = ["."]
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/jung-kurt/gofpdf"
+  packages = ["."]
+  revision = "14c1db30737a138f8d9797cffea58783892b2fae"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/kisielk/gotool"
@@ -770,6 +788,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "1435b3190b5c7f670106fc8e6a6c46120d3ca15fd14486e22b89f71b3072c539"
+  inputs-digest = "a286909bb2fc72badc394c88b4f02f559e407ea6eb49516f2a209eaf798125c0"
   solver-name = "gps-cdcl"
   solver-version = 1

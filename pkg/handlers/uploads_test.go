@@ -72,11 +72,12 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	}
 
 	key := fmt.Sprintf("documents/%s/uploads/%s", document.ID, upload.ID)
-	if fakeS3.PutFiles[0].Key != key {
-		t.Errorf("Wrong key name: expected %s, got %s", key, fakeS3.PutFiles[0].Key)
+
+	if _, ok := fakeS3.PutFiles[key]; !ok {
+		t.Errorf("File not found at expected keyname %s", key)
 	}
 
-	pos, err := fakeS3.PutFiles[0].Body.Seek(0, io.SeekCurrent)
+	pos, err := fakeS3.PutFiles[key].Body.Seek(0, io.SeekCurrent)
 	if err != nil {
 		t.Fatalf("Could't check position in uploaded file: %s", err)
 	}
