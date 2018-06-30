@@ -7,7 +7,7 @@ import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import ppmBlack from 'shared/icon/ppm-black.svg';
-import { moveIsApproved } from 'scenes/Moves/ducks';
+import { moveIsApproved, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { formatCentsRange } from 'shared/formatters';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 import { checkEntitlement } from './ducks';
@@ -17,10 +17,13 @@ import './Review.css';
 
 export class Summary extends Component {
   componentDidMount() {
-    this.props.checkEntitlement(this.props.match.params.moveId);
+    if (get(this.props.match.params, 'moveId')) {
+      this.props.checkEntitlement(this.props.match.params.moveId);
+    }
   }
   render() {
     const {
+      currentMove,
       currentPpm,
       currentBackupContacts,
       currentOrders,
@@ -28,6 +31,7 @@ export class Summary extends Component {
       schemaAffiliation,
       schemaOrdersType,
       moveIsApproved,
+      lastMoveIsCanceled,
       serviceMember,
       entitlement,
     } = this.props;
@@ -82,14 +86,23 @@ export class Summary extends Component {
       if (!date) return;
       return moment(date, 'YYYY-MM-DD').format('MM/DD/YYYY');
     }
+    const currentStation = get(serviceMember, 'current_station');
+    const stationPhone = get(
+      currentStation,
+      'transportation_office.phone_lines.0',
+    );
 
-    const rootAddress = `/moves/${this.props.match.params.moveId}/review`;
+    const rootAddress = `/moves/review`;
+    const rootAddressWithMoveId = `/moves/${
+      this.props.match.params.moveId
+    }/review`;
     const editProfileAddress = rootAddress + '/edit-profile';
     const editBackupContactAddress = rootAddress + '/edit-backup-contact';
     const editContactInfoAddress = rootAddress + '/edit-contact-info';
-    const editOrdersAddress = rootAddress + '/edit-orders';
-    const editDateAndLocationAddress = rootAddress + '/edit-date-and-location';
-    const editWeightAddress = rootAddress + '/edit-weight';
+    const editOrdersAddress = rootAddressWithMoveId + '/edit-orders';
+    const editDateAndLocationAddress =
+      rootAddressWithMoveId + '/edit-date-and-location';
+    const editWeightAddress = rootAddressWithMoveId + '/edit-weight';
     const privateStorageString = get(
       currentPpm,
       'estimated_storage_reimbursement',
@@ -120,7 +133,8 @@ export class Summary extends Component {
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert type="success" heading={editSuccessBlurb} />
           )}
-        {this.props.reviewState.entitlementChange &&
+        {currentMove &&
+          this.props.reviewState.entitlementChange &&
           get(this.props.reviewState.error, 'statusCode', false) === false && (
             <Alert
               type="info"
@@ -178,69 +192,75 @@ export class Summary extends Component {
                 </tr>
               </tbody>
             </table>
-
-            <table>
-              <tbody>
-                <tr>
-                  <th>
-                    Orders{moveIsApproved && '*'}
-                    {!moveIsApproved && (
-                      <span className="align-right">
-                        <Link to={editOrdersAddress}>Edit</Link>
-                      </span>
+            {!lastMoveIsCanceled && (
+              <table>
+                <tbody>
+                  <tr>
+                    <th>
+                      Orders{moveIsApproved && '*'}
+                      {!moveIsApproved && (
+                        <span className="align-right">
+                          <Link to={editOrdersAddress}>Edit</Link>
+                        </span>
+                      )}
+                    </th>
+                  </tr>
+                  <tr>
+                    <td> Orders Type: </td>
+                    <td>
+                      {get(
+                        schemaOrdersType['x-display-value'],
+                        get(currentOrders, 'orders_type'),
+                      )}
+                    </td>
+                  </tr>
+                  <tr>
+                    <td> Orders Date: </td>
+                    <td> {formatDate(get(currentOrders, 'issue_date'))}</td>
+                  </tr>
+                  <tr>
+                    <td> Report-by Date: </td>
+                    <td>{formatDate(get(currentOrders, 'report_by_date'))}</td>
+                  </tr>
+                  <tr>
+                    <td> New Duty Station: </td>
+                    <td> {get(currentOrders, 'new_duty_station.name')}</td>
+                  </tr>
+                  <tr>
+                    <td> Dependents?: </td>
+                    <td>
+                      {' '}
+                      {currentOrders &&
+                        yesNoMap[
+                          get(currentOrders, 'has_dependents').toString()
+                        ]}
+                    </td>
+                  </tr>
+                  {currentOrders &&
+                    get(currentOrders, 'spouse_has_pro_gear') && (
+                      <tr>
+                        <td> Spouse Pro Gear?: </td>
+                        <td>
+                          {currentOrders &&
+                            yesNoMap[
+                              get(
+                                currentOrders,
+                                'spouse_has_pro_gear',
+                              ).toString()
+                            ]}
+                        </td>
+                      </tr>
                     )}
-                  </th>
-                </tr>
-                <tr>
-                  <td> Orders Type: </td>
-                  <td>
-                    {get(
-                      schemaOrdersType['x-display-value'],
-                      get(currentOrders, 'orders_type'),
-                    )}
-                  </td>
-                </tr>
-                <tr>
-                  <td> Orders Date: </td>
-                  <td> {formatDate(get(currentOrders, 'issue_date'))}</td>
-                </tr>
-                <tr>
-                  <td> Report-by Date: </td>
-                  <td>{formatDate(get(currentOrders, 'report_by_date'))}</td>
-                </tr>
-                <tr>
-                  <td> New Duty Station: </td>
-                  <td> {get(currentOrders, 'new_duty_station.name')}</td>
-                </tr>
-                <tr>
-                  <td> Dependents?: </td>
-                  <td>
-                    {' '}
-                    {currentOrders &&
-                      yesNoMap[get(currentOrders, 'has_dependents').toString()]}
-                  </td>
-                </tr>
-                {currentOrders &&
-                  get(currentOrders, 'spouse_has_pro_gear') && (
-                    <tr>
-                      <td> Spouse Pro Gear?: </td>
-                      <td>
-                        {currentOrders &&
-                          yesNoMap[
-                            get(currentOrders, 'spouse_has_pro_gear').toString()
-                          ]}
-                      </td>
-                    </tr>
-                  )}
-                <tr>
-                  <td> Orders Uploaded: </td>
-                  <td>
-                    {get(currentOrders, 'uploaded_orders.uploads') &&
-                      get(currentOrders, 'uploaded_orders.uploads').length}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                  <tr>
+                    <td> Orders Uploaded: </td>
+                    <td>
+                      {get(currentOrders, 'uploaded_orders.uploads') &&
+                        get(currentOrders, 'uploaded_orders.uploads').length}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            )}
           </div>
 
           <div className="usa-width-one-half review-section">
@@ -317,98 +337,106 @@ export class Summary extends Component {
             ))}
           </div>
         </div>
-        {currentPpm && (
-          <div className="usa-grid-full ppm-container">
-            <h3>
-              <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move your
-              stuff (PPM)
-            </h3>
-            <div className="usa-width-one-half review-section ppm-review-section">
-              <table>
-                <tbody>
-                  <tr>
-                    <th>
-                      Dates & Locations
-                      <span className="align-right">
-                        <Link to={editDateAndLocationAddress}>Edit</Link>
-                      </span>
-                    </th>
-                  </tr>
-                  <tr>
-                    <td> Move Date: </td>
-                    <td>{formatDate(get(currentPpm, 'planned_move_date'))}</td>
-                  </tr>
-                  <tr>
-                    <td> Pickup ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.pickup_postal_code}</td>
-                  </tr>
-                  {currentPpm.has_additional_postal_code && (
+        {currentPpm &&
+          !lastMoveIsCanceled && (
+            <div className="usa-grid-full ppm-container">
+              <h3>
+                <img src={ppmBlack} alt="PPM shipment" /> Shipment - You move
+                your stuff (PPM)
+              </h3>
+              <div className="usa-width-one-half review-section ppm-review-section">
+                <table>
+                  <tbody>
                     <tr>
-                      <td> Additional Pickup: </td>
-                      <td> {currentPpm.additional_pickup_postal_code}</td>
+                      <th>
+                        Dates & Locations
+                        <span className="align-right">
+                          <Link to={editDateAndLocationAddress}>Edit</Link>
+                        </span>
+                      </th>
                     </tr>
-                  )}
-                  <tr>
-                    <td> Delivery ZIP Code: </td>
-                    <td> {currentPpm && currentPpm.destination_postal_code}</td>
-                  </tr>
-                  <tr>
-                    <td> Storage: </td>
-                    <td>{sitDisplay}</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="usa-width-one-half review-section ppm-review-section">
-              <table>
-                <tbody>
-                  <tr>
-                    <th>
-                      Weight
-                      <span className="align-right">
-                        <Link to={editWeightAddress}>Edit</Link>
-                      </span>
-                    </th>
-                  </tr>
-                  <tr>
-                    <td> Estimated Weight: </td>
-                    <td>
-                      {' '}
-                      {currentPpm &&
-                        currentPpm.weight_estimate.toLocaleString()}{' '}
-                      lbs
-                    </td>
-                  </tr>
-                  <tr>
-                    <td> Estimated PPM Incentive: </td>
-                    <td>
-                      {' '}
-                      {currentPpm &&
-                        formatCentsRange(
-                          currentPpm.incentive_estimate_min,
-                          currentPpm.incentive_estimate_max,
-                        )}
-                    </td>
-                  </tr>
-                  {currentPpm.has_requested_advance && (
                     <tr>
-                      <td> Advance: </td>
+                      <td> Move Date: </td>
                       <td>
-                        {' '}
-                        ${(
-                          currentPpm.advance.requested_amount / 100
-                        ).toLocaleString()}
+                        {formatDate(get(currentPpm, 'planned_move_date'))}
                       </td>
                     </tr>
-                  )}
-                </tbody>
-              </table>
+                    <tr>
+                      <td> Pickup ZIP Code: </td>
+                      <td> {currentPpm && currentPpm.pickup_postal_code}</td>
+                    </tr>
+                    {currentPpm.has_additional_postal_code && (
+                      <tr>
+                        <td> Additional Pickup: </td>
+                        <td> {currentPpm.additional_pickup_postal_code}</td>
+                      </tr>
+                    )}
+                    <tr>
+                      <td> Delivery ZIP Code: </td>
+                      <td>
+                        {' '}
+                        {currentPpm && currentPpm.destination_postal_code}
+                      </td>
+                    </tr>
+                    <tr>
+                      <td> Storage: </td>
+                      <td>{sitDisplay}</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div className="usa-width-one-half review-section ppm-review-section">
+                <table>
+                  <tbody>
+                    <tr>
+                      <th>
+                        Weight
+                        <span className="align-right">
+                          <Link to={editWeightAddress}>Edit</Link>
+                        </span>
+                      </th>
+                    </tr>
+                    <tr>
+                      <td> Estimated Weight: </td>
+                      <td>
+                        {' '}
+                        {currentPpm &&
+                          currentPpm.weight_estimate.toLocaleString()}{' '}
+                        lbs
+                      </td>
+                    </tr>
+                    <tr>
+                      <td> Estimated PPM Incentive: </td>
+                      <td>
+                        {' '}
+                        {currentPpm &&
+                          formatCentsRange(
+                            currentPpm.incentive_estimate_min,
+                            currentPpm.incentive_estimate_max,
+                          )}
+                      </td>
+                    </tr>
+                    {currentPpm.has_requested_advance && (
+                      <tr>
+                        <td> Advance: </td>
+                        <td>
+                          {' '}
+                          ${(
+                            currentPpm.advance.requested_amount / 100
+                          ).toLocaleString()}
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          )}
         {moveIsApproved && (
           <div className="approved-edit-warning">
-            *To change these fields, contact your local PPPO office.
+            *To change these fields, contact your local PPPO office at{' '}
+            {get(currentStation, 'name')}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
           </div>
         )}
       </Fragment>
@@ -423,6 +451,7 @@ Summary.propTypes = {
   schemaRank: PropTypes.object,
   schemaOrdersType: PropTypes.object,
   moveIsApproved: PropTypes.bool,
+  lastMoveIsCanceled: PropTypes.bool,
   checkEntitlement: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
@@ -432,12 +461,14 @@ function mapStateToProps(state) {
     currentPpm: state.ppm.currentPpm,
     serviceMember: state.serviceMember.currentServiceMember,
     currentMove: state.moves.currentMove,
+    // latestMove: state.moves.latestMove,
     currentBackupContacts: state.serviceMember.currentBackupContacts,
     currentOrders: state.orders.currentOrders,
     schemaRank: get(state, 'swagger.spec.definitions.ServiceMemberRank', {}),
     schemaOrdersType: get(state, 'swagger.spec.definitions.OrdersType', {}),
     schemaAffiliation: get(state, 'swagger.spec.definitions.Affiliation', {}),
     moveIsApproved: moveIsApproved(state),
+    lastMoveIsCanceled: lastMoveIsCanceled(state),
     reviewState: state.review,
     entitlement: loadEntitlementsFromState(state),
   };

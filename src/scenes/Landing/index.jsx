@@ -85,7 +85,6 @@ export class Landing extends Component {
       move,
       ppm,
     } = this.props;
-
     return (
       <div className="usa-grid">
         {loggedInUserIsLoading && <span> Loading... </span>}
@@ -137,7 +136,7 @@ const mapStateToProps = state => ({
   serviceMember: state.serviceMember.currentServiceMember || {},
   backupContacts: state.serviceMember.currentBackupContacts || [],
   orders: state.orders.currentOrders || {},
-  move: state.moves.currentMove || {},
+  move: state.moves.currentMove || state.moves.latestMove || {},
   ppm: state.ppm.currentPpm || {},
   loggedInUser: state.loggedInUser.loggedInUser,
   loggedInUserIsLoading: state.loggedInUser.isLoading,

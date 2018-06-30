@@ -8,6 +8,7 @@ import {
 } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
 
 // Types
@@ -171,20 +172,21 @@ export function ppmReducer(state = initialState, action) {
   switch (action.type) {
     case GET_LOGGED_IN_USER.success:
       // Initialize state when we get the logged in user
-      const user = action.payload;
-      const currentPpm = get(
-        user,
-        'service_member.orders.0.moves.0.personally_procured_moves.0',
-        null,
+      const activeOrders = fetchActive(
+        get(action.payload, 'service_member.orders'),
+      );
+      const activeMove = fetchActive(get(activeOrders, 'moves'));
+      const activePpm = fetchActive(
+        get(activeMove, 'personally_procured_moves'),
       );
       return Object.assign({}, state, {
-        currentPpm: currentPpm,
-        pendingPpmSize: get(currentPpm, 'size', null),
-        pendingPpmWeight: get(currentPpm, 'weight_estimate', null),
-        incentive_estimate_min: get(currentPpm, 'incentive_estimate_min', null),
-        incentive_estimate_max: get(currentPpm, 'incentive_estimate_max', null),
+        currentPpm: activePpm,
+        pendingPpmSize: get(activePpm, 'size', null),
+        pendingPpmWeight: get(activePpm, 'weight_estimate', null),
+        incentive_estimate_min: get(activePpm, 'incentive_estimate_min', null),
+        incentive_estimate_max: get(activePpm, 'incentive_estimate_max', null),
         sitReimbursement: get(
-          currentPpm,
+          activePpm,
           'estimated_storage_reimbursement',
           null,
         ),
