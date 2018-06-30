@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
+import { connect } from 'react-redux';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveMovesForOffice } from './api.js';
@@ -13,7 +14,9 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
-      // flashMessage: get(state, 'office.flashMessage'),
+      // moveLocator: '',
+      // firstName: '',
+      // lastName: '',
     };
     this.fetchData = this.fetchData.bind(this);
   }
@@ -27,6 +30,12 @@ class QueueTable extends Component {
       this.fetchData();
     }
   }
+
+  static defaultProps = {
+    moveLocator: '',
+    firstName: '',
+    lastName: '',
+  };
 
   fetchData() {
     RetrieveMovesForOffice(this.props.queueType).then(
@@ -55,7 +64,9 @@ class QueueTable extends Component {
       <div>
         {this.props.flashMessage ? (
           <Alert type="success" heading="Success">
-            Move #ABC89 for Johnson, Casey has been cancelled <br />
+            Move #{this.props.moveLocator} for {this.props.lastName},{' '}
+            {this.props.firstName} has been cancelled <br />
+            An email confirmation has been sent to the customer.<br />
           </Alert>
         ) : null}
         <h1>Queue: {titles[this.props.queueType]}</h1>
@@ -114,4 +125,11 @@ class QueueTable extends Component {
   }
 }
 
-export default withRouter(QueueTable);
+const mapStateToProps = state => ({
+  flashMessage: get(state, 'office.flashMessage', false),
+  moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
+  firstName: get(state, 'office.officeServiceMember.first_name', 'Unloaded'),
+  lastName: get(state, 'office.officeServiceMember.last_name', 'Unloaded'),
+});
+
+export default withRouter(connect(mapStateToProps)(QueueTable));
