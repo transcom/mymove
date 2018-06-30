@@ -14,9 +14,6 @@ class QueueTable extends Component {
       data: [],
       pages: null,
       loading: true,
-      // moveLocator: '',
-      // firstName: '',
-      // lastName: '',
     };
     this.fetchData = this.fetchData.bind(this);
   }

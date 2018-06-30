@@ -369,7 +369,6 @@ const mapStateToProps = state => ({
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
-  // flashMessage: get(state, 'office.flashMessage'),
 });
 
 const mapDispatchToProps = dispatch =>
