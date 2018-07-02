@@ -32,8 +32,6 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 			StartBlackoutDate:               blackoutStartDate,
 			EndBlackoutDate:                 blackoutEndDate,
 			TrafficDistributionListID:       &tdl.ID,
-			SourceGBLOC:                     nil,
-			Market:                          nil,
 		},
 	})
 
@@ -144,8 +142,6 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 			StartBlackoutDate:               testStartDate,
 			EndBlackoutDate:                 testEndDate,
 			TrafficDistributionListID:       &testTDL.ID,
-			SourceGBLOC:                     nil,
-			Market:                          nil,
 		},
 	})
 

@@ -76,14 +76,14 @@ func mergeModels(dst, src interface{}) {
 type customTransformer struct {
 }
 
-// Checks if dst is a zero value, then overwrites with src
+// Checks if src is not a zero value, then overwrites dst
 func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.Value) error {
 	// UUID comparison
 	if typ == reflect.TypeOf(uuid.UUID{}) {
 		return func(dst, src reflect.Value) error {
 			if dst.CanSet() {
-				dstUUID := dst.Interface().(uuid.UUID)
-				if isZeroUUID(dstUUID) {
+				srcID := src.Interface().(uuid.UUID)
+				if isZeroUUID(srcID) == false {
 					dst.Set(src)
 				}
 			}
@@ -94,9 +94,9 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 	if typ == reflect.TypeOf(time.Time{}) {
 		return func(dst, src reflect.Value) error {
 			if dst.CanSet() {
-				isZero := dst.MethodByName("IsZero")
+				isZero := src.MethodByName("IsZero")
 				result := isZero.Call([]reflect.Value{})
-				if result[0].Bool() {
+				if result[0].Bool() == false {
 					dst.Set(src)
 				}
 			}
