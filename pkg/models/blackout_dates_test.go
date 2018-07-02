@@ -22,7 +22,16 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	market1 := "dHHG"
 	sourceGBLOC := "OHAI"
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, &sourceGBLOC, &market1)
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market1,
+		},
+	})
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferWithDomesticMarket := models.ShipmentWithOffer{
@@ -75,7 +84,16 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	market1 := "dHHG"
 	sourceGBLOC1 := "OHAI"
 	sourceGBLOC2 := "OHNO"
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, &sourceGBLOC1, &market1)
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC1,
+			Market:                          &market1,
+		},
+	})
 
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferInGBLOC1 := models.ShipmentWithOffer{

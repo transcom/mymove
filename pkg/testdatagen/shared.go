@@ -25,6 +25,12 @@ type Assertions struct {
 	BackupContact          models.BackupContact
 	Upload                 models.Upload
 	Address                models.Address
+	DutyStation            models.DutyStation
+	BlackoutDate           models.BlackoutDate
+}
+
+func fmtString(s string) *string {
+	return &s
 }
 
 func mustCreate(db *pop.Connection, model interface{}) {

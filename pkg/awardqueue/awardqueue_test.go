@@ -26,7 +26,16 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     nil,
+			Market:                          nil,
+		},
+	})
 
 	pickupDate := blackoutStartDate.Add(time.Hour)
 	deliverDate := blackoutStartDate.Add(time.Hour * 24 * 60)
@@ -73,7 +82,16 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	blackoutStartDate := testdatagen.DateInsidePeakRateCycle
 	blackoutEndDate := blackoutStartDate.AddDate(0, 1, 0)
-	testdatagen.MakeBlackoutDate(suite.db, tsp, blackoutStartDate, blackoutEndDate, &tdl, &sourceGBLOC, &market)
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp.ID,
+			StartBlackoutDate:               blackoutStartDate,
+			EndBlackoutDate:                 blackoutEndDate,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &sourceGBLOC,
+			Market:                          &market,
+		},
+	})
 
 	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
@@ -120,7 +138,16 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 	testStartDate := testdatagen.DateInsidePeakRateCycle
 	testEndDate := testStartDate.Add(time.Hour * 24 * 2)
-	testdatagen.MakeBlackoutDate(suite.db, testTSP1, testStartDate, testEndDate, &testTDL, nil, nil)
+	testdatagen.MakeBlackoutDate(suite.db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: testTSP1.ID,
+			StartBlackoutDate:               testStartDate,
+			EndBlackoutDate:                 testEndDate,
+			TrafficDistributionListID:       &testTDL.ID,
+			SourceGBLOC:                     nil,
+			Market:                          nil,
+		},
+	})
 
 	// Two pickup times to check with ShipmentWithinBlackoutDates
 	testPickupDateBetween := testStartDate.Add(time.Hour * 24)

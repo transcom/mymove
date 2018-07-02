@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -94,25 +96,34 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)
 
 	gbloc := "BKAS"
-	testdatagen.MakeBlackoutDate(db,
-		tsp1,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
-	testdatagen.MakeBlackoutDate(db,
-		tsp4,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
-	testdatagen.MakeBlackoutDate(db,
-		tsp7,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp1.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp4.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp7.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
 }
