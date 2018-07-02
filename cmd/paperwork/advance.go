@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"path"
 	"path/filepath"
@@ -76,10 +77,16 @@ func main() {
 		storer = storage.NewFilesystem(storagePath, webRoot, logger)
 	}
 	uploader := uploader.NewUploader(db, logger, storer)
-	generator := paperwork.NewGenerator(db, logger, uploader)
-
-	id := uuid.Must(uuid.FromString(*moveID))
-	if err = generator.GenerateAdvancePaperwork(id); err != nil {
+	generator, err := paperwork.NewGenerator(db, logger, uploader)
+	if err != nil {
 		log.Fatal(err)
 	}
+
+	id := uuid.Must(uuid.FromString(*moveID))
+	outputPath, err := generator.GenerateAdvancePaperwork(id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("File written to %s", outputPath)
 }
