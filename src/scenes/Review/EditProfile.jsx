@@ -35,7 +35,13 @@ let EditProfileForm = props => {
     initialValues,
     schemaAffiliation,
     schemaRank,
+    serviceMember,
   } = props;
+  const currentStation = get(serviceMember, 'current_station');
+  const stationPhone = get(
+    currentStation,
+    'transportation_office.phone_lines.0',
+  );
   return (
     <form onSubmit={handleSubmit}>
       <img src={profileImage} alt="" /> Profile
@@ -56,7 +62,11 @@ let EditProfileForm = props => {
       )}
       {moveIsApproved && (
         <Fragment>
-          <div>To change the fields below, contact your local PPPO office.</div>
+          <div>
+            To change the fields below, contact your local PPPO office at{' '}
+            {get(currentStation, 'name')}{' '}
+            {stationPhone ? ` at ${stationPhone}` : ''}.
+          </div>
           <label>Branch</label>
           <strong>
             {schemaAffiliation['x-display-value'][initialValues.affiliation]}
@@ -130,6 +140,7 @@ class EditProfile extends Component {
             moveIsApproved={moveIsApproved}
             schemaRank={schemaRank}
             schemaAffiliation={schemaAffiliation}
+            serviceMember={serviceMember}
           />
         </div>
       </div>

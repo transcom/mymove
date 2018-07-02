@@ -13,6 +13,7 @@ import loggedInUserPayload, {
 const expectedOrders = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
   has_dependents: false,
+  status: 'DRAFT',
   issue_date: '2018-05-11',
   new_duty_station: {
     address: {
@@ -63,6 +64,7 @@ const ordersWithOneUpload = {
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
   has_dependents: false,
   issue_date: '2018-05-11',
+  status: 'DRAFT',
   new_duty_station: {
     address: {
       city: 'Fort Worth',
@@ -103,6 +105,7 @@ const ordersPayload = Object.freeze({
   has_dependents: false,
   id: '51953e97-25a7-430c-ba6d-3bd980a38b71',
   issue_date: '2018-05-11',
+  status: 'DRAFT',
   moves: [
     {
       created_at: '2018-05-25T21:36:10.235Z',
