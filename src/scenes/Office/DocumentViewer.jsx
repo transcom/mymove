@@ -6,38 +6,25 @@ import { compact, get } from 'lodash';
 
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
-import OrdersViewerPanel from './OrdersViewerPanel';
-import DocumentContent from './DocumentContent';
+import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from './ducks.js';
 
 import './office.css';
 
-class OrdersInfo extends Component {
+class DocumentViewer extends Component {
   componentDidMount() {
+    //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
   }
-
+  componentWillUpdate() {
+    document.title = 'Document Viewer';
+  }
   render() {
-    const orders = this.props.orders;
-    const serviceMember = this.props.serviceMember;
+    const { serviceMember, move } = this.props;
     const name = compact([
       serviceMember.last_name,
       serviceMember.first_name,
     ]).join(', ');
-
-    let uploads;
-    if (orders && orders.uploaded_orders) {
-      uploads = orders.uploaded_orders.uploads.map(upload => (
-        <DocumentContent
-          key={upload.url}
-          url={upload.url}
-          filename={upload.filename}
-          contentType={upload.content_type}
-        />
-      ));
-    } else {
-      uploads = [];
-    }
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -58,14 +45,15 @@ class OrdersInfo extends Component {
       <div>
         <div className="usa-grid">
           <div className="usa-width-two-thirds orders-page-column">
-            {uploads}
+            <div style={{ minWidth: '400px' }}>
+              {' '}
+              Document Upload Coming soon
+            </div>
           </div>
           <div className="usa-width-one-third orders-page-fields">
-            <OrdersViewerPanel
-              title={name}
-              className="document-viewer"
-              moveId={this.props.match.params.moveId}
-            />
+            <h3>{name}</h3>
+            <PanelField title="Move Locator">{move.locator}</PanelField>
+            <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
           </div>
         </div>
       </div>
@@ -73,7 +61,7 @@ class OrdersInfo extends Component {
   }
 }
 
-OrdersInfo.propTypes = {
+DocumentViewer.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
 };
 
@@ -81,12 +69,14 @@ const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   orders: state.office.officeOrders || {},
+  move: get(state, 'office.officeMove', {}),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
+  error: state.office.error,
 });
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators({ loadMoveDependencies }, dispatch);
 
-export default connect(mapStateToProps, mapDispatchToProps)(OrdersInfo);
+export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
