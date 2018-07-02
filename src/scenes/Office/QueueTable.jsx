@@ -62,7 +62,7 @@ class QueueTable extends Component {
         {this.props.flashMessage ? (
           <Alert type="success" heading="Success">
             Move #{this.props.moveLocator} for {this.props.lastName},{' '}
-            {this.props.firstName} has been cancelled <br />
+            {this.props.firstName} has been canceled <br />
             An email confirmation has been sent to the customer.<br />
           </Alert>
         ) : null}
