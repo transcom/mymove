@@ -76,11 +76,9 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 }
 
 func (suite *PaperworkSuite) TestGenerateOrderPDF() {
-	order, err := testdatagen.MakeOrder(suite.db)
-	suite.FatalNil(err)
+	order := testdatagen.MakeDefaultOrder(suite.db)
 
-	document, err := testdatagen.MakeDocument(suite.db, nil, "orders")
-	suite.FatalNil(err)
+	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	order.UploadedOrders = document
 	order.UploadedOrdersID = document.ID
