@@ -22,7 +22,18 @@ function officeUserViewsMoves() {
     .dblclick();
 
   // Verify basics and edit
-  // tbd
+  // // Click on Orders document link
+  // cy
+  //   .get('.document')
+  //   .find('a')
+  //   .click();
+
+  // Click on edit orders
+  // cy
+  //   .get('.editable-panel-header')
+  //   .contains('Orders')
+  //   .siblings()
+  //   .click();
 
   // Approve the move
   cy

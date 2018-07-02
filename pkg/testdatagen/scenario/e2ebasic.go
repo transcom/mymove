@@ -30,7 +30,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
-	// Service member with a new move
+	// Service member with uploaded orders and a new move
 	nowTime := time.Now()
 	ppm0 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
