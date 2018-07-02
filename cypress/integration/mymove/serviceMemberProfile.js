@@ -52,7 +52,7 @@ function serviceMemberProfile(reloadAfterEveryPage) {
   cy
     .get('.duty-input-box__input input')
     .first()
-    .type('Ft Ca{downarrow}{enter}', { force: true, delay: 150 });
+    .type('Ft Carson{downarrow}{enter}', { force: true, delay: 150 });
 
   cy.nextPage();
   cy.location().should(loc => {

@@ -9,6 +9,7 @@ import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
 import { DeleteUploads } from 'shared/api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
+import { fetchActive } from 'shared/utils';
 
 // Types
 const getOrdersType = 'GET_ORDERS';
@@ -163,7 +164,7 @@ export function ordersReducer(state = initialState, action) {
     case GET_LOGGED_IN_USER.success:
       return Object.assign({}, state, {
         currentOrders: reshapeOrders(
-          get(action.payload, 'service_member.orders.0'),
+          fetchActive(get(action.payload, 'service_member.orders')),
         ),
         hasLoadError: false,
         hasLoadSuccess: true,
