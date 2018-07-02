@@ -36,7 +36,8 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
 		{Path: "testdata/orders2.jpg", ContentType: "image/jpeg"},
 	}
-	generator := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
 
 	generatedPath, err := generator.pdfFromImages(images)
 	suite.Nil(err, "failed to generate pdf")
@@ -99,9 +100,11 @@ func (suite *PaperworkSuite) TestGenerateOrderPDF() {
 	_, _, err = suite.uploader.CreateUpload(document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
 
-	generator := NewGenerator(suite.db, suite.logger, suite.uploader)
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
 	paths, err := generator.GenerateOrderPDF(order.ID)
-	suite.Nil(err)
+	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
 }
