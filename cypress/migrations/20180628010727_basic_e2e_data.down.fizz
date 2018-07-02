@@ -1,1 +1,1 @@
-TRUNCATE users CASCADE;
+raw("TRUNCATE users CASCADE;")
