@@ -1,26 +1,21 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeUpload creates a single Upload.
-func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, error) {
-	if document == nil {
-		newDocument, err := MakeDocument(db, nil, "")
-		if err != nil {
-			log.Panic(err)
-		}
-		document = &newDocument
+func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
+	document := assertions.Upload.Document
+	if isZeroUUID(assertions.Upload.DocumentID) {
+		document = MakeDocument(db, assertions)
 	}
 
 	upload := models.Upload{
 		DocumentID:  document.ID,
-		Document:    *document,
+		Document:    document,
 		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
@@ -28,13 +23,14 @@ func MakeUpload(db *pop.Connection, document *models.Document) (models.Upload, e
 		Checksum:    "ImGQ2Ush0bDHsaQthV5BnQ==",
 	}
 
-	verrs, err := db.ValidateAndSave(&upload)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	mergeModels(&upload, assertions.Upload)
 
-	return upload, err
+	mustCreate(db, &upload)
+
+	return upload
+}
+
+// MakeDefaultUpload makes an Upload with default values
+func MakeDefaultUpload(db *pop.Connection) models.Upload {
+	return MakeUpload(db, Assertions{})
 }

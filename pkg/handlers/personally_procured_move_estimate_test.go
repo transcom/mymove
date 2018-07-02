@@ -16,7 +16,7 @@ func (suite *HandlerSuite) TestShowPPMEstimateHandler() {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
-	user, _ := testdatagen.MakeServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	req := httptest.NewRequest("GET", "/estimates/ppm", nil)
 	req = suite.authenticateRequest(req, user)

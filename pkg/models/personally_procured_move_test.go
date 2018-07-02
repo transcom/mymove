@@ -19,7 +19,7 @@ func (suite *ModelSuite) TestPPMValidation() {
 
 func (suite *ModelSuite) TestPPMAdvance() {
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	serviceMember := move.Orders.ServiceMember
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptMILPAY)
@@ -41,7 +41,7 @@ func (suite *ModelSuite) TestPPMAdvance() {
 }
 
 func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	advance := BuildDraftReimbursement(1000, MethodOfReceiptGTCC)
 
@@ -51,8 +51,7 @@ func (suite *ModelSuite) TestPPMAdvanceNoGTCC() {
 }
 
 func (suite *ModelSuite) TestPPMStateMachine() {
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED // NEVER do this outside of a test.
 	suite.mustSave(&orders)
 

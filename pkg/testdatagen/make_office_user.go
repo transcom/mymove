@@ -1,25 +1,23 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeOfficeUser creates a single office user and associated TransportOffice
-func MakeOfficeUser(db *pop.Connection) (models.OfficeUser, error) {
-	user, err := MakeUser(db)
-	if err != nil {
-		return models.OfficeUser{}, err
+func MakeOfficeUser(db *pop.Connection, assertions Assertions) models.OfficeUser {
+	user := assertions.OfficeUser.User
+	if assertions.OfficeUser.UserID == nil || isZeroUUID(*assertions.OfficeUser.UserID) {
+		user = MakeUser(db, assertions)
 	}
 
-	office, _ := MakeTransportationOffice(db)
+	office := MakeTransportationOffice(db)
 
 	officeUser := models.OfficeUser{
 		UserID:                 &user.ID,
-		User:                   &user,
+		User:                   user,
 		TransportationOffice:   office,
 		TransportationOfficeID: office.ID,
 		FirstName:              "Leo",
@@ -28,13 +26,14 @@ func MakeOfficeUser(db *pop.Connection) (models.OfficeUser, error) {
 		Telephone:              "415-555-1212",
 	}
 
-	verrs, err := db.ValidateAndSave(&officeUser)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	mergeModels(&officeUser, assertions.OfficeUser)
 
-	return officeUser, nil
+	mustCreate(db, &officeUser)
+
+	return officeUser
+}
+
+// MakeDefaultOfficeUser makes an OfficeUser with default values
+func MakeDefaultOfficeUser(db *pop.Connection) models.OfficeUser {
+	return MakeOfficeUser(db, Assertions{})
 }

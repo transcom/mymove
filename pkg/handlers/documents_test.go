@@ -17,10 +17,7 @@ import (
 func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	t := suite.T()
 
-	serviceMember, err := testdatagen.MakeServiceMember(suite.db)
-	if err != nil {
-		t.Fatalf("could not create serviceMember: %s", err)
-	}
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
@@ -60,7 +57,7 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 	}
 
 	document := models.Document{}
-	err = suite.db.Find(&document, documentPayload.ID)
+	err := suite.db.Find(&document, documentPayload.ID)
 	if err != nil {
 		t.Errorf("Couldn't find expected document.")
 	}
@@ -69,15 +66,12 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 func (suite *HandlerSuite) TestShowDocumentHandler() {
 	t := suite.T()
 
-	upload, err := testdatagen.MakeUpload(suite.db, nil)
-	if err != nil {
-		t.Fatalf("could not create upload: %s", err)
-	}
+	upload := testdatagen.MakeDefaultUpload(suite.db)
 
 	documentID := upload.DocumentID
 	var document models.Document
 
-	err = suite.db.Eager("ServiceMember.User").Find(&document, documentID)
+	err := suite.db.Eager("ServiceMember.User").Find(&document, documentID)
 	if err != nil {
 		t.Fatalf("could not load document: %s", err)
 	}

@@ -1,19 +1,15 @@
 package testdatagen
 
 import (
-	"log"
-
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeTransportationOffice creates a single ServiceMember and associated User.
-func MakeTransportationOffice(db *pop.Connection) (models.TransportationOffice, error) {
-	address, err := MakeAddress(db)
-	if err != nil {
-		log.Panic(err)
-	}
+func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
+	address := MakeDefaultAddress(db)
+
 	office := models.TransportationOffice{
 		Name:      "JPPSO Testy McTest",
 		AddressID: address.ID,
@@ -22,13 +18,7 @@ func MakeTransportationOffice(db *pop.Connection) (models.TransportationOffice, 
 		Longitude: -23.34455,
 	}
 
-	verrs, err := db.ValidateAndSave(&office)
-	if err != nil {
-		log.Panic(err)
-	}
-	if verrs.Count() != 0 {
-		log.Panic(verrs.Error())
-	}
+	mustCreate(db, &office)
 
 	var phoneLines []models.OfficePhoneLine
 	phoneLine := models.OfficePhoneLine{
@@ -39,21 +29,10 @@ func MakeTransportationOffice(db *pop.Connection) (models.TransportationOffice, 
 		Type:                   "voice",
 	}
 	phoneLines = append(phoneLines, phoneLine)
-	phoneVerrs, phoneErr := db.ValidateAndSave(&phoneLine)
-	if phoneErr != nil {
-		log.Panic(phoneErr)
-	}
-	if phoneVerrs.Count() != 0 {
-		log.Panic(phoneVerrs.Error())
-	}
+	mustCreate(db, &phoneLine)
 
 	office.PhoneLines = phoneLines
-	Office1Verrs, Office1Err := db.ValidateAndSave(&office)
-	if Office1Err != nil {
-		log.Panic(Office1Err)
-	}
-	if Office1Verrs.Count() != 0 {
-		log.Panic(Office1Verrs.Error())
-	}
-	return office, nil
+	mustSave(db, &office)
+
+	return office
 }

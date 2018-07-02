@@ -14,7 +14,7 @@ import (
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm, _ := testdatagen.MakePPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
@@ -42,7 +42,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns200() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm, _ := testdatagen.MakePPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and
@@ -73,7 +73,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns409() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 	// Given: a set of orders, a move, user, servicemember but NO ppm
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
@@ -95,7 +95,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoPpm() {
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrders() {
 	// Given: a user, servicemember but NO Move
-	serviceMember, _ := testdatagen.MakeServiceMember(suite.db)
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// When: rank is E1, the orders have dependents and spouse gear
 	// And: the context contains the auth values
@@ -123,7 +123,7 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoMoveOrOrd
 
 func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 	// Given: a set of orders, a move, user, servicemember and a PPM
-	ppm, _ := testdatagen.MakePPM(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 
 	// When: rank is E1, the orders have dependents and spouse gear, and

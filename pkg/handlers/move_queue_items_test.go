@@ -20,10 +20,10 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 		suite.db.TruncateAll()
 
 		// Given: An office user
-		officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+		officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 		//  A set of orders and a move belonging to those orders
-		order, _ := testdatagen.MakeOrder(suite.db)
+		order := testdatagen.MakeDefaultOrder(suite.db)
 
 		newMove := models.Move{
 			OrdersID: order.ID,

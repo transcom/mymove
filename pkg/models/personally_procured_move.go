@@ -146,7 +146,7 @@ func SavePersonallyProcuredMove(db *pop.Connection, ppm *PersonallyProcuredMove)
 			}
 		} else {
 			if ppm.AdvanceID != nil {
-				// If HasRequstedAdvance is false, we need to delete the record
+				// If HasRequestedAdvance is false, we need to delete the record
 				if ppm.Advance == nil {
 					reimbursement := Reimbursement{}
 					err := db.Find(&reimbursement, *ppm.AdvanceID)

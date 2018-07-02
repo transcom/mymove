@@ -60,7 +60,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithDcos() {
 	}
 	suite.mustSave(&tspPerformance)
 
-	user, _ := testdatagen.MakeServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -139,7 +139,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandler2cos() {
 	}
 	suite.mustSave(&tspPerformance)
 
-	user, _ := testdatagen.MakeServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
@@ -200,7 +200,7 @@ func (suite *HandlerSuite) TestShowPPMSitEstimateHandlerWithError() {
 	}
 	suite.mustSave(&destServiceArea)
 
-	user, _ := testdatagen.MakeServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	// And: the context contains required auth values
 	req := httptest.NewRequest("GET", "/estimates/ppm_sit", nil)
