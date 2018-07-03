@@ -7,7 +7,7 @@ export PGPASSWORD=mysecretpassword
 ifeq ($(STORAGE_BACKEND),s3)
 	USE_AWS:=true
 endif
-ifeq ($(USE_SES_EMAIL),true)
+ifeq ($(EMAIL_BACKEND),ses)
 	USE_AWS:=true
 endif
 
