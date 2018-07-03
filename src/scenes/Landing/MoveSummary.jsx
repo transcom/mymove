@@ -305,7 +305,7 @@ const MoveInfoHeader = props => {
         {get(orders, 'new_duty_station.name', 'New move')} from{' '}
         {get(profile, 'current_station.name', '')}
       </h2>
-      {move && <div>Move Locator: {get(move, 'locator')}</div>}
+      {get(move, 'locator') && <div>Move Locator: {get(move, 'locator')}</div>}
       {entitlement && (
         <div>
           Weight Entitlement:{' '}

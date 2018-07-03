@@ -91,7 +91,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(ErrFetchNotFound, err, "Expected not to find missing Identity")
 	suite.Nil(identity)
 
-	alice, _ := testdatagen.MakeUser(suite.db)
+	alice := testdatagen.MakeDefaultUser(suite.db)
 	identity, err = FetchUserIdentity(suite.db, alice.LoginGovUUID.String())
 	suite.Nil(err, "loading sally's identity")
 	suite.NotNil(identity)
@@ -100,7 +100,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Nil(identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	bob, _ := testdatagen.MakeServiceMember(suite.db)
+	bob := testdatagen.MakeDefaultServiceMember(suite.db)
 	identity, err = FetchUserIdentity(suite.db, bob.User.LoginGovUUID.String())
 	suite.Nil(err, "loading bob's identity")
 	suite.NotNil(identity)
@@ -109,7 +109,7 @@ func (suite *ModelSuite) TestFetchUserIdentity() {
 	suite.Equal(bob.ID, *identity.ServiceMemberID)
 	suite.Nil(identity.OfficeUserID)
 
-	carol, _ := testdatagen.MakeOfficeUser(suite.db)
+	carol := testdatagen.MakeDefaultOfficeUser(suite.db)
 	identity, err = FetchUserIdentity(suite.db, carol.User.LoginGovUUID.String())
 	suite.Nil(err, "loading carol's identity")
 	suite.NotNil(identity)

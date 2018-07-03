@@ -30,6 +30,24 @@ describe('when getting the routes for the current workflow', () => {
         ]);
       });
     });
+    describe('given a canceled PPM', () => {
+      const props = { lastMoveIsCanceled: true, selectedMoveType: 'PPM' };
+      const pages = getPagesInFlow(props);
+      it('getPagesInFlow returns profile review, the order and move pages', () => {
+        expect(pages).toEqual([
+          '/profile-review',
+          '/orders/',
+          '/orders/upload',
+          '/orders/transition',
+          '/moves/:moveId',
+          '/moves/:moveId/ppm-start',
+          '/moves/:moveId/ppm-size',
+          '/moves/:moveId/ppm-incentive',
+          '/moves/:moveId/review',
+          '/moves/:moveId/agreement',
+        ]);
+      });
+    });
     describe('given a complete service member with an HHG', () => {
       const props = {
         selectedMoveType: 'HHG',
@@ -194,6 +212,7 @@ describe('when getting the routes for the current workflow', () => {
       });
     });
   });
+  describe('given a complete servicemember with a complete profile', () => {});
 });
 
 describe('when getting the next incomplete page', () => {
@@ -551,7 +570,7 @@ describe('when getting the next incomplete page', () => {
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
             size: 'L',
-            weight: 555,
+            weight_estimate: 555,
           },
         );
         expect(result).toEqual('/moves/bar/review');

@@ -197,7 +197,6 @@ class EditContact extends Component {
 function mapStateToProps(state) {
   return {
     serviceMember: state.serviceMember.currentServiceMember,
-    move: get(state, 'moves.currentMove'),
     error: get(state, 'serviceMember.error'),
     hasSubmitError: get(state, 'serviceMember.hasSubmitError'),
     serviceMemberSchema: get(

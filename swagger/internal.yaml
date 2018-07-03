@@ -24,16 +24,8 @@ definitions:
       service_member:
         $ref: "#/definitions/ServiceMemberPayload"
         x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
     required:
       - id
-      - created_at
-      - updated_at
   Affiliation:
     type: string
     x-nullable: true
@@ -472,6 +464,15 @@ definitions:
       - locator
       - created_at
       - updated_at
+  CancelMove:
+    type: object
+    properties:
+      cancel_reason:
+        type: string
+        example: "Change of orders"
+        x-nullable: true
+    required:
+      - cancel_reason
   PatchMovePayload:
     type: object
     properties:
@@ -2411,12 +2412,10 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: reason
-          schema:
-            type: string
-            example: "Orders canceled"
+          name: cancelMove
           required: true
-          description: reason for cancelation of move
+          schema:
+            $ref: '#/definitions/CancelMove'
       responses:
         200:
           description: returns updated (canceled) move object
@@ -2920,6 +2919,7 @@ paths:
           - new
           - troubleshooting
           - ppm
+          - all
           required: true
           description: Queue type to show
       responses:

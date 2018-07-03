@@ -240,8 +240,8 @@ func GetMovesForUserID(db *pop.Connection, userID uuid.UUID) (Moves, error) {
 	return moves, err
 }
 
-// generateLocator constructs a record locator - a unique 6 character alphanumeric string
-func generateLocator() string {
+// GenerateLocator constructs a record locator - a unique 6 character alphanumeric string
+func GenerateLocator() string {
 	// Get a UUID as a source of (almost certainly) unique bytes
 	seed, err := uuid.NewV4()
 	if err != nil {
@@ -261,13 +261,14 @@ func generateLocator() string {
 // createNewMove adds a new Move record into the DB. In the (unlikely) event that we have a clash on Locators we
 // retry with a new record locator.
 func createNewMove(db *pop.Connection,
-	ordersID uuid.UUID,
+	orders Order,
 	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
-			OrdersID:         ordersID,
-			Locator:          generateLocator(),
+			Orders:           orders,
+			OrdersID:         orders.ID,
+			Locator:          GenerateLocator(),
 			SelectedMoveType: selectedType,
 			Status:           MoveStatusDRAFT,
 		}

@@ -1,3 +1,5 @@
+import { get, includes, find } from 'lodash';
+
 export const no_op = () => undefined;
 export const no_op_action = () => {
   return function(dispatch) {
@@ -23,3 +25,14 @@ export const upsert = (arr, newValue) => {
     arr.push(newValue);
   }
 };
+
+export function fetchActive(foos) {
+  return (
+    find(foos, i =>
+      includes(
+        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS'],
+        get(i, 'status'),
+      ),
+    ) || null
+  );
+}

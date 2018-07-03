@@ -13,14 +13,12 @@ import (
 
 func (suite *HandlerSuite) TestApproveMoveHandler() {
 	// Given: a set of orders, a move, office user and servicemember user
-	move, err := testdatagen.MakeMove(suite.db)
-	suite.Nil(err)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	// Given: an office User
-	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
-	suite.Nil(err)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	// Move is submitted and saved
-	err = move.Submit()
+	err := move.Submit()
 	suite.Nil(err)
 	suite.Equal(models.MoveStatusSUBMITTED, move.Status, "expected Submitted")
 	suite.mustSave(&move)
@@ -48,14 +46,13 @@ func (suite *HandlerSuite) TestApproveMoveHandler() {
 func (suite *HandlerSuite) TestCancelMoveHandler() {
 	// Given: a set of orders, a move, and office user
 	// Orders has service member with transportation office and phone nums
-	orders, err := testdatagen.MakeOrder(suite.db)
-	suite.Nil(err)
+	orders := testdatagen.MakeDefaultOrder(suite.db)
 
 	var selectedType = internalmessages.SelectedMoveTypePPM
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
-	officeUser, err := testdatagen.MakeOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 	suite.Nil(err)
 
 	// Move is submitted
@@ -77,10 +74,13 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 	// And params include the cancel reason
 	reason := "Orders revoked."
+	reasonPayload := &internalmessages.CancelMove{
+		CancelReason: &reason,
+	}
 	params := officeop.CancelMoveParams{
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
-		Reason:      &reason,
+		CancelMove:  reasonPayload,
 	}
 
 	// And: a move is canceled
@@ -99,8 +99,8 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 func (suite *HandlerSuite) TestApprovePPMHandler() {
 	// Given: a set of orders, a move, user and servicemember
-	ppm, _ := testdatagen.MakePPM(suite.db)
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/personally_procured_moves/some_id/approve", nil)
@@ -128,7 +128,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 func (suite *HandlerSuite) TestApproveReimbursementHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	reimbursement, _ := testdatagen.MakeRequestedReimbursement(suite.db)
-	officeUser, _ := testdatagen.MakeOfficeUser(suite.db)
+	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("POST", "/reimbursement/some_id/approve", nil)
