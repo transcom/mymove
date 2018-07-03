@@ -32,6 +32,7 @@ const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
 const cancelMoveType = 'CANCEL_MOVE';
+const REMOVE_BANNER = 'REMOVE_BANNER';
 
 // MULTIPLE-RESOURCE ACTION TYPES
 const updateBackupInfoType = 'UPDATE_BACKUP_INFO';
@@ -154,10 +155,27 @@ export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   ApproveReimbursement,
 );
 
-export const cancelMove = ReduxHelpers.generateAsyncActionCreator(
-  cancelMoveType,
-  CancelMove,
-);
+export const cancelMove = (moveId, changeReason) => {
+  const actions = ReduxHelpers.generateAsyncActions(cancelMoveType);
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    return CancelMove(moveId, changeReason)
+      .then(
+        item => dispatch(actions.success(item)),
+        error => dispatch(actions.error(error)),
+      )
+      .then(() => {
+        setTimeout(() => dispatch(removeBanner()), 10000);
+      });
+  };
+};
+
+export const removeBanner = () => {
+  return {
+    type: REMOVE_BANNER,
+  };
+};
+
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
 // These action types typically dispatch to other actions above to
@@ -505,6 +523,10 @@ export function officeReducer(state = initialState, action) {
       return Object.assign({}, state, {
         moveIsCanceling: false,
         error: action.error.message,
+        flashMessage: false,
+      });
+    case REMOVE_BANNER:
+      return Object.assign({}, state, {
         flashMessage: false,
       });
 
