@@ -19,15 +19,16 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type HandlerSuite struct {
 	suite.Suite
-	db           *pop.Connection
-	logger       *zap.Logger
-	filesToClose []*runtime.File
-	sesService   sesiface.SESAPI
+	db                 *pop.Connection
+	logger             *zap.Logger
+	filesToClose       []*runtime.File
+	notificationSender notifications.NotificationSender
 }
 
 type mockSESClient struct {
@@ -166,13 +167,10 @@ func TestHandlerSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	// Setup mock SES Service
-	mockSVC := mockSESClient{}
-
 	hs := &HandlerSuite{
-		db:         db,
-		logger:     logger,
-		sesService: &mockSVC,
+		db:                 db,
+		logger:             logger,
+		notificationSender: notifications.NewStubNotificationSender(logger),
 	}
 
 	suite.Run(t, hs)

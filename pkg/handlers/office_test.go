@@ -85,7 +85,7 @@ func (suite *HandlerSuite) TestCancelMoveHandler() {
 
 	// And: a move is canceled
 	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetSesService(suite.sesService)
+	context.SetNotificationSender(suite.notificationSender)
 	handler := CancelMoveHandler(context)
 	response := handler.Handle(params)
 
@@ -113,7 +113,7 @@ func (suite *HandlerSuite) TestApprovePPMHandler() {
 
 	// And: a ppm is approved
 	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetSesService(suite.sesService)
+	context.SetNotificationSender(suite.notificationSender)
 	handler := ApprovePPMHandler(context)
 	response := handler.Handle(params)
 
