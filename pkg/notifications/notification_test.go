@@ -85,7 +85,7 @@ func (suite *NotificationSuite) TestMoveApproved() {
 func (suite *NotificationSuite) TestMoveSubmitted() {
 	t := suite.T()
 
-	move, _ := testdatagen.MakeMove(suite.db)
+	move := testdatagen.MakeDefaultMove(suite.db)
 	notification := MoveSubmitted{
 		db:     suite.db,
 		logger: suite.logger,
