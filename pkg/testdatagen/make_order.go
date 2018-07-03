@@ -31,13 +31,12 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 				Name:            models.UploadedOrdersDocumentName,
 			},
 		})
-		// TODO: uncomment once e2e tests can run without connecting to AWS
-		// MakeUpload(db, Assertions{
-		// 	Upload: models.Upload{
-		// 		DocumentID: document.ID,
-		// 		Document: document,
-		// 	},
-		// })
+		MakeUpload(db, Assertions{
+			Upload: models.Upload{
+				DocumentID: document.ID,
+				Document:   document,
+			},
+		})
 	}
 
 	order := models.Order{
