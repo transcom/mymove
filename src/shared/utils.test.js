@@ -25,4 +25,35 @@ describe('utils', () => {
       });
     });
   });
+
+  describe('fetch Active', () => {
+    describe('when there are no foos', () => {
+      const foos = null;
+      let res = utils.fetchActive(foos);
+      it('should return null', () => {
+        expect(res).toBeNull();
+      });
+    });
+    describe('when there are some active and some inactive foos', () => {
+      const foos = [
+        { status: 'CANCELED', id: 'foo0' },
+        { status: 'DRAFT', id: 'foo1' },
+        { status: 'SUBMITTED', id: 'foo2' },
+      ];
+      let res = utils.fetchActive(foos);
+      it('should return the first active foo', () => {
+        expect(res.id).toEqual('foo1');
+      });
+    });
+    describe('when there are only inactive foos', () => {
+      const foos = [
+        { status: 'CANCELED', id: 'foo' },
+        { status: 'COMPLETED', id: 'foo' },
+      ];
+      let res = utils.fetchActive(foos);
+      it('should return null', () => {
+        expect(res).toBeNull();
+      });
+    });
+  });
 });

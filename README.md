@@ -175,9 +175,10 @@ AWS_S3_BUCKET_NAME
 AWS_S3_KEY_NAMESPACE
 AWS_REGION
 AWS_PROFILE
+PPP_INFRA_PATH
 ```
 
-AWS credentials should *not* be added to `.envrc` and should instead be setup using [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup).
+AWS credentials are managed via `aws-vault`. See the [the instructions in transcom-ppp](https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#setup) to set things up.
 
 ### TSP Award Queue
 
