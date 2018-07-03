@@ -75,6 +75,10 @@
       "value": "s3"
     },
     {
+      "name": "USE_SES_EMAIL",
+      "value": "true"
+    },
+    {
       "name": "HERE_MAPS_GEOCODE_ENDPOINT",
       "value": "https://geocoder.cit.api.here.com/6.2/geocode.json"
     },

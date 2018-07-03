@@ -89,7 +89,7 @@ func (suite *NotificationSuite) TestSendNotification() {
 	mockSVC := mockSESClient{Suite: suite}
 	mockSVC.On("SendRawEmail", mock.Anything).Return(&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
 
-	err := SendNotification(testNotification{email: suite.GetTestEmailContent()}, &mockSVC)
+	err := SendNotification(testNotification{email: suite.GetTestEmailContent()}, &mockSVC, suite.logger)
 	if err != nil {
 		t.Fatal(err)
 	}

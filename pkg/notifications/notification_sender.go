@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 type notification interface {
@@ -24,16 +25,16 @@ type emailContent struct {
 }
 
 // SendNotification sends a one or more notifications for all supported mediums
-func SendNotification(notification notification, svc sesiface.SESAPI) error {
+func SendNotification(notification notification, svc sesiface.SESAPI, logger *zap.Logger) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err
 	}
 
-	return sendEmails(emails, svc)
+	return sendEmails(emails, svc, logger)
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
+func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) error {
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email)
 		if err != nil {
@@ -51,6 +52,9 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
 		}
+
+		logger.Info("Sent email to service member",
+			zap.String("sevice member email address", email.recipientEmail))
 	}
 
 	return nil
