@@ -2407,7 +2407,7 @@ paths:
       description: Created a move document with the given information
       operationId: createMoveDocument
       tags:
-        - office
+        - moves
       parameters:
         - name: moveId
           in: path

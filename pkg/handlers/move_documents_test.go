@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	office "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
@@ -35,7 +35,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		Status:           internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
 
-	newMoveDocParams := office.CreateMoveDocumentParams{
+	newMoveDocParams := moveop.CreateMoveDocumentParams{
 		HTTPRequest:               request,
 		CreateMoveDocumentPayload: &newMoveDocPayload,
 		MoveID: strfmt.UUID(move.ID.String()),
@@ -44,7 +44,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	handler := CreateMoveDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
-	createdResponse := response.(*office.CreateMoveDocumentOK)
+	createdResponse := response.(*moveop.CreateMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 

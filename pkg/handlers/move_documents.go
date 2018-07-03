@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	officeop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/office"
+	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -34,7 +34,7 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 type CreateMoveDocumentHandler HandlerContext
 
 // Handle is the handler
-func (h CreateMoveDocumentHandler) Handle(params officeop.CreateMoveDocumentParams) middleware.Responder {
+func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -68,5 +68,5 @@ func (h CreateMoveDocumentHandler) Handle(params officeop.CreateMoveDocumentPara
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return officeop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+	return moveop.NewCreateMoveDocumentOK().WithPayload(newPayload)
 }
