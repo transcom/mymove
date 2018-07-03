@@ -168,9 +168,12 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetSesService(sesService)
+		handlerContext.SetNotificationSender(
+			notifications.NewNotificationSender(sesService, logger),
+		)
 	} else {
-		handlerContext.SetSesService(notifications.StubSESClient{})
+		handlerContext.SetNotificationSender(
+			notifications.NewStubNotificationSender(logger))
 	}
 
 	// Serves files out of build folder

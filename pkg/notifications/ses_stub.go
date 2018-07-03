@@ -1,21 +1,36 @@
 package notifications
 
 import (
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
+	"go.uber.org/zap"
 )
 
-// StubSESClient mocks an SES client for local usage
-type StubSESClient struct {
-	sesiface.SESAPI
+// StubNotificationSender mocks an SES client for local usage
+type StubNotificationSender NotificationSendingContext
+
+// NewStubNotificationSender returns a new StubNotificationSender
+func NewStubNotificationSender(logger *zap.Logger) StubNotificationSender {
+	return StubNotificationSender{
+		logger: logger,
+	}
 }
 
-// SendRawEmail returns a dummy ID
-func (m StubSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	notAnID := "twelve"
-	output := ses.SendRawEmailOutput{
-		MessageId: &notAnID,
+// SendNotification returns a dummy ID
+func (m StubNotificationSender) SendNotification(notification notification) error {
+	emails, err := notification.emails()
+	if err != nil {
+		return err
 	}
 
-	return &output, nil
+	for _, email := range emails {
+		rawMessage, err := formatRawEmailMessage(email)
+		if err != nil {
+			return err
+		}
+
+		m.logger.Info("Not sending this email",
+			zap.String("destinations", email.recipientEmail),
+			zap.String("raw message", string(rawMessage[:])))
+	}
+
+	return nil
 }
