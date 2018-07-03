@@ -91,6 +91,7 @@ describe('office Reducer', () => {
         otherState: 1,
         officeMove: createMove('CANCELED', 'Got tired'),
         moveIsCanceling: false,
+        flashMessage: true,
       });
     });
 
@@ -126,6 +127,7 @@ describe('office Reducer', () => {
         otherState: 1,
         officeMove: createMove('DRAFT', ''),
         moveIsCanceling: false,
+        flashMessage: false,
         error: 'something went wrong',
       });
     });

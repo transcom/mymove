@@ -510,8 +510,6 @@ export function officeReducer(state = initialState, action) {
     case CANCEL_MOVE.start:
       return Object.assign({}, state, {
         moveIsCanceling: true,
-        officeMove: action.payload,
-        flashMessage: true,
       });
     case CANCEL_MOVE.success:
       return Object.assign({}, state, {
