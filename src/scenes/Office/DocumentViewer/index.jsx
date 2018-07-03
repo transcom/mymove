@@ -29,9 +29,9 @@ class DocumentViewer extends Component {
       serviceMember.first_name,
     ]).join(', ');
 
-    const listUrl = `${this.props.match.path}/list`;
+    const defaultUrl = this.props.match.url;
     const detailUrl = `${this.props.match.path}/details`;
-    const newUrl = `${this.props.match.url}/new`;
+    const listUrl = `${this.props.match.path}/list`;
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -51,7 +51,18 @@ class DocumentViewer extends Component {
     return (
       <div className="usa-grid doc-viewer">
         <div className="usa-width-two-thirds">
-          <div style={{ minWidth: '400px' }}> Document Upload Coming soon</div>
+          <div className="tab-content">
+            <Switch>
+              <PrivateRoute
+                path={detailUrl}
+                render={() => <div> details coming soon</div>}
+              />
+              <PrivateRoute
+                path={defaultUrl}
+                render={() => <div> document uploader coming soon</div>}
+              />
+            </Switch>
+          </div>
         </div>
         <div className="usa-width-one-third">
           <h3>{name}</h3>
@@ -77,12 +88,8 @@ class DocumentViewer extends Component {
                 render={() => <Redirect replace to={listUrl} />}
               />
               <PrivateRoute
-                path={newUrl}
-                render={() => <div> new list coming soon</div>}
-              />
-              <PrivateRoute
                 path={listUrl}
-                render={() => <div>list coming soon</div>}
+                render={() => <div> list coming soon</div>}
               />
               <PrivateRoute
                 path={detailUrl}
