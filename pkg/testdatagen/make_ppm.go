@@ -10,7 +10,7 @@ import (
 // MakePPM creates a single Personally Procured Move and its associated Move and Orders
 func MakePPM(db *pop.Connection, assertions Assertions) models.PersonallyProcuredMove {
 	shirt := internalmessages.TShirtSizeM
-	defaultAdvance := models.BuildDraftReimbursement(1000, models.MethodOfReceiptMILPAY)
+	defaultAdvance := models.BuildRequestedReimbursement(1000, models.MethodOfReceiptMILPAY)
 	mustCreate(db, &defaultAdvance)
 
 	// Create new Move if not provided

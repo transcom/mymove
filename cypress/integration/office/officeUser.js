@@ -7,6 +7,15 @@ describe('office user finds the move', function() {
   it('office user views moves in queue new moves', function() {
     officeUserViewsMoves();
   });
+  it('office user verifies the orders tab', function() {
+    officeUserVerifiesOrders();
+  });
+  it('office user verifies the Accounting tab', function() {
+    officeUserVerifiesAccounting();
+  });
+  it('office user approves move and verifies PPM', function() {
+    officeUserApprovesMoveAndVerifiesPPM();
+  });
 });
 
 function officeUserViewsMoves() {
@@ -24,20 +33,30 @@ function officeUserViewsMoves() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
   });
+}
 
-  // Verify basics and edit
-  // Click on Orders document link, check that html is rendered
+function officeUserVerifiesOrders() {
+  // Open new moves queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('VGHEIS')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Click on Orders document link, check that link matches
   cy
     .get('.document')
     .find('a')
-    .then(function($a) {
-      console.log($a);
-      const href = $a.prop('href');
-      cy
-        .request(href)
-        .its('body')
-        .should('include', '</html>');
-    });
+    .should('have.attr', 'href')
+    .and('match', /^\/moves\/[^/]+\/orders/);
 
   // Click on edit orders
   cy
@@ -49,28 +68,6 @@ function officeUserViewsMoves() {
   // Enter details in form and save orders
   cy.get('input[name="orders.orders_number"]').type('12345');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
-  cy
-    .get('button')
-    .contains('Save')
-    .click();
-
-  // Enter details in form and save
-  cy
-    .get('.editable-panel-header')
-    .contains('Accounting')
-    .siblings()
-    .click({ force: true });
-
-  cy.get('input[name="tac"]').type('12345');
-
-  cy
-    .get('.editable-panel-header')
-    .contains('Accounting')
-    .siblings()
-    .click({ force: true });
-
-  cy.get('select[name="department_indicator"]').select('AIR_FORCE');
-  cy.get('input[name="tac"]').type('12345');
 
   cy
     .get('button')
@@ -82,8 +79,75 @@ function officeUserViewsMoves() {
     .contains('Save')
     .click();
 
+  // Verify data has been saved in the UI
+  cy.get('span').contains('12345');
+
   // Refresh browser and make sure changes persist
-  cy.visit('/');
+  cy.reload();
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .should('be.disabled');
+
+  cy.get('span').contains('12345');
+  cy.get('span').contains('Delayed Approval 20 Weeks or More');
+}
+
+function officeUserVerifiesAccounting() {
+  // Open new moves queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
+
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('VGHEIS')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Enter details in form and save
+  cy
+    .get('.editable-panel-header')
+    .contains('Accounting')
+    .siblings()
+    .click();
+
+  cy.get('input[name="tac"]').type('6789');
+  cy.get('select[name="department_indicator"]').select('AIR_FORCE');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .should('be.enabled');
+
+  cy
+    .get('button')
+    .contains('Save')
+    .click();
+
+  // Verify data has been saved in the UI
+  cy.get('span').contains('12345');
+
+  // Refresh browser and make sure changes persist
+  cy.reload();
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .should('be.disabled');
+
+  cy.get('span').contains('6789');
+  cy.get('span').contains('57 - United States Air Force');
+}
+
+function officeUserApprovesMoveAndVerifiesPPM() {
+  // Open new moves queue
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
 
   // Find move and open it
   cy
@@ -104,33 +168,70 @@ function officeUserViewsMoves() {
     .get('button')
     .contains('Approve Basics')
     .click();
-  // cy
-  //   .get('button')
-  //   .contains('Approve PPM')
-  //   .should('be.enabled');
-  // cy
-  //   .get('button')
-  //   .contains('Approve PPM')
-  //   .click();
 
-  // // Go back to new moves queue
-  // cy
-  //   .get('span')
-  //   .contains('New Moves Queue')
-  //   .click();
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .should('be.enabled');
 
-  // // Open PPMs
-  // cy
-  //   .get('span')
-  //   .contains('PPMs')
-  //   .click();
+  // Open new moves queue
+  cy.visit('/');
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new/);
+  });
 
-  // // Find move and open it
-  // cy
-  //   .get('div')
-  //   .contains('VGHEIS')
-  //   .dblclick();
+  // Open PPMs Queue
+  cy
+    .get('span')
+    .contains('PPMs')
+    .click();
 
-  // Verify PPM
-  // tbd
+  // Find move and open it
+  cy
+    .get('div')
+    .contains('VGHEIS')
+    .dblclick();
+
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/basics/);
+  });
+
+  // Click on PPM tab
+  cy
+    .get('span')
+    .contains('PPM')
+    .click();
+  cy.location().should(loc => {
+    expect(loc.pathname).to.match(/^\/queues\/new\/moves\/[^/]+\/ppm/);
+  });
+
+  // Verify that the Estimates section contains expected data
+  cy.get('span').contains('8000');
+
+  // Approve PPM
+  cy
+    .get('button')
+    .contains('Approve PPM')
+    .click();
+
+  // Approve advance
+  cy.get('.payment-table').within(() => {
+    // Verify the status icon
+    cy
+      .get('td svg:first')
+      .should('have.attr', 'title')
+      .and('eq', 'Awaiting Review');
+    // Verify the approve checkmark
+    cy
+      .get('td svg:last')
+      .should('have.attr', 'title')
+      .and('eq', 'Approve');
+
+    // Approve advance and verify icon change
+    cy.get('td svg:last').click();
+    cy
+      .get('td svg:first')
+      .should('have.attr', 'title')
+      .and('eq', 'Approved');
+  });
 }
