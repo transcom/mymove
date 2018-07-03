@@ -207,7 +207,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	handler := SubmitMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetSesService(suite.sesService)
+	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code
