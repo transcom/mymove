@@ -7,7 +7,7 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import OrdersViewerPanel from './OrdersViewerPanel';
-import DocumentContent from './DocumentContent';
+import DocumentContent from './DocumentViewer/DocumentContent';
 import { loadMoveDependencies } from './ducks.js';
 
 import './office.css';

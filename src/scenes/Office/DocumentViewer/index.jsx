@@ -7,10 +7,12 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { loadMoveDependencies } from './ducks.js';
+import { loadMoveDependencies } from '../ducks.js';
+import { RoutedTabs, NavTab } from 'react-router-tabs';
+import PrivateRoute from 'shared/User/PrivateRoute';
+import { Switch, Redirect } from 'react-router-dom';
 
-import './office.css';
-
+import './index.css';
 class DocumentViewer extends Component {
   componentDidMount() {
     //this is probably overkill, but works for now
@@ -21,10 +23,15 @@ class DocumentViewer extends Component {
   }
   render() {
     const { serviceMember, move } = this.props;
+
     const name = compact([
       serviceMember.last_name,
       serviceMember.first_name,
     ]).join(', ');
+
+    const listUrl = `${this.props.match.path}/list`;
+    const detailUrl = `${this.props.match.path}/details`;
+    const newUrl = `${this.props.match.url}/new`;
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -42,18 +49,46 @@ class DocumentViewer extends Component {
         </div>
       );
     return (
-      <div>
-        <div className="usa-grid">
-          <div className="usa-width-two-thirds orders-page-column">
-            <div style={{ minWidth: '400px' }}>
-              {' '}
-              Document Upload Coming soon
-            </div>
-          </div>
-          <div className="usa-width-one-third orders-page-fields">
-            <h3>{name}</h3>
-            <PanelField title="Move Locator">{move.locator}</PanelField>
-            <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
+      <div className="usa-grid doc-viewer">
+        <div className="usa-width-two-thirds">
+          <div style={{ minWidth: '400px' }}> Document Upload Coming soon</div>
+        </div>
+        <div className="usa-width-one-third">
+          <h3>{name}</h3>
+          <PanelField title="Move Locator">{move.locator}</PanelField>
+          <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
+          <RoutedTabs
+            startPathWith={this.props.match.url}
+            className="doc-viewer-tabs"
+          >
+            <NavTab to="/list">
+              <span className="title">Document(s)</span>
+            </NavTab>
+
+            <NavTab to="/details">
+              <span className="title">Details</span>
+            </NavTab>
+          </RoutedTabs>
+          <div className="tab-content">
+            <Switch>
+              <PrivateRoute
+                exact
+                path={this.props.match.url}
+                render={() => <Redirect replace to={listUrl} />}
+              />
+              <PrivateRoute
+                path={newUrl}
+                render={() => <div> new list coming soon</div>}
+              />
+              <PrivateRoute
+                path={listUrl}
+                render={() => <div>list coming soon</div>}
+              />
+              <PrivateRoute
+                path={detailUrl}
+                render={() => <div> details coming soon</div>}
+              />
+            </Switch>
           </div>
         </div>
       </div>
