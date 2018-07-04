@@ -24,14 +24,33 @@ type emailContent struct {
 	textBody       string
 }
 
+// NotificationSender is an interface for sending notifications
+type NotificationSender interface {
+	SendNotification(notification) error
+}
+
+// NotificationSendingContext provides context to a notification sender
+type NotificationSendingContext struct {
+	svc    sesiface.SESAPI
+	logger *zap.Logger
+}
+
+// NewNotificationSender returns a new NotificationSendingContext
+func NewNotificationSender(svc sesiface.SESAPI, logger *zap.Logger) NotificationSendingContext {
+	return NotificationSendingContext{
+		svc:    svc,
+		logger: logger,
+	}
+}
+
 // SendNotification sends a one or more notifications for all supported mediums
-func SendNotification(notification notification, svc sesiface.SESAPI, logger *zap.Logger) error {
+func (n NotificationSendingContext) SendNotification(notification notification) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err
 	}
 
-	return sendEmails(emails, svc, logger)
+	return sendEmails(emails, n.svc, n.logger)
 }
 
 func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) error {

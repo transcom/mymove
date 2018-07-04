@@ -75,8 +75,8 @@
       "value": "s3"
     },
     {
-      "name": "USE_SES_EMAIL",
-      "value": "true"
+      "name": "EMAIL_BACKEND",
+      "value": "ses"
     },
     {
       "name": "HERE_MAPS_GEOCODE_ENDPOINT",

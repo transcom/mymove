@@ -4,10 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -19,29 +16,6 @@ type NotificationSuite struct {
 	suite.Suite
 	db     *pop.Connection
 	logger *zap.Logger
-}
-
-type mockSESClient struct {
-	sesiface.SESAPI
-	mock.Mock
-	Suite *NotificationSuite
-}
-
-func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	args := m.Called(input)
-
-	testEmail := m.Suite.GetTestEmailContent()
-	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
-	m.Suite.Equal(senderEmail(), *input.Source)
-
-	message := string(input.RawMessage.Data)
-	m.Suite.Contains(message, testEmail.subject)
-	m.Suite.Contains(message, testEmail.htmlBody)
-	m.Suite.Contains(message, testEmail.textBody)
-	m.Suite.Contains(message, testEmail.recipientEmail)
-	m.Suite.Contains(message, senderEmail())
-
-	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
 }
 
 type testNotification struct {
@@ -82,19 +56,33 @@ func (suite *NotificationSuite) TestMoveApproved() {
 	suite.NotEmpty(email.textBody)
 }
 
-func (suite *NotificationSuite) TestSendNotification() {
+func (suite *NotificationSuite) TestMoveSubmitted() {
 	t := suite.T()
 
-	messageID := "a"
-	mockSVC := mockSESClient{Suite: suite}
-	mockSVC.On("SendRawEmail", mock.Anything).Return(&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
+	move := testdatagen.MakeDefaultMove(suite.db)
+	notification := MoveSubmitted{
+		db:     suite.db,
+		logger: suite.logger,
+		moveID: move.ID,
+		session: &auth.Session{
+			ServiceMemberID: move.Orders.ServiceMember.ID,
+			ApplicationName: auth.MyApp,
+		},
+	}
 
-	err := SendNotification(testNotification{email: suite.GetTestEmailContent()}, &mockSVC, suite.logger)
+	emails, err := notification.emails()
 	if err != nil {
 		t.Fatal(err)
 	}
 
-	mockSVC.AssertNumberOfCalls(t, "SendRawEmail", 1)
+	suite.Equal(len(emails), 1)
+
+	email := emails[0]
+	sm := move.Orders.ServiceMember
+	suite.Equal(email.recipientEmail, *sm.PersonalEmail)
+	suite.NotEmpty(email.subject)
+	suite.NotEmpty(email.htmlBody)
+	suite.NotEmpty(email.textBody)
 }
 
 func (suite *NotificationSuite) GetTestEmailContent() emailContent {

@@ -103,7 +103,7 @@ func main() {
 	hereAppID := flag.String("here_maps_app_id", "", "HERE maps App ID for this application")
 	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
-	useSesEmail := flag.Bool("use_ses_email", false, "Whether to enable AWS SES functionality")
+	emailBackend := flag.String("email_backend", "local", "Email backend to use, either SES or local")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
@@ -157,7 +157,7 @@ func main() {
 		handlerContext.SetNoSessionTimeout()
 	}
 
-	if *useSesEmail {
+	if *emailBackend == "ses" {
 		// Setup Amazon SES (email) service
 		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
 		// below.
@@ -168,9 +168,12 @@ func main() {
 			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
 		}
 		sesService := ses.New(sesSession)
-		handlerContext.SetSesService(sesService)
+		handlerContext.SetNotificationSender(
+			notifications.NewNotificationSender(sesService, logger),
+		)
 	} else {
-		handlerContext.SetSesService(notifications.StubSESClient{})
+		handlerContext.SetNotificationSender(
+			notifications.NewStubNotificationSender(logger))
 	}
 
 	// Serves files out of build folder
