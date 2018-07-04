@@ -10,10 +10,10 @@ describe('office user finds the move', function() {
   it('office user verifies the orders tab', function() {
     officeUserVerifiesOrders();
   });
-  it('office user verifies the Accounting tab', function() {
+  it('office user verifies the accounting tab', function() {
     officeUserVerifiesAccounting();
   });
-  it('office user approves move and verifies PPM', function() {
+  it('office user approves move, verifies and approves PPM', function() {
     officeUserApprovesMoveAndVerifiesPPM();
   });
 });

@@ -46,6 +46,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm0.Move.Submit()
 	save(db, &ppm0.Move)
+	// Save move and dependencies
+	models.SaveMoveStatuses(db, &ppm0.Move)
 
 	// Service member with a move in progress
 	pastTime := time.Now().AddDate(0, 0, -10)
@@ -64,6 +66,8 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
 	save(db, &ppm1.Move)
+	// Save move and dependencies
+	models.SaveMoveStatuses(db, &ppm1.Move)
 
 	// Service member with a move approved, but not in progress
 	futureTime := time.Now().AddDate(0, 0, 10)
@@ -82,4 +86,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 	save(db, &ppm2.Move)
+	// Save move and dependencies
+	models.SaveMoveStatuses(db, &ppm2.Move)
 }
