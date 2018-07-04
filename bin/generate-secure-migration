@@ -4,12 +4,12 @@
 # https://github.com/transcom/mymove#secure-migrations
 #
 
-set -eux -o pipefail
+set -eu -o pipefail
 
 readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly soda="${dir}/soda"
 
-readonly local_migrations_dir="${dir}/local_migrations"
+readonly local_migrations_dir="${dir}/../local_migrations"
 readonly prod_migrations_temp_dir="$(mktemp -d)"
 
 #
@@ -27,7 +27,7 @@ fi
 readonly migration_name="$1"
 
 #
-# Build secure migration
+# Build secure migration file names
 #
 
 readonly migration_output=$($soda generate fizz "$migration_name")
@@ -41,26 +41,49 @@ rm "$down_migration_name"
 # - remove ".up.fizz" from filename
 # - remove "migrations/" from filename
 # - append ".sql"
-secure_migration_name="${up_migration_name#.up.fizz}"
-secure_migration_name="${secure_migration_name%migrations/}"
+secure_migration_name="${up_migration_name%.up.fizz}"
+secure_migration_name="${secure_migration_name#migrations/}"
 readonly secure_migration_name="${secure_migration_name}.sql"
 
-readonly up_migration_content="exec('./apply-secure-migration.sh ${secure_migration_name}')"
+readonly local_test_migration_name="${local_migrations_dir}/${secure_migration_name}"
+readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_name}"
 
+#
+# Build secure migration stub content
+#
+
+readonly up_migration_content="exec('./apply-secure-migration.sh ${secure_migration_name}')"
 echo "${up_migration_content}" > "$up_migration_name"
 
 # Create empty file for local test migration
-cat > "${local_migrations_dir}/${secure_migration_name}" << EOM
+cat > "${local_test_migration_name}" << EOM
 -- Local test migration.
 -- This will be run on development environments. It should mirror what you
 -- intend to apply on production, but do not include any sensitive data.
 EOM
 
 # Create empty file for real secure migration
-cat > "${prod_migrations_temp_dir}/${secure_migration_name}" << EOM
+cat > "${prod_migration_name}" << EOM
 -- Production Migration!
 -- This will be distributed to all deployed environments (e.g. staging, prod)
 EOM
 
+#
+# Display next steps for user
+#
 
+cat << EOM
+Generated migration files:
 
+Local test migration: ${local_test_migration_name}
+Production migration: ${prod_migration_name}
+
+Next:
+    1. Edit the production migration
+    2. Copy the production migration into the local test migration, scrubbing sensitive data
+    3. Test the local migration by running: make db_dev_migrate
+    4. If everything looks good, open your pull request and run:
+       upload-secure-migration \\
+          ${local_test_migration_name} \\
+          ${prod_migration_name}
+EOM
