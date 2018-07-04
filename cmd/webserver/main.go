@@ -23,6 +23,7 @@ import (
 	"github.com/transcom/mymove/pkg/auth/authentication"
 	"github.com/transcom/mymove/pkg/handlers"
 	"github.com/transcom/mymove/pkg/logging"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -102,6 +103,7 @@ func main() {
 	hereAppID := flag.String("here_maps_app_id", "", "HERE maps App ID for this application")
 	hereAppCode := flag.String("here_maps_app_code", "", "HERE maps App API code")
 	storageBackend := flag.String("storage_backend", "filesystem", "Storage backend to use, either filesystem or s3.")
+	emailBackend := flag.String("email_backend", "local", "Email backend to use, either SES or local")
 	s3Bucket := flag.String("aws_s3_bucket_name", "", "S3 bucket used for file storage")
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
@@ -155,17 +157,24 @@ func main() {
 		handlerContext.SetNoSessionTimeout()
 	}
 
-	// Setup Amazon SES (email) service
-	// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
-	// below.
-	sesSession, err := awssession.NewSession(&aws.Config{
-		Region: aws.String(*awsSesRegion),
-	})
-	if err != nil {
-		logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+	if *emailBackend == "ses" {
+		// Setup Amazon SES (email) service
+		// TODO: This might be able to be combined with the AWS Session that we're using for S3 down
+		// below.
+		sesSession, err := awssession.NewSession(&aws.Config{
+			Region: aws.String(*awsSesRegion),
+		})
+		if err != nil {
+			logger.Fatal("Failed to create a new AWS client config provider", zap.Error(err))
+		}
+		sesService := ses.New(sesSession)
+		handlerContext.SetNotificationSender(
+			notifications.NewNotificationSender(sesService, logger),
+		)
+	} else {
+		handlerContext.SetNotificationSender(
+			notifications.NewStubNotificationSender(logger))
 	}
-	sesService := ses.New(sesSession)
-	handlerContext.SetSesService(sesService)
 
 	// Serves files out of build folder
 	clientHandler := http.FileServer(http.Dir(*build))
