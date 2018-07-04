@@ -8,12 +8,9 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -29,11 +26,6 @@ type HandlerSuite struct {
 	logger             *zap.Logger
 	filesToClose       []*runtime.File
 	notificationSender notifications.NotificationSender
-}
-
-type mockSESClient struct {
-	sesiface.SESAPI
-	mock.Mock
 }
 
 func (suite *HandlerSuite) SetupTest() {
@@ -144,14 +136,6 @@ func (suite *HandlerSuite) AfterTest() {
 
 func (suite *HandlerSuite) closeFile(file *runtime.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
-}
-
-// SendRawEmail is a mock of the actual SendRawEmail() function provided by SES.
-// TODO: There is probably a better way to mock this.
-func (*mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	messageID := "test"
-	output := ses.SendRawEmailOutput{MessageId: &messageID}
-	return &output, nil
 }
 
 func TestHandlerSuite(t *testing.T) {
