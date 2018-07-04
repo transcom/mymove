@@ -1,8 +1,8 @@
 package paperwork
 
 import (
+	"fmt"
 	"io"
-	"strings"
 	"time"
 
 	"github.com/jung-kurt/gofpdf"
@@ -54,13 +54,14 @@ const fontFace = "Helvetica"
 func (s *ShipmentSummary) DrawForm(outputFile io.ReadWriter) error {
 	s.pdf.SetMargins(horizontalMargin, topMargin, horizontalMargin)
 
-	sm := s.move.Orders.ServiceMember
+	orders := s.move.Orders
+	sm := orders.ServiceMember
 
 	s.pdf.SetHeaderFunc(func() {
 		s.pdf.SetFont(fontFace, "B", 17)
 		s.pdf.Cell(bodyWidth*0.75, fieldHeight*2, "SHIPMENT SUMMARY WORKSHEET - PPM")
 		s.setFieldLabelFont()
-		s.pdf.Cell(bodyWidth*0.25, fieldHeight, "Date Prepared (YYYYMMDD)")
+		s.pdf.Cell(bodyWidth*0.25, fieldHeight, "Date Prepared (YYYY-MM-DD)")
 		s.setFieldValueFont()
 		s.pdf.SetXY(horizontalMargin+bodyWidth*0.75, s.pdf.GetY()+5)
 		s.pdf.Cell(bodyWidth*0.25, fieldHeight, time.Now().Format("2006-01-02"))
@@ -84,19 +85,7 @@ func (s *ShipmentSummary) DrawForm(outputFile io.ReadWriter) error {
 	s.pdf.SetXY(s.pdf.GetX(), s.pdf.GetY()-fieldHeight)
 	s.pdf.SetFont(fontFace, "", 18)
 
-	names := []string{}
-	if sm.FirstName != nil && len(*sm.FirstName) > 0 {
-		names = append(names, *sm.FirstName)
-	}
-	if sm.LastName != nil && len(*sm.LastName) > 0 {
-		names = append(names, *sm.LastName)
-	}
-	if sm.MiddleName != nil && len(*sm.MiddleName) > 0 {
-		names = append(names, *sm.MiddleName)
-	}
-	joined := strings.Join(names, ", ")
-
-	s.pdf.Cell(nameFieldWidth-nameLabelWidth, fieldHeight*2, joined)
+	s.pdf.Cell(nameFieldWidth-nameLabelWidth, fieldHeight*2, sm.ReverseNameLineFormat())
 
 	s.setFieldLabelFont()
 	s.pdf.Cell(bodyWidth-nameFieldWidth, fieldHeight, "Preferred Phone Number")
@@ -108,20 +97,35 @@ func (s *ShipmentSummary) DrawForm(outputFile io.ReadWriter) error {
 	s.drawGrayLineFull(2)
 
 	// More stuff
+	var affiliation string
+	if sm.Affiliation != nil {
+		affiliation = string(*sm.Affiliation)
+	}
+
+	var rank string
+	if sm.Rank != nil {
+		rank = string(*sm.Rank)
+	}
+
 	row := []formField{
 		formField{label: "DoD ID", value: coalesce(sm.Edipi, "")},
-		formField{label: "Service Branch/Agency", value: ""},
-		formField{label: "Rank/Grade", value: ""},
-		formField{label: "Preferred Email", value: ""},
+		formField{label: "Service Branch/Agency", value: affiliation},
+		formField{label: "Rank/Grade", value: rank},
+		formField{label: "Preferred Email", value: coalesce(sm.PersonalEmail, "")},
 	}
 	s.addFormRow(row, bodyWidth)
 	s.drawGrayLineFull(2)
 
 	// Address
+	var address string
+	if sm.ResidentialAddress != nil {
+		address = sm.ResidentialAddress.LineFormat()
+	}
+
 	s.setFieldLabelFont()
 	s.pdf.Cell(bodyWidth*0.3, fieldHeight, "Preferred W2 Mailing Address")
 	s.setFieldValueFont()
-	s.pdf.Cell(bodyWidth*0.7, fieldHeight, "")
+	s.pdf.Cell(bodyWidth*0.7, fieldHeight, address)
 	s.pdf.Ln(-1)
 
 	// Not the right data
@@ -130,19 +134,26 @@ func (s *ShipmentSummary) DrawForm(outputFile io.ReadWriter) error {
 
 	s.addSectionHeader("ENTITLEMENTS/MOVE SUMMARY")
 	y := s.pdf.GetY()
+
+	var allotment models.WeightAllotment
+	if sm.Rank != nil {
+		allotment = models.GetWeightAllotment(*sm.Rank)
+	}
+
+	total := allotment.TotalWeightSelf + allotment.ProGearWeight + allotment.ProGearWeightSpouse
 	entitlements := []formField{
-		formField{label: "Entitlement", value: "12321 lbs"},
-		formField{label: "Pro-Gear", value: "12321 lbs"},
-		formField{label: "Spouse Pro-Gear", value: "12321 lbs"},
-		formField{label: "Total Weight", value: "12321 lbs"},
+		formField{label: "Entitlement", value: formatPounds(allotment.TotalWeightSelf)},
+		formField{label: "Pro-Gear", value: formatPounds(allotment.ProGearWeight)},
+		formField{label: "Spouse Pro-Gear", value: formatPounds(allotment.ProGearWeightSpouse)},
+		formField{label: "Total Weight", value: formatPounds(total)},
 	}
 	s.addTable("Maximum Weight Entitlement", entitlements, bodyWidth*0.46, fieldHeight)
 
 	middleX := PdfPageWidth * 0.5
 	s.pdf.SetXY(middleX, y)
 	row = []formField{
-		formField{label: "Authorized Origin", value: "Ft. Bragg"},
-		formField{label: "Authorized Destination", value: "Pentagon"},
+		formField{label: "Authorized Origin", value: sm.DutyStation.Name},
+		formField{label: "Authorized Destination", value: orders.NewDutyStation.Name},
 	}
 	s.addFormRow(row, bodyWidth*0.5)
 	s.drawGrayLine(2, middleX, PdfPageWidth-horizontalMargin)
@@ -155,6 +166,10 @@ func (s *ShipmentSummary) DrawForm(outputFile io.ReadWriter) error {
 	return s.pdf.Output(outputFile)
 }
 
+func formatPounds(weight int) string {
+	return fmt.Sprintf("%d lbs", weight)
+}
+
 func (s *ShipmentSummary) addSectionHeader(title string) {
 	s.pdf.Ln(2)
 	s.pdf.SetFont(fontFace, "B", 10)
@@ -164,11 +179,11 @@ func (s *ShipmentSummary) addSectionHeader(title string) {
 }
 
 func (s *ShipmentSummary) setFieldLabelFont() {
-	s.pdf.SetFont(fontFace, "B", 10)
+	s.pdf.SetFont(fontFace, "B", 9)
 }
 
 func (s *ShipmentSummary) setFieldValueFont() {
-	s.pdf.SetFont(fontFace, "B", 11)
+	s.pdf.SetFont(fontFace, "", 10)
 }
 
 func (s *ShipmentSummary) drawGrayLineFull(margin float64) {

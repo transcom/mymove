@@ -339,7 +339,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 // to generate the Advance paperwork.
 func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
+	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "Orders.ServiceMember.ResidentialAddress", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
 		return move, errors.Wrap(err, "could not load move")
 	}
 	return move, nil

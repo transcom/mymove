@@ -88,5 +88,5 @@ func main() {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("File written to %s", outputPath)
+	fmt.Println(outputPath)
 }
