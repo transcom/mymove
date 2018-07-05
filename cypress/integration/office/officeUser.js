@@ -15,6 +15,7 @@ describe('office user finds the move', function() {
   });
   it('office user approves move, verifies and approves PPM', function() {
     officeUserApprovesMoveAndVerifiesPPM();
+    cy.resetDb();
   });
 });
 
