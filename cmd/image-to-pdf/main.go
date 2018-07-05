@@ -40,7 +40,7 @@ func main() {
 		log.Fatal("Must specify at least one input file")
 	}
 
-	path, err := generator.MergeLocalFiles(inputFiles)
+	path, err := generator.MergeImagesToPDF(inputFiles)
 	if err != nil {
 		log.Fatal(err.Error())
 	}
