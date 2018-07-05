@@ -23,12 +23,4 @@ const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(
   appReducer,
 );
 
-if (isDevelopment) {
-  //making state accessible to cypress
-  const onStateChange = function(global) {
-    global._state = this.getState();
-  }.bind(store, window);
-  store.subscribe(onStateChange);
-  onStateChange();
-}
 export default store;

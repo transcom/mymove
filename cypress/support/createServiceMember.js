@@ -4,10 +4,10 @@ export default function createServiceMember() {
   cy.location().should(loc => {
     expect(loc.pathname).to.match(/^\/service-member\/[^/]+\/create/);
   });
-  return cy.window().then(window => {
-    const state = window._state;
-    const serviceMemberId = state.serviceMember.currentServiceMember.id;
-    const userId = state.user.userId;
+
+  return cy.request('/internal/users/logged_in').then(result => {
+    const userId = Cypress._.get(result, 'body.id');
+    const serviceMemberId = Cypress._.get(result, 'body.service_member.id');
     return cy.fixture('serviceMember.json').then(serviceMember => {
       serviceMember.user_id = userId;
       return cy

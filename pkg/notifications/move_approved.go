@@ -91,9 +91,6 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		textBody:       fmt.Sprintf("%s\n%s\n%s\n%s", introText, nextStepsText, ppmText, closingText),
 	}
 
-	m.logger.Info("Sent move approval email to service member",
-		zap.String("sevice member email address", *serviceMember.PersonalEmail))
-
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }
