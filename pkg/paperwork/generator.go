@@ -183,9 +183,13 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
 	}
 	outfile.Close()
 
-	var mergedFile string
 	generatedPath := outfile.Name()
 	ordersPaths, err := g.GenerateOrderPDF(move.OrdersID)
+	if err != nil {
+		return "", err
+	}
+
+	mergedFile, err := g.newTempFile()
 	if err != nil {
 		return "", err
 	}
@@ -193,18 +197,19 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
 	var inputFiles stringSlice
 	inputFiles = append(ordersPaths, generatedPath)
 
-	// for _, ppm := range(move.PersonallyProcuredMoves) {
-	// 		if (ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD) {
-	// 			inputFiles = append(inputFiles, "../../public/downloads/direct_deposit_form.pdf")
-	//		}
-	// }
+	for _, ppm := range move.PersonallyProcuredMoves {
+		if ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
+			inputFiles = append(inputFiles, "~/Downloads/direct_deposit_form.pdf")
+		}
+	}
+	g.logger.Info("added direct deposit form to packet", zap.Any("inputFiles", inputFiles))
 
 	config := pdfcpu.NewDefaultConfiguration()
-	if err = api.Merge(inputFiles, mergedFile, config); err != nil {
+	if err = api.Merge(inputFiles, mergedFile.Name(), config); err != nil {
 		return "", err
 	}
 
-	return mergedFile, nil
+	return mergedFile.Name(), nil
 
 }
 
