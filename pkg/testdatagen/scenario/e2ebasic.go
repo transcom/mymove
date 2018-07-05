@@ -45,7 +45,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 	ppm0.Move.Submit()
-	save(db, &ppm0.Move)
+	mustSave(db, &ppm0.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm0.Move)
 
@@ -65,7 +65,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
-	save(db, &ppm1.Move)
+	mustSave(db, &ppm1.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm1.Move)
 
@@ -85,7 +85,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
-	save(db, &ppm2.Move)
+	mustSave(db, &ppm2.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm2.Move)
 }
