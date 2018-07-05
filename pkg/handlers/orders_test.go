@@ -119,7 +119,6 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 	context.SetFileStorer(fakeS3)
 	updateHandler := UpdateOrdersHandler(context)
 
-	// updateHandler := UpdateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
 	response := updateHandler.Handle(params)
 
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)
