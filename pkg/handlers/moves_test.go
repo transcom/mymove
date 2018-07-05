@@ -8,6 +8,7 @@ import (
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -208,7 +209,7 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 	}
 	// And: a move is submitted
 	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetSesService(suite.sesService)
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.logger))
 	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 

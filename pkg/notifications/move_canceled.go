@@ -81,9 +81,6 @@ func (m MoveCanceled) emails() ([]emailContent, error) {
 		textBody:       fmt.Sprintf("%s\n%s", nextSteps, closingText),
 	}
 
-	m.logger.Info("Sent move cancellation email to service member",
-		zap.String("sevice member email address", *serviceMember.PersonalEmail))
-
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
 }

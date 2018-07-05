@@ -5,8 +5,16 @@ export PGPASSWORD=mysecretpassword
 # if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
+	USE_AWS:=true
+endif
+ifeq ($(EMAIL_BACKEND),ses)
+	USE_AWS:=true
+endif
+
+ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
+
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -136,7 +144,7 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	go tool cover -html=coverage.out
 
 e2e_test: server_deps server_generate client_build db_e2e_init
-	./bin/run-e2e-test
+	$(AWS_VAULT) ./bin/run-e2e-test
 
 db_dev_run:
 	# The version of the postgres container should match production as closely
