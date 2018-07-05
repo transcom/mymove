@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 
@@ -19,7 +18,7 @@ func createPrereqs(suite *HandlerSuite) (models.Document, uploadop.CreateUploadP
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	params := uploadop.NewCreateUploadParams()
-	params.DocumentID = strfmt.UUID(document.ID.String())
+	params.DocumentID = fmtUUID(document.ID)
 	params.File = suite.fixture("test.pdf")
 
 	return document, params
@@ -66,13 +65,11 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.PutFiles))
 	}
 
-	key := fmt.Sprintf("documents/%s/uploads/%s", document.ID, upload.ID)
-
-	if _, ok := fakeS3.PutFiles[key]; !ok {
-		t.Errorf("File not found at expected keyname %s", key)
+	if _, ok := fakeS3.PutFiles[upload.StorageKey]; !ok {
+		t.Errorf("File not found at expected keyname %s", upload.StorageKey)
 	}
 
-	pos, err := fakeS3.PutFiles[key].Body.Seek(0, io.SeekCurrent)
+	pos, err := fakeS3.PutFiles[upload.StorageKey].Body.Seek(0, io.SeekCurrent)
 	if err != nil {
 		t.Fatalf("Could't check position in uploaded file: %s", err)
 	}
@@ -116,7 +113,7 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithMissingDoc() {
 	document, params := createPrereqs(suite)
 
 	// Make a document ID that is not actually associated with a document
-	params.DocumentID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	params.DocumentID = fmtUUID(uuid.Must(uuid.NewV4()))
 
 	response := makeRequest(suite, params, document.ServiceMember, fakeS3)
 	suite.Assertions.IsType(&errResponse{}, response)
@@ -188,8 +185,7 @@ func (suite *HandlerSuite) TestDeleteUploadHandlerSuccess() {
 	upload := testdatagen.MakeDefaultUpload(suite.db)
 
 	file := suite.fixture("test.pdf")
-	key := fakeS3.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
-	fakeS3.Store(key, file.Data, "somehash")
+	fakeS3.Store(upload.StorageKey, file.Data, "somehash")
 
 	params := uploadop.NewDeleteUploadParams()
 	params.UploadID = strfmt.UUID(upload.ID.String())
@@ -219,16 +215,14 @@ func (suite *HandlerSuite) TestDeleteUploadsHandlerSuccess() {
 	upload2Assertions := testdatagen.Assertions{
 		Upload: models.Upload{
 			Document:   upload1.Document,
-			DocumentID: upload1.Document.ID,
+			DocumentID: &upload1.Document.ID,
 		},
 	}
 	upload2 := testdatagen.MakeUpload(suite.db, upload2Assertions)
 
 	file := suite.fixture("test.pdf")
-	key1 := fakeS3.Key("documents", upload1.DocumentID.String(), "uploads", upload1.ID.String())
-	key2 := fakeS3.Key("documents", upload2.DocumentID.String(), "uploads", upload2.ID.String())
-	fakeS3.Store(key1, file.Data, "somehash")
-	fakeS3.Store(key2, file.Data, "somehash")
+	fakeS3.Store(upload1.StorageKey, file.Data, "somehash")
+	fakeS3.Store(upload2.StorageKey, file.Data, "somehash")
 
 	params := uploadop.NewDeleteUploadsParams()
 	params.UploadIds = []strfmt.UUID{
