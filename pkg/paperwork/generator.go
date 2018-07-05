@@ -167,7 +167,7 @@ func (i *stringSlice) Set(value string) error {
 }
 
 // GenerateAdvancePaperwork generates the advance paperwork for a move.
-func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
+func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (string, error) {
 	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
 	if err != nil {
 		return "", err
@@ -199,7 +199,8 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
 
 	for _, ppm := range move.PersonallyProcuredMoves {
 		if ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
-			inputFiles = append(inputFiles, "~/Downloads/direct_deposit_form.pdf")
+			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
+			inputFiles = append(inputFiles, ddFormPath)
 		}
 	}
 	g.logger.Info("added direct deposit form to packet", zap.Any("inputFiles", inputFiles))
