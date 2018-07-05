@@ -494,6 +494,72 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
+  MoveDocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      document:
+        $ref: '#/definitions/DocumentPayload'
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - id
+      - move_id
+      - document
+      - move_document_type
+      - status
+  CreateMoveDocumentPayload:
+    type: object
+    properties:
+      document_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - document_id
+      - move_document_type
+      - status
+  MoveDocumentType:
+    type: string
+    title: Document type
+    enum:
+      - OTHER
+    x-display-value:
+      OTHER: Other document type
+  MoveDocumentStatus:
+    type: string
+    title: Doc status
+    enum:
+      - AWAITING_REVIEW
+      - OK
+      - HAS_ISSUE
+    x-display-value:
+      AWAITING_REVIEW: Awaiting review
+      OK: OK
+      HAS_ISSUE: Has issue
   ServiceMemberPayload:
     type: object
     properties:
@@ -2335,6 +2401,38 @@ paths:
           description: move not found
         500:
           description: internal server error
+  /moves/{moveId}/documents:
+    post:
+      summary: Creates a move document
+      description: Created a move document with the given information
+      operationId: createMoveDocument
+      tags:
+        - moves
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createMoveDocumentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMoveDocumentPayload'
+      responses:
+        200:
+          description: returns new move document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed

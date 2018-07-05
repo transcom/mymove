@@ -48,7 +48,7 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 	case models.ErrInvalidTransition:
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
-		logger.Error("Unexpected db error", zap.Error(err))
+		logger.Error("Unexpected error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError, err)
 	}
 }

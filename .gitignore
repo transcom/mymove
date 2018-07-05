@@ -61,3 +61,6 @@ yarn-error.log*
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
+
+cypress/videos
+cypress/screenshots
