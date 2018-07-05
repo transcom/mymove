@@ -1,7 +1,6 @@
 package paperwork
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -31,30 +30,35 @@ type Generator struct {
 	db       *pop.Connection
 	logger   *zap.Logger
 	uploader *uploader.Uploader
+	workDir  string
 }
 
 // NewGenerator creates a new Generator.
-func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) *Generator {
+func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) (*Generator, error) {
+	directory, err := ioutil.TempDir("", "generator")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+
 	return &Generator{
 		db:       db,
 		logger:   logger,
 		uploader: uploader,
-	}
-}
-
-// GenerateAdvancePaperwork generates the advance paperwork for a move.
-func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) error {
-	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
-	if err != nil {
-		return err
-	}
-	fmt.Println(move)
-	return nil
+		workDir:  directory,
+	}, nil
 }
 
 type inputFile struct {
 	Path        string
 	ContentType string
+}
+
+func (g *Generator) newTempFile() (*os.File, error) {
+	outputFile, err := ioutil.TempFile(g.workDir, "temp")
+	if err != nil {
+		return nil, errors.WithStack(err)
+	}
+	return outputFile, nil
 }
 
 // GenerateOrderPDF returns a slice of paths to PDF files that represent all files
@@ -131,12 +135,10 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 
 	g.logger.Debug("generating PDF from image files", zap.Any("images", images))
 
-	// TODO create a temp dir for use by this generator that can be easily cleaned up
-	outputFile, err := ioutil.TempFile(os.TempDir(), "prefix")
+	outputFile, err := g.newTempFile()
 	if err != nil {
-		return "", errors.WithStack(err)
+		return "", err
 	}
-	// defer os.Remove(outputFile.Name())
 
 	var opt gofpdf.ImageOptions
 	for _, image := range images {
@@ -149,6 +151,26 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
 	}
 	return outputFile.Name(), nil
+}
+
+// GenerateAdvancePaperwork generates the advance paperwork for a move.
+func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
+	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
+	if err != nil {
+		return "", err
+	}
+
+	summary := NewShipmentSummary(&move)
+	outfile, err := g.newTempFile()
+	if err != nil {
+		return "", err
+	}
+	if err := summary.DrawForm(outfile); err != nil {
+		return "", err
+	}
+	outfile.Close()
+
+	return outfile.Name(), nil
 }
 
 // MergeLocalFiles creates a PDF containing the images at the specified paths.
