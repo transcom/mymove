@@ -155,17 +155,6 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 	return outputFile.Name(), nil
 }
 
-type stringSlice []string
-
-func (i *stringSlice) String() string {
-	return ""
-}
-
-func (i *stringSlice) Set(value string) error {
-	*i = append(*i, value)
-	return nil
-}
-
 // GenerateAdvancePaperwork generates the advance paperwork for a move.
 // Outputs to a tempfile
 func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (string, error) {
@@ -195,7 +184,7 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (st
 		return "", err
 	}
 
-	var inputFiles stringSlice
+	var inputFiles []string
 	g.logger.Debug("adding orders and shipment summary to packet", zap.Any("inputFiles", inputFiles))
 	inputFiles = append(ordersPaths, generatedPath)
 
@@ -204,6 +193,7 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (st
 			g.logger.Debug("adding direct deposit form to packet", zap.Any("inputFiles", inputFiles))
 			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
 			inputFiles = append(inputFiles, ddFormPath)
+			break
 		}
 	}
 
