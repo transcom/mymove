@@ -28,7 +28,6 @@ definitions:
       - id
   Affiliation:
     type: string
-    x-nullable: true
     title: Branch
     enum: &AFFILIATION
       - ARMY
@@ -1139,7 +1138,6 @@ definitions:
       - L
   ServiceMemberRank:
     type: string
-    x-nullable: true
     title: Rank
     enum:
       - E_1
