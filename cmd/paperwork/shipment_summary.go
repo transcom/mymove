@@ -27,6 +27,7 @@ func main() {
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 	moveID := flag.String("move", "", "The move ID to generate advance paperwork for")
+	build := flag.String("build", "build", "the directory to serve static files from.")
 	flag.Parse()
 
 	// DB connection
@@ -83,7 +84,7 @@ func main() {
 	}
 
 	id := uuid.Must(uuid.FromString(*moveID))
-	outputPath, err := generator.GenerateAdvancePaperwork(id)
+	outputPath, err := generator.GenerateAdvancePaperwork(id, *build)
 	if err != nil {
 		log.Fatal(err)
 	}

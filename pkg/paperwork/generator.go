@@ -8,6 +8,8 @@ import (
 
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/uuid"
+	"github.com/hhrutter/pdfcpu/pkg/api"
+	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
@@ -154,7 +156,8 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 }
 
 // GenerateAdvancePaperwork generates the advance paperwork for a move.
-func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
+// Outputs to a tempfile
+func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (string, error) {
 	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
 	if err != nil {
 		return "", err
@@ -170,15 +173,45 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID) (string, error) {
 	}
 	outfile.Close()
 
-	return outfile.Name(), nil
+	generatedPath := outfile.Name()
+	ordersPaths, err := g.GenerateOrderPDF(move.OrdersID)
+	if err != nil {
+		return "", err
+	}
+
+	mergedFile, err := g.newTempFile()
+	if err != nil {
+		return "", err
+	}
+
+	var inputFiles []string
+	g.logger.Debug("adding orders and shipment summary to packet", zap.Any("inputFiles", inputFiles))
+	inputFiles = append(ordersPaths, generatedPath)
+
+	for _, ppm := range move.PersonallyProcuredMoves {
+		if ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
+			g.logger.Debug("adding direct deposit form to packet", zap.Any("inputFiles", inputFiles))
+			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
+			inputFiles = append(inputFiles, ddFormPath)
+			break
+		}
+	}
+
+	config := pdfcpu.NewDefaultConfiguration()
+	if err = api.Merge(inputFiles, mergedFile.Name(), config); err != nil {
+		return "", err
+	}
+
+	return mergedFile.Name(), nil
+
 }
 
-// MergeLocalFiles creates a PDF containing the images at the specified paths.
+// MergeImagesToPDF creates a PDF containing the images at the specified paths.
 //
 // The content type of the image is inferred from its extension. If this proves to
 // be insufficient, storage.DetectContentType and contentTypeToImageType above can
 // be used.
-func (g *Generator) MergeLocalFiles(paths []string) (string, error) {
+func (g *Generator) MergeImagesToPDF(paths []string) (string, error) {
 	// path and type for each image
 	images := make([]inputFile, 0)
 
