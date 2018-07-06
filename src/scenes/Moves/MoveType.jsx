@@ -141,7 +141,7 @@ class BigButtonGroup extends Component {
       },
       'truck-gray',
       isMobile,
-      true,
+      false,
     );
 
     return (
@@ -164,7 +164,7 @@ const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 export class MoveType extends Component {
   componentDidMount() {
     // TODO: Remove line below once other move type options are available
-    this.props.setPendingMoveType('PPM');
+    // this.props.setPendingMoveType('PPM');
   }
 
   onMoveTypeSelected = value => {
@@ -172,7 +172,7 @@ export class MoveType extends Component {
   };
   render() {
     // TODO: once Combo and HHG options available, remove currentOption and disabled prop
-    const currentOption = 'PPM';
+    const currentOption = this.props.pendingMoveType; //'PPM';
     // const { currentMove } = this.props;
     // const selectedOption =
     //   pendingMoveType || (currentMove && currentMove.selected_move_type);
