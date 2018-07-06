@@ -334,6 +334,18 @@
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
+  name = "github.com/hhrutter/pdfcpu"
+  packages = [
+    "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
+    "pkg/pdfcpu"
+  ]
+  revision = "d8343a4c98430531d4b27ecabb176379f6fa2a0b"
+  version = "v0.1.14"
+
+[[projects]]
   name = "github.com/imdario/mergo"
   packages = ["."]
   revision = "9316a62528ac99aaecb4e47eadd6dc8aa6533d58"
@@ -370,6 +382,12 @@
   packages = ["."]
   revision = "a79fa1e548e2c689c241d10173efd51e5d689d5b"
   version = "v1.2.0"
+
+[[projects]]
+  name = "github.com/jung-kurt/gofpdf"
+  packages = ["."]
+  revision = "14c1db30737a138f8d9797cffea58783892b2fae"
+  version = "v1.0.0"
 
 [[projects]]
   name = "github.com/kisielk/gotool"
@@ -769,6 +787,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "453aa369b61c9ef1c2b23bc79ac1d792dfb3b7541eb7d089a7ba9f36a5c0f5b6"
+  inputs-digest = "0a7f97c388676f56444a05829e905d904cd8d8c14b4cf52cee241c8c845129e1"
   solver-name = "gps-cdcl"
   solver-version = 1

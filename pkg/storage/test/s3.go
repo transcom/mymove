@@ -3,6 +3,8 @@ package test
 import (
 	"fmt"
 	"io"
+	"io/ioutil"
+	"os"
 	"path"
 
 	"github.com/pkg/errors"
@@ -19,7 +21,7 @@ type PutFile struct {
 
 // FakeS3Storage is used for local testing to stub out calls to S3.
 type FakeS3Storage struct {
-	PutFiles    []PutFile
+	PutFiles    map[string]PutFile
 	willSucceed bool
 }
 
@@ -30,18 +32,11 @@ func (fake *FakeS3Storage) Key(args ...string) string {
 
 // Delete removes a file.
 func (fake *FakeS3Storage) Delete(key string) error {
-	itemIndex := -1
-	for i, f := range fake.PutFiles {
-		if f.Key == key {
-			itemIndex = i
-			break
-		}
-	}
-	if itemIndex == -1 {
+	if _, ok := fake.PutFiles[key]; !ok {
 		return errors.New("can't delete item that doesn't exist")
 	}
-	// Remove file from putFiles
-	fake.PutFiles = append(fake.PutFiles[:itemIndex], fake.PutFiles[itemIndex+1:]...)
+
+	delete(fake.PutFiles, key)
 	return nil
 }
 
@@ -52,7 +47,7 @@ func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 		Body:     data,
 		Checksum: md5,
 	}
-	fake.PutFiles = append(fake.PutFiles, file)
+	fake.PutFiles[key] = file
 	buf := []byte{}
 	_, err := data.Read(buf)
 	if err != nil {
@@ -62,6 +57,26 @@ func (fake *FakeS3Storage) Store(key string, data io.ReadSeeker, md5 string) (*s
 		return &storage.StoreResult{}, nil
 	}
 	return nil, errors.New("failed to push")
+}
+
+// Fetch retrieves a copy of a file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (fake *FakeS3Storage) Fetch(key string) (string, error) {
+	outputFile, err := ioutil.TempFile(os.TempDir(), "filesystem")
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer outputFile.Close()
+
+	file := fake.PutFiles[key]
+	_, err = io.Copy(outputFile, file.Body)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return outputFile.Name(), nil
 }
 
 // PresignedURL returns a URL that can be used to retrieve a file.
@@ -74,5 +89,6 @@ func (fake *FakeS3Storage) PresignedURL(key string, contentType string) (string,
 func NewFakeS3Storage(willSucceed bool) *FakeS3Storage {
 	return &FakeS3Storage{
 		willSucceed: willSucceed,
+		PutFiles:    make(map[string]PutFile),
 	}
 }
