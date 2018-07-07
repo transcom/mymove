@@ -25,6 +25,7 @@ type Assertions struct {
 	BackupContact          models.BackupContact
 	Upload                 models.Upload
 	Address                models.Address
+	MoveDocument           models.MoveDocument
 }
 
 func mustCreate(db *pop.Connection, model interface{}) {
