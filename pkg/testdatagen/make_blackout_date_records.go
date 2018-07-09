@@ -42,8 +42,8 @@ func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.Blackout
 		StartBlackoutDate:               time.Now(),
 		EndBlackoutDate:                 time.Now(),
 		TrafficDistributionListID:       tdlID,
-		SourceGBLOC:                     fmtString("PORK"),
-		Market:                          fmtString("dHHG"),
+		SourceGBLOC:                     stringPointer("PORK"),
+		Market:                          stringPointer("dHHG"),
 	}
 
 	mergeModels(&blackoutDate, assertions.BlackoutDate)

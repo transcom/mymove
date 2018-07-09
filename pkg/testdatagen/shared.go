@@ -29,7 +29,7 @@ type Assertions struct {
 	BlackoutDate           models.BlackoutDate
 }
 
-func fmtString(s string) *string {
+func stringPointer(s string) *string {
 	return &s
 }
 
@@ -83,7 +83,7 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 		return func(dst, src reflect.Value) error {
 			if dst.CanSet() {
 				srcID := src.Interface().(uuid.UUID)
-				if isZeroUUID(srcID) == false {
+				if !isZeroUUID(srcID) {
 					dst.Set(src)
 				}
 			}
@@ -96,7 +96,7 @@ func (t customTransformer) Transformer(typ reflect.Type) func(dst, src reflect.V
 			if dst.CanSet() {
 				isZero := src.MethodByName("IsZero")
 				result := isZero.Call([]reflect.Value{})
-				if result[0].Bool() == false {
+				if !result[0].Bool() {
 					dst.Set(src)
 				}
 			}
