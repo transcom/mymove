@@ -146,6 +146,15 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 	return nil
 }
 
+// Download fetches an Upload's file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (u *Uploader) Download(upload *models.Upload) (string, error) {
+	key := u.uploadKey(upload)
+	return u.storer.Fetch(key)
+}
+
 func (u *Uploader) uploadKey(upload *models.Upload) string {
 	return u.storer.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
 }

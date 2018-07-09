@@ -9,6 +9,7 @@ import (
 
 	ordersop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/orders"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -38,7 +39,12 @@ func (suite *HandlerSuite) TestCreateOrder() {
 		HTTPRequest:  req,
 		CreateOrders: payload,
 	}
-	createHandler := CreateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	createHandler := CreateOrdersHandler(context)
+
 	response := createHandler.Handle(params)
 
 	suite.Assertions.IsType(&ordersop.CreateOrdersCreated{}, response)
@@ -60,7 +66,12 @@ func (suite *HandlerSuite) TestShowOrder() {
 		HTTPRequest: req,
 		OrdersID:    *fmtUUID(order.ID),
 	}
-	showHandler := ShowOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	showHandler := ShowOrdersHandler(context)
+
 	response := showHandler.Handle(params)
 
 	suite.Assertions.IsType(&ordersop.ShowOrdersOK{}, response)
@@ -102,7 +113,12 @@ func (suite *HandlerSuite) TestUpdateOrder() {
 		OrdersID:     *fmtUUID(order.ID),
 		UpdateOrders: payload,
 	}
-	updateHandler := UpdateOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	updateHandler := UpdateOrdersHandler(context)
+
 	response := updateHandler.Handle(params)
 
 	suite.Assertions.IsType(&ordersop.UpdateOrdersOK{}, response)

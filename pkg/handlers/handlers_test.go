@@ -8,31 +8,24 @@ import (
 	"runtime/debug"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type HandlerSuite struct {
 	suite.Suite
-	db           *pop.Connection
-	logger       *zap.Logger
-	filesToClose []*runtime.File
-	sesService   sesiface.SESAPI
-}
-
-type mockSESClient struct {
-	sesiface.SESAPI
-	mock.Mock
+	db                 *pop.Connection
+	logger             *zap.Logger
+	filesToClose       []*runtime.File
+	notificationSender notifications.NotificationSender
 }
 
 func (suite *HandlerSuite) SetupTest() {
@@ -145,14 +138,6 @@ func (suite *HandlerSuite) closeFile(file *runtime.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
-// SendRawEmail is a mock of the actual SendRawEmail() function provided by SES.
-// TODO: There is probably a better way to mock this.
-func (*mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	messageID := "test"
-	output := ses.SendRawEmailOutput{MessageId: &messageID}
-	return &output, nil
-}
-
 func TestHandlerSuite(t *testing.T) {
 	configLocation := "../../config"
 	pop.AddLookupPaths(configLocation)
@@ -166,13 +151,10 @@ func TestHandlerSuite(t *testing.T) {
 		log.Panic(err)
 	}
 
-	// Setup mock SES Service
-	mockSVC := mockSESClient{}
-
 	hs := &HandlerSuite{
-		db:         db,
-		logger:     logger,
-		sesService: &mockSVC,
+		db:                 db,
+		logger:             logger,
+		notificationSender: notifications.NewStubNotificationSender(logger),
 	}
 
 	suite.Run(t, hs)

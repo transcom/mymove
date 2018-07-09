@@ -114,8 +114,8 @@ const CustomerInfoEdit = props => {
           </div>
           <div className="editable-panel-column">
             <SwaggerField fieldName="edipi" swagger={schema} required />
-            <SwaggerField fieldName="affiliation" swagger={schema} />
-            <SwaggerField fieldName="rank" swagger={schema} />
+            <SwaggerField fieldName="affiliation" swagger={schema} required />
+            <SwaggerField fieldName="rank" swagger={schema} required />
           </div>
         </FormSection>
       </div>

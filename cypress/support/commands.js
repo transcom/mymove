@@ -51,6 +51,12 @@ Cypress.Commands.add('nextPage', () => {
     .click();
 });
 
+Cypress.Commands.add('resetDb', () =>
+  cy
+    .exec('make db_e2e_reset')
+    .its('code')
+    .should('eq', 0),
+);
 //from https://github.com/cypress-io/cypress/issues/669
 //not quite working yet
 Cypress.Commands.add('upload_file', (selector, fileUrl, type = '') => {

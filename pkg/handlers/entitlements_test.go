@@ -8,7 +8,6 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	entitlementop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/entitlements"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -149,18 +148,4 @@ func (suite *HandlerSuite) TestValidateEntitlementHandlerReturns404IfNoRank() {
 
 	// Then: expect a 404 status code
 	suite.Assertions.IsType(&entitlementop.ValidateEntitlementNotFound{}, response)
-}
-
-func (suite *HandlerSuite) TestGetEntitlementWithValidValues() {
-	E1 := internalmessages.ServiceMemberRankE1
-
-	// When: E1 has dependents and spouse gear
-	suite.Assertions.Equal(10500, getEntitlement(E1, true, true))
-	// When: E1 doesn't have dependents or spouse gear
-	suite.Assertions.Equal(7000, getEntitlement(E1, false, false))
-	// When: E1 doesn't have dependents but has spouse gear - impossible state
-	suite.Assertions.Equal(7000, getEntitlement(E1, false, true))
-	// When: E1 has dependents but no spouse gear
-	suite.Assertions.Equal(10000, getEntitlement(E1, true, false))
-
 }

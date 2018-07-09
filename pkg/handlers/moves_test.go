@@ -8,6 +8,7 @@ import (
 
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -207,7 +208,9 @@ func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 	// And: a move is submitted
-	handler := SubmitMoveHandler(NewHandlerContext(suite.db, suite.logger))
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetNotificationSender(notifications.NewStubNotificationSender(suite.logger))
+	handler := SubmitMoveHandler(context)
 	response := handler.Handle(params)
 
 	// Then: expect a 200 status code

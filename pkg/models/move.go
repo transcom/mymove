@@ -46,6 +46,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	MoveDocuments           MoveDocuments                      `has_many:"move_documents" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
@@ -166,6 +167,31 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	return &move, nil
+}
+
+// CreateMoveDocument creates a move document associated to a move
+func (m Move) CreateMoveDocument(db *pop.Connection,
+	document Document,
+	moveDocumentType MoveDocumentType,
+	status MoveDocumentStatus,
+	notes *string) (*MoveDocument, *validate.Errors, error) {
+
+	newMoveDocument := MoveDocument{
+		Move:             m,
+		MoveID:           m.ID,
+		Document:         document,
+		DocumentID:       document.ID,
+		MoveDocumentType: moveDocumentType,
+		Status:           status,
+		Notes:            notes,
+	}
+
+	verrs, err := db.ValidateAndCreate(&newMoveDocument)
+	if err != nil || verrs.HasAny() {
+		return nil, verrs, err
+	}
+
+	return &newMoveDocument, verrs, nil
 }
 
 // CreatePPM creates a new PPM associated with this move
@@ -339,7 +365,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 // to generate the Advance paperwork.
 func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
+	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "Orders.ServiceMember.ResidentialAddress", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
 		return move, errors.Wrap(err, "could not load move")
 	}
 	return move, nil

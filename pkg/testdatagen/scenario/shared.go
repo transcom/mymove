@@ -1,6 +1,8 @@
 package scenario
 
 import (
+	"fmt"
+	"log"
 	"time"
 
 	"github.com/pkg/errors"
@@ -31,4 +33,14 @@ func save(db *pop.Connection, model interface{}) error {
 		return errors.Errorf("Validation errors encountered saving model: %v", verrs)
 	}
 	return nil
+}
+
+func mustSave(db *pop.Connection, model interface{}) {
+	verrs, err := db.ValidateAndSave(model)
+	if err != nil {
+		log.Panic(fmt.Errorf("Errors encountered saving %v: %v", model, err))
+	}
+	if verrs.HasAny() {
+		log.Panic(fmt.Errorf("Validation errors encountered saving %v: %v", model, verrs))
+	}
 }

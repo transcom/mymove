@@ -2,6 +2,8 @@ package storage
 
 import (
 	"io"
+	"io/ioutil"
+	"os"
 	"path"
 	"time"
 
@@ -35,7 +37,7 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResul
 	}
 
 	if _, err := s.client.PutObject(input); err != nil {
-		return nil, errors.Wrap(err, "put to S3 failed")
+		return nil, errors.Wrap(err, "put on S3 failed")
 	}
 
 	return &StoreResult{}, nil
@@ -50,10 +52,36 @@ func (s *S3) Delete(key string) error {
 
 	_, err := s.client.DeleteObject(input)
 	if err != nil {
-		return errors.Wrap(err, "delete to S3 failed")
+		return errors.Wrap(err, "delete on S3 failed")
 	}
 
 	return nil
+}
+
+// Fetch retrieves an object at a specified key and stores it in a tempfile. The
+// path to this file is returned.
+//
+// It is the caller's responsibility to cleanup this file.
+func (s *S3) Fetch(key string) (string, error) {
+	input := &s3.GetObjectInput{
+		Bucket: &s.bucket,
+		Key:    &key,
+	}
+
+	getObjectOutput, err := s.client.GetObject(input)
+	if err != nil {
+		return "", errors.Wrap(err, "get object on S3 failed")
+	}
+
+	outputFile, err := ioutil.TempFile(os.TempDir(), "s3")
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer outputFile.Close()
+
+	io.Copy(outputFile, getObjectOutput.Body)
+
+	return outputFile.Name(), nil
 }
 
 // Key returns a joined key plus any global namespace
