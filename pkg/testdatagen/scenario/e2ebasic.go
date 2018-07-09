@@ -45,7 +45,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 	ppm0.Move.Submit()
-	mustSave(db, &ppm0.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm0.Move)
 
@@ -53,7 +52,10 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	pastTime := time.Now().AddDate(0, 0, -10)
 	ppm1 := testdatagen.MakePPM(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
-			ID: uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
+			ID:        uuid.FromStringOrNil("466c41b9-50bf-462c-b3cd-1ae33a2dad9b"),
+			FirstName: models.StringPointer("John"),
+			LastName:  models.StringPointer("Donut"),
+			Edipi:     models.StringPointer("1618033988"),
 		},
 		Move: models.Move{
 			ID:      uuid.FromStringOrNil("c9df71f2-334f-4f0e-b2e7-050ddb22efa1"),
@@ -65,7 +67,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
-	mustSave(db, &ppm1.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm1.Move)
 
@@ -85,7 +86,6 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
-	mustSave(db, &ppm2.Move)
 	// Save move and dependencies
 	models.SaveMoveStatuses(db, &ppm2.Move)
 }
