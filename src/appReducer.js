@@ -18,6 +18,7 @@ import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
+import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -36,6 +37,7 @@ export const appReducer = combineReducers({
   upload: documentReducer,
   review: reviewReducer,
   office: officeReducer,
+  tsp: tspReducer,
   transportationOffices: transportationOfficeReducer,
 });
 

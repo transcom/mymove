@@ -6,7 +6,17 @@ import './index.css';
 
 import Loadable from 'react-loadable';
 
-import { AppContext, officeContext, myMoveContext } from 'shared/AppContext';
+import {
+  AppContext,
+  tspContext,
+  officeContext,
+  myMoveContext,
+} from 'shared/AppContext';
+
+const Tsp = Loadable({
+  loader: () => import('scenes/TransportationServiceProvider'),
+  loading: () => <div>Loading...</div>,
+});
 
 const Office = Loadable({
   loader: () => import('scenes/Office'),
@@ -20,12 +30,21 @@ const MyMove = Loadable({
 
 const hostname = window && window.location && window.location.hostname;
 const isOfficeSite = hostname.startsWith('office');
+const isTspSite = hostname.startsWith('tsp');
 const App = () => {
   if (isOfficeSite)
     return (
       <Provider store={store}>
         <AppContext.Provider value={officeContext}>
           <Office />
+        </AppContext.Provider>
+      </Provider>
+    );
+  else if (isTspSite)
+    return (
+      <Provider store={store}>
+        <AppContext.Provider value={tspContext}>
+          <Tsp />
         </AppContext.Provider>
       </Provider>
     );
