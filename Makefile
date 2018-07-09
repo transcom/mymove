@@ -109,6 +109,7 @@ tools_build: server_deps
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
 	go build -i -o bin/load-office-data ./cmd/load_office_data
+	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 

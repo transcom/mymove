@@ -25,6 +25,7 @@ __snapshots__
 /bin/generate-test-data
 /bin/make-office-user
 /bin/load-office-data
+/bin/make-tsp-user
 /bin/load-user-gen
 /bin/paperwork
 /bin/rateengine
