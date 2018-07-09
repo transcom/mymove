@@ -32,6 +32,8 @@ func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
+	// TODO: Save and/or update the move association status' (PPM, Reimbursement, Orders) a la Cancel handler
+
 	movePayload, err := payloadForMoveModel(h.storage, move.Orders, *move)
 	if err != nil {
 		return responseForError(h.logger, err)
