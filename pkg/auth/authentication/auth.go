@@ -35,6 +35,12 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+			// This must be the right type of user for the application
+			if session.IsTspApp() && session.TspUserID == uuid.Nil {
+				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -136,6 +142,7 @@ type CallbackHandler struct {
 	noSessionTimeout       bool
 	loginGovMyClientID     string
 	loginGovOfficeClientID string
+	loginGovTspClientID    string
 }
 
 // NewCallbackHandler creates a new CallbackHandler
