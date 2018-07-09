@@ -342,3 +342,29 @@ head .panel-subhead {
 .tooltip:hover .tooltiptext {
   visibility: visible;
 }
+
+.calculator-panel {
+  border: solid #f1f1f1;
+  border-width: 3px;
+  width: 100%;
+  empty-cells: hide;
+  margin-bottom: 18px;
+}
+
+.calculator-panel-title {
+  font-size: 1.7rem;
+  font-weight: bold;
+  background-color: #f1f1f1;
+  padding: 0.4em 1em;
+  border: 3px solid #f1f1f1;
+  width: 100%;
+}
+
+.calculator-panel .short-field {
+  margin: 1em;
+  max-width: 16rem;
+}
+
+.calculator-panel .calculated-result {
+  margin: 1em;
+}
