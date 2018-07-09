@@ -94,7 +94,37 @@ describe('MoveSummary', () => {
       ).toEqual('<div class="title">Next Step: Awaiting approval</div>');
     });
   });
-  describe('when a move is in approved state', () => {
+  describe('when a move is in approved state but ppm is submitted state', () => {
+    it('renders submitted rather than approved content', () => {
+      const moveObj = { status: 'APPROVED' };
+      const futureFortNight = moment().add(14, 'day');
+      const ppmObj = {
+        planned_move_date: futureFortNight,
+        weight_estimate: '10000',
+        estimated_incentive: '$24665.59 - 27261.97',
+        status: 'SUBMITTED',
+      };
+      const subComponent = getShallowRender(
+        entitlementObj,
+        serviceMember,
+        ordersObj,
+        moveObj,
+        ppmObj,
+        editMoveFn,
+        resumeMoveFn,
+      ).find(SubmittedMoveSummary);
+      expect(subComponent).not.toBeNull();
+      expect(
+        subComponent
+          .dive()
+          .find('.step')
+          .find('div.title')
+          .first()
+          .html(),
+      ).toEqual('<div class="title">Next Step: Awaiting approval</div>');
+    });
+  });
+  describe('when a move and ppm are in approved state', () => {
     it('renders approved content', () => {
       const moveObj = { status: 'APPROVED' };
       const futureFortNight = moment().add(14, 'day');
@@ -102,6 +132,7 @@ describe('MoveSummary', () => {
         planned_move_date: futureFortNight,
         weight_estimate: '10000',
         estimated_incentive: '$24665.59 - 27261.97',
+        status: 'APPROVED',
       };
       const subComponent = getShallowRender(
         entitlementObj,
