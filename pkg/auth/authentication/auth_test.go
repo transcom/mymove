@@ -1,16 +1,17 @@
 package authentication
 
 import (
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"regexp"
 	"testing"
+
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
@@ -75,6 +76,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 	fakeUUID, _ := uuid.FromString("39b28c92-0506-4bef-8b57-e39519f42dc2")
 	myMoveMil := "my.move.host"
 	officeMoveMil := "office.move.host"
+	ordersMoveMil := "orders.move.host"
 	callbackPort := "1234"
 	responsePattern := regexp.MustCompile(`href="(.+)"`)
 
@@ -89,7 +91,7 @@ func (suite *AuthSuite) TestAuthorizationLogoutHandler() {
 
 	authContext := NewAuthContext(suite.logger, fakeLoginGovProvider(suite.logger), "http://", callbackPort)
 	handler := LogoutHandler{authContext, "fake key", false}
-	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(handler)
+	wrappedHandler := auth.DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, ordersMoveMil)(handler)
 
 	rr := httptest.NewRecorder()
 	wrappedHandler.ServeHTTP(rr, req.WithContext(ctx))

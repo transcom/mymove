@@ -69,15 +69,17 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 
 func main() {
 
-	build := flag.String("build", "build", "the directory to serve static files from.")
+	build := flag.String("build", "public", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
+	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
+	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
@@ -146,7 +148,7 @@ func main() {
 
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *ordersHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -243,6 +245,16 @@ func main() {
 	internalAPIMux.Use(userAuthMiddleware)
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
+
+	ordersMux := goji.SubMux()
+	root.Handle(pat.Get("/orders/v0/*"), ordersMux)
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
+	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
+
+	externalOrdersMux := goji.SubMux()
+	ordersMux.Handle(pat.New("/*"), externalOrdersMux)
+	externalOrdersMux.Use(noCacheMiddleware)
+	externalOrdersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
 
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
