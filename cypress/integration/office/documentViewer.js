@@ -17,10 +17,10 @@ describe('The document viewer', function() {
   it('loads basic information about the move', () => {
     cy.visit('/');
     cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
-    cy.visit('/moves/F2AF74E2-61B0-40AB-9ABD-172A3863E258/documents');
+    cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('Donut, John');
-    cy.contains('6TMWRY');
-    cy.contains('5789345789');
+    cy.contains('GBXYUI');
+    cy.contains('1618033988');
   });
 });
 
