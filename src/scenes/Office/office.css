@@ -22,7 +22,6 @@
   margin-right: 5%;
 }
 
-
 /* Queue list page */
 .queue-columns {
   position: relative;
@@ -262,7 +261,7 @@ head .panel-subhead {
 }
 
 .payment-table .icon {
-  margin: 0 .7em 0 .7em;
+  margin: 0 0.7em 0 0.7em;
   font-size: 1.7rem;
   vertical-align: baseline;
 }
@@ -315,17 +314,17 @@ head .panel-subhead {
 
 /*TOOLTIP*/
 .tooltip .tooltiptext {
-    visibility: hidden;
-    width: 200px;
-    background-color: black;
-    color: #fff;
-    text-align: center;
-    border-radius: 6px;
-    padding: 5px;
-    position: absolute;
-    z-index: 1;
-    top: 60px;
-    margin-left: -112px;
+  visibility: hidden;
+  width: 200px;
+  background-color: black;
+  color: #fff;
+  text-align: center;
+  border-radius: 6px;
+  padding: 5px;
+  position: absolute;
+  z-index: 1;
+  top: 60px;
+  margin-left: -112px;
 }
 
 .tooltip .tooltiptext::after {
@@ -362,9 +361,13 @@ head .panel-subhead {
 
 .calculator-panel .short-field {
   margin: 1em;
-  max-width: 16rem;
+  max-width: 10rem;
 }
-
+.calculator-panel .date-field {
+  margin: 1em;
+  display: inline-block;
+}
+.calculator-panel button,
 .calculator-panel .calculated-result {
   margin: 1em;
 }

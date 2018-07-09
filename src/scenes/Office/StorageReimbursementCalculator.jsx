@@ -95,7 +95,7 @@ export class StorageReimbursementCalculator extends Component {
           Storage Reimbursement Calculator
         </div>
         <SwaggerField
-          className="short-field"
+          className="date-field"
           fieldName="planned_move_date"
           swagger={this.props.schema}
           required
