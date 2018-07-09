@@ -17,6 +17,7 @@ import (
 type Assertions struct {
 	User                   models.User
 	OfficeUser             models.OfficeUser
+	TspUser                models.TspUser
 	ServiceMember          models.ServiceMember
 	Order                  models.Order
 	Move                   models.Move
