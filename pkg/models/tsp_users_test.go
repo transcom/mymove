@@ -12,7 +12,7 @@ func (suite *ModelSuite) Test_TspUserInstantiation() {
 		"last_name":  {"LastName can not be blank."},
 		"telephone":  {"Telephone can not be blank."},
 		"email":      {"Email can not be blank."},
-		"tsp_id":     {"TspID can not be blank."},
+		"transportation_service_provider_id": {"TransportationServiceProviderID can not be blank."},
 	}
 	suite.verifyValidationErrors(user, expErrors)
 }
@@ -25,16 +25,16 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 		LoginGovEmail: userEmail,
 	}
 	suite.mustSave(&sally)
-	tsp := CreateTestShippingTsp(suite)
+	tsp := CreateTestTsp(suite)
 
 	user := TspUser{
-		LastName:            "Tester",
-		FirstName:           "Sally",
-		Email:               "sally.work@government.gov",
-		Telephone:           "(907) 555-1212",
-		UserID:              &sally.ID,
-		User:                sally,
-		TransportationTspID: tsp.ID,
+		LastName:  "Tester",
+		FirstName: "Sally",
+		Email:     "sally.work@government.gov",
+		Telephone: "(907) 555-1212",
+		UserID:    &sally.ID,
+		User:      sally,
+		TransportationServiceProviderID: tsp.ID,
 	}
 	suite.mustSave(&user)
 
@@ -42,7 +42,7 @@ func (suite *ModelSuite) Test_BasicTspUser() {
 	err := suite.db.Eager().Find(&loadUser, user.ID)
 	suite.Nil(err, "loading user")
 	suite.Equal(user.ID, loadUser.ID)
-	suite.Equal(tsp.ID, loadUser.TransportationTsp.ID)
+	suite.Equal(tsp.ID, loadUser.TransportationServiceProvider.ID)
 }
 
 func (suite *ModelSuite) TestFetchTspUserByEmail() {
@@ -52,13 +52,13 @@ func (suite *ModelSuite) TestFetchTspUserByEmail() {
 	suite.Nil(user)
 
 	const email = "sally.work@government.gov"
-	tsp := CreateTestShippingTsp(suite)
+	tsp := CreateTestTsp(suite)
 	newUser := TspUser{
-		LastName:            "Tester",
-		FirstName:           "Sally",
-		Email:               email,
-		Telephone:           "(907) 555-1212",
-		TransportationTspID: tsp.ID,
+		LastName:                        "Tester",
+		FirstName:                       "Sally",
+		Email:                           email,
+		Telephone:                       "(907) 555-1212",
+		TransportationServiceProviderID: tsp.ID,
 	}
 	suite.mustSave(&newUser)
 

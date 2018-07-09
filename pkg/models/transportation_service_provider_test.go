@@ -4,6 +4,14 @@ import (
 	. "github.com/transcom/mymove/pkg/models"
 )
 
+func CreateTestTsp(suite *ModelSuite) TransportationServiceProvider {
+	tsp := TransportationServiceProvider{
+		StandardCarrierAlphaCode: "TRSS",
+	}
+	suite.mustSave(&tsp)
+	return tsp
+}
+
 func (suite *ModelSuite) Test_TransportationServiceProvider() {
 	tsp := &TransportationServiceProvider{}
 
