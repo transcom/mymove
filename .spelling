@@ -262,6 +262,7 @@ _do_
  - docs/adr/0007-swagger-client.md
  - README.md
  - docs/frontend.md
+ - ./docs/frontend.md
 _Regenerate
  - ./README.md
  - docs/data/tspp-data-creation.md
