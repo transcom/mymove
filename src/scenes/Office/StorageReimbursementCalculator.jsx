@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
 import { getPpmSitEstimate } from '../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -93,7 +92,6 @@ export class StorageReimbursementCalculator extends Component {
       pristine,
       reset,
       submitting,
-      initialValues,
     } = this.props;
     return (
       <div className="calculator-panel">
