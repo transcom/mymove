@@ -5,8 +5,20 @@ add_column("shipments", "estimated_pack_days", "integer", {"null": true})
 add_column("shipments", "estimated_transit_days", "integer", {"null": true})
 
 add_column("shipments", "pickup_address_id", "uuid", {"null": true})
-add_foreign_key("shipments", "pickup_address_id", {"addresses": ["id"]}, {})
+add_foreign_key("shipments", "pickup_address_id", {"addresses": ["id"]}, {"name": "shipments_address_id_fk"})
 
 add_column("shipments", "has_secondary_pickup_address", "boolean", {"default": false})
 add_column("shipments", "secondary_pickup_address_id", "uuid", {"null": true})
 add_foreign_key("shipments", "secondary_pickup_address_id", {"addresses": ["id"]}, {"name": "shipments_secondary_address_id_fk"})
+
+add_column("shipments", "has_delivery_address", "boolean", {"default": false})
+add_column("shipments", "delivery_address_id", "uuid", {"null": true})
+add_foreign_key("shipments", "delivery_address_id", {"addresses": ["id"]}, {"name": "delivery_address_id_fk"})
+
+add_column("shipments", "has_partial_sit_delivery_address", "boolean", {"default": false})
+add_column("shipments", "partial_sit_delivery_address_id", "uuid", {"null": true})
+add_foreign_key("shipments", "partial_sit_delivery_address_id", {"addresses": ["id"]}, {"name": "partial_sit_delivery_address_id_fk"})
+
+add_column("shipments", "weight_estimate", "integer", {"null": true})
+add_column("shipments", "progear_weight_estimate", "integer", {"null": true})
+add_column("shipments", "spouse_progear_weight_estimate", "integer", {"null": true})
