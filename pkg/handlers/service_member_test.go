@@ -13,6 +13,7 @@ import (
 	servicememberop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/service_members"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
+	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -344,7 +345,11 @@ func (suite *HandlerSuite) TestShowServiceMemberOrders() {
 		ServiceMemberID: strfmt.UUID(order1.ServiceMemberID.String()),
 	}
 
-	handler := ShowServiceMemberOrdersHandler(NewHandlerContext(suite.db, suite.logger))
+	fakeS3 := storageTest.NewFakeS3Storage(true)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetFileStorer(fakeS3)
+	handler := ShowServiceMemberOrdersHandler(context)
+
 	response := handler.Handle(params)
 
 	suite.IsType(&servicememberop.ShowServiceMemberOrdersOK{}, response)

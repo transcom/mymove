@@ -1,7 +1,6 @@
 package testdatagen
 
 import (
-	"fmt"
 	"log"
 	"math/rand"
 	"time"
@@ -15,71 +14,63 @@ import (
 // currently fully implementing those.
 
 // MakeBlackoutDate creates a test blackoutDate object to add to the database.
-func MakeBlackoutDate(db *pop.Connection, tsp models.TransportationServiceProvider,
-	startDate time.Time, endDate time.Time, tdl *models.TrafficDistributionList, sourceGBLOC *string, market *string) (models.BlackoutDate, error) {
-
-	blackoutDates := models.BlackoutDate{
-		TransportationServiceProviderID: tsp.ID,
-		StartBlackoutDate:               startDate,
-		EndBlackoutDate:                 endDate,
-		TrafficDistributionListID:       &tdl.ID,
-		SourceGBLOC:                     sourceGBLOC,
-		Market:                          market,
+func MakeBlackoutDate(db *pop.Connection, assertions Assertions) models.BlackoutDate {
+	tspID := assertions.BlackoutDate.TransportationServiceProviderID
+	if isZeroUUID(tspID) {
+		// Fetches random TSP
+		tspList := []models.TransportationServiceProvider{}
+		err := db.All(&tspList)
+		if err != nil {
+			log.Panic(err)
+		}
+		tspID = tspList[rand.Intn(len(tspList))].ID
 	}
 
-	_, err := db.ValidateAndSave(&blackoutDates)
-	if err != nil {
-		log.Panic(err)
+	tdlID := assertions.BlackoutDate.TrafficDistributionListID
+	if tdlID == nil {
+		// Fetches random TDL
+		tdlList := []models.TrafficDistributionList{}
+		err := db.All(&tdlList)
+		if err != nil {
+			log.Panic(err)
+		}
+		tdlID = &tdlList[rand.Intn(len(tdlList))].ID
 	}
 
-	return blackoutDates, err
+	blackoutDate := models.BlackoutDate{
+		TransportationServiceProviderID: tspID,
+		StartBlackoutDate:               time.Now(),
+		EndBlackoutDate:                 time.Now(),
+		TrafficDistributionListID:       tdlID,
+		SourceGBLOC:                     stringPointer("PORK"),
+		Market:                          stringPointer("dHHG"),
+	}
+
+	mergeModels(&blackoutDate, assertions.BlackoutDate)
+
+	mustCreate(db, &blackoutDate)
+
+	return blackoutDate
+}
+
+// MakeDefaultBlackoutDate returns a BlackoutDate with default vales
+func MakeDefaultBlackoutDate(db *pop.Connection) models.BlackoutDate {
+	return MakeBlackoutDate(db, Assertions{})
 }
 
 // MakeBlackoutDateData creates three blackoutDate objects and commits them to the blackout_dates table.
 func MakeBlackoutDateData(db *pop.Connection) {
-	// These two queries duplicate ones in other testdatagen files; not optimal
-	tspList := []models.TransportationServiceProvider{}
-	err := db.All(&tspList)
-	if err != nil {
-		fmt.Println("TSP ID import failed.")
-	}
-
-	tdlList := []models.TrafficDistributionList{}
-	err = db.All(&tdlList)
-	if err != nil {
-		fmt.Println("TDL ID import failed.")
-	}
-
-	market := "dHHG"
-	gbloc := "PORK"
-
 	// Make a blackout date with market.
-	MakeBlackoutDate(db,
-		tspList[rand.Intn(len(tspList))],
-		time.Now(),
-		time.Now(),
-		&tdlList[rand.Intn(len(tdlList))],
-		nil,
-		&market,
-	)
+	date1 := MakeDefaultBlackoutDate(db)
+	date1.SourceGBLOC = nil
+	mustSave(db, &date1)
 
 	// Make a blackout date with a channel.
-	MakeBlackoutDate(db,
-		tspList[rand.Intn(len(tspList))],
-		time.Now(),
-		time.Now(),
-		&tdlList[rand.Intn(len(tdlList))],
-		nil,
-		nil,
-	)
+	date2 := MakeDefaultBlackoutDate(db)
+	date2.SourceGBLOC = nil
+	date2.Market = nil
+	mustSave(db, &date2)
 
 	// Make a blackout date with market and source gbloc.
-	MakeBlackoutDate(db,
-		tspList[rand.Intn(len(tspList))],
-		time.Now(),
-		time.Now(),
-		&tdlList[rand.Intn(len(tdlList))],
-		&market,
-		&gbloc,
-	)
+	MakeDefaultBlackoutDate(db)
 }
