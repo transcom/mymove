@@ -1,18 +1,17 @@
 /* global cy */
 
-//this is skipped until we can figure out how to upload orders or reset specified user to needing to select move
-describe.skip('setting up service member profile', function() {
+describe('setting up service member profile', function() {
   beforeEach(() => {
-    //20180629092519@example.com
-    cy.signInAsUser('f775c2b4-c411-4860-873d-ce9a89786830');
+    //profile@comple.te
+    cy.signInAsUser('13F3949D-0D53-4BE4-B1B1-AE4314793F34');
   });
 
   //tear down currently means doing this:
   //update moves set status='DRAFT';
   //delete from personally_procured_moves
   it('progresses thru forms', function() {
-    cy.contains('NAS Fort Worth from Ft Carson');
-    cy.get('.whole_box > :nth-child(3) > span').contains('15,000 lbs');
+    cy.contains('Yuma AFB from Yuma AFB');
+    cy.get('.whole_box > :nth-child(3) > span').contains('10,500 lbs');
     cy.contains('Continue Move Setup').click();
 
     cy.location().should(loc => {
@@ -23,7 +22,10 @@ describe.skip('setting up service member profile', function() {
       .first()
       .type('2018-9-2{enter}')
       .blur();
-
+    cy
+      .get('input[name="pickup_postal_code"]')
+      .clear()
+      .type('80913');
     cy.get('input[name="destination_postal_code"]').type('76127');
 
     cy.nextPage();
@@ -65,5 +67,6 @@ describe.skip('setting up service member profile', function() {
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
     cy.contains('Weight (est.): 8250 lbs');
+    cy.resetDb();
   });
 });
