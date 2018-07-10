@@ -9,14 +9,12 @@ describe('The document viewer', function() {
     cy.contains('Sign In');
   });
   it('produces error when move cannot be found', () => {
-    cy.visit('/');
-    cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+    cy.signIntoOffice();
     cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b/documents');
     cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
   });
   it('loads basic information about the move', () => {
-    cy.visit('/');
-    cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+    cy.signIntoOffice();
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('Donut, John');
     cy.contains('GBXYUI');
