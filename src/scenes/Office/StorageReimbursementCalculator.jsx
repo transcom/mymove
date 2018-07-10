@@ -55,15 +55,14 @@ const schema = {
   },
 };
 export class StorageReimbursementCalculator extends Component {
-  getDebouncedSitEstimate = () => {
+  calculate = values => {
     const {
       planned_move_date,
       pickup_postal_code,
       destination_postal_code,
       days_in_storage,
       weight,
-    } = this.props.formValues;
-    console.log(this.props.formValues);
+    } = values;
     if (
       !pickup_postal_code ||
       !destination_postal_code ||
@@ -76,7 +75,6 @@ export class StorageReimbursementCalculator extends Component {
       pickup_postal_code.length === 5 &&
       destination_postal_code.length === 5
     ) {
-      console.log('loading');
       this.props.getPpmSitEstimate(
         planned_move_date,
         days_in_storage,
@@ -88,48 +86,67 @@ export class StorageReimbursementCalculator extends Component {
   };
 
   render() {
-    const { sitReimbursement, pristine, invalid } = this.props;
+    const {
+      handleSubmit,
+      sitReimbursement,
+      invalid,
+      pristine,
+      reset,
+      submitting,
+    } = this.props;
     return (
       <div className="calculator-panel">
         <div className="calculator-panel-title">
           Storage Reimbursement Calculator
         </div>
-        <SwaggerField
-          className="date-field"
-          fieldName="planned_move_date"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          className="short-field"
-          fieldName="pickup_postal_code"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          className="short-field"
-          fieldName="destination_postal_code"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          className="short-field"
-          fieldName="days_in_storage"
-          swagger={this.props.schema}
-          required
-        />
-        <SwaggerField
-          className="short-field"
-          fieldName="weight"
-          swagger={this.props.schema}
-          required
-        />
-        <button
-          onClick={this.getDebouncedSitEstimate}
-          disabled={pristine || invalid}
-        >
-          Calculate
-        </button>
+        <form onSubmit={handleSubmit(this.calculate)}>
+          <SwaggerField
+            className="date-field"
+            fieldName="planned_move_date"
+            swagger={this.props.schema}
+            required
+          />
+          <SwaggerField
+            className="short-field"
+            fieldName="pickup_postal_code"
+            swagger={this.props.schema}
+            required
+          />
+          <SwaggerField
+            className="short-field"
+            fieldName="destination_postal_code"
+            swagger={this.props.schema}
+            required
+          />
+          <SwaggerField
+            className="short-field"
+            fieldName="days_in_storage"
+            swagger={this.props.schema}
+            required
+          />
+          <SwaggerField
+            className="short-field"
+            fieldName="weight"
+            swagger={this.props.schema}
+            required
+          />
+          <button
+            data-cy="calc"
+            type="submit"
+            disabled={pristine || submitting || invalid}
+          >
+            Calculate
+          </button>
+          <button
+            className="usa-button-secondary"
+            data-cy="clear"
+            type="button"
+            disabled={pristine || submitting}
+            onClick={reset}
+          >
+            Clear
+          </button>
+        </form>
         {sitReimbursement && (
           <div className="calculated-result">
             Maximum Obligation: <b>{sitReimbursement}</b>
@@ -148,13 +165,7 @@ StorageReimbursementCalculator.propTypes = {
 
 function mapStateToProps(state) {
   const props = {
-    // schema: get(
-    //   state,
-    //   'swagger.spec.definitions.UpdatePersonallyProcuredMovePayload',
-    //   {},
-    // ),
     schema,
-    formValues: getFormValues(formName)(state),
     hasEstimateError: state.ppm.hasEstimateError,
     ...state.ppm,
   };
@@ -163,7 +174,9 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmSitEstimate }, dispatch);
 }
-
-export default reduxForm({ form: formName })(
+function onSubmit(values) {
+  console.log(values);
+}
+export default reduxForm({ form: formName, onSubmit })(
   connect(mapStateToProps, mapDispatchToProps)(StorageReimbursementCalculator),
 );
