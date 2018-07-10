@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -10,7 +10,8 @@ import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import { Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect, Link } from 'react-router-dom';
+import DocumentUploader from './DocumentUploader';
 
 import './index.css';
 class DocumentViewer extends Component {
@@ -29,9 +30,14 @@ class DocumentViewer extends Component {
       serviceMember.first_name,
     ]).join(', ');
 
+    // urls: has full url with IDs
     const defaultUrl = this.props.match.url;
-    const detailUrl = `${this.props.match.path}/details`;
-    const listUrl = `${this.props.match.path}/list`;
+    const detailUrl = `${this.props.match.url}/details`;
+    const listUrl = `${this.props.match.url}/list`;
+    const newUrl = `${this.props.match.url}/new`;
+
+    // paths: has placeholders (e.g. ":moveId")
+    const newPath = `${this.props.match.path}/new`;
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -58,8 +64,13 @@ class DocumentViewer extends Component {
                 render={() => <div> details coming soon</div>}
               />
               <PrivateRoute
+                path={newPath}
+                moveId={move.id}
+                component={DocumentUploader}
+              />
+              <PrivateRoute
                 path={defaultUrl}
-                render={() => <div> document uploader coming soon</div>}
+                render={() => <div> document viewer coming soon</div>}
               />
             </Switch>
           </div>
@@ -89,7 +100,14 @@ class DocumentViewer extends Component {
               />
               <PrivateRoute
                 path={listUrl}
-                render={() => <div> list coming soon</div>}
+                render={() => (
+                  <Fragment>
+                    <Link to={newUrl} moveId={move.id}>
+                      Upload new document
+                    </Link>
+                    <div> list coming soon</div>
+                  </Fragment>
+                )}
               />
               <PrivateRoute
                 path={detailUrl}

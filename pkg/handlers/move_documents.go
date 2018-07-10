@@ -47,16 +47,22 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 
 	payload := params.CreateMoveDocumentPayload
 
-	// Also validates access to the document
-	documentID := uuid.Must(uuid.FromString(payload.DocumentID.String()))
-	document, err := models.FetchDocument(h.db, session, documentID)
-	if err != nil {
-		return responseForError(h.logger, err)
+	// Fetch uploads to confirm ownership
+	uploadIds := payload.UploadIds
+	uploads := models.Uploads{}
+	for _, id := range uploadIds {
+		converted := uuid.Must(uuid.FromString(id.String()))
+		upload, err := models.FetchUpload(h.db, session, converted)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		uploads = append(uploads, upload)
 	}
 
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
-		document,
+		uploads,
 		models.MoveDocumentType(payload.MoveDocumentType),
+		*payload.Title,
 		models.MoveDocumentStatus(payload.Status),
 		payload.Notes)
 

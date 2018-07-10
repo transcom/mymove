@@ -61,7 +61,7 @@ func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Uploa
 	err := db.Q().Eager().Find(&upload, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
-			return Upload{}, ErrFetchNotFound
+			return Upload{}, errors.Wrap(ErrFetchNotFound, "error fetching upload")
 		}
 		// Otherwise, it's an unexpected err so we return that.
 		return Upload{}, err
@@ -75,7 +75,7 @@ func FetchUpload(db *pop.Connection, session *auth.Session, id uuid.UUID) (Uploa
 			return Upload{}, docErr
 		}
 	} else if upload.UploaderID != session.UserID {
-		return Upload{}, ErrFetchNotFound
+		return Upload{}, errors.Wrap(ErrFetchNotFound, "user ID doesn't match uploader ID")
 	}
 	return upload, nil
 }

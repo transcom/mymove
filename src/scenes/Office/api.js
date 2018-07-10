@@ -20,6 +20,30 @@ export async function LoadMove(moveId) {
   return response.body;
 }
 
+// MOVE DOCUMENT
+export async function CreateMoveDocument(
+  moveId,
+  uploadIds,
+  title,
+  moveDocumentType,
+  status,
+  notes,
+) {
+  const client = await getClient();
+  const response = await client.apis.moves.createMoveDocument({
+    moveId,
+    createMoveDocumentPayload: {
+      upload_ids: uploadIds,
+      title: title,
+      move_document_type: moveDocumentType,
+      status: status,
+      notes: notes,
+    },
+  });
+  checkResponse(response, 'failed to create move document due to server error');
+  return response.body;
+}
+
 // ORDERS
 export async function LoadOrders(ordersId) {
   const client = await getClient();

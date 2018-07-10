@@ -12,6 +12,7 @@ func (suite *ModelSuite) TestBasicMoveDocumentInstantiation() {
 		"move_id":            {"MoveID can not be blank."},
 		"move_document_type": {"MoveDocumentType can not be blank."},
 		"status":             {"Status can not be blank."},
+		"title":              {"Title can not be blank."},
 	}
 
 	suite.verifyValidationErrors(moveDoc, expErrors)

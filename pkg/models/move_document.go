@@ -36,6 +36,7 @@ type MoveDocument struct {
 	Document         Document           `belongs_to:"documents"`
 	MoveID           uuid.UUID          `json:"move_id" db:"move_id"`
 	Move             Move               `belongs_to:"moves"`
+	Title            string             `json:"title" db:"title"`
 	Status           MoveDocumentStatus `json:"status" db:"status"`
 	MoveDocumentType MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	Notes            *string            `json:"notes" db:"notes"`
@@ -52,6 +53,7 @@ func (m *MoveDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.DocumentID, Name: "DocumentID"},
 		&validators.UUIDIsPresent{Field: m.MoveID, Name: "MoveID"},
+		&validators.StringIsPresent{Field: string(m.Title), Name: "Title"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "MoveDocumentType"},
 	), nil

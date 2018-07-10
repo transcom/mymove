@@ -1,6 +1,7 @@
 import { isNull, get } from 'lodash';
 import {
   LoadMove,
+  CreateMoveDocument,
   LoadOrders,
   LoadServiceMember,
   UpdateServiceMember,
@@ -20,6 +21,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 
 // SINGLE RESOURCE ACTION TYPES
 const loadMoveType = 'LOAD_MOVE';
+const createMoveDocumentType = 'CREATE_MOVE_DOCUMENT';
 const loadOrdersType = 'LOAD_ORDERS';
 const updateOrdersType = 'UPDATE_ORDERS';
 const loadServiceMemberType = 'LOAD_SERVICE_MEMBER';
@@ -42,6 +44,10 @@ const loadDependenciesType = 'LOAD_DEPENDENCIES';
 // SINGLE RESOURCE ACTION TYPES
 
 const LOAD_MOVE = ReduxHelpers.generateAsyncActionTypes(loadMoveType);
+
+const CREATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
+  createMoveDocumentType,
+);
 
 const LOAD_ORDERS = ReduxHelpers.generateAsyncActionTypes(loadOrdersType);
 
@@ -98,6 +104,11 @@ const LOAD_DEPENDENCIES = ReduxHelpers.generateAsyncActionTypes(
 export const loadMove = ReduxHelpers.generateAsyncActionCreator(
   loadMoveType,
   LoadMove,
+);
+
+export const createMoveDocument = ReduxHelpers.generateAsyncActionCreator(
+  createMoveDocumentType,
+  CreateMoveDocument,
 );
 
 export const loadOrders = ReduxHelpers.generateAsyncActionCreator(
@@ -323,6 +334,21 @@ export function officeReducer(state = initialState, action) {
         officeMove: null,
         moveHasLoadSuccess: false,
         moveHasLoadError: true,
+        error: action.error.message,
+      });
+
+    // MOVE DOCUMENTS
+    // case CREATE_MOVE_DOCUMENT.start:
+    //   return Object.assign({}, state, {
+    //     moveIsLoading: true,
+    //     moveHasLoadSuccess: false,
+    //   });
+    case CREATE_MOVE_DOCUMENT.success:
+      return Object.assign({}, state, {
+        createdMoveDocument: action.payload,
+      });
+    case CREATE_MOVE_DOCUMENT.failure:
+      return Object.assign({}, state, {
         error: action.error.message,
       });
 

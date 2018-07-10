@@ -16,21 +16,22 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	move := testdatagen.MakeDefaultMove(suite.db)
 	sm := move.Orders.ServiceMember
 
-	document := testdatagen.MakeDocument(suite.db, testdatagen.Assertions{
-		Document: models.Document{
-			ServiceMemberID: sm.ID,
-			ServiceMember:   sm,
-			Name:            "Move document test",
+	upload := testdatagen.MakeUpload(suite.db, testdatagen.Assertions{
+		Upload: models.Upload{
+			UploaderID: sm.UserID,
 		},
 	})
-	docID := strfmt.UUID(document.ID.String())
+	upload.DocumentID = nil
+	suite.mustSave(&upload)
+	uploadIds := []strfmt.UUID{*fmtUUID(upload.ID)}
 
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateMoveDocumentPayload{
-		DocumentID:       &docID,
+		UploadIds:        uploadIds,
 		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
+		Title:            fmtString("awesome_document.pdf"),
 		Notes:            fmtString("Some notes here"),
 		Status:           internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
@@ -44,9 +45,16 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	handler := CreateMoveDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
+	suite.isNotErrResponse(response)
 	createdResponse := response.(*moveop.CreateMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
+
+	// Make sure the Upload was associated to the new document
+	createdDocumentID := createdPayload.Document.ID
+	var fetchedUpload models.Upload
+	suite.db.Find(&fetchedUpload, upload.ID)
+	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
