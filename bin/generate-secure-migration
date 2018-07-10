@@ -79,11 +79,9 @@ Local test migration: ${local_test_migration_name}
 Production migration: ${prod_migration_name}
 
 Next:
-    1. Edit the production migration
-    2. Copy the production migration into the local test migration, scrubbing sensitive data
-    3. Test the local migration by running: make db_dev_migrate
-    4. If everything looks good, open your pull request and run:
+    1. Edit the production migration to have the actual change you wish to deploy
+    2. Copy the production migration into the local migration, scrubbing sensitive data
+    3. If everything looks good, open your pull request and run:
        upload-secure-migration \\
-          ${local_test_migration_name} \\
           ${prod_migration_name}
 EOM

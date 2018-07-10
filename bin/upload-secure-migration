@@ -1,0 +1,67 @@
+#!/bin/bash
+#
+# A script to upload secure migrations to all environments
+# https://github.com/transcom/mymove#secure-migrations
+#
+
+set -eu -o pipefail
+
+# AWS CLI tool
+readonly aws="aws"
+# Environments to upload production migrations to
+readonly environments=(experimental staging prod)
+readonly aws_bucket_prefix="transcom-ppp-app-"
+readonly aws_bucket_suffix="-us-west-2"
+
+readonly usage="usage: $0 <production_migration_file>"
+
+function proceed() {
+  echo -n "Proceed? (y/N) "
+  read -r proceed
+  if [[ "$proceed" =~ ^[^yY]*$ ]]; then
+    echo "exiting"
+    exit 0
+  fi
+}
+
+#
+# Pre-flight checks
+#
+
+command -v "$aws" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws";
+    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault";
+    exit 1
+  )
+
+#
+# Freshen AWS token
+#
+
+aws s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
+
+#
+# Test local migration
+#
+
+echo "Testing local migration. This will involve resetting your local dev database."
+proceed
+echo make db_dev_reset
+echo make db_dev_migrate
+
+#
+# Upload secure migration
+#
+
+for environment in "${environments[@]}"; do
+  echo "Uploading to: $environment"
+  aws s3 cp ${
+done
+
+#
+# Cleanup
+#
+
+for environment in "${environments[@]}"; do
+  echo "Uploading to: $environment"
+done
