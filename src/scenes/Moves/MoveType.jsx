@@ -162,20 +162,14 @@ BigButtonGroup.propTypes = {
 const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 
 export class MoveType extends Component {
-  componentDidMount() {
-    // TODO: Remove line below once other move type options are available
-    // this.props.setPendingMoveType('PPM');
-  }
-
   onMoveTypeSelected = value => {
     this.props.setPendingMoveType(value);
   };
   render() {
     // TODO: once Combo and HHG options available, remove currentOption and disabled prop
-    const currentOption = this.props.pendingMoveType; //'PPM';
-    // const { currentMove } = this.props;
-    // const selectedOption =
-    //   pendingMoveType || (currentMove && currentMove.selected_move_type);
+    const { pendingMoveType, currentMove } = this.props;
+    const selectedOption =
+      pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full select-move-type">
         <h2>
@@ -190,7 +184,7 @@ export class MoveType extends Component {
           </a>
         </h2>
         <BigButtonGroupWithSize
-          selectedOption={currentOption}
+          selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
       </div>

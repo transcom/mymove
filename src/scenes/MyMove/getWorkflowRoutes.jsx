@@ -205,7 +205,6 @@ const pages = {
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
   },
-
   '/moves/:moveId/hhg-transition': {
     isInFlow: isCombo,
     isComplete: always,
@@ -216,7 +215,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: state => state.selectedMoveType === 'HHG',
+    isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
       return every([hhg.pickup_date]);
     },
@@ -241,7 +240,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: state => state.selectedMoveType === 'PPM',
+    isInFlow: hasPPM,
     isComplete: (sm, orders, move, ppm) => {
       return every([
         ppm.planned_move_date,
@@ -301,7 +300,7 @@ export const getNextIncompletePage = (
 ) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(service_member, orders, move, ppm, backupContacts),
+    p => !p.isComplete(service_member, orders, move, ppm, hhg, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(service_member, 'id'),
