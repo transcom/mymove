@@ -16,9 +16,9 @@ describe('The document viewer', function() {
   it('loads basic information about the move', () => {
     cy.signIntoOffice();
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
-    cy.contains('Donut, John');
+    cy.contains('In Progress, PPM');
     cy.contains('GBXYUI');
-    cy.contains('1618033988');
+    cy.contains('1617033988');
   });
 });
 
