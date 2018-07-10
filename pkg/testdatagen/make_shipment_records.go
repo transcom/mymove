@@ -21,6 +21,8 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		BookDate:                  DateInsidePerformancePeriod,
 		SourceGBLOC:               sourceGBLOC,
 		Market:                    market,
+		Status:                    "DEFAULT",
+		// TODO add default values for new fields here
 	}
 
 	verrs, err := db.ValidateAndSave(&shipment)

@@ -8,11 +8,15 @@ import (
 )
 
 func (suite *ModelSuite) Test_ShipmentValidations() {
-	shipment := &Shipment{}
+	days := -2
+	shipment := &Shipment{EstimatedPackDays: &days}
 
 	expErrors := map[string][]string{
 		"traffic_distribution_list_id": []string{"traffic_distribution_list_id can not be blank."},
 		"source_gbloc":                 []string{"source_gbloc can not be blank."},
+		"move_id":                      []string{"move_id can not be blank."},
+		"status":                       []string{"status can not be blank."},
+		"estimated_pack_days":          []string{"-2 is less than zero."},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)

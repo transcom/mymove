@@ -120,5 +120,8 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.TrafficDistributionListID, Name: "traffic_distribution_list_id"},
 		&validators.StringIsPresent{Field: s.SourceGBLOC, Name: "source_gbloc"},
+		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
+		&validators.StringIsPresent{Field: s.Status, Name: "status"},
+		&OptionalIntIsNotNegative{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
 	), nil
 }

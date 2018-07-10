@@ -46,6 +46,19 @@ func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
 	}
 }
 
+type OptionalIntIsNotNegative struct {
+	Name  string
+	Field *int
+}
+
+func (v *OptionalIntIsNotNegative) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		if !(*v.Field > 0) {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero.", *v.Field))
+		}
+	}
+}
+
 // Int64IsPresent validates that an int64 is greater than 0.
 type Int64IsPresent struct {
 	Name  string
