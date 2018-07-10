@@ -26,6 +26,7 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import HhgDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -204,11 +205,24 @@ const pages = {
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/moves/:moveId/schedule': {
-    isInFlow: hasHHG,
-    isComplete: always, //todo fix this when implemented
-    render: stub,
-    description: 'Pick a move date',
+
+  '/moves/:moveId/hhg-transition': {
+    isInFlow: isCombo,
+    isComplete: always,
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <Transition />
+      </WizardPage>
+    ),
+  },
+  '/moves/:moveId/hhg-start': {
+    isInFlow: state => state.selectedMoveType === 'HHG',
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.pickup_date]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <HhgDatePicker pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/address': {
     isInFlow: hasHHG,
@@ -282,6 +296,7 @@ export const getNextIncompletePage = (
   orders = {},
   move = {},
   ppm = {},
+  hhg = {},
   backupContacts = [],
 ) => {
   const rawPath = findKey(
