@@ -367,7 +367,10 @@ head .panel-subhead {
   margin: 1em;
   display: inline-block;
 }
-.calculator-panel button,
+.calculator-panel .buttons {
+  margin: 1em;
+  display: inline;
+}
 .calculator-panel .calculated-result {
   margin: 1em;
 }

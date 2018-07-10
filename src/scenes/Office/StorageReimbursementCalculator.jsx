@@ -1,4 +1,4 @@
-import { get } from 'lodash';
+import { get, pick } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -93,6 +93,7 @@ export class StorageReimbursementCalculator extends Component {
       pristine,
       reset,
       submitting,
+      initialValues,
     } = this.props;
     return (
       <div className="calculator-panel">
@@ -130,22 +131,24 @@ export class StorageReimbursementCalculator extends Component {
             swagger={this.props.schema}
             required
           />
-          <button
-            data-cy="calc"
-            type="submit"
-            disabled={pristine || submitting || invalid}
-          >
-            Calculate
-          </button>
-          <button
-            className="usa-button-secondary"
-            data-cy="clear"
-            type="button"
-            disabled={pristine || submitting}
-            onClick={reset}
-          >
-            Clear
-          </button>
+          <div className="buttons">
+            <button
+              data-cy="calc"
+              type="submit"
+              disabled={pristine || submitting || invalid}
+            >
+              Calculate
+            </button>
+            <button
+              className="usa-button-secondary"
+              data-cy="reset"
+              type="button"
+              disabled={pristine || submitting}
+              onClick={reset}
+            >
+              Reset
+            </button>
+          </div>
         </form>
         {sitReimbursement && (
           <div className="calculated-result">
@@ -164,10 +167,17 @@ StorageReimbursementCalculator.propTypes = {
 };
 
 function mapStateToProps(state) {
+  const initialValues = pick(get(state, 'office.officePPMs[0]'), [
+    'planned_move_date',
+    'pickup_postal_code',
+    'destination_postal_code',
+    'days_in_storage',
+  ]);
   const props = {
     schema,
     hasEstimateError: state.ppm.hasEstimateError,
-    ...state.ppm,
+    sitReimbursement: state.ppm.sitReimbursement,
+    initialValues,
   };
   return props;
 }
@@ -177,6 +187,6 @@ function mapDispatchToProps(dispatch) {
 function onSubmit(values) {
   console.log(values);
 }
-export default reduxForm({ form: formName, onSubmit })(
-  connect(mapStateToProps, mapDispatchToProps)(StorageReimbursementCalculator),
+export default connect(mapStateToProps, mapDispatchToProps)(
+  reduxForm({ form: formName, onSubmit })(StorageReimbursementCalculator),
 );
