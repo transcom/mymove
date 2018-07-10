@@ -12,19 +12,26 @@ const defaultFlags = {
 
 export const flags = {
   development: Object.assign({}, defaultFlags),
+
   test: Object.assign({}, defaultFlags, {
     justForTesting: false,
   }),
-  staging: Object.assign({}, defaultFlags),
+
   experimental: Object.assign({}, defaultFlags),
+
+  staging: Object.assign({}, defaultFlags, {
+    hhg: false,
+  }),
 
   production: Object.assign({}, defaultFlags, {
     hhg: false,
   }),
 };
 
+let overrides = {};
+
 // Return the name of the current envirnonment as a string.
-function detectEnvironment() {
+export function detectEnvironment() {
   const nodeEnv = process.env['NODE_ENV'];
 
   if (nodeEnv !== 'production') {
@@ -49,9 +56,24 @@ function detectEnvironment() {
   }
 }
 
+export function override(name, value) {
+  if (Object.keys(defaultFlags).indexOf(name) === -1) {
+    throw `Flag '${name}' is not defined. Add it to defaultFlags if you wish to use it.`;
+  }
+  overrides[name] = value;
+}
+
+export function reset() {
+  overrides = {};
+}
+
 // Return true or false based on if the requested feature is enabled in this
 // environment.
 export function feature(name) {
+  if (Object.keys(overrides).indexOf(name) !== -1) {
+    return overrides[name];
+  }
+
   let env = detectEnvironment();
   let value = flags[env][name];
 

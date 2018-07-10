@@ -18,7 +18,8 @@ solutions.
 
 ## Decision Outcome
 
-* Chosen Alternative: **Detect current environment using the hostname and toggle features based on this environment**
+* Chosen Alternative: **Detect current environment using `NODE_ENV` and fallback to using
+  the hostname when `NODE_ENV === 'production'`. Toggle features based on this environment.**
 * Simplest solution to the current set of known requirements.
 * Requires the least investment in new libraries or services.
 * Allows us to try out a simple approach with minimal investment, leaving open the
