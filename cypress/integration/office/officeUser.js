@@ -1,8 +1,7 @@
 /* global cy */
 describe('office user finds the move', function() {
   beforeEach(() => {
-    Cypress.config('baseUrl', 'http://officelocal:4000');
-    cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+    cy.signIntoOffice();
   });
   it('office user views moves in queue new moves', function() {
     officeUserViewsMoves();
