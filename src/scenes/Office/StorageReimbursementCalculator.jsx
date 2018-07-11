@@ -182,9 +182,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators({ getPpmSitEstimate }, dispatch);
 }
-function onSubmit(values) {
-  console.log(values);
-}
+
 export default connect(mapStateToProps, mapDispatchToProps)(
-  reduxForm({ form: formName, onSubmit })(StorageReimbursementCalculator),
+  reduxForm({ form: formName })(StorageReimbursementCalculator),
 );
