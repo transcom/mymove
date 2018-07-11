@@ -187,7 +187,6 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 		// Make a generic Document
 		newDoc := Document{
 			ServiceMemberID: m.Orders.ServiceMemberID,
-			Name:            "this field is useless",
 		}
 		verrs, err := db.ValidateAndCreate(&newDoc)
 		if err != nil || verrs.HasAny() {
