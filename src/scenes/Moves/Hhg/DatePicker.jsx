@@ -6,7 +6,6 @@ import { getFormValues, reduxForm } from 'redux-form';
 import DayPicker from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-// import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { no_op } from 'shared/utils';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
