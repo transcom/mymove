@@ -18,6 +18,7 @@ import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
+import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -25,6 +26,7 @@ export const appReducer = combineReducers({
   swagger: swaggerReducer,
   submittedIssues: issuesReducer,
   moves: moveReducer,
+  moveDocuments: documentsReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,

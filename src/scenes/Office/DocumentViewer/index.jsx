@@ -7,16 +7,19 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
+import { indexMoveDocuments } from './ducks.js';
 import { loadMoveDependencies } from '../ducks.js';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect } from 'react-router-dom';
+import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 
 import './index.css';
 class DocumentViewer extends Component {
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.indexMoveDocuments(this.props.match.params.moveId);
   }
   componentWillUpdate() {
     document.title = 'Document Viewer';
@@ -30,8 +33,8 @@ class DocumentViewer extends Component {
     ]).join(', ');
 
     const defaultUrl = this.props.match.url;
-    const detailUrl = `${this.props.match.path}/details`;
-    const listUrl = `${this.props.match.path}/list`;
+    const detailUrl = `${this.props.match.url}/details`;
+    const listUrl = `${this.props.match.url}/list`;
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -87,10 +90,7 @@ class DocumentViewer extends Component {
                 path={this.props.match.url}
                 render={() => <Redirect replace to={listUrl} />}
               />
-              <PrivateRoute
-                path={listUrl}
-                render={() => <div> list coming soon</div>}
-              />
+              <PrivateRoute path={listUrl} component={DocumentList} />
               <PrivateRoute
                 path={detailUrl}
                 render={() => <div> details coming soon</div>}
@@ -109,9 +109,9 @@ DocumentViewer.propTypes = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
+  moveDocuments: get(state, 'moveDocuments', {}),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
@@ -119,6 +119,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies }, dispatch);
+  bindActionCreators({ loadMoveDependencies, indexMoveDocuments }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);
