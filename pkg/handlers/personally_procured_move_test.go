@@ -221,8 +221,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	weight := swag.Int64(4100)
 
 	moveDate := time.Now()
-	hasSit := swag.Bool(true)
-	daysInStorage := swag.Int64(3)
 
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29400")
@@ -233,8 +231,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		MoveID:                move.ID,
 		Move:                  move,
 		PlannedMoveDate:       &moveDate,
-		HasSit:                hasSit,
-		DaysInStorage:         daysInStorage,
 		PickupPostalCode:      pickupPostalCode,
 		DestinationPostalCode: destinationPostalCode,
 		Status:                models.PPMStatusDRAFT,
@@ -244,7 +240,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
-	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+	payload := &internalmessages.PatchPersonallyProcuredMovePayload{
 		WeightEstimate: weight,
 	}
 
@@ -252,7 +248,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
-		PatchPersonallyProcuredMovePayload: &payload,
+		PatchPersonallyProcuredMovePayload: payload,
 	}
 
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -270,9 +266,25 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
 	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
+	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
+	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
+	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
+
+	// Now check that SIT values update when days in storage is set
+	hasSit := swag.Bool(true)
+	daysInStorage := swag.Int64(3)
+	*payload = internalmessages.PatchPersonallyProcuredMovePayload{
+		HasSit:        hasSit,
+		DaysInStorage: daysInStorage,
+	}
+
+	response = handler.Handle(patchPPMParams)
+	// assert we got back the 201 response
+	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	patchPPMPayload = okResponse.Payload
+
 	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {

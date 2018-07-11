@@ -263,9 +263,10 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
 	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
 	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
-	daysInStorage, daysChanged, daysOK := int64ForComparison(ppm.DaysInStorage, daysPtr)
+	daysInStorage, daysChanged, _ := int64ForComparison(ppm.DaysInStorage, daysPtr)
 
-	valuesOK := originOK && destinationOK && weightOK && dateOK && daysOK
+	// We don't care if daysInStorage is OK, since we just want to meet the minimum bar to recalculate
+	valuesOK := originOK && destinationOK && weightOK && dateOK
 	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
 
 	needsUpdate := valuesOK && valuesChanged
@@ -341,7 +342,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	if ppm.HasSit != nil && *ppm.HasSit == true {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
-		sitTotal, err := re.SitCharge(cwtWeight, int(*ppm.DaysInStorage), sitZip3, *ppm.PlannedMoveDate, true)
+		sitTotal, err := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.PlannedMoveDate, true)
 		if err != nil {
 			return err
 		}
