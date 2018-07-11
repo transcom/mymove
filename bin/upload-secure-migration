@@ -6,12 +6,12 @@
 
 set -eu -o pipefail
 
-# AWS CLI tool
-readonly aws="aws"
+readonly aws_command="aws"
 # Environments to upload production migrations to
 readonly environments=(experimental staging prod)
 readonly aws_bucket_prefix="transcom-ppp-app-"
 readonly aws_bucket_suffix="-us-west-2"
+readonly aws_path_prefix="secure-migrations"
 
 readonly usage="usage: $0 <production_migration_file>"
 
@@ -38,26 +38,30 @@ elif [[ ! -f "${1}" ]]; then
 fi
 readonly production_migration_file="$1"
 
-command -v "$aws" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
-  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws";
-    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault";
+# Ensure our `aws` command is the one infra has wrapped with aws-vault
+command -v "$aws_command" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null || \
+  ( echo "error: aws command not pointing to 'ppp-infra/bin/aws"
+    echo "see https://github.com/transcom/ppp-infra/blob/master/transcom-ppp/README.md#using-aws-vault"
     exit 1
   )
 
-#
 # Test AWS command and freshen AWS session token
-#
-
 aws s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
 
 #
 # Test local migration
 #
 
-echo "Testing local migration. This will involve resetting your local dev database."
-proceed "Proceed?"
-echo make db_dev_reset
-echo make db_dev_migrate
+proceed "Testing local migration. This will involve resetting your local dev database. Proceed?"
+make db_dev_reset &> /dev/null
+make db_dev_migrate &> /dev/null || (
+  echo "error: test migrations failed!"
+  echo "Run 'make db_dev_migrate' to see errors."
+  exit 1
+  )
+
+echo "Test migrations successful!"
+echo
 
 #
 # Upload secure migration
@@ -65,15 +69,16 @@ echo make db_dev_migrate
 
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
-  aws s3 cp --sse AES265 \
+  sleep 1
+  aws s3 cp --sse AES256 \
     "$production_migration_file" \
-    s3://"${aws_bucket_prefix}${environment}${aws_bucket_suffix}"
+    "s3://${aws_bucket_prefix}${environment}${aws_bucket_suffix}/${aws_path_prefix}/"
 done
 
 #
 # Cleanup
 #
 
-echo "Production migration files contain sensitive data and should be deleted after uploading."
-proceed "Delete it now?"
-rm -v "$production_migration_file"
+echo
+echo "Production migration files contain sensitive data and should be deleted after uploading!"
+rm -i "$production_migration_file"
