@@ -34,8 +34,6 @@ func main() {
 		tdgs.RunAwardQueueScenario1(db)
 	} else if *scenario == 2 {
 		tdgs.RunAwardQueueScenario2(db)
-	} else if *scenario == 3 {
-		tdgs.RunDutyStationScenario3(db)
 	} else if *scenario == 4 {
 		err = tdgs.RunPPMSITEstimateScenario1(db)
 	} else if *scenario == 5 {

@@ -31,7 +31,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -98,7 +98,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 func (suite *ModelSuite) TestOrderStateMachine() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
@@ -144,7 +144,7 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	dutyStation := testdatagen.MakeAnyDutyStation(suite.db)
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
 	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
 	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
 	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
