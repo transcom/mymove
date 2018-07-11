@@ -122,6 +122,10 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.StringIsPresent{Field: s.SourceGBLOC, Name: "source_gbloc"},
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: s.Status, Name: "status"},
-		&OptionalIntIsNotNegative{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
+		&OptionalIntIsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
+		&OptionalIntIsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
+		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
+		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
+		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
 }

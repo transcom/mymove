@@ -46,15 +46,32 @@ func (v *StringDoesNotContainSSN) IsValid(errors *validate.Errors) {
 	}
 }
 
-type OptionalIntIsNotNegative struct {
+// OptionalIntIsPositive adds an error if the Field is less than or equal to zero
+type OptionalIntIsPositive struct {
 	Name  string
 	Field *int
 }
 
-func (v *OptionalIntIsNotNegative) IsValid(errors *validate.Errors) {
+// IsValid adds an error if the Field is less than or equal to zero
+func (v *OptionalIntIsPositive) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
-		if !(*v.Field > 0) {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero.", *v.Field))
+		if *v.Field <= 0 {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero or equal to zero.", *v.Field))
+		}
+	}
+}
+
+// OptionalPoundIsPositive adds an error if the Field is less than or equal to zero
+type OptionalPoundIsPositive struct {
+	Name  string
+	Field *unit.Pound
+}
+
+// IsValid adds an error if the Field is less than or equal to zero
+func (v *OptionalPoundIsPositive) IsValid(errors *validate.Errors) {
+	if v.Field != nil {
+		if *v.Field <= 0 {
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than or equal to zero.", *v.Field))
 		}
 	}
 }
