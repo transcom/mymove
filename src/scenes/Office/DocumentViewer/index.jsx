@@ -108,7 +108,7 @@ class DocumentViewer extends Component {
                     <Link to={newUrl}>Upload new document</Link>
                     <div>
                       {' '}
-                      <DocumentList />
+                      <DocumentList defaultUrl={defaultUrl} />
                     </div>
                   </Fragment>
                 )}

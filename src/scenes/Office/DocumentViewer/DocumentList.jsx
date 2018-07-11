@@ -35,16 +35,16 @@ export class DocumentList extends Component {
 
   render() {
     const { moveDocuments } = this.props;
+    console.log(this.props);
     return (
       <Fragment>
         {moveDocuments.map(doc => {
           const status = this.renderDocStatus(doc.status);
+          const detailUrl = `${this.props.defaultUrl}/${doc.id}`;
           return (
             <div key={doc.id}>
               <span className="status">{status}</span>
-              <Link to="/" target="_blank">
-                {doc.title}
-              </Link>
+              <Link to={detailUrl}>{doc.title}</Link>
             </div>
           );
         })}
@@ -55,6 +55,7 @@ export class DocumentList extends Component {
 
 DocumentList.propTypes = {
   moveDocuments: PropTypes.array,
+  defaultUrl: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
