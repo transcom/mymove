@@ -25,6 +25,7 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 		Move:             move,
 		Status:           models.MoveDocumentStatusAWAITINGREVIEW,
 		MoveDocumentType: models.MoveDocumentTypeOTHER,
+		Title:            "My-very-special-document.pdf",
 	}
 
 	// Overwrite values with those from assertions

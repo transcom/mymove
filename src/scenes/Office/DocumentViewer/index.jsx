@@ -26,8 +26,8 @@ class DocumentViewer extends Component {
     document.title = 'Document Viewer';
   }
   render() {
-    const { serviceMember, move } = this.props;
-
+    const { serviceMember, move, moveDocuments } = this.props;
+    const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = compact([
       serviceMember.last_name,
       serviceMember.first_name,
@@ -87,7 +87,7 @@ class DocumentViewer extends Component {
             className="doc-viewer-tabs"
           >
             <NavTab to="/list">
-              <span className="title">Document(s)</span>
+              <span className="title">All Documents ({numMoveDocs})</span>
             </NavTab>
 
             <NavTab to="/details">
@@ -108,7 +108,7 @@ class DocumentViewer extends Component {
                     <Link to={newUrl}>Upload new document</Link>
                     <div>
                       {' '}
-                      <DocumentList defaultUrl={defaultUrl} />
+                      <DocumentList moveId={move.id} />
                     </div>
                   </Fragment>
                 )}
@@ -133,7 +133,7 @@ const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
-  moveDocuments: get(state, 'moveDocuments', {}),
+  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,

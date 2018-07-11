@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -34,28 +34,27 @@ export class DocumentList extends Component {
   }
 
   render() {
-    const { moveDocuments } = this.props;
-    console.log(this.props);
+    const { moveDocuments, moveId } = this.props;
     return (
-      <Fragment>
+      <div className="editable-panel-content">
         {moveDocuments.map(doc => {
           const status = this.renderDocStatus(doc.status);
-          const detailUrl = `${this.props.defaultUrl}/${doc.id}`;
+          const detailUrl = `/moves/${moveId}/documents/${doc.id}`;
           return (
-            <div key={doc.id}>
+            <div className="panel-field" key={doc.id}>
               <span className="status">{status}</span>
               <Link to={detailUrl}>{doc.title}</Link>
             </div>
           );
         })}
-      </Fragment>
+      </div>
     );
   }
 }
 
 DocumentList.propTypes = {
   moveDocuments: PropTypes.array,
-  defaultUrl: PropTypes.string,
+  moveId: PropTypes.string,
 };
 
 const mapStateToProps = state => ({
