@@ -28,14 +28,16 @@ import * as mime from 'mime-types';
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  cy.visit('/');
   cy.request('POST', 'devlocal-auth/new').then(() => cy.visit('/'));
   //  cy.contains('Local Sign In').click();
   //  cy.contains('Login as New User').click();
 });
 
+Cypress.Commands.add('signIntoOffice', () => {
+  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+});
 Cypress.Commands.add('signInAsUser', userId => {
-  cy.visit('/');
   cy
     .request({
       method: 'POST',

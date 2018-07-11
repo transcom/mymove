@@ -18,7 +18,6 @@ type Document struct {
 	ID              uuid.UUID     `db:"id"`
 	ServiceMemberID uuid.UUID     `db:"service_member_id"`
 	ServiceMember   ServiceMember `belongs_to:"service_members"`
-	Name            string        `db:"name"`
 	CreatedAt       time.Time     `db:"created_at"`
 	UpdatedAt       time.Time     `db:"updated_at"`
 	Uploads         Uploads       `has_many:"uploads" order_by:"created_at asc"`

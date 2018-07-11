@@ -156,7 +156,6 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
 		ServiceMemberID: move.Orders.ServiceMemberID,
-		Name:            "uploaded_document",
 	}
 	suite.mustSave(&newAdvanceWorksheet)
 

@@ -15,6 +15,9 @@ import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DocumentUploader from './DocumentUploader';
 
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
+
 import './index.css';
 class DocumentViewer extends Component {
   componentDidMount() {
@@ -105,6 +108,12 @@ class DocumentViewer extends Component {
                 path={listUrl}
                 render={() => (
                   <Fragment>
+                    <span className="status">
+                      <FontAwesomeIcon
+                        className="icon link-blue"
+                        icon={faPlusCircle}
+                      />
+                    </span>
                     <Link to={newUrl}>Upload new document</Link>
                     <div>
                       {' '}

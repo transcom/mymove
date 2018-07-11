@@ -26,7 +26,7 @@ export class DocumentList extends Component {
     if (status === 'HAS_ISSUE') {
       return (
         <FontAwesomeIcon
-          className="icon approval-waiting"
+          className="icon approval-problem"
           icon={faExclamationCircle}
         />
       );
@@ -36,7 +36,7 @@ export class DocumentList extends Component {
   render() {
     const { moveDocuments, moveId } = this.props;
     return (
-      <div className="editable-panel-content">
+      <div className="doclist">
         {moveDocuments.map(doc => {
           const status = this.renderDocStatus(doc.status);
           const detailUrl = `/moves/${moveId}/documents/${doc.id}`;
