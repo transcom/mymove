@@ -1,23 +1,41 @@
-import { IndexMoveDocuments } from './api.js';
+import { cloneDeep } from 'lodash';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
+
+import { IndexMoveDocuments, CreateMoveDocument } from './api.js';
+import { upsert } from 'shared/utils';
 
 // Types
 export const indexMoveDocumentsType = 'INDEX_MOVE_DOCUMENTS';
+const createMoveDocumentType = 'CREATE_MOVE_DOCUMENT';
 
-// Actions
+// Action types
 export const INDEX_MOVE_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(
   indexMoveDocumentsType,
 );
+const CREATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
+  createMoveDocumentType,
+);
 
+// Action creators
 export const indexMoveDocuments = ReduxHelpers.generateAsyncActionCreator(
   indexMoveDocumentsType,
   IndexMoveDocuments,
 );
 
+export const createMoveDocument = ReduxHelpers.generateAsyncActionCreator(
+  createMoveDocumentType,
+  CreateMoveDocument,
+);
+
 // Reducer
 const initialState = {
-  moveDocuments: null,
+  moveDocuments: [],
   indexMoveDocumentsSuccess: false,
+};
+const upsertMoveDocument = (moveDocument, state) => {
+  const newState = cloneDeep(state);
+  upsert(newState.moveDocuments, moveDocument);
+  return newState;
 };
 
 export function documentsReducer(state = initialState, action) {
@@ -37,6 +55,17 @@ export function documentsReducer(state = initialState, action) {
         indexMoveDocumentsSuccess: false,
         indexMoveDocumentsError: true,
         error: action.error,
+      });
+    case CREATE_MOVE_DOCUMENT.success:
+      return {
+        ...upsertMoveDocument(action.payload, state),
+        moveDocumentCreateError: false,
+        createdMoveDocument: action.payload,
+      };
+    case CREATE_MOVE_DOCUMENT.failure:
+      return Object.assign({}, state, {
+        moveDocumentCreateError: true,
+        error: action.error.message,
       });
     default:
       return state;
