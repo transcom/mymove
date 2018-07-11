@@ -1,3 +1,6 @@
+import queryString from 'query-string';
+import { forEach } from 'lodash';
+
 // Simple feature toggling for client-side code.
 //
 // Environments:
@@ -10,14 +13,10 @@ const defaultFlags = {
   hhg: true,
 };
 
-export const flags = {
+const environmentFlags = {
   development: Object.assign({}, defaultFlags),
 
-  test: Object.assign({}, defaultFlags, {
-    justForTesting: false,
-  }),
-
-  experimental: Object.assign({}, defaultFlags),
+  test: Object.assign({}, defaultFlags),
 
   staging: Object.assign({}, defaultFlags, {
     hhg: false,
@@ -28,66 +27,60 @@ export const flags = {
   }),
 };
 
-let overrides = {};
+export function flagsFromURL(search) {
+  const params = queryString.parse(search);
+  let flags = {};
+
+  forEach(params, function(value, key) {
+    let [prefix, name] = key.split(':');
+    if (prefix === 'flag' && name.length > 0) {
+      if (validateFlag(name)) {
+        // name is validated by the previous line
+        // eslint-disable-next-line security/detect-object-injection
+        flags[name] = value === 'true';
+      }
+    }
+  });
+  return flags;
+}
 
 // Return the name of the current envirnonment as a string.
-export function detectEnvironment() {
-  const nodeEnv = process.env['NODE_ENV'];
-
+export function detectEnvironment(nodeEnv, host) {
   if (nodeEnv !== 'production') {
     return nodeEnv;
   }
 
   // If we've built the app, then use the hostname to determine what the
   // environment is.
-  const domain = window.location.host;
+  const domain = host;
   switch (domain) {
     case 'office.move.mil':
     case 'my.move.mil':
       return 'production';
-      break;
     case 'office-staging.move.mil':
     case 'my-staging.move.mil':
       return 'staging';
-      return;
     // TODO add experimental
     default:
       return 'development';
   }
 }
 
-export function override(name, value) {
-  if (Object.keys(defaultFlags).indexOf(name) === -1) {
-    throw `Flag '${name}' is not defined. Add it to defaultFlags if you wish to use it.`;
-  }
-  overrides[name] = value;
-}
-
-export function reset() {
-  overrides = {};
-}
-
-// Return true or false based on if the requested feature is enabled in this
-// environment.
-export function feature(name) {
-  if (Object.keys(overrides).indexOf(name) !== -1) {
-    return overrides[name];
-  }
-
-  let env = detectEnvironment();
-  let value = flags[env][name];
-
+function validateFlag(name) {
   // Warn if the value is undefined, indicating that a value is being fetched
   // that was never set.
-  if (
-    typeof value === 'undefined' &&
-    env !== 'test' &&
-    console &&
-    console.warn
-  ) {
-    console.warn(
-      `Value for flag '${name}' in environment '${env}' is undefined.`,
-    );
+  if (Object.keys(defaultFlags).indexOf(name) === -1) {
+    if (console && console.warn) {
+      console.warn(`'${name}' is not a valid flag name.`);
+    }
+    return false;
   }
-  return value;
+  return true;
+}
+
+export function detectFlags(nodeEnv, host, search) {
+  let env = detectEnvironment(nodeEnv, host);
+  // env can only be one of the values hard-coded into detectEnvironment()
+  // eslint-disable-next-line security/detect-object-injection
+  return Object.assign({}, environmentFlags[env], flagsFromURL(search));
 }

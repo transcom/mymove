@@ -12,6 +12,7 @@ import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
 import { mobileSize } from 'shared/constants';
+import { AppContext } from 'shared/AppContext';
 
 class BigButtonGroup extends Component {
   constructor() {
@@ -193,6 +194,11 @@ export class MoveType extends Component {
           selectedOption={currentOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
+        <AppContext.Consumer>
+          {settings => (
+            <p>HHG is {settings.flags.hhg ? 'enabled' : 'disabled'}.</p>
+          )}
+        </AppContext.Consumer>
       </div>
     );
   }

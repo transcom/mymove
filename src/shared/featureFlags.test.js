@@ -1,24 +1,32 @@
-import { detectEnvironment, feature, override, reset } from './featureFlags';
+import { detectEnvironment, detectFlags } from './featureFlags';
 
 describe('feature flags', () => {
   it('detects the environment correctly', () => {
-    expect(detectEnvironment()).toEqual('test');
+    expect(detectEnvironment('development', '')).toEqual('development');
+
+    expect(detectEnvironment('test', '')).toEqual('test');
+
+    expect(detectEnvironment('production', 'office.move.mil')).toEqual(
+      'production',
+    );
+    expect(detectEnvironment('production', 'my.move.mil')).toEqual(
+      'production',
+    );
+
+    expect(detectEnvironment('production', 'office-staging.move.mil')).toEqual(
+      'staging',
+    );
+    expect(detectEnvironment('production', 'my-staging.move.mil')).toEqual(
+      'staging',
+    );
+
+    expect(detectEnvironment('production', 'localhost')).toEqual('development');
+    expect(detectEnvironment('production', '')).toEqual('development');
   });
 
-  it('returns the correct values for the test environment', () => {
-    expect(feature('ppm')).toEqual(true);
-    expect(feature('justForTesting')).toEqual(false);
-    expect(feature('doesntexist')).toEqual(undefined);
-  });
-
-  it('can override flags using override', () => {
-    override('ppm', false);
-    expect(feature('ppm')).toEqual(false);
-  });
-
-  it('can reset after overriding a flag', () => {
-    override('ppm', false);
-    reset();
-    expect(feature('ppm')).toEqual(true);
+  it('merged query string flags into those from the environment', () => {
+    const flags = detectFlags('development', 'hostname', '?flag:ppm=false');
+    expect(flags.ppm).toEqual(false);
+    expect(flags.doesntexist).toEqual(undefined);
   });
 });
