@@ -338,17 +338,14 @@ export function officeReducer(state = initialState, action) {
       });
 
     // MOVE DOCUMENTS
-    // case CREATE_MOVE_DOCUMENT.start:
-    //   return Object.assign({}, state, {
-    //     moveIsLoading: true,
-    //     moveHasLoadSuccess: false,
-    //   });
     case CREATE_MOVE_DOCUMENT.success:
       return Object.assign({}, state, {
+        moveDocumentCreateError: false,
         createdMoveDocument: action.payload,
       });
     case CREATE_MOVE_DOCUMENT.failure:
       return Object.assign({}, state, {
+        moveDocumentCreateError: true,
         error: action.error.message,
       });
 

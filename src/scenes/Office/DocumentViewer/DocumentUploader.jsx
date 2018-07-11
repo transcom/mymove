@@ -1,5 +1,5 @@
 import { get, map } from 'lodash';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
@@ -8,6 +8,7 @@ import { getFormValues, reduxForm } from 'redux-form';
 
 import { createMoveDocument } from '../ducks.js';
 import Uploader from 'shared/Uploader';
+import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './DocumentUploader.css';
 
@@ -39,8 +40,10 @@ export class DocumentUploader extends Component {
         formValues.notes,
       )
       .then(response => {
-        const moveDocumentId = response.payload.id;
-        this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
+        if (!response.error) {
+          const moveDocumentId = response.payload.id;
+          this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
+        }
       });
   }
 
@@ -56,35 +59,46 @@ export class DocumentUploader extends Component {
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles;
     return (
-      <form onSubmit={handleSubmit(this.onSubmit)}>
-        <h3>Upload a new document</h3>
-        <SwaggerField
-          title="Title"
-          fieldName="title"
-          swagger={schema}
-          required
-        />
-        <SwaggerField
-          title="Document type"
-          fieldName="move_document_type"
-          swagger={schema}
-          required
-        />
-        <SwaggerField title="Notes" fieldName="notes" swagger={schema} />
-        <div>
-          <h4>Attach PDF or image</h4>
-          <p>
-            Upload a PDF or take a picture of each page and upload the images.
-          </p>
-          <div className="uploader-box">
-            <Uploader onChange={this.onChange} />
-            <div className="hint">(Each page must be clear and legible)</div>
+      <Fragment>
+        {this.props.moveDocumentCreateError && (
+          <div className="usa-grid">
+            <div className="usa-width-one-whole error-message">
+              <Alert type="error" heading="An error occurred">
+                Something went wrong contacting the server.
+              </Alert>
+            </div>
           </div>
-        </div>
-        <button className="submit" disabled={!isValid}>
-          Save
-        </button>
-      </form>
+        )}
+        <form onSubmit={handleSubmit(this.onSubmit)}>
+          <h3>Upload a new document</h3>
+          <SwaggerField
+            title="Title"
+            fieldName="title"
+            swagger={schema}
+            required
+          />
+          <SwaggerField
+            title="Document type"
+            fieldName="move_document_type"
+            swagger={schema}
+            required
+          />
+          <SwaggerField title="Notes" fieldName="notes" swagger={schema} />
+          <div>
+            <h4>Attach PDF or image</h4>
+            <p>
+              Upload a PDF or take a picture of each page and upload the images.
+            </p>
+            <div className="uploader-box">
+              <Uploader onChange={this.onChange} />
+              <div className="hint">(Each page must be clear and legible)</div>
+            </div>
+          </div>
+          <button className="submit" disabled={!isValid}>
+            Save
+          </button>
+        </form>
+      </Fragment>
     );
   }
 }
@@ -103,6 +117,7 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateMoveDocumentPayload',
       {},
     ),
+    moveDocumentCreateError: state.office.moveDocumentCreateError,
   };
   return props;
 }
