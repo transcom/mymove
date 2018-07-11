@@ -43,7 +43,7 @@ export class DocumentList extends Component {
             <div key={doc.id}>
               <span className="status">{status}</span>
               <Link to="/" target="_blank">
-                {doc.document.name}
+                {doc.title}
               </Link>
             </div>
           );

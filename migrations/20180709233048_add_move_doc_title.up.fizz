@@ -1,0 +1,2 @@
+raw("delete from move_documents;")
+add_column("move_documents", "title", "string", {})

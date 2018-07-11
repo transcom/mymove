@@ -511,6 +511,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       document:
         $ref: '#/definitions/DocumentPayload'
+      title:
+        type: string
+        example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -524,15 +527,21 @@ definitions:
       - id
       - move_id
       - document
+      - title
       - move_document_type
       - status
   CreateMoveDocumentPayload:
     type: object
     properties:
-      document_id:
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
         type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -543,7 +552,8 @@ definitions:
         x-nullable: true
         title: Notes
     required:
-      - document_id
+      - upload_ids
+      - title
       - move_document_type
       - status
   MoveDocumentType:
@@ -2637,42 +2647,6 @@ paths:
           description: not found
         500:
           description: server error
-  /documents/{documentId}/uploads:
-    post:
-      summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createUpload
-      tags:
-        - uploads
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: path
-          name: documentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the document to add an upload to
-        - in: formData
-          name: file
-          type: file
-          description: The file to upload.
-          required: true
-      responses:
-        201:
-          description: created upload
-          schema:
-            $ref: '#/definitions/UploadPayload'
-        400:
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
-          description: not authorized
-        404:
-          description: not found
-        500:
-          description: server error
   /uploads/{uploadId}:
     delete:
       summary: Deletes an upload
@@ -2701,6 +2675,41 @@ paths:
         500:
           description: server error
   /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
     delete:
       summary: Deletes a collection of uploads
       description: Uploads represent a single digital file, such as a JPEG or PDF.

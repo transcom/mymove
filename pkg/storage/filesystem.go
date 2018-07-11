@@ -28,6 +28,10 @@ func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem 
 
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+	if key == "" {
+		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
+	}
+
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
@@ -57,11 +61,6 @@ func (fs *Filesystem) Delete(key string) error {
 	joined := filepath.Join(fs.root, key)
 
 	return os.Remove(joined)
-}
-
-// Key returns a joined key
-func (fs *Filesystem) Key(args ...string) string {
-	return path.Join(args...)
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 mintes.

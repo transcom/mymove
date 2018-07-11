@@ -171,27 +171,65 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 // CreateMoveDocument creates a move document associated to a move
 func (m Move) CreateMoveDocument(db *pop.Connection,
-	document Document,
+	uploads Uploads,
 	moveDocumentType MoveDocumentType,
+	title string,
 	status MoveDocumentStatus,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
 
-	newMoveDocument := MoveDocument{
-		Move:             m,
-		MoveID:           m.ID,
-		Document:         document,
-		DocumentID:       document.ID,
-		MoveDocumentType: moveDocumentType,
-		Status:           status,
-		Notes:            notes,
-	}
+	var newMoveDocument *MoveDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
 
-	verrs, err := db.ValidateAndCreate(&newMoveDocument)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
 
-	return &newMoveDocument, verrs, nil
+		// Make a generic Document
+		newDoc := Document{
+			ServiceMemberID: m.Orders.ServiceMemberID,
+			Name:            "this field is useless",
+		}
+		verrs, err := db.ValidateAndCreate(&newDoc)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating document for move document")
+			return transactionError
+		}
+
+		// Associate uploads to the new document
+		for _, upload := range uploads {
+			upload.DocumentID = &newDoc.ID
+			verrs, err := db.ValidateAndUpdate(&upload)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error updating upload")
+				return transactionError
+			}
+		}
+
+		// Finally create the MoveDocument to tie it to the Move
+		newMoveDocument = &MoveDocument{
+			Move:             m,
+			MoveID:           m.ID,
+			Document:         newDoc,
+			DocumentID:       newDoc.ID,
+			MoveDocumentType: moveDocumentType,
+			Title:            title,
+			Status:           status,
+			Notes:            notes,
+		}
+		verrs, err = db.ValidateAndCreate(newMoveDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating move document")
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newMoveDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move
