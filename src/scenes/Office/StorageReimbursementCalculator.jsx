@@ -62,26 +62,13 @@ export class StorageReimbursementCalculator extends Component {
       days_in_storage,
       weight,
     } = values;
-    if (
-      !pickup_postal_code ||
-      !destination_postal_code ||
-      !planned_move_date ||
-      !weight
-    )
-      return;
-    if (
-      days_in_storage <= 90 &&
-      pickup_postal_code.length === 5 &&
-      destination_postal_code.length === 5
-    ) {
-      this.props.getPpmSitEstimate(
-        planned_move_date,
-        days_in_storage,
-        pickup_postal_code,
-        destination_postal_code,
-        weight,
-      );
-    }
+    this.props.getPpmSitEstimate(
+      planned_move_date,
+      days_in_storage,
+      pickup_postal_code,
+      destination_postal_code,
+      weight,
+    );
   };
 
   render() {
