@@ -44,7 +44,7 @@ const Placeholder = props => {
       pageList={props.pageList}
       pageKey={props.pageKey}
     >
-      <div className="Todo">
+      <div className="Todo-phase2">
         <h1>Placeholder for {props.title}</h1>
         <h2>{props.description}</h2>
       </div>
