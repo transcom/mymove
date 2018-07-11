@@ -41,7 +41,6 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		WeightEstimate:               poundPointer(2000),
 		ProgearWeightEstimate:        poundPointer(225),
 		SpouseProgearWeightEstimate:  poundPointer(312),
-		// TODO add default values for new fields here
 	}
 
 	verrs, err := db.ValidateAndSave(&shipment)

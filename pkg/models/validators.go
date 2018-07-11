@@ -56,7 +56,7 @@ type OptionalIntIsPositive struct {
 func (v *OptionalIntIsPositive) IsValid(errors *validate.Errors) {
 	if v.Field != nil {
 		if *v.Field <= 0 {
-			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than zero or equal to zero.", *v.Field))
+			errors.Add(validators.GenerateKey(v.Name), fmt.Sprintf("%d is less than or equal to zero.", *v.Field))
 		}
 	}
 }
