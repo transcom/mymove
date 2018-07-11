@@ -137,7 +137,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 		},
 	})
 
-	_ = testdatagen.MakeMove(db, testdatagen.Assertions{
+	testdatagen.MakeMove(db, testdatagen.Assertions{
 		ServiceMember: models.ServiceMember{
 			ID:            uuid.FromStringOrNil("0a1e72b0-1b9f-442b-a6d3-7b7cfa6bbb95"),
 			UserID:        uuid.FromStringOrNil(uuidStr),
