@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { getPpmSitEstimate } from '../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import Alert from 'shared/Alert';
 
 const formName = 'storage_reimbursement_calc';
 const schema = {
@@ -79,6 +80,7 @@ export class StorageReimbursementCalculator extends Component {
       pristine,
       reset,
       submitting,
+      hasEstimateError,
     } = this.props;
     return (
       <div className="calculator-panel">
@@ -86,6 +88,13 @@ export class StorageReimbursementCalculator extends Component {
           Storage Reimbursement Calculator
         </div>
         <form onSubmit={handleSubmit(this.calculate)}>
+          {hasEstimateError && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="warning" heading="Could not retrieve estimate">
+                There was an issue retrieving reimbursement amount.
+              </Alert>
+            </div>
+          )}
           <SwaggerField
             className="date-field"
             fieldName="planned_move_date"

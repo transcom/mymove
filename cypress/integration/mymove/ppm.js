@@ -45,7 +45,7 @@ describe.skip('completing the ppm flow', function() {
 
     cy.get('.rangeslider__handle').click();
 
-    // cy.get('.incentive').contains('$');
+    cy.get('.incentive').contains('$');
 
     cy.nextPage();
 
@@ -66,7 +66,7 @@ describe.skip('completing the ppm flow', function() {
     cy.nextPage();
     cy.contains('Success');
     cy.contains('Next Step: Awaiting approval');
-    cy.contains('Weight (est.): 8250 lbs');
+    cy.contains('Weight (est.): 6006 lbs');
     cy.resetDb();
   });
 });
