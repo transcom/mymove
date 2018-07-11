@@ -22,6 +22,7 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 		ID:               fmtUUID(moveDocument.ID),
 		MoveID:           fmtUUID(moveDocument.MoveID),
 		Document:         documentPayload,
+		Title:            &moveDocument.Title,
 		MoveDocumentType: internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
 		Status:           internalmessages.MoveDocumentStatus(moveDocument.Status),
 		Notes:            moveDocument.Notes,

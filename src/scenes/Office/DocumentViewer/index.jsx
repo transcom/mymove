@@ -102,9 +102,7 @@ class DocumentViewer extends Component {
                 path={listUrl}
                 render={() => (
                   <Fragment>
-                    <Link to={newUrl} moveId={move.id}>
-                      Upload new document
-                    </Link>
+                    <Link to={newUrl}>Upload new document</Link>
                     <div> list coming soon</div>
                   </Fragment>
                 )}
