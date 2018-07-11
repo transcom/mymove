@@ -13,11 +13,18 @@ describe('feature flags', () => {
       'production',
     );
 
-    expect(detectEnvironment('production', 'office-staging.move.mil')).toEqual(
+    expect(detectEnvironment('production', 'office.staging.move.mil')).toEqual(
       'staging',
     );
-    expect(detectEnvironment('production', 'my-staging.move.mil')).toEqual(
+    expect(detectEnvironment('production', 'my.staging.move.mil')).toEqual(
       'staging',
+    );
+
+    expect(
+      detectEnvironment('production', 'office.experimental.move.mil'),
+    ).toEqual('experimental');
+    expect(detectEnvironment('production', 'my.experimental.move.mil')).toEqual(
+      'experimental',
     );
 
     expect(detectEnvironment('production', 'localhost')).toEqual('development');
