@@ -187,10 +187,12 @@ db_e2e_reset: tools_build db_dev_run
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
-	[ -z "$(CIRCLECI)" ] && \
-		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
-		createdb -p 5432 -h localhost -U postgres test_db || \
-		echo "Relying on CircleCI's test database setup."
+ifndef CIRCLECI
+	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
+	createdb -p 5432 -h localhost -U postgres test_db
+else
+	echo "Relying on CircleCI's test database setup."
+endif
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`
