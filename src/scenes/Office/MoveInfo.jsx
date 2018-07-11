@@ -14,15 +14,17 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import PaymentsPanel from './PaymentsPanel';
-import PPMEstimatesPanel from './PPMEstimatesPanel';
-import StorageReimbursementCalculator from './StorageReimbursementCalculator';
+import PaymentsPanel from './PPM/PaymentsPanel';
+import PPMEstimatesPanel from './PPM/PPMEstimatesPanel';
+import StorageReimbursementCalculator from './PPM/StorageReimbursementCalculator';
+import IncentiveCalculator from './PPM/IncentiveCalculator';
+
 import {
   loadMoveDependencies,
   approveBasics,
   approvePPM,
   cancelMove,
-} from './ducks.js';
+} from './ducks';
 import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -53,6 +55,7 @@ const PPMTabContent = props => {
   return (
     <div className="basics">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <IncentiveCalculator />
       <StorageReimbursementCalculator />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
     </div>

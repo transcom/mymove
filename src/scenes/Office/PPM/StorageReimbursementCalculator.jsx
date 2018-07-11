@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPpmSitEstimate } from '../Moves/Ppm/ducks';
+import { getPpmSitEstimate } from '../../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Alert from 'shared/Alert';
@@ -22,7 +22,7 @@ const schema = {
     pickup_postal_code: {
       type: 'string',
       format: 'zip',
-      title: 'Pickup ZIP',
+      title: 'Origin ZIP',
       example: '90210',
       pattern: '^(\\d{5}([\\-]\\d{4})?)$',
       'x-nullable': true,
@@ -84,9 +84,7 @@ export class StorageReimbursementCalculator extends Component {
     } = this.props;
     return (
       <div className="calculator-panel">
-        <div className="calculator-panel-title">
-          Storage Reimbursement Calculator
-        </div>
+        <div className="calculator-panel-title">Storage Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
           {hasEstimateError && (
             <div className="usa-width-one-whole error-message">
