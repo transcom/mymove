@@ -1,9 +1,10 @@
 /* global cy, Cypress */
 describe('The document viewer', function() {
   beforeEach(() => {
-    Cypress.config('baseUrl', 'http://officelocal:4000');
+    cy.signIntoOffice();
   });
   it('redirects to sign in when not logged in', function() {
+    cy.contains('Sign Out').click();
     cy.visit('/moves/foo/documents');
     cy.contains('Welcome');
     cy.contains('Sign In');
