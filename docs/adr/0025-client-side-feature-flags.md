@@ -26,25 +26,28 @@ solutions.
   possibility of moving to a more involved solution when it is warranted.
 * This does require a commit and deploy to change the value of a flag, but this
   is OK given our intention of using this feature to gate large features.
+* We can use the `AppContext` provider/consumer already used in the app for app-level
+  settings to make the flags available throughout the app while preserving the ability
+  to manipulate them in tests.
 
-We will expose a function to our JavaScript client code that can be used like so:
+## Implementation Details
 
-```javascript
-import feature from 'featureFlags';
-
-if (feature('ppm')) {
-  // flag ppm is true
-} else {
-  // flag ppm is false
-}
-```
-
-The implementation of `feature` will determine the environment using:
+We will determine the environment using:
 
 1. `NODE_ENV`
 2. The page's hostname if `NODE_ENV` is `production`.
 
 Each environment (production, staging, experimental, development, test) will have its own mapping of flags to values.
+
+An example of checking the value of the `hhg` flag within JSX code is:
+
+```jsx
+<AppContext.Consumer>
+  {settings => (
+    <p>HHG is {settings.flags.hhg ? 'enabled' : 'disabled'}.</p>
+  )}
+</AppContext.Consumer>
+```
 
 ## Pros and Cons of the Alternatives
 
