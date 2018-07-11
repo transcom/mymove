@@ -40,18 +40,12 @@ export class DocumentList extends Component {
         {moveDocuments.map(doc => {
           const status = this.renderDocStatus(doc.status);
           return (
-            <table key={doc.id}>
-              <tbody>
-                <tr>
-                  <td>
-                    <span className="status">{status}</span>
-                    <Link to="/" target="_blank">
-                      {doc.document.name}
-                    </Link>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <div key={doc.id}>
+              <span className="status">{status}</span>
+              <Link to="/" target="_blank">
+                {doc.document.name}
+              </Link>
+            </div>
           );
         })}
       </Fragment>
