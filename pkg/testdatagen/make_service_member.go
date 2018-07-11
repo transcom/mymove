@@ -41,7 +41,7 @@ func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models
 	backupMailingAddress := MakeDefaultAddress(db)
 	E1 := internalmessages.ServiceMemberRankE1
 
-	station := MakeAnyDutyStation(db)
+	station := MakeDefaultDutyStation(db)
 
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{

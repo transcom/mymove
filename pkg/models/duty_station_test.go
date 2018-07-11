@@ -62,8 +62,7 @@ func (suite *ModelSuite) Test_DutyStationValidations() {
 }
 func (suite *ModelSuite) Test_FetchDutyStationTransportationOffice() {
 	t := suite.T()
-	dutyStation, _ := testdatagen.MakeDutyStation(suite.db, "Air Station Yuma", internalmessages.AffiliationMARINES,
-		models.Address{StreetAddress1: "duty station", City: "Yuma", State: "Arizona", PostalCode: "85364"})
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
 
 	office, err := models.FetchDutyStationTransportationOffice(suite.db, dutyStation.ID)
 	if err != nil {
