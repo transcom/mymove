@@ -50,7 +50,7 @@ func main() {
 	db.Where("standard_carrier_alpha_code = $1", "TRSS").First(&tsp)
 	if tsp.ID == uuid.Nil {
 		// TSP not found, create one for Truss
-		tsp := models.TransportationServiceProvider{
+		tsp = models.TransportationServiceProvider{
 			StandardCarrierAlphaCode: "TRSS",
 		}
 		mustSave(db, &tsp)
