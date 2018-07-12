@@ -9,12 +9,12 @@ import (
 // MakeUpload creates a single Upload.
 func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 	document := assertions.Upload.Document
-	if isZeroUUID(assertions.Upload.DocumentID) {
+	if assertions.Upload.DocumentID == nil || isZeroUUID(*assertions.Upload.DocumentID) {
 		document = MakeDocument(db, assertions)
 	}
 
 	upload := models.Upload{
-		DocumentID:  document.ID,
+		DocumentID:  &document.ID,
 		Document:    document,
 		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "testFile.pdf",

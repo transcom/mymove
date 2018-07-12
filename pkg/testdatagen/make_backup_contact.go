@@ -20,7 +20,7 @@ func MakeBackupContact(db *pop.Connection, assertions Assertions) models.BackupC
 		ServiceMemberID: serviceMember.ID,
 		Name:            "name",
 		Email:           "email@example.com",
-		Phone:           swag.String("5555555555"),
+		Phone:           swag.String("555-555-5555"),
 		Permission:      internalmessages.BackupContactPermissionEDIT,
 	}
 

@@ -17,8 +17,7 @@ import (
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
 	for i, upload := range document.Uploads {
-		key := storer.Key("documents", document.ID.String(), "uploads", upload.ID.String())
-		url, err := storer.PresignedURL(key, upload.ContentType)
+		url, err := storer.PresignedURL(upload.StorageKey, upload.ContentType)
 		if err != nil {
 			return nil, err
 		}
