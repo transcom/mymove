@@ -256,6 +256,7 @@ SQLEditor
 schema.sql
 dp3.sqs
 eslint
+hostname
 _do_
 # Put all custom terms BEFORE this comment, lest you end up in an mdspell pain cycle.
  - docs/backend.md
