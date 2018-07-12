@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
+//todo: this should call new action creator that uses new handler
 import { getPpmWeightEstimate as getPpmIncentive } from '../../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -142,6 +143,7 @@ function mapStateToProps(state) {
   const props = {
     schema,
     hasEstimateError: state.ppm.hasEstimateError,
+    // todo: this needs to use result from new handler/action creator
     reimbursement: state.ppm.incentive_estimate_min,
     initialValues,
   };
