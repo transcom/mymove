@@ -39,17 +39,21 @@ func MakeDefaultServiceMember(db *pop.Connection) models.ServiceMember {
 func MakeExtendedServiceMember(db *pop.Connection, assertions Assertions) models.ServiceMember {
 	residentialAddress := MakeDefaultAddress(db)
 	backupMailingAddress := MakeDefaultAddress(db)
+	Army := internalmessages.AffiliationARMY
 	E1 := internalmessages.ServiceMemberRankE1
 
-	station := MakeAnyDutyStation(db)
-
+	station := MakeDefaultDutyStation(db)
+	emailPreferred := true
 	// Combine extended SM defaults with assertions
 	smDefaults := models.ServiceMember{
 		Rank:                   &E1,
+		Affiliation:            &Army,
 		ResidentialAddressID:   &residentialAddress.ID,
 		BackupMailingAddressID: &backupMailingAddress.ID,
 		DutyStationID:          &station.ID,
 		DutyStation:            station,
+		EmailIsPreferred:       &emailPreferred,
+		Telephone:              models.StringPointer("555-555-5555"),
 	}
 
 	mergeModels(&smDefaults, assertions.ServiceMember)

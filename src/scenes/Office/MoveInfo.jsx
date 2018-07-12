@@ -16,6 +16,7 @@ import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
 import PaymentsPanel from './PaymentsPanel';
 import PPMEstimatesPanel from './PPMEstimatesPanel';
+import StorageReimbursementCalculator from './StorageReimbursementCalculator';
 import {
   loadMoveDependencies,
   approveBasics,
@@ -52,6 +53,7 @@ const PPMTabContent = props => {
   return (
     <div className="basics">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <StorageReimbursementCalculator />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
     </div>
   );

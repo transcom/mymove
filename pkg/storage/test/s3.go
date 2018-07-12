@@ -5,7 +5,6 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path"
 
 	"github.com/pkg/errors"
 
@@ -23,11 +22,6 @@ type PutFile struct {
 type FakeS3Storage struct {
 	PutFiles    map[string]PutFile
 	willSucceed bool
-}
-
-// Key returns a key built using the specified path fragments.
-func (fake *FakeS3Storage) Key(args ...string) string {
-	return path.Join(args...)
 }
 
 // Delete removes a file.

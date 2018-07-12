@@ -42,27 +42,32 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	documentID, err := uuid.FromString(params.DocumentID.String())
-	if err != nil {
-		h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
-		return uploadop.NewCreateUploadBadRequest()
-	}
 
-	// Fetch document to ensure user has access to it
-	document, docErr := models.FetchDocument(h.db, session, documentID)
-	if docErr != nil {
-		return responseForError(h.logger, docErr)
+	var docID *uuid.UUID
+	if params.DocumentID != nil {
+		documentID, err := uuid.FromString(params.DocumentID.String())
+		if err != nil {
+			h.logger.Info("Badly formed UUID for document", zap.String("document_id", params.DocumentID.String()), zap.Error(err))
+			return uploadop.NewCreateUploadBadRequest()
+		}
+
+		// Fetch document to ensure user has access to it
+		document, docErr := models.FetchDocument(h.db, session, documentID)
+		if docErr != nil {
+			return responseForError(h.logger, docErr)
+		}
+		docID = &document.ID
 	}
 
 	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
-	newUpload, verrs, err := uploader.CreateUpload(document.ID, session.UserID, file)
+	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, file)
 	if err != nil {
 		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
 			return uploadop.NewCreateUploadBadRequest()
 		}
 		h.logger.Error("Failed to create upload", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
-	} else if verrs != nil {
+	} else if verrs.HasAny() {
 		payload := createFailedValidationPayload(verrs)
 		return uploadop.NewCreateUploadBadRequest().WithPayload(payload)
 	}
