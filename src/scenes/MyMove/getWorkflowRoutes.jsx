@@ -205,7 +205,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/schedule': {
-    isInFlow: state => state.selectedMoveType === 'HHG',
+    isInFlow: hasHHG,
     isComplete: always, //todo fix this when implemented
     render: stub,
     description: 'Pick a move date',
