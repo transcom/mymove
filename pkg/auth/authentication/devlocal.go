@@ -66,7 +66,7 @@ func (h UserListHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			<form method="post" action="/devlocal-auth/login">
 				<p id="{{.ID}}">
 					{{.Email}}
-					({{if .OfficeUserID}}office{{else}}mymove{{end}})
+					({{if .TspUserID}}tsp{{else if .OfficeUserID}}office{{else}}mymove{{end}})
 					<button name="id" value="{{.ID}}" data-hook="existing-user-login">Login</button>
 				</p>
 			</form>
@@ -188,6 +188,8 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
+		} else if userIdentity.TspUserID != nil {
+			session.TspUserID = *(userIdentity.TspUserID)
 		} else if session.IsOfficeApp() {
 			handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
