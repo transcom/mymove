@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
+	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
@@ -76,6 +77,43 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 		return responseForError(h.logger, err)
 	}
 	return moveop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+}
+
+// UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
+type UpdateMoveDocumentHandler HandlerContext
+
+// Handle ... updates a move document from a request payload
+func (h UpdateMoveDocumentHandler) Handle(params moveop.UpdateMoveDocumentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
+
+	// Fetch move document from move id
+	moveDoc, err := models.FetchMoveDocument(h.db, session, moveDocID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	if moveDoc.MoveID != moveID {
+		h.logger.Info("Move ID for Move Document does not match requested Move Document ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", moveDoc.MoveID.String()))
+		return moveop.NewUpdateMoveDocumentBadRequest()
+	}
+
+	moveDoc.Title = params.UpdateMoveDocument.Title
+	moveDoc.Status = params.UpdateMoveDocument.MoveDocumentStatus
+	moveDoc.Notes = params.UpdateMoveDocument.Notes
+
+	verrs, err := models.SaveMoveDocument(h.db, &moveDoc)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	moveDocPayload, err := payloadForMoveDocumentModel(h.storage, moveDoc)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return moveop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
 }
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.

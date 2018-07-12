@@ -556,6 +556,22 @@ definitions:
       - title
       - move_document_type
       - status
+  UpdateMoveDocumentPayload:
+    type: object
+    properties:
+      title:
+        type: string
+        example: very_useful_document.pdf
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - title
+      - status
   MoveDocumentType:
     type: string
     title: Document type
@@ -2464,6 +2480,46 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
+  /moves/{moveId}/documents/{moveDocumentId}:
+    put:
+      summary: Updates a move document
+      description: Update a move document with the given information
+      operationId: updateMoveDocument
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move associated with the move document
+        - in: path
+          name: moveDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move document model
+        - in: body
+          name: updateMoveDocument
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveDocumentPayload'
+      responses:
+        200:
+          description: updated instance of move document
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move document not found
+        500:
+          description: internal server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed

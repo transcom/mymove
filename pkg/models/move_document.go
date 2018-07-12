@@ -7,6 +7,9 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // MoveDocumentStatus represents the status of a move document record's lifecycle
@@ -69,4 +72,24 @@ func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, err
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchMoveDocument fetches a MoveDocument model
+func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+	var moveDoc MoveDocument
+	err := db.Q().Eager().Find(&moveDoc, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, err
+	}
+	// TODO: Handle authorization - should all users be able to retrieve a move doc?
+	return &moveDoc, nil
+}
+
+// SaveMoveDocument saves a move document
+func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument) (*validate.Errors, error) {
+	return db.ValidateAndSave(moveDocument)
 }
