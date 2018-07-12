@@ -8,10 +8,11 @@ import Loadable from 'react-loadable';
 
 import {
   AppContext,
-  tspContext,
-  officeContext,
-  myMoveContext,
+  defaultTspContext,
+  defaultOfficeContext,
+  defaultMyMoveContext,
 } from 'shared/AppContext';
+import { detectFlags } from 'shared/featureFlags.js';
 
 const Tsp = Loadable({
   loader: () => import('scenes/TransportationServiceProvider'),
@@ -27,6 +28,15 @@ const MyMove = Loadable({
   loader: () => import('scenes/MyMove'),
   loading: () => <div>Loading...</div>,
 });
+
+const flags = detectFlags(
+  process.env['NODE_ENV'],
+  window.location.host,
+  window.location.search,
+);
+
+const officeContext = Object.assign({}, defaultOfficeContext, { flags });
+const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
 
 const hostname = window && window.location && window.location.hostname;
 const isOfficeSite = hostname.startsWith('office');
