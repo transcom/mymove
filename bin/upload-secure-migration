@@ -46,7 +46,7 @@ command -v "$aws_command" 2> /dev/null | grep "ppp-infra/bin/aws" &> /dev/null |
   )
 
 # Test AWS command and freshen AWS session token
-aws s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
+${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}" > /dev/null
 
 #
 # Test local migration

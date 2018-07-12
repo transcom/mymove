@@ -10,7 +10,7 @@ readonly dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 readonly soda="${dir}/soda"
 
 readonly local_migrations_dir="${dir}/../local_migrations"
-readonly prod_migrations_temp_dir="$(mktemp -d)"
+readonly prod_migrations_temp_dir="${dir}/../tmp"
 
 #
 # Pre-flight checks
@@ -22,6 +22,10 @@ command -v "$soda" &> /dev/null || \
 if [[ -z ${1:-} ]]; then
   echo "usage: $0 <migration_name>"
   exit 1
+fi
+
+if [[ ! -d "$prod_migrations_temp_dir" ]]; then
+  mkdir "$prod_migrations_temp_dir"
 fi
 
 readonly migration_name="$1"
