@@ -99,17 +99,17 @@ func (h UpdateMoveDocumentHandler) Handle(params moveop.UpdateMoveDocumentParams
 		h.logger.Info("Move ID for Move Document does not match requested Move Document ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", moveDoc.MoveID.String()))
 		return moveop.NewUpdateMoveDocumentBadRequest()
 	}
+	payload := params.UpdateMoveDocument
+	moveDoc.Title = *payload.Title
+	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
+	moveDoc.Notes = payload.Notes
 
-	moveDoc.Title = params.UpdateMoveDocument.Title
-	moveDoc.Status = params.UpdateMoveDocument.MoveDocumentStatus
-	moveDoc.Notes = params.UpdateMoveDocument.Notes
-
-	verrs, err := models.SaveMoveDocument(h.db, &moveDoc)
+	verrs, err := models.SaveMoveDocument(h.db, moveDoc)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	moveDocPayload, err := payloadForMoveDocumentModel(h.storage, moveDoc)
+	moveDocPayload, err := payloadForMoveDocumentModel(h.storage, *moveDoc)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

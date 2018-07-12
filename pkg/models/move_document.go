@@ -77,7 +77,7 @@ func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, err
 // FetchMoveDocument fetches a MoveDocument model
 func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
 	var moveDoc MoveDocument
-	err := db.Q().Eager().Find(&moveDoc, id)
+	err := db.Q().Eager("Document.Uploads").Find(&moveDoc, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
