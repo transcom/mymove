@@ -35,6 +35,7 @@ const flags = detectFlags(
   window.location.search,
 );
 
+const tspContext = Object.assign({}, defaultTspContext, { flags });
 const officeContext = Object.assign({}, defaultOfficeContext, { flags });
 const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
 
