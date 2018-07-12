@@ -22,7 +22,7 @@
     "marked": "^0.3.17",
     "moment": "^2.22.1",
     "path-to-regexp": "^2.2.0",
-    "query-string": "^6.1.0",
+    "query-string": "5",
     "react": "^16.2.0",
     "react-app-rewire-eslint": "^0.2.3",
     "react-app-rewired": "^1.5.2",
