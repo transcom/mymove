@@ -19,13 +19,16 @@ import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
+import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
+
 export const appReducer = combineReducers({
   user: userReducer,
   loggedInUser: loggedInUserReducer,
   swagger: swaggerReducer,
   submittedIssues: issuesReducer,
   moves: moveReducer,
+  moveDocuments: documentsReducer,
   ppm: ppmReducer,
   serviceMember: serviceMemberReducer,
   orders: ordersReducer,

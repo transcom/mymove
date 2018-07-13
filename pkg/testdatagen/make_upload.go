@@ -13,10 +13,15 @@ func MakeUpload(db *pop.Connection, assertions Assertions) models.Upload {
 		document = MakeDocument(db, assertions)
 	}
 
+	uploaderID := assertions.Upload.UploaderID
+	if isZeroUUID(uploaderID) {
+		uploaderID = document.ServiceMember.UserID
+	}
+
 	upload := models.Upload{
 		DocumentID:  &document.ID,
 		Document:    document,
-		UploaderID:  document.ServiceMember.UserID,
+		UploaderID:  uploaderID,
 		Filename:    "testFile.pdf",
 		Bytes:       2202009,
 		ContentType: "application/pdf",
