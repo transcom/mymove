@@ -22,7 +22,6 @@ type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*StoreResult, error)
 	Fetch(string) (string, error)
 	Delete(string) error
-	Key(...string) string
 	PresignedURL(string, string) (string, error)
 }
 

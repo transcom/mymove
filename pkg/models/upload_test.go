@@ -13,7 +13,7 @@ func (suite *ModelSuite) Test_UploadCreate() {
 	document := testdatagen.MakeDefaultDocument(suite.db)
 
 	upload := models.Upload{
-		DocumentID:  document.ID,
+		DocumentID:  &document.ID,
 		UploaderID:  document.ServiceMember.UserID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
@@ -40,7 +40,7 @@ func (suite *ModelSuite) Test_UploadCreateWithID() {
 	id := uuid.Must(uuid.NewV4())
 	upload := models.Upload{
 		ID:          id,
-		DocumentID:  document.ID,
+		DocumentID:  &document.ID,
 		UploaderID:  document.ServiceMemberID,
 		Filename:    "test.pdf",
 		Bytes:       1048576,
@@ -67,7 +67,6 @@ func (suite *ModelSuite) Test_UploadValidations() {
 	upload := &models.Upload{}
 
 	var expErrors = map[string][]string{
-		"document_id":  {"DocumentID can not be blank."},
 		"uploader_id":  {"UploaderID can not be blank."},
 		"checksum":     {"Checksum can not be blank."},
 		"bytes":        {"Bytes can not be blank."},

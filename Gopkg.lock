@@ -1029,7 +1029,7 @@
     "go.uber.org/zap/zapcore",
     "goji.io",
     "goji.io/pat",
-    "golang.org/x/crypto/bcrypt",
+    "golang.org/x/crypto/bcrypt"
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
