@@ -181,7 +181,7 @@ db_e2e_init: tools_build db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
-db_e2e_reset: tools_build db_dev_run
+db_e2e_reset: db_dev_run
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 

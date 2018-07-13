@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
@@ -29,7 +28,6 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	documentPayload := &internalmessages.DocumentPayload{
 		ID:              fmtUUID(document.ID),
 		ServiceMemberID: fmtUUID(document.ServiceMemberID),
-		Name:            swag.String(document.Name),
 		Uploads:         uploads,
 	}
 	return documentPayload, nil
@@ -55,7 +53,6 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	newDocument := models.Document{
 		ServiceMemberID: serviceMember.ID,
-		Name:            params.DocumentPayload.Name,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newDocument)
