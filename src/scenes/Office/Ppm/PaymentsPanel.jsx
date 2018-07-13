@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { approveReimbursement } from './ducks';
+import { approveReimbursement } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
 
