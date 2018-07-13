@@ -16,7 +16,6 @@ func MakeDocument(db *pop.Connection, assertions Assertions) models.Document {
 	document := models.Document{
 		ServiceMemberID: sm.ID,
 		ServiceMember:   sm,
-		Name:            "Default name",
 	}
 
 	// Overwrite values with those from assertions
