@@ -484,6 +484,8 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		BookDate:                  testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
+		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
+		Status:                    "DEFAULT",
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentPeak)
 	if err != nil {
@@ -516,6 +518,8 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		BookDate:                  testdatagen.PerformancePeriodStart,
 		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
+		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
+		Status:                    "DEFAULT",
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)
 	if err != nil {
