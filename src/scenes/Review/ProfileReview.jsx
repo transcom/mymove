@@ -17,14 +17,13 @@ class ProfileReview extends Component {
   };
   getNextIncompletePage = () => {
     const { serviceMember, orders, move, ppm, backupContacts } = this.props;
-    return getNextIncompletePageInternal(
+    return getNextIncompletePageInternal({
       serviceMember,
       orders,
       move,
       ppm,
-      {},
       backupContacts,
-    );
+    });
   };
   render() {
     return (
