@@ -6,6 +6,7 @@ import { bindActionCreators } from 'redux';
 import { reduxForm } from 'redux-form';
 
 import Alert from 'shared/Alert';
+import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import { getPpmIncentive } from './ducks';
@@ -75,7 +76,7 @@ export class IncentiveCalculator extends Component {
       hasErrored,
     } = this.props;
     return (
-      <div className="calculator-panel">
+      <div className="calculator-panel incentive-calc">
         <div className="calculator-panel-title">Incentive Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
           {hasErrored && (
@@ -130,7 +131,29 @@ export class IncentiveCalculator extends Component {
         </form>
         {calculation && (
           <div className="calculated-result">
-            Maximum WTF: <b>{calculation.gcc}</b>
+            <table className="payment-table">
+              <tbody>
+                <tr className="payment-table-column-title">
+                  <th colspan="2">PPM Incentive</th>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                  <td>GCC</td>
+                  <td align="right">
+                    <span>${formatCents(calculation.gcc)}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <b>PPM Incentive @ 95%</b>
+                  </td>
+                  <td align="right">
+                    ${formatCents(calculation.incentive_percentage)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         )}
       </div>
