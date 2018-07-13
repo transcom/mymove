@@ -7,4 +7,5 @@
 # Add language specific code owners if it becomes relevant
 
 # ADRs are architectural decisions that, at least for now, should all be run by Nick
-/docs/adr/* @ntwyman
+# with Jen Leech as a backup.
+/docs/adr/* @ntwyman @jen2000
