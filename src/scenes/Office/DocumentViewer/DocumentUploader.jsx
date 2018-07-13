@@ -30,21 +30,22 @@ export class DocumentUploader extends Component {
     const { formValues } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     const moveId = this.props.match.params.moveId;
-    this.props
-      .createMoveDocument(
-        moveId,
-        uploadIds,
-        formValues.title,
-        formValues.move_document_type,
-        'AWAITING_REVIEW',
-        formValues.notes,
-      )
-      .then(response => {
-        if (!response.error) {
-          const moveDocumentId = response.payload.id;
-          this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
-        }
-      });
+    this.props.createMoveDocument(
+      moveId,
+      uploadIds,
+      formValues.title,
+      formValues.move_document_type,
+      'AWAITING_REVIEW',
+      formValues.notes,
+    );
+    //todo: we don't want to do this until the details view is working,
+    // we may not want to do it at all if users are going to upload several documents at a time
+    // .then(response => {
+    //   if (!response.error) {
+    //     const moveDocumentId = response.payload.id;
+    //     this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
+    //   }
+    // });
   }
 
   onChange(files) {
