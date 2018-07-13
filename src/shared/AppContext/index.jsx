@@ -9,4 +9,8 @@ export const defaultOfficeContext = {
   showLoginWarning: false,
   flags: {},
 };
+export const defaultTspContext = {
+  siteName: 'tsp.move.mil',
+  showLoginWarning: false,
+};
 export const AppContext = React.createContext(defaultMyMoveContext);

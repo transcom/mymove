@@ -19,6 +19,17 @@ var E2eBasicScenario = e2eBasicScenario{"e2e_basic"}
 // Run does that data load thing
 func (e e2eBasicScenario) Run(db *pop.Connection) {
 
+	// Basic user with tsp access
+	testdatagen.MakeTspUser(db, testdatagen.Assertions{
+		User: models.User{
+			ID: uuid.Must(uuid.FromString("6cd03e5b-bee8-4e97-a340-fecb8f3d5465")),
+		},
+		TspUser: models.TspUser{
+			ID:    uuid.FromStringOrNil("1fb58b82-ab60-4f55-a654-0267200473a4"),
+			Email: "tspuser1@example.com",
+		},
+	})
+
 	// Basic user with office access
 	testdatagen.MakeOfficeUser(db, testdatagen.Assertions{
 		User: models.User{
