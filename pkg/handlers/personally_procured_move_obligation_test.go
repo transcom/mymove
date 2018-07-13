@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"net/http"
 	"net/http/httptest"
 
 	ppmop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/ppm"
@@ -10,33 +9,33 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) TestShowPPMObligationHandlerUnauthorised() {
-	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-		suite.FailNow("failed to run scenario 2: %+v", err)
-	}
+// func (suite *HandlerSuite) TestShowPPMObligationHandlerUnauthorised() {
+// 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
+// 		suite.FailNow("failed to run scenario 2: %+v", err)
+// 	}
 
-	user := testdatagen.MakeDefaultServiceMember(suite.db)
+// 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
-	req := httptest.NewRequest("GET", "/personally_procured_moves/obligation", nil)
-	req = suite.authenticateRequest(req, user)
+// 	req := httptest.NewRequest("GET", "/personally_procured_moves/obligation", nil)
+// 	req = suite.authenticateRequest(req, user)
 
-	params := ppmop.ShowPPMObligationParams{
-		HTTPRequest:     req,
-		PlannedMoveDate: *fmtDate(scenario.May15_2018),
-		OriginZip:       "94540",
-		DestinationZip:  "78626",
-		Weight:          7500,
-	}
+// 	params := ppmop.ShowPPMObligationParams{
+// 		HTTPRequest:     req,
+// 		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+// 		OriginZip:       "94540",
+// 		DestinationZip:  "78626",
+// 		Weight:          7500,
+// 	}
 
-	context := NewHandlerContext(suite.db, suite.logger)
-	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMObligationHandler(context)
-	showResponse := showHandler.Handle(params)
+// 	context := NewHandlerContext(suite.db, suite.logger)
+// 	context.SetPlanner(route.NewTestingPlanner(1693))
+// 	showHandler := ShowPPMObligationHandler(context)
+// 	showResponse := showHandler.Handle(params)
 
-	response := showResponse.(*ppmop.ShowPPMObligationUnauthorized)
-	suite.checkErrorResponse(response, http.StatusUnauthorized, "Unauthorized")
+// 	response := showResponse.(*ppmop.ShowPPMObligationUnauthorized)
+// 	suite.checkErrorResponse(response, http.StatusUnauthorized, "Unauthorized")
 
-}
+// }
 
 func (suite *HandlerSuite) TestShowPPMObligationHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
