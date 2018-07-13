@@ -38,6 +38,8 @@ export class DocumentUploader extends Component {
       'AWAITING_REVIEW',
       formValues.notes,
     );
+    //todo: we don't want to do this until the details view is working,
+    // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
     //   if (!response.error) {
     //     const moveDocumentId = response.payload.id;
