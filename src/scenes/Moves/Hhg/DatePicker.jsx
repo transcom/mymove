@@ -24,9 +24,9 @@ const schema = {
     },
   },
 };
-const HhgDateWizardForm = reduxifyWizardForm(formName);
+const HHGDateWizardForm = reduxifyWizardForm(formName);
 
-export class HhgDatePicker extends Component {
+export class HHGDatePicker extends Component {
   state = { showInfo: false };
 
   constructor(props) {
@@ -55,7 +55,7 @@ export class HhgDatePicker extends Component {
     const initialValues = currentOrders ? currentOrders : null;
 
     return (
-      <HhgDateWizardForm
+      <HHGDateWizardForm
         handleSubmit={no_op}
         className={formName}
         pageList={pages}
@@ -81,7 +81,7 @@ export class HhgDatePicker extends Component {
 
           <div className="usa-width-two-thirds">
             {this.state.showInfo && (
-              <table>
+              <table className="Todo-phase2">
                 <tbody>
                   <tr>
                     <th>Preferred Moving Dates Summary</th>
@@ -116,11 +116,11 @@ export class HhgDatePicker extends Component {
             )}
           </div>
         </div>
-      </HhgDateWizardForm>
+      </HHGDateWizardForm>
     );
   }
 }
-HhgDatePicker.propTypes = {
+HHGDatePicker.propTypes = {
   schema: PropTypes.object.isRequired,
   error: PropTypes.object,
   hasSubmitSuccess: PropTypes.bool.isRequired,
@@ -147,5 +147,5 @@ function mapDispatchToProps(dispatch) {
 }
 
 export default reduxForm({ form: formName })(
-  connect(mapStateToProps, mapDispatchToProps)(HhgDatePicker),
+  connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker),
 );
