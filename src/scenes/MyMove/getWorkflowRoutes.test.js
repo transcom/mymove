@@ -218,21 +218,23 @@ describe('when getting the routes for the current workflow', () => {
 });
 
 describe('when getting the next incomplete page', () => {
-  const service_member = { id: 'foo' };
+  const serviceMember = { id: 'foo' };
   describe('when the profile is incomplete', () => {
     it('returns the first page of the user profile', () => {
-      const result = getNextIncompletePage(service_member);
+      const result = getNextIncompletePage({ serviceMember });
       expect(result).toEqual('/service-member/foo/create');
     });
     describe('when dod info is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+          },
         });
         expect(result).toEqual('/service-member/foo/name');
       });
@@ -240,14 +242,16 @@ describe('when getting the next incomplete page', () => {
     describe('when name is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
-          last_name: 'foo',
-          first_name: 'foo',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+          },
         });
         expect(result).toEqual('/service-member/foo/contact-info');
       });
@@ -255,20 +259,22 @@ describe('when getting the next incomplete page', () => {
     describe('when contact-info is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
-          last_name: 'foo',
-          first_name: 'foo',
-          email_is_preferred: true,
-          telephone: '666-666-6666',
-          personal_email: 'foo@bar.com',
-          current_station: {
-            id: NULL_UUID,
-            name: '',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+            email_is_preferred: true,
+            telephone: '666-666-6666',
+            personal_email: 'foo@bar.com',
+            current_station: {
+              id: NULL_UUID,
+              name: '',
+            },
           },
         });
         expect(result).toEqual('/service-member/foo/duty-station');
@@ -277,20 +283,22 @@ describe('when getting the next incomplete page', () => {
     describe('when duty-station is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
-          last_name: 'foo',
-          first_name: 'foo',
-          phone_is_preferred: true,
-          telephone: '666-666-6666',
-          personal_email: 'foo@bar.com',
-          current_station: {
-            id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
-            name: 'Blue Grass Army Depot',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+            phone_is_preferred: true,
+            telephone: '666-666-6666',
+            personal_email: 'foo@bar.com',
+            current_station: {
+              id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
+              name: 'Blue Grass Army Depot',
+            },
           },
         });
         expect(result).toEqual('/service-member/foo/residence-address');
@@ -299,26 +307,28 @@ describe('when getting the next incomplete page', () => {
     describe('when residence address is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
-          last_name: 'foo',
-          first_name: 'foo',
-          phone_is_preferred: true,
-          telephone: '666-666-6666',
-          personal_email: 'foo@bar.com',
-          current_station: {
-            id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
-            name: 'Blue Grass Army Depot',
-          },
-          residential_address: {
-            city: 'Atlanta',
-            postal_code: '30030',
-            state: 'GA',
-            street_address_1: 'xxx',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+            phone_is_preferred: true,
+            telephone: '666-666-6666',
+            personal_email: 'foo@bar.com',
+            current_station: {
+              id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
+              name: 'Blue Grass Army Depot',
+            },
+            residential_address: {
+              city: 'Atlanta',
+              postal_code: '30030',
+              state: 'GA',
+              street_address_1: 'xxx',
+            },
           },
         });
         expect(result).toEqual('/service-member/foo/backup-mailing-address');
@@ -327,32 +337,34 @@ describe('when getting the next incomplete page', () => {
     describe('when backup address is complete', () => {
       it('returns the next page of the user profile', () => {
         const result = getNextIncompletePage({
-          ...service_member,
-          is_profile_complete: false,
-          edipi: '1234567890',
-          has_social_security_number: true,
-          rank: 'E_6',
-          affiliation: 'Marines',
-          last_name: 'foo',
-          first_name: 'foo',
-          phone_is_preferred: true,
-          telephone: '666-666-6666',
-          personal_email: 'foo@bar.com',
-          current_station: {
-            id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
-            name: 'Blue Grass Army Depot',
-          },
-          residential_address: {
-            city: 'Atlanta',
-            postal_code: '30030',
-            state: 'GA',
-            street_address_1: 'xxx',
-          },
-          backup_mailing_address: {
-            city: 'Atlanta',
-            postal_code: '30030',
-            state: 'GA',
-            street_address_1: 'zzz',
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: false,
+            edipi: '1234567890',
+            has_social_security_number: true,
+            rank: 'E_6',
+            affiliation: 'Marines',
+            last_name: 'foo',
+            first_name: 'foo',
+            phone_is_preferred: true,
+            telephone: '666-666-6666',
+            personal_email: 'foo@bar.com',
+            current_station: {
+              id: '5e30f356-e590-4372-b9c0-30c3fd1ff42d',
+              name: 'Blue Grass Army Depot',
+            },
+            residential_address: {
+              city: 'Atlanta',
+              postal_code: '30030',
+              state: 'GA',
+              street_address_1: 'xxx',
+            },
+            backup_mailing_address: {
+              city: 'Atlanta',
+              postal_code: '30030',
+              state: 'GA',
+              street_address_1: 'zzz',
+            },
           },
         });
         expect(result).toEqual('/service-member/foo/backup-contacts');
@@ -371,7 +383,7 @@ describe('when getting the next incomplete page', () => {
           },
         ];
         const sm = {
-          ...service_member,
+          ...serviceMember,
           is_profile_complete: false,
           edipi: '1234567890',
           has_social_security_number: true,
@@ -399,14 +411,10 @@ describe('when getting the next incomplete page', () => {
             street_address_1: 'zzz',
           },
         };
-        const result = getNextIncompletePage(
-          sm,
-          undefined,
-          undefined,
-          undefined,
-          undefined,
+        const result = getNextIncompletePage({
+          serviceMember: sm,
           backupContacts,
-        );
+        });
         expect(result).toEqual('/orders/');
       });
     });
@@ -415,37 +423,39 @@ describe('when getting the next incomplete page', () => {
     // service_member.is_profile_complete = true;
     it('returns the orders info', () => {
       const result = getNextIncompletePage({
-        ...service_member,
-        is_profile_complete: true,
+        serviceMember: {
+          ...serviceMember,
+          is_profile_complete: true,
+        },
       });
       expect(result).toEqual('/orders/');
     });
     describe('when orders info is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
             new_duty_station: { id: 'something' },
           },
-          { id: 'bar' },
-        );
+          move: { id: 'bar' },
+        });
         expect(result).toEqual('/orders/upload');
       });
     });
     describe('when orders upload is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
@@ -454,19 +464,19 @@ describe('when getting the next incomplete page', () => {
               uploads: [{}],
             },
           },
-          { id: 'bar' },
-        );
+          move: { id: 'bar' },
+        });
         expect(result).toEqual('/moves/bar');
       });
     });
     describe('when move type selection is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
@@ -475,25 +485,25 @@ describe('when getting the next incomplete page', () => {
               uploads: [{}],
             },
           },
-          {
+          move: {
             id: 'bar',
             selected_move_type: 'PPM',
           },
-          {
+          ppm: {
             id: 'baz',
           },
-        );
+        });
         expect(result).toEqual('/moves/bar/ppm-start');
       });
     });
     describe('when ppm date is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
@@ -502,28 +512,28 @@ describe('when getting the next incomplete page', () => {
               uploads: [{}],
             },
           },
-          {
+          move: {
             id: 'bar',
             selected_move_type: 'PPM',
           },
-          {
+          ppm: {
             id: 'baz',
             planned_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
           },
-        );
+        });
         expect(result).toEqual('/moves/bar/ppm-size');
       });
     });
     describe('when ppm size is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
@@ -532,29 +542,29 @@ describe('when getting the next incomplete page', () => {
               uploads: [{}],
             },
           },
-          {
+          move: {
             id: 'bar',
             selected_move_type: 'PPM',
           },
-          {
+          ppm: {
             id: 'baz',
             planned_move_date: '2018-10-10',
             pickup_postal_code: '22222',
             destination_postal_code: '22222',
             size: 'L',
           },
-        );
+        });
         expect(result).toEqual('/moves/bar/ppm-incentive');
       });
     });
     describe('when ppm incentive is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage(
-          {
-            ...service_member,
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
             is_profile_complete: true,
           },
-          {
+          orders: {
             orders_type: 'foo',
             issue_date: '2019-01-01',
             report_by_date: '2019-02-01',
@@ -563,11 +573,11 @@ describe('when getting the next incomplete page', () => {
               uploads: [{}],
             },
           },
-          {
+          move: {
             id: 'bar',
             selected_move_type: 'PPM',
           },
-          {
+          ppm: {
             id: 'baz',
             planned_move_date: '2018-10-10',
             pickup_postal_code: '22222',
@@ -575,7 +585,7 @@ describe('when getting the next incomplete page', () => {
             size: 'L',
             weight_estimate: 555,
           },
-        );
+        });
         expect(result).toEqual('/moves/bar/review');
       });
     });
