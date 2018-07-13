@@ -85,7 +85,8 @@ Production migration: ${prod_migration_name}
 Next:
     1. Edit the production migration to have the actual change you wish to deploy
     2. Copy the production migration into the local migration, scrubbing sensitive data
-    3. If everything looks good, open your pull request and run:
+    3. If everything looks good, upload the migration to S3 with this utility:
        upload-secure-migration \\
           ${prod_migration_name}
+    4. Open a pull request for this change; when it is accepted, your migration will run
 EOM

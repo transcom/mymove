@@ -25,6 +25,12 @@ function proceed() {
   fi
 }
 
+function run() {
+  readonly command=( "$@" )
+  echo "...executing: ${command[*]}"
+  ${command[*]} &> /dev/null
+}
+
 #
 # Pre-flight checks
 #
@@ -53,8 +59,8 @@ ${aws_command} s3 ls "${aws_bucket_prefix}${environments[0]}${aws_bucket_suffix}
 #
 
 proceed "Testing local migration. This will involve resetting your local dev database. Proceed?"
-make db_dev_reset &> /dev/null
-make db_dev_migrate &> /dev/null || (
+run make db_dev_reset
+run make db_dev_migrate || (
   echo "error: test migrations failed!"
   echo "Run 'make db_dev_migrate' to see errors."
   exit 1
@@ -70,7 +76,7 @@ echo
 for environment in "${environments[@]}"; do
   echo "Uploading to: $environment"
   sleep 1
-  aws s3 cp --sse AES256 \
+  run aws s3 cp --sse AES256 \
     "$production_migration_file" \
     "s3://${aws_bucket_prefix}${environment}${aws_bucket_suffix}/${aws_path_prefix}/"
 done
