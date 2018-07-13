@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPpmSitEstimate } from '../../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
 import Alert from 'shared/Alert';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import { getPpmSitEstimate } from '../../Moves/Ppm/ducks';
 
 const formName = 'storage_reimbursement_calc';
 const schema = {
@@ -83,7 +85,7 @@ export class StorageReimbursementCalculator extends Component {
       hasEstimateError,
     } = this.props;
     return (
-      <div className="calculator-panel">
+      <div className="calculator-panel storage-calc">
         <div className="calculator-panel-title">Storage Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
           {hasEstimateError && (
