@@ -11,6 +11,7 @@ import (
 	"github.com/imdario/mergo"
 
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // Assertions defines assertions about what the data contains
@@ -25,12 +26,17 @@ type Assertions struct {
 	BackupContact          models.BackupContact
 	Upload                 models.Upload
 	Address                models.Address
+	MoveDocument           models.MoveDocument
 	DutyStation            models.DutyStation
 	BlackoutDate           models.BlackoutDate
 }
 
 func stringPointer(s string) *string {
 	return &s
+}
+
+func poundPointer(p unit.Pound) *unit.Pound {
+	return &p
 }
 
 func mustCreate(db *pop.Connection, model interface{}) {

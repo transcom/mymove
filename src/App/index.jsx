@@ -6,7 +6,12 @@ import './index.css';
 
 import Loadable from 'react-loadable';
 
-import { AppContext, officeContext, myMoveContext } from 'shared/AppContext';
+import {
+  AppContext,
+  defaultOfficeContext,
+  defaultMyMoveContext,
+} from 'shared/AppContext';
+import { detectFlags } from 'shared/featureFlags.js';
 
 const Office = Loadable({
   loader: () => import('scenes/Office'),
@@ -17,6 +22,15 @@ const MyMove = Loadable({
   loader: () => import('scenes/MyMove'),
   loading: () => <div>Loading...</div>,
 });
+
+const flags = detectFlags(
+  process.env['NODE_ENV'],
+  window.location.host,
+  window.location.search,
+);
+
+const officeContext = Object.assign({}, defaultOfficeContext, { flags });
+const myMoveContext = Object.assign({}, defaultMyMoveContext, { flags });
 
 const hostname = window && window.location && window.location.hostname;
 const isOfficeSite = hostname.startsWith('office');

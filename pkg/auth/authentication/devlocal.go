@@ -156,7 +156,7 @@ func (h CreateUserHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		LoginGovEmail: email,
 	}
 
-	verrs, err := h.db.ValidateAndSave(&user)
+	verrs, err := h.db.ValidateAndCreate(&user)
 	if err != nil {
 		h.logger.Error("could not create user", zap.Error(err))
 		http.Error(w, http.StatusText(500), http.StatusInternalServerError)
