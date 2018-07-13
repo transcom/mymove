@@ -419,6 +419,18 @@ definitions:
     required:
       - range_min
       - range_max
+  PPMIncentive:
+    type: object
+    properties:
+      gcc:
+        type: integer
+        title: GCC
+      incentive_percentage:
+        type: integer
+        title: PPM Incentive @ 95%
+    required:
+      - gcc
+      - incentive_percentage
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -494,6 +506,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
+  IndexMoveDocumentPayload:
+    type: array
+    items:
+      $ref: '#/definitions/MoveDocumentPayload'
   MoveDocumentPayload:
     type: object
     properties:
@@ -507,6 +523,9 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       document:
         $ref: '#/definitions/DocumentPayload'
+      title:
+        type: string
+        example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -520,15 +539,21 @@ definitions:
       - id
       - move_id
       - document
+      - title
       - move_document_type
       - status
   CreateMoveDocumentPayload:
     type: object
     properties:
-      document_id:
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
         type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -539,7 +564,8 @@ definitions:
         x-nullable: true
         title: Notes
     required:
-      - document_id
+      - upload_ids
+      - title
       - move_document_type
       - status
   MoveDocumentType:
@@ -1009,9 +1035,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        title: Human-understandable name for this document
       service_member_id:
         type: string
         format: uuid
@@ -1022,15 +1045,11 @@ definitions:
           $ref: '#/definitions/UploadPayload'
     required:
       - id
-      - name
       - service_member_id
       - uploads
   PostDocumentPayload:
     type: object
     properties:
-      name:
-        type: string
-        title: Human-understandable name for this document
       service_member_id:
         type: string
         format: uuid
@@ -2402,6 +2421,30 @@ paths:
         500:
           description: internal server error
   /moves/{moveId}/documents:
+    get:
+      summary: Returns a list of all Move Documents associated with this move
+      description: Returns a list of all Move Documents associated with this move
+      operationId: indexMoveDocuments
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns list of move douments
+          schema:
+            $ref: '#/definitions/IndexMoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
     post:
       summary: Creates a move document
       description: Created a move document with the given information
@@ -2550,6 +2593,48 @@ paths:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
+  /personally_procured_moves/incentive:
+    get:
+      summary: Return a PPM incentive value
+      description: Calculates incentive for a PPM move (excluding SIT)
+      operationId: showPPMIncentive
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight
+          type: integer
+          required: true
+      responses:
+        200:
+          description: Made calculation of PPM incentive
+          schema:
+            $ref: '#/definitions/PPMIncentive'
         400:
           description: invalid request
         401:

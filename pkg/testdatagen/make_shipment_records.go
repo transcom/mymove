@@ -13,14 +13,34 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	pickup time.Time, delivery time.Time,
 	tdl models.TrafficDistributionList, sourceGBLOC string, market *string) (models.Shipment, error) {
 
+	move := MakeDefaultMove(db)
+	pickupAddress := MakeAddress(db, Assertions{})
 	shipment := models.Shipment{
-		TrafficDistributionListID: tdl.ID,
-		PickupDate:                pickup,
-		RequestedPickupDate:       requestedPickup,
-		DeliveryDate:              delivery,
-		BookDate:                  DateInsidePerformancePeriod,
-		SourceGBLOC:               sourceGBLOC,
-		Market:                    market,
+		TrafficDistributionListID:    tdl.ID,
+		PickupDate:                   pickup,
+		RequestedPickupDate:          requestedPickup,
+		DeliveryDate:                 delivery,
+		BookDate:                     DateInsidePerformancePeriod,
+		SourceGBLOC:                  sourceGBLOC,
+		Market:                       market,
+		MoveID:                       move.ID,
+		Status:                       "DEFAULT",
+		EstimatedPackDays:            models.IntPointer(2),
+		EstimatedTransitDays:         models.IntPointer(3),
+		PickupAddressID:              &pickupAddress.ID,
+		PickupAddress:                &pickupAddress,
+		HasSecondaryPickupAddress:    false,
+		SecondaryPickupAddressID:     nil,
+		SecondaryPickupAddress:       nil,
+		HasDeliveryAddress:           false,
+		DeliveryAddressID:            nil,
+		DeliveryAddress:              nil,
+		HasPartialSITDeliveryAddress: false,
+		PartialSITDeliveryAddressID:  nil,
+		PartialSITDeliveryAddress:    nil,
+		WeightEstimate:               poundPointer(2000),
+		ProgearWeightEstimate:        poundPointer(225),
+		SpouseProgearWeightEstimate:  poundPointer(312),
 	}
 
 	verrs, err := db.ValidateAndSave(&shipment)

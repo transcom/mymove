@@ -201,6 +201,14 @@
   font-size: 0.8em;
 }
 
+.documents a:link, a:visited, a:hover, a:active {
+  text-decoration: none;
+}
+
+.link-blue {
+  color: #0071bc;
+}
+
 head .panel-subhead {
   font-weight: bold;
   margin-top: 4rem;
@@ -307,6 +315,10 @@ head .panel-subhead {
   color: gray;
 }
 
+.approval-problem {
+  color: #e31c3d;
+}
+
 .payment-action {
   color: #0071bc;
   cursor: pointer;
@@ -374,3 +386,5 @@ head .panel-subhead {
 .calculator-panel .calculated-result {
   margin: 1em;
 }
+
+

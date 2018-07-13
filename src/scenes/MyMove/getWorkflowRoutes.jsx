@@ -44,7 +44,7 @@ const Placeholder = props => {
       pageList={props.pageList}
       pageKey={props.pageKey}
     >
-      <div className="Todo">
+      <div className="Todo-phase2">
         <h1>Placeholder for {props.title}</h1>
         <h2>{props.description}</h2>
       </div>
@@ -277,23 +277,25 @@ export const getPagesInFlow = state =>
     return page.isInFlow(state);
   });
 
-export const getNextIncompletePage = (
-  service_member = {},
+export const getNextIncompletePage = ({
+  serviceMember = {},
   orders = {},
   move = {},
   ppm = {},
+  hhg = {},
   backupContacts = [],
-) => {
+}) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(service_member, orders, move, ppm, backupContacts),
+    p => !p.isComplete(serviceMember, orders, move, ppm, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
-    serviceMemberId: get(service_member, 'id'),
+    serviceMemberId: get(serviceMember, 'id'),
     moveId: get(move, 'id'),
   });
   return compiledPath;
 };
+
 export const getWorkflowRoutes = props => {
   const pageList = getPagesInFlow(props);
   return Object.keys(pages).map(key => {
