@@ -133,6 +133,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
+	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
