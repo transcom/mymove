@@ -3,10 +3,12 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-//todo: this should call new action creator that uses new handler
-import { getPpmWeightEstimate as getPpmIncentive } from '../../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
+
+import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import { getPpmIncentive } from './ducks';
 
 const formName = 'ppm_reimbursement_calc';
 const schema = {
@@ -65,16 +67,24 @@ export class IncentiveCalculator extends Component {
   render() {
     const {
       handleSubmit,
-      reimbursement,
+      calculation,
       invalid,
       pristine,
       reset,
       submitting,
+      hasErrored,
     } = this.props;
     return (
       <div className="calculator-panel">
         <div className="calculator-panel-title">Incentive Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
+          {hasErrored && (
+            <div className="usa-width-one-whole error-message">
+              <Alert type="warning" heading="Could not perform calculation">
+                There was an issue calculating incentive.
+              </Alert>
+            </div>
+          )}
           <SwaggerField
             className="date-field"
             fieldName="planned_move_date"
@@ -118,9 +128,9 @@ export class IncentiveCalculator extends Component {
             </button>
           </div>
         </form>
-        {reimbursement && (
+        {calculation && (
           <div className="calculated-result">
-            Maximum Obligation: <b>{reimbursement}</b>
+            Maximum WTF: <b>{calculation.gcc}</b>
           </div>
         )}
       </div>
@@ -142,9 +152,7 @@ function mapStateToProps(state) {
   ]);
   const props = {
     schema,
-    hasEstimateError: state.ppm.hasEstimateError,
-    // todo: this needs to use result from new handler/action creator
-    reimbursement: state.ppm.incentive_estimate_min,
+    ...state.ppmIncentive,
     initialValues,
   };
   return props;

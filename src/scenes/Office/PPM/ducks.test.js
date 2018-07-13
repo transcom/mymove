@@ -9,12 +9,10 @@ describe('office ppm reducer', () => {
       });
 
       expect(newState).toEqual({
-        incentive: {
-          isLoading: false,
-          hasErrored: false,
-          hasSucceeded: true,
-          calculation: { gcc: 123400, incentive_percentage: 12400 },
-        },
+        isLoading: false,
+        hasErrored: false,
+        hasSucceeded: true,
+        calculation: { gcc: 123400, incentive_percentage: 12400 },
       });
     });
     it('handles START', () => {
@@ -22,11 +20,9 @@ describe('office ppm reducer', () => {
         type: getIncentiveActionType.start,
       });
       expect(newState).toEqual({
-        incentive: {
-          isLoading: true,
-          hasErrored: false,
-          hasSucceeded: false,
-        },
+        isLoading: true,
+        hasErrored: false,
+        hasSucceeded: false,
       });
     });
     it('handles FAILURE', () => {
@@ -34,11 +30,9 @@ describe('office ppm reducer', () => {
         type: getIncentiveActionType.failure,
       });
       expect(newState).toEqual({
-        incentive: {
-          isLoading: false,
-          hasErrored: true,
-          hasSucceeded: false,
-        },
+        isLoading: false,
+        hasErrored: true,
+        hasSucceeded: false,
       });
     });
   });

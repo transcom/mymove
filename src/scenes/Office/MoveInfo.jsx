@@ -14,10 +14,10 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import PaymentsPanel from './PPM/PaymentsPanel';
-import PPMEstimatesPanel from './PPM/PPMEstimatesPanel';
-import StorageReimbursementCalculator from './PPM/StorageReimbursementCalculator';
-import IncentiveCalculator from './PPM/IncentiveCalculator';
+import PaymentsPanel from './Ppm/PaymentsPanel';
+import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
+import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
+import IncentiveCalculator from './Ppm/IncentiveCalculator';
 
 import {
   loadMoveDependencies,
