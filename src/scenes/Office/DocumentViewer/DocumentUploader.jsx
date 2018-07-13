@@ -30,21 +30,20 @@ export class DocumentUploader extends Component {
     const { formValues } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     const moveId = this.props.match.params.moveId;
-    this.props
-      .createMoveDocument(
-        moveId,
-        uploadIds,
-        formValues.title,
-        formValues.move_document_type,
-        'AWAITING_REVIEW',
-        formValues.notes,
-      )
-      .then(response => {
-        if (!response.error) {
-          const moveDocumentId = response.payload.id;
-          this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
-        }
-      });
+    this.props.createMoveDocument(
+      moveId,
+      uploadIds,
+      formValues.title,
+      formValues.move_document_type,
+      'AWAITING_REVIEW',
+      formValues.notes,
+    );
+    // .then(response => {
+    //   if (!response.error) {
+    //     const moveDocumentId = response.payload.id;
+    //     this.props.push(`/moves/${moveId}/documents/${moveDocumentId}`);
+    //   }
+    // });
   }
 
   onChange(files) {

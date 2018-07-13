@@ -102,10 +102,28 @@ class DocumentViewer extends Component {
               <PrivateRoute
                 exact
                 path={this.props.match.url}
-                render={() => <Redirect replace to={listUrl} />}
+                render={() => <Redirect replace to={newUrl} />}
               />
               <PrivateRoute
                 path={listUrl}
+                render={() => (
+                  <Fragment>
+                    <span className="status">
+                      <FontAwesomeIcon
+                        className="icon link-blue"
+                        icon={faPlusCircle}
+                      />
+                    </span>
+                    <Link to={newUrl}>Upload new document</Link>
+                    <div>
+                      {' '}
+                      <DocumentList moveId={move.id} />
+                    </div>
+                  </Fragment>
+                )}
+              />
+              <PrivateRoute
+                path={newUrl}
                 render={() => (
                   <Fragment>
                     <span className="status">
