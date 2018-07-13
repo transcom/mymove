@@ -137,7 +137,7 @@ func (re *RateEngine) ComputePPM(
 		GCC:    gcc,
 	}
 
-	// Finaly, scale by prorate factor
+	// Finally, scale by prorate factor
 	cost.Scale(prorateFactor)
 
 	re.logger.Info("PPM cost computation", zap.Object("cost", cost))
