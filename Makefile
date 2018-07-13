@@ -63,6 +63,9 @@ client_test_coverage : client_deps
 office_client_run: client_deps
 	HOST=officelocal yarn start
 
+tsp_client_run: client_deps
+	HOST=tsplocal yarn start
+
 server_deps_update: server_generate
 	dep ensure -v -update
 server_deps: go_version .server_deps.stamp
@@ -109,6 +112,7 @@ tools_build: server_deps
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
 	go build -i -o bin/load-office-data ./cmd/load_office_data
+	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 
