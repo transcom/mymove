@@ -300,7 +300,7 @@ export const getNextIncompletePage = ({
 }) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(serviceMember, orders, move, ppm, backupContacts),
+    p => !p.isComplete(serviceMember, orders, move, ppm, hhg, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),
