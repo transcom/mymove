@@ -122,7 +122,7 @@ class BigButtonGroup extends Component {
       isMobile,
       false,
     );
-    var hhg = createButton(
+    var disabledHHG = createButton(
       'HHG',
       'Government handles 100% of your move',
       'Household Goods Move (HHG)',
@@ -144,12 +144,40 @@ class BigButtonGroup extends Component {
       isMobile,
       true,
     );
+    var enabledHHG = createButton(
+      'HHG',
+      'Government handles 100% of your move',
+      'Household Goods Move (HHG)',
+      truckGray,
+      {
+        'Pros:': [
+          'The government arranges moving companies to pack & transport your stuff.',
+          'Less hassle',
+          'The claims process is available to you if anything becomes damaged/broken).',
+        ],
+        'Cons:': [
+          'Limited availability.',
+          'Can only move on weekdays.',
+          'Your stuff is placed in storage if you cannot meet the truck at the destination.',
+          'You may not like your moving company.',
+        ],
+      },
+      'truck-gray',
+      isMobile,
+      false,
+    );
 
     return (
       <div className="move-type-content">
         <div className="usa-width-one-third">{combo}</div>
         <div className="usa-width-one-third">{ppm}</div>
-        <div className="usa-width-one-third">{hhg}</div>
+        <AppContext.Consumer>
+          {settings => (
+            <div className="usa-width-one-third">
+              {settings.flags.hhg ? enabledHHG : disabledHHG}
+            </div>
+          )}
+        </AppContext.Consumer>
       </div>
     );
   }
@@ -163,20 +191,14 @@ BigButtonGroup.propTypes = {
 const BigButtonGroupWithSize = windowSize(BigButtonGroup);
 
 export class MoveType extends Component {
-  componentDidMount() {
-    // TODO: Remove line below once other move type options are available
-    this.props.setPendingMoveType('PPM');
-  }
-
   onMoveTypeSelected = value => {
     this.props.setPendingMoveType(value);
   };
   render() {
     // TODO: once Combo and HHG options available, remove currentOption and disabled prop
-    const currentOption = 'PPM';
-    // const { currentMove } = this.props;
-    // const selectedOption =
-    //   pendingMoveType || (currentMove && currentMove.selected_move_type);
+    const { pendingMoveType, currentMove } = this.props;
+    const selectedOption =
+      pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full select-move-type">
         <h2>
@@ -191,7 +213,7 @@ export class MoveType extends Component {
           </a>
         </h2>
         <BigButtonGroupWithSize
-          selectedOption={currentOption}
+          selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
         <AppContext.Consumer>
