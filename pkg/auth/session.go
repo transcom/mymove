@@ -22,6 +22,7 @@ type Session struct {
 	LastName        string
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
+	TspUserID       uuid.UUID
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data
@@ -45,4 +46,9 @@ func (s *Session) IsServiceMember() bool {
 // IsOfficeUser checks whether the authenticated user is an OfficeUser
 func (s *Session) IsOfficeUser() bool {
 	return s.OfficeUserID != uuid.Nil
+}
+
+// IsTspUser checks whether the authenticated user is a TspUser
+func (s *Session) IsTspUser() bool {
+	return s.TspUserID != uuid.Nil
 }

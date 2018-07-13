@@ -9,7 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 )
 
-// Tariff400ngZip5RateArea repersents the mapping from a full 5-digit zipcode to a
+// Tariff400ngZip5RateArea represents the mapping from a full 5-digit zipcode to a
 // specific rate area. This is only needed for a small subset of zip3s.
 type Tariff400ngZip5RateArea struct {
 	ID        uuid.UUID `json:"id" db:"id"`

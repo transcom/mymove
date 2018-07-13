@@ -5,14 +5,34 @@ import (
 
 	. "github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func (suite *ModelSuite) Test_ShipmentValidations() {
-	shipment := &Shipment{}
+	packDays := -2
+	transitDays := 0
+	var weightEstimate unit.Pound = -3
+	var progearWeightEstimate unit.Pound = -12
+	var spouseProgearWeightEstimate unit.Pound = -9
+
+	shipment := &Shipment{
+		EstimatedPackDays:           &packDays,
+		EstimatedTransitDays:        &transitDays,
+		WeightEstimate:              &weightEstimate,
+		ProgearWeightEstimate:       &progearWeightEstimate,
+		SpouseProgearWeightEstimate: &spouseProgearWeightEstimate,
+	}
 
 	expErrors := map[string][]string{
-		"traffic_distribution_list_id": []string{"traffic_distribution_list_id can not be blank."},
-		"source_gbloc":                 []string{"source_gbloc can not be blank."},
+		"traffic_distribution_list_id":   []string{"traffic_distribution_list_id can not be blank."},
+		"source_gbloc":                   []string{"source_gbloc can not be blank."},
+		"move_id":                        []string{"move_id can not be blank."},
+		"status":                         []string{"status can not be blank."},
+		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
+		"estimated_transit_days":         []string{"0 is less than or equal to zero."},
+		"weight_estimate":                []string{"-3 is less than or equal to zero."},
+		"progear_weight_estimate":        []string{"-12 is less than or equal to zero."},
+		"spouse_progear_weight_estimate": []string{"-9 is less than or equal to zero."},
 	}
 
 	suite.verifyValidationErrors(shipment, expErrors)
