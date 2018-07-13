@@ -1,4 +1,3 @@
-import { get } from 'lodash';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -7,6 +6,21 @@ import { reduxForm } from 'redux-form';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import { sendGexRequest } from './ducks';
+
+const schema = {
+  properties: {
+    transaction_name: {
+      type: 'string',
+      title: 'Transaction Name',
+      example: '858-1.edi',
+    },
+    transaction_body: {
+      type: 'string',
+      title: 'Transaction Body',
+      format: 'textarea',
+    },
+  },
+};
 
 export class Gex extends Component {
   sendRequest = values => {
@@ -43,7 +57,7 @@ Gex.propTypes = {
 function mapStateToProps(state) {
   return {
     ...state.gex,
-    schema: get(state, 'swagger.spec.definitions.SendGexRequestPayload', {}),
+    schema,
   };
 }
 
