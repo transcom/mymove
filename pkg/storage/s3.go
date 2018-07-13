@@ -29,9 +29,15 @@ func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *sess
 
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+	if key == "" {
+		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
+	}
+
+	namespacedKey := path.Join(s.keyNamespace, key)
+
 	input := &s3.PutObjectInput{
 		Bucket:     &s.bucket,
-		Key:        &key,
+		Key:        &namespacedKey,
 		Body:       data,
 		ContentMD5: &checksum,
 	}
@@ -45,9 +51,11 @@ func (s *S3) Store(key string, data io.ReadSeeker, checksum string) (*StoreResul
 
 // Delete deletes an object at a specified key
 func (s *S3) Delete(key string) error {
+	namespacedKey := path.Join(s.keyNamespace, key)
+
 	input := &s3.DeleteObjectInput{
 		Bucket: &s.bucket,
-		Key:    &key,
+		Key:    &namespacedKey,
 	}
 
 	_, err := s.client.DeleteObject(input)
@@ -63,9 +71,11 @@ func (s *S3) Delete(key string) error {
 //
 // It is the caller's responsibility to cleanup this file.
 func (s *S3) Fetch(key string) (string, error) {
+	namespacedKey := path.Join(s.keyNamespace, key)
+
 	input := &s3.GetObjectInput{
 		Bucket: &s.bucket,
-		Key:    &key,
+		Key:    &namespacedKey,
 	}
 
 	getObjectOutput, err := s.client.GetObject(input)
@@ -84,17 +94,13 @@ func (s *S3) Fetch(key string) (string, error) {
 	return outputFile.Name(), nil
 }
 
-// Key returns a joined key plus any global namespace
-func (s *S3) Key(args ...string) string {
-	args = append([]string{s.keyNamespace}, args...)
-	return path.Join(args...)
-}
-
 // PresignedURL returns a URL that provides access to a file for 15 minutes.
 func (s *S3) PresignedURL(key string, contentType string) (string, error) {
+	namespacedKey := path.Join(s.keyNamespace, key)
+
 	req, _ := s.client.GetObjectRequest(&s3.GetObjectInput{
 		Bucket:              &s.bucket,
-		Key:                 &key,
+		Key:                 &namespacedKey,
 		ResponseContentType: &contentType,
 	})
 	url, err := req.Presign(15 * time.Minute)

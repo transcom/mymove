@@ -1,3 +1,5 @@
+import * as mime from 'mime-types';
+
 /* global Cypress, cy */
 // ***********************************************
 // This example commands.js shows you how to
@@ -26,14 +28,16 @@
 // Cypress.Commands.overwrite("visit", (originalFn, url, options) => { ... })
 
 Cypress.Commands.add('signInAsNewUser', () => {
-  cy.visit('/');
   cy.request('POST', 'devlocal-auth/new').then(() => cy.visit('/'));
   //  cy.contains('Local Sign In').click();
   //  cy.contains('Login as New User').click();
 });
 
+Cypress.Commands.add('signIntoOffice', () => {
+  Cypress.config('baseUrl', 'http://officelocal:4000');
+  cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
+});
 Cypress.Commands.add('signInAsUser', userId => {
-  cy.visit('/');
   cy
     .request({
       method: 'POST',
@@ -58,16 +62,23 @@ Cypress.Commands.add('resetDb', () =>
     .should('eq', 0),
 );
 //from https://github.com/cypress-io/cypress/issues/669
-//not quite working yet
-Cypress.Commands.add('upload_file', (selector, fileUrl, type = '') => {
-  return cy
-    .fixture(fileUrl, 'base64')
-    .then(Cypress.Blob.base64StringToBlob)
-    .then(blob => {
-      const nameSegments = fileUrl.split('/');
-      const name = nameSegments[nameSegments.length - 1];
-      const testFile = new File([blob], name, { type });
-      const event = { dataTransfer: { files: [testFile] } };
-      return cy.get(selector).trigger('drop', event);
-    });
+//Cypress doesn't give the right File constructor, so we grab the window's File
+Cypress.Commands.add('upload_file', (selector, fileUrl) => {
+  const nameSegments = fileUrl.split('/');
+  const name = nameSegments[nameSegments.length - 1];
+  const rawType = mime.lookup(name);
+  // mime returns false if lookup fails
+  const type = rawType ? rawType : '';
+  return cy.window().then(win => {
+    return cy
+      .fixture(fileUrl, 'base64')
+      .then(Cypress.Blob.base64StringToBlob)
+      .then(blob => {
+        const testFile = new win.File([blob], name, { type });
+        const event = {};
+        event.dataTransfer = new win.DataTransfer();
+        event.dataTransfer.items.add(testFile);
+        return cy.get(selector).trigger('drop', event);
+      });
+  });
 });

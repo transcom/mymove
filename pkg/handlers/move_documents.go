@@ -22,6 +22,7 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 		ID:               fmtUUID(moveDocument.ID),
 		MoveID:           fmtUUID(moveDocument.MoveID),
 		Document:         documentPayload,
+		Title:            &moveDocument.Title,
 		MoveDocumentType: internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
 		Status:           internalmessages.MoveDocumentStatus(moveDocument.Status),
 		Notes:            moveDocument.Notes,
@@ -47,16 +48,22 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 
 	payload := params.CreateMoveDocumentPayload
 
-	// Also validates access to the document
-	documentID := uuid.Must(uuid.FromString(payload.DocumentID.String()))
-	document, err := models.FetchDocument(h.db, session, documentID)
-	if err != nil {
-		return responseForError(h.logger, err)
+	// Fetch uploads to confirm ownership
+	uploadIds := payload.UploadIds
+	uploads := models.Uploads{}
+	for _, id := range uploadIds {
+		converted := uuid.Must(uuid.FromString(id.String()))
+		upload, err := models.FetchUpload(h.db, session, converted)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		uploads = append(uploads, upload)
 	}
 
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
-		document,
+		uploads,
 		models.MoveDocumentType(payload.MoveDocumentType),
+		*payload.Title,
 		models.MoveDocumentStatus(payload.Status),
 		payload.Notes)
 
@@ -69,4 +76,34 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 		return responseForError(h.logger, err)
 	}
 	return moveop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+}
+
+// IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
+type IndexMoveDocumentsHandler HandlerContext
+
+// Handle handles the request
+func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams) middleware.Responder {
+	// #nosec User should always be populated by middleware
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	// Fetch move documents on move documents model
+	moveDocuments := move.MoveDocuments
+	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
+	for i, moveDocument := range moveDocuments {
+		moveDocumentPayload, err := payloadForMoveDocumentModel(h.storage, moveDocument)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		moveDocumentsPayload[i] = moveDocumentPayload
+	}
+	response := moveop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
+	return response
 }

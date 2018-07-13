@@ -1,11 +1,15 @@
 package main
 
 import (
+	"bytes"
 	"crypto/tls"
 	"errors"
 	"fmt"
+	"html/template"
+	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"path"
 	"path/filepath"
 
@@ -27,8 +31,6 @@ import (
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
-
-var logger *zap.Logger
 
 // max request body size is 20 mb
 const maxBodySize int64 = 200 * 1000 * 1000
@@ -76,6 +78,7 @@ func main() {
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
+	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
@@ -92,6 +95,7 @@ func main() {
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovMyClientID := flag.String("login_gov_my_client_id", "", "Client ID registered with login gov.")
 	loginGovOfficeClientID := flag.String("login_gov_office_client_id", "", "Client ID registered with login gov.")
+	loginGovTSPClientID := flag.String("login_gov_tsp_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
 	/* For bing Maps use the following
@@ -108,6 +112,9 @@ func main() {
 	s3Region := flag.String("aws_s3_region", "", "AWS region used for S3 file storage")
 	s3KeyNamespace := flag.String("aws_s3_key_namespace", "", "Key prefix for all objects written to S3")
 	awsSesRegion := flag.String("aws_ses_region", "", "AWS region used for SES")
+
+	newRelicApplicationID := flag.String("new_relic_application_id", "", "App ID for New Relic Browser")
+	newRelicLicenseKey := flag.String("new_relic_license_key", "", "License key for New Relic Browser")
 
 	flag.Parse()
 
@@ -141,14 +148,14 @@ func main() {
 
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
-	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *tspHostname, *loginGovTSPClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -279,7 +286,9 @@ func main() {
 	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
 	root.Handle(pat.Get("/downloads/*"), clientHandler)
 	root.Handle(pat.Get("/favicon.ico"), clientHandler)
-	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
+
+	// Serve index.html to all requests that haven't matches a previous route,
+	root.HandleFunc(pat.Get("/*"), indexHandler(*build, *newRelicApplicationID, *newRelicLicenseKey, logger))
 
 	// Start http/https listener(s)
 	errChan := make(chan error)
@@ -305,6 +314,40 @@ func main() {
 func fileHandler(entrypoint string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		http.ServeFile(w, r, entrypoint)
+	}
+}
+
+// indexHandler injects New Relic client code and credentials into index.html
+// and returns a handler that will serve the resulting content
+func indexHandler(buildDir, newRelicApplicationID, newRelicLicenseKey string, logger *zap.Logger) http.HandlerFunc {
+	data := map[string]string{
+		"NewRelicApplicationID": newRelicApplicationID,
+		"NewRelicLicenseKey":    newRelicLicenseKey,
+	}
+	newRelicTemplate, err := template.ParseFiles(path.Join(buildDir, "new_relic.html"))
+	if err != nil {
+		logger.Fatal("could not load new_relic.html template: run make client_build", zap.Error(err))
+	}
+	newRelicHTML := bytes.NewBuffer([]byte{})
+	if err := newRelicTemplate.Execute(newRelicHTML, data); err != nil {
+		logger.Fatal("could not render new_relic.html template", zap.Error(err))
+	}
+
+	indexPath := path.Join(buildDir, "index.html")
+	// #nosec - indexPath does not come from user input
+	indexHTML, err := ioutil.ReadFile(indexPath)
+	if err != nil {
+		logger.Fatal("could not read index.html template: run make client_build", zap.Error(err))
+	}
+	mergedHTML := bytes.Replace(indexHTML, []byte(`<script type="new-relic-placeholder"></script>`), newRelicHTML.Bytes(), 1)
+
+	stat, err := os.Stat(indexPath)
+	if err != nil {
+		logger.Fatal("could not stat index.html template", zap.Error(err))
+	}
+
+	return func(w http.ResponseWriter, r *http.Request) {
+		http.ServeContent(w, r, "index.html", stat.ModTime(), bytes.NewReader(mergedHTML))
 	}
 }
 

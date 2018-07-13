@@ -87,17 +87,17 @@ func (suite *PaperworkSuite) TestGenerateOrderPDF() {
 
 	file, err := uploader.NewLocalFile("testdata/orders1.jpg")
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.FatalNil(err)
 
 	file, err = uploader.NewLocalFile("testdata/orders1.pdf")
 	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.FatalNil(err)
 
 	file, err = uploader.NewLocalFile("testdata/orders2.jpg")
 	suite.Nil(err)
-	_, _, err = suite.uploader.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
 
 	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)

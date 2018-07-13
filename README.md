@@ -26,6 +26,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Server](#setup-server)
   * [Setup: Client](#setup-client)
   * [Setup: Office/admin client](#setup-officeadmin-client)
+  * [Setup: TSP/admin client](#setup-tspadmin-client)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -56,6 +57,7 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
 
 * S3 for document downloads; exact domains TBD.
+* New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
 
 ## Development
 
@@ -164,6 +166,16 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-office-user -email <email>` to set up an office user associated with that email address
 3. `make office_client_run`
 4. Login with the email used above to access the office
+
+### Setup: TSP/admin client
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 tsplocal`
+2. Ensure that you have a test account which can log into the TSP site...
+    * `make tools_build` to build the tools
+    * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
+3. `make tsp_client_run`
+4. Login with the email used above to access the TSP
 
 ### Setup: S3
 
