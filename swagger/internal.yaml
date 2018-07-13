@@ -494,6 +494,10 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MovePayload'
+  IndexMoveDocumentPayload:
+    type: array
+    items:
+      $ref: '#/definitions/MoveDocumentPayload'
   MoveDocumentPayload:
     type: object
     properties:
@@ -2405,6 +2409,30 @@ paths:
         500:
           description: internal server error
   /moves/{moveId}/documents:
+    get:
+      summary: Returns a list of all Move Documents associated with this move
+      description: Returns a list of all Move Documents associated with this move
+      operationId: indexMoveDocuments
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns list of move douments
+          schema:
+            $ref: '#/definitions/IndexMoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
     post:
       summary: Creates a move document
       description: Created a move document with the given information

@@ -77,3 +77,33 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 	}
 	return moveop.NewCreateMoveDocumentOK().WithPayload(newPayload)
 }
+
+// IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
+type IndexMoveDocumentsHandler HandlerContext
+
+// Handle handles the request
+func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams) middleware.Responder {
+	// #nosec User should always be populated by middleware
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	// Fetch move documents on move documents model
+	moveDocuments := move.MoveDocuments
+	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
+	for i, moveDocument := range moveDocuments {
+		moveDocumentPayload, err := payloadForMoveDocumentModel(h.storage, moveDocument)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		moveDocumentsPayload[i] = moveDocumentPayload
+	}
+	response := moveop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
+	return response
+}

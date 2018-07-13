@@ -25,6 +25,7 @@ type Assertions struct {
 	BackupContact          models.BackupContact
 	Upload                 models.Upload
 	Address                models.Address
+	MoveDocument           models.MoveDocument
 	DutyStation            models.DutyStation
 	BlackoutDate           models.BlackoutDate
 }

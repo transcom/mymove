@@ -13,20 +13,20 @@ import (
 type MoveDocumentStatus string
 
 const (
-	// MoveStatusAWAITINGREVIEW captures enum value "AWAITING_REVIEW"
-	MoveStatusAWAITINGREVIEW MoveStatus = "AWAITING_REVIEW"
-	// MoveStatusOK captures enum value "OK"
-	MoveStatusOK MoveStatus = "OK"
-	// MoveStatusHASISSUE captures enum value "HAS_ISSUE"
-	MoveStatusHASISSUE MoveStatus = "HAS_ISSUE"
+	// MoveDocumentStatusAWAITINGREVIEW captures enum value "AWAITING_REVIEW"
+	MoveDocumentStatusAWAITINGREVIEW MoveDocumentStatus = "AWAITING_REVIEW"
+	// MoveDocumentStatusOK captures enum value "OK"
+	MoveDocumentStatusOK MoveDocumentStatus = "OK"
+	// MoveDocumentStatusHASISSUE captures enum value "HAS_ISSUE"
+	MoveDocumentStatusHASISSUE MoveDocumentStatus = "HAS_ISSUE"
 )
 
 // MoveDocumentType represents types of different move documents
 type MoveDocumentType string
 
 const (
-	// MoveTypeOTHER captures enum value "OTHER"
-	MoveTypeOTHER MoveStatus = "OTHER"
+	// MoveDocumentTypeOTHER captures enum value "OTHER"
+	MoveDocumentTypeOTHER MoveDocumentType = "OTHER"
 )
 
 // MoveDocument is an object representing a move document

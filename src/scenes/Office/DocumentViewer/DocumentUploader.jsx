@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { getFormValues, reduxForm } from 'redux-form';
 
-import { createMoveDocument } from '../ducks.js';
+import { createMoveDocument } from './ducks.js';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

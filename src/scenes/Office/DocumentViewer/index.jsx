@@ -7,24 +7,30 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
+import { indexMoveDocuments } from './ducks.js';
 import { loadMoveDependencies } from '../ducks.js';
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
+import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DocumentUploader from './DocumentUploader';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import './index.css';
 class DocumentViewer extends Component {
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.indexMoveDocuments(this.props.match.params.moveId);
   }
   componentWillUpdate() {
     document.title = 'Document Viewer';
   }
   render() {
-    const { serviceMember, move } = this.props;
-
+    const { serviceMember, move, moveDocuments } = this.props;
+    const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = compact([
       serviceMember.last_name,
       serviceMember.first_name,
@@ -84,7 +90,7 @@ class DocumentViewer extends Component {
             className="doc-viewer-tabs"
           >
             <NavTab to="/list">
-              <span className="title">Document(s)</span>
+              <span className="title">All Documents ({numMoveDocs})</span>
             </NavTab>
 
             <NavTab to="/details">
@@ -102,8 +108,17 @@ class DocumentViewer extends Component {
                 path={listUrl}
                 render={() => (
                   <Fragment>
+                    <span className="status">
+                      <FontAwesomeIcon
+                        className="icon link-blue"
+                        icon={faPlusCircle}
+                      />
+                    </span>
                     <Link to={newUrl}>Upload new document</Link>
-                    <div> list coming soon</div>
+                    <div>
+                      {' '}
+                      <DocumentList moveId={move.id} />
+                    </div>
                   </Fragment>
                 )}
               />
@@ -125,9 +140,9 @@ DocumentViewer.propTypes = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
+  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
@@ -135,6 +150,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies }, dispatch);
+  bindActionCreators({ loadMoveDependencies, indexMoveDocuments }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

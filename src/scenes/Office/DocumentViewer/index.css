@@ -26,3 +26,12 @@
 .doc-viewer .tab-content {
   border-top: none;
 }
+
+.doc-viewer .tab-content a {
+  text-decoration: none;
+  color: #0071bc;
+}
+
+.doclist {
+  margin-top: 3rem;
+}
