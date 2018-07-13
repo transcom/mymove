@@ -19,6 +19,7 @@ import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
 import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
+import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -39,6 +40,7 @@ export const appReducer = combineReducers({
   review: reviewReducer,
   office: officeReducer,
   transportationOffices: transportationOfficeReducer,
+  ppmIncentive: officePpmReducer,
 });
 
 export default appReducer;

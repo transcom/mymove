@@ -3,12 +3,15 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getPpmSitEstimate } from '../Moves/Ppm/ducks';
 import { reduxForm } from 'redux-form';
-import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import Alert from 'shared/Alert';
 
-const formName = 'storage_reimbursement_calc';
+import Alert from 'shared/Alert';
+import { formatCents } from 'shared/formatters';
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+
+import { getPpmIncentive } from './ducks';
+
+const formName = 'ppm_reimbursement_calc';
 const schema = {
   properties: {
     planned_move_date: {
@@ -22,7 +25,7 @@ const schema = {
     pickup_postal_code: {
       type: 'string',
       format: 'zip',
-      title: 'Pickup ZIP',
+      title: 'Origin ZIP',
       example: '90210',
       pattern: '^(\\d{5}([\\-]\\d{4})?)$',
       'x-nullable': true,
@@ -37,14 +40,6 @@ const schema = {
       'x-nullable': true,
       'x-always-required': true,
     },
-    days_in_storage: {
-      type: 'integer',
-      title: 'Days in Storage',
-      minimum: 0,
-      maximum: 90,
-      'x-nullable': true,
-      'x-always-required': true,
-    },
     weight: {
       type: 'integer',
       minimum: 1,
@@ -54,18 +49,16 @@ const schema = {
     },
   },
 };
-export class StorageReimbursementCalculator extends Component {
+export class IncentiveCalculator extends Component {
   calculate = values => {
     const {
       planned_move_date,
       pickup_postal_code,
       destination_postal_code,
-      days_in_storage,
       weight,
     } = values;
-    this.props.getPpmSitEstimate(
+    this.props.getPpmIncentive(
       planned_move_date,
-      days_in_storage,
       pickup_postal_code,
       destination_postal_code,
       weight,
@@ -75,23 +68,21 @@ export class StorageReimbursementCalculator extends Component {
   render() {
     const {
       handleSubmit,
-      sitReimbursement,
+      calculation,
       invalid,
       pristine,
       reset,
       submitting,
-      hasEstimateError,
+      hasErrored,
     } = this.props;
     return (
-      <div className="calculator-panel">
-        <div className="calculator-panel-title">
-          Storage Reimbursement Calculator
-        </div>
+      <div className="calculator-panel incentive-calc">
+        <div className="calculator-panel-title">Incentive Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
-          {hasEstimateError && (
+          {hasErrored && (
             <div className="usa-width-one-whole error-message">
-              <Alert type="warning" heading="Could not retrieve estimate">
-                There was an issue retrieving reimbursement amount.
+              <Alert type="warning" heading="Could not perform calculation">
+                There was an issue calculating incentive.
               </Alert>
             </div>
           )}
@@ -110,12 +101,6 @@ export class StorageReimbursementCalculator extends Component {
           <SwaggerField
             className="short-field"
             fieldName="destination_postal_code"
-            swagger={this.props.schema}
-            required
-          />
-          <SwaggerField
-            className="short-field"
-            fieldName="days_in_storage"
             swagger={this.props.schema}
             required
           />
@@ -144,9 +129,31 @@ export class StorageReimbursementCalculator extends Component {
             </button>
           </div>
         </form>
-        {sitReimbursement && (
+        {calculation && (
           <div className="calculated-result">
-            Maximum Obligation: <b>{sitReimbursement}</b>
+            <table className="payment-table">
+              <tbody>
+                <tr className="payment-table-column-title">
+                  <th colspan="2">PPM Incentive</th>
+                </tr>
+              </tbody>
+              <tbody>
+                <tr>
+                  <td>GCC</td>
+                  <td align="right">
+                    <span>${formatCents(calculation.gcc)}</span>
+                  </td>
+                </tr>
+                <tr>
+                  <td>
+                    <b>PPM Incentive @ 95%</b>
+                  </td>
+                  <td align="right">
+                    ${formatCents(calculation.incentive_percentage)}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         )}
       </div>
@@ -154,9 +161,9 @@ export class StorageReimbursementCalculator extends Component {
   }
 }
 
-StorageReimbursementCalculator.propTypes = {
+IncentiveCalculator.propTypes = {
   schema: PropTypes.object.isRequired,
-  getPpmSitEstimate: PropTypes.func.isRequired,
+  getPpmIncentive: PropTypes.func.isRequired,
   error: PropTypes.object,
 };
 
@@ -165,20 +172,17 @@ function mapStateToProps(state) {
     'planned_move_date',
     'pickup_postal_code',
     'destination_postal_code',
-    'days_in_storage',
   ]);
   const props = {
     schema,
-    hasEstimateError: state.ppm.hasEstimateError,
-    sitReimbursement: state.ppm.sitReimbursement,
+    ...state.ppmIncentive,
     initialValues,
   };
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getPpmSitEstimate }, dispatch);
+  return bindActionCreators({ getPpmIncentive }, dispatch);
 }
-
 export default connect(mapStateToProps, mapDispatchToProps)(
-  reduxForm({ form: formName })(StorageReimbursementCalculator),
+  reduxForm({ form: formName })(IncentiveCalculator),
 );
