@@ -215,7 +215,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: hasHHG,
+    isInFlow: state => state.selectedMoveType === 'HHG',
     isComplete: (sm, orders, move, hhg) => {
       return every([hhg.pickup_date]);
     },
@@ -240,7 +240,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/ppm-start': {
-    isInFlow: hasPPM,
+    isInFlow: state => state.selectedMoveType === 'PPM',
     isComplete: (sm, orders, move, ppm) => {
       return every([
         ppm.planned_move_date,
