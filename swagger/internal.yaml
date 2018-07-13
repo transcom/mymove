@@ -419,7 +419,7 @@ definitions:
     required:
       - range_min
       - range_max
-  PPMObligation:
+  PPMIncentive:
     type: object
     properties:
       gcc:
@@ -2570,11 +2570,11 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
-  /personally_procured_moves/obligation:
+  /personally_procured_moves/incentive:
     get:
-      summary: Return a PPM obligation value
-      description: Calculates incentive obligation for a PPM move (excluding SIT)
-      operationId: showPPMObligation
+      summary: Return a PPM incentive value
+      description: Calculates incentive for a PPM move (excluding SIT)
+      operationId: showPPMIncentive
       tags:
         - ppm
       parameters:
@@ -2601,9 +2601,9 @@ paths:
           required: true
       responses:
         200:
-          description: Made calculation of PPM obligation
+          description: Made calculation of PPM incentive
           schema:
-            $ref: '#/definitions/PPMObligation'
+            $ref: '#/definitions/PPMIncentive'
         400:
           description: invalid request
         401:

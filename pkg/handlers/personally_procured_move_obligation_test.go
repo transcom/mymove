@@ -9,17 +9,17 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-// func (suite *HandlerSuite) TestShowPPMObligationHandlerUnauthorised() {
+// func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
 // 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 // 		suite.FailNow("failed to run scenario 2: %+v", err)
 // 	}
 
 // 	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
-// 	req := httptest.NewRequest("GET", "/personally_procured_moves/obligation", nil)
+// 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 // 	req = suite.authenticateRequest(req, user)
 
-// 	params := ppmop.ShowPPMObligationParams{
+// 	params := ppmop.ShowPPMIncentiveParams{
 // 		HTTPRequest:     req,
 // 		PlannedMoveDate: *fmtDate(scenario.May15_2018),
 // 		OriginZip:       "94540",
@@ -29,25 +29,25 @@ import (
 
 // 	context := NewHandlerContext(suite.db, suite.logger)
 // 	context.SetPlanner(route.NewTestingPlanner(1693))
-// 	showHandler := ShowPPMObligationHandler(context)
+// 	showHandler := ShowPPMIncentiveHandler(context)
 // 	showResponse := showHandler.Handle(params)
 
-// 	response := showResponse.(*ppmop.ShowPPMObligationUnauthorized)
+// 	response := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
 // 	suite.checkErrorResponse(response, http.StatusUnauthorized, "Unauthorized")
 
 // }
 
-func (suite *HandlerSuite) TestShowPPMObligationHandler() {
+func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
-	req := httptest.NewRequest("GET", "/personally_procured_moves/obligation", nil)
+	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
-	params := ppmop.ShowPPMObligationParams{
+	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
 		PlannedMoveDate: *fmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
@@ -57,26 +57,26 @@ func (suite *HandlerSuite) TestShowPPMObligationHandler() {
 
 	context := NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMObligationHandler(context)
+	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
 
-	okResponse := showResponse.(*ppmop.ShowPPMObligationOK)
+	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
 	suite.Equal(int64(637056), *cost.Gcc, "Gcc was not equal")
 	suite.Equal(int64(605203), *cost.IncentivePercentage, "IncentivePercentage was not equal")
 }
-func (suite *HandlerSuite) TestShowPPMObligationHandlerLowWeight() {
+func (suite *HandlerSuite) TestShowPPMIncentiveHandlerLowWeight() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
 
 	officeUser := testdatagen.MakeDefaultOfficeUser(suite.db)
 
-	req := httptest.NewRequest("GET", "/personally_procured_moves/obligation", nil)
+	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
 	req = suite.authenticateOfficeRequest(req, officeUser)
 
-	params := ppmop.ShowPPMObligationParams{
+	params := ppmop.ShowPPMIncentiveParams{
 		HTTPRequest:     req,
 		PlannedMoveDate: *fmtDate(scenario.May15_2018),
 		OriginZip:       "94540",
@@ -86,10 +86,10 @@ func (suite *HandlerSuite) TestShowPPMObligationHandlerLowWeight() {
 
 	context := NewHandlerContext(suite.db, suite.logger)
 	context.SetPlanner(route.NewTestingPlanner(1693))
-	showHandler := ShowPPMObligationHandler(context)
+	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
 
-	okResponse := showResponse.(*ppmop.ShowPPMObligationOK)
+	okResponse := showResponse.(*ppmop.ShowPPMIncentiveOK)
 	cost := okResponse.Payload
 
 	suite.Equal(int64(270252), *cost.Gcc, "Gcc was not equal")

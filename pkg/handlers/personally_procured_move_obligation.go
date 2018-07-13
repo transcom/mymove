@@ -13,15 +13,15 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-// ShowPPMObligationHandler returns PPM SIT estimate for a weight, move date,
-type ShowPPMObligationHandler HandlerContext
+// ShowPPMIncentiveHandler returns PPM SIT estimate for a weight, move date,
+type ShowPPMIncentiveHandler HandlerContext
 
 // Handle calculates a PPM reimbursement range.
-func (h ShowPPMObligationHandler) Handle(params ppmop.ShowPPMObligationParams) middleware.Responder {
+func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
-		return ppmop.NewShowPPMObligationUnauthorized()
+		return ppmop.NewShowPPMIncentiveUnauthorized()
 	}
 	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 
@@ -51,9 +51,9 @@ func (h ShowPPMObligationHandler) Handle(params ppmop.ShowPPMObligationParams) m
 	gcc := cost.GCC
 	incentivePercentage := cost.GCC.MultiplyFloat64(0.95)
 
-	ppmObligation := internalmessages.PPMObligation{
+	ppmObligation := internalmessages.PPMIncentive{
 		Gcc:                 swag.Int64(gcc.Int64()),
 		IncentivePercentage: swag.Int64(incentivePercentage.Int64()),
 	}
-	return ppmop.NewShowPPMObligationOK().WithPayload(&ppmObligation)
+	return ppmop.NewShowPPMIncentiveOK().WithPayload(&ppmObligation)
 }
