@@ -56,14 +56,17 @@ export function detectEnvironment(nodeEnv, host) {
   // environment is.
   const domain = host;
   switch (domain) {
+    case 'tsp.move.mil':
     case 'office.move.mil':
     case 'my.move.mil':
       return 'production';
+    case 'tsp.staging.move.mil':
     case 'office.staging.move.mil':
     case 'my.staging.move.mil':
       return 'staging';
     case 'my.experimental.move.mil':
     case 'office.experimental.move.mil':
+    case 'tsp.experimental.move.mil':
       return 'experimental';
     default:
       return 'development';
