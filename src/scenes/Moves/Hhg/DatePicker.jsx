@@ -84,32 +84,34 @@ export class HHGDatePicker extends Component {
               <table className="Todo-phase2">
                 <tbody>
                   <tr>
-                    <th>Preferred Moving Dates Summary</th>
+                    <th className="Todo-phase2">
+                      Preferred Moving Dates Summary
+                    </th>
                   </tr>
                   <tr>
                     <td>Movers Packing</td>
-                    <td>
+                    <td className="Todo-phase2">
                       Wed, June 6 - Thur, June 7{' '}
                       <span className="estimate">*estimated</span>
                     </td>
                   </tr>
                   <tr>
                     <td>Movers Loading Truck</td>
-                    <td>Fri, June 8</td>
+                    <td className="Todo-phase2">Fri, June 8</td>
                   </tr>
                   <tr>
                     <td>Moving Truck in Transit</td>
-                    <td>Fri, June 8 - Mon, June 11</td>
+                    <td className="Todo-phase2">Fri, June 8 - Mon, June 11</td>
                   </tr>
                   <tr>
                     <td>Movers Delivering</td>
-                    <td>
+                    <td className="Todo-phase2">
                       Tues, June 12 <span className="estimate">*estimated</span>
                     </td>
                   </tr>
                   <tr>
                     <td>Report By Date</td>
-                    <td>Monday, July 16</td>
+                    <td className="Todo-phase2">Monday, July 16</td>
                   </tr>
                 </tbody>
               </table>
