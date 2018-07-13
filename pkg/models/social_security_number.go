@@ -46,7 +46,7 @@ var ssnFormatRegex = regexp.MustCompile(`^\d{3}-\d{2}-\d{4}$`)
 func (s *SocialSecurityNumber) SetEncryptedHash(unencryptedSSN string) (*validate.Errors, error) {
 	verrs := validate.NewErrors()
 	if !ssnFormatRegex.MatchString(unencryptedSSN) {
-		verrs.Add("social_secuirty_number", "SSN must be in 123-45-6789 format")
+		verrs.Add("social_security_number", "SSN must be in 123-45-6789 format")
 		return verrs, nil
 	}
 

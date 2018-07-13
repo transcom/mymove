@@ -138,7 +138,7 @@ func NextEligibleTSPPerformance(db *pop.Connection, tdlID uuid.UUID, bookDate ti
 // SelectNextTSPPerformance returns the tspPerformance that is next to receive a shipment.
 func SelectNextTSPPerformance(tspPerformances map[int]TransportationServiceProviderPerformance) TransportationServiceProviderPerformance {
 	bands := sortedMapIntKeys(tspPerformances)
-	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occured.
+	// First time through, no rounds have yet occurred so rounds is set to the maximum rounds that have already occurred.
 	// Since the TSPs in quality band 1 will always have been offered the greatest number of shipments, we use that to calculate max.
 	maxRounds := float64(tspPerformances[bands[0]].OfferCount) / float64(OffersPerQualityBand[bands[0]])
 	previousRounds := math.Ceil(maxRounds)
