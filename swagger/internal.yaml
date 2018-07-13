@@ -1292,6 +1292,20 @@ definitions:
       - description
       - created_at
       - updated_at
+  SendGexRequestPayload:
+    type: object
+    properties:
+      transaction_name:
+        type: string
+        title: Transaction Name
+        example: 858-1.edi
+      transaction_body:
+        type: string
+        title: Transaction Body
+        format: textarea
+    required:
+      - transaction_name
+      - transaction_body
   TShirtSize:
     type: string
     x-nullable: true
@@ -3720,3 +3734,23 @@ paths:
           description: personally procured move not found
         409:
           description: Requested weight estimate is above allotted entitlement
+  /gex/send_request:
+    post:
+      summary: Sends a request to GEX
+      description: Sends a request to GEX
+      operationId: sendGexRequest
+      tags:
+        - gex
+      parameters:
+        - in: body
+          name: sendGexRequestPayload
+          required: true
+          schema:
+            $ref: '#/definitions/SendGexRequestPayload'
+      responses:
+        200:
+          description: sent request
+        400:
+          description: invalid request
+        500:
+          description: internal server error
