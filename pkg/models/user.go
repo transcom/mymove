@@ -83,6 +83,10 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
+	TspUserID              *uuid.UUID `db:"tu_id"`
+	TspUserFirstName       *string    `db:"tu_fname"`
+	TspUserLastName        *string    `db:"tu_lname"`
+	TspUserMiddle          *string    `db:"tu_middle"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -97,10 +101,15 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.id as ou_id,
 				ou.first_name as ou_fname,
 				ou.last_name as ou_lname,
-				ou.middle_initials as ou_middle
+				ou.middle_initials as ou_middle,
+				tu.id as tu_id,
+				tu.first_name as tu_fname,
+				tu.last_name as tu_lname,
+				tu.middle_initials as tu_middle
 			FROM users
 			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
+			LEFT OUTER JOIN tsp_users as tu on tu.user_id = users.id
 			WHERE users.login_gov_uuid  = $1`
 	err := db.RawQuery(query, loginGovID).All(&identities)
 	if err != nil {
@@ -111,27 +120,30 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 	return &identities[0], nil
 }
 
-func firstValue(one *string, two *string) (value string) {
+// firstValue returns the first string value that is not nil
+func firstValue(one *string, two *string, three *string) (value string) {
 
 	if one != nil {
 		value = *one
 	} else if two != nil {
 		value = *two
+	} else if three != nil {
+		value = *three
 	}
 	return
 }
 
-// FirstName gets the firstname of the user from either the ServiceMember or OfficeUser identity
+// FirstName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
 func (ui *UserIdentity) FirstName() string {
-	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName)
+	return firstValue(ui.ServiceMemberFirstName, ui.OfficeUserFirstName, ui.TspUserFirstName)
 }
 
-// LastName gets the firstname of the user from either the ServiceMember or OfficeUser identity
+// LastName gets the firstname of the user from either the ServiceMember or OfficeUser or TspUser identity
 func (ui *UserIdentity) LastName() string {
-	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName)
+	return firstValue(ui.ServiceMemberLastName, ui.OfficeUserLastName, ui.TspUserLastName)
 }
 
-// Middle gets the MiddleName or Initials from the ServiceMember or OfficeUserIdentity
+// Middle gets the MiddleName or Initials from the ServiceMember or OfficeUser or TspUser Identity
 func (ui *UserIdentity) Middle() string {
-	return firstValue(ui.ServiceMemberMiddle, ui.OfficeUserMiddle)
+	return firstValue(ui.ServiceMemberMiddle, ui.OfficeUserMiddle, ui.TspUserMiddle)
 }
