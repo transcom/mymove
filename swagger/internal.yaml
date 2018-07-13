@@ -419,6 +419,18 @@ definitions:
     required:
       - range_min
       - range_max
+  PPMIncentive:
+    type: object
+    properties:
+      gcc:
+        type: integer
+        title: GCC
+      incentive_percentage:
+        type: integer
+        title: PPM Incentive @ 95%
+    required:
+      - gcc
+      - incentive_percentage
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -2558,6 +2570,48 @@ paths:
           description: user is not authorized
         500:
           description: internal server error
+  /personally_procured_moves/incentive:
+    get:
+      summary: Return a PPM incentive value
+      description: Calculates incentive for a PPM move (excluding SIT)
+      operationId: showPPMIncentive
+      tags:
+        - ppm
+      parameters:
+        - in: query
+          name: planned_move_date
+          type: string
+          format: date
+          required: true
+        - in: query
+          name: origin_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: destination_zip
+          type: string
+          format: zip
+          pattern: '^(\d{5}([\-]\d{4})?)$'
+          required: true
+        - in: query
+          name: weight
+          type: integer
+          required: true
+      responses:
+        200:
+          description: Made calculation of PPM incentive
+          schema:
+            $ref: '#/definitions/PPMIncentive'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        500:
+          description: internal server error
   /documents:
     post:
       summary: Create a new document
@@ -2609,42 +2663,6 @@ paths:
           description: not found
         500:
           description: server error
-  /documents/{documentId}/uploads:
-    post:
-      summary: Create a new upload
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createUpload
-      tags:
-        - uploads
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: path
-          name: documentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the document to add an upload to
-        - in: formData
-          name: file
-          type: file
-          description: The file to upload.
-          required: true
-      responses:
-        201:
-          description: created upload
-          schema:
-            $ref: '#/definitions/UploadPayload'
-        400:
-          description: invalid request
-          schema:
-            $ref: '#/definitions/InvalidRequestResponsePayload'
-        403:
-          description: not authorized
-        404:
-          description: not found
-        500:
-          description: server error
   /uploads/{uploadId}:
     delete:
       summary: Deletes an upload
@@ -2673,6 +2691,41 @@ paths:
         500:
           description: server error
   /uploads:
+    post:
+      summary: Create a new upload
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createUpload
+      tags:
+        - uploads
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: query
+          name: documentId
+          type: string
+          format: uuid
+          required: false
+          description: UUID of the document to add an upload to
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+          schema:
+            $ref: '#/definitions/InvalidRequestResponsePayload'
+        403:
+          description: not authorized
+        404:
+          description: not found
+        500:
+          description: server error
     delete:
       summary: Deletes a collection of uploads
       description: Uploads represent a single digital file, such as a JPEG or PDF.

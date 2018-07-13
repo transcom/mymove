@@ -10,6 +10,7 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { formatCents } from 'shared/formatters';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
@@ -24,11 +25,6 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
-
-function formatSitEstimate(estimate) {
-  // Range values arrive in cents, so convert to dollars
-  return `$${(estimate / 100).toFixed(2)}`;
-}
 
 // Action creation
 export function setPendingPpmSize(value) {
@@ -300,7 +296,7 @@ export function ppmReducer(state = initialState, action) {
       let estimate = null;
       if (isNumber(action.payload.estimate)) {
         // Convert from cents
-        estimate = formatSitEstimate(action.payload.estimate);
+        estimate = '$' + formatCents(action.payload.estimate);
       }
       return Object.assign({}, state, {
         sitReimbursement: estimate,

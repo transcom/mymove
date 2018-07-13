@@ -30,7 +30,7 @@ ENV GO_ENV=container
 
 # Install tools needed in container
 RUN apk update
-RUN apk add postgresql-client python3 ca-certificates
+RUN apk add postgresql-client python3 ca-certificates bash
 RUN pip3 install awscli
 
 WORKDIR /bin
