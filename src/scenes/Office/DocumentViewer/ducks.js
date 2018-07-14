@@ -1,19 +1,27 @@
 import { cloneDeep } from 'lodash';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-import { IndexMoveDocuments, CreateMoveDocument } from './api.js';
+import {
+  IndexMoveDocuments,
+  CreateMoveDocument,
+  UpdateMoveDocument,
+} from './api.js';
 import { upsert } from 'shared/utils';
 
 // Types
-export const indexMoveDocumentsType = 'INDEX_MOVE_DOCUMENTS';
+const indexMoveDocumentsType = 'INDEX_MOVE_DOCUMENTS';
 const createMoveDocumentType = 'CREATE_MOVE_DOCUMENT';
+const updateMoveDocumentType = 'UPDATE_MOVE_DOCUMENT';
 
 // Action types
 export const INDEX_MOVE_DOCUMENTS = ReduxHelpers.generateAsyncActionTypes(
   indexMoveDocumentsType,
 );
-const CREATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
+export const CREATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
   createMoveDocumentType,
+);
+export const UPDATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
+  updateMoveDocumentType,
 );
 
 // Action creators
@@ -25,6 +33,10 @@ export const indexMoveDocuments = ReduxHelpers.generateAsyncActionCreator(
 export const createMoveDocument = ReduxHelpers.generateAsyncActionCreator(
   createMoveDocumentType,
   CreateMoveDocument,
+);
+export const updateMoveDocument = ReduxHelpers.generateAsyncActionCreator(
+  updateMoveDocumentType,
+  UpdateMoveDocument,
 );
 
 // Reducer
@@ -60,13 +72,25 @@ export function documentsReducer(state = initialState, action) {
       return {
         ...upsertMoveDocument(action.payload, state),
         moveDocumentCreateError: false,
-        createdMoveDocument: action.payload,
+        updatedMoveDocument: action.payload,
       };
     case CREATE_MOVE_DOCUMENT.failure:
       return Object.assign({}, state, {
         moveDocumentCreateError: true,
         error: action.error.message,
       });
+    case UPDATE_MOVE_DOCUMENT.success:
+      return {
+        ...upsertMoveDocument(action.payload, state),
+        moveDocumentUpdateError: false,
+        updatedMoveDocument: action.payload,
+      };
+    case UPDATE_MOVE_DOCUMENT.failure:
+      return {
+        ...upsertMoveDocument(action.payload, state),
+        moveDocumentUpdateError: true,
+        error: action.error.message,
+      };
     default:
       return state;
   }

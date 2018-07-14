@@ -31,3 +31,14 @@ export async function CreateMoveDocument(
   checkResponse(response, 'failed to create move document due to server error');
   return response.body;
 }
+
+export async function UpdateMoveDocument(moveId, moveDocumentId, payload) {
+  const client = await getClient();
+  const response = await client.apis.move.updateMoveDocument({
+    moveId,
+    moveDocumentId,
+    updateMoveDocument: payload,
+  });
+  checkResponse(response, 'failed to update move document due to server error');
+  return response.body;
+}
