@@ -36,7 +36,7 @@ export class DocumentList extends Component {
   render() {
     const { moveDocuments, moveId } = this.props;
     return (
-      <div className="doclist">
+      <div>
         {moveDocuments.map(doc => {
           const status = this.renderDocStatus(doc.status);
           const detailUrl = `/moves/${moveId}/documents/${doc.id}`;

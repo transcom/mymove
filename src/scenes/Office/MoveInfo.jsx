@@ -18,6 +18,7 @@ import PaymentsPanel from './Ppm/PaymentsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
+import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 
 import {
   loadMoveDependencies,
@@ -25,6 +26,7 @@ import {
   approvePPM,
   cancelMove,
 } from './ducks';
+import { indexMoveDocuments } from 'scenes/Office/DocumentViewer/ducks.js';
 import { formatDate } from 'shared/formatters';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
@@ -144,6 +146,7 @@ class CancelPanel extends Component {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.indexMoveDocuments(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -195,6 +198,7 @@ class MoveInfo extends Component {
 
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
+    let moveDocs = get(this.props, 'moveDocuments');
 
     if (
       !this.props.loadDependenciesHasSuccess &&
@@ -328,7 +332,7 @@ class MoveInfo extends Component {
               ) : (
                 <div>
                   {move.status === 'APPROVED' ? (
-                    <div className="document">
+                    <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'green' }}
                         className="icon"
@@ -339,7 +343,7 @@ class MoveInfo extends Component {
                       </Link>
                     </div>
                   ) : (
-                    <div className="document">
+                    <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'red' }}
                         className="icon"
@@ -352,6 +356,7 @@ class MoveInfo extends Component {
                   )}
                 </div>
               )}
+              <DocumentList moveId={move.id} />
             </div>
           </div>
         </div>
@@ -362,6 +367,7 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
+  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -372,13 +378,20 @@ const mapStateToProps = state => ({
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, approveBasics, approvePPM, cancelMove },
+    {
+      loadMoveDependencies,
+      indexMoveDocuments,
+      approveBasics,
+      approvePPM,
+      cancelMove,
+    },
     dispatch,
   );
 

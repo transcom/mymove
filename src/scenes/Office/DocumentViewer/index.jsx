@@ -108,13 +108,15 @@ class DocumentViewer extends Component {
                 path={listUrl}
                 render={() => (
                   <Fragment>
-                    <span className="status">
-                      <FontAwesomeIcon
-                        className="icon link-blue"
-                        icon={faPlusCircle}
-                      />
-                    </span>
-                    <Link to={newUrl}>Upload new document</Link>
+                    <div className="pad-ns">
+                      <span className="status">
+                        <FontAwesomeIcon
+                          className="icon link-blue"
+                          icon={faPlusCircle}
+                        />
+                      </span>
+                      <Link to={newUrl}>Upload new document</Link>
+                    </div>
                     <div>
                       {' '}
                       <DocumentList moveId={move.id} />
@@ -126,13 +128,15 @@ class DocumentViewer extends Component {
                 path={newUrl}
                 render={() => (
                   <Fragment>
-                    <span className="status">
-                      <FontAwesomeIcon
-                        className="icon link-blue"
-                        icon={faPlusCircle}
-                      />
-                    </span>
-                    <Link to={newUrl}>Upload new document</Link>
+                    <div className="pad-ns">
+                      <span className="status">
+                        <FontAwesomeIcon
+                          className="icon link-blue"
+                          icon={faPlusCircle}
+                        />
+                      </span>
+                      <Link to={newUrl}>Upload new document</Link>
+                    </div>
                     <div>
                       {' '}
                       <DocumentList moveId={move.id} />
@@ -154,6 +158,7 @@ class DocumentViewer extends Component {
 
 DocumentViewer.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
+  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
