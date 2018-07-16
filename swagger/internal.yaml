@@ -1223,16 +1223,15 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      pickup_date:
+      move_id:
         type: string
-        format: date
-      delivery_date:
-        type: string
-        format: date
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
       traffic_distribution_list_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       transportation_service_provider_id:
         type: string
         format: uuid
@@ -1242,6 +1241,67 @@ definitions:
         type: boolean
         example: false
         x-nullable: true
+      source_gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: LHNQ
+      market:
+        type: string
+      status:
+        type: string
+      book_date:
+        type: string
+        format: date
+      requested_pickup_date:
+        type: string
+        format: date
+      pickup_date:
+        type: string
+        format: date
+      delivery_date:
+        type: string
+        format: date
+      estimated_pack_days:
+        type: integer
+        minimum: 0
+      estimated_transit_days:
+        type: integer
+        minimum: 0
+      pickup_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      secondary_pickup_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      partial_sit_delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+      has_delivery_address:
+        type: boolean
+      has_partial_sit_delivery_address:
+        type: boolean
+      weight_estimate:
+        type: integer
+        minimum: 0
+      progear_weight_estimate:
+        type: integer
+        minimum: 0
+      spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
       created_at:
         type: string
         format: date-time
