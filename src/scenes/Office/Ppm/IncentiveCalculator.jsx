@@ -9,8 +9,7 @@ import Alert from 'shared/Alert';
 import { formatCents } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import { getPpmIncentive } from './ducks';
-
+import { getPpmIncentive, clearPpmIncentive } from './ducks';
 const formName = 'ppm_reimbursement_calc';
 const schema = {
   properties: {
@@ -64,14 +63,20 @@ export class IncentiveCalculator extends Component {
       weight,
     );
   };
-
+  reset = async () => {
+    const { reset, clearPpmIncentive } = this.props;
+    await reset();
+    clearPpmIncentive();
+  };
+  componentWillUnmount() {
+    this.props.clearPpmIncentive();
+  }
   render() {
     const {
       handleSubmit,
       calculation,
       invalid,
       pristine,
-      reset,
       submitting,
       hasErrored,
     } = this.props;
@@ -132,7 +137,7 @@ export class IncentiveCalculator extends Component {
                   data-cy="reset"
                   type="button"
                   disabled={pristine || submitting}
-                  onClick={reset}
+                  onClick={this.reset}
                 >
                   Reset
                 </button>
@@ -194,7 +199,7 @@ function mapStateToProps(state) {
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getPpmIncentive }, dispatch);
+  return bindActionCreators({ getPpmIncentive, clearPpmIncentive }, dispatch);
 }
 export default connect(mapStateToProps, mapDispatchToProps)(
   reduxForm({ form: formName })(IncentiveCalculator),
