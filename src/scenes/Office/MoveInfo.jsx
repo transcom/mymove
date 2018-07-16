@@ -324,7 +324,9 @@ class MoveInfo extends Component {
             <div className="documents">
               <h2 className="extras usa-heading">
                 Documents
-                <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+                <Link to={`/moves/${move.id}/documents`} target="_blank">
+                  <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+                </Link>
               </h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>

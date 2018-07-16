@@ -203,6 +203,7 @@
 
 .documents a:link, a:visited, a:hover, a:active {
   text-decoration: none;
+  color: #0071bc;
 }
 
 .link-blue {
