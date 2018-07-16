@@ -198,7 +198,6 @@ class MoveInfo extends Component {
 
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
-    let moveDocs = get(this.props, 'moveDocuments');
 
     if (
       !this.props.loadDependenciesHasSuccess &&
