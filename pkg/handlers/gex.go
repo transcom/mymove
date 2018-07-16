@@ -23,7 +23,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 
 	request, err := http.NewRequest(
 		"POST",
-		"https://gexa.daas.dla.mil/msg_data/submit/"+transactionName,
+		"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
 		strings.NewReader(transactionBody),
 	)
 	if err != nil {
