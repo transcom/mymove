@@ -201,7 +201,9 @@ function mapStateToProps(state) {
     ),
     serviceMember: state.office.officeServiceMember,
 
-    hasError: false,
+    hasError:
+      state.office.serviceMemberHasLoadError ||
+      state.office.serviceMemberHasUpdateError,
     errorMessage: state.office.error,
     isUpdating: false,
 

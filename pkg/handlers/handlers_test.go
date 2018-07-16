@@ -48,7 +48,7 @@ func (suite *HandlerSuite) mustSave(model interface{}) {
 func (suite *HandlerSuite) isNotErrResponse(response middleware.Responder) {
 	r, ok := response.(*errResponse)
 	if ok {
-		suite.logger.Error("Received an unexpected error reponse from handler: ", zap.Error(r.err))
+		suite.logger.Error("Received an unexpected error response from handler: ", zap.Error(r.err))
 		// Formally lodge a complaint
 		suite.IsType(&errResponse{}, response)
 	}

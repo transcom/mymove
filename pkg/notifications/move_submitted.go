@@ -90,7 +90,7 @@ func (m MoveSubmitted) emails() ([]emailContent, error) {
 	}
 
 	m.logger.Info("Generated move submitted email to service member",
-		zap.String("sevice member email address", *serviceMember.PersonalEmail))
+		zap.String("service member email address", *serviceMember.PersonalEmail))
 
 	// TODO: Send email to trusted contacts when that's supported
 	return append(emails, smEmail), nil
