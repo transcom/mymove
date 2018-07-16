@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"crypto/tls"
+	"crypto/x509"
 	"fmt"
 	"net/http"
 	"os"
@@ -28,6 +29,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	)
 	if err != nil {
 		h.logger.Error("Creating GEX POST request", zap.Error(err))
+		return gexop.NewSendGexRequestInternalServerError()
 	}
 
 	cert := os.Getenv("CLIENT_TLS_CERT")
@@ -35,19 +37,28 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	certificate, err := tls.X509KeyPair([]byte(cert), []byte(key))
 	if err != nil {
 		h.logger.Error("Creating client certificate", zap.Error(err))
+		return gexop.NewSendGexRequestInternalServerError()
 	}
-
 	config := tls.Config{
 		Certificates: []tls.Certificate{certificate},
 		ClientAuth:   tls.RequireAnyClientCert,
+		RootCAs:      getDoDRootCAs(),
 	}
 	tr := &http.Transport{TLSClientConfig: &config}
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 	if err != nil {
 		h.logger.Error("Sending GEX POST request", zap.Error(err))
+		return gexop.NewSendGexRequestInternalServerError()
 	}
 
-	fmt.Println(resp)
+	fmt.Println("Server response: " + resp.Status)
 	return gexop.NewSendGexRequestOK()
+}
+
+func getDoDRootCAs() *x509.CertPool {
+	pool := x509.NewCertPool()
+	cas := os.Getenv("GEX_DOD_CA")
+	pool.AppendCertsFromPEM([]byte(cas))
+	return pool
 }
