@@ -3,7 +3,6 @@ package rateengine
 import (
 	"time"
 
-	"github.com/go-openapi/swag"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
@@ -31,24 +30,7 @@ func (c *LinehaulCostComputation) Scale(factor float64) {
 }
 
 func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
-	sourceAddress := models.Address{
-		StreetAddress1: "",
-		StreetAddress2: swag.String(""),
-		StreetAddress3: swag.String(""),
-		City:           "",
-		State:          "",
-		PostalCode:     originZip5,
-	}
-	destinationAddress := models.Address{
-		StreetAddress1: "",
-		StreetAddress2: swag.String(""),
-		StreetAddress3: swag.String(""),
-		City:           "",
-		State:          "",
-		PostalCode:     destinationZip5,
-	}
-
-	mileage, err = re.planner.TransitDistance(&sourceAddress, &destinationAddress)
+	mileage, err = re.planner.Zip5TransitDistance(originZip5, destinationZip5)
 	if err != nil {
 		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err))
 	}
