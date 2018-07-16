@@ -88,67 +88,79 @@ export class StorageReimbursementCalculator extends Component {
       <div className="calculator-panel storage-calc">
         <div className="calculator-panel-title">Storage Calculator</div>
         <form onSubmit={handleSubmit(this.calculate)}>
-          {hasEstimateError && (
-            <div className="usa-width-one-whole error-message">
-              <Alert type="warning" heading="Could not retrieve estimate">
-                There was an issue retrieving reimbursement amount.
-              </Alert>
+          <div className="usa-grid">
+            {hasEstimateError && (
+              <div className="usa-width-one-whole error-message">
+                <Alert type="warning" heading="Could not retrieve estimate">
+                  There was an issue retrieving reimbursement amount.
+                </Alert>
+              </div>
+            )}
+            <div className="usa-width-one-half">
+              <SwaggerField
+                className="date-field"
+                fieldName="planned_move_date"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                className="short-field"
+                fieldName="weight"
+                swagger={this.props.schema}
+                required
+              />
             </div>
-          )}
-          <SwaggerField
-            className="date-field"
-            fieldName="planned_move_date"
-            swagger={this.props.schema}
-            required
-          />
-          <SwaggerField
-            className="short-field"
-            fieldName="pickup_postal_code"
-            swagger={this.props.schema}
-            required
-          />
-          <SwaggerField
-            className="short-field"
-            fieldName="destination_postal_code"
-            swagger={this.props.schema}
-            required
-          />
-          <SwaggerField
-            className="short-field"
-            fieldName="days_in_storage"
-            swagger={this.props.schema}
-            required
-          />
-          <SwaggerField
-            className="short-field"
-            fieldName="weight"
-            swagger={this.props.schema}
-            required
-          />
-          <div className="buttons">
-            <button
-              data-cy="calc"
-              type="submit"
-              disabled={pristine || submitting || invalid}
-            >
-              Calculate
-            </button>
-            <button
-              className="usa-button-secondary"
-              data-cy="reset"
-              type="button"
-              disabled={pristine || submitting}
-              onClick={reset}
-            >
-              Reset
-            </button>
+            <div className="usa-width-one-half">
+              <SwaggerField
+                className="short-field"
+                fieldName="pickup_postal_code"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                className="short-field"
+                fieldName="destination_postal_code"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                className="short-field"
+                fieldName="days_in_storage"
+                swagger={this.props.schema}
+                required
+              />
+            </div>
+          </div>
+          <div className="usa-grid">
+            <div className="usa-width-one-whole">
+              <div className="buttons">
+                <button
+                  data-cy="calc"
+                  type="submit"
+                  disabled={pristine || submitting || invalid}
+                >
+                  Calculate
+                </button>
+                <button
+                  className="usa-button-secondary"
+                  data-cy="reset"
+                  type="button"
+                  disabled={pristine || submitting}
+                  onClick={reset}
+                >
+                  Reset
+                </button>
+              </div>
+            </div>
+            {sitReimbursement && (
+              <div className="usa-width-one-whole">
+                <div className="calculated-result">
+                  Maximum Obligation: <b>{sitReimbursement}</b>
+                </div>
+              </div>
+            )}
           </div>
         </form>
-        {sitReimbursement && (
-          <div className="calculated-result">
-            Maximum Obligation: <b>{sitReimbursement}</b>
-          </div>
-        )}
       </div>
     );
   }
