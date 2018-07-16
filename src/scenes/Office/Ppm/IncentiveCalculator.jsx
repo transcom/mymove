@@ -43,7 +43,7 @@ const schema = {
     weight: {
       type: 'integer',
       minimum: 1,
-      title: 'Weight',
+      title: 'Weight (lbs)',
       'x-nullable': true,
       'x-always-required': true,
     },
