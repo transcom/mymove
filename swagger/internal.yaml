@@ -1216,11 +1216,7 @@ definitions:
       - AIR_FORCE
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
-  IndexShipmentsPayload:
-    type: array
-    items:
-      $ref: '#/definitions/ShipmentPayload'
-  ShipmentPayload:
+  Shipment:
     type: object
     properties:
       id:
@@ -1871,20 +1867,6 @@ paths:
           description: list of issues
           schema:
             $ref: '#/definitions/IndexIssuesPayload'
-        400:
-          description: invalid request
-  /shipments:
-    get:
-      summary: List all shipments
-      description: List all shipments
-      operationId: indexShipments
-      tags:
-        - shipments
-      responses:
-        200:
-          description: list of all shipments
-          schema:
-            $ref: '#/definitions/IndexShipmentsPayload'
         400:
           description: invalid request
   /users/logged_in:
