@@ -32,7 +32,8 @@ func (c *LinehaulCostComputation) Scale(factor float64) {
 func (re *RateEngine) determineMileage(originZip5 string, destinationZip5 string) (mileage int, err error) {
 	mileage, err = re.planner.Zip5TransitDistance(originZip5, destinationZip5)
 	if err != nil {
-		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err))
+		re.logger.Error("Failed to get distance from planner - %v", zap.Error(err),
+			zap.String("origin_zip5", originZip5), zap.String("destination_zip5", destinationZip5))
 	}
 	return mileage, err
 }
