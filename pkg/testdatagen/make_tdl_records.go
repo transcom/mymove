@@ -2,6 +2,7 @@ package testdatagen
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/gobuffalo/pop"
 
@@ -20,6 +21,9 @@ func MakeTDL(db *pop.Connection, source string, dest string, cos string) (models
 	verrs, err := db.ValidateAndSave(&tdl)
 	if verrs.HasAny() {
 		err = fmt.Errorf("TDL validation errors: %v", verrs)
+	}
+	if err != nil {
+		log.Panic(err)
 	}
 
 	return tdl, err
