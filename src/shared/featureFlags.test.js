@@ -6,6 +6,10 @@ describe('feature flags', () => {
 
     expect(detectEnvironment('test', '')).toEqual('test');
 
+    expect(detectEnvironment('production', 'tsp.move.mil')).toEqual(
+      'production',
+    );
+
     expect(detectEnvironment('production', 'office.move.mil')).toEqual(
       'production',
     );
@@ -13,6 +17,9 @@ describe('feature flags', () => {
       'production',
     );
 
+    expect(detectEnvironment('production', 'tsp.staging.move.mil')).toEqual(
+      'staging',
+    );
     expect(detectEnvironment('production', 'office.staging.move.mil')).toEqual(
       'staging',
     );
@@ -20,6 +27,9 @@ describe('feature flags', () => {
       'staging',
     );
 
+    expect(
+      detectEnvironment('production', 'tsp.experimental.move.mil'),
+    ).toEqual('experimental');
     expect(
       detectEnvironment('production', 'office.experimental.move.mil'),
     ).toEqual('experimental');
