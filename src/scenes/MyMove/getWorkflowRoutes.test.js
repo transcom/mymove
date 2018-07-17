@@ -587,5 +587,32 @@ describe('when getting the next incomplete page', () => {
         expect(result).toEqual('/moves/bar/review');
       });
     });
+    describe('when HHG move type selection is complete', () => {
+      it('returns the next page', () => {
+        const result = getNextIncompletePage({
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: true,
+          },
+          orders: {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
+            },
+          },
+          move: {
+            id: 'bar',
+            selected_move_type: 'HHG',
+          },
+          hhg: {
+            id: 'baz',
+          },
+        });
+        expect(result).toEqual('/moves/bar/hhg-start');
+      });
+    });
   });
 });
