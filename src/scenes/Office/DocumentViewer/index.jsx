@@ -14,7 +14,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DocumentUploader from './DocumentUploader';
-
+import DocumentDetailPanel from './DocumentDetailPanel';
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
@@ -142,7 +142,14 @@ class DocumentViewer extends Component {
               />
               <PrivateRoute
                 path={detailUrl}
-                render={() => <div> details coming soon</div>}
+                render={() => (
+                  <Fragment>
+                    <DocumentDetailPanel
+                      // TODO: title is required, use something better than detail url
+                      title=""
+                    />
+                  </Fragment>
+                )}
               />
             </Switch>
           </div>

@@ -34,6 +34,7 @@ const OrdersViewerDisplay = props => {
     values: props.orders,
     schema: props.ordersSchema,
   };
+  console.log('orders props', props);
 
   return (
     <React.Fragment>
