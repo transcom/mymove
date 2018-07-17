@@ -15,6 +15,10 @@ import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DocumentUploader from './DocumentUploader';
 import DocumentUploadViewer from './DocumentUploadViewer';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+} from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
@@ -24,7 +28,7 @@ class DocumentViewer extends Component {
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.indexMoveDocuments(this.props.match.params.moveId);
+    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
   componentWillUpdate() {
     document.title = 'Document Viewer';
@@ -48,7 +52,6 @@ class DocumentViewer extends Component {
 
     const defaultTabIndex =
       this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
-      console.log(defaultTabIndex)
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -100,20 +103,22 @@ class DocumentViewer extends Component {
                 <Tab className="title nav-tab">
                   All Documents ({numMoveDocs})
                 </Tab>
-
+                {/* TODO: Handle routing of /new route better */}
                 {this.props.match.params.moveDocumentId !== 'new' && (
                   <Tab className="title nav-tab">Details</Tab>
                 )}
               </TabList>
 
               <TabPanel>
-                <span className="status">
-                  <FontAwesomeIcon
-                    className="icon link-blue"
-                    icon={faPlusCircle}
-                  />
-                </span>
-                <Link to={newUrl}>Upload new document</Link>
+                <div className="pad-ns">
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon link-blue"
+                      icon={faPlusCircle}
+                    />
+                  </span>
+                  <Link to={newUrl}>Upload new document</Link>
+                </div>
                 <div>
                   {' '}
                   <DocumentList moveId={move.id} />
@@ -135,13 +140,17 @@ class DocumentViewer extends Component {
 
 DocumentViewer.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
+  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
-  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
+  moveDocuments: selectAllDocumentsForMove(
+    state,
+    get(state, 'office.officeMove.id', ''),
+  ),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
@@ -149,6 +158,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies, indexMoveDocuments }, dispatch);
+  bindActionCreators(
+    { loadMoveDependencies, indexMoveDocuments, getMoveDocumentsForMove },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

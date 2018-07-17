@@ -3,16 +3,10 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
-import { selectMoveDocument, getMoveDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+import { selectMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import DocumentContent from './DocumentContent';
 
 export class DocumentUploadViewer extends Component {
-  componentDidMount() {
-    if (!this.props.moveDocument) {
-      this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
-    }
-  }
-
   render() {
     let uploadModels = get(this.props.moveDocument, 'document.uploads', []);
     let uploads;
@@ -41,12 +35,7 @@ function mapStateToProps(state, props) {
 }
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    {
-      getMoveDocumentsForMove: getMoveDocumentsForMove,
-    },
-    dispatch,
-  );
+  return bindActionCreators({}, dispatch);
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(
