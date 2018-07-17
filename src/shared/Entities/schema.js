@@ -19,30 +19,32 @@ export const documentModel = new schema.Entity('documents', {
   service_member: serviceMember,
 });
 
-// Orders
-export const order = new schema.Entity('orders', {
-  uploaded_orders: documentModel,
-  moves: moves,
+// MoveDocuments
+export const moveDocument = new schema.Entity('moveDocuments', {
+  document: documentModel,
 });
+export const moveDocuments = new schema.Array(moveDocument);
+
+// PPMs
+export const personallyProcuredMove = new schema.Entity(
+  'personallyProcuredMove',
+);
+export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
 });
 export const moves = new schema.Array(move);
-
-// PPMs
-export const personallyProcuredMove = new schema.Entity(
-  'personallyProcuredMove',
-  {
-    move: move,
-  },
-);
-export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
-
-// MoveDocuments
-export const moveDocument = new schema.Entity('moveDocuments', {
+personallyProcuredMove.define({
   move: move,
-  document: documentModel,
 });
-export const moveDocuments = new schema.Array(moveDocument);
+moveDocument.define({
+  move: move,
+});
+
+// Orders
+export const order = new schema.Entity('orders', {
+  uploaded_orders: documentModel,
+  moves: moves,
+});
