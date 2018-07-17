@@ -23,14 +23,14 @@ type PlannerFullSuite struct {
 var testAddressOne = models.Address{
 	StreetAddress1: "1 & 2 Arcacia Ave",
 	StreetAddress2: models.StringPointer("c/o Truss Works"),
-	City:           "San Franciso",
+	City:           "San Francisco",
 	State:          "California",
 	PostalCode:     "94103"}
 
 func (suite *PlannerSuite) TestUrlencodeAddress() {
 
 	encodedAddress := urlencodeAddress(&testAddressOne)
-	expectedString := "1+%26+2+Arcacia+Ave%2Cc%2Fo+Truss+Works%2CSan+Franciso%2CCalifornia%2C94103"
+	expectedString := "1+%26+2+Arcacia+Ave%2Cc%2Fo+Truss+Works%2CSan+Francisco%2CCalifornia%2C94103"
 	if strings.Compare(encodedAddress, expectedString) != 0 {
 		suite.T().Errorf("Encoded address got %s", encodedAddress)
 	}

@@ -73,7 +73,7 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) 
 		}
 
 		logger.Info("Sent email to service member",
-			zap.String("sevice member email address", email.recipientEmail))
+			zap.String("service member email address", email.recipientEmail))
 	}
 
 	return nil

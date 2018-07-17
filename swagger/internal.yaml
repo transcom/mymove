@@ -573,8 +573,10 @@ definitions:
     title: Document type
     enum:
       - OTHER
+      - SHIPMENT_SUMMARY
     x-display-value:
       OTHER: Other document type
+      SHIPMENT_SUMMARY: Shipment summary
   MoveDocumentStatus:
     type: string
     title: Doc status
