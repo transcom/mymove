@@ -21,7 +21,7 @@ import { officeReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
-import entititesReducer from 'shared/Entities/ducks';
+import entititesReducer from 'shared/Entities/reducers';
 
 export const appReducer = combineReducers({
   user: userReducer,
