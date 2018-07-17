@@ -127,6 +127,7 @@ export class Landing extends Component {
                   orders={orders}
                   move={move}
                   ppm={ppm}
+                  hhg={hhg}
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
