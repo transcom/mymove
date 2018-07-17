@@ -17,6 +17,8 @@ paths:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
       description: Gets a list of blackout periods which the current user can see
       operationId: indexBlackouts
+      tags:
+        - blackouts
       parameters:
         - in: query
           name: start_date
@@ -54,6 +56,8 @@ paths:
     get:
       summary: retrieve the details of a blackout period
       operationId: getBlackout
+      tags:
+        - blackouts
       parameters:
         - in: path
           name: blackout_uuid
@@ -79,6 +83,8 @@ paths:
     delete:
       summary: delete the associated blackout period
       operationId: deleteBlackout
+      tags:
+        - blackouts
       parameters:
         - in: path
           name: blackout_uuid
@@ -102,6 +108,8 @@ paths:
     patch:
       summary: update the associated blackout
       operationId: updateBlackout
+      tags:
+        - blackouts
       parameters:
         - in: path
           name: blackout_uuid
@@ -134,6 +142,8 @@ paths:
       summary: Adds a new upload to a document
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: createDocumentUpload
+      tags:
+        - documents
       consumes:
         - multipart/form-data
       parameters:
@@ -172,6 +182,8 @@ paths:
       summary: Gets visible shipments
       description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
       operationId: indexShipments
+      tags:
+        - shipments
       parameters:
         - name: status
           in: query
@@ -214,6 +226,8 @@ paths:
       summary: Gets a particular shipment
       description: Allows a user to retrieve the details of a particular shipment
       operationId: getShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -240,6 +254,8 @@ paths:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
       operationId: updateShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -272,6 +288,8 @@ paths:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
       operationId: acceptShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -305,6 +323,8 @@ paths:
     get:
       summary: Gets the list of claims associated with a shipment
       operationId: getShipmentClaims
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -332,6 +352,8 @@ paths:
       summary: Gets the detailed contact information for a move
       description: Accepts a shipment awarded to a TSP
       operationId: shipmentContactDetails
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -356,6 +378,8 @@ paths:
     get:
       summary: Gets the list of documents associated with a Shipment
       operationId: getShipmentDocuments
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -380,6 +404,8 @@ paths:
       summary: Creates a new document associated with a shipment
       description: Creates the storage for the new document and sets the UUID
       operationId: createShipmentDocument
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -411,6 +437,8 @@ paths:
       summary: Rejects an awarded shipment
       description: Allows a TSP to reject an awarded shipment
       operationId: refuseShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -442,6 +470,8 @@ paths:
       summary: List all TSPs
       description: Gets a list of all the TSPs which the logged in user has access to.
       operationId: indexTSPs
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
       responses:
         200:
@@ -461,6 +491,8 @@ paths:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
       operationId: tspShipments
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
@@ -513,6 +545,8 @@ paths:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
       operationId: tspBlackouts
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
@@ -566,6 +600,8 @@ paths:
        they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
        originate in the given GBLOC.
       operationId: createBlackout
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
