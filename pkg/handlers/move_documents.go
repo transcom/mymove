@@ -50,6 +50,10 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 
 	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
+	if len(uploadIds) == 0 {
+		return moveop.NewCreateMoveDocumentBadRequest()
+	}
+
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
@@ -96,11 +100,6 @@ func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams
 
 	// Fetch move documents on move documents model
 	moveDocuments := move.MoveDocuments
-	// Eager loading of Uploads seems to be broken, so we do this
-	for i, moveDoc := range moveDocuments {
-		h.db.Load(&moveDoc.Document, "Uploads")
-		moveDocuments[i] = moveDoc
-	}
 
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
 	for i, moveDocument := range moveDocuments {

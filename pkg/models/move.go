@@ -152,6 +152,13 @@ func (m *Move) Cancel(reason string) error {
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
 	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document").Find(&move, id)
+
+	// Eager loading of nested has_many associations is broken
+	for i, moveDoc := range move.MoveDocuments {
+		db.Load(&moveDoc.Document, "Uploads")
+		move.MoveDocuments[i] = moveDoc
+	}
+
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
