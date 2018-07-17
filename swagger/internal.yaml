@@ -2515,7 +2515,7 @@ paths:
           required: true
           description: UUID of the move document model
         - in: body
-          name: updateMoveDocumentPayload
+          name: updateMoveDocument
           required: true
           schema:
             $ref: '#/definitions/UpdateMoveDocumentPayload'
