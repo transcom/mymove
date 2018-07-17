@@ -1,4 +1,4 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
@@ -9,11 +9,12 @@ import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { indexMoveDocuments } from './ducks.js';
 import { loadMoveDependencies } from '../ducks.js';
-import { RoutedTabs, NavTab } from 'react-router-tabs';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DocumentUploader from './DocumentUploader';
+import DocumentUploadViewer from './DocumentUploadViewer';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
@@ -37,14 +38,13 @@ class DocumentViewer extends Component {
     ]).join(', ');
 
     // urls: has full url with IDs
-    const defaultUrl = this.props.match.url;
-    const detailUrl = `${this.props.match.url}/details`;
-    const listUrl = `${this.props.match.url}/list`;
-    const newUrl = `${this.props.match.url}/new`;
+    const defaultUrl = `/moves/${move.id}/documents`;
+    const newUrl = `/moves/${move.id}/documents/new`;
 
     // paths: has placeholders (e.g. ":moveId")
-    const newPath = `${this.props.match.path}/new`;
-
+    const defaultPath = `/moves/:moveId/documents`;
+    const newPath = `/moves/:moveId/documents/new`;
+    const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -66,13 +66,18 @@ class DocumentViewer extends Component {
           <div className="tab-content">
             <Switch>
               <PrivateRoute
-                path={detailUrl}
-                render={() => <div> details coming soon</div>}
+                exact
+                path={defaultPath}
+                render={() => <Redirect replace to={newUrl} />}
               />
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
                 component={DocumentUploader}
+              />
+              <PrivateRoute
+                path={documentPath}
+                component={DocumentUploadViewer}
               />
               <PrivateRoute
                 path={defaultUrl}
@@ -85,66 +90,38 @@ class DocumentViewer extends Component {
           <h3>{name}</h3>
           <PanelField title="Move Locator">{move.locator}</PanelField>
           <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
-          <RoutedTabs
-            startPathWith={this.props.match.url}
-            className="doc-viewer-tabs"
-          >
-            <NavTab to="/list">
-              <span className="title">All Documents ({numMoveDocs})</span>
-            </NavTab>
-
-            <NavTab to="/details">
-              <span className="title">Details</span>
-            </NavTab>
-          </RoutedTabs>
           <div className="tab-content">
-            <Switch>
-              <PrivateRoute
-                exact
-                path={this.props.match.url}
-                render={() => <Redirect replace to={newUrl} />}
-              />
-              <PrivateRoute
-                path={listUrl}
-                render={() => (
-                  <Fragment>
-                    <span className="status">
-                      <FontAwesomeIcon
-                        className="icon link-blue"
-                        icon={faPlusCircle}
-                      />
-                    </span>
-                    <Link to={newUrl}>Upload new document</Link>
-                    <div>
-                      {' '}
-                      <DocumentList moveId={move.id} />
-                    </div>
-                  </Fragment>
+            <Tabs>
+              <TabList className="doc-viewer-tabs">
+                <Tab className="title nav-tab">
+                  All Documents ({numMoveDocs})
+                </Tab>
+
+                {this.props.match.params.moveDocumentId !== 'new' && (
+                  <Tab className="title nav-tab">Details</Tab>
                 )}
-              />
-              <PrivateRoute
-                path={newUrl}
-                render={() => (
-                  <Fragment>
-                    <span className="status">
-                      <FontAwesomeIcon
-                        className="icon link-blue"
-                        icon={faPlusCircle}
-                      />
-                    </span>
-                    <Link to={newUrl}>Upload new document</Link>
-                    <div>
-                      {' '}
-                      <DocumentList moveId={move.id} />
-                    </div>
-                  </Fragment>
-                )}
-              />
-              <PrivateRoute
-                path={detailUrl}
-                render={() => <div> details coming soon</div>}
-              />
-            </Switch>
+              </TabList>
+
+              <TabPanel>
+                <span className="status">
+                  <FontAwesomeIcon
+                    className="icon link-blue"
+                    icon={faPlusCircle}
+                  />
+                </span>
+                <Link to={newUrl}>Upload new document</Link>
+                <div>
+                  {' '}
+                  <DocumentList moveId={move.id} />
+                </div>
+              </TabPanel>
+
+              {this.props.match.params.moveDocumentId !== 'new' && (
+                <TabPanel>
+                  <div> details coming soon</div>
+                </TabPanel>
+              )}
+            </Tabs>
           </div>
         </div>
       </div>

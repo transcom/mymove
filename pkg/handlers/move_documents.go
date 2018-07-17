@@ -96,6 +96,12 @@ func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams
 
 	// Fetch move documents on move documents model
 	moveDocuments := move.MoveDocuments
+	// Eager loading of Uploads seems to be broken, so we do this
+	for i, moveDoc := range moveDocuments {
+		h.db.Load(&moveDoc.Document, "Uploads")
+		moveDocuments[i] = moveDoc
+	}
+
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
 	for i, moveDocument := range moveDocuments {
 		moveDocumentPayload, err := payloadForMoveDocumentModel(h.storage, moveDocument)
