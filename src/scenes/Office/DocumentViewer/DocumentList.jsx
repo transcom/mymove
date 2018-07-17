@@ -5,6 +5,8 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { get } from 'lodash';
 
+import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
+
 import { indexMoveDocuments } from './ducks.js';
 import { renderStatusIcon } from 'shared/utils';
 
@@ -14,7 +16,7 @@ export class DocumentList extends Component {
   render() {
     const { moveDocuments, moveId } = this.props;
     return (
-      <div className="doclist">
+      <div>
         {moveDocuments.map(doc => {
           const status = renderStatusIcon(doc.status);
           const detailUrl = `/moves/${moveId}/documents/${doc.id}`;
@@ -35,8 +37,8 @@ DocumentList.propTypes = {
   moveId: PropTypes.string,
 };
 
-const mapStateToProps = state => ({
-  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
+const mapStateToProps = (state, props) => ({
+  moveDocuments: selectAllDocumentsForMove(state, props.moveId),
 });
 
 const mapDispatchToProps = dispatch =>

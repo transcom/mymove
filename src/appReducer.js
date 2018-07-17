@@ -22,6 +22,21 @@ import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
 
+// Entities
+import moveDocuments, {
+  STATE_KEY as MOVEDOCUMENTS_STATE_KEY,
+} from 'shared/Entities/modules/moveDocuments';
+import documentModel, {
+  STATE_KEY as DOCUMENTS_STATE_KEY,
+} from 'shared/Entities/modules/documents';
+import uploads, { STATE_KEY as UPLOADS_STATE_KEY } from 'shared/Entities/modules/uploads';
+
+const entititesReducer = combineReducers({
+  [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
+  [DOCUMENTS_STATE_KEY]: documentModel,
+  [UPLOADS_STATE_KEY]: uploads,
+});
+
 export const appReducer = combineReducers({
   user: userReducer,
   loggedInUser: loggedInUserReducer,
@@ -43,6 +58,7 @@ export const appReducer = combineReducers({
   tsp: tspReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
+  entities: entititesReducer,
 });
 
 export default appReducer;

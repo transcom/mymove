@@ -162,24 +162,24 @@
   margin-top: 1em;
 }
 
-.orders-page-column {
+.document-contents {
   background: lightgray;
 }
 
-.orders-page-column .pdf-placeholder {
+.document-contents .pdf-placeholder {
   padding: 1em;
   background: white;
   font-style: italic;
   text-align: right;
 }
 
-.orders-page-column .pdf-placeholder .filename {
+.document-contents .pdf-placeholder .filename {
   font-weight: bold;
   font-style: normal;
   float: left;
 }
 
-.orders-page-column .page {
+.document-contents .page {
   padding: 1em;
 }
 
@@ -203,6 +203,7 @@
 
 .documents a:link, a:visited, a:hover, a:active {
   text-decoration: none;
+  color: #0071bc;
 }
 
 .link-blue {

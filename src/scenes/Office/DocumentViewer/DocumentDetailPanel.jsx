@@ -6,10 +6,13 @@ import { get } from 'lodash';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
-import { updateMoveDocumentInfo } from './ducks.js';
 import { renderStatusIcon } from 'shared/utils';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import {
+  selectMoveDocument,
+  updateMoveDocument,
+} from 'shared/Entities/modules/moveDocuments';
 
 import '../office.css';
 
@@ -87,12 +90,15 @@ let DocumentDetailPanel = editablePanel(
 );
 DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
-function mapStateToProps(state) {
+function mapStateToProps(state, props) {
+  const moveDocumentId = props.moveDocumentId;
+  const moveDocument = selectMoveDocument(state, moveDocumentId);
+
   return {
     // reduxForm
     initialValues: {
       // TODO: Update to use move doc retrieved from UI store
-      moveDocument: get(state, 'moveDocuments.moveDocuments.0', {}),
+      moveDocument: moveDocument,
     },
 
     moveDocSchema: get(
@@ -105,7 +111,7 @@ function mapStateToProps(state) {
     errorMessage: state.office.error,
     isUpdating: false,
     // TODO: Get the appropriate move doc
-    moveDocument: get(state, 'moveDocuments.moveDocuments.0', {}),
+    moveDocument: moveDocument,
 
     // editablePanel
     formIsValid: isValid(formName)(state),
@@ -114,7 +120,7 @@ function mapStateToProps(state) {
       return [
         get(state, 'office.officeMove.id'),
         // TODO: get real movedoc
-        get(state, 'moveDocuments.moveDocuments.0.id'),
+        get(moveDocument, 'id'),
         values.moveDocument,
       ];
     },
@@ -124,7 +130,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: updateMoveDocumentInfo,
+      update: updateMoveDocument,
     },
     dispatch,
   );

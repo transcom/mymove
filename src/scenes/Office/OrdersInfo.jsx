@@ -57,7 +57,7 @@ class OrdersInfo extends Component {
     return (
       <div>
         <div className="usa-grid">
-          <div className="usa-width-two-thirds orders-page-column">
+          <div className="usa-width-two-thirds document-contents">
             {uploads}
           </div>
           <div className="usa-width-one-third orders-page-fields">

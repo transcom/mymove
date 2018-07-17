@@ -51,6 +51,10 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 
 	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
+	if len(uploadIds) == 0 {
+		return moveop.NewCreateMoveDocumentBadRequest()
+	}
+
 	uploads := models.Uploads{}
 	for _, id := range uploadIds {
 		converted := uuid.Must(uuid.FromString(id.String()))
@@ -134,6 +138,7 @@ func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams
 
 	// Fetch move documents on move documents model
 	moveDocuments := move.MoveDocuments
+
 	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
 	for i, moveDocument := range moveDocuments {
 		moveDocumentPayload, err := payloadForMoveDocumentModel(h.storage, moveDocument)
