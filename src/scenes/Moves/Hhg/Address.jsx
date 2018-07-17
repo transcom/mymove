@@ -1,10 +1,12 @@
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
+
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const formName = 'hhg_address';
@@ -74,6 +76,122 @@ export class HHGAddress extends Component {
               swagger={this.props.schema}
               required
             />
+            <SwaggerField
+              fieldName="has_secondary_pickup_address"
+              swagger={this.props.schema}
+              component={YesNoBoolean}
+            />
+            {get(
+              this.props,
+              'formValues.has_secondary_pickup_address',
+              false,
+            ) && (
+              <Fragment>
+                <SwaggerField
+                  fieldName="street_address_1"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  fieldName="street_address_2"
+                  swagger={this.props.schema}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="city"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-sixth"
+                  fieldName="state"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="postal_code"
+                  swagger={this.props.schema}
+                  required
+                />
+              </Fragment>
+            )}
+            <SwaggerField
+              fieldName="has_delivery_address"
+              swagger={this.props.schema}
+              component={YesNoBoolean}
+            />
+            {get(this.props, 'formValues.has_delivery_address', false) && (
+              <Fragment>
+                <SwaggerField
+                  fieldName="street_address_1"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  fieldName="street_address_2"
+                  swagger={this.props.schema}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="city"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-sixth"
+                  fieldName="state"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="postal_code"
+                  swagger={this.props.schema}
+                  required
+                />
+              </Fragment>
+            )}
+            <SwaggerField
+              fieldName="has_partial_sit_delivery_address"
+              swagger={this.props.schema}
+              component={YesNoBoolean}
+            />
+            {get(
+              this.props,
+              'formValues.has_partial_sit_delivery_address',
+              false,
+            ) && (
+              <Fragment>
+                <SwaggerField
+                  fieldName="street_address_1"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  fieldName="street_address_2"
+                  swagger={this.props.schema}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="city"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-sixth"
+                  fieldName="state"
+                  swagger={this.props.schema}
+                  required
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="postal_code"
+                  swagger={this.props.schema}
+                  required
+                />
+              </Fragment>
+            )}
           </div>
         </div>
       </AddressWizardForm>
