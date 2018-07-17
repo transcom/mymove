@@ -45,6 +45,10 @@ class DocumentViewer extends Component {
     const defaultPath = `/moves/:moveId/documents`;
     const newPath = `/moves/:moveId/documents/new`;
     const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
+
+    const defaultTabIndex =
+      this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
+      console.log(defaultTabIndex)
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -91,7 +95,7 @@ class DocumentViewer extends Component {
           <PanelField title="Move Locator">{move.locator}</PanelField>
           <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
           <div className="tab-content">
-            <Tabs>
+            <Tabs defaultIndex={defaultTabIndex}>
               <TabList className="doc-viewer-tabs">
                 <Tab className="title nav-tab">
                   All Documents ({numMoveDocs})
