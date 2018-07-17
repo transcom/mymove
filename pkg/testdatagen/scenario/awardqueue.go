@@ -16,7 +16,7 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	shipmentsToMake := 17
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(db, "US13", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(db, "US13", "15", "2")
 
 	// Make a market
 	market := "dHHG"
@@ -51,8 +51,8 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	shipmentDate := time.Now()
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(db, "US13", "90210", "2")
-	tdl2, _ := testdatagen.MakeTDL(db, "US62", "10024", "2")
+	tdl, _ := testdatagen.MakeTDL(db, "US13", "15", "2")
+	tdl2, _ := testdatagen.MakeTDL(db, "US62", "1", "2")
 
 	// Make a market
 	market := "dHHG"
