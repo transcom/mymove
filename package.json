@@ -21,6 +21,7 @@
     "lodash": "^4.17.5",
     "marked": "^0.3.17",
     "moment": "^2.22.1",
+    "normalizr": "^3.2.4",
     "path-to-regexp": "^2.2.0",
     "query-string": "5",
     "react": "^16.2.0",

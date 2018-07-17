@@ -21,6 +21,7 @@ import { officeReducer } from 'scenes/Office/ducks';
 import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
 import { documentsReducer } from 'scenes/Office/DocumentViewer/ducks';
 import officePpmReducer from 'scenes/Office/Ppm/ducks';
+import entititesReducer from 'shared/Entities/ducks';
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -43,6 +44,7 @@ export const appReducer = combineReducers({
   tsp: tspReducer,
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
+  entities: entititesReducer,
 });
 
 export default appReducer;

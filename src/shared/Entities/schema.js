@@ -1,0 +1,48 @@
+/* eslint no-use-before-define: 0 */
+import { schema } from 'normalizr';
+
+// User
+export const user = new schema.Entity('users');
+
+// Service Member
+export const serviceMember = new schema.Entity('serviceMembers', {
+  user: user,
+});
+
+// Uploads
+export const upload = new schema.Entity('uploads');
+export const uploads = new schema.Array(upload);
+
+// Documents
+export const documentModel = new schema.Entity('documents', {
+  uploads: uploads,
+  service_member: serviceMember,
+});
+
+// Orders
+export const order = new schema.Entity('orders', {
+  uploaded_orders: documentModel,
+  moves: moves,
+});
+
+// Moves
+export const move = new schema.Entity('moves', {
+  personally_procured_moves: personallyProcuredMoves,
+});
+export const moves = new schema.Array(move);
+
+// PPMs
+export const personallyProcuredMove = new schema.Entity(
+  'personallyProcuredMove',
+  {
+    move: move,
+  },
+);
+export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
+
+// MoveDocuments
+export const moveDocument = new schema.Entity('moveDocuments', {
+  move: move,
+  document: documentModel,
+});
+export const moveDocuments = new schema.Array(moveDocument);
