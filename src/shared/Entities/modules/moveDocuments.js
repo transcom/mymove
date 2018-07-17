@@ -1,4 +1,3 @@
-// import * as Repo from './repos';
 import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
@@ -34,6 +33,6 @@ export const getMoveDocumentsForMove = moveId => {
   };
 };
 
-export const selectHydrated = (state, id) => {
+export const selectMoveDocument = (state, id) => {
   return denormalize([id], moveDocuments, state.entities)[0];
 };

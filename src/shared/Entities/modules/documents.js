@@ -17,6 +17,6 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export const selectHydrated = (state, id) => {
+export const selectDocument = (state, id) => {
   return denormalize([id], documentModel, state.entities)[0];
 };
