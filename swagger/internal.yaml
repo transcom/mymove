@@ -574,6 +574,8 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
       status:
         $ref: '#/definitions/MoveDocumentStatus'
       notes:
@@ -2513,7 +2515,7 @@ paths:
           required: true
           description: UUID of the move document model
         - in: body
-          name: updateMoveDocument
+          name: updateMoveDocumentPayload
           required: true
           schema:
             $ref: '#/definitions/UpdateMoveDocumentPayload'

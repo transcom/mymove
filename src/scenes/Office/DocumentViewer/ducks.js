@@ -39,6 +39,18 @@ export const updateMoveDocument = ReduxHelpers.generateAsyncActionCreator(
   UpdateMoveDocument,
 );
 
+export function updateMoveDocumentInfo(moveId, moveDocId, moveDocument) {
+  const actions = ReduxHelpers.generateAsyncActions(updateMoveDocumentType);
+  return async function(dispatch, getState) {
+    dispatch(actions.start());
+    try {
+      await dispatch(updateMoveDocument(moveId, moveDocId, moveDocument));
+    } catch (ex) {
+      return dispatch(actions.error(ex));
+    }
+  };
+}
+
 // Reducer
 const initialState = {
   moveDocuments: [],
@@ -86,11 +98,10 @@ export function documentsReducer(state = initialState, action) {
         updatedMoveDocument: action.payload,
       };
     case UPDATE_MOVE_DOCUMENT.failure:
-      return {
-        ...upsertMoveDocument(action.payload, state),
+      return Object.assign({}, state, {
         moveDocumentUpdateError: true,
         error: action.error.message,
-      };
+      });
     default:
       return state;
   }

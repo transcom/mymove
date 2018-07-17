@@ -213,6 +213,8 @@ export function updateOrdersInfo(
   const actions = ReduxHelpers.generateAsyncActions(updateOrdersInfoType);
   return async function(dispatch, getState) {
     dispatch(actions.start());
+    console.log('ordersId', ordersId);
+    console.log('orders', orders);
     try {
       // TODO: perform these requests concurrently
       serviceMember.current_station_id = serviceMember.current_station.id;

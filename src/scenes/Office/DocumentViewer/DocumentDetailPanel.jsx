@@ -2,27 +2,18 @@ import React from 'react';
 // import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { compact, get } from 'lodash';
-import {
-  reduxForm,
-  getFormValues,
-  isValid,
-  FormSection,
-  Field,
-} from 'redux-form';
+import { get } from 'lodash';
+import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
-import { updateMoveDocument } from './ducks.js';
+import { updateMoveDocumentInfo } from './ducks.js';
+import { renderStatusIcon } from 'shared/utils';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 
 import '../office.css';
 
 const DocumentDetailDisplay = props => {
-  console.log('props in detail edit', props);
   const moveDoc = props.moveDocument;
   const moveDocFieldProps = {
     values: props.moveDocument,
@@ -32,12 +23,7 @@ const DocumentDetailDisplay = props => {
     <React.Fragment>
       <div>
         <span className="panel-subhead">
-          <FontAwesomeIcon
-            aria-hidden
-            className="icon approval-waiting"
-            icon={faClock}
-            title="Awaiting Review"
-          />
+          {renderStatusIcon(moveDoc.status)}
           {moveDoc.title}
         </span>
         {moveDoc.title ? (
@@ -77,10 +63,18 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  console.log('props in detail edit', props);
+  const schema = props.moveDocSchema;
+
   return (
     <React.Fragment>
-      <div />
+      <div>
+        <FormSection name="moveDocument">
+          <SwaggerField fieldName="title" swagger={schema} required />
+          <SwaggerField fieldName="move_document_type" swagger={schema} />
+          <SwaggerField fieldName="status" swagger={schema} required />
+          <SwaggerField fieldName="notes" swagger={schema} />
+        </FormSection>
+      </div>
     </React.Fragment>
   );
 };
@@ -103,37 +97,34 @@ function mapStateToProps(state) {
 
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swagger.spec.definitions.UpdateMoveDocumentPayload',
       {},
     ),
 
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
-    moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
-
+    // TODO: Get the appropriate move doc
     moveDocument: get(state, 'moveDocuments.moveDocuments.0', {}),
-    serviceMember: get(state, 'office.officeServiceMember', {}),
-    move: get(state, 'office.officeMove', {}),
 
     // editablePanel
     formIsValid: isValid(formName)(state),
-    // getUpdateArgs: function() {
-    //   let values = getFormValues(formName)(state);
-    //   return [
-    //     get(state, 'moveDocument.id'),
-    //     values.moveDocument,
-    //     get(state, 'office.officeServiceMember.id'),
-    //     values.serviceMember,
-    //   ];
-    // },
+    getUpdateArgs: function() {
+      let values = getFormValues(formName)(state);
+      return [
+        get(state, 'office.officeMove.id'),
+        // TODO: get real movedoc
+        get(state, 'moveDocuments.moveDocuments.0.id'),
+        values.moveDocument,
+      ];
+    },
   };
 }
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: updateMoveDocument,
+      update: updateMoveDocumentInfo,
     },
     dispatch,
   );

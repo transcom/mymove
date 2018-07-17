@@ -34,10 +34,10 @@ export async function CreateMoveDocument(
 
 export async function UpdateMoveDocument(moveId, moveDocumentId, payload) {
   const client = await getClient();
-  const response = await client.apis.move.updateMoveDocument({
+  const response = await client.apis.moves.updateMoveDocument({
     moveId,
     moveDocumentId,
-    updateMoveDocument: payload,
+    updateMoveDocumentPayload: payload,
   });
   checkResponse(response, 'failed to update move document due to server error');
   return response.body;
