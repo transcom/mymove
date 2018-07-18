@@ -6,7 +6,7 @@ import { bindActionCreators } from 'redux';
 
 import { getFormValues, reduxForm } from 'redux-form';
 
-import { createMoveDocument } from './ducks.js';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -20,6 +20,7 @@ export class DocumentUploader extends Component {
 
     this.state = {
       newUploads: [],
+      moveDocumentCreateError: null,
     };
 
     this.onChange = this.onChange.bind(this);
@@ -30,14 +31,23 @@ export class DocumentUploader extends Component {
     const { formValues } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     const moveId = this.props.match.params.moveId;
-    this.props.createMoveDocument(
-      moveId,
-      uploadIds,
-      formValues.title,
-      formValues.move_document_type,
-      'AWAITING_REVIEW',
-      formValues.notes,
-    );
+    this.setState({
+      moveDocumentCreateError: null,
+    });
+    this.props
+      .createMoveDocument(
+        moveId,
+        uploadIds,
+        formValues.title,
+        formValues.move_document_type,
+        'AWAITING_REVIEW',
+        formValues.notes,
+      )
+      .catch(err => {
+        this.setState({
+          moveDocumentCreateError: err,
+        });
+      });
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -61,7 +71,7 @@ export class DocumentUploader extends Component {
     const isValid = hasFormFilled && hasFiles;
     return (
       <Fragment>
-        {this.props.moveDocumentCreateError && (
+        {this.state.moveDocumentCreateError && (
           <div className="usa-grid">
             <div className="usa-width-one-whole error-message">
               <Alert type="error" heading="An error occurred">

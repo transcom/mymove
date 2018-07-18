@@ -7,6 +7,7 @@ import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'moveDocuments';
 
+// Reducer
 export default function reducer(state = {}, action) {
   switch (action.type) {
     case ADD_ENTITIES:
@@ -20,6 +21,7 @@ export default function reducer(state = {}, action) {
   }
 }
 
+// Actions
 export const getMoveDocumentsForMove = moveId => {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
@@ -34,6 +36,37 @@ export const getMoveDocumentsForMove = moveId => {
   };
 };
 
+export function createMoveDocument(
+  moveId,
+  uploadIds,
+  title,
+  moveDocumentType,
+  status,
+  notes,
+) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const response = await client.apis.moves.createMoveDocument({
+      moveId,
+      createMoveDocumentPayload: {
+        upload_ids: uploadIds,
+        title: title,
+        move_document_type: moveDocumentType,
+        status: status,
+        notes: notes,
+      },
+    });
+    checkResponse(
+      response,
+      'failed to create move document due to server error',
+    );
+    const data = normalize(response.body, schema.moveDocument);
+    dispatch(addEntities(data.entities));
+    return response;
+  };
+}
+
+// Selectors
 export const selectMoveDocument = (state, id) => {
   return denormalize([id], moveDocuments, state.entities)[0];
 };
