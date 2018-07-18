@@ -1,6 +1,6 @@
 import { GetPpmIncentive } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
-
+import reduceReducers from 'reduce-reducers';
 const GET_PPM_INCENTIVE = 'GET_PPM_INCENTIVE';
 const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
 export const getIncentiveActionType = ReduxHelpers.generateAsyncActionTypes(
@@ -26,7 +26,4 @@ const incentiveReducer = ReduxHelpers.generateAsyncReducer(
   }),
 );
 
-export default (state, action) => {
-  const result = clearReducer(state, action);
-  return incentiveReducer(result, action);
-};
+export default reduceReducers(clearReducer, incentiveReducer);
