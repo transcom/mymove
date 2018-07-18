@@ -13,14 +13,11 @@ import {
   selectMoveDocument,
   updateMoveDocument,
 } from 'shared/Entities/modules/moveDocuments';
-import { selectDocument } from 'shared/Entities/modules/documents';
-import { selectUpload } from 'shared/Entities/modules/uploads';
 
 import '../office.css';
 
 const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
-  const upload = props.upload;
   const moveDocFieldProps = {
     values: props.moveDocument,
     schema: props.moveDocSchema,
@@ -32,7 +29,9 @@ const DocumentDetailDisplay = props => {
           {renderStatusIcon(moveDoc.status)}
           {moveDoc.title}
         </span>
-        <p className="uploaded-at">Uploaded {formatDate(upload.created_at)}</p>
+        <p className="uploaded-at">
+          Uploaded {formatDate(get(moveDoc, 'document.uploads.0.created_at'))}
+        </p>
         {moveDoc.title ? (
           <PanelSwaggerField fieldName="title" {...moveDocFieldProps} />
         ) : (
@@ -97,10 +96,6 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
-  const firstUpload = selectUpload(
-    state,
-    selectDocument(state, moveDocument.document).uploads[0],
-  );
 
   return {
     // reduxForm
@@ -118,7 +113,6 @@ function mapStateToProps(state, props) {
     errorMessage: state.office.error,
     isUpdating: false,
     moveDocument: moveDocument,
-    upload: firstUpload,
 
     // editablePanel
     formIsValid: isValid(formName)(state),
