@@ -52,6 +52,37 @@ paths:
           description: must be authenticated to use this endpoint
         500:
           description: server error
+    post:
+      summary: Adds a new Blackout period to the list of blackouts
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
+       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
+       result in a 400 bad request.
+
+       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+       originate in the given GBLOC.
+      operationId: createBlackout
+      tags:
+        - blackouts
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: body
+          description: The blackout period to add
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/Blackout'
+      responses:
+        201:
+          description: The blackout as added to the database including DB ID
+          schema:
+            $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to create blackouts
+        500:
+          description: server error
   /blackouts/{blackout_uuid}:
     get:
       summary: retrieve the details of a blackout period
@@ -70,31 +101,6 @@ paths:
           description: the details of the requested blackout period
           schema:
               $ref: '#/definitions/Blackout'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access the associated blackout
-        404:
-          description: no blackout found with that UUID
-        500:
-          description: server error
-    delete:
-      summary: delete the associated blackout period
-      operationId: deleteBlackout
-      tags:
-        - blackouts
-      parameters:
-        - in: path
-          name: blackout_uuid
-          type: string
-          format: uuid
-          required: true
-          description: the unique identifier for the blackout
-      responses:
-        200:
-          description: the blackout was successfully deleted
         400:
           description: invalid request
         401:
@@ -127,6 +133,31 @@ paths:
           description: the blackout was successfully updated
           schema:
               $ref: '#/definitions/Blackout'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+        500:
+          description: server error
+    delete:
+      summary: delete the associated blackout period
+      operationId: deleteBlackout
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+      responses:
+        200:
+          description: the blackout was successfully deleted
         400:
           description: invalid request
         401:
@@ -585,46 +616,6 @@ paths:
           description: invalid request
         403:
           description: not authorized to get list of blackouts for this TSP
-        404:
-          description: TSP UUID not found in system
-        500:
-          description: server error
-    post:
-      summary: Adds a new Blackout period to the list of blackouts associated with his TSP
-      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB. Similarly, the tsp_id field should be
-       omitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
-       400 bad request.
-
-       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
-       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
-       originate in the given GBLOC.
-      operationId: tspCreateBlackout
-      tags:
-        - tsps
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
-      parameters:
-        - in: path
-          name: tsp_uuid
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the TSP
-        - in: body
-          description: The blackout period to add
-          name: payload
-          required: true
-          schema:
-            $ref: '#/definitions/Blackout'
-      responses:
-        201:
-          description: The blackout as added to the database including DB ID
-          schema:
-            $ref: '#/definitions/Blackout'
-        400:
-          description: invalid request
-        403:
-          description: not authorized to create blackouts for this TSP
         404:
           description: TSP UUID not found in system
         500:

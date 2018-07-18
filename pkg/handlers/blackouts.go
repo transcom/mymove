@@ -13,6 +13,14 @@ func (h BlackoutIndexHandler) Handle(params publicblackoutsop.IndexBlackoutsPara
 	return middleware.NotImplemented("operation .indexBlackouts has not yet been implemented")
 }
 
+// CreateBlackoutHandler returns a list of all the Blackouts
+type CreateBlackoutHandler HandlerContext
+
+// Handle simply returns a NotImplementedError
+func (h CreateBlackoutHandler) Handle(params publicblackoutsop.CreateBlackoutParams) middleware.Responder {
+	return middleware.NotImplemented("operation .createBlackout has not yet been implemented")
+}
+
 // DeleteBlackoutHandler returns a list of all the Blackouts
 type DeleteBlackoutHandler HandlerContext
 

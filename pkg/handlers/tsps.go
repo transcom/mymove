@@ -29,11 +29,3 @@ type TSPBlackoutsHandler HandlerContext
 func (h TSPBlackoutsHandler) Handle(params publictspsop.TspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }
-
-// TSPCreateBlackoutHandler returns a list of all the Blackouts
-type TSPCreateBlackoutHandler HandlerContext
-
-// Handle simply returns a NotImplementedError
-func (h TSPCreateBlackoutHandler) Handle(params publictspsop.TspCreateBlackoutParams) middleware.Responder {
-	return middleware.NotImplemented("operation .createBlackout has not yet been implemented")
-}
