@@ -32,7 +32,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
 	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
 
-	response, succeeded := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
+	_, succeeded := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
 	suite.True(succeeded, "ShowPpmIncentive allowed non-office user to call")
 
 }
