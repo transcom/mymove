@@ -29,7 +29,9 @@ import moveDocuments, {
 import documentModel, {
   STATE_KEY as DOCUMENTS_STATE_KEY,
 } from 'shared/Entities/modules/documents';
-import uploads, { STATE_KEY as UPLOADS_STATE_KEY } from 'shared/Entities/modules/uploads';
+import uploads, {
+  STATE_KEY as UPLOADS_STATE_KEY,
+} from 'shared/Entities/modules/uploads';
 
 const entititesReducer = combineReducers({
   [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
