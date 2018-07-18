@@ -16,12 +16,12 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	move := MakeDefaultMove(db)
 	pickupAddress := MakeAddress(db, Assertions{})
 	shipment := models.Shipment{
-		TrafficDistributionListID:    tdl.ID,
-		PickupDate:                   pickup,
-		RequestedPickupDate:          requestedPickup,
-		DeliveryDate:                 delivery,
-		BookDate:                     DateInsidePerformancePeriod,
-		SourceGBLOC:                  sourceGBLOC,
+		TrafficDistributionListID:    uuidPointer(tdl.ID),
+		PickupDate:                   timePointer(pickup),
+		RequestedPickupDate:          timePointer(requestedPickup),
+		DeliveryDate:                 timePointer(delivery),
+		BookDate:                     timePointer(DateInsidePerformancePeriod),
+		SourceGBLOC:                  stringPointer(sourceGBLOC),
 		Market:                       market,
 		MoveID:                       move.ID,
 		Status:                       "DEFAULT",

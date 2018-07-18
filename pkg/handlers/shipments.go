@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/go-openapi/strfmt"
 	// "go.uber.org/zap"
 
 	// shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
@@ -12,16 +11,20 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(s models.ShipmentWithOffer) *internalmessages.Shipment {
+func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
-		ID:                              fmtUUID(s.ID),
-		PickupDate:                      fmtDate(time.Now()),
-		DeliveryDate:                    fmtDate(time.Now()),
-		TrafficDistributionListID:       fmtUUID(s.TrafficDistributionListID),
-		TransportationServiceProviderID: fmtUUIDPtr(s.TransportationServiceProviderID),
-		AdministrativeShipment:          (s.AdministrativeShipment),
-		CreatedAt:                       fmtDateTime(s.CreatedAt),
-		UpdatedAt:                       fmtDateTime(s.UpdatedAt),
+		ID:     strfmt.UUID(s.ID.String()),
+		MoveID: strfmt.UUID(s.MoveID.String()),
+		TrafficDistributionListID: fmtUUIDPtr(s.TrafficDistributionListID),
+		SourceGbloc:               s.SourceGBLOC,
+		Market:                    s.Market,
+		Status:                    s.Status,
+		BookDate:                  fmtDatePtr(s.BookDate),
+		RequestedPickupDate:       fmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                fmtDatePtr(s.PickupDate),
+		DeliveryDate:              fmtDatePtr(s.DeliveryDate),
+		CreatedAt:                 strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                 strfmt.DateTime(s.UpdatedAt),
 	}
 	return shipmentPayload
 }
