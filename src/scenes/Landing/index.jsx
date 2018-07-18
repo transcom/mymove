@@ -92,7 +92,6 @@ export class Landing extends Component {
       orders,
       move,
       ppm,
-      hhg,
     } = this.props;
     return (
       <div className="usa-grid">
