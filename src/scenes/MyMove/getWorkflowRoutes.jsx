@@ -26,6 +26,7 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import HhgDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -133,7 +134,7 @@ const pages = {
   },
   '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: myFirstRodeo,
-    isComplete: (sm, orders, move, ppm, backup_contacts) => {
+    isComplete: (sm, orders, move, ppm, hhg, backup_contacts) => {
       return sm.is_profile_complete || backup_contacts.length > 0;
     },
     render: (key, pages) => ({ match }) => (
@@ -204,11 +205,23 @@ const pages = {
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/moves/:moveId/schedule': {
-    isInFlow: hasHHG,
-    isComplete: always, //todo fix this when implemented
-    render: stub,
-    description: 'Pick a move date',
+  '/moves/:moveId/hhg-transition': {
+    isInFlow: isCombo,
+    isComplete: always,
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <Transition />
+      </WizardPage>
+    ),
+  },
+  '/moves/:moveId/hhg-start': {
+    isInFlow: state => state.selectedMoveType === 'HHG',
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.pickup_date]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <HhgDatePicker pages={pages} pageKey={key} match={match} />
+    ),
   },
   '/moves/:moveId/address': {
     isInFlow: hasHHG,
@@ -277,17 +290,24 @@ export const getPagesInFlow = state =>
     return page.isInFlow(state);
   });
 
-export const getNextIncompletePage = ({
-  serviceMember = {},
-  orders = {},
-  move = {},
-  ppm = {},
-  hhg = {},
-  backupContacts = [],
-}) => {
+// We need to pass in state here to determine which page "isInFlow"
+// TODO: Refactor to include only parts of state needed to determine isInFlow
+export const getNextIncompletePage = (
+  state,
+  {
+    serviceMember = {},
+    orders = {},
+    move = {},
+    ppm = {},
+    hhg = {},
+    backupContacts = [],
+  },
+) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(serviceMember, orders, move, ppm, backupContacts),
+    p =>
+      p.isInFlow(state) &&
+      !p.isComplete(serviceMember, orders, move, ppm, hhg, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
     serviceMemberId: get(serviceMember, 'id'),

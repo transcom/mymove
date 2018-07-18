@@ -216,9 +216,6 @@ export class MoveType extends Component {
           selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
-        <AppContext.Consumer>
-          {settings => settings.flags.hhg && <p>HHG is enabled.</p>}
-        </AppContext.Consumer>
       </div>
     );
   }

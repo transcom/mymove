@@ -67,7 +67,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId',
-          '/moves/:moveId/schedule',
+          '/moves/:moveId/hhg-start',
           '/moves/:moveId/address',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -93,7 +93,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId',
-          '/moves/:moveId/schedule',
+          '/moves/:moveId/hhg-transition',
           '/moves/:moveId/address',
           '/moves/:moveId/ppm-transition',
           '/moves/:moveId/ppm-size',
@@ -175,7 +175,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId',
-          '/moves/:moveId/schedule',
+          '/moves/:moveId/hhg-start',
           '/moves/:moveId/address',
           '/moves/:moveId/review',
           '/moves/:moveId/agreement',
@@ -201,7 +201,7 @@ describe('when getting the routes for the current workflow', () => {
           '/orders/upload',
           '/orders/transition',
           '/moves/:moveId',
-          '/moves/:moveId/schedule',
+          '/moves/:moveId/hhg-transition',
           '/moves/:moveId/address',
           '/moves/:moveId/ppm-transition',
           '/moves/:moveId/ppm-size',
@@ -218,13 +218,17 @@ describe('when getting the routes for the current workflow', () => {
 describe('when getting the next incomplete page', () => {
   const serviceMember = { id: 'foo' };
   describe('when the profile is incomplete', () => {
+    const props = {
+      selectedMoveType: 'HHG',
+    };
     it('returns the first page of the user profile', () => {
-      const result = getNextIncompletePage({ serviceMember });
+      const result = getNextIncompletePage(props, { serviceMember });
       expect(result).toEqual('/service-member/foo/create');
     });
     describe('when dod info is complete', () => {
+      const props = {};
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -238,8 +242,9 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when name is complete', () => {
+      const props = {};
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -255,8 +260,11 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when contact-info is complete', () => {
+      const props = {
+        selectedMoveType: 'PPM',
+      };
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -279,8 +287,9 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when duty-station is complete', () => {
+      const props = {};
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -303,8 +312,9 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when residence address is complete', () => {
+      const props = {};
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -333,8 +343,9 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when backup address is complete', () => {
+      const props = {};
       it('returns the next page of the user profile', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: false,
@@ -409,7 +420,7 @@ describe('when getting the next incomplete page', () => {
             street_address_1: 'zzz',
           },
         };
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: sm,
           backupContacts,
         });
@@ -418,9 +429,9 @@ describe('when getting the next incomplete page', () => {
     });
   });
   describe('when the profile is complete', () => {
-    // service_member.is_profile_complete = true;
+    const props = {};
     it('returns the orders info', () => {
-      const result = getNextIncompletePage({
+      const result = getNextIncompletePage(props, {
         serviceMember: {
           ...serviceMember,
           is_profile_complete: true,
@@ -429,8 +440,9 @@ describe('when getting the next incomplete page', () => {
       expect(result).toEqual('/orders/');
     });
     describe('when orders info is complete', () => {
+      const props = {};
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -447,8 +459,9 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when orders upload is complete', () => {
+      const props = {};
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -468,8 +481,11 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when move type selection is complete', () => {
+      const props = {
+        selectedMoveType: 'PPM',
+      };
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -495,8 +511,11 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when ppm date is complete', () => {
+      const props = {
+        selectedMoveType: 'PPM',
+      };
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -526,7 +545,10 @@ describe('when getting the next incomplete page', () => {
     });
     describe('when ppm size is complete', () => {
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const props = {
+          selectedMoveType: 'PPM',
+        };
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -556,8 +578,11 @@ describe('when getting the next incomplete page', () => {
       });
     });
     describe('when ppm incentive is complete', () => {
+      const props = {
+        selectedMoveType: 'PPM',
+      };
       it('returns the next page', () => {
-        const result = getNextIncompletePage({
+        const result = getNextIncompletePage(props, {
           serviceMember: {
             ...serviceMember,
             is_profile_complete: true,
@@ -585,6 +610,36 @@ describe('when getting the next incomplete page', () => {
           },
         });
         expect(result).toEqual('/moves/bar/review');
+      });
+    });
+    describe('when HHG move type selection is complete', () => {
+      const props = {
+        selectedMoveType: 'HHG',
+      };
+      it('returns the next page', () => {
+        const result = getNextIncompletePage(props, {
+          serviceMember: {
+            ...serviceMember,
+            is_profile_complete: true,
+          },
+          orders: {
+            orders_type: 'foo',
+            issue_date: '2019-01-01',
+            report_by_date: '2019-02-01',
+            new_duty_station: { id: 'something' },
+            uploaded_orders: {
+              uploads: [{}],
+            },
+          },
+          move: {
+            id: 'bar',
+            selected_move_type: 'HHG',
+          },
+          hhg: {
+            id: 'baz',
+          },
+        });
+        expect(result).toEqual('/moves/bar/hhg-start');
       });
     });
   });
