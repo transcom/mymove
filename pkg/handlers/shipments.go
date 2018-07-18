@@ -12,6 +12,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+
 func payloadForShipmentModel(s models.ShipmentWithOffer) *internalmessages.ShipmentPayload {
 	shipmentPayload := &internalmessages.ShipmentPayload{
 		ID:                              fmtUUID(s.ID),
@@ -48,9 +54,11 @@ func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middlew
 	return response
 }
 
-/* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,
-need to be reconciled. This will be done when the NotImplemented code below is Implemented
-*/
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
 
 // PublicIndexShipmentHandler returns a list of shipments
 type PublicIndexShipmentHandler HandlerContext
@@ -60,66 +68,66 @@ func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsPara
 	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
 }
 
-// GetShipmentHandler returns a particular shipment
-type GetShipmentHandler HandlerContext
+// PublicGetShipmentHandler returns a particular shipment
+type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h GetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
+func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
 }
 
-// AcceptShipmentHandler allows a TSP to accept a particular shipment
-type AcceptShipmentHandler HandlerContext
+// PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
+type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h AcceptShipmentHandler) Handle(p publicshipmentop.AcceptShipmentParams) middleware.Responder {
+func (h PublicCreateShipmentAcceptHandler) Handle(p publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// RefuseShipmentHandler allows a TSP to refuse a particular shipment
-type RefuseShipmentHandler HandlerContext
+// PublicCreateShipmentRefuseHandler allows a TSP to refuse a particular shipment
+type PublicCreateShipmentRefuseHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RefuseShipmentHandler) Handle(p publicshipmentop.RefuseShipmentParams) middleware.Responder {
+func (h PublicCreateShipmentRefuseHandler) Handle(p publicshipmentop.CreateShipmentRefuseParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// UpdateShipmentHandler allows a TSP to refuse a particular shipment
-type UpdateShipmentHandler HandlerContext
+// PublicUpdateShipmentHandler allows a TSP to refuse a particular shipment
+type PublicUpdateShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h UpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
+func (h PublicUpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// ShipmentContactDetailsHandler allows a TSP to accept a particular shipment
-type ShipmentContactDetailsHandler HandlerContext
+// PublicGetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentContactDetailsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h ShipmentContactDetailsHandler) Handle(p publicshipmentop.ShipmentContactDetailsParams) middleware.Responder {
+func (h PublicGetShipmentContactDetailsHandler) Handle(p publicshipmentop.GetShipmentContactDetailsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// GetShipmentClaimsHandler allows a TSP to accept a particular shipment
-type GetShipmentClaimsHandler HandlerContext
+// PublicGetShipmentClaimsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentClaimsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
+func (h PublicGetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler HandlerContext
+// PublicGetShipmentDocumentsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentDocumentsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
+func (h PublicGetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler HandlerContext
+// PublicCreateShipmentDocumentHandler allows a TSP to accept a particular shipment
+type PublicCreateShipmentDocumentHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
+func (h PublicCreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

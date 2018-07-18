@@ -13,6 +13,12 @@ import (
 	"github.com/transcom/mymove/pkg/storage"
 )
 
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
 	for i, upload := range document.Uploads {
@@ -108,3 +114,11 @@ type CreateDocumentUploadHandler HandlerContext
 func (h CreateDocumentUploadHandler) Handle(params publicdocumentsop.CreateDocumentUploadParams) middleware.Responder {
 	return middleware.NotImplemented("operation .createDocumentUpload has not yet been implemented")
 }
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+// NO CODE YET!

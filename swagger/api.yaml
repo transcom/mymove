@@ -43,9 +43,7 @@ paths:
         200:
           description: list of associated blackouts
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/IndexBlackoutsPayload'
         400:
           description: invalid request
         401:
@@ -56,7 +54,7 @@ paths:
       summary: Adds a new Blackout period to the list of blackouts
       description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
        contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
-       result in a 400 bad request.
+       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
 
        At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
        they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
@@ -71,12 +69,12 @@ paths:
           name: payload
           required: true
           schema:
-            $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/CreateBlackoutPayload'
       responses:
         201:
           description: The blackout as added to the database including DB ID
           schema:
-            $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         403:
@@ -100,7 +98,7 @@ paths:
         200:
           description: the details of the requested blackout period
           schema:
-              $ref: '#/definitions/Blackout'
+              $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -127,12 +125,12 @@ paths:
           name: update
           required: true
           schema:
-            $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/BlackoutPayload'
       responses:
         200:
           description: the blackout was successfully updated
           schema:
-              $ref: '#/definitions/Blackout'
+              $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -243,9 +241,7 @@ paths:
         200:
           description: returns an array of Shipments
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/IndexShipmentsPayload'
         400:
           description: invalid request
         401:
@@ -270,7 +266,7 @@ paths:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
         400:
           description: invalid request
         401:
@@ -298,12 +294,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
       responses:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
         400:
           description: invalid request
         401:
@@ -318,7 +314,7 @@ paths:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
-      operationId: acceptShipment
+      operationId: createShipmentAccept
       tags:
         - shipments
       parameters:
@@ -332,12 +328,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/AcceptShipmentPayload'
+            $ref: '#/definitions/ShipmentAcceptPayload'
       responses:
         200:
           description: returns updated (accepted) shipment object
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
         400:
           description: invalid request
         401:
@@ -347,7 +343,7 @@ paths:
         409:
           description: the shipment is not in a state to be accepted
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
         500:
           description: server error
   /shipments/{shipment_uuid}/claims:
@@ -382,7 +378,7 @@ paths:
     get:
       summary: Gets the detailed contact information for a move
       description: Accepts a shipment awarded to a TSP
-      operationId: shipmentContactDetails
+      operationId: getShipmentContactDetails
       tags:
         - shipments
       parameters:
@@ -467,7 +463,7 @@ paths:
     post:
       summary: Rejects an awarded shipment
       description: Allows a TSP to reject an awarded shipment
-      operationId: refuseShipment
+      operationId: createShipmentRefuse
       tags:
         - shipments
       parameters:
@@ -482,12 +478,12 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/RefuseShipmentPayload'
+            $ref: '#/definitions/ShipmentRefusePayload'
       responses:
         200:
           description: returns updated (refused) shipment object
           schema:
-            $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/ShipmentPayload'
         400:
           description: invalid request
         401:
@@ -521,7 +517,7 @@ paths:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
-      operationId: tspShipments
+      operationId: getTspShipments
       tags:
         - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
@@ -562,7 +558,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Shipment'
+              $ref: '#/definitions/ShipmentPayload'
         400:
           description: invalid request
         403:
@@ -575,7 +571,7 @@ paths:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
-      operationId: tspBlackouts
+      operationId: getTspBlackouts
       tags:
         - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
@@ -611,7 +607,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Blackout'
+              $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         403:
@@ -621,16 +617,6 @@ paths:
         500:
           description: server error
 definitions:
-  AcceptShipmentPayload:
-    type: object
-    properties:
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-    required:
-      - origin_shipping_agent
-      - destination_shipping_agent
   Address:
     type: object
     properties:
@@ -669,7 +655,40 @@ definitions:
     - street_address_1
     - city
     - postal_code
-  Blackout:
+  IndexBlackoutsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/BlackoutPayload'
+  CreateBlackoutPayload:
+    type: object
+    properties:
+      start_date:
+        type: string
+        description: the first day to blackout
+        format: date
+        example: 2018-10-21
+      end_date:
+        type: string
+        description: the first day after the blackout ends
+        format: date
+        example: 2018-10-29
+      gbloc:
+        $ref: '#/definitions/GBLOC'
+      zip3:
+        type: string
+        description: restricts the search to blackout periods with an explicit source rate area (zip3)
+        example: 941
+        pattern: '^[0-9]{3}$'
+      channel:
+        $ref: '#/definitions/Channel'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      code_of_service:
+        $ref: '#/definitions/CodeOfService'
+    required:
+      - start_date
+      - end_date
+  BlackoutPayload:
     type: object
     properties:
       id:
@@ -848,13 +867,11 @@ definitions:
     description: Office Codes for Transcom offices originating GBLs
     example: LHNQ
     pattern: '^[A-Z]{4}$' # Should we make this an enum?
-  RefuseShipmentPayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
-  Shipment:
+  IndexShipmentsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/ShipmentPayload'
+  ShipmentPayload:
     type: object
     description: A shipment which may be awarded to a TSP
     properties:
@@ -919,6 +936,16 @@ definitions:
         type: string
         format: URL
         description: URL to use to reject the shipment
+  ShipmentAcceptPayload:
+    type: object
+    properties:
+      origin_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+      destination_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+    required:
+      - origin_shipping_agent
+      - destination_shipping_agent
   ShippingAgentContact:
     type: object
     properties:
@@ -1048,6 +1075,12 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
+  ShipmentRefusePayload:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment

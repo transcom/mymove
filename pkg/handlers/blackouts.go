@@ -5,42 +5,56 @@ import (
 	publicblackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
 )
 
-// BlackoutIndexHandler returns a list of all the Blackouts
-type BlackoutIndexHandler HandlerContext
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+
+// NO CODE YET!
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+// PublicBlackoutIndexHandler returns a list of all the Blackouts
+type PublicBlackoutIndexHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h BlackoutIndexHandler) Handle(params publicblackoutsop.IndexBlackoutsParams) middleware.Responder {
+func (h PublicBlackoutIndexHandler) Handle(params publicblackoutsop.IndexBlackoutsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexBlackouts has not yet been implemented")
 }
 
-// CreateBlackoutHandler returns a list of all the Blackouts
-type CreateBlackoutHandler HandlerContext
+// PublicCreateBlackoutHandler returns a list of all the Blackouts
+type PublicCreateBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h CreateBlackoutHandler) Handle(params publicblackoutsop.CreateBlackoutParams) middleware.Responder {
+func (h PublicCreateBlackoutHandler) Handle(params publicblackoutsop.CreateBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .createBlackout has not yet been implemented")
 }
 
-// DeleteBlackoutHandler returns a list of all the Blackouts
-type DeleteBlackoutHandler HandlerContext
+// PublicDeleteBlackoutHandler returns a list of all the Blackouts
+type PublicDeleteBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h DeleteBlackoutHandler) Handle(params publicblackoutsop.DeleteBlackoutParams) middleware.Responder {
+func (h PublicDeleteBlackoutHandler) Handle(params publicblackoutsop.DeleteBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .deleteBlackout has not yet been implemented")
 }
 
-// GetBlackoutHandler returns a list of all the Blackouts
-type GetBlackoutHandler HandlerContext
+// PublicGetBlackoutHandler returns a list of all the Blackouts
+type PublicGetBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h GetBlackoutHandler) Handle(params publicblackoutsop.GetBlackoutParams) middleware.Responder {
+func (h PublicGetBlackoutHandler) Handle(params publicblackoutsop.GetBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getBlackout has not yet been implemented")
 }
 
-// UpdateBlackoutHandler returns a list of all the Blackouts
-type UpdateBlackoutHandler HandlerContext
+// PublicUpdateBlackoutHandler returns a list of all the Blackouts
+type PublicUpdateBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h UpdateBlackoutHandler) Handle(params publicblackoutsop.UpdateBlackoutParams) middleware.Responder {
+func (h PublicUpdateBlackoutHandler) Handle(params publicblackoutsop.UpdateBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .updateBlackout has not yet been implemented")
 }

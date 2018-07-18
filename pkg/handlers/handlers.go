@@ -106,8 +106,17 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.TspsIndexTSPsHandler = TSPIndexHandler(context)
-	publicAPI.TspsTspShipmentsHandler = TSPShipmentsHandler(context)
+
+	// Blackouts
+
+	// Documents
+
+	// Shipments
+
+	// TSPs
+	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = PublicTspsGetTspShipmentsHandler(context)
+
 	return publicAPI.Serve(nil)
 }
 
