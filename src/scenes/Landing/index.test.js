@@ -41,9 +41,11 @@ describe('HomePage tests', () => {
               loggedInUserSuccess={true}
               isProfileComplete={false}
               push={mockPush}
+              reduxState={{}}
             />
           </Provider>,
         );
+
         const resumeMoveFn = jest.spyOn(
           wrapper.children().instance(),
           'resumeMove',
