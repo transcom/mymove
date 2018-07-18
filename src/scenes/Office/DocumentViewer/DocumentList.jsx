@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { get } from 'lodash';
 import '../office.css';
 
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
