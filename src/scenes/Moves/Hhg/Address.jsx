@@ -19,20 +19,17 @@ const hhgSchema = {
       type: 'boolean',
       title: 'Do you have household goods at any other pickup location?',
       'x-nullable': true,
-      'x-always-required': true,
     },
     has_delivery_address: {
       type: 'boolean',
       title: 'Do you know your home address at your destination yet?',
       'x-nullable': true,
-      'x-always-required': true,
     },
     has_partial_sit_delivery_address: {
       type: 'boolean',
       title:
         'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?',
       'x-nullable': true,
-      'x-always-required': true,
     },
   },
 };
@@ -53,7 +50,21 @@ export class HHGAddress extends Component {
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'residential_address');
-    const serviceMemberId = this.props.match.params.serviceMemberId;
+    const hasSecondary = get(
+      this.props,
+      'formValues.has_secondary_pickup_address',
+      false,
+    );
+    const hasDelivery = get(
+      this.props,
+      'formValues.has_delivery_address',
+      false,
+    );
+    const hasSITDelivery = get(
+      this.props,
+      'formValues.has_partial_sit_delivery_address',
+      false,
+    );
     return (
       <AddressWizardForm
         handleSubmit={this.handleSubmit}
@@ -63,7 +74,6 @@ export class HHGAddress extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
-        additionalParams={{ serviceMemberId }}
       >
         <div className="usa-grid">
           <h3>Shipment 1 (HHG)</h3>
@@ -109,39 +119,35 @@ export class HHGAddress extends Component {
               swagger={hhgSchema}
               component={YesNoBoolean}
             />
-            {get(
-              this.props,
-              'formValues.has_secondary_pickup_address',
-              false,
-            ) && (
+            {hasSecondary && (
               <Fragment>
                 <div className="address-segment">
                   <SwaggerField
                     fieldName="street_address_1"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.secondaryAddressSchema}
+                    required={hasSecondary}
                   />
                   <SwaggerField
                     fieldName="street_address_2"
-                    swagger={this.props.schema}
+                    swagger={this.props.secondaryAddressSchema}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="city"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.secondaryAddressSchema}
+                    required={hasSecondary}
                   />
                   <SwaggerField
                     className="usa-width-one-sixth"
                     fieldName="state"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.secondaryAddressSchema}
+                    required={hasSecondary}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="postal_code"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.secondaryAddressSchema}
+                    required={hasSecondary}
                   />
                 </div>
               </Fragment>
@@ -153,35 +159,35 @@ export class HHGAddress extends Component {
               swagger={hhgSchema}
               component={YesNoBoolean}
             />
-            {get(this.props, 'formValues.has_delivery_address', false) && (
+            {hasDelivery && (
               <Fragment>
                 <div className="address-segment">
                   <SwaggerField
                     fieldName="street_address_1"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.deliveryAddressSchema}
+                    required={hasDelivery}
                   />
                   <SwaggerField
                     fieldName="street_address_2"
-                    swagger={this.props.schema}
+                    swagger={this.props.deliveryAddressSchema}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="city"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.deliveryAddressSchema}
+                    required={hasDelivery}
                   />
                   <SwaggerField
                     className="usa-width-one-sixth"
                     fieldName="state"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.deliveryAddressSchema}
+                    required={hasDelivery}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="postal_code"
-                    swagger={this.props.schema}
-                    required
+                    swagger={this.props.deliveryAddressSchema}
+                    required={hasDelivery}
                   />
                 </div>
               </Fragment>
@@ -192,38 +198,34 @@ export class HHGAddress extends Component {
               swagger={hhgSchema}
               component={YesNoBoolean}
             />
-            {get(
-              this.props,
-              'formValues.has_partial_sit_delivery_address',
-              false,
-            ) && (
+            {hasSITDelivery && (
               <Fragment>
                 <SwaggerField
                   fieldName="street_address_1"
-                  swagger={this.props.schema}
-                  required
+                  swagger={this.props.partialSITAddressSchema}
+                  required={hasSITDelivery}
                 />
                 <SwaggerField
                   fieldName="street_address_2"
-                  swagger={this.props.schema}
+                  swagger={this.props.partialSITAddressSchema}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="city"
-                  swagger={this.props.schema}
-                  required
+                  swagger={this.props.partialSITAddressSchema}
+                  required={hasSITDelivery}
                 />
                 <SwaggerField
                   className="usa-width-one-sixth"
                   fieldName="state"
-                  swagger={this.props.schema}
-                  required
+                  swagger={this.props.partialSITAddressSchema}
+                  required={hasSITDelivery}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="postal_code"
-                  swagger={this.props.schema}
-                  required
+                  swagger={this.props.partialSITAddressSchema}
+                  required={hasSITDelivery}
                 />
               </Fragment>
             )}
@@ -246,6 +248,9 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swagger.spec.definitions.Address', {}),
+    secondaryAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    deliveryAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
+    partialSITAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
     formValues: getFormValues(formName)(state),
     ...state.serviceMember,
   };
