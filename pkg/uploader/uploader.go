@@ -62,7 +62,7 @@ func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStor
 // CreateUpload creates a new Upload by performing validations, storing the specified
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
-func (u *Uploader) CreateUpload(documentID uuid.UUID, userID uuid.UUID, file *runtime.File) (*models.Upload, *validate.Errors, error) {
+func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file *runtime.File) (*models.Upload, *validate.Errors, error) {
 	if file.Header.Size == 0 {
 		return nil, nil, ErrZeroLengthFile
 	}
@@ -91,39 +91,39 @@ func (u *Uploader) CreateUpload(documentID uuid.UUID, userID uuid.UUID, file *ru
 		Checksum:    checksum,
 	}
 
-	// validate upload before pushing file to S3
-	verrs, err := newUpload.Validate(u.db)
-	if err != nil {
-		u.logger.Error("Failed to validate", zap.Error(err))
-		return nil, nil, err
-	} else if verrs.HasAny() {
-		return nil, verrs, nil
-	}
+	responseVErrors := validate.NewErrors()
+	var responseError error
 
-	// Push file to S3
-	key := u.uploadKey(newUpload)
-	if _, err = u.storer.Store(key, file.Data, checksum); err != nil {
-		u.logger.Error("failed to store object", zap.Error(err))
-		return nil, nil, err
-	}
+	u.db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
 
-	// Already validated upload, so just save
-	err = u.db.Create(newUpload)
-	if err != nil {
-		// TODO clean up orphaned S3 file
-		u.logger.Error("DB Insertion", zap.Error(err))
-		return nil, nil, err
-	}
+		verrs, err := db.ValidateAndCreate(newUpload)
+		if err != nil || verrs.HasAny() {
+			u.logger.Error("Error creating new upload", zap.Error(err))
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating new upload")
+			return transactionError
+		}
 
-	u.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", key))
+		// Push file to S3
+		if _, err := u.storer.Store(newUpload.StorageKey, file.Data, checksum); err != nil {
+			u.logger.Error("failed to store object", zap.Error(err))
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "failed to store object")
+			return transactionError
+		}
 
-	return newUpload, nil, nil
+		u.logger.Info("created an upload with id and key ", zap.Any("new_upload_id", newUpload.ID), zap.String("key", newUpload.StorageKey))
+		return nil
+
+	})
+
+	return newUpload, responseVErrors, responseError
 }
 
 // PresignedURL returns a URL that can be used to access an Upload's file.
 func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
-	key := u.uploadKey(upload)
-	url, err := u.storer.PresignedURL(key, upload.ContentType)
+	url, err := u.storer.PresignedURL(upload.StorageKey, upload.ContentType)
 	if err != nil {
 		u.logger.Error("failed to get presigned url", zap.Error(err))
 		return "", err
@@ -134,9 +134,7 @@ func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
 // DeleteUpload removes an Upload from the database and deletes its file from the
 // storer.
 func (u *Uploader) DeleteUpload(upload *models.Upload) error {
-	key := u.uploadKey(upload)
-
-	if err := u.storer.Delete(key); err != nil {
+	if err := u.storer.Delete(upload.StorageKey); err != nil {
 		return err
 	}
 
@@ -146,6 +144,10 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 	return nil
 }
 
-func (u *Uploader) uploadKey(upload *models.Upload) string {
-	return u.storer.Key("documents", upload.DocumentID.String(), "uploads", upload.ID.String())
+// Download fetches an Upload's file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (u *Uploader) Download(upload *models.Upload) (string, error) {
+	return u.storer.Fetch(upload.StorageKey)
 }

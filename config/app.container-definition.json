@@ -59,6 +59,10 @@
       "value": "office.{{domain}}"
     },
     {
+      "name": "HTTP_TSP_SERVER_NAME",
+      "value": "tsp.{{domain}}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{environment}}-us-west-2"
     },
@@ -73,6 +77,10 @@
     {
       "name": "STORAGE_BACKEND",
       "value": "s3"
+    },
+    {
+      "name": "EMAIL_BACKEND",
+      "value": "ses"
     },
     {
       "name": "HERE_MAPS_GEOCODE_ENDPOINT",

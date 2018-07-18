@@ -149,14 +149,13 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	newHasSit := swag.Bool(false)
 	daysInStorage := swag.Int64(3)
 	newPickupPostalCode := swag.String("32168")
-	newDestinationPostalCode := swag.String("29400")
+	newDestinationPostalCode := swag.String("29401")
 
 	move := testdatagen.MakeDefaultMove(suite.db)
 
 	newAdvanceWorksheet := models.Document{
 		ServiceMember:   move.Orders.ServiceMember,
 		ServiceMemberID: move.Orders.ServiceMemberID,
-		Name:            "uploaded_document",
 	}
 	suite.mustSave(&newAdvanceWorksheet)
 
@@ -225,7 +224,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	daysInStorage := swag.Int64(3)
 
 	pickupPostalCode := swag.String("32168")
-	destinationPostalCode := swag.String("29400")
+	destinationPostalCode := swag.String("29401")
 
 	move := testdatagen.MakeDefaultMove(suite.db)
 

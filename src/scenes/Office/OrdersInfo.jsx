@@ -7,27 +7,10 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import OrdersViewerPanel from './OrdersViewerPanel';
+import DocumentContent from './DocumentViewer/DocumentContent';
 import { loadMoveDependencies } from './ducks.js';
 
 import './office.css';
-
-// Page displays an image or PDF.
-const Page = function(props) {
-  let content;
-  if (props.contentType === 'application/pdf') {
-    content = (
-      <div className="pdf-placeholder">
-        {props.filename && <span className="filename">{props.filename}</span>}
-        This PDF can be <a href={props.url}>viewed here</a>.
-      </div>
-    );
-  } else {
-    content = (
-      <img src={props.url} width="100%" height="100%" alt="document upload" />
-    );
-  }
-  return <div className="page">{content}</div>;
-};
 
 class OrdersInfo extends Component {
   componentDidMount() {
@@ -45,7 +28,7 @@ class OrdersInfo extends Component {
     let uploads;
     if (orders && orders.uploaded_orders) {
       uploads = orders.uploaded_orders.uploads.map(upload => (
-        <Page
+        <DocumentContent
           key={upload.url}
           url={upload.url}
           filename={upload.filename}

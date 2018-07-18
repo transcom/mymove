@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-gomail/gomail"
 	"github.com/pkg/errors"
+	"go.uber.org/zap"
 )
 
 type notification interface {
@@ -23,17 +24,36 @@ type emailContent struct {
 	textBody       string
 }
 
+// NotificationSender is an interface for sending notifications
+type NotificationSender interface {
+	SendNotification(notification) error
+}
+
+// NotificationSendingContext provides context to a notification sender
+type NotificationSendingContext struct {
+	svc    sesiface.SESAPI
+	logger *zap.Logger
+}
+
+// NewNotificationSender returns a new NotificationSendingContext
+func NewNotificationSender(svc sesiface.SESAPI, logger *zap.Logger) NotificationSendingContext {
+	return NotificationSendingContext{
+		svc:    svc,
+		logger: logger,
+	}
+}
+
 // SendNotification sends a one or more notifications for all supported mediums
-func SendNotification(notification notification, svc sesiface.SESAPI) error {
+func (n NotificationSendingContext) SendNotification(notification notification) error {
 	emails, err := notification.emails()
 	if err != nil {
 		return err
 	}
 
-	return sendEmails(emails, svc)
+	return sendEmails(emails, n.svc, n.logger)
 }
 
-func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
+func sendEmails(emails []emailContent, svc sesiface.SESAPI, logger *zap.Logger) error {
 	for _, email := range emails {
 		rawMessage, err := formatRawEmailMessage(email)
 		if err != nil {
@@ -51,6 +71,9 @@ func sendEmails(emails []emailContent, svc sesiface.SESAPI) error {
 		if err != nil {
 			return errors.Wrap(err, "Failed to send email using SES")
 		}
+
+		logger.Info("Sent email to service member",
+			zap.String("service member email address", email.recipientEmail))
 	}
 
 	return nil

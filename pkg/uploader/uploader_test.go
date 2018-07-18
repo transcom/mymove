@@ -83,9 +83,9 @@ func (suite *UploaderSuite) TestUploadFromLocalFile() {
 	up := NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("test.pdf")
 
-	upload, verrs, err := up.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err, "failed to create upload")
-	suite.Nil(verrs, "failed to validate upload")
+	suite.False(verrs.HasAny(), "failed to validate upload", verrs)
 	suite.Equal(upload.ContentType, "application/pdf")
 	suite.Equal(upload.Checksum, "nOE6HwzyE4VEDXn67ULeeA==")
 }
@@ -96,7 +96,7 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 	up := NewUploader(suite.db, suite.logger, suite.storer)
 	file := suite.fixture("empty.pdf")
 
-	upload, verrs, err := up.CreateUpload(document.ID, document.ServiceMember.UserID, file)
+	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Equal(err, ErrZeroLengthFile)
 	suite.Nil(verrs, "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")

@@ -21,7 +21,6 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 
 	params := documentop.NewCreateDocumentParams()
 	params.DocumentPayload = &internalmessages.PostDocumentPayload{
-		Name:            "test document",
 		ServiceMemberID: *fmtUUID(serviceMember.ID),
 	}
 
@@ -44,12 +43,6 @@ func (suite *HandlerSuite) TestCreateDocumentsHandler() {
 
 	if uuid.Must(uuid.FromString(documentPayload.ServiceMemberID.String())) == uuid.Nil {
 		t.Errorf("got empty serviceMember uuid")
-	}
-
-	if documentPayload.Name == nil {
-		t.Errorf("got nil document name")
-	} else if *documentPayload.Name != "test document" {
-		t.Errorf("wrong document name, expected %s, got %s", "test document", *documentPayload.Name)
 	}
 
 	if len(documentPayload.Uploads) != 0 {
@@ -105,8 +98,7 @@ func (suite *HandlerSuite) TestShowDocumentHandler() {
 	}
 
 	uploadPayload := documentPayload.Uploads[0]
-	uploadID := (*uploadPayload.ID).String()
-	expectedURL := fmt.Sprintf("https://example.com/dir/documents/%s/uploads/%s?contentType=application/pdf&signed=test", documentID, uploadID)
+	expectedURL := fmt.Sprintf("https://example.com/dir/%s?contentType=application/pdf&signed=test", upload.StorageKey)
 	if (*uploadPayload.URL).String() != expectedURL {
 		t.Errorf("wrong URL for upload, expected %s, got %s", expectedURL, uploadPayload.URL)
 	}

@@ -100,7 +100,7 @@ func (suite *ModelSuite) Test_FetchFullPackRateCents() {
 		t.Fatalf("Unable to query full pack rate: %v", err)
 	}
 	if rate != rate {
-		t.Errorf("Incorrect full pack rate recieved. Got: %d. Expected: %d.", rate, rateExpected)
+		t.Errorf("Incorrect full pack rate received. Got: %d. Expected: %d.", rate, rateExpected)
 	}
 
 	// Test inclusivity of effective_date_lower

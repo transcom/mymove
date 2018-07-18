@@ -3,6 +3,7 @@ package handlers
 import (
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
 func (suite *HandlerSuite) TestIndexShipmentsHandler() {
@@ -20,15 +21,21 @@ func (suite *HandlerSuite) TestIndexShipmentsHandler() {
 	}
 	suite.mustSave(&tdl)
 
+	move := testdatagen.MakeDefaultMove(suite.db)
+
 	avs := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		SourceGBLOC:               "AGFM",
+		Status:                    "DEFAULT",
+		MoveID:                    move.ID,
 	}
 	suite.mustSave(&avs)
 
 	aws := models.Shipment{
 		TrafficDistributionListID: tdl.ID,
 		SourceGBLOC:               "AGFM",
+		Status:                    "DEFAULT",
+		MoveID:                    move.ID,
 	}
 	suite.mustSave(&aws)
 

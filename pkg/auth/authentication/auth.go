@@ -35,6 +35,12 @@ func UserAuthMiddleware(logger *zap.Logger) func(next http.Handler) http.Handler
 				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
 				return
 			}
+			// This must be the right type of user for the application
+			if session.IsTspApp() && session.TspUserID == uuid.Nil {
+				logger.Error("unauthorized user for tsp.move.mil", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			}
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -136,6 +142,7 @@ type CallbackHandler struct {
 	noSessionTimeout       bool
 	loginGovMyClientID     string
 	loginGovOfficeClientID string
+	loginGovTspClientID    string
 }
 
 // NewCallbackHandler creates a new CallbackHandler
@@ -229,6 +236,30 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
+
+		if userIdentity.TspUserID != nil {
+			session.TspUserID = *(userIdentity.TspUserID)
+		} else if session.IsTspApp() {
+			// In case they managed to login before the tsp_user record was created
+			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("Non-TSP user authenticated at tsp site", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+			session.TspUserID = tspUser.ID
+			tspUser.UserID = &userIdentity.ID
+			err = h.db.Save(tspUser)
+			if err != nil {
+				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
 		session.FirstName = userIdentity.FirstName()
 		session.LastName = userIdentity.LastName()
 		session.Middle = userIdentity.Middle()
@@ -249,6 +280,20 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 
+		var tspUser *models.TspUser
+		if session.IsTspApp() { // Look to see if we have TspUser with this email address
+			tspUser, err = models.FetchTspUserByEmail(h.db, session.Email)
+			if err == models.ErrFetchNotFound {
+				h.logger.Error("No TSP user found", zap.String("email", session.Email))
+				http.Error(w, http.StatusText(401), http.StatusUnauthorized)
+				return
+			} else if err != nil {
+				h.logger.Error("Checking for TSP user", zap.String("email", session.Email), zap.Error(err))
+				http.Error(w, http.StatusText(500), http.StatusInternalServerError)
+				return
+			}
+		}
+
 		user, err := models.CreateUser(h.db, openIDUser.UserID, openIDUser.Email)
 		if err == nil { // Successfully created the user
 			session.UserID = user.ID
@@ -256,6 +301,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				session.OfficeUserID = officeUser.ID
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
+			} else if tspUser != nil {
+				session.TspUserID = tspUser.ID
+				tspUser.UserID = &user.ID
+				err = h.db.Save(tspUser)
 			}
 		}
 		if err != nil {

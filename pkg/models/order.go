@@ -136,6 +136,20 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 	return order, nil
 }
 
+// FetchOrderForPDFConversion returns orders and any attached uploads
+func FetchOrderForPDFConversion(db *pop.Connection, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().Eager("UploadedOrders.Uploads").Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
+	}
+	return order, nil
+}
+
 // CreateNewMove creates a move associated with these Orders
 func (o *Order) CreateNewMove(db *pop.Connection, moveType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 	return createNewMove(db, *o, moveType)

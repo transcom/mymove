@@ -2,6 +2,7 @@ package storage
 
 import (
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -27,6 +28,10 @@ func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem 
 
 // Store stores the content from an io.ReadSeeker at the specified key.
 func (fs *Filesystem) Store(key string, data io.ReadSeeker, checksum string) (*StoreResult, error) {
+	if key == "" {
+		return nil, errors.New("A valid StorageKey must be set before data can be uploaded")
+	}
+
 	joined := filepath.Join(fs.root, key)
 	dir := filepath.Dir(joined)
 
@@ -58,17 +63,39 @@ func (fs *Filesystem) Delete(key string) error {
 	return os.Remove(joined)
 }
 
-// Key returns a joined key
-func (fs *Filesystem) Key(args ...string) string {
-	return path.Join(args...)
-}
-
 // PresignedURL returns a URL that provides access to a file for 15 mintes.
 func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
 	values := url.Values{}
 	values.Add("contentType", contentType)
 	url := fs.webRoot + "/" + key + "?" + values.Encode()
 	return url, nil
+}
+
+// Fetch retrieves a copy of a file and stores it in a tempfile. The path to this
+// file is returned.
+//
+// It is the caller's responsibility to delete the tempfile.
+func (fs *Filesystem) Fetch(key string) (string, error) {
+	outputFile, err := ioutil.TempFile(os.TempDir(), "filesystem")
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer outputFile.Close()
+
+	sourcePath := filepath.Join(fs.root, key)
+	// #nosec - this code is only used in development as a fallback for S3
+	sourceFile, err := os.Open(sourcePath)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+	defer sourceFile.Close()
+
+	_, err = io.Copy(outputFile, sourceFile)
+	if err != nil {
+		return "", errors.WithStack(err)
+	}
+
+	return outputFile.Name(), nil
 }
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that

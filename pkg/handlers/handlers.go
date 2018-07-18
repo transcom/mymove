@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"strings"
 
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/go-openapi/loads"
 	"github.com/gobuffalo/pop"
 	"github.com/gobuffalo/validate"
@@ -21,6 +20,7 @@ import (
 	ordersops "github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/route"
 	"github.com/transcom/mymove/pkg/storage"
 )
@@ -29,13 +29,13 @@ import (
 // Each individual handler is declared as a type alias for HandlerContext so that the Handle() method
 // can be declared on it. When wiring up a handler, you can create a HandlerContext and cast it to the type you want.
 type HandlerContext struct {
-	db               *pop.Connection
-	logger           *zap.Logger
-	cookieSecret     string
-	noSessionTimeout bool
-	planner          route.Planner
-	storage          storage.FileStorer
-	sesService       sesiface.SESAPI
+	db                 *pop.Connection
+	logger             *zap.Logger
+	cookieSecret       string
+	noSessionTimeout   bool
+	planner            route.Planner
+	storage            storage.FileStorer
+	notificationSender notifications.NotificationSender
 }
 
 // NewHandlerContext returns a new HandlerContext with its required private fields set.
@@ -51,9 +51,9 @@ func (context *HandlerContext) SetFileStorer(storer storage.FileStorer) {
 	context.storage = storer
 }
 
-// SetSesService is a simple setter for AWS SES private field
-func (context *HandlerContext) SetSesService(sesService sesiface.SESAPI) {
-	context.sesService = sesService
+// SetNotificationSender is a simple setter for AWS SES private field
+func (context *HandlerContext) SetNotificationSender(sender notifications.NotificationSender) {
+	context.notificationSender = sender
 }
 
 // SetPlanner is a simple setter for the route.Planner private field
@@ -135,6 +135,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
+	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
@@ -150,6 +151,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
+	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MovesIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)

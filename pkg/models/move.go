@@ -46,6 +46,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	MoveDocuments           MoveDocuments                      `has_many:"move_documents" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
 	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
@@ -150,7 +151,7 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document.Uploads").Find(&move, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -166,6 +167,68 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	return &move, nil
+}
+
+// CreateMoveDocument creates a move document associated to a move
+func (m Move) CreateMoveDocument(db *pop.Connection,
+	uploads Uploads,
+	moveDocumentType MoveDocumentType,
+	title string,
+	status MoveDocumentStatus,
+	notes *string) (*MoveDocument, *validate.Errors, error) {
+
+	var newMoveDocument *MoveDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		// Make a generic Document
+		newDoc := Document{
+			ServiceMemberID: m.Orders.ServiceMemberID,
+		}
+		verrs, err := db.ValidateAndCreate(&newDoc)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating document for move document")
+			return transactionError
+		}
+
+		// Associate uploads to the new document
+		for _, upload := range uploads {
+			upload.DocumentID = &newDoc.ID
+			verrs, err := db.ValidateAndUpdate(&upload)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error updating upload")
+				return transactionError
+			}
+		}
+
+		// Finally create the MoveDocument to tie it to the Move
+		newMoveDocument = &MoveDocument{
+			Move:             m,
+			MoveID:           m.ID,
+			Document:         newDoc,
+			DocumentID:       newDoc.ID,
+			MoveDocumentType: moveDocumentType,
+			Title:            title,
+			Status:           status,
+			Notes:            notes,
+		}
+		verrs, err = db.ValidateAndCreate(newMoveDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating move document")
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newMoveDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move
@@ -339,7 +402,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 // to generate the Advance paperwork.
 func FetchMoveForAdvancePaperwork(db *pop.Connection, moveID uuid.UUID) (Move, error) {
 	var move Move
-	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
+	if err := db.Q().Eager("Orders.NewDutyStation", "Orders.ServiceMember.BackupContacts", "Orders.ServiceMember.ResidentialAddress", "PersonallyProcuredMoves.Advance").Find(&move, moveID); err != nil {
 		return move, errors.Wrap(err, "could not load move")
 	}
 	return move, nil

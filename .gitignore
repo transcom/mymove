@@ -25,6 +25,7 @@ __snapshots__
 /bin/generate-test-data
 /bin/make-office-user
 /bin/load-office-data
+/bin/make-tsp-user
 /bin/load-user-gen
 /bin/paperwork
 /bin/rateengine
@@ -61,3 +62,6 @@ yarn-error.log*
 public/swagger-ui/*
 !public/swagger-ui/api.html
 !public/swagger-ui/internal.html
+
+cypress/videos
+cypress/screenshots

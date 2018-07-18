@@ -4,10 +4,7 @@ import (
 	"log"
 	"testing"
 
-	"github.com/aws/aws-sdk-go/service/ses"
-	"github.com/aws/aws-sdk-go/service/ses/sesiface"
 	"github.com/gobuffalo/pop"
-	"github.com/stretchr/testify/mock"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -19,29 +16,6 @@ type NotificationSuite struct {
 	suite.Suite
 	db     *pop.Connection
 	logger *zap.Logger
-}
-
-type mockSESClient struct {
-	sesiface.SESAPI
-	mock.Mock
-	Suite *NotificationSuite
-}
-
-func (m *mockSESClient) SendRawEmail(input *ses.SendRawEmailInput) (*ses.SendRawEmailOutput, error) {
-	args := m.Called(input)
-
-	testEmail := m.Suite.GetTestEmailContent()
-	m.Suite.Equal(testEmail.recipientEmail, *input.Destinations[0])
-	m.Suite.Equal(senderEmail(), *input.Source)
-
-	message := string(input.RawMessage.Data)
-	m.Suite.Contains(message, testEmail.subject)
-	m.Suite.Contains(message, testEmail.htmlBody)
-	m.Suite.Contains(message, testEmail.textBody)
-	m.Suite.Contains(message, testEmail.recipientEmail)
-	m.Suite.Contains(message, senderEmail())
-
-	return args.Get(0).(*ses.SendRawEmailOutput), args.Error(1)
 }
 
 type testNotification struct {
@@ -109,21 +83,6 @@ func (suite *NotificationSuite) TestMoveSubmitted() {
 	suite.NotEmpty(email.subject)
 	suite.NotEmpty(email.htmlBody)
 	suite.NotEmpty(email.textBody)
-}
-
-func (suite *NotificationSuite) TestSendNotification() {
-	t := suite.T()
-
-	messageID := "a"
-	mockSVC := mockSESClient{Suite: suite}
-	mockSVC.On("SendRawEmail", mock.Anything).Return(&ses.SendRawEmailOutput{MessageId: &messageID}, nil)
-
-	err := SendNotification(testNotification{email: suite.GetTestEmailContent()}, &mockSVC)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	mockSVC.AssertNumberOfCalls(t, "SendRawEmail", 1)
 }
 
 func (suite *NotificationSuite) GetTestEmailContent() emailContent {

@@ -5,8 +5,16 @@ export PGPASSWORD=mysecretpassword
 # if S3 access is enabled, wrap webserver in aws-vault command
 # to pass temporary AWS credentials to the binary.
 ifeq ($(STORAGE_BACKEND),s3)
+	USE_AWS:=true
+endif
+ifeq ($(EMAIL_BACKEND),ses)
+	USE_AWS:=true
+endif
+
+ifeq ($(USE_AWS),true)
   AWS_VAULT:=aws-vault exec $(AWS_PROFILE) --
 endif
+
 
 # This target ensures that the pre-commit hook is installed and kept up to date
 # if pre-commit updates.
@@ -55,6 +63,9 @@ client_test_coverage : client_deps
 office_client_run: client_deps
 	HOST=officelocal yarn start
 
+tsp_client_run: client_deps
+	HOST=tsplocal yarn start
+
 server_deps_update: server_generate
 	dep ensure -v -update
 server_deps: go_version .server_deps.stamp
@@ -101,6 +112,7 @@ tools_build: server_deps
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
 	go build -i -o bin/load-office-data ./cmd/load_office_data
+	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 
@@ -136,7 +148,7 @@ server_test_coverage: server_deps server_generate db_dev_run db_test_reset
 	go tool cover -html=coverage.out
 
 e2e_test: server_deps server_generate client_build db_e2e_init
-	./bin/run-e2e-test
+	$(AWS_VAULT) ./bin/run-e2e-test
 
 db_dev_run:
 	# The version of the postgres container should match production as closely
@@ -173,16 +185,18 @@ db_e2e_init: tools_build db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
-db_e2e_reset: tools_build db_dev_run
+db_e2e_reset: db_dev_run
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
-	[ -z "$(CIRCLECI)" ] && \
-		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
-		createdb -p 5432 -h localhost -U postgres test_db || \
-		echo "Relying on CircleCI's test database setup."
+ifndef CIRCLECI
+	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
+	createdb -p 5432 -h localhost -U postgres test_db
+else
+	echo "Relying on CircleCI's test database setup."
+endif
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`

@@ -114,8 +114,8 @@ const CustomerInfoEdit = props => {
           </div>
           <div className="editable-panel-column">
             <SwaggerField fieldName="edipi" swagger={schema} required />
-            <SwaggerField fieldName="affiliation" swagger={schema} />
-            <SwaggerField fieldName="rank" swagger={schema} />
+            <SwaggerField fieldName="affiliation" swagger={schema} required />
+            <SwaggerField fieldName="rank" swagger={schema} required />
           </div>
         </FormSection>
       </div>
@@ -201,7 +201,9 @@ function mapStateToProps(state) {
     ),
     serviceMember: state.office.officeServiceMember,
 
-    hasError: false,
+    hasError:
+      state.office.serviceMemberHasLoadError ||
+      state.office.serviceMemberHasUpdateError,
     errorMessage: state.office.error,
     isUpdating: false,
 

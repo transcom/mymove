@@ -56,7 +56,8 @@ export class Uploader extends Component {
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
     const self = this;
-    CreateUpload(file, this.props.document.id)
+    const docID = this.props.document ? this.props.document.id : null;
+    CreateUpload(file, docID)
       .then(item => {
         load(item.id);
         const newFiles = concat(self.state.files, item);
@@ -106,7 +107,7 @@ export class Uploader extends Component {
 }
 
 Uploader.propTypes = {
-  document: PropTypes.object.isRequired,
+  document: PropTypes.object,
   onChange: PropTypes.func,
 };
 

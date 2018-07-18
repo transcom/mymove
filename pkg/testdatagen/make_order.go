@@ -19,7 +19,7 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 
 	station := assertions.Order.NewDutyStation
 	if isZeroUUID(assertions.Order.NewDutyStationID) {
-		station = MakeAnyDutyStation(db)
+		station = MakeDefaultDutyStation(db)
 	}
 
 	document := assertions.Order.UploadedOrders
@@ -28,7 +28,12 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 			Document: models.Document{
 				ServiceMemberID: sm.ID,
 				ServiceMember:   sm,
-				Name:            models.UploadedOrdersDocumentName,
+			},
+		})
+		MakeUpload(db, Assertions{
+			Upload: models.Upload{
+				DocumentID: &document.ID,
+				Document:   document,
 			},
 		})
 	}

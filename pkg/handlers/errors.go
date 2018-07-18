@@ -40,15 +40,19 @@ func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Pro
 func responseForError(logger *zap.Logger, err error) middleware.Responder {
 	switch errors.Cause(err) {
 	case models.ErrFetchNotFound:
+		logger.Debug("not found", zap.Error(err))
 		return newErrResponse(http.StatusNotFound, err)
 	case models.ErrFetchForbidden:
+		logger.Debug("forbidden", zap.Error(err))
 		return newErrResponse(http.StatusForbidden, err)
 	case models.ErrInvalidPatchGate:
+		logger.Debug("invalid patch gate", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	case models.ErrInvalidTransition:
+		logger.Debug("invalid transition", zap.Error(err))
 		return newErrResponse(http.StatusBadRequest, err)
 	default:
-		logger.Error("Unexpected db error", zap.Error(err))
+		logger.Error("Unexpected error", zap.Error(err))
 		return newErrResponse(http.StatusInternalServerError, err)
 	}
 }

@@ -26,6 +26,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Server](#setup-server)
   * [Setup: Client](#setup-client)
   * [Setup: Office/admin client](#setup-officeadmin-client)
+  * [Setup: TSP/admin client](#setup-tspadmin-client)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -56,6 +57,7 @@ As of 3/6/2018, DDS has confirmed that support for IE is limited to IE 11 and Ed
 The client application (i.e. website) makes outbound requests to the following domains in its normal operation. If you have a firewall in place, it will need to be configured to allow outbound access to them for the application to operate.
 
 * S3 for document downloads; exact domains TBD.
+* New Relic for browser performance monitoring; specifically `bam.nr-data.net` and `js-agent.newrelic.*`. [More info and IPs are listed here](https://docs.newrelic.com/docs/apm/new-relic-apm/getting-started/networks#agents).
 
 ## Development
 
@@ -80,7 +82,11 @@ All of Go's tooling expects Go code to be checked out in a specific location. Pl
 export GOPATH=~/code/go
 ```
 
-If you are OK with using the default location for go code (`~/go`), then there is nothing to do. Since this is the default location, using it means you do not need to set `$GOPATH` yourself.
+A few of our custom tools expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
+
+```bash
+export GOPATH=${GOPATH:-$(go env GOPATH)}
+```
 
 _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
@@ -164,6 +170,16 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
     * run `bin/make-office-user -email <email>` to set up an office user associated with that email address
 3. `make office_client_run`
 4. Login with the email used above to access the office
+
+### Setup: TSP/admin client
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 tsplocal`
+2. Ensure that you have a test account which can log into the TSP site...
+    * `make tools_build` to build the tools
+    * run `bin/make-tsp-user -email <email>` to set up a TSP user associated with that email address
+3. `make tsp_client_run`
+4. Login with the email used above to access the TSP
 
 ### Setup: S3
 
@@ -279,20 +295,15 @@ We are piggy-backing on the migration system for importing static datasets. This
 
 To create a secure migration:
 
-* You create a regular Fizz migration, as described in the previous section.
-* The body of the Fizz migration should be of the format: `exec('./apply-secure-migration.sh ${FILENAME}')`.
-* `${FILENAME}` should be the same as the name of the migration that Fizz created for you, except with an `.sql` extension.
-* Make a test migration
-  * Create an SQL file with a mock version of the data (nothing sensitive,) and save it in `local_migrations/${FILENAME}`.
-  * **This migration will be run every time migrations are run against a dev or testing database.**
-  * Test the migration with: `make db_dev_reset && make db_dev_migrate`.
-  * You should see your test migration run.
-* Create the real migration
-  * Make the actual migration SQL file with the secrets in it, and give it the same filename.
-  * Upload it to the `staging` and `prod` S3 buckets: `transcom-ppp-app-{{environment}}-us-west-2/secure-migrations/`.
-  * You should see other migrations in the S3 bucket. If you don't, you may be looking in the wrong place.
-* Voila!
-  * When you land your PR, CI will run your migration against staging. If that is successful, it will then run against production.
+* Generate new migration files: `bin/generate-secure-migration <migration_name>`
+  * This creates two migration files: a local test file with no secret data, and a production file to be uploaded to S3 that will have sensitive data.
+* Edit the production migration first, and put whatever sensitive data in it that you need to.
+* Copy the production migration into the local test migration.
+* Scrub the test migration of sensitive data, but use it to test the gist of the production migration operation.
+* Test the local migration by running `make db_dev_migrate`. You should see it run your local migration.
+* Upload the migration to S3 with: `bin/upload-secure-migration <production_migration_file>`
+* Open a pull request!
+* When the pull request lands, the production migrations will be run on Staging and Prod.
 
 Gory Details:
 

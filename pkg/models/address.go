@@ -1,6 +1,7 @@
 package models
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -95,4 +96,32 @@ func (a *Address) MarshalLogObject(encoder zapcore.ObjectEncoder) error {
 		encoder.AddString("country", *a.Country)
 	}
 	return nil
+}
+
+// LineFormat returns the address as a string, formatted into a single line
+func (a *Address) LineFormat() string {
+	parts := []string{}
+	if len(a.StreetAddress1) > 0 {
+		parts = append(parts, a.StreetAddress1)
+	}
+	if a.StreetAddress2 != nil && len(*a.StreetAddress2) > 0 {
+		parts = append(parts, *a.StreetAddress2)
+	}
+	if a.StreetAddress3 != nil && len(*a.StreetAddress3) > 0 {
+		parts = append(parts, *a.StreetAddress3)
+	}
+	if len(a.City) > 0 {
+		parts = append(parts, a.City)
+	}
+	if len(a.State) > 0 {
+		parts = append(parts, a.State)
+	}
+	if len(a.PostalCode) > 0 {
+		parts = append(parts, a.PostalCode)
+	}
+	if a.Country != nil && len(*a.Country) > 0 {
+		parts = append(parts, *a.Country)
+	}
+
+	return strings.Join(parts, ", ")
 }

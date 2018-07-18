@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -14,7 +16,7 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	shipmentsToMake := 17
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
+	tdl, _ := testdatagen.MakeTDL(db, "US13", "15", "2")
 
 	// Make a market
 	market := "dHHG"
@@ -35,11 +37,11 @@ func RunAwardQueueScenario1(db *pop.Connection) {
 	tsp5, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC())
 
 	// TSPs should be ordered by offer_count first, then BVS.
-	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 4.2, 4.2)
-	testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 3.3, 3.3)
-	testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 2.1, 2.1)
-	testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 1.1, 1.1)
-	testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, .5, .5)
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.42)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 0.33, 0.33)
+	testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 0.21, 0.21)
+	testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 0.11, 0.11)
+	testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, 0.05, 0.05)
 }
 
 // RunAwardQueueScenario2 creates 9 shipments to be divided between 5 TSPs in 1 TDL and 10 shipments to be divided among 4 TSPs in TDL 2.
@@ -49,8 +51,8 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	shipmentDate := time.Now()
 
 	// Make a TDL to contain our tests
-	tdl, _ := testdatagen.MakeTDL(db, "california", "90210", "2")
-	tdl2, _ := testdatagen.MakeTDL(db, "New York", "10024", "2")
+	tdl, _ := testdatagen.MakeTDL(db, "US13", "15", "2")
+	tdl2, _ := testdatagen.MakeTDL(db, "US62", "1", "2")
 
 	// Make a market
 	market := "dHHG"
@@ -79,40 +81,49 @@ func RunAwardQueueScenario2(db *pop.Connection) {
 	tsp9, _ := testdatagen.MakeTSP(db, testdatagen.RandomSCAC()) // V v bad TSP
 
 	// Put TSPs in 2 TDLs to handle these shipments
-	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 4.2, 4.4)
-	testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 3.1, 3.2)
-	testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 2.4, 2.5)
-	testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 1.1, 1.3)
-	testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, .5, .8)
+	testdatagen.MakeTSPPerformance(db, tsp1, tdl, swag.Int(1), 5, 0, 0.42, 0.44)
+	testdatagen.MakeTSPPerformance(db, tsp2, tdl, swag.Int(1), 4, 0, 0.31, 0.32)
+	testdatagen.MakeTSPPerformance(db, tsp3, tdl, swag.Int(2), 3, 0, 0.24, 0.25)
+	testdatagen.MakeTSPPerformance(db, tsp4, tdl, swag.Int(3), 2, 0, 0.11, 0.13)
+	testdatagen.MakeTSPPerformance(db, tsp5, tdl, swag.Int(4), 1, 0, 0.05, 0.08)
 
-	testdatagen.MakeTSPPerformance(db, tsp6, tdl2, swag.Int(1), 5, 0, 4.2, 4.4)
-	testdatagen.MakeTSPPerformance(db, tsp7, tdl2, swag.Int(2), 4, 0, 3.1, 3.2)
-	testdatagen.MakeTSPPerformance(db, tsp8, tdl2, swag.Int(3), 2, 0, 1.1, 1.3)
-	testdatagen.MakeTSPPerformance(db, tsp9, tdl2, swag.Int(4), 1, 0, .5, .8)
+	testdatagen.MakeTSPPerformance(db, tsp6, tdl2, swag.Int(1), 5, 0, 0.42, 0.44)
+	testdatagen.MakeTSPPerformance(db, tsp7, tdl2, swag.Int(2), 4, 0, 0.31, 0.32)
+	testdatagen.MakeTSPPerformance(db, tsp8, tdl2, swag.Int(3), 2, 0, 0.11, 0.13)
+	testdatagen.MakeTSPPerformance(db, tsp9, tdl2, swag.Int(4), 1, 0, 0.05, 0.08)
 	// Add blackout dates
 	blackoutStart := shipmentDate.AddDate(0, 0, -3)
 	blackoutEnd := shipmentDate.AddDate(0, 0, 3)
 
 	gbloc := "BKAS"
-	testdatagen.MakeBlackoutDate(db,
-		tsp1,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
-	testdatagen.MakeBlackoutDate(db,
-		tsp4,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
-	testdatagen.MakeBlackoutDate(db,
-		tsp7,
-		blackoutStart,
-		blackoutEnd,
-		&tdl,
-		&gbloc,
-		&market)
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp1.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp4.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
+	testdatagen.MakeBlackoutDate(db, testdatagen.Assertions{
+		BlackoutDate: models.BlackoutDate{
+			TransportationServiceProviderID: tsp7.ID,
+			StartBlackoutDate:               blackoutStart,
+			EndBlackoutDate:                 blackoutEnd,
+			TrafficDistributionListID:       &tdl.ID,
+			SourceGBLOC:                     &gbloc,
+			Market:                          &market,
+		},
+	})
 }
