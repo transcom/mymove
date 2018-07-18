@@ -39,7 +39,6 @@ export const selectMoveDocument = (state, id) => {
 };
 
 export const selectAllDocumentsForMove = (state, id) => {
-  debugger;
   const moveDocs = filter(state.entities.moveDocuments, doc => {
     return doc.move_id === id;
   });
