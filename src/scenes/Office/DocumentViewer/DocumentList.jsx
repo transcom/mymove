@@ -7,8 +7,6 @@ import '../office.css';
 
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 
-import { indexMoveDocuments } from './ducks.js';
-
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faClock from '@fortawesome/fontawesome-free-solid/faClock';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -62,7 +60,6 @@ const mapStateToProps = (state, props) => ({
   moveDocuments: selectAllDocumentsForMove(state, props.moveId),
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ indexMoveDocuments }, dispatch);
+const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentList);

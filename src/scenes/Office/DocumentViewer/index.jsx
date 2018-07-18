@@ -7,7 +7,6 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { indexMoveDocuments } from './ducks.js';
 import { loadMoveDependencies } from '../ducks.js';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -140,7 +139,6 @@ class DocumentViewer extends Component {
 
 DocumentViewer.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -159,7 +157,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, indexMoveDocuments, getMoveDocumentsForMove },
+    { loadMoveDependencies, getMoveDocumentsForMove },
     dispatch,
   );
 
