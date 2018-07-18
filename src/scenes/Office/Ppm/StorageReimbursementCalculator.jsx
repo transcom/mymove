@@ -8,7 +8,7 @@ import { reduxForm } from 'redux-form';
 import Alert from 'shared/Alert';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
-import { getPpmSitEstimate } from '../../Moves/Ppm/ducks';
+import { getPpmSitEstimate, clearPpmSitEstimate } from '../../Moves/Ppm/ducks';
 
 const formName = 'storage_reimbursement_calc';
 const schema = {
@@ -57,6 +57,14 @@ const schema = {
   },
 };
 export class StorageReimbursementCalculator extends Component {
+  reset = async () => {
+    const { reset, clearPpmSitEstimate } = this.props;
+    await reset();
+    clearPpmSitEstimate();
+  };
+  componentWillUnmount() {
+    this.reset();
+  }
   calculate = values => {
     const {
       planned_move_date,
@@ -80,7 +88,6 @@ export class StorageReimbursementCalculator extends Component {
       sitReimbursement,
       invalid,
       pristine,
-      reset,
       submitting,
       hasEstimateError,
     } = this.props;
@@ -146,7 +153,7 @@ export class StorageReimbursementCalculator extends Component {
                   data-cy="reset"
                   type="button"
                   disabled={pristine || submitting}
-                  onClick={reset}
+                  onClick={this.reset}
                 >
                   Reset
                 </button>
@@ -188,7 +195,10 @@ function mapStateToProps(state) {
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ getPpmSitEstimate }, dispatch);
+  return bindActionCreators(
+    { getPpmSitEstimate, clearPpmSitEstimate },
+    dispatch,
+  );
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(

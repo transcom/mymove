@@ -69,7 +69,7 @@ export class IncentiveCalculator extends Component {
     clearPpmIncentive();
   };
   componentWillUnmount() {
-    this.props.clearPpmIncentive();
+    this.reset();
   }
   render() {
     const {
