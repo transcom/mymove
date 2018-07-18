@@ -8,7 +8,7 @@ import (
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
 
@@ -52,11 +52,11 @@ func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middlew
 need to be reconciled. This will be done when the NotImplemented code below is Implemented
 */
 
-// ShipmentIndexHandler returns a list of shipments
-type ShipmentIndexHandler HandlerContext
+// PublicIndexShipmentHandler returns a list of shipments
+type PublicIndexShipmentHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h ShipmentIndexHandler) Handle(p apioperations.IndexShipmentsParams) middleware.Responder {
+func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
 }
 
@@ -64,7 +64,7 @@ func (h ShipmentIndexHandler) Handle(p apioperations.IndexShipmentsParams) middl
 type GetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h GetShipmentHandler) Handle(p apioperations.GetShipmentParams) middleware.Responder {
+func (h GetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
 }
 
@@ -72,7 +72,7 @@ func (h GetShipmentHandler) Handle(p apioperations.GetShipmentParams) middleware
 type AcceptShipmentHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h AcceptShipmentHandler) Handle(p apioperations.AcceptShipmentParams) middleware.Responder {
+func (h AcceptShipmentHandler) Handle(p publicshipmentop.AcceptShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
@@ -80,7 +80,7 @@ func (h AcceptShipmentHandler) Handle(p apioperations.AcceptShipmentParams) midd
 type RefuseShipmentHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RefuseShipmentHandler) Handle(p apioperations.RefuseShipmentParams) middleware.Responder {
+func (h RefuseShipmentHandler) Handle(p publicshipmentop.RefuseShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
@@ -88,7 +88,7 @@ func (h RefuseShipmentHandler) Handle(p apioperations.RefuseShipmentParams) midd
 type UpdateShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h UpdateShipmentHandler) Handle(p apioperations.UpdateShipmentParams) middleware.Responder {
+func (h UpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
@@ -96,7 +96,7 @@ func (h UpdateShipmentHandler) Handle(p apioperations.UpdateShipmentParams) midd
 type ShipmentContactDetailsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h ShipmentContactDetailsHandler) Handle(p apioperations.ShipmentContactDetailsParams) middleware.Responder {
+func (h ShipmentContactDetailsHandler) Handle(p publicshipmentop.ShipmentContactDetailsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
@@ -104,7 +104,7 @@ func (h ShipmentContactDetailsHandler) Handle(p apioperations.ShipmentContactDet
 type GetShipmentClaimsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentClaimsHandler) Handle(p apioperations.GetShipmentClaimsParams) middleware.Responder {
+func (h GetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
@@ -112,7 +112,7 @@ func (h GetShipmentClaimsHandler) Handle(p apioperations.GetShipmentClaimsParams
 type GetShipmentDocumentsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p apioperations.GetShipmentDocumentsParams) middleware.Responder {
+func (h GetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
@@ -120,6 +120,6 @@ func (h GetShipmentDocumentsHandler) Handle(p apioperations.GetShipmentDocuments
 type CreateShipmentDocumentHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p apioperations.CreateShipmentDocumentParams) middleware.Responder {
+func (h CreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

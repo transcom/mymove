@@ -599,7 +599,7 @@ paths:
        At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
        they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
        originate in the given GBLOC.
-      operationId: createBlackout
+      operationId: tspCreateBlackout
       tags:
         - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.

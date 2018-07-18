@@ -2,22 +2,14 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publicblackoutsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/blackouts"
 )
-
-// CreateBlackoutHandler returns a list of all the Blackouts
-type CreateBlackoutHandler HandlerContext
-
-// Handle simply returns a NotImplementedError
-func (h CreateBlackoutHandler) Handle(params apioperations.CreateBlackoutParams) middleware.Responder {
-	return middleware.NotImplemented("operation .createBlackout has not yet been implemented")
-}
 
 // BlackoutIndexHandler returns a list of all the Blackouts
 type BlackoutIndexHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h BlackoutIndexHandler) Handle(params apioperations.IndexBlackoutsParams) middleware.Responder {
+func (h BlackoutIndexHandler) Handle(params publicblackoutsop.IndexBlackoutsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexBlackouts has not yet been implemented")
 }
 
@@ -25,7 +17,7 @@ func (h BlackoutIndexHandler) Handle(params apioperations.IndexBlackoutsParams) 
 type DeleteBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h DeleteBlackoutHandler) Handle(params apioperations.DeleteBlackoutParams) middleware.Responder {
+func (h DeleteBlackoutHandler) Handle(params publicblackoutsop.DeleteBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .deleteBlackout has not yet been implemented")
 }
 
@@ -33,7 +25,7 @@ func (h DeleteBlackoutHandler) Handle(params apioperations.DeleteBlackoutParams)
 type GetBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h GetBlackoutHandler) Handle(params apioperations.GetBlackoutParams) middleware.Responder {
+func (h GetBlackoutHandler) Handle(params publicblackoutsop.GetBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getBlackout has not yet been implemented")
 }
 
@@ -41,6 +33,6 @@ func (h GetBlackoutHandler) Handle(params apioperations.GetBlackoutParams) middl
 type UpdateBlackoutHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h UpdateBlackoutHandler) Handle(params apioperations.UpdateBlackoutParams) middleware.Responder {
+func (h UpdateBlackoutHandler) Handle(params publicblackoutsop.UpdateBlackoutParams) middleware.Responder {
 	return middleware.NotImplemented("operation .updateBlackout has not yet been implemented")
 }
