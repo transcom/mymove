@@ -12,10 +12,9 @@ import (
 
 var myMoveMil = "my.move.mil"
 var officeMoveMil = "office.move.mil"
-var ordersMoveMil = "orders.move.mil"
 
 func (suite *authSuite) TestMiddlewareConstructor() {
-	adm := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, ordersMoveMil)
+	adm := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)
 	suite.NotNil(adm)
 }
 
@@ -26,10 +25,9 @@ func (suite *authSuite) TestMiddleWareMyApp() {
 		session := SessionFromRequestContext(r)
 		suite.True(session.IsMyApp(), "first should be myApp")
 		suite.False(session.IsOfficeApp(), "first should not be officeApp")
-		suite.False(session.IsOrdersApp(), "first should not be ordersApp")
 		suite.Equal(myMoveMil, session.Hostname)
 	})
-	myMoveMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, ordersMoveMil)(myMoveTestHandler)
+	myMoveMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(myMoveTestHandler)
 
 	req, _ := http.NewRequest("GET", "/some_url", nil)
 	req.Host = myMoveMil
@@ -45,10 +43,9 @@ func (suite *authSuite) TestMiddleWareMyApp() {
 		session := SessionFromRequestContext(r)
 		suite.False(session.IsMyApp(), "should not be myApp")
 		suite.True(session.IsOfficeApp(), "should be officeApp")
-		suite.False(session.IsOrdersApp(), "should not be ordersApp")
 		suite.Equal(officeMoveMil, session.Hostname)
 	})
-	officeMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, ordersMoveMil)(officeTestHandler)
+	officeMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(officeTestHandler)
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = fmt.Sprintf("%s:8080", officeMoveMil)
@@ -58,7 +55,7 @@ func (suite *authSuite) TestMiddleWareMyApp() {
 	noAppTestHandler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		suite.Fail("Should not be called")
 	})
-	noAppMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil, ordersMoveMil)(noAppTestHandler)
+	noAppMiddleware := DetectorMiddleware(suite.logger, myMoveMil, officeMoveMil)(noAppTestHandler)
 
 	req, _ = http.NewRequest("GET", "/some_url", nil)
 	req.Host = "totally.bogus.hostname"

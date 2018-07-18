@@ -148,7 +148,7 @@ func main() {
 
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *ordersHostname)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -218,6 +218,21 @@ func main() {
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
 
+	// Allow public content through without any auth or app checks
+	site.Handle(pat.Get("/static/*"), clientHandler)
+	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	site.Handle(pat.Get("/downloads/*"), clientHandler)
+	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+
+	ordersMux := goji.SubMux()
+	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(logger, *ordersHostname)
+	ordersMux.Use(ordersDetectionMiddleware)
+	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
+	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
+	ordersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
+	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
+
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
@@ -246,16 +261,6 @@ func main() {
 	internalAPIMux.Use(noCacheMiddleware)
 	internalAPIMux.Handle(pat.New("/*"), handlers.NewInternalAPIHandler(handlerContext))
 
-	ordersMux := goji.SubMux()
-	root.Handle(pat.Get("/orders/v0/*"), ordersMux)
-	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
-	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
-
-	externalOrdersMux := goji.SubMux()
-	ordersMux.Handle(pat.New("/*"), externalOrdersMux)
-	externalOrdersMux.Use(noCacheMiddleware)
-	externalOrdersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
-
 	authContext := authentication.NewAuthContext(logger, loginGovProvider, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	authMux := goji.SubMux()
 	root.Handle(pat.New("/auth/*"), authMux)
@@ -277,12 +282,6 @@ func main() {
 		fs := storage.NewFilesystemHandler("tmp")
 		root.Handle(pat.Get("/storage/*"), fs)
 	}
-
-	root.Handle(pat.Get("/static/*"), clientHandler)
-	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
-	root.Handle(pat.Get("/downloads/*"), clientHandler)
-	root.Handle(pat.Get("/favicon.ico"), clientHandler)
-	root.HandleFunc(pat.Get("/*"), fileHandler(path.Join(*build, "index.html")))
 
 	// Start http/https listener(s)
 	errChan := make(chan error)
