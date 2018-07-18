@@ -9,13 +9,38 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
+import './Address.css';
+
 const formName = 'hhg_address';
 const AddressWizardForm = reduxifyWizardForm(formName);
+const hhgSchema = {
+  properties: {
+    has_secondary_pickup_address: {
+      type: 'boolean',
+      title: 'Do you have household goods at any other pickup location?',
+      'x-nullable': true,
+      'x-always-required': true,
+    },
+    has_delivery_address: {
+      type: 'boolean',
+      title: 'Do you know your home address at your destination yet?',
+      'x-nullable': true,
+      'x-always-required': true,
+    },
+    has_partial_sit_delivery_address: {
+      type: 'boolean',
+      title:
+        'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?',
+      'x-nullable': true,
+      'x-always-required': true,
+    },
+  },
+};
 
 export class HHGAddress extends Component {
   handleSubmit = () => {
-    const newAddress = { residential_address: this.props.values };
     // Create new HHG pickup address
+    // const newAddress = { residential_address: this.props.values };
   };
 
   render() {
@@ -49,36 +74,39 @@ export class HHGAddress extends Component {
           <h4>Pickup Location</h4>
 
           <div className="usa-width-one-whole">
+            <div className="address-segment">
+              <SwaggerField
+                fieldName="street_address_1"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                fieldName="street_address_2"
+                swagger={this.props.schema}
+              />
+              <SwaggerField
+                className="usa-width-one-fourth"
+                fieldName="city"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                className="usa-width-one-sixth"
+                fieldName="state"
+                swagger={this.props.schema}
+                required
+              />
+              <SwaggerField
+                className="usa-width-one-fourth"
+                fieldName="postal_code"
+                swagger={this.props.schema}
+                required
+              />
+            </div>
             <SwaggerField
-              fieldName="street_address_1"
-              swagger={this.props.schema}
-              required
-            />
-            <SwaggerField
-              fieldName="street_address_2"
-              swagger={this.props.schema}
-            />
-            <SwaggerField
-              className="usa-width-one-fourth"
-              fieldName="city"
-              swagger={this.props.schema}
-              required
-            />
-            <SwaggerField
-              className="usa-width-one-sixth"
-              fieldName="state"
-              swagger={this.props.schema}
-              required
-            />
-            <SwaggerField
-              className="usa-width-one-fourth"
-              fieldName="postal_code"
-              swagger={this.props.schema}
-              required
-            />
-            <SwaggerField
+              className="radio-title"
               fieldName="has_secondary_pickup_address"
-              swagger={this.props.schema}
+              swagger={hhgSchema}
               component={YesNoBoolean}
             />
             {get(
@@ -87,74 +115,81 @@ export class HHGAddress extends Component {
               false,
             ) && (
               <Fragment>
-                <SwaggerField
-                  fieldName="street_address_1"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  fieldName="street_address_2"
-                  swagger={this.props.schema}
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="city"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  className="usa-width-one-sixth"
-                  fieldName="state"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="postal_code"
-                  swagger={this.props.schema}
-                  required
-                />
+                <div className="address-segment">
+                  <SwaggerField
+                    fieldName="street_address_1"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    fieldName="street_address_2"
+                    swagger={this.props.schema}
+                  />
+                  <SwaggerField
+                    className="usa-width-one-fourth"
+                    fieldName="city"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    className="usa-width-one-sixth"
+                    fieldName="state"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    className="usa-width-one-fourth"
+                    fieldName="postal_code"
+                    swagger={this.props.schema}
+                    required
+                  />
+                </div>
               </Fragment>
             )}
+            <h4>Delivery location</h4>
             <SwaggerField
+              className="radio-title"
               fieldName="has_delivery_address"
-              swagger={this.props.schema}
+              swagger={hhgSchema}
               component={YesNoBoolean}
             />
             {get(this.props, 'formValues.has_delivery_address', false) && (
               <Fragment>
-                <SwaggerField
-                  fieldName="street_address_1"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  fieldName="street_address_2"
-                  swagger={this.props.schema}
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="city"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  className="usa-width-one-sixth"
-                  fieldName="state"
-                  swagger={this.props.schema}
-                  required
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="postal_code"
-                  swagger={this.props.schema}
-                  required
-                />
+                <div className="address-segment">
+                  <SwaggerField
+                    fieldName="street_address_1"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    fieldName="street_address_2"
+                    swagger={this.props.schema}
+                  />
+                  <SwaggerField
+                    className="usa-width-one-fourth"
+                    fieldName="city"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    className="usa-width-one-sixth"
+                    fieldName="state"
+                    swagger={this.props.schema}
+                    required
+                  />
+                  <SwaggerField
+                    className="usa-width-one-fourth"
+                    fieldName="postal_code"
+                    swagger={this.props.schema}
+                    required
+                  />
+                </div>
               </Fragment>
             )}
             <SwaggerField
+              className="radio-title"
               fieldName="has_partial_sit_delivery_address"
-              swagger={this.props.schema}
+              swagger={hhgSchema}
               component={YesNoBoolean}
             />
             {get(
