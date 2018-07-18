@@ -62,7 +62,7 @@ class OfficeWrapper extends Component {
                   component={OrdersInfo}
                 />
                 <PrivateRoute
-                  path="/moves/:moveId/documents"
+                  path="/moves/:moveId/documents/:moveDocumentId?"
                   component={DocumentViewer}
                 />
               </Switch>
