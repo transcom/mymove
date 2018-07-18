@@ -25,12 +25,6 @@ const hhgSchema = {
       title: 'Do you know your home address at your destination yet?',
       'x-nullable': true,
     },
-    has_partial_sit_delivery_address: {
-      type: 'boolean',
-      title:
-        'Do you want to deliver some of your household goods to an additional destination (such as a self-storage unit)?',
-      'x-nullable': true,
-    },
   },
 };
 
@@ -58,11 +52,6 @@ export class HHGAddress extends Component {
     const hasDelivery = get(
       this.props,
       'formValues.has_delivery_address',
-      false,
-    );
-    const hasSITDelivery = get(
-      this.props,
-      'formValues.has_partial_sit_delivery_address',
       false,
     );
     return (
@@ -190,43 +179,6 @@ export class HHGAddress extends Component {
                     required={hasDelivery}
                   />
                 </div>
-              </Fragment>
-            )}
-            <SwaggerField
-              className="radio-title"
-              fieldName="has_partial_sit_delivery_address"
-              swagger={hhgSchema}
-              component={YesNoBoolean}
-            />
-            {hasSITDelivery && (
-              <Fragment>
-                <SwaggerField
-                  fieldName="street_address_1"
-                  swagger={this.props.partialSITAddressSchema}
-                  required={hasSITDelivery}
-                />
-                <SwaggerField
-                  fieldName="street_address_2"
-                  swagger={this.props.partialSITAddressSchema}
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="city"
-                  swagger={this.props.partialSITAddressSchema}
-                  required={hasSITDelivery}
-                />
-                <SwaggerField
-                  className="usa-width-one-sixth"
-                  fieldName="state"
-                  swagger={this.props.partialSITAddressSchema}
-                  required={hasSITDelivery}
-                />
-                <SwaggerField
-                  className="usa-width-one-fourth"
-                  fieldName="postal_code"
-                  swagger={this.props.partialSITAddressSchema}
-                  required={hasSITDelivery}
-                />
               </Fragment>
             )}
           </div>
