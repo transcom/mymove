@@ -1,7 +1,7 @@
 import { cloneDeep } from 'lodash';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 
-import { IndexMoveDocuments, CreateMoveDocument } from './api.js';
+import { IndexMoveDocuments } from './api.js';
 import { upsert } from 'shared/utils';
 
 // Types
@@ -20,11 +20,6 @@ const CREATE_MOVE_DOCUMENT = ReduxHelpers.generateAsyncActionTypes(
 export const indexMoveDocuments = ReduxHelpers.generateAsyncActionCreator(
   indexMoveDocumentsType,
   IndexMoveDocuments,
-);
-
-export const createMoveDocument = ReduxHelpers.generateAsyncActionCreator(
-  createMoveDocumentType,
-  CreateMoveDocument,
 );
 
 // Reducer
@@ -60,7 +55,6 @@ export function documentsReducer(state = initialState, action) {
       return {
         ...upsertMoveDocument(action.payload, state),
         moveDocumentCreateError: false,
-        createdMoveDocument: action.payload,
       };
     case CREATE_MOVE_DOCUMENT.failure:
       return Object.assign({}, state, {
