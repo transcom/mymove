@@ -5,10 +5,7 @@ import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
 
 import { getFormValues, reduxForm } from 'redux-form';
-import {
-  selectMoveDocument,
-  createMoveDocument,
-} from 'shared/Entities/modules/moveDocuments';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 
 import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
