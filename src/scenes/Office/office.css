@@ -13,7 +13,7 @@
 }
 
 .icon {
-  margin: 0 0.3em 0 0.3em;
+  margin: 0 0.3em 0 0em;
 }
 
 .form-column {
@@ -188,6 +188,12 @@
 }
 
 .orders-page-fields .uploaded-at {
+  font-size: 0.8em;
+  color: gray;
+  margin-top: 0;
+}
+
+.uploaded-at {
   font-size: 0.8em;
   color: gray;
   margin-top: 0;

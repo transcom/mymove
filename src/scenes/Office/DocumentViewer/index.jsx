@@ -147,7 +147,6 @@ class DocumentViewer extends Component {
 
 DocumentViewer.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({

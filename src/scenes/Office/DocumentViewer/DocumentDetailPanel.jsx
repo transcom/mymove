@@ -1,5 +1,4 @@
 import React from 'react';
-// import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
@@ -7,17 +6,21 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
 import { renderStatusIcon } from 'shared/utils';
+import { formatDate } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import {
   selectMoveDocument,
   updateMoveDocument,
 } from 'shared/Entities/modules/moveDocuments';
+import { selectDocument } from 'shared/Entities/modules/documents';
+import { selectUpload } from 'shared/Entities/modules/uploads';
 
 import '../office.css';
 
 const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
+  const upload = props.upload;
   const moveDocFieldProps = {
     values: props.moveDocument,
     schema: props.moveDocSchema,
@@ -29,6 +32,7 @@ const DocumentDetailDisplay = props => {
           {renderStatusIcon(moveDoc.status)}
           {moveDoc.title}
         </span>
+        <p className="uploaded-at">Uploaded {formatDate(upload.created_at)}</p>
         {moveDoc.title ? (
           <PanelSwaggerField fieldName="title" {...moveDocFieldProps} />
         ) : (
@@ -93,11 +97,14 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
   const moveDocument = selectMoveDocument(state, moveDocumentId);
+  const firstUpload = selectUpload(
+    state,
+    selectDocument(state, moveDocument.document).uploads[0],
+  );
 
   return {
     // reduxForm
     initialValues: {
-      // TODO: Update to use move doc retrieved from UI store
       moveDocument: moveDocument,
     },
 
@@ -110,8 +117,8 @@ function mapStateToProps(state, props) {
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
-    // TODO: Get the appropriate move doc
     moveDocument: moveDocument,
+    upload: firstUpload,
 
     // editablePanel
     formIsValid: isValid(formName)(state),
@@ -119,7 +126,6 @@ function mapStateToProps(state, props) {
       let values = getFormValues(formName)(state);
       return [
         get(state, 'office.officeMove.id'),
-        // TODO: get real movedoc
         get(moveDocument, 'id'),
         values.moveDocument,
       ];
