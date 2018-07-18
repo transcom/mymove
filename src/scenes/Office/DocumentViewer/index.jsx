@@ -7,7 +7,7 @@ import { compact, get } from 'lodash';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
-import { indexMoveDocuments } from './ducks.js';
+// import { indexMoveDocuments } from './ducks.js';
 import { loadMoveDependencies } from '../ducks.js';
 import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -105,9 +105,10 @@ class DocumentViewer extends Component {
                   All Documents ({numMoveDocs})
                 </Tab>
                 {/* TODO: Handle routing of /new route better */}
-                {this.props.match.params.moveDocumentId !== 'new' && (
-                  <Tab className="title nav-tab">Details</Tab>
-                )}
+                {this.props.match.params.moveDocumentId &&
+                  this.props.match.params.moveDocumentId !== 'new' && (
+                    <Tab className="title nav-tab">Details</Tab>
+                  )}
               </TabList>
 
               <TabPanel>
@@ -126,15 +127,16 @@ class DocumentViewer extends Component {
                 </div>
               </TabPanel>
 
-              {this.props.match.params.moveDocumentId !== 'new' && (
-                <TabPanel>
-                  <DocumentDetailPanel
-                    // TODO: title is required, use something better than detail url
-                    moveDocumentId={this.props.match.params.moveDocumentId}
-                    title=""
-                  />
-                </TabPanel>
-              )}
+              {this.props.match.params.moveDocumentId &&
+                this.props.match.params.moveDocumentId !== 'new' && (
+                  <TabPanel>
+                    <DocumentDetailPanel
+                      className="document-viewer"
+                      moveDocumentId={this.props.match.params.moveDocumentId}
+                      title=""
+                    />
+                  </TabPanel>
+                )}
             </Tabs>
           </div>
         </div>
@@ -164,7 +166,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, indexMoveDocuments, getMoveDocumentsForMove },
+    { loadMoveDependencies, getMoveDocumentsForMove },
     dispatch,
   );
 

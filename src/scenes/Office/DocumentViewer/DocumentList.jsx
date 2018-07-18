@@ -3,11 +3,8 @@ import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { get } from 'lodash';
 
 import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
-
-import { indexMoveDocuments } from './ducks.js';
 import { renderStatusIcon } from 'shared/utils';
 
 import '../office.css';
@@ -41,7 +38,4 @@ const mapStateToProps = (state, props) => ({
   moveDocuments: selectAllDocumentsForMove(state, props.moveId),
 });
 
-const mapDispatchToProps = dispatch =>
-  bindActionCreators({ indexMoveDocuments }, dispatch);
-
-export default connect(mapStateToProps, mapDispatchToProps)(DocumentList);
+export default connect(mapStateToProps)(DocumentList);

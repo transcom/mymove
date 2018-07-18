@@ -1,5 +1,5 @@
 import { filter, map } from 'lodash';
-import { moveDocuments, moveDocument } from '../schema';
+import { moveDocuments } from '../schema';
 import { ADD_ENTITIES, addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
@@ -29,6 +29,36 @@ export const getMoveDocumentsForMove = moveId => {
     checkResponse(response, 'failed to get move documents due to server error');
 
     const data = normalize(response.body, schema.moveDocuments);
+    dispatch(addEntities(data.entities));
+    return response;
+  };
+};
+
+export const createMoveDocument = (
+  moveId,
+  uploadIds,
+  title,
+  moveDocType,
+  status,
+  notes,
+) => {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const response = await client.apis.moves.createMoveDocument({
+      moveId,
+      createMoveDocumentPayload: {
+        upload_ids: uploadIds,
+        title: title,
+        move_document_type: moveDocType,
+        status: status,
+        notes: notes,
+      },
+    });
+    checkResponse(
+      response,
+      'failed to create move document due to server error',
+    );
+    const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
   };

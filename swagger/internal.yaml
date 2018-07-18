@@ -526,6 +526,7 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
+        title: Document Title
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -574,6 +575,7 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
+        title: Document Title
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -588,7 +590,7 @@ definitions:
       - status
   MoveDocumentType:
     type: string
-    title: Document type
+    title: Document Type
     enum:
       - OTHER
       - SHIPMENT_SUMMARY
@@ -597,7 +599,7 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
   MoveDocumentStatus:
     type: string
-    title: Doc status
+    title: Document Status
     enum:
       - AWAITING_REVIEW
       - OK
