@@ -31,6 +31,7 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		h.logger.Error("Creating GEX POST request", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
+	request.SetBasicAuth("mymovet", os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
 
 	cert := os.Getenv("CLIENT_TLS_CERT")
 	key := os.Getenv("CLIENT_TLS_KEY")
@@ -43,6 +44,8 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		Certificates: []tls.Certificate{certificate},
 		ClientAuth:   tls.RequireAnyClientCert,
 		RootCAs:      getDoDRootCAs(),
+		MinVersion:   tls.VersionTLS12,
+		MaxVersion:   tls.VersionTLS12,
 	}
 	tr := &http.Transport{TLSClientConfig: &config}
 	client := &http.Client{Transport: tr}
