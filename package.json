@@ -74,9 +74,6 @@
     "/internal": {
       "target": "http://localhost:8080"
     },
-    "/orders": {
-      "target": "http://localhost:8080"
-    },
     "/storage": {
       "target": "http://localhost:8080"
     },

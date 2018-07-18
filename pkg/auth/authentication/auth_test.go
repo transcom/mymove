@@ -1,17 +1,16 @@
 package authentication
 
 import (
+	"github.com/gobuffalo/pop"
+	"github.com/gobuffalo/uuid"
+	"github.com/stretchr/testify/suite"
+	"go.uber.org/zap"
 	"log"
 	"net/http"
 	"net/http/httptest"
 	"net/url"
 	"regexp"
 	"testing"
-
-	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
-	"github.com/stretchr/testify/suite"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
