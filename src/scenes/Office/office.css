@@ -201,7 +201,10 @@
   font-size: 0.8em;
 }
 
-.documents a:link, a:visited, a:hover, a:active {
+.documents a:link,
+.documents a:visited,
+.documents a:hover,
+.documents a:active {
   text-decoration: none;
   color: #0071bc;
 }
@@ -387,5 +390,3 @@ head .panel-subhead {
 .calculator-panel .calculated-result {
   margin: 1em;
 }
-
-
