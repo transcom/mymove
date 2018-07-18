@@ -1,0 +1,23 @@
+form.default {
+  padding: 2rem;
+}
+
+h1.date-heading {
+  font-size: 3rem;
+}
+
+table th,
+table td {
+  border: none;
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+th {
+  font-weight: bold;
+}
+
+span.estimate {
+  color: gray;
+}

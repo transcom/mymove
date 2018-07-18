@@ -82,7 +82,11 @@ All of Go's tooling expects Go code to be checked out in a specific location. Pl
 export GOPATH=~/code/go
 ```
 
-If you are OK with using the default location for go code (`~/go`), then there is nothing to do. Since this is the default location, using it means you do not need to set `$GOPATH` yourself.
+A few of our custom tools expect the `GOPATH` environment variable to be defined.  If you'd like to use the default location, then add the following to your `.bash_profile` or hardcode the default value.  This line will set the GOPATH environment variable to the value of `go env GOPATH` if it is not already set.
+
+```bash
+export GOPATH=${GOPATH:-$(go env GOPATH)}
+```
 
 _Regardless of where your go code is located_, you need to add `$GOPATH/bin` to your `PATH` so that executables installed with the go tooling can be found. Add the following to your `.bash_profile`:
 
