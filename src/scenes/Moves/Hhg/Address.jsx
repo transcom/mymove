@@ -30,7 +30,7 @@ const hhgSchema = {
 
 export class HHGAddress extends Component {
   handleSubmit = () => {
-    // Create new HHG pickup address
+    // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
     // const newAddress = { residential_address: this.props.values };
   };
 
@@ -113,29 +113,29 @@ export class HHGAddress extends Component {
                 <div className="address-segment">
                   <SwaggerField
                     fieldName="street_address_1"
-                    swagger={this.props.secondaryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasSecondary}
                   />
                   <SwaggerField
                     fieldName="street_address_2"
-                    swagger={this.props.secondaryAddressSchema}
+                    swagger={this.props.schema}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="city"
-                    swagger={this.props.secondaryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasSecondary}
                   />
                   <SwaggerField
                     className="usa-width-one-sixth"
                     fieldName="state"
-                    swagger={this.props.secondaryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasSecondary}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="postal_code"
-                    swagger={this.props.secondaryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasSecondary}
                   />
                 </div>
@@ -153,29 +153,29 @@ export class HHGAddress extends Component {
                 <div className="address-segment">
                   <SwaggerField
                     fieldName="street_address_1"
-                    swagger={this.props.deliveryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasDelivery}
                   />
                   <SwaggerField
                     fieldName="street_address_2"
-                    swagger={this.props.deliveryAddressSchema}
+                    swagger={this.props.schema}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="city"
-                    swagger={this.props.deliveryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasDelivery}
                   />
                   <SwaggerField
                     className="usa-width-one-sixth"
                     fieldName="state"
-                    swagger={this.props.deliveryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasDelivery}
                   />
                   <SwaggerField
                     className="usa-width-one-fourth"
                     fieldName="postal_code"
-                    swagger={this.props.deliveryAddressSchema}
+                    swagger={this.props.schema}
                     required={hasDelivery}
                   />
                 </div>
@@ -200,9 +200,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     schema: get(state, 'swagger.spec.definitions.Address', {}),
-    secondaryAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
-    deliveryAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
-    partialSITAddressSchema: get(state, 'swagger.spec.definitions.Address', {}),
     formValues: getFormValues(formName)(state),
     ...state.serviceMember,
   };
