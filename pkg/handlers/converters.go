@@ -43,9 +43,8 @@ func fmtURI(uri string) *strfmt.URI {
 	return &fmtURI
 }
 
-func fmtInt64(i int) *int64 {
-	fmtInt := int64(i)
-	return &fmtInt
+func fmtInt64(i int64) *int64 {
+	return &i
 }
 
 func fmtBool(b bool) *bool {

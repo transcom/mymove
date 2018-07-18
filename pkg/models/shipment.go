@@ -27,8 +27,8 @@ type Shipment struct {
 	Market                       *string     `json:"market" db:"market"`
 	MoveID                       uuid.UUID   `json:"move_id" db:"move_id"`
 	Status                       string      `json:"status" db:"status"`
-	EstimatedPackDays            *int        `json:"estimated_pack_days" db:"estimated_pack_days"`
-	EstimatedTransitDays         *int        `json:"estimated_transit_days" db:"estimated_transit_days"`
+	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
+	EstimatedTransitDays         *int64      `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID              *uuid.UUID  `json:"pickup_address_id" db:"pickup_address_id"`
 	PickupAddress                *Address    `belongs_to:"address"`
 	HasSecondaryPickupAddress    bool        `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
@@ -120,8 +120,8 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: s.MoveID, Name: "move_id"},
 		&validators.StringIsPresent{Field: s.Status, Name: "status"},
-		&OptionalIntIsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
-		&OptionalIntIsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
+		&OptionalInt64IsPositive{Field: s.EstimatedPackDays, Name: "estimated_pack_days"},
+		&OptionalInt64IsPositive{Field: s.EstimatedTransitDays, Name: "estimated_transit_days"},
 		&OptionalPoundIsPositive{Field: s.WeightEstimate, Name: "weight_estimate"},
 		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},

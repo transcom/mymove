@@ -3,9 +3,11 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/uuid"
 	// "go.uber.org/zap"
 
-	// shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
+	"github.com/transcom/mymove/pkg/auth"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipment"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/models"
@@ -15,18 +17,76 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
-		TrafficDistributionListID: fmtUUIDPtr(s.TrafficDistributionListID),
-		SourceGbloc:               s.SourceGBLOC,
-		Market:                    s.Market,
-		Status:                    s.Status,
-		BookDate:                  fmtDatePtr(s.BookDate),
-		RequestedPickupDate:       fmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                fmtDatePtr(s.PickupDate),
-		DeliveryDate:              fmtDatePtr(s.DeliveryDate),
-		CreatedAt:                 strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                 strfmt.DateTime(s.UpdatedAt),
+		TrafficDistributionListID:   fmtUUIDPtr(s.TrafficDistributionListID),
+		SourceGbloc:                 s.SourceGBLOC,
+		Market:                      s.Market,
+		Status:                      s.Status,
+		BookDate:                    fmtDatePtr(s.BookDate),
+		RequestedPickupDate:         fmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                  fmtDatePtr(s.PickupDate),
+		DeliveryDate:                fmtDatePtr(s.DeliveryDate),
+		CreatedAt:                   strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                   strfmt.DateTime(s.UpdatedAt),
+		EstimatedPackDays:           s.EstimatedPackDays,
+		EstimatedTransitDays:        s.EstimatedTransitDays,
+		PickupAddress:               payloadForAddressModel(s.PickupAddress),
+		SecondaryPickupAddress:      payloadForAddressModel(s.SecondaryPickupAddress),
+		DeliveryAddress:             payloadForAddressModel(s.DeliveryAddress),
+		PartialSitDeliveryAddress:   payloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:              fmtInt64(s.WeightEstimate.Int()),
+		ProgearWeightEstimate:       fmtInt64(s.ProgearWeightEstimate.Int()),
+		SpouseProgearWeightEstimate: fmtInt64(s.SpouseProgearWeightEstimate.Int()),
 	}
 	return shipmentPayload
+}
+
+// CreateShipmentHandler creates a Shipment
+type CreateShipmentHandler HandlerContext
+
+// Handle is the handler
+func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, session, moveID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	payload := params.Shipment
+
+	pickupAddress := addressModelFromPayload(payload.PickupAddress)
+	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
+	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
+	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+
+	newShipment := &models.Shipment{
+		MoveID:                      m.ID,
+		Status:                      "DRAFT",
+		EstimatedPackDays:           payload.EstimatedPackDays,
+		EstimatedTransitDays:        payload.EstimatedTransitDays,
+		WeightEstimate:              payload.WeightEstimate,
+		ProgearWeightEstimate:       payload.ProgearWeightEstimate,
+		SpouseProgearWeightEstimate: payload.SpouseProgearWeightEstimate,
+		PickupAddress:               pickupAddress,
+		SecondaryPickupAddress:      secondaryPickupAddress,
+		DeliveryAddress:             deliveryAddress,
+		PartialSITDeliveryAddress:   partialSITDeliveryAddress,
+	}
+
+	newShipment, verrs, err := move.SaveShipment(h.db, newShipment)
+
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(*newShipment)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
 /* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,

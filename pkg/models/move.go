@@ -272,6 +272,10 @@ func (m Move) CreatePPM(db *pop.Connection,
 	return &newPPM, verrs, nil
 }
 
+func (m Move) SaveShipment(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	return db.ValidateAndSave(&shipment)
+}
+
 // CreateSignedCertification creates a new SignedCertification associated with this move
 func (m Move) CreateSignedCertification(db *pop.Connection,
 	submittingUserID uuid.UUID,
