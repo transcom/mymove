@@ -142,7 +142,7 @@ class BigButtonGroup extends Component {
       },
       'truck-gray',
       isMobile,
-      false,
+      true,
     );
     var enabledHHG = createButton(
       'HHG',
