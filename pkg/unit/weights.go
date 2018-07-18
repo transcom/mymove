@@ -9,7 +9,7 @@ import (
 type CWT int
 
 // Pound represents a value that is a multiple of 1 pound
-type Pound int
+type Pound int64
 
 // ToPounds returns the weight of this CWT in pounds
 func (cwt CWT) ToPounds() Pound {

@@ -11,6 +11,7 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/models"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
@@ -33,9 +34,9 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		SecondaryPickupAddress:      payloadForAddressModel(s.SecondaryPickupAddress),
 		DeliveryAddress:             payloadForAddressModel(s.DeliveryAddress),
 		PartialSitDeliveryAddress:   payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:              fmtInt64(s.WeightEstimate.Int()),
-		ProgearWeightEstimate:       fmtInt64(s.ProgearWeightEstimate.Int()),
-		SpouseProgearWeightEstimate: fmtInt64(s.SpouseProgearWeightEstimate.Int()),
+		WeightEstimate:              fmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:       fmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate: fmtInt64(s.SpouseProgearWeightEstimate.Int64()),
 	}
 	return shipmentPayload
 }
@@ -62,12 +63,14 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
 
+	weightEstimate := unit.Pound(*payload.WeightEstimate)
+
 	newShipment := &models.Shipment{
-		MoveID:                      m.ID,
+		MoveID:                      move.ID,
 		Status:                      "DRAFT",
 		EstimatedPackDays:           payload.EstimatedPackDays,
 		EstimatedTransitDays:        payload.EstimatedTransitDays,
-		WeightEstimate:              payload.WeightEstimate,
+		WeightEstimate:              &weightEstimate,
 		ProgearWeightEstimate:       payload.ProgearWeightEstimate,
 		SpouseProgearWeightEstimate: payload.SpouseProgearWeightEstimate,
 		PickupAddress:               pickupAddress,
