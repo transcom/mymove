@@ -290,6 +290,8 @@ export const getPagesInFlow = state =>
     return page.isInFlow(state);
   });
 
+// We need to pass in state here to determine which page "isInFlow"
+// TODO: Refactor to include only parts of state needed to determine isInFlow
 export const getNextIncompletePage = (
   state,
   {
