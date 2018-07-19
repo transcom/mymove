@@ -8,6 +8,12 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
+/*
+ * --------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * --------------------------------------------
+ */
+
 func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
 	if rawAddress == nil {
 		return nil
@@ -38,6 +44,22 @@ func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 	}
 }
 
+func updateAddressWithPayload(a *models.Address, payload *internalmessages.Address) {
+	a.StreetAddress1 = *payload.StreetAddress1
+	a.StreetAddress2 = payload.StreetAddress2
+	a.StreetAddress3 = payload.StreetAddress3
+	a.City = *payload.City
+	a.State = *payload.State
+	a.PostalCode = *payload.PostalCode
+	a.Country = payload.Country
+}
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
 func publicPayloadForAddressModel(a *models.Address) *apimessages.Address {
 	if a == nil {
 		return nil
@@ -51,14 +73,4 @@ func publicPayloadForAddressModel(a *models.Address) *apimessages.Address {
 		PostalCode:     swag.String(a.PostalCode),
 		Country:        *a.Country,
 	}
-}
-
-func updateAddressWithPayload(a *models.Address, payload *internalmessages.Address) {
-	a.StreetAddress1 = *payload.StreetAddress1
-	a.StreetAddress2 = payload.StreetAddress2
-	a.StreetAddress3 = payload.StreetAddress3
-	a.City = *payload.City
-	a.State = *payload.State
-	a.PostalCode = *payload.PostalCode
-	a.Country = payload.Country
 }
