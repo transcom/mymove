@@ -120,30 +120,7 @@ func FetchShipmentsByTSP(dbConnection *pop.Connection, TspID uuid.UUID) ([]Shipm
 	var sql string
 
 	sql = fmt.Sprintf(`SELECT
-			shipments.id,
-			shipments.traffic_distribution_list_id,
-			shipments.pickup_date,
-			shipments.delivery_date,
-			shipments.created_at,
-			shipments.updated_at,
-			shipments.source_gbloc,
-			shipments.market,
-			shipments.book_date,
-			shipments.requested_pickup_date,
-			shipments.move_id,
-			shipments.status,
-			shipments.estimated_pack_days,
-			shipments.estimated_transit_days,
-			shipments.pickup_address_id,
-			shipments.has_secondary_pickup_address,
-			shipments.secondary_pickup_address_id,
-			shipments.has_delivery_address,
-			shipments.delivery_address_id,
-			shipments.has_partial_sit_delivery_address,
-			shipments.partial_sit_delivery_address_id,
-			shipments.weight_estimate,
-			shipments.progear_weight_estimate,
-			shipments.spouse_progear_weight_estimate
+			shipments.*
 		FROM shipments
 		LEFT JOIN shipment_offers ON
 			shipments.id=shipment_offers.shipment_id
