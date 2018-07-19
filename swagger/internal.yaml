@@ -1251,20 +1251,24 @@ definitions:
       book_date:
         type: string
         format: date
+        example: "2018-04-26"
         readOnly: true
         x-nullable: true
       requested_pickup_date:
         type: string
         format: date
+        example: "2018-04-26"
         x-nullable: true
       pickup_date:
         type: string
         format: date
+        example: "2018-04-26"
         readOnly: true
         x-nullable: true
       delivery_date:
         type: string
         format: date
+        example: "2018-04-26"
         readOnly: true
         x-nullable: true
       estimated_pack_days:
