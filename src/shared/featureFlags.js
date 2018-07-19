@@ -11,6 +11,7 @@ import { forEach } from 'lodash';
 const defaultFlags = {
   ppm: true,
   hhg: true,
+  documentViewer: true,
 };
 
 const environmentFlags = {
@@ -22,10 +23,12 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags, {
     hhg: false,
+    documentViewer: false,
   }),
 
   production: Object.assign({}, defaultFlags, {
     hhg: false,
+    documentViewer: false,
   }),
 };
 
