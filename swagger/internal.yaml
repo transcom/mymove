@@ -2433,7 +2433,7 @@ paths:
       description: Create a Shipment tied to the move ID
       operationId: createShipment
       tags:
-        - shipment
+        - shipments
       parameters:
         - in: path
           name: moveId
