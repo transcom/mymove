@@ -6,7 +6,7 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipment"
+	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
