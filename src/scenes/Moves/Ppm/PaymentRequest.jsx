@@ -38,7 +38,11 @@ export class PaymentRequest extends Component {
         </div>
         <div className="usa-width-one-third">
           <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
-          <DocumentList moveDocuments={moveDocuments} moveId={moveId} />
+          <DocumentList
+            moveDocuments={moveDocuments}
+            moveId={moveId}
+            disableLinks={true}
+          />
         </div>
       </div>
     );

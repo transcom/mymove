@@ -8,7 +8,7 @@ import '../office.css';
 
 export class DocumentList extends Component {
   render() {
-    const { moveDocuments, moveId } = this.props;
+    const { moveDocuments, moveId, disableLinks } = this.props;
     return (
       <div>
         {(moveDocuments || []).map(doc => {
@@ -17,7 +17,8 @@ export class DocumentList extends Component {
           return (
             <div className="panel-field" key={doc.id}>
               <span className="status">{status}</span>
-              <Link to={detailUrl}>{doc.title}</Link>
+              {!disableLinks && <Link to={detailUrl}>{doc.title}</Link>}
+              {disableLinks && <span>{doc.title}</span>}
             </div>
           );
         })}
@@ -29,6 +30,7 @@ export class DocumentList extends Component {
 DocumentList.propTypes = {
   moveId: PropTypes.string.isRequired,
   moveDocuments: PropTypes.array.isRequired,
+  disableLinks: PropTypes.bool,
 };
 
 export default DocumentList;
