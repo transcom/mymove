@@ -82,10 +82,16 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
 		}
-		// Otherwise, it's an unexpected err so we return that.
 		return nil, err
 	}
-	// TODO: Handle authorization - should all users be able to retrieve a move doc?
+	// Check that the logged-in service member is associated to the document
+	if session.IsMyApp() && moveDoc.Document.ServiceMemberID != session.ServiceMemberID {
+		return &MoveDocument{}, ErrFetchForbidden
+	}
+	// Allow all office users to fetch move doc
+	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+		return &MoveDocument{}, ErrFetchForbidden
+	}
 	return &moveDoc, nil
 }
 

@@ -132,6 +132,10 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 			MoveID: move.ID,
 			Move:   move,
 		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
 	})
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
