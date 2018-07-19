@@ -6,10 +6,7 @@ info:
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
-host: orders.move.mil
 basePath: /orders/v0
-schemes:
-  - http
 paths:
   /orders:
     get:
