@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -101,11 +100,8 @@ func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsPar
 	var response middleware.Responder
 
 	session := auth.SessionFromRequestContext(p.HTTPRequest)
-	transportationServiceProviderID := session.EntityID
 
-	shipments := []models.Shipment{}
-
-	err := h.db.Eager().Where(fmt.Sprintf("transportation_service_provider = '%s'", transportationServiceProviderID)).All(&shipments)
+	shipments, err := models.FetchShipmentsByTSP(h.db, session.EntityID)
 
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
