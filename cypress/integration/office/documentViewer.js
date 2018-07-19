@@ -33,14 +33,14 @@ describe('The document viewer', function() {
       .get('button.submit')
       .should('not.be.disabled')
       .click();
-    // TODO: add tests for uploaded document viewe
+    // TODO: add tests for uploaded document viewer
   });
   it('shows the newly uploaded document in the document list tab', () => {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('All Documents (1)');
     cy.contains('super secret info document');
     cy
-      .get('.doclist')
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);
