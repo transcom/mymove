@@ -8,10 +8,14 @@ import { composeWithDevTools } from 'redux-devtools-extension/logOnlyInProductio
 
 import { isDevelopment } from 'shared/constants';
 import logger from './reduxLogger';
+import * as schema from 'shared/Entities/schema';
 
 export const history = createHistory();
 
-const middlewares = [thunk, routerMiddleware(history)];
+const middlewares = [
+  thunk.withExtraArgument({ schema }),
+  routerMiddleware(history),
+];
 
 if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
   middlewares.push(logger);
