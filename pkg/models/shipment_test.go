@@ -9,8 +9,8 @@ import (
 )
 
 func (suite *ModelSuite) Test_ShipmentValidations() {
-	packDays := -2
-	transitDays := 0
+	packDays := int64(-2)
+	transitDays := int64(0)
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9

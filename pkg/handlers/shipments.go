@@ -63,23 +63,21 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
 
-	weightEstimate := unit.Pound(*payload.WeightEstimate)
-
 	newShipment := &models.Shipment{
-		MoveID:                      move.ID,
+		MoveID:                      moveID,
 		Status:                      "DRAFT",
 		EstimatedPackDays:           payload.EstimatedPackDays,
 		EstimatedTransitDays:        payload.EstimatedTransitDays,
-		WeightEstimate:              &weightEstimate,
-		ProgearWeightEstimate:       payload.ProgearWeightEstimate,
-		SpouseProgearWeightEstimate: payload.SpouseProgearWeightEstimate,
+		WeightEstimate:              (*unit.Pound)(payload.WeightEstimate),
+		ProgearWeightEstimate:       (*unit.Pound)(payload.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate: (*unit.Pound)(payload.SpouseProgearWeightEstimate),
 		PickupAddress:               pickupAddress,
 		SecondaryPickupAddress:      secondaryPickupAddress,
 		DeliveryAddress:             deliveryAddress,
 		PartialSITDeliveryAddress:   partialSITDeliveryAddress,
 	}
 
-	newShipment, verrs, err := move.SaveShipment(h.db, newShipment)
+	verrs, err := move.SaveShipment(h.db, newShipment)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
