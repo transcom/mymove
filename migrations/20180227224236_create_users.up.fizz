@@ -1,7 +1,7 @@
-create_table("users", func(t) {
+create_table("users") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("login_gov_uuid", "uuid", {})
 	t.Column("login_gov_email", "text", {})
-})
+}
 
-raw("ALTER TABLE users ADD CONSTRAINT constraint_name UNIQUE (login_gov_uuid);")
+sql("ALTER TABLE users ADD CONSTRAINT constraint_name UNIQUE (login_gov_uuid);")
