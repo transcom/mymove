@@ -26,8 +26,8 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
-import HHGDatePicker from 'scenes/Moves/Hhg/DatePicker';
-import HHGAddress from 'scenes/Moves/Hhg/Address';
+import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
+import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -221,7 +221,7 @@ const pages = {
       return every([hhg.requested_pickup_date]);
     },
     render: (key, pages) => ({ match }) => (
-      <HHGDatePicker pages={pages} pageKey={key} match={match} />
+      <ShipmentDatePicker pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/hhg-address': {
@@ -230,7 +230,7 @@ const pages = {
       return every([hhg.pickup_address]);
     },
     render: (key, pages) => ({ match }) => (
-      <HHGAddress pages={pages} pageKey={key} match={match} />
+      <ShipmentAddress pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/hhg-weight': {

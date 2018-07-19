@@ -11,7 +11,7 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './Address.css';
 
-const formName = 'hhg_address';
+const formName = 'shipment_address';
 const AddressWizardForm = reduxifyWizardForm(formName);
 const hhgSchema = {
   properties: {
@@ -28,13 +28,16 @@ const hhgSchema = {
   },
 };
 
-export class HHGAddress extends Component {
-  handleSubmit = () => {
-    // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
-    // const newAddress = { residential_address: this.props.values };
-  };
+export class ShipmentAddress extends Component {
+  // handleSubmit = () => {
+  //   return false;
+  //   // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
+  //   // const newAddresses = { ...this.props.values };
+  //   // this.props.updateShipment(newAddress);
+  // };
 
   render() {
+    const handleSubmit = false;
     const {
       pages,
       pageKey,
@@ -187,7 +190,7 @@ export class HHGAddress extends Component {
     );
   }
 }
-HHGAddress.propTypes = {
+ShipmentAddress.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
@@ -204,4 +207,4 @@ function mapStateToProps(state) {
     ...state.serviceMember,
   };
 }
-export default connect(mapStateToProps, mapDispatchToProps)(HHGAddress);
+export default connect(mapStateToProps, mapDispatchToProps)(ShipmentAddress);
