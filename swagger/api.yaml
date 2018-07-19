@@ -873,69 +873,117 @@ definitions:
       $ref: '#/definitions/ShipmentPayload'
   ShipmentPayload:
     type: object
-    description: A shipment which may be awarded to a TSP
+    description: A shipment connected to a move offer
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-      customer:
-        $ref: '#/definitions/Customer'
-      tsp_id:
+      traffic_distribution_list_id:
         type: string
         format: uuid
-        description: The ID of the TSP to whom the shipment has been offered/accepted
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_locator:
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+      pickup_date:
         type: string
-        pattern: '^[A-Z0-9]{6}$'
-        description: The 'record locator' used to refer back to the Move associated with this Shipment. This is the human readable identifier for the move which can be used to link back to the Service Member, orders etc.
-      dates:
-        $ref: '#/definitions/ShipmentDates'
-      estimated_weight:
-        type: integer
-        description: Estimated weight of the shipment in lbs
-        example: 500
-      type:
-        $ref: '#/definitions/ShipmentType'
+        format: date
+        example: 2018-03-15
+      delivery_date:
+        type: string
+        format: date
+        example: 2018-03-15
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
       market:
         $ref: '#/definitions/ShipmentMarket'
-      channel:
-        $ref: '#/definitions/Channel'
-      origin_gbloc:
-        $ref: '#/definitions/GBLOC'
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      primary_pickup:
-        $ref: '#/definitions/Address'
-      secondary_pickup:
-        $ref: '#/definitions/Address'
-      primary_delivery:
-        $ref: '#/definitions/Address'
-      secondary_delivery:
-        $ref: '#/definitions/Address'
-      bill_of_lading_number:
+      book_date:
         type: string
-        description: B/L Number once a GBL has been printed for the shipment
-        example: AGFM0001021
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      contact_url:
+        format: date
+        example: 2018-03-15
+      requested_pickup_date:
         type: string
-        format: URL
-        description: URL to use to load the contact details for this shipment
-      accept_url:
+        format: date-time
+      move_id:
         type: string
-        format: URL
-        description: URL to use to accept the shipment
-      reject_url:
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+      estimated_pack_days:
+        type: integer
+        description: Estimated days packing
+        example: 2
+      estimated_transit_days:
+        type: integer
+        description: Estimated days in transit
+        example: 3
+      pickup_address:
+        $ref: '#/definitions/Address'
+      has_secondary_pickup_address:
+        type: boolean
+        example: false
+        x-nullable: true
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+      has_delivery_address:
+        type: boolean
+        example: false
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+      has_partial_sit_delivery_address:
+        type: boolean
+        example: false
+        x-nullable: true
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+      weight_estimate:
+        type: integer
+        description: Estimated weight of the shipment in lbs
+        example: 2000
+      progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the progear in lbs
+        example: 500
+      spouse_progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the spouse progear in lbs
+        example: 250
+  ShipmentOfferPayload:
+    type: object
+    properties:
+      id:
         type: string
-        format: URL
-        description: URL to use to reject the shipment
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment:
+        $ref: '#/definitions/ShipmentPayload'
+      transportation_service_provider_id:
+        type: string
+        description: ID of the TSP connected to this offer
+        format: uuid
+      administrative_shipment:
+        type: boolean
+        example: false
+        x-nullable: true
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
+        type: string
+        format: date-time
+      accepted:
+        type: boolean
+        example: false
+        x-nullable: true
+      rejected:
+        type: string
+        description: Reason the offer was rejected
   ShipmentAcceptPayload:
     type: object
     properties:
@@ -1065,7 +1113,7 @@ definitions:
         example: 2018-03-15
   ShipmentMarket:
     type: string
-    description: One of the possible 'Markets' for a shipment (see ?????)
+    description: One of the possible 'Markets' for a shipment
     example: dHHG
     enum:
       - dHHG
@@ -1084,6 +1132,7 @@ definitions:
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
+    example: IN_PROGRESS
     enum:
       - IN_PROGRESS
       - COMPLETE

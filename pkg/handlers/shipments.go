@@ -1,11 +1,14 @@
 package handlers
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
 	"go.uber.org/zap"
 
+	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -60,12 +63,61 @@ func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middlew
  * ------------------------------------------
  */
 
-// PublicIndexShipmentHandler returns a list of shipments
-type PublicIndexShipmentHandler HandlerContext
+func publicPayloadForShipmentModel(s models.Shipment) *apimessages.ShipmentPayload {
+	shipmentPayload := &apimessages.ShipmentPayload{
+		ID: *fmtUUID(s.ID),
+		TrafficDistributionListID:    *fmtUUID(s.TrafficDistributionListID),
+		PickupDate:                   *fmtDate(s.PickupDate),
+		DeliveryDate:                 *fmtDate(s.DeliveryDate),
+		CreatedAt:                    *fmtDateTime(s.CreatedAt),
+		UpdatedAt:                    *fmtDateTime(s.UpdatedAt),
+		SourceGbloc:                  apimessages.GBLOC(s.SourceGBLOC),
+		Market:                       apimessages.ShipmentMarket(*s.Market),
+		BookDate:                     *fmtDate(s.BookDate),
+		RequestedPickupDate:          *fmtDateTime(s.RequestedPickupDate),
+		MoveID:                       *fmtUUID(s.MoveID),
+		Status:                       apimessages.ShipmentStatus(s.Status),
+		EstimatedPackDays:            *fmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:         *fmtInt64(*s.EstimatedTransitDays),
+		PickupAddress:                publicPayloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    fmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:       publicPayloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           fmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:              publicPayloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: fmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:    publicPayloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:               *fmtInt64(s.WeightEstimate.Int()),
+		ProgearWeightEstimate:        *fmtInt64(s.ProgearWeightEstimate.Int()),
+		SpouseProgearWeightEstimate:  *fmtInt64(s.SpouseProgearWeightEstimate.Int()),
+	}
+	return shipmentPayload
+}
+
+// PublicIndexShipmentsHandler returns a list of shipments
+type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
+func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
+	var response middleware.Responder
+
+	session := auth.SessionFromRequestContext(p.HTTPRequest)
+	transportationServiceProviderID := session.EntityID
+
+	shipments := []models.Shipment{}
+
+	err := h.db.Eager().Where(fmt.Sprintf("transportation_service_provider = '%s'", transportationServiceProviderID)).All(&shipments)
+
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		response = publicshipmentop.NewIndexShipmentsBadRequest()
+	} else {
+		isp := make(apimessages.IndexShipmentsPayload, len(shipments))
+		for i, s := range shipments {
+			isp[i] = publicPayloadForShipmentModel(s)
+		}
+		response = publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
+	}
+	return response
 }
 
 // PublicGetShipmentHandler returns a particular shipment

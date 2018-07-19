@@ -11,6 +11,9 @@ type authSessionKey string
 const sessionContextKey authSessionKey = "session"
 
 // Session stores information about the currently logged in session
+// EntityID is the associated entity for a user
+//   - office_user -> transportation_office_id
+//   - tsp_user -> transportation_service_provider_id
 type Session struct {
 	ApplicationName application
 	Hostname        string
@@ -23,6 +26,7 @@ type Session struct {
 	ServiceMemberID uuid.UUID
 	OfficeUserID    uuid.UUID
 	TspUserID       uuid.UUID
+	EntityID        uuid.UUID
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

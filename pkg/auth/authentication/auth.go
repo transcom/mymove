@@ -228,6 +228,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
+			session.EntityID = officeUser.TransportationOfficeID
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -252,6 +253,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.TspUserID = tspUser.ID
+			session.EntityID = tspUser.TransportationServiceProviderID
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
