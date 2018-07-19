@@ -1,4 +1,4 @@
-create_table("issues", func(t) {
+create_table("issues") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("body", "text", {})
-})
+}
