@@ -1,12 +1,9 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import '../office.css';
 
-import { selectAllDocumentsForMove } from 'shared/Entities/modules/moveDocuments';
 import { renderStatusIcon } from 'shared/utils';
-
 import '../office.css';
 
 export class DocumentList extends Component {
@@ -14,7 +11,7 @@ export class DocumentList extends Component {
     const { moveDocuments, moveId } = this.props;
     return (
       <div>
-        {moveDocuments.map(doc => {
+        {(moveDocuments || []).map(doc => {
           const status = renderStatusIcon(doc.status);
           const detailUrl = `/moves/${moveId}/documents/${doc.id}`;
           return (
@@ -30,12 +27,8 @@ export class DocumentList extends Component {
 }
 
 DocumentList.propTypes = {
-  moveDocuments: PropTypes.array,
-  moveId: PropTypes.string,
+  moveId: PropTypes.string.isRequired,
+  moveDocuments: PropTypes.array.isRequired,
 };
 
-const mapStateToProps = (state, props) => ({
-  moveDocuments: selectAllDocumentsForMove(state, props.moveId),
-});
-
-export default connect(mapStateToProps)(DocumentList);
+export default DocumentList;

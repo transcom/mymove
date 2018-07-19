@@ -30,9 +30,8 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, reset } = this.props;
+    const { formValues, moveId, reset} = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
-    const moveId = this.props.match.params.moveId;
     this.setState({
       moveDocumentCreateError: null,
     });
