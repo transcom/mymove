@@ -37,7 +37,6 @@ export class ShipmentAddress extends Component {
   // };
 
   render() {
-    const handleSubmit = false;
     const {
       pages,
       pageKey,
@@ -59,7 +58,8 @@ export class ShipmentAddress extends Component {
     );
     return (
       <AddressWizardForm
-        handleSubmit={this.handleSubmit}
+        // handleSubmit={this.handleSubmit}
+        handleSubmit={false}
         className={formName}
         pageList={pages}
         pageKey={pageKey}
