@@ -12,6 +12,7 @@ const defaultFlags = {
   ppm: true,
   hhg: true,
   documentViewer: true,
+  paymentRequest: true,
 };
 
 const environmentFlags = {
@@ -23,12 +24,12 @@ const environmentFlags = {
 
   staging: Object.assign({}, defaultFlags, {
     hhg: false,
-    documentViewer: false,
+    paymentRequest: false,
   }),
 
   production: Object.assign({}, defaultFlags, {
     hhg: false,
-    documentViewer: false,
+    paymentRequest: false,
   }),
 };
 
