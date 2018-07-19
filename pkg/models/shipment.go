@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/unit"
 )
@@ -17,16 +18,17 @@ import (
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                           uuid.UUID   `json:"id" db:"id"`
-	PickupDate                   *time.Time  `json:"pickup_date" db:"pickup_date"`
-	RequestedPickupDate          *time.Time  `json:"requested_pickup_date" db:"requested_pickup_date"`
-	DeliveryDate                 *time.Time  `json:"delivery_date" db:"delivery_date"`
-	BookDate                     *time.Time  `json:"book_date" db:"book_date"`
-	TrafficDistributionListID    *uuid.UUID  `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	SourceGBLOC                  *string     `json:"source_gbloc" db:"source_gbloc"`
-	Market                       *string     `json:"market" db:"market"`
-	MoveID                       uuid.UUID   `json:"move_id" db:"move_id"`
-	Status                       string      `json:"status" db:"status"`
+	ID                        uuid.UUID  `json:"id" db:"id"`
+	PickupDate                *time.Time `json:"pickup_date" db:"pickup_date"`
+	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
+	DeliveryDate              *time.Time `json:"delivery_date" db:"delivery_date"`
+	BookDate                  *time.Time `json:"book_date" db:"book_date"`
+	TrafficDistributionListID *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
+	Market                    *string    `json:"market" db:"market"`
+	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
+	Status                    string     `json:"status" db:"status"`
+
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays         *int64      `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID              *uuid.UUID  `json:"pickup_address_id" db:"pickup_address_id"`
@@ -126,4 +128,60 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
+}
+
+// SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
+func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("rollback")
+
+		if shipment.PickupAddress != nil {
+			if verrs, err := db.ValidateAndSave(shipment.PickupAddress); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			shipment.PickupAddressID = &shipment.PickupAddress.ID
+		}
+
+		if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
+			if verrs, err := db.ValidateAndSave(shipment.DeliveryAddress); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			shipment.DeliveryAddressID = &shipment.DeliveryAddress.ID
+		}
+
+		if shipment.HasPartialSITDeliveryAddress && shipment.PartialSITDeliveryAddress != nil {
+			if verrs, err := db.ValidateAndSave(shipment.PartialSITDeliveryAddress); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			shipment.PartialSITDeliveryAddressID = &shipment.PartialSITDeliveryAddress.ID
+		}
+
+		if shipment.HasSecondaryPickupAddress && shipment.SecondaryPickupAddress != nil {
+			if verrs, err := db.ValidateAndSave(shipment.SecondaryPickupAddress); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = err
+				return transactionError
+			}
+			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
+		}
+
+		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = err
+			return transactionError
+		}
+
+		return nil
+	})
+
+	return responseVErrors, responseError
 }

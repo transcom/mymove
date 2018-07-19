@@ -18,25 +18,28 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
-		TrafficDistributionListID:   fmtUUIDPtr(s.TrafficDistributionListID),
-		SourceGbloc:                 s.SourceGBLOC,
-		Market:                      s.Market,
-		Status:                      s.Status,
-		BookDate:                    fmtDatePtr(s.BookDate),
-		RequestedPickupDate:         fmtDatePtr(s.RequestedPickupDate),
-		PickupDate:                  fmtDatePtr(s.PickupDate),
-		DeliveryDate:                fmtDatePtr(s.DeliveryDate),
-		CreatedAt:                   strfmt.DateTime(s.CreatedAt),
-		UpdatedAt:                   strfmt.DateTime(s.UpdatedAt),
-		EstimatedPackDays:           s.EstimatedPackDays,
-		EstimatedTransitDays:        s.EstimatedTransitDays,
-		PickupAddress:               payloadForAddressModel(s.PickupAddress),
-		SecondaryPickupAddress:      payloadForAddressModel(s.SecondaryPickupAddress),
-		DeliveryAddress:             payloadForAddressModel(s.DeliveryAddress),
-		PartialSitDeliveryAddress:   payloadForAddressModel(s.PartialSITDeliveryAddress),
-		WeightEstimate:              fmtInt64(s.WeightEstimate.Int64()),
-		ProgearWeightEstimate:       fmtInt64(s.ProgearWeightEstimate.Int64()),
-		SpouseProgearWeightEstimate: fmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		SourceGbloc:                  s.SourceGBLOC,
+		Market:                       s.Market,
+		Status:                       s.Status,
+		BookDate:                     fmtDatePtr(s.BookDate),
+		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                   fmtDatePtr(s.PickupDate),
+		DeliveryDate:                 fmtDatePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
+		EstimatedPackDays:            s.EstimatedPackDays,
+		EstimatedTransitDays:         s.EstimatedTransitDays,
+		PickupAddress:                payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           s.HasDeliveryAddress,
+		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
+		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:               fmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:        fmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  fmtPoundPtr(s.SpouseProgearWeightEstimate),
 	}
 	return shipmentPayload
 }
@@ -63,27 +66,30 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
 
-	newShipment := &models.Shipment{
-		MoveID:                      moveID,
-		Status:                      "DRAFT",
-		EstimatedPackDays:           payload.EstimatedPackDays,
-		EstimatedTransitDays:        payload.EstimatedTransitDays,
-		WeightEstimate:              (*unit.Pound)(payload.WeightEstimate),
-		ProgearWeightEstimate:       (*unit.Pound)(payload.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate: (*unit.Pound)(payload.SpouseProgearWeightEstimate),
-		PickupAddress:               pickupAddress,
-		SecondaryPickupAddress:      secondaryPickupAddress,
-		DeliveryAddress:             deliveryAddress,
-		PartialSITDeliveryAddress:   partialSITDeliveryAddress,
+	newShipment := models.Shipment{
+		MoveID:                       move.ID,
+		Status:                       "DRAFT",
+		EstimatedPackDays:            payload.EstimatedPackDays,
+		EstimatedTransitDays:         payload.EstimatedTransitDays,
+		WeightEstimate:               (*unit.Pound)(payload.WeightEstimate),
+		ProgearWeightEstimate:        (*unit.Pound)(payload.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  (*unit.Pound)(payload.SpouseProgearWeightEstimate),
+		PickupAddress:                pickupAddress,
+		HasSecondaryPickupAddress:    payload.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:       secondaryPickupAddress,
+		HasDeliveryAddress:           payload.HasDeliveryAddress,
+		DeliveryAddress:              deliveryAddress,
+		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
+		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
 	}
 
-	verrs, err := move.SaveShipment(h.db, newShipment)
+	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)
 
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	shipmentPayload := payloadForShipmentModel(*newShipment)
+	shipmentPayload := payloadForShipmentModel(newShipment)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
