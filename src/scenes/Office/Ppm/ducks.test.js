@@ -36,4 +36,15 @@ describe('office ppm reducer', () => {
       });
     });
   });
+  describe('CLEAR_PPM_INCENTIVE', () => {
+    it('handles SUCCESS', () => {
+      const newState = reducer(undefined, {
+        type: 'CLEAR_PPM_INCENTIVE',
+      });
+
+      expect(newState).toEqual({
+        calculation: null,
+      });
+    });
+  });
 });
