@@ -42,8 +42,8 @@ class DocumentViewer extends Component {
     ]).join(', ');
 
     // urls: has full url with IDs
-    const defaultUrl = `/moves/${move.id}/documents`;
-    const newUrl = `/moves/${move.id}/documents/new`;
+    const defaultUrl = move ? `/moves/${move.id}/documents` : '';
+    const newUrl = move ? `/moves/${move.id}/documents/new` : '';
 
     // paths: has placeholders (e.g. ":moveId")
     const defaultPath = `/moves/:moveId/documents`;

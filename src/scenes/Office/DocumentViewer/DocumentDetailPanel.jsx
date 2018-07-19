@@ -76,7 +76,11 @@ const DocumentDetailEdit = props => {
       <div>
         <FormSection name="moveDocument">
           <SwaggerField fieldName="title" swagger={schema} required />
-          <SwaggerField fieldName="move_document_type" swagger={schema} />
+          <SwaggerField
+            fieldName="move_document_type"
+            swagger={schema}
+            required
+          />
           <SwaggerField fieldName="status" swagger={schema} required />
           <SwaggerField fieldName="notes" swagger={schema} />
         </FormSection>

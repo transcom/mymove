@@ -587,6 +587,7 @@ definitions:
         title: Notes
     required:
       - title
+      - move_document_type
       - status
   MoveDocumentType:
     type: string
