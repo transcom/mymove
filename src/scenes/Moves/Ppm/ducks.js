@@ -15,6 +15,7 @@ import { formatCents } from 'shared/formatters';
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
+const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
   'CREATE_OR_UPDATE_PPM',
 );
@@ -74,6 +75,10 @@ export function getPpmSitEstimate(
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };
+}
+
+export function clearPpmSitEstimate() {
+  return { type: CLEAR_SIT_ESTIMATE };
 }
 
 export function createOrUpdatePpm(moveId, ppm) {
@@ -312,6 +317,14 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateError: true,
         hasEstimateInProgress: false,
         rateEngineError: action.error,
+      });
+    case CLEAR_SIT_ESTIMATE:
+      return Object.assign({}, state, {
+        sitReimbursement: null,
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
+        hasEstimateInProgress: false,
+        rateEngineError: null,
       });
     default:
       return state;

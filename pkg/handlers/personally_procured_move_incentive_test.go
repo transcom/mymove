@@ -9,33 +9,33 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-// func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
-// 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
-// 		suite.FailNow("failed to run scenario 2: %+v", err)
-// 	}
+func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
+	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
+		suite.FailNow("failed to run scenario 2: %+v", err)
+	}
 
-// 	user := testdatagen.MakeDefaultServiceMember(suite.db)
+	user := testdatagen.MakeDefaultServiceMember(suite.db)
 
-// 	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
-// 	req = suite.authenticateRequest(req, user)
+	req := httptest.NewRequest("GET", "/personally_procured_moves/incentive", nil)
+	req = suite.authenticateRequest(req, user)
 
-// 	params := ppmop.ShowPPMIncentiveParams{
-// 		HTTPRequest:     req,
-// 		PlannedMoveDate: *fmtDate(scenario.May15_2018),
-// 		OriginZip:       "94540",
-// 		DestinationZip:  "78626",
-// 		Weight:          7500,
-// 	}
+	params := ppmop.ShowPPMIncentiveParams{
+		HTTPRequest:     req,
+		PlannedMoveDate: *fmtDate(scenario.May15_2018),
+		OriginZip:       "94540",
+		DestinationZip:  "78626",
+		Weight:          7500,
+	}
 
-// 	context := NewHandlerContext(suite.db, suite.logger)
-// 	context.SetPlanner(route.NewTestingPlanner(1693))
-// 	showHandler := ShowPPMIncentiveHandler(context)
-// 	showResponse := showHandler.Handle(params)
+	context := NewHandlerContext(suite.db, suite.logger)
+	context.SetPlanner(route.NewTestingPlanner(1693))
+	showHandler := ShowPPMIncentiveHandler(context)
+	showResponse := showHandler.Handle(params)
 
-// 	response := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
-// 	suite.checkErrorResponse(response, http.StatusUnauthorized, "Unauthorized")
+	_, succeeded := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
+	suite.True(succeeded, "ShowPpmIncentive allowed non-office user to call")
 
-// }
+}
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
