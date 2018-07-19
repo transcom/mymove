@@ -7,6 +7,7 @@ import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'moveDocuments';
 
+// Reducer
 export default function reducer(state = {}, action) {
   switch (action.type) {
     case ADD_ENTITIES:
@@ -20,6 +21,7 @@ export default function reducer(state = {}, action) {
   }
 }
 
+// Actions
 export const getMoveDocumentsForMove = moveId => {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
@@ -34,14 +36,14 @@ export const getMoveDocumentsForMove = moveId => {
   };
 };
 
-export const createMoveDocument = (
+export function createMoveDocument(
   moveId,
   uploadIds,
   title,
-  moveDocType,
+  moveDocumentType,
   status,
   notes,
-) => {
+) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.moves.createMoveDocument({
@@ -49,7 +51,7 @@ export const createMoveDocument = (
       createMoveDocumentPayload: {
         upload_ids: uploadIds,
         title: title,
-        move_document_type: moveDocType,
+        move_document_type: moveDocumentType,
         status: status,
         notes: notes,
       },
@@ -62,7 +64,7 @@ export const createMoveDocument = (
     dispatch(addEntities(data.entities));
     return response;
   };
-};
+}
 
 export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
   return async function(dispatch, getState, { schema }) {
@@ -82,6 +84,7 @@ export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
   };
 };
 
+// Selectors
 export const selectMoveDocument = (state, id) => {
   return denormalize([id], moveDocuments, state.entities)[0];
 };
