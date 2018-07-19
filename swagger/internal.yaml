@@ -577,6 +577,89 @@ definitions:
     x-display-value:
       OTHER: Other document type
       SHIPMENT_SUMMARY: Shipment summary
+  IndexMovingExpenseDocumentPayload:
+    type: array
+    items:
+      $ref: '#/definitions/MovingExpenseDocumentPayload'
+  MovingExpenseDocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      document:
+        $ref: '#/definitions/DocumentPayload'
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - id
+      - move_id
+      - document
+      - title
+      - moving_expense_type
+      - reimbursement
+  CreateMovingExpenseDocumentPayload:
+    type: object
+    properties:
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - upload_ids
+      - title
+      - moving_expense_type
+      - reimbursement
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - RENTAL_EQUIPMENT
+      - PACKING_MATERIALS
+      - WEIGHING_FEES
+      - GAS
+      - TOLLS
+      - OIL
+      - OTHER
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted Expense
+      RENTAL_EQUIPMENT: Rental Equipment
+      PACKING_MATERIALS: Packing Materials
+      WEIGHING_FEES: Weighing Fees
+      GAS: Gas
+      TOLLS: Tolls
+      OIL: Oil
+      OTHER: Other
   MoveDocumentStatus:
     type: string
     title: Doc status
@@ -2470,6 +2553,62 @@ paths:
           description: returns new move document object
           schema:
             $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error
+  /moves/{moveId}/moving_expense_documents:
+    get:
+      summary: Returns a list of all Moving Expense Documents associated with this move
+      description: Returns a list of all Moving Expense Documents associated with this move
+      operationId: indexMovingExpenseDocuments
+      tags:
+        - moving_expenses
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+      responses:
+        200:
+          description: returns list of move douments
+          schema:
+            $ref: '#/definitions/IndexMovingExpenseDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+    post:
+      summary: Creates a moving expense document
+      description: Created a moving expense document with the given information
+      operationId: createMovingExpenseDocument
+      tags:
+        - moving_expenses
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createMovingExpenseDocumentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
+      responses:
+        200:
+          description: returns new move document object
+          schema:
+            $ref: '#/definitions/MovingExpenseDocumentPayload'
         400:
           description: invalid request
         401:

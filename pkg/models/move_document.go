@@ -55,7 +55,7 @@ func (m *MoveDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&validators.UUIDIsPresent{Field: m.MoveID, Name: "MoveID"},
 		&validators.StringIsPresent{Field: string(m.Title), Name: "Title"},
 		&validators.StringIsPresent{Field: string(m.Status), Name: "Status"},
-		&validators.StringIsPresent{Field: string(m.Status), Name: "MoveDocumentType"},
+		&validators.StringIsPresent{Field: string(m.MoveDocumentType), Name: "MoveDocumentType"},
 	), nil
 }
 
