@@ -16,9 +16,7 @@ import { formatDate, formatDateTime } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import DutyStationSearchBox from 'scenes/ServiceMembers/DutyStationSearchBox';
-
-import FontAwesomeIcon from '@fortawesome/react-fontawesome';
-import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import { renderStatusIcon } from 'shared/utils';
 
 import './office.css';
 
@@ -41,12 +39,8 @@ const OrdersViewerDisplay = props => {
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
         <span className="panel-subhead">
-          <FontAwesomeIcon
-            aria-hidden
-            className="icon approval-waiting"
-            icon={faClock}
-            title="Awaiting Review"
-          />Orders {orders.orders_number} ({formatDate(orders.issue_date)})
+          {renderStatusIcon(orders.status)}
+          Orders {orders.orders_number} ({formatDate(orders.issue_date)})
         </span>
         {uploads.length > 0 && (
           <p className="uploaded-at">
@@ -161,12 +155,8 @@ const OrdersViewerEdit = props => {
         <PanelField title="Move Locator">{props.move.locator}</PanelField>
         <PanelField title="DoD ID">{props.serviceMember.edipi}</PanelField>
         <span className="panel-subhead">
-          <FontAwesomeIcon
-            aria-hidden
-            className="icon approval-waiting"
-            icon={faClock}
-            title="Awaiting Review"
-          />Orders {orders.orders_number} ({formatDate(orders.issue_date)})
+          {renderStatusIcon(orders.status)}
+          Orders {orders.orders_number} ({formatDate(orders.issue_date)})
         </span>
         {uploads.length > 0 && (
           <p className="uploaded-at">
