@@ -1,6 +1,7 @@
 package models
 
 import (
+	"runtime"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -138,10 +139,12 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("rollback")
 
+		runtime.Breakpoint()
+
 		if shipment.PickupAddress != nil {
 			if verrs, err := db.ValidateAndSave(shipment.PickupAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				responseError = err
+				responseError = errors.Wrap(err, "Error saving pickup address")
 				return transactionError
 			}
 			shipment.PickupAddressID = &shipment.PickupAddress.ID
@@ -150,7 +153,7 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 		if shipment.HasDeliveryAddress && shipment.DeliveryAddress != nil {
 			if verrs, err := db.ValidateAndSave(shipment.DeliveryAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				responseError = err
+				responseError = errors.Wrap(err, "Error saving delivery address")
 				return transactionError
 			}
 			shipment.DeliveryAddressID = &shipment.DeliveryAddress.ID
@@ -159,7 +162,7 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 		if shipment.HasPartialSITDeliveryAddress && shipment.PartialSITDeliveryAddress != nil {
 			if verrs, err := db.ValidateAndSave(shipment.PartialSITDeliveryAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				responseError = err
+				responseError = errors.Wrap(err, "Error saving partial SIT delivery address")
 				return transactionError
 			}
 			shipment.PartialSITDeliveryAddressID = &shipment.PartialSITDeliveryAddress.ID
@@ -168,7 +171,7 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 		if shipment.HasSecondaryPickupAddress && shipment.SecondaryPickupAddress != nil {
 			if verrs, err := db.ValidateAndSave(shipment.SecondaryPickupAddress); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
-				responseError = err
+				responseError = errors.Wrap(err, "Error saving secondary pickup address")
 				return transactionError
 			}
 			shipment.SecondaryPickupAddressID = &shipment.SecondaryPickupAddress.ID
@@ -176,7 +179,7 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 
 		if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
-			responseError = err
+			responseError = errors.Wrap(err, "Error saving shipment")
 			return transactionError
 		}
 

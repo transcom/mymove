@@ -24,13 +24,11 @@ type clientMessage struct {
 
 // errResponse creates errResponse with default headers values
 func newErrResponse(code int, err error) *errResponse {
-
 	return &errResponse{code: code, err: err}
 }
 
 // WriteResponse to the client
 func (o *errResponse) WriteResponse(rw http.ResponseWriter, producer runtime.Producer) {
-
 	rw.Header().Del(runtime.HeaderContentType) //Remove Content-Type on empty responses
 
 	rw.WriteHeader(o.code)
@@ -59,7 +57,7 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 
 func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
 	if verrs.HasAny() {
-		logger.Error("Encountered validaton error", zap.Any("Validation errors", verrs.String()))
+		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
 		return newErrResponse(http.StatusBadRequest, err)
 	}
 	return responseForError(logger, err)

@@ -10,7 +10,6 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
-	"github.com/transcom/mymove/pkg/unit"
 )
 
 /*
@@ -75,9 +74,9 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		Status:                       "DRAFT",
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
-		WeightEstimate:               (*unit.Pound)(payload.WeightEstimate),
-		ProgearWeightEstimate:        (*unit.Pound)(payload.ProgearWeightEstimate),
-		SpouseProgearWeightEstimate:  (*unit.Pound)(payload.SpouseProgearWeightEstimate),
+		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
+		ProgearWeightEstimate:        poundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
 		PickupAddress:                pickupAddress,
 		HasSecondaryPickupAddress:    payload.HasSecondaryPickupAddress,
 		SecondaryPickupAddress:       secondaryPickupAddress,
@@ -94,9 +93,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	}
 
 	shipmentPayload := payloadForShipmentModel(newShipment)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
