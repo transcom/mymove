@@ -10,7 +10,7 @@ describe('The document viewer', function() {
     cy.contains('Sign In');
   });
   it('produces error when move cannot be found', () => {
-    cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b/documents');
+    cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
     cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
   });
   it('loads basic information about the move', () => {
