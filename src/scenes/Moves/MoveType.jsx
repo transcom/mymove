@@ -12,7 +12,7 @@ import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
 import { mobileSize } from 'shared/constants';
-import { AppContext } from 'shared/AppContext';
+import { withContext } from 'shared/AppContext';
 
 class BigButtonGroup extends Component {
   constructor() {
@@ -28,6 +28,7 @@ class BigButtonGroup extends Component {
   };
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
+    const hhgEnabled = this.props.context.flags.hhg;
     const createButton = (
       value,
       description,
@@ -122,7 +123,7 @@ class BigButtonGroup extends Component {
       isMobile,
       false,
     );
-    var disabledHHG = createButton(
+    var hhg = createButton(
       'HHG',
       'Government handles 100% of your move',
       'Household Goods Move (HHG)',
@@ -142,42 +143,14 @@ class BigButtonGroup extends Component {
       },
       'truck-gray',
       isMobile,
-      true,
-    );
-    var enabledHHG = createButton(
-      'HHG',
-      'Government handles 100% of your move',
-      'Household Goods Move (HHG)',
-      truckGray,
-      {
-        'Pros:': [
-          'The government arranges moving companies to pack & transport your stuff.',
-          'Less hassle',
-          'The claims process is available to you if anything becomes damaged/broken).',
-        ],
-        'Cons:': [
-          'Limited availability.',
-          'Can only move on weekdays.',
-          'Your stuff is placed in storage if you cannot meet the truck at the destination.',
-          'You may not like your moving company.',
-        ],
-      },
-      'truck-gray',
-      isMobile,
-      false,
+      !hhgEnabled,
     );
 
     return (
       <div className="move-type-content">
         <div className="usa-width-one-third">{combo}</div>
         <div className="usa-width-one-third">{ppm}</div>
-        <AppContext.Consumer>
-          {settings => (
-            <div className="usa-width-one-third">
-              {settings.flags.hhg ? enabledHHG : disabledHHG}
-            </div>
-          )}
-        </AppContext.Consumer>
+        <div className="usa-width-one-third">{hhg}</div>
       </div>
     );
   }
@@ -188,7 +161,7 @@ BigButtonGroup.propTypes = {
   onMoveTypeSelected: PropTypes.func,
 };
 
-const BigButtonGroupWithSize = windowSize(BigButtonGroup);
+const BigButtonGroupWithSize = withContext(windowSize(BigButtonGroup));
 
 export class MoveType extends Component {
   onMoveTypeSelected = value => {
@@ -216,9 +189,6 @@ export class MoveType extends Component {
           selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
-        <AppContext.Consumer>
-          {settings => settings.flags.hhg && <p>HHG is enabled.</p>}
-        </AppContext.Consumer>
       </div>
     );
   }

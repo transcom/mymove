@@ -6,7 +6,10 @@ const DocumentContent = props => {
     content = (
       <div className="pdf-placeholder">
         {props.filename && <span className="filename">{props.filename}</span>}
-        This PDF can be <a href={props.url}>viewed here</a>.
+        This PDF can be{' '}
+        <a target="_blank" href={props.url}>
+          viewed here
+        </a>.
       </div>
     );
   } else {
@@ -16,7 +19,7 @@ const DocumentContent = props => {
   }
   return <div className="page">{content}</div>;
 };
-DocumentContent.PropTypes = {
+DocumentContent.propTypes = {
   contentType: PropTypes.string,
   filename: PropTypes.string,
   url: PropTypes.string.isRequired,
