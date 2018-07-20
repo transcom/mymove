@@ -147,7 +147,7 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	if err != nil {
 		return nil, err
 	}
-	if session.IsMyApp() && move.Orders.ServiceMember.ID != session.ServiceMemberID {
+	if session.IsMyApp() && move.Orders.ServiceMemberID != session.ServiceMemberID {
 		return nil, ErrFetchForbidden
 	}
 
