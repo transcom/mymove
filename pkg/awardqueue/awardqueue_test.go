@@ -45,14 +45,14 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
-		TrafficDistributionListID:       tdl.ID,
-		RequestedPickupDate:             pickupDate,
-		PickupDate:                      pickupDate,
+		TrafficDistributionListID:       &tdl.ID,
+		RequestedPickupDate:             &pickupDate,
+		PickupDate:                      &pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	// Run the Award Queue
@@ -159,24 +159,24 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	// Two shipments with offers, using the shipments above
 	shipmentWithOfferBetween := models.ShipmentWithOffer{
 		ID: testShipmentBetween.ID,
-		TrafficDistributionListID:       testTDL.ID,
-		PickupDate:                      testPickupDateBetween,
+		TrafficDistributionListID:       &testTDL.ID,
+		PickupDate:                      &testPickupDateBetween,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	shipmentWithOfferAfter := models.ShipmentWithOffer{
 		ID: testShipmentAfter.ID,
-		TrafficDistributionListID:       testTDL.ID,
-		PickupDate:                      testPickupDateAfter,
+		TrafficDistributionListID:       &testTDL.ID,
+		PickupDate:                      &testPickupDateAfter,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	// Checks a date that falls within the blackout date range; returns true.
@@ -239,9 +239,9 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
-		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      pickupDate,
-		RequestedPickupDate:             pickupDate,
+		TrafficDistributionListID:       &tdl.ID,
+		PickupDate:                      &pickupDate,
+		RequestedPickupDate:             &pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
@@ -278,9 +278,10 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
 		ID: shipment.ID,
-		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      pickupDate,
-		RequestedPickupDate:             pickupDate,
+		TrafficDistributionListID:       &tdl.ID,
+		PickupDate:                      &pickupDate,
+		RequestedPickupDate:             &pickupDate,
+		BookDate:                        &pickupDate,
 		TransportationServiceProviderID: nil,
 		AdministrativeShipment:          swag.Bool(false),
 	}
@@ -477,12 +478,12 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	}
 
 	shipmentPeak := models.Shipment{
-		TrafficDistributionListID: tdl.ID,
-		PickupDate:                testdatagen.DateInsidePeakRateCycle,
-		RequestedPickupDate:       testdatagen.DateInsidePeakRateCycle,
-		DeliveryDate:              twoMonthsLater,
-		BookDate:                  testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
+		TrafficDistributionListID: &tdl.ID,
+		PickupDate:                &testdatagen.DateInsidePeakRateCycle,
+		RequestedPickupDate:       &testdatagen.DateInsidePeakRateCycle,
+		DeliveryDate:              &twoMonthsLater,
+		BookDate:                  &testdatagen.PerformancePeriodStart,
+		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
 		Status:                    "DEFAULT",
@@ -511,12 +512,12 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	}
 
 	shipmentNonPeak := models.Shipment{
-		TrafficDistributionListID: tdl.ID,
-		PickupDate:                testdatagen.DateInsideNonPeakRateCycle,
-		RequestedPickupDate:       testdatagen.DateInsideNonPeakRateCycle,
-		DeliveryDate:              twoMonthsLater,
-		BookDate:                  testdatagen.PerformancePeriodStart,
-		SourceGBLOC:               testdatagen.DefaultSrcGBLOC,
+		TrafficDistributionListID: &tdl.ID,
+		PickupDate:                &testdatagen.DateInsideNonPeakRateCycle,
+		RequestedPickupDate:       &testdatagen.DateInsideNonPeakRateCycle,
+		DeliveryDate:              &twoMonthsLater,
+		BookDate:                  &testdatagen.PerformancePeriodStart,
+		SourceGBLOC:               &testdatagen.DefaultSrcGBLOC,
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
 		Status:                    "DEFAULT",

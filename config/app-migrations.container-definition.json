@@ -1,8 +1,6 @@
 {
   "name": "app-migrations-{{environment}}",
   "image": "{{image}}",
-  "cpu": 512,
-  "memoryReservation": 256,
   "essential": true,
   "entryPoint": [
     "/bin/chamber",

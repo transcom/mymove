@@ -103,12 +103,13 @@ func (g *Generator) GenerateOrderPDF(orderID uuid.UUID) ([]string, error) {
 	}
 
 	// Merge all images in urls into a new PDF
-	pdf, err := g.pdfFromImages(images)
-	if err != nil {
-		return nil, err
+	if len(images) > 0 {
+		pdf, err := g.pdfFromImages(images)
+		if err != nil {
+			return nil, err
+		}
+		pdfs = append(pdfs, pdf)
 	}
-	pdfs = append(pdfs, pdf)
-
 	return pdfs, nil
 }
 
@@ -118,7 +119,7 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
-// pdfFromImageURLs returns the path to tempfile PDF containing all images included
+// pdfFromImages returns the path to tempfile PDF containing all images included
 // in urls.
 //
 // The files at those paths will be tempfiles that will need to be cleaned
@@ -189,7 +190,7 @@ func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (st
 	inputFiles = append(ordersPaths, generatedPath)
 
 	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
+		if ppm.Advance != nil && ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
 			g.logger.Debug("adding direct deposit form to packet", zap.Any("inputFiles", inputFiles))
 			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
 			inputFiles = append(inputFiles, ddFormPath)

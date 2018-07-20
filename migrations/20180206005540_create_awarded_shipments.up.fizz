@@ -1,8 +1,8 @@
-create_table("awarded_shipments", func(t) {
+create_table("awarded_shipments") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("shipment_id", "uuid", {})
 	t.Column("transportation_service_provider_id", "uuid", {})
 	t.Column("administrative_shipment", "bool", {})
 	t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
 	t.ForeignKey("shipment_id", {"shipments": ["id"]}, {})
-})
+}
