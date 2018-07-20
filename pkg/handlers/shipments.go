@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -97,21 +98,24 @@ type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
 func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
-	var response middleware.Responder
 
 	session := auth.SessionFromRequestContext(p.HTTPRequest)
+	// Possible they are coming from the wrong endpoint and thus the session is missing the EntityID
+	if session.EntityID == uuid.Nil {
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
 	shipments, err := models.FetchShipmentsByTSP(h.db, session.EntityID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
-		response = publicshipmentop.NewIndexShipmentsBadRequest()
-	} else {
-		isp := make(apimessages.IndexShipmentsPayload, len(shipments))
-		for i, s := range shipments {
-			isp[i] = publicPayloadForShipmentModel(s)
-		}
-		response = publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
+		return publicshipmentop.NewIndexShipmentsBadRequest()
 	}
-	return response
+
+	isp := make(apimessages.IndexShipmentsPayload, len(shipments))
+	for i, s := range shipments {
+		isp[i] = publicPayloadForShipmentModel(s)
+	}
+	return publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
 }
 
 // PublicGetShipmentHandler returns a particular shipment

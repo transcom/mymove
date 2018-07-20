@@ -246,6 +246,8 @@ paths:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
         500:
           description: server error
   /shipments/{shipment_uuid}:
