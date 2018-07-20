@@ -105,7 +105,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	}
 	payload := params.UpdateMoveDocument
 	moveDoc.Title = *payload.Title
-	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
 	moveDoc.Notes = payload.Notes
 
 	verrs, err := models.SaveMoveDocument(h.db, moveDoc)
