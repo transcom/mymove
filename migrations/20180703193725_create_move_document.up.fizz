@@ -1,4 +1,4 @@
-create_table("move_documents", func(t) {
+create_table("move_documents") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("move_id", "uuid", {})
 	t.Column("document_id", "uuid", {})
@@ -7,6 +7,4 @@ create_table("move_documents", func(t) {
 	t.Column("notes", "text", {"null": true})
 	t.ForeignKey("move_id", {"moves": ["id"]}, {"on_delete": "restrict"})
 	t.ForeignKey("document_id", {"documents": ["id"]}, {"on_delete": "cascade"})
-})
-
-add_index("move_documents", ["move_id", "document_id"], {"unique": true})
+}
