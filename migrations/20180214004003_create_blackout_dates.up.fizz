@@ -1,4 +1,4 @@
-create_table("blackout_dates", func(t) {
+create_table("blackout_dates") {
   t.Column("id", "uuid", {"primary": true})
   t.Column("transportation_service_provider_id", "uuid", {})
   t.Column("start_blackout_date", "timestamp", {})
@@ -7,4 +7,4 @@ create_table("blackout_dates", func(t) {
   t.Column("code_of_service", "string", {})
   t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
   t.ForeignKey("traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
-})
+}

@@ -526,6 +526,7 @@ definitions:
       title:
         type: string
         example: very_useful_document.pdf
+        title: Document Title
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
@@ -568,9 +569,29 @@ definitions:
       - title
       - move_document_type
       - status
+  UpdateMoveDocumentPayload:
+    type: object
+    properties:
+      title:
+        type: string
+        example: very_useful_document.pdf
+        title: Document Title
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - title
+      - move_document_type
+      - status
   MoveDocumentType:
     type: string
-    title: Document type
+    title: Document Type
     enum:
       - OTHER
       - SHIPMENT_SUMMARY
@@ -579,7 +600,7 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
   MoveDocumentStatus:
     type: string
-    title: Doc status
+    title: Document Status
     enum:
       - AWAITING_REVIEW
       - OK
@@ -1216,35 +1237,126 @@ definitions:
       - AIR_FORCE
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
-  IndexShipmentsPayload:
-    type: array
-    items:
-      $ref: '#/definitions/ShipmentPayload'
-  ShipmentPayload:
+  Shipment:
     type: object
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      pickup_date:
+        readOnly: true
+      move_id:
         type: string
-        format: date
-      delivery_date:
-        type: string
-        format: date
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       traffic_distribution_list_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
-      transportation_service_provider_id:
+        x-nullable: true
+        readOnly: true
+      source_gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: LHNQ
+        x-nullable: true
+        readOnly: true
+      market:
+        type: string
+        x-nullable: true
+        readOnly: true
+      status:
+        type: string
+        readOnly: true
+      book_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
+      requested_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        x-nullable: true
+      pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
+      delivery_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
+      estimated_pack_days:
+        type: integer
+        minimum: 0
+        example: 3
+        x-nullable: true
+      estimated_transit_days:
+        type: integer
+        minimum: 0
+        example: 30
+        x-nullable: true
+      pickup_address_id:
         type: string
         format: uuid
         example: f56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
-      administrative_shipment:
+      pickup_address:
+        $ref: '#/definitions/Address'
+        title: Pickup Address
+      secondary_pickup_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+        title: Secondary Pickup Address
+        x-nullable: true
+      delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+        title: Delivery Address
+        x-nullable: true
+      partial_sit_delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        title: Partial SIT Delivery Address
+        x-nullable: true
+      has_secondary_pickup_address:
         type: boolean
-        example: false
+      has_delivery_address:
+        type: boolean
+      has_partial_sit_delivery_address:
+        type: boolean
+      weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        x-nullable: true
+      progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 500
+        x-nullable: true
+      spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 200
         x-nullable: true
       created_at:
         type: string
@@ -1252,13 +1364,6 @@ definitions:
       updated_at:
         type: string
         format: date-time
-    required:
-      - id
-      - pickup_date
-      - delivery_date
-      - traffic_distribution_list_id
-      - created_at
-      - updated_at
   Address:
     type: object
     properties:
@@ -1873,20 +1978,6 @@ paths:
             $ref: '#/definitions/IndexIssuesPayload'
         400:
           description: invalid request
-  /shipments:
-    get:
-      summary: List all shipments
-      description: List all shipments
-      operationId: indexShipments
-      tags:
-        - shipments
-      responses:
-        200:
-          description: list of all shipments
-          schema:
-            $ref: '#/definitions/IndexShipmentsPayload'
-        400:
-          description: invalid request
   /users/logged_in:
     get:
       summary: Returns the user info for the currently logged in user
@@ -2366,6 +2457,40 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /moves/{moveId}/shipment:
+    post:
+      summary: Creates a new Shipment for the given move
+      description: Create a Shipment tied to the move ID
+      operationId: createShipment
+      tags:
+        - shipments
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move this Shipment is associated with
+        - in: body
+          name: shipment
+          required: true
+          schema:
+            $ref: '#/definitions/Shipment'
+      responses:
+        201:
+          description: created Shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -2478,6 +2603,46 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
+  /moves/{moveId}/documents/{moveDocumentId}:
+    put:
+      summary: Updates a move document
+      description: Update a move document with the given information
+      operationId: updateMoveDocument
+      tags:
+        - moves
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move associated with the move document
+        - in: path
+          name: moveDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move document model
+        - in: body
+          name: updateMoveDocument
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMoveDocumentPayload'
+      responses:
+        200:
+          description: updated instance of move document
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move document not found
+        500:
+          description: internal server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed

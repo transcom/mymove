@@ -1,5 +1,5 @@
-raw("delete from uploads;")
-raw("delete from documents;")
+sql("delete from uploads;")
+sql("delete from documents;")
 drop_foreign_key("documents", "move_id", {"if_exists": true})
 drop_column("documents", "move_id")
 add_column("documents", "service_member_id", "uuid", {})

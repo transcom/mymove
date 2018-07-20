@@ -2,8 +2,8 @@ form.default {
   padding: 2rem;
 }
 
-h1.date-heading {
-  font-size: 3rem;
+h2.instruction-heading {
+  font-weight: normal;
 }
 
 table th,

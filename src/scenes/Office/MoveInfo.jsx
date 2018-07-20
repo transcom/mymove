@@ -26,8 +26,11 @@ import {
   approvePPM,
   cancelMove,
 } from './ducks';
-import { indexMoveDocuments } from 'scenes/Office/DocumentViewer/ducks.js';
 import { formatDate } from 'shared/formatters';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+} from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -146,7 +149,7 @@ class CancelPanel extends Component {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.indexMoveDocuments(this.props.match.params.moveId);
+    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -368,7 +371,6 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  indexMoveDocuments: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -379,7 +381,10 @@ const mapStateToProps = state => ({
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
-  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
+  moveDocuments: selectAllDocumentsForMove(
+    state,
+    get(state, 'office.officeMove.id', ''),
+  ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
@@ -388,7 +393,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadMoveDependencies,
-      indexMoveDocuments,
+      getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
       cancelMove,

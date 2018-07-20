@@ -120,7 +120,7 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	return publicAPI.Serve(nil)
 }
 
-// NewInternalAPIHandler returns a handler for the public API
+// NewInternalAPIHandler returns a handler for the internal API
 func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
@@ -148,8 +148,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler(context)
 
-	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
-
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler(context)
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler(context)
@@ -159,6 +157,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
 	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MovesUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
 	internalAPI.MovesIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
@@ -178,6 +177,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
+
+	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
