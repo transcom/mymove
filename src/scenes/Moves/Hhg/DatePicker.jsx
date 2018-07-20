@@ -46,13 +46,11 @@ export class HHGDatePicker extends Component {
       pages,
       pageKey,
       error,
-      currentOrders,
       serviceMemberId,
       hasSubmitSuccess,
     } = this.props;
 
     // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = currentOrders ? currentOrders : null;
 
     return (
       <HHGDateWizardForm
@@ -62,15 +60,15 @@ export class HHGDatePicker extends Component {
         pageKey={pageKey}
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
-        initialValues={initialValues}
+        // initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
       >
         <div className="usa-grid">
-          <h4 className="date-heading">Shipment 1 (HHG)</h4>
-          <h3>
+          <h3>Shipment 1 (HHG)</h3>
+          <h2 className="instruction-heading">
             Great! Let's find a date for a moving company to move your stuff.
-          </h3>
-          <h4>Select a move date</h4>
+          </h2>
+          <h3>Select a move date</h3>
 
           <div className="usa-width-one-third">
             <DayPicker

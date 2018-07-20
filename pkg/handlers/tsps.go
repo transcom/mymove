@@ -3,29 +3,43 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publictspsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/tsps"
 )
 
-// TSPIndexHandler returns a list of all the TSPs
-type TSPIndexHandler HandlerContext
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+
+// NO CODE YET!
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+// PublicTspsIndexTSPsHandler returns a list of all the TSPs
+type PublicTspsIndexTSPsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TSPIndexHandler) Handle(params apioperations.IndexTSPsParams) middleware.Responder {
+func (h PublicTspsIndexTSPsHandler) Handle(params publictspsop.IndexTSPsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexTSPs has not yet been implemented")
 }
 
-// TSPShipmentsHandler lists all the shipments that belong to a tsp
-type TSPShipmentsHandler HandlerContext
+// PublicTspsGetTspShipmentsHandler lists all the shipments that belong to a tsp
+type PublicTspsGetTspShipmentsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TSPShipmentsHandler) Handle(params apioperations.TspShipmentsParams) middleware.Responder {
+func (h PublicTspsGetTspShipmentsHandler) Handle(params publictspsop.GetTspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }
 
-// TSPBlackoutsHandler lists all the shipments that belong to a tsp
-type TSPBlackoutsHandler HandlerContext
+// PublicTspsGetTspBlackoutsHandler lists all the shipments that belong to a tsp
+type PublicTspsGetTspBlackoutsHandler HandlerContext
 
 // Handle simply returns a NotImplementedError
-func (h TSPBlackoutsHandler) Handle(params apioperations.TspShipmentsParams) middleware.Responder {
+func (h PublicTspsGetTspBlackoutsHandler) Handle(params publictspsop.GetTspShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .tspShipments has not yet been implemented")
 }

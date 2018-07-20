@@ -14,3 +14,16 @@ export const defaultTspContext = {
   showLoginWarning: false,
 };
 export const AppContext = React.createContext(defaultMyMoveContext);
+
+export function withContext(Component) {
+  // ...and returns another component...
+  return function ContextualComponent(props) {
+    // ... and renders the wrapped component with the context theme!
+    // Notice that we pass through any additional props as well
+    return (
+      <AppContext.Consumer>
+        {context => <Component {...props} context={context} />}
+      </AppContext.Consumer>
+    );
+  };
+}
