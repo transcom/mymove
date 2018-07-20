@@ -5,7 +5,6 @@ create_table("social_security_numbers") {
 
 add_column("service_members", "social_security_number_id", "uuid", {"null": true})
 
-add_foreign_key("service_members", "social_security_number_id", {"social_security_numbers": ["id"]}, {
-    "name": "sm_ssn_fk",
-    "on_delete": "SET NULL"
-}
+add_foreign_key("service_members", "social_security_number_id", {"social_security_numbers": ["id"]},
+{	"name": "sm_ssn_fk",
+	"on_delete": "SET NULL"})
