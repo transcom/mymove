@@ -1,4 +1,4 @@
-create_table("form1299s", func(t) {
+create_table("form1299s") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("date_prepared", "date", {"null": true})
 	t.Column("shipment_number", "string", {"null": true})
@@ -54,4 +54,4 @@ create_table("form1299s", func(t) {
 	t.Column("nonavailability_of_signature_reason", "string", {"null": true})
 	t.Column("certified_by_signature", "string", {"null": true})
 	t.Column("title_of_certified_by_signature", "string", {"null": true})
-})
+}
