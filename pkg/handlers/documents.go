@@ -8,10 +8,16 @@ import (
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publicdocumentsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/documents"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
@@ -105,6 +111,14 @@ need to be reconciled. This will be done when the NotImplemented code below is I
 type CreateDocumentUploadHandler HandlerContext
 
 // Handle creates a new DocumentUpload from a request payload
-func (h CreateDocumentUploadHandler) Handle(params apioperations.CreateDocumentUploadParams) middleware.Responder {
+func (h CreateDocumentUploadHandler) Handle(params publicdocumentsop.CreateDocumentUploadParams) middleware.Responder {
 	return middleware.NotImplemented("operation .createDocumentUpload has not yet been implemented")
 }
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+// NO CODE YET!

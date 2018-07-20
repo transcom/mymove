@@ -53,8 +53,9 @@ function officeUserVerifiesOrders() {
 
   // Click on Orders document link, check that link matches
   cy
-    .get('.document')
-    .find('a')
+    .get('.panel-field')
+    .contains('Orders (')
+    // .find('a')
     .should('have.attr', 'href')
     .and('match', /^\/moves\/[^/]+\/orders/);
 
@@ -66,7 +67,7 @@ function officeUserVerifiesOrders() {
     .click();
 
   // Enter details in form and save orders
-  cy.get('input[name="orders.orders_number"]').type('12345');
+  cy.get('input[name="orders.orders_number"]').type('666666');
   cy.get('select[name="orders.orders_type_detail"]').select('DELAYED_APPROVAL');
 
   cy
@@ -80,7 +81,7 @@ function officeUserVerifiesOrders() {
     .click();
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('12345');
+  cy.get('span').contains('666666');
 
   // Refresh browser and make sure changes persist
   cy.reload();
@@ -89,7 +90,7 @@ function officeUserVerifiesOrders() {
     .contains('Approve PPM')
     .should('be.disabled');
 
-  cy.get('span').contains('12345');
+  cy.get('span').contains('666666');
   cy.get('span').contains('Delayed Approval 20 Weeks or More');
 }
 
@@ -130,7 +131,7 @@ function officeUserVerifiesAccounting() {
     .click();
 
   // Verify data has been saved in the UI
-  cy.get('span').contains('12345');
+  cy.get('span').contains('6789');
 
   // Refresh browser and make sure changes persist
   cy.reload();

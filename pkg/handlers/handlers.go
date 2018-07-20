@@ -106,8 +106,17 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = TSPIndexHandler(context)
-	publicAPI.TspShipmentsHandler = TSPShipmentsHandler(context)
+
+	// Blackouts
+
+	// Documents
+
+	// Shipments
+
+	// TSPs
+	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = PublicTspsGetTspShipmentsHandler(context)
+
 	return publicAPI.Serve(nil)
 }
 
@@ -150,6 +159,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
 	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MovesUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
 	internalAPI.MovesIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
