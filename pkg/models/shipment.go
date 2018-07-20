@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -119,14 +118,14 @@ func FetchShipmentsByTSP(dbConnection *pop.Connection, TspID uuid.UUID) ([]Shipm
 
 	var sql string
 
-	sql = fmt.Sprintf(`SELECT
+	sql = `SELECT
 			shipments.*
 		FROM shipments
 		LEFT JOIN shipment_offers ON
 			shipments.id=shipment_offers.shipment_id
-		WHERE shipment_offers.transportation_service_provider_id='%s'`, TspID)
+		WHERE shipment_offers.transportation_service_provider_id = $1`
 
-	err := dbConnection.RawQuery(sql).All(&shipments)
+	err := dbConnection.RawQuery(sql, TspID).All(&shipments)
 
 	return shipments, err
 }
