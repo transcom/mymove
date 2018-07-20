@@ -40,6 +40,14 @@ func poundPointer(p unit.Pound) *unit.Pound {
 	return &p
 }
 
+func uuidPointer(u uuid.UUID) *uuid.UUID {
+	return &u
+}
+
+func timePointer(t time.Time) *time.Time {
+	return &t
+}
+
 func mustCreate(db *pop.Connection, model interface{}) {
 	verrs, err := db.ValidateAndCreate(model)
 	if err != nil {

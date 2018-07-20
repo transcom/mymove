@@ -36,24 +36,24 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDates() {
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferWithDomesticMarket := models.ShipmentWithOffer{
 		ID: uuid.Must(uuid.NewV4()),
-		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      pickupDate,
+		TrafficDistributionListID:       &tdl.ID,
+		PickupDate:                      &pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	shipmentWithOfferWithInternationalMarket := models.ShipmentWithOffer{
 		ID: uuid.Must(uuid.NewV4()),
-		TrafficDistributionListID:       tdl.ID,
-		PickupDate:                      pickupDate,
+		TrafficDistributionListID:       &tdl.ID,
+		PickupDate:                      &pickupDate,
 		TransportationServiceProviderID: nil,
 		Accepted:                        nil,
 		RejectionReason:                 nil,
 		AdministrativeShipment:          swag.Bool(false),
-		BookDate:                        testdatagen.DateInsidePerformancePeriod,
+		BookDate:                        &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	fetchWithDomesticMarket, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferWithDomesticMarket)
@@ -98,22 +98,22 @@ func (suite *ModelSuite) Test_FetchTSPBlackoutDatesWithGBLOC() {
 	// Create two ShipmentWithOffers, one using the first set of times and a market, the other using the same times but without a market.
 	shipmentWithOfferInGBLOC1 := models.ShipmentWithOffer{
 		ID: uuid.Must(uuid.NewV4()),
-		TrafficDistributionListID: tdl.ID,
-		PickupDate:                pickupDate,
+		TrafficDistributionListID: &tdl.ID,
+		PickupDate:                &pickupDate,
 		SourceGBLOC:               &sourceGBLOC1,
 		Market:                    &market1,
 		AdministrativeShipment:    swag.Bool(false),
-		BookDate:                  testdatagen.DateInsidePerformancePeriod,
+		BookDate:                  &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	shipmentWithOfferInGBLOC2 := models.ShipmentWithOffer{
 		ID: uuid.Must(uuid.NewV4()),
-		TrafficDistributionListID: tdl.ID,
-		PickupDate:                pickupDate,
+		TrafficDistributionListID: &tdl.ID,
+		PickupDate:                &pickupDate,
 		SourceGBLOC:               &sourceGBLOC2,
 		Market:                    nil,
 		AdministrativeShipment:    swag.Bool(false),
-		BookDate:                  testdatagen.DateInsidePerformancePeriod,
+		BookDate:                  &testdatagen.DateInsidePerformancePeriod,
 	}
 
 	fetchWithMatchingGBLOC, err := FetchTSPBlackoutDates(suite.db, tsp.ID, shipmentWithOfferInGBLOC1)
