@@ -1,2 +1,2 @@
-raw("delete from service_members;")
+sql("delete from service_members;")
 add_index("service_members", "user_id", {"unique": true, "name": "service_members_user_id_uniq_idx"})

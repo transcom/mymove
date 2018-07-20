@@ -7,6 +7,9 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+
+	"github.com/pkg/errors"
+	"github.com/transcom/mymove/pkg/auth"
 )
 
 // MoveDocumentStatus represents the status of a move document record's lifecycle
@@ -69,4 +72,30 @@ func (m *MoveDocument) ValidateCreate(tx *pop.Connection) (*validate.Errors, err
 // This method is not required and may be deleted.
 func (m *MoveDocument) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
+}
+
+// FetchMoveDocument fetches a MoveDocument model
+func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) (*MoveDocument, error) {
+	var moveDoc MoveDocument
+	err := db.Q().Eager("Document.Uploads").Find(&moveDoc, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		return nil, err
+	}
+	// Check that the logged-in service member is associated to the document
+	if session.IsMyApp() && moveDoc.Document.ServiceMemberID != session.ServiceMemberID {
+		return &MoveDocument{}, ErrFetchForbidden
+	}
+	// Allow all office users to fetch move doc
+	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+		return &MoveDocument{}, ErrFetchForbidden
+	}
+	return &moveDoc, nil
+}
+
+// SaveMoveDocument saves a move document
+func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument) (*validate.Errors, error) {
+	return db.ValidateAndSave(moveDocument)
 }

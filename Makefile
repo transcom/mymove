@@ -99,6 +99,10 @@ server_run: server_deps server_generate db_dev_run
 # This is just an alais for backwards compatibility
 server_run_dev: server_run
 
+server_run_debug:
+	INTERFACE=localhost DEBUG_LOGGING=true \
+	$(AWS_VAULT) dlv debug cmd/webserver/main.go
+
 server_build_docker:
 	docker build . -t ppp:web-dev
 server_run_only_docker: db_dev_run

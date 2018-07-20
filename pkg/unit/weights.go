@@ -36,6 +36,11 @@ func (pounds Pound) Int() int {
 	return int(pounds)
 }
 
+// Int64 returns an integer representation of this weight
+func (pounds Pound) Int64() int64 {
+	return int64(pounds)
+}
+
 // Float64 returns a float representation of this weight
 func (pounds Pound) Float64() float64 {
 	return float64(pounds)
