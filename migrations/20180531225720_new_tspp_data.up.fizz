@@ -1,1 +1,1 @@
-exec('./apply-secure-migration.sh 20180531225720_new_tspp_data.up.sql')
+exec("./apply-secure-migration.sh 20180531225720_new_tspp_data.up.sql")

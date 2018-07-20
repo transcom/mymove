@@ -1,8 +1,8 @@
-create_table("documents", func(t) {
+create_table("documents") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("uploader_id", "uuid", {})
 	t.Column("move_id", "uuid", {})
 	t.Column("name", "text", {"null": true})
 	t.ForeignKey("uploader_id", {"users": ["id"]}, {})
 	t.ForeignKey("move_id", {"moves": ["id"]}, {})
-})
+}
