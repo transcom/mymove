@@ -8,3 +8,5 @@ create_table("move_documents") {
 	t.ForeignKey("move_id", {"moves": ["id"]}, {"on_delete": "restrict"})
 	t.ForeignKey("document_id", {"documents": ["id"]}, {"on_delete": "cascade"})
 }
+
+add_index("move_documents", ["move_id", "document_id"], {"unique": true})
