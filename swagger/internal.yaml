@@ -1364,6 +1364,86 @@ definitions:
       updated_at:
         type: string
         format: date-time
+  PatchShipment:
+    type: object
+    properties:
+      requested_pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        x-nullable: true
+      pickup_date:
+        type: string
+        format: date
+        example: "2018-04-26"
+        readOnly: true
+        x-nullable: true
+      estimated_pack_days:
+        type: integer
+        minimum: 0
+        example: 3
+        x-nullable: true
+      estimated_transit_days:
+        type: integer
+        minimum: 0
+        example: 30
+        x-nullable: true
+      pickup_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+        title: Pickup Address
+      secondary_pickup_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+        title: Secondary Pickup Address
+        x-nullable: true
+      delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      delivery_address:
+        $ref: '#/definitions/Address'
+        title: Delivery Address
+        x-nullable: true
+      partial_sit_delivery_address_id:
+        type: string
+        format: uuid
+        example: f56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        title: Partial SIT Delivery Address
+        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+      has_delivery_address:
+        type: boolean
+      has_partial_sit_delivery_address:
+        type: boolean
+      weight_estimate:
+        type: integer
+        minimum: 0
+        example: 10000
+        x-nullable: true
+      progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 500
+        x-nullable: true
+      spouse_progear_weight_estimate:
+        type: integer
+        minimum: 0
+        example: 200
+        x-nullable: true
   Address:
     type: object
     properties:
@@ -2489,6 +2569,46 @@ paths:
           description: user is not authorized
         404:
           description: move not found
+        500:
+          description: server error
+  /moves/{moveId}/shipment/{shipmentId}:
+    patch:
+      summary: Updates a Shipment for the given move
+      description: Update a Shipment tied to the move ID
+      operationId: patchShipment
+      tags:
+        - shipments
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move this Shipment is associated with
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Shipment being updated
+        - in: body
+          name: patchShipment
+          required: true
+          schema:
+            $ref: '#/definitions/PatchShipment'
+      responses:
+        201:
+          description: updated Shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment not found
         500:
           description: server error
   /reimbursement/{reimbursementId}/approve:

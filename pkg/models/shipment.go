@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/validate/validators"
 	"github.com/pkg/errors"
 
+	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/unit"
 )
 
@@ -128,6 +129,29 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 		&OptionalPoundIsPositive{Field: s.ProgearWeightEstimate, Name: "progear_weight_estimate"},
 		&OptionalPoundIsPositive{Field: s.SpouseProgearWeightEstimate, Name: "spouse_progear_weight_estimate"},
 	), nil
+}
+
+// FetchShipment Fetches and Validates a Shipment model
+func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
+	var shipment Shipment
+	err := db.Q().Find(&shipment, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return nil, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return nil, err
+	}
+	// TODO: Handle case where more than one user is authorized to modify shipment
+	move, err := FetchMove(db, session, shipment.MoveID)
+	if err != nil {
+		return nil, err
+	}
+	if session.IsMyApp() && move.Orders.ServiceMember.ID != session.ServiceMemberID {
+		return nil, ErrFetchForbidden
+	}
+
+	return &shipment, nil
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
