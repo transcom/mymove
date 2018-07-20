@@ -48,6 +48,15 @@ func fmtPoundPtr(weight *unit.Pound) *int64 {
 	return &value
 }
 
+func poundPtrFromInt64Ptr(num *int64) *unit.Pound {
+	if num == nil {
+		return nil
+	}
+	value := int(*num)
+	pound := unit.Pound(value)
+	return &pound
+}
+
 func fmtURI(uri string) *strfmt.URI {
 	fmtURI := strfmt.URI(uri)
 	return &fmtURI
