@@ -32,16 +32,16 @@ type Shipment struct {
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays         *int64      `json:"estimated_transit_days" db:"estimated_transit_days"`
 	PickupAddressID              *uuid.UUID  `json:"pickup_address_id" db:"pickup_address_id"`
-	PickupAddress                *Address    `json:"pickup_address" belongs_to:"address"`
+	PickupAddress                *Address    `belongs_to:"address"`
 	HasSecondaryPickupAddress    bool        `json:"has_secondary_pickup_address" db:"has_secondary_pickup_address"`
 	SecondaryPickupAddressID     *uuid.UUID  `json:"secondary_pickup_address_id" db:"secondary_pickup_address_id"`
-	SecondaryPickupAddress       *Address    `json:"secondary_pickup_address" belongs_to:"address"`
+	SecondaryPickupAddress       *Address    `belongs_to:"address"`
 	HasDeliveryAddress           bool        `json:"has_delivery_address" db:"has_delivery_address"`
 	DeliveryAddressID            *uuid.UUID  `json:"delivery_address_id" db:"delivery_address_id"`
-	DeliveryAddress              *Address    `json:"delivery_address" belongs_to:"address"`
+	DeliveryAddress              *Address    `belongs_to:"address"`
 	HasPartialSITDeliveryAddress bool        `json:"has_partial_sit_delivery_address" db:"has_partial_sit_delivery_address"`
 	PartialSITDeliveryAddressID  *uuid.UUID  `json:"partial_sit_delivery_address_id" db:"partial_sit_delivery_address_id"`
-	PartialSITDeliveryAddress    *Address    `json:"partial_sit_delivery_address" belongs_to:"address"`
+	PartialSITDeliveryAddress    *Address    `belongs_to:"address"`
 	WeightEstimate               *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate        *unit.Pound `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate  *unit.Pound `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
@@ -129,6 +129,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, TspID uuid.UUID) ([]Shipment, error
 
 	err := tx.RawQuery(sql, TspID).All(&shipments)
 
+	// Hydrate the related address models if they are assigned
 	for i, s := range shipments {
 		if *s.PickupAddressID != uuid.Nil {
 			pickupAddress := Address{}
