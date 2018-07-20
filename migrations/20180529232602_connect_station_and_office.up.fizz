@@ -1,11 +1,6 @@
 add_column("duty_stations", "transportation_office_id", "uuid", {"null": true})
 
-raw("UPDATE \
-	duty_stations \
-SET \
-	transportation_office_id = transportation_offices.id \
-FROM \
-	transportation_offices WHERE duty_stations.name = transportation_offices.name;")
+raw("UPDATE duty_stations SET transportation_office_id = transportation_offices.id FROM transportation_offices WHERE duty_stations.name = transportation_offices.name;")
 
 raw("UPDATE duty_stations SET transportation_office_id = '0f4ebcf9-92c8-49bb-96f5-677e442badaa' WHERE name = 'Hurlburt Field AFB';")
 raw("UPDATE duty_stations SET transportation_office_id = 'd1359c20-c762-4b04-9ed6-fd2b9060615b' WHERE name = 'McAlester AAP';")
