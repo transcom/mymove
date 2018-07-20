@@ -58,6 +58,9 @@ func responseForError(logger *zap.Logger, err error) middleware.Responder {
 func responseForVErrors(logger *zap.Logger, verrs *validate.Errors, err error) middleware.Responder {
 	if verrs.HasAny() {
 		logger.Error("Encountered validation error", zap.Any("Validation errors", verrs.String()))
+		if err == nil {
+			err = errors.New("Validation error")
+		}
 		return newErrResponse(http.StatusBadRequest, err)
 	}
 	return responseForError(logger, err)

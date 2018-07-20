@@ -1,7 +1,6 @@
 package models
 
 import (
-	"runtime"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -138,8 +137,6 @@ func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate
 
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("rollback")
-
-		runtime.Breakpoint()
 
 		if shipment.PickupAddress != nil {
 			if verrs, err := db.ValidateAndSave(shipment.PickupAddress); verrs.HasAny() || err != nil {

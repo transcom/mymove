@@ -1295,10 +1295,12 @@ definitions:
       estimated_pack_days:
         type: integer
         minimum: 0
+        example: 3
         x-nullable: true
       estimated_transit_days:
         type: integer
         minimum: 0
+        example: 30
         x-nullable: true
       pickup_address_id:
         type: string
@@ -1344,14 +1346,17 @@ definitions:
       weight_estimate:
         type: integer
         minimum: 0
+        example: 10000
         x-nullable: true
       progear_weight_estimate:
         type: integer
         minimum: 0
+        example: 500
         x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
+        example: 200
         x-nullable: true
       created_at:
         type: string
