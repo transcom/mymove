@@ -1,5 +1,5 @@
-raw("delete from personally_procured_moves;")
-raw("delete from signed_certifications;")
-raw("delete from moves;")
+sql("delete from personally_procured_moves;")
+sql("delete from signed_certifications;")
+sql("delete from moves;")
 add_column("moves", "locator", "char(6)", {"null": false})
 add_index("moves", "locator", {"unique": true})

@@ -1,5 +1,5 @@
-create_table("performance_periods", func(t) {
+create_table("performance_periods") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("start_date", "timestamp", {})
 	t.Column("end_date", "timestamp", {})
-})
+}

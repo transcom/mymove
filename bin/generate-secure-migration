@@ -56,7 +56,7 @@ readonly prod_migration_name="${prod_migrations_temp_dir}/${secure_migration_nam
 # Build secure migration stub content
 #
 
-readonly up_migration_content="exec('./apply-secure-migration.sh ${secure_migration_name}')"
+readonly up_migration_content="exec(\"./apply-secure-migration.sh ${secure_migration_name}\")"
 echo "${up_migration_content}" > "$up_migration_name"
 
 # Create empty file for local test migration

@@ -9,8 +9,8 @@ import (
 )
 
 func (suite *ModelSuite) Test_ShipmentValidations() {
-	packDays := -2
-	transitDays := 0
+	packDays := int64(-2)
+	transitDays := int64(0)
 	var weightEstimate unit.Pound = -3
 	var progearWeightEstimate unit.Pound = -12
 	var spouseProgearWeightEstimate unit.Pound = -9
@@ -24,8 +24,6 @@ func (suite *ModelSuite) Test_ShipmentValidations() {
 	}
 
 	expErrors := map[string][]string{
-		"traffic_distribution_list_id":   []string{"traffic_distribution_list_id can not be blank."},
-		"source_gbloc":                   []string{"source_gbloc can not be blank."},
 		"move_id":                        []string{"move_id can not be blank."},
 		"status":                         []string{"status can not be blank."},
 		"estimated_pack_days":            []string{"-2 is less than or equal to zero."},
