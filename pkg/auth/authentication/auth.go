@@ -86,6 +86,7 @@ func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout b
 	return handler
 }
 
+// LogoutHandler handles removing session information on logout
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
 	if session != nil {
@@ -165,7 +166,7 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 	return handler
 }
 
-// AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
+// CallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session := auth.SessionFromRequestContext(r)
@@ -240,7 +241,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.OfficeUserID = officeUser.ID
 			session.EntityID = officeUser.TransportationOfficeID
 			officeUser.UserID = &userIdentity.ID
-			officeUser.TransportationOfficeID = *userIdentity.OfficeUserEntityID
 			err = h.db.Save(officeUser)
 			if err != nil {
 				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
@@ -267,7 +267,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.TspUserID = tspUser.ID
 			session.EntityID = tspUser.TransportationServiceProviderID
 			tspUser.UserID = &userIdentity.ID
-			tspUser.TransportationServiceProviderID = *userIdentity.TspUserEntityID
 			err = h.db.Save(tspUser)
 			if err != nil {
 				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
