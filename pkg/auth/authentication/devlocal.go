@@ -188,6 +188,7 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
+			session.EntityID = *(userIdentity.OfficeUserEntityID)
 		} else if session.IsOfficeApp() {
 			handler.logger.Error("Non-office user authenticated at office site", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)
@@ -196,6 +197,7 @@ func loginUser(handler devlocalAuthHandler, user *models.User, w http.ResponseWr
 
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
+			session.EntityID = *(userIdentity.TspUserEntityID)
 		} else if session.IsTspApp() {
 			handler.logger.Error("Non-TSP user authenticated at TSP site", zap.String("email", session.Email))
 			http.Error(w, http.StatusText(401), http.StatusUnauthorized)

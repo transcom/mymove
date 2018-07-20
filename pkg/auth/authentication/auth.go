@@ -100,8 +100,17 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
+			// Set all session values to nil
 			session.IDToken = ""
 			session.UserID = uuid.Nil
+			session.Email = ""
+			session.FirstName = ""
+			session.Middle = ""
+			session.LastName = ""
+			session.ServiceMemberID = uuid.Nil
+			session.OfficeUserID = uuid.Nil
+			session.TspUserID = uuid.Nil
+			session.EntityID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 		} else {
@@ -215,6 +224,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
+			session.EntityID = *(userIdentity.OfficeUserEntityID)
 		} else if session.IsOfficeApp() {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
@@ -230,6 +240,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.OfficeUserID = officeUser.ID
 			session.EntityID = officeUser.TransportationOfficeID
 			officeUser.UserID = &userIdentity.ID
+			officeUser.TransportationOfficeID = *userIdentity.OfficeUserEntityID
 			err = h.db.Save(officeUser)
 			if err != nil {
 				h.logger.Error("Updating office user", zap.String("email", session.Email), zap.Error(err))
@@ -240,6 +251,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
+			session.EntityID = *(userIdentity.TspUserEntityID)
 		} else if session.IsTspApp() {
 			// In case they managed to login before the tsp_user record was created
 			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
@@ -255,6 +267,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.TspUserID = tspUser.ID
 			session.EntityID = tspUser.TransportationServiceProviderID
 			tspUser.UserID = &userIdentity.ID
+			tspUser.TransportationServiceProviderID = *userIdentity.TspUserEntityID
 			err = h.db.Save(tspUser)
 			if err != nil {
 				h.logger.Error("Updating TSP user", zap.String("email", session.Email), zap.Error(err))
@@ -301,10 +314,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.UserID = user.ID
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
+				session.EntityID = officeUser.TransportationOfficeID
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			} else if tspUser != nil {
 				session.TspUserID = tspUser.ID
+				session.EntityID = tspUser.TransportationServiceProviderID
 				tspUser.UserID = &user.ID
 				err = h.db.Save(tspUser)
 			}

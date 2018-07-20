@@ -83,10 +83,12 @@ type UserIdentity struct {
 	OfficeUserFirstName    *string    `db:"ou_fname"`
 	OfficeUserLastName     *string    `db:"ou_lname"`
 	OfficeUserMiddle       *string    `db:"ou_middle"`
+	OfficeUserEntityID     *uuid.UUID `db:"ou_entity_id"`
 	TspUserID              *uuid.UUID `db:"tu_id"`
 	TspUserFirstName       *string    `db:"tu_fname"`
 	TspUserLastName        *string    `db:"tu_lname"`
 	TspUserMiddle          *string    `db:"tu_middle"`
+	TspUserEntityID        *uuid.UUID `db:"tu_entity_id"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -102,10 +104,12 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.first_name as ou_fname,
 				ou.last_name as ou_lname,
 				ou.middle_initials as ou_middle,
+				ou.transportation_office_id as ou_entity_id,
 				tu.id as tu_id,
 				tu.first_name as tu_fname,
 				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle
+				tu.middle_initials as tu_middle,
+				tu.transportation_service_provider_id as tu_entity_id
 			FROM users
 			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id
