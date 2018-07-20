@@ -6,7 +6,7 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
@@ -37,7 +37,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 		Status:           internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
 
-	newMoveDocParams := moveop.CreateMoveDocumentParams{
+	newMoveDocParams := movedocop.CreateMoveDocumentParams{
 		HTTPRequest:               request,
 		CreateMoveDocumentPayload: &newMoveDocPayload,
 		MoveID: strfmt.UUID(move.ID.String()),
@@ -50,7 +50,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
 	suite.isNotErrResponse(response)
-	createdResponse := response.(*moveop.CreateMoveDocumentOK)
+	createdResponse := response.(*movedocop.CreateMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
@@ -89,7 +89,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
-	indexMoveDocParams := moveop.IndexMoveDocumentsParams{
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
 		HTTPRequest: request,
 		MoveID:      strfmt.UUID(move1.ID.String()),
 	}
@@ -101,7 +101,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	response := handler.Handle(indexMoveDocParams)
 
 	// assert we got back the 201 response
-	indexResponse := response.(*moveop.IndexMoveDocumentsOK)
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
 	indexPayload := indexResponse.Payload
 	suite.NotNil(indexPayload)
 

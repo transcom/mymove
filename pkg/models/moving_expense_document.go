@@ -34,13 +34,9 @@ const (
 // MovingExpenseDocument is an object representing a move document
 type MovingExpenseDocument struct {
 	ID                uuid.UUID         `json:"id" db:"id"`
-	DocumentID        uuid.UUID         `json:"document_id" db:"document_id"`
-	Document          Document          `belongs_to:"documents"`
-	MoveID            uuid.UUID         `json:"move_id" db:"move_id"`
-	Move              Move              `belongs_to:"moves"`
-	Title             string            `json:"title" db:"title"`
+	MoveDocumentID    uuid.UUID         `json:"document_id" db:"document_id"`
+	MoveDocument      MoveDocument      `belongs_to:"documents"`
 	MovingExpenseType MovingExpenseType `json:"move_document_type" db:"move_document_type"`
-	Notes             *string           `json:"notes" db:"notes"`
 	ReimbursementID   uuid.UUID         `json:"reimbursement_id" db:"reimbursement_id"`
 	Reimbursement     Reimbursement     `json:"reimbursement" db:"reimbursement"`
 	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
@@ -54,10 +50,8 @@ type MovingExpenseDocuments []MovingExpenseDocument
 // This method is not required and may be deleted.
 func (m *MovingExpenseDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
-		&validators.UUIDIsPresent{Field: m.DocumentID, Name: "DocumentID"},
-		&validators.UUIDIsPresent{Field: m.MoveID, Name: "MoveID"},
+		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
 		&validators.UUIDIsPresent{Field: m.ReimbursementID, Name: "ReimbursementID"},
-		&validators.StringIsPresent{Field: string(m.Title), Name: "Title"},
 		&validators.StringIsPresent{Field: string(m.MovingExpenseType), Name: "MovingExpenseType"},
 	), nil
 }

@@ -5,7 +5,7 @@ import (
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
-	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
@@ -35,7 +35,7 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 type CreateMoveDocumentHandler HandlerContext
 
 // Handle is the handler
-func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams) middleware.Responder {
+func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -51,7 +51,7 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
 	if len(uploadIds) == 0 {
-		return moveop.NewCreateMoveDocumentBadRequest()
+		return movedocop.NewCreateMoveDocumentBadRequest()
 	}
 
 	uploads := models.Uploads{}
@@ -79,14 +79,14 @@ func (h CreateMoveDocumentHandler) Handle(params moveop.CreateMoveDocumentParams
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return moveop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+	return movedocop.NewCreateMoveDocumentOK().WithPayload(newPayload)
 }
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
 type IndexMoveDocumentsHandler HandlerContext
 
 // Handle handles the request
-func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams) middleware.Responder {
+func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
 	// #nosec User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -109,6 +109,6 @@ func (h IndexMoveDocumentsHandler) Handle(params moveop.IndexMoveDocumentsParams
 		}
 		moveDocumentsPayload[i] = moveDocumentPayload
 	}
-	response := moveop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
+	response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
 	return response
 }

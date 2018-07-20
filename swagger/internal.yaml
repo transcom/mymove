@@ -2511,7 +2511,7 @@ paths:
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
-        - moves
+        - move_docs
       parameters:
         - in: path
           name: moveId
@@ -2535,7 +2535,7 @@ paths:
       description: Created a move document with the given information
       operationId: createMoveDocument
       tags:
-        - moves
+        - move_docs
       parameters:
         - name: moveId
           in: path
@@ -2567,7 +2567,7 @@ paths:
       description: Returns a list of all Moving Expense Documents associated with this move
       operationId: indexMovingExpenseDocuments
       tags:
-        - moving_expenses
+        - move_docs
       parameters:
         - in: path
           name: moveId
@@ -2591,7 +2591,7 @@ paths:
       description: Created a moving expense document with the given information
       operationId: createMovingExpenseDocument
       tags:
-        - moving_expenses
+        - move_docs
       parameters:
         - name: moveId
           in: path
