@@ -142,9 +142,8 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 
 	// And: the title and status are updated
 	updateMoveDocPayload := internalmessages.UpdateMoveDocumentPayload{
-		Title:  fmtString("super_awesome.pdf"),
-		Notes:  fmtString("This document is super awesome."),
-		Status: internalmessages.MoveDocumentStatusOK,
+		Title: fmtString("super_awesome.pdf"),
+		Notes: fmtString("This document is super awesome."),
 	}
 
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
