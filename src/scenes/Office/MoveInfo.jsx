@@ -19,6 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import { withContext } from 'shared/AppContext';
 
 import {
   loadMoveDependencies,
@@ -198,7 +199,8 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
-
+    const { moveDocuments } = this.props;
+    const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
 
@@ -327,9 +329,17 @@ class MoveInfo extends Component {
             <div className="documents">
               <h2 className="extras usa-heading">
                 Documents
-                <Link to={`/moves/${move.id}/documents`} target="_blank">
+                {!showDocumentViewer && (
                   <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                </Link>
+                )}
+                {showDocumentViewer && (
+                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExternalLinkAlt}
+                    />
+                  </Link>
+                )}
               </h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
@@ -360,7 +370,12 @@ class MoveInfo extends Component {
                   )}
                 </div>
               )}
-              <DocumentList moveId={move.id} />
+              {showDocumentViewer && (
+                <DocumentList
+                  moveDocuments={moveDocuments}
+                  moveId={this.props.match.params.moveId}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -371,6 +386,9 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -401,4 +419,6 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
+export default withContext(
+  connect(mapStateToProps, mapDispatchToProps)(MoveInfo),
+);
