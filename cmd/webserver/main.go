@@ -72,7 +72,7 @@ func httpsComplianceMiddleware(inner http.Handler) http.Handler {
 
 func main() {
 
-	build := flag.String("build", "public", "the directory to serve static files from.")
+	build := flag.String("build", "build", "the directory to serve static files from.")
 	config := flag.String("config-dir", "config", "The location of server config files")
 	env := flag.String("env", "development", "The environment to run in, which configures the database.")
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
