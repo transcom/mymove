@@ -80,7 +80,7 @@ class DocumentViewer extends Component {
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
-                component={DocumentUploader}
+                render={() => <DocumentUploader moveId={move.id} />}
               />
               <PrivateRoute
                 path={documentPath}
@@ -122,7 +122,10 @@ class DocumentViewer extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList moveId={move.id} />
+                  <DocumentList
+                    moveDocuments={moveDocuments}
+                    moveId={move.id}
+                  />
                 </div>
               </TabPanel>
 

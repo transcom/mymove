@@ -50,6 +50,13 @@ repos:
         entry: bin/swagger validate swagger/internal.yaml
         language: script
 
+  - repo: local
+    hooks:
+      - id: swagger
+        name: Orders Swagger
+        entry: bin/swagger validate swagger/orders.yaml
+        language: script
+
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:

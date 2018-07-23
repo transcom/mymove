@@ -49,13 +49,13 @@ container_definition_json=$(perl -pe "s|{{environment}}|$environment|g; s|{{imag
 readonly container_definition_json
 
 # create new task definition with the given image
-task_definition_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-$environment" --family "$task_family" --container-definitions "$container_definition_json" --query 'taskDefinition.taskDefinitionArn' --output text)
+task_definition_arn=$(aws ecs register-task-definition --network-mode awsvpc --task-role-arn "ecs-task-role-app-$environment" --family "$task_family" --container-definitions "$container_definition_json" --requires-compatibilities FARGATE --execution-role-arn "ecs-task-execution-role-app-$environment" --cpu 256 --memory 512 --query 'taskDefinition.taskDefinitionArn' --output text)
 readonly task_definition_arn
 check_arn "$task_definition_arn"
 
 # run the task
 echo "Running task definition $task_definition_arn …"
-task_arn=$(aws ecs run-task --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
+task_arn=$(aws ecs run-task --launch-type FARGATE --network-configuration "$network_configuration" --task-definition "$task_definition_arn" --cluster "$cluster" --query 'tasks[].taskArn' --output text)
 readonly task_arn
 check_arn "$task_arn"
 time aws ecs wait tasks-stopped --tasks "$task_arn" --cluster "$cluster"
