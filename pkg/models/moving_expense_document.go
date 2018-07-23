@@ -34,11 +34,11 @@ const (
 // MovingExpenseDocument is an object representing a move document
 type MovingExpenseDocument struct {
 	ID                uuid.UUID         `json:"id" db:"id"`
-	MoveDocumentID    uuid.UUID         `json:"document_id" db:"document_id"`
+	MoveDocumentID    uuid.UUID         `json:"move_document_id" db:"move_document_id"`
 	MoveDocument      MoveDocument      `belongs_to:"documents"`
-	MovingExpenseType MovingExpenseType `json:"move_document_type" db:"move_document_type"`
+	MovingExpenseType MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	ReimbursementID   uuid.UUID         `json:"reimbursement_id" db:"reimbursement_id"`
-	Reimbursement     Reimbursement     `json:"reimbursement" db:"reimbursement"`
+	Reimbursement     Reimbursement     `belongs_to:"reimbursement"`
 	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
 	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
 }
