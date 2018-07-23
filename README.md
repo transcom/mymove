@@ -27,6 +27,7 @@ This prototype was built by a [Defense Digital Service](https://www.dds.mil/) te
   * [Setup: Client](#setup-client)
   * [Setup: Office/admin client](#setup-officeadmin-client)
   * [Setup: TSP/admin client](#setup-tspadmin-client)
+  * [Setup: Orders Gateway](#setup-orders-gateway)
   * [Setup: S3](#setup-s3)
   * [TSP Award Queue](#tsp-award-queue)
   * [Test Data Generator](#test-data-generator)
@@ -181,6 +182,11 @@ Dependencies are managed by yarn. To add a new dependency, use `yarn add`
 3. `make tsp_client_run`
 4. Login with the email used above to access the TSP
 
+### Setup: Orders Gateway
+
+1. add the following line to /etc/hosts
+    `127.0.0.1 orderslocal`
+
 ### Setup: S3
 
 If you want to develop against the live S3 service, you will need to configure the following values in your `.envrc`:
@@ -220,7 +226,11 @@ Currently, scenarios have the following numbers:
 
 ### API / Swagger
 
-The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API. In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+The public API is defined in a single file: `swagger/api.yaml` and served at `/api/v1/swagger.yaml`. This file is the single source of truth for the public API.
+
+In addition, internal services, i.e. endpoints only intended for use by the React client are defined in `swagger/internal.yaml` and served at `/internal/swagger.yaml`. These are, as the name suggests, internal endpoints and not intended for use by external clients.
+
+The Orders Gateway's API is defined in the file `swagger/orders.yaml` and served at `/orders/v0/orders.yaml`.
 
 You can view the API's documentation (powered by Swagger UI) at <http://localhost:3000/api/v1/docs> when a local server is running.
 
