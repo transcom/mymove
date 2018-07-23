@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"bytes"
 	"crypto/tls"
 	"crypto/x509"
 	"fmt"
@@ -22,6 +23,10 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 	transactionName := *params.SendGexRequestPayload.TransactionName
 	transactionBody := *params.SendGexRequestPayload.TransactionBody
 
+	// Ensure that the transaction body ends with a newline, otherwise the GEX
+	// EDI parser will fail silently
+	transactionBody = strings.TrimSpace(transactionBody) + "\n"
+
 	request, err := http.NewRequest(
 		"POST",
 		"https://gexweba.daas.dla.mil/msg_data/submit/"+transactionName,
@@ -31,23 +36,18 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		h.logger.Error("Creating GEX POST request", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
-	request.SetBasicAuth("mymovet", os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
 
-	cert := os.Getenv("CLIENT_TLS_CERT")
-	key := os.Getenv("CLIENT_TLS_KEY")
-	certificate, err := tls.X509KeyPair([]byte(cert), []byte(key))
+	// We need to provide basic auth credentials for the GEX server, as well as
+	// our client certificate for the proxy in front of the GEX server.
+	request.SetBasicAuth(os.Getenv("GEX_BASIC_AUTH_USERNAME"), os.Getenv("GEX_BASIC_AUTH_PASSWORD"))
+
+	config, err := getTLSConfig()
 	if err != nil {
-		h.logger.Error("Creating client certificate", zap.Error(err))
+		h.logger.Error("Creating TLS config", zap.Error(err))
 		return gexop.NewSendGexRequestInternalServerError()
 	}
-	config := tls.Config{
-		Certificates: []tls.Certificate{certificate},
-		ClientAuth:   tls.RequireAnyClientCert,
-		RootCAs:      getDoDRootCAs(),
-		MinVersion:   tls.VersionTLS12,
-		MaxVersion:   tls.VersionTLS12,
-	}
-	tr := &http.Transport{TLSClientConfig: &config}
+
+	tr := &http.Transport{TLSClientConfig: config}
 	client := &http.Client{Transport: tr}
 	resp, err := client.Do(request)
 	if err != nil {
@@ -55,13 +55,26 @@ func (h SendGexRequestHandler) Handle(params gexop.SendGexRequestParams) middlew
 		return gexop.NewSendGexRequestInternalServerError()
 	}
 
-	fmt.Println("Server response: " + resp.Status)
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(resp.Body)
+	s := buf.String()
+	fmt.Println("Server response: " + resp.Status + "; " + s)
 	return gexop.NewSendGexRequestOK()
 }
 
-func getDoDRootCAs() *x509.CertPool {
-	pool := x509.NewCertPool()
-	cas := os.Getenv("GEX_DOD_CA")
-	pool.AppendCertsFromPEM([]byte(cas))
-	return pool
+func getTLSConfig() (*tls.Config, error) {
+	clientCert := os.Getenv("CLIENT_TLS_CERT")
+	clientKey := os.Getenv("CLIENT_TLS_KEY")
+	certificate, err := tls.X509KeyPair([]byte(clientCert), []byte(clientKey))
+	if err != nil {
+		return nil, err
+	}
+
+	rootCAs := x509.NewCertPool()
+	rootCAs.AppendCertsFromPEM([]byte(os.Getenv("GEX_DOD_CA")))
+
+	return &tls.Config{
+		Certificates: []tls.Certificate{certificate},
+		RootCAs:      rootCAs,
+	}, nil
 }
