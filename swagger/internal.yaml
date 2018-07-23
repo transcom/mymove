@@ -615,6 +615,8 @@ definitions:
         title: Document Title
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
+      status:
+         $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -623,6 +625,7 @@ definitions:
     required:
       - title
       - move_document_type
+      - status
   MoveDocumentType:
     type: string
     title: Document Type

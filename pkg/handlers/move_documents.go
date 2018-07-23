@@ -106,6 +106,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	payload := params.UpdateMoveDocument
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
+	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
 
 	verrs, err := models.SaveMoveDocument(h.db, moveDoc)
 	if err != nil || verrs.HasAny() {
