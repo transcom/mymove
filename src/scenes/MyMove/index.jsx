@@ -21,6 +21,7 @@ import EditOrders from 'scenes/Review/EditOrders';
 import EditDateAndLocation from 'scenes/Review/EditDateAndLocation';
 import EditWeight from 'scenes/Review/EditWeight';
 import Header from 'shared/Header/MyMove';
+import PaymentRequest from 'scenes/Moves/Ppm/PaymentRequest';
 import { history } from 'shared/store';
 import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
@@ -120,7 +121,10 @@ export class AppWrapper extends Component {
                       path="/moves/:moveId/review/edit-weight"
                       component={EditWeight}
                     />
-
+                    <PrivateRoute
+                      path="/moves/:moveId/request-payment"
+                      component={PaymentRequest}
+                    />
                     <Route component={NoMatch} />
                   </Switch>
                 )}
