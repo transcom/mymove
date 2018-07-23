@@ -35,7 +35,7 @@ const (
 type MovingExpenseDocument struct {
 	ID                uuid.UUID         `json:"id" db:"id"`
 	MoveDocumentID    uuid.UUID         `json:"move_document_id" db:"move_document_id"`
-	MoveDocument      MoveDocument      `belongs_to:"documents"`
+	MoveDocument      MoveDocument      `belongs_to:"move_documents"`
 	MovingExpenseType MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
 	ReimbursementID   uuid.UUID         `json:"reimbursement_id" db:"reimbursement_id"`
 	Reimbursement     Reimbursement     `belongs_to:"reimbursement"`
