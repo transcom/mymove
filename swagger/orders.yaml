@@ -1,20 +1,15 @@
 swagger: '2.0'
 info:
   description: API to submit, amend, and cancel orders for move.mil.
-  version: 0.0.9
+  version: '0.1.0'
   title: MyMove Orders Gateway
   license:
     name: MIT
     url: https://github.com/transcom/mymove/blob/master/LICENSE.md
-host: orders.move.mil
 basePath: /orders/v0
-schemes:
-  - http
 paths:
   /orders:
     get:
-      tags:
-        - orders
       summary: Retrieve orders that match a particular search
       description: |
         Returns all orders that match all of the supplied parameters. At least one query parameter must be provided.
@@ -67,8 +62,6 @@ paths:
         500:
           description: Server error
     post:
-      tags:
-        - orders
       summary: Submit a new set of orders, make an amendment to an existing set of orders, or cancel a set of orders.
       description: |
         Creates a Revision of a set of orders.
@@ -124,8 +117,6 @@ paths:
           description: Server error
   /orders/{uuid}:
     get:
-      tags:
-        - orders
       summary: Retrieve a set of Orders and all of its Revisions by UUID
       operationId: getOrders
       produces:
@@ -151,8 +142,6 @@ paths:
         500:
           description: Server error
     post:
-      tags:
-        - orders
       summary: Make an amendment to or cancel an existing set of orders by UUID
       description: |
         Creates a Revision of a set of orders. The Orders to be amended or canceled must already exist with the supplied UUID.
