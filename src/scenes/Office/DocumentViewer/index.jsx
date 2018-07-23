@@ -13,6 +13,7 @@ import PrivateRoute from 'shared/User/PrivateRoute';
 import { Switch, Redirect, Link } from 'react-router-dom';
 import DocumentList from './DocumentList';
 import DocumentUploader from './DocumentUploader';
+import DocumentDetailPanel from './DocumentDetailPanel';
 import DocumentUploadViewer from './DocumentUploadViewer';
 import {
   selectAllDocumentsForMove,
@@ -41,8 +42,8 @@ class DocumentViewer extends Component {
     ]).join(', ');
 
     // urls: has full url with IDs
-    const defaultUrl = `/moves/${move.id}/documents`;
-    const newUrl = `/moves/${move.id}/documents/new`;
+    const defaultUrl = move ? `/moves/${move.id}/documents` : '';
+    const newUrl = move ? `/moves/${move.id}/documents/new` : '';
 
     // paths: has placeholders (e.g. ":moveId")
     const defaultPath = `/moves/:moveId/documents`;
@@ -79,7 +80,7 @@ class DocumentViewer extends Component {
               <PrivateRoute
                 path={newPath}
                 moveId={move.id}
-                component={DocumentUploader}
+                render={() => <DocumentUploader moveId={move.id} />}
               />
               <PrivateRoute
                 path={documentPath}
@@ -103,9 +104,10 @@ class DocumentViewer extends Component {
                   All Documents ({numMoveDocs})
                 </Tab>
                 {/* TODO: Handle routing of /new route better */}
-                {this.props.match.params.moveDocumentId !== 'new' && (
-                  <Tab className="title nav-tab">Details</Tab>
-                )}
+                {this.props.match.params.moveDocumentId &&
+                  this.props.match.params.moveDocumentId !== 'new' && (
+                    <Tab className="title nav-tab">Details</Tab>
+                  )}
               </TabList>
 
               <TabPanel>
@@ -120,15 +122,23 @@ class DocumentViewer extends Component {
                 </div>
                 <div>
                   {' '}
-                  <DocumentList moveId={move.id} />
+                  <DocumentList
+                    moveDocuments={moveDocuments}
+                    moveId={move.id}
+                  />
                 </div>
               </TabPanel>
 
-              {this.props.match.params.moveDocumentId !== 'new' && (
-                <TabPanel>
-                  <div> details coming soon</div>
-                </TabPanel>
-              )}
+              {this.props.match.params.moveDocumentId &&
+                this.props.match.params.moveDocumentId !== 'new' && (
+                  <TabPanel>
+                    <DocumentDetailPanel
+                      className="document-viewer"
+                      moveDocumentId={this.props.match.params.moveDocumentId}
+                      title=""
+                    />
+                  </TabPanel>
+                )}
             </Tabs>
           </div>
         </div>

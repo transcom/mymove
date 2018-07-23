@@ -3,13 +3,14 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-
 import { getFormValues, reduxForm } from 'redux-form';
+import PropTypes from 'prop-types';
 
-import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
-import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import Uploader from 'shared/Uploader';
+
 import './DocumentUploader.css';
 
 const moveDocumentFormName = 'move_document_upload';
@@ -20,17 +21,18 @@ export class DocumentUploader extends Component {
 
     this.state = {
       newUploads: [],
+      uploaderIsIdle: true,
       moveDocumentCreateError: null,
     };
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onAddFile = this.onAddFile.bind(this);
   }
 
   onSubmit() {
-    const { formValues } = this.props;
+    const { formValues, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
-    const moveId = this.props.match.params.moveId;
     this.setState({
       moveDocumentCreateError: null,
     });
@@ -43,6 +45,10 @@ export class DocumentUploader extends Component {
         'AWAITING_REVIEW',
         formValues.notes,
       )
+      .then(() => {
+        reset();
+        this.uploader.clearFiles();
+      })
       .catch(err => {
         this.setState({
           moveDocumentCreateError: err,
@@ -58,9 +64,16 @@ export class DocumentUploader extends Component {
     // });
   }
 
-  onChange(files) {
+  onAddFile() {
     this.setState({
-      newUploads: files,
+      uploaderIsIdle: false,
+    });
+  }
+
+  onChange(newUploads, uploaderIsIdle) {
+    this.setState({
+      newUploads,
+      uploaderIsIdle,
     });
   }
 
@@ -68,7 +81,7 @@ export class DocumentUploader extends Component {
     const { handleSubmit, schema, formValues } = this.props;
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
-    const isValid = hasFormFilled && hasFiles;
+    const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
     return (
       <Fragment>
         {this.state.moveDocumentCreateError && (
@@ -101,7 +114,11 @@ export class DocumentUploader extends Component {
               Upload a PDF or take a picture of each page and upload the images.
             </p>
             <div className="uploader-box">
-              <Uploader onChange={this.onChange} />
+              <Uploader
+                onRef={ref => (this.uploader = ref)}
+                onChange={this.onChange}
+                onAddFile={this.onAddFile}
+              />
               <div className="hint">(Each page must be clear and legible)</div>
             </div>
           </div>
@@ -118,7 +135,9 @@ DocumentUploader = reduxForm({
   form: moveDocumentFormName,
 })(DocumentUploader);
 
-DocumentUploader.propTypes = {};
+DocumentUploader.propTypes = {
+  moveId: PropTypes.string.isRequired,
+};
 
 function mapStateToProps(state) {
   const props = {

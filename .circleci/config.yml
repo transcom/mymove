@@ -32,7 +32,6 @@ jobs:
           command: make server_generate
       - run:
           name: Run pre-commit tests
-          # TODO(dynamike): Remove skipping gas once we've nailed down all the findings
           command: pre-commit run --all-files
       - save_cache:
           key: pre-commit-dot-cache-{{ checksum ".pre-commit-config.yaml" }}

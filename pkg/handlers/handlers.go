@@ -108,8 +108,17 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = TSPIndexHandler(context)
-	publicAPI.TspShipmentsHandler = TSPShipmentsHandler(context)
+
+	// Blackouts
+
+	// Documents
+
+	// Shipments
+
+	// TSPs
+	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = PublicTspsGetTspShipmentsHandler(context)
+
 	return publicAPI.Serve(nil)
 }
 
@@ -141,8 +150,6 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler(context)
 
-	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
-
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler(context)
 	internalAPI.OrdersShowOrdersHandler = ShowOrdersHandler(context)
@@ -152,6 +159,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
 	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MovesUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
 	internalAPI.MovesIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
@@ -171,6 +179,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.UploadsDeleteUploadsHandler = DeleteUploadsHandler(context)
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
+
+	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)

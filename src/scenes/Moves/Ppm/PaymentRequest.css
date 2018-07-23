@@ -1,0 +1,11 @@
+.payment-request .instructions {
+  padding-right: 5em;
+}
+
+.payment-request .usa-width-two-thirds {
+  border-right: 1px black solid;
+}
+
+.payment-request .doc-list-title {
+  border-bottom: 1px solid #d7d7d7;
+}

@@ -1,125 +1,175 @@
 package handlers
 
 import (
-	"time"
-
 	"github.com/go-openapi/runtime/middleware"
-	"go.uber.org/zap"
+	"github.com/go-openapi/strfmt"
+	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/auth"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 )
 
-func payloadForShipmentModel(s models.ShipmentWithOffer) *internalmessages.ShipmentPayload {
-	shipmentPayload := &internalmessages.ShipmentPayload{
-		ID:                              fmtUUID(s.ID),
-		PickupDate:                      fmtDate(time.Now()),
-		DeliveryDate:                    fmtDate(time.Now()),
-		TrafficDistributionListID:       fmtUUID(s.TrafficDistributionListID),
-		TransportationServiceProviderID: fmtUUIDPtr(s.TransportationServiceProviderID),
-		AdministrativeShipment:          (s.AdministrativeShipment),
-		CreatedAt:                       fmtDateTime(s.CreatedAt),
-		UpdatedAt:                       fmtDateTime(s.UpdatedAt),
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
+func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
+	shipmentPayload := &internalmessages.Shipment{
+		ID:     strfmt.UUID(s.ID.String()),
+		MoveID: strfmt.UUID(s.MoveID.String()),
+		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		SourceGbloc:                  s.SourceGBLOC,
+		Market:                       s.Market,
+		Status:                       s.Status,
+		BookDate:                     fmtDatePtr(s.BookDate),
+		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
+		PickupDate:                   fmtDatePtr(s.PickupDate),
+		DeliveryDate:                 fmtDatePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
+		EstimatedPackDays:            s.EstimatedPackDays,
+		EstimatedTransitDays:         s.EstimatedTransitDays,
+		PickupAddress:                payloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    s.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:       payloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           s.HasDeliveryAddress,
+		DeliveryAddress:              payloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: s.HasPartialSITDeliveryAddress,
+		PartialSitDeliveryAddress:    payloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:               fmtPoundPtr(s.WeightEstimate),
+		ProgearWeightEstimate:        fmtPoundPtr(s.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  fmtPoundPtr(s.SpouseProgearWeightEstimate),
 	}
 	return shipmentPayload
 }
 
-// IndexShipmentsHandler returns a list of shipments
-type IndexShipmentsHandler HandlerContext
+// CreateShipmentHandler creates a Shipment
+type CreateShipmentHandler HandlerContext
 
-// Handle retrieves a list of all shipments
-func (h IndexShipmentsHandler) Handle(p shipmentop.IndexShipmentsParams) middleware.Responder {
-	var response middleware.Responder
+// Handle is the handler
+func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
 
-	shipments, err := models.FetchShipments(h.db, false)
-
+	// Validate that this move belongs to the current user
+	move, err := models.FetchMove(h.db, session, moveID)
 	if err != nil {
-		h.logger.Error("DB Query", zap.Error(err))
-		response = shipmentop.NewIndexShipmentsBadRequest()
-	} else {
-		isp := make(internalmessages.IndexShipmentsPayload, len(shipments))
-		for i, s := range shipments {
-			isp[i] = payloadForShipmentModel(s)
-		}
-		response = shipmentop.NewIndexShipmentsOK().WithPayload(isp)
+		return responseForError(h.logger, err)
 	}
-	return response
+
+	payload := params.Shipment
+
+	pickupAddress := addressModelFromPayload(payload.PickupAddress)
+	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
+	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
+	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+
+	newShipment := models.Shipment{
+		MoveID:                       move.ID,
+		Status:                       "DRAFT",
+		EstimatedPackDays:            payload.EstimatedPackDays,
+		EstimatedTransitDays:         payload.EstimatedTransitDays,
+		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
+		ProgearWeightEstimate:        poundPtrFromInt64Ptr(payload.ProgearWeightEstimate),
+		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(payload.SpouseProgearWeightEstimate),
+		PickupAddress:                pickupAddress,
+		HasSecondaryPickupAddress:    payload.HasSecondaryPickupAddress,
+		SecondaryPickupAddress:       secondaryPickupAddress,
+		HasDeliveryAddress:           payload.HasDeliveryAddress,
+		DeliveryAddress:              deliveryAddress,
+		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
+		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
+	}
+
+	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)
+
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	shipmentPayload := payloadForShipmentModel(newShipment)
+	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
-/* NOTE - The code above is for the INTERNAL API. The code below is for the public API. These will, obviously,
-need to be reconciled. This will be done when the NotImplemented code below is Implemented
-*/
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
 
-// ShipmentIndexHandler returns a list of shipments
-type ShipmentIndexHandler HandlerContext
+// PublicIndexShipmentHandler returns a list of shipments
+type PublicIndexShipmentHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h ShipmentIndexHandler) Handle(p apioperations.IndexShipmentsParams) middleware.Responder {
+func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
 }
 
-// GetShipmentHandler returns a particular shipment
-type GetShipmentHandler HandlerContext
+// PublicGetShipmentHandler returns a particular shipment
+type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h GetShipmentHandler) Handle(p apioperations.GetShipmentParams) middleware.Responder {
+func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
 }
 
-// AcceptShipmentHandler allows a TSP to accept a particular shipment
-type AcceptShipmentHandler HandlerContext
+// PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
+type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h AcceptShipmentHandler) Handle(p apioperations.AcceptShipmentParams) middleware.Responder {
+func (h PublicCreateShipmentAcceptHandler) Handle(p publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// RefuseShipmentHandler allows a TSP to refuse a particular shipment
-type RefuseShipmentHandler HandlerContext
+// PublicCreateShipmentRefuseHandler allows a TSP to refuse a particular shipment
+type PublicCreateShipmentRefuseHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h RefuseShipmentHandler) Handle(p apioperations.RefuseShipmentParams) middleware.Responder {
+func (h PublicCreateShipmentRefuseHandler) Handle(p publicshipmentop.CreateShipmentRefuseParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// UpdateShipmentHandler allows a TSP to refuse a particular shipment
-type UpdateShipmentHandler HandlerContext
+// PublicUpdateShipmentHandler allows a TSP to refuse a particular shipment
+type PublicUpdateShipmentHandler HandlerContext
 
 // Handle updates the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h UpdateShipmentHandler) Handle(p apioperations.UpdateShipmentParams) middleware.Responder {
+func (h PublicUpdateShipmentHandler) Handle(p publicshipmentop.UpdateShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
-// ShipmentContactDetailsHandler allows a TSP to accept a particular shipment
-type ShipmentContactDetailsHandler HandlerContext
+// PublicGetShipmentContactDetailsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentContactDetailsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h ShipmentContactDetailsHandler) Handle(p apioperations.ShipmentContactDetailsParams) middleware.Responder {
+func (h PublicGetShipmentContactDetailsHandler) Handle(p publicshipmentop.GetShipmentContactDetailsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// GetShipmentClaimsHandler allows a TSP to accept a particular shipment
-type GetShipmentClaimsHandler HandlerContext
+// PublicGetShipmentClaimsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentClaimsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentClaimsHandler) Handle(p apioperations.GetShipmentClaimsParams) middleware.Responder {
+func (h PublicGetShipmentClaimsHandler) Handle(p publicshipmentop.GetShipmentClaimsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// GetShipmentDocumentsHandler allows a TSP to accept a particular shipment
-type GetShipmentDocumentsHandler HandlerContext
+// PublicGetShipmentDocumentsHandler allows a TSP to accept a particular shipment
+type PublicGetShipmentDocumentsHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h GetShipmentDocumentsHandler) Handle(p apioperations.GetShipmentDocumentsParams) middleware.Responder {
+func (h PublicGetShipmentDocumentsHandler) Handle(p publicshipmentop.GetShipmentDocumentsParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }
 
-// CreateShipmentDocumentHandler allows a TSP to accept a particular shipment
-type CreateShipmentDocumentHandler HandlerContext
+// PublicCreateShipmentDocumentHandler allows a TSP to accept a particular shipment
+type PublicCreateShipmentDocumentHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h CreateShipmentDocumentHandler) Handle(p apioperations.CreateShipmentDocumentParams) middleware.Responder {
+func (h PublicCreateShipmentDocumentHandler) Handle(p publicshipmentop.CreateShipmentDocumentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .shipmentContactDetails has not yet been implemented")
 }

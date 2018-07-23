@@ -19,6 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import { withContext } from 'shared/AppContext';
 
 import {
   loadMoveDependencies,
@@ -26,8 +27,11 @@ import {
   approvePPM,
   cancelMove,
 } from './ducks';
-import { indexMoveDocuments } from 'scenes/Office/DocumentViewer/ducks.js';
 import { formatDate } from 'shared/formatters';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+} from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -146,7 +150,7 @@ class CancelPanel extends Component {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
-    this.props.indexMoveDocuments(this.props.match.params.moveId);
+    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -195,7 +199,8 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
-
+    const { moveDocuments } = this.props;
+    const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
 
@@ -324,9 +329,17 @@ class MoveInfo extends Component {
             <div className="documents">
               <h2 className="extras usa-heading">
                 Documents
-                <Link to={`/moves/${move.id}/documents`} target="_blank">
+                {!showDocumentViewer && (
                   <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
-                </Link>
+                )}
+                {showDocumentViewer && (
+                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExternalLinkAlt}
+                    />
+                  </Link>
+                )}
               </h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
@@ -357,7 +370,12 @@ class MoveInfo extends Component {
                   )}
                 </div>
               )}
-              <DocumentList moveId={move.id} />
+              {showDocumentViewer && (
+                <DocumentList
+                  moveDocuments={moveDocuments}
+                  moveId={this.props.match.params.moveId}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -368,7 +386,9 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
-  indexMoveDocuments: PropTypes.func.isRequired,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -379,7 +399,10 @@ const mapStateToProps = state => ({
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
-  moveDocuments: get(state, 'moveDocuments.moveDocuments', {}),
+  moveDocuments: selectAllDocumentsForMove(
+    state,
+    get(state, 'office.officeMove.id', ''),
+  ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
@@ -388,7 +411,7 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadMoveDependencies,
-      indexMoveDocuments,
+      getMoveDocumentsForMove,
       approveBasics,
       approvePPM,
       cancelMove,
@@ -396,4 +419,6 @@ const mapDispatchToProps = dispatch =>
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
+export default withContext(
+  connect(mapStateToProps, mapDispatchToProps)(MoveInfo),
+);

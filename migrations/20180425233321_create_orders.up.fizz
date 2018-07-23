@@ -1,4 +1,4 @@
-create_table("orders", func(t) {
+create_table("orders") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("service_member_id", "uuid", {})
 	t.Column("issue_date", "date", {})
@@ -8,4 +8,4 @@ create_table("orders", func(t) {
 	t.Column("new_duty_station_id", "uuid", {})
 	t.ForeignKey("service_member_id", {"service_members": ["id"]}, {"on_delete": "cascade"})
 	t.ForeignKey("new_duty_station_id", {"duty_stations": ["id"]}, {"on_delete": "cascade"})
-})
+}

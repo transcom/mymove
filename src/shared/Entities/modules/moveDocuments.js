@@ -66,6 +66,24 @@ export function createMoveDocument(
   };
 }
 
+export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const response = await client.apis.moves.updateMoveDocument({
+      moveId,
+      moveDocumentId,
+      updateMoveDocument: payload,
+    });
+    checkResponse(
+      response,
+      'failed to update move document due to server error',
+    );
+    const data = normalize(response.body, schema.moveDocument);
+    dispatch(addEntities(data.entities));
+    return response;
+  };
+};
+
 // Selectors
 export const selectMoveDocument = (state, id) => {
   return denormalize([id], moveDocuments, state.entities)[0];
