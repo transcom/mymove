@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
+	"github.com/gobuffalo/uuid"
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -164,4 +165,60 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 	suite.Equal(*patchShipmentPayload.EstimatedPackDays, int64(15), "EstimatedPackDays should have been set to 15")
 	suite.Equal(*patchShipmentPayload.SpouseProgearWeightEstimate, int64(100), "SpouseProgearWeightEstimate should have been set to 100")
+}
+
+func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
+	t := suite.T()
+	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
+	sm := move.Orders.ServiceMember
+	badMoveID := uuid.Must(uuid.NewV4())
+
+	addressPayload := testdatagen.MakeAddress(suite.db, testdatagen.Assertions{})
+
+	shipment1 := models.Shipment{
+		MoveID:                       move.ID,
+		Status:                       "DRAFT",
+		EstimatedPackDays:            swag.Int64(2),
+		EstimatedTransitDays:         swag.Int64(5),
+		PickupAddress:                &addressPayload,
+		HasSecondaryPickupAddress:    true,
+		SecondaryPickupAddress:       &addressPayload,
+		HasDeliveryAddress:           false,
+		HasPartialSITDeliveryAddress: true,
+		PartialSITDeliveryAddress:    &addressPayload,
+		WeightEstimate:               poundPtrFromInt64Ptr(swag.Int64(4500)),
+		ProgearWeightEstimate:        poundPtrFromInt64Ptr(swag.Int64(325)),
+		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(swag.Int64(120)),
+	}
+	suite.mustSave(&shipment1)
+
+	req := httptest.NewRequest("POST", "/moves/move_id/shipment/shipment_id", nil)
+	req = suite.authenticateRequest(req, sm)
+
+	newAddress := otherFakeAddressPayload()
+
+	payload := internalmessages.PatchShipment{
+		EstimatedPackDays:           swag.Int64(15),
+		HasSecondaryPickupAddress:   false,
+		HasDeliveryAddress:          true,
+		DeliveryAddress:             newAddress,
+		SpouseProgearWeightEstimate: swag.Int64(100),
+	}
+
+	patchShipmentParams := shipmentop.PatchShipmentParams{
+		HTTPRequest:   req,
+		MoveID:        strfmt.UUID(badMoveID.String()),
+		ShipmentID:    strfmt.UUID(shipment1.ID.String()),
+		PatchShipment: &payload,
+	}
+
+	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(patchShipmentParams)
+
+	// assert we got back the badrequest response
+	_, ok := response.(*shipmentop.PatchShipmentBadRequest)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
 }
