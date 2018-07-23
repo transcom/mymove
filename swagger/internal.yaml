@@ -509,7 +509,7 @@ definitions:
   IndexMoveDocumentPayload:
     type: array
     items:
-      $ref: '#/definitions/MoveDocumentPayload'
+      $ref: '#/definitions/GenericMoveDocumentPayload'
   GenericMoveDocumentPayload:
     type: object
     properties:
