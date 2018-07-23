@@ -14,6 +14,8 @@ import ppmInProgress from './images/ppm-in-progress.png';
 import { ppmInfoPacket } from 'shared/constants';
 import Alert from 'shared/Alert';
 import { formatCents, formatCentsRange } from 'shared/formatters';
+import { Link } from 'react-router-dom';
+import { withContext } from 'shared/AppContext';
 
 export const CanceledMoveSummary = props => {
   const { profile, reviewProfile } = props;
@@ -170,8 +172,9 @@ export const SubmittedMoveSummary = props => {
   );
 };
 
-export const ApprovedMoveSummary = props => {
+export const ApprovedMoveSummary = withContext(props => {
   const { ppm, orders, profile, move, entitlement } = props;
+  const canRequestPayment = props.context.flags.paymentRequest;
   const moveInProgress = moment(
     ppm.planned_move_date,
     'YYYY-MM-DD',
@@ -225,9 +228,19 @@ export const ApprovedMoveSummary = props => {
                     Request a PPM payment, a storage payment, or an advance
                     against your PPM payment before your move is done.
                   </div>
-                  <button className="usa-button-secondary" disabled={true}>
-                    Request Payment - Coming Soon!
-                  </button>
+                  {canRequestPayment && (
+                    <Link
+                      to={`moves/${move.id}/request-payment`}
+                      className="usa-button usa-button-secondary"
+                    >
+                      Request Payment
+                    </Link>
+                  )}
+                  {!canRequestPayment && (
+                    <button className="usa-button-secondary" disabled={true}>
+                      Request Payment - Coming Soon!
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="usa-width-one-third">
@@ -254,7 +267,7 @@ export const ApprovedMoveSummary = props => {
       </div>
     </Fragment>
   );
-};
+});
 
 const MoveDetails = props => {
   const { ppm } = props;
