@@ -689,7 +689,7 @@ definitions:
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       reimbursement:
-        $ref: '#/definitions/Reimbursement'
+        $ref: '#/definitions/CreateReimbursement'
       notes:
         type: string
         example: This document is good to go!
