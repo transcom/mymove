@@ -594,9 +594,13 @@ definitions:
     title: Document Type
     enum:
       - OTHER
+      - WEIGHT_TICKET
+      - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
     x-display-value:
       OTHER: Other document type
+      WEIGHT_TICKET: Weight ticket
+      STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
   MoveDocumentStatus:
     type: string

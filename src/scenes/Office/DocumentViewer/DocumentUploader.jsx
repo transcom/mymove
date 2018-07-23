@@ -3,13 +3,14 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-
 import { getFormValues, reduxForm } from 'redux-form';
+import PropTypes from 'prop-types';
 
-import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
-import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import Uploader from 'shared/Uploader';
+
 import './DocumentUploader.css';
 
 const moveDocumentFormName = 'move_document_upload';
@@ -30,9 +31,8 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, reset } = this.props;
+    const { formValues, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
-    const moveId = this.props.match.params.moveId;
     this.setState({
       moveDocumentCreateError: null,
     });
@@ -135,7 +135,9 @@ DocumentUploader = reduxForm({
   form: moveDocumentFormName,
 })(DocumentUploader);
 
-DocumentUploader.propTypes = {};
+DocumentUploader.propTypes = {
+  moveId: PropTypes.string.isRequired,
+};
 
 function mapStateToProps(state) {
   const props = {
