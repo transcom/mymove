@@ -6,9 +6,6 @@ import { getFormValues, reduxForm } from 'redux-form';
 import DayPicker from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-import { no_op } from 'shared/utils';
-import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-
 import './DatePicker.css';
 
 const formName = 'shipment_form';
@@ -42,16 +39,6 @@ export class HHGDatePicker extends Component {
   }
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      serviceMemberId,
-      hasSubmitSuccess,
-    } = this.props;
-
-    // initialValues has to be null until there are values from the action since only the first values are taken
-
     return (
       <div className="usa-grid">
         <h3 className="instruction-heading">

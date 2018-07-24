@@ -27,7 +27,6 @@ import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
-import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';

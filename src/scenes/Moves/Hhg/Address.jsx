@@ -3,27 +3,14 @@ import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues } from 'redux-form';
 
-import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './Address.css';
 
-const formName = 'shipment_form';
-
 export class ShipmentAddress extends Component {
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      currentServiceMember,
-    } = this.props;
-    // initialValues has to be null until there are values from the action since only the first values are taken
-    const initialValues = get(currentServiceMember, 'residential_address');
     const hasSecondary = get(
       this.props,
       'formValues.has_secondary_pickup_address',
