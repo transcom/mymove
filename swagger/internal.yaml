@@ -616,7 +616,7 @@ definitions:
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
-         $ref: '#/definitions/MoveDocumentStatus'
+        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
