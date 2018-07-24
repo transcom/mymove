@@ -1,6 +1,6 @@
 create_table("moving_expense_documents") {
 	t.Column("id", "uuid", {"primary": true})
-  	t.Column("move_document_id", "uuid", {})
-  	t.Column("moving_expense_type", "string", {})
-  	t.Column("reimbursement_id", "uuid", {})
+  t.Column("move_document_id", "uuid", {})
+  t.Column("moving_expense_type", "string", {})
+  t.Column("reimbursement_id", "uuid", {})
 }
