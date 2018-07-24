@@ -1,4 +1,4 @@
-create_table("service_members") {
+create_table("service_members", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("user_id", "uuid", {})
 	t.Column("edipi", "text", {"null": true})
@@ -19,4 +19,4 @@ create_table("service_members") {
 	t.ForeignKey("user_id", {"users": ["id"]}, {})
 	t.ForeignKey("residential_address_id", {"addresses": ["id"]}, {"null": true})
 	t.ForeignKey("backup_mailing_address_id", {"addresses": ["id"]}, {"null": true})
-}
+})

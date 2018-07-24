@@ -1,5 +1,6 @@
 add_column("service_members", "duty_station_id", "uuid", {"null": true})
 
-add_foreign_key("service_members", "duty_station_id", {"duty_stations": ["id"]},
-{	"name": "sm_duty_station_fk",
-	"on_delete": "SET NULL"})
+add_foreign_key("service_members", "duty_station_id", {"duty_stations": ["id"]}, {
+	"name": "sm_duty_station_fk",
+	"on_delete": "SET NULL"
+})

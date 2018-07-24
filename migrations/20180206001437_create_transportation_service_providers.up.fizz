@@ -1,5 +1,5 @@
-create_table("transportation_service_providers") {
+create_table("transportation_service_providers", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("standard_carrier_alpha_code", "text", {})
 	t.Column("name", "text", {})
-}
+})

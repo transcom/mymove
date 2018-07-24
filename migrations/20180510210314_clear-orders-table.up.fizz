@@ -1,1 +1,1 @@
-sql("delete from orders;")
+raw("delete from orders;")

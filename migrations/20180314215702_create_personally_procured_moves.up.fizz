@@ -1,7 +1,7 @@
-create_table("personally_procured_moves") {
+create_table("personally_procured_moves", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("move_id", "uuid", {})
 	t.Column("size", "string", {"null": true})
 	t.Column("weight_estimate", "integer", {"null": true})
 	t.ForeignKey("move_id", {"moves": ["id"]}, {})
-}
+})

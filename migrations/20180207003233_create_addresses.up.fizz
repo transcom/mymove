@@ -1,8 +1,8 @@
-create_table("addresses") {
+create_table("addresses", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("street_address_1", "string", {})
 	t.Column("street_address_2", "string", {"null": true})
 	t.Column("city", "string", {})
 	t.Column("state", "string", {})
 	t.Column("zip", "string", {})
-}
+})
