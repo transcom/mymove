@@ -3,7 +3,6 @@ package handlers
 import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
-	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -90,7 +89,6 @@ type UpdateMoveDocumentHandler HandlerContext
 func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
-	moveID, _ := uuid.FromString(params.MoveID.String())
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
 
 	// Fetch move document from move id
@@ -99,10 +97,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		return responseForError(h.logger, err)
 	}
 
-	if moveDoc.MoveID != moveID {
-		h.logger.Info("Move ID for Move Document does not match requested Move Document ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", moveDoc.MoveID.String()))
-		return movedocop.NewUpdateMoveDocumentBadRequest()
-	}
 	payload := params.UpdateMoveDocument
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
