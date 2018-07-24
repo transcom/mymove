@@ -216,7 +216,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
-			session.EntityID = *(userIdentity.OfficeUserEntityID)
+			session.OfficeUserTransportationOfficeID = *(userIdentity.OfficeUserTransportationOfficeID)
 		} else if session.IsOfficeApp() {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
@@ -230,7 +230,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			session.EntityID = officeUser.TransportationOfficeID
+			session.OfficeUserTransportationOfficeID = officeUser.TransportationOfficeID
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -242,7 +242,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
-			session.EntityID = *(userIdentity.TspUserEntityID)
+			session.TspUserTransportationServiceProviderID = *(userIdentity.TspUserTransportationServiceProviderID)
 		} else if session.IsTspApp() {
 			// In case they managed to login before the tsp_user record was created
 			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
@@ -256,7 +256,7 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.TspUserID = tspUser.ID
-			session.EntityID = tspUser.TransportationServiceProviderID
+			session.TspUserTransportationServiceProviderID = tspUser.TransportationServiceProviderID
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
@@ -304,12 +304,12 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.UserID = user.ID
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
-				session.EntityID = officeUser.TransportationOfficeID
+				session.OfficeUserTransportationOfficeID = officeUser.TransportationOfficeID
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			} else if tspUser != nil {
 				session.TspUserID = tspUser.ID
-				session.EntityID = tspUser.TransportationServiceProviderID
+				session.TspUserTransportationServiceProviderID = tspUser.TransportationServiceProviderID
 				tspUser.UserID = &user.ID
 				err = h.db.Save(tspUser)
 			}

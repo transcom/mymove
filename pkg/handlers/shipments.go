@@ -246,12 +246,13 @@ type PublicIndexShipmentsHandler HandlerContext
 func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(p.HTTPRequest)
-	// Possible they are coming from the wrong endpoint and thus the session is missing the EntityID
-	if session.EntityID == uuid.Nil {
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserTransportationServiceProviderID
+	if session.TspUserTransportationServiceProviderID == uuid.Nil {
 		return publicshipmentop.NewIndexShipmentsForbidden()
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.db, session.EntityID)
+	shipments, err := models.FetchShipmentsByTSP(h.db, session.TspUserTransportationServiceProviderID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewIndexShipmentsBadRequest()
