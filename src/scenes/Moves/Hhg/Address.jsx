@@ -11,31 +11,9 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 import './Address.css';
 
-const formName = 'shipment_address';
-const AddressWizardForm = reduxifyWizardForm(formName);
-const hhgSchema = {
-  properties: {
-    has_secondary_pickup_address: {
-      type: 'boolean',
-      title: 'Do you have household goods at any other pickup location?',
-      'x-nullable': true,
-    },
-    has_delivery_address: {
-      type: 'boolean',
-      title: 'Do you know your home address at your destination yet?',
-      'x-nullable': true,
-    },
-  },
-};
+const formName = 'shipment_form';
 
 export class ShipmentAddress extends Component {
-  // handleSubmit = () => {
-  //   return false;
-  //   // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
-  //   // const newAddresses = { ...this.props.values };
-  //   // this.props.updateShipment(newAddress);
-  // };
-
   render() {
     const {
       pages,
@@ -57,16 +35,6 @@ export class ShipmentAddress extends Component {
       false,
     );
     return (
-      // <AddressWizardForm
-      //   // handleSubmit={this.handleSubmit}
-      //   handleSubmit={false}
-      //   className={formName}
-      //   pageList={pages}
-      //   pageKey={pageKey}
-      //   hasSucceeded={hasSubmitSuccess}
-      //   serverError={error}
-      //   initialValues={initialValues}
-      // >
       <div className="usa-grid">
         <h3 className="instruction-heading">
           Now let's review your pickup and delivery locations
@@ -78,36 +46,36 @@ export class ShipmentAddress extends Component {
           <div className="address-segment">
             <SwaggerField
               fieldName="street_address_1"
-              swagger={this.props.schema}
+              swagger={this.props.addressSchema}
               required
             />
             <SwaggerField
               fieldName="street_address_2"
-              swagger={this.props.schema}
+              swagger={this.props.addressSchema}
             />
             <SwaggerField
               className="usa-width-one-fourth"
               fieldName="city"
-              swagger={this.props.schema}
+              swagger={this.props.addressSchema}
               required
             />
             <SwaggerField
               className="usa-width-one-sixth"
               fieldName="state"
-              swagger={this.props.schema}
+              swagger={this.props.addressSchema}
               required
             />
             <SwaggerField
               className="usa-width-one-fourth"
               fieldName="postal_code"
-              swagger={this.props.schema}
+              swagger={this.props.addressSchema}
               required
             />
           </div>
           <SwaggerField
             className="radio-title"
             fieldName="has_secondary_pickup_address"
-            swagger={hhgSchema}
+            swagger={this.props.schema}
             component={YesNoBoolean}
           />
           {hasSecondary && (
@@ -115,29 +83,29 @@ export class ShipmentAddress extends Component {
               <div className="address-segment">
                 <SwaggerField
                   fieldName="street_address_1"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasSecondary}
                 />
                 <SwaggerField
                   fieldName="street_address_2"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="city"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasSecondary}
                 />
                 <SwaggerField
                   className="usa-width-one-sixth"
                   fieldName="state"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasSecondary}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="postal_code"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasSecondary}
                 />
               </div>
@@ -147,7 +115,7 @@ export class ShipmentAddress extends Component {
           <SwaggerField
             className="radio-title"
             fieldName="has_delivery_address"
-            swagger={hhgSchema}
+            swagger={this.props.schema}
             component={YesNoBoolean}
           />
           {hasDelivery && (
@@ -155,29 +123,29 @@ export class ShipmentAddress extends Component {
               <div className="address-segment">
                 <SwaggerField
                   fieldName="street_address_1"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasDelivery}
                 />
                 <SwaggerField
                   fieldName="street_address_2"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="city"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasDelivery}
                 />
                 <SwaggerField
                   className="usa-width-one-sixth"
                   fieldName="state"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasDelivery}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="postal_code"
-                  swagger={this.props.schema}
+                  swagger={this.props.addressSchema}
                   required={hasDelivery}
                 />
               </div>
@@ -185,7 +153,6 @@ export class ShipmentAddress extends Component {
           )}
         </div>
       </div>
-      // </AddressWizardForm>
     );
   }
 }
@@ -201,9 +168,7 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   return {
-    schema: get(state, 'swagger.spec.definitions.Address', {}),
-    formValues: getFormValues(formName)(state),
-    ...state.serviceMember,
+    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
   };
 }
 export default connect(mapStateToProps, mapDispatchToProps)(ShipmentAddress);

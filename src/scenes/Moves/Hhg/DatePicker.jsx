@@ -11,7 +11,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
 import './DatePicker.css';
 
-const formName = 'hhg_date_picker';
+const formName = 'shipment_form';
 const schema = {
   properties: {
     planned_move_date: {
@@ -24,7 +24,6 @@ const schema = {
     },
   },
 };
-const HHGDateWizardForm = reduxifyWizardForm(formName);
 
 export class HHGDatePicker extends Component {
   state = { showInfo: false };
@@ -36,6 +35,7 @@ export class HHGDatePicker extends Component {
       selectedDay: undefined,
     };
   }
+  // TODO: set to store's formValues later instead of local state
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
@@ -53,16 +53,6 @@ export class HHGDatePicker extends Component {
     // initialValues has to be null until there are values from the action since only the first values are taken
 
     return (
-      // <HHGDateWizardForm
-      //   handleSubmit={no_op}
-      //   className={formName}
-      //   pageList={pages}
-      //   pageKey={pageKey}
-      //   hasSucceeded={hasSubmitSuccess}
-      //   serverError={error}
-      //   // initialValues={initialValues}
-      //   additionalParams={{ serviceMemberId }}
-      // >
       <div className="usa-grid">
         <h3 className="instruction-heading">
           Great! Let's find a date for a moving company to move your stuff.
@@ -115,7 +105,6 @@ export class HHGDatePicker extends Component {
           )}
         </div>
       </div>
-      // </HHGDateWizardForm>
     );
   }
 }

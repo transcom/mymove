@@ -11,6 +11,7 @@ import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
 const formName = 'shipment_form';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
+//hard-coded placeholder schema:
 const schema = {
   properties: {
     planned_move_date: {
@@ -57,8 +58,16 @@ export class ShipmentForm extends Component {
       >
         <div className="usa-grid">
           <h3 className="form-title">Shipment 1 (HHG)</h3>
-          <ShipmentDatePicker schema={schema} error={error} />
-          <ShipmentAddress schema={schema} error={error} />
+          <ShipmentDatePicker
+            schema={schema}
+            error={error}
+            formValues={this.props.formValues}
+          />
+          <ShipmentAddress
+            schema={schema}
+            error={error}
+            formValues={this.props.formValues}
+          />
         </div>
       </ShipmentFormWizardForm>
     );
@@ -82,7 +91,6 @@ function mapStateToProps(state) {
     //   {},
     // ),
     schema,
-    addressSchema: get(state, 'swagger.spec.definitions.Address', {}),
     formValues: getFormValues(formName)(state),
     ...state.serviceMember,
   };
