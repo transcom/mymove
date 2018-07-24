@@ -68,6 +68,10 @@ const PPMTabContent = props => {
   );
 };
 
+const HHGTabContent = props => {
+  return <div className="hhg-tab">Placeholder Content</div>;
+};
+
 class CancelPanel extends Component {
   state = { displayState: 'Button', cancelReason: '' };
 
@@ -203,7 +207,6 @@ class MoveInfo extends Component {
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
-
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -275,6 +278,16 @@ class MoveInfo extends Component {
                 <span className="title">PPM</span>
                 {this.renderPPMTabStatus()}
               </NavTab>
+              <NavTab to="/hhg">
+                <span className="title">HHG</span>
+                <span className="status">
+                  <FontAwesomeIcon
+                    className="icon approval-waiting"
+                    icon={faClock}
+                  />
+                  Placeholder Status
+                </span>
+              </NavTab>
             </RoutedTabs>
 
             <div className="tab-content">
@@ -293,6 +306,10 @@ class MoveInfo extends Component {
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
+                />
+                <PrivateRoute
+                  path={`${this.props.match.path}/hhg`}
+                  component={HHGTabContent}
                 />
               </Switch>
             </div>
