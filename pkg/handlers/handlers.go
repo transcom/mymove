@@ -16,6 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/ordersapi"
+	ordersops "github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -179,6 +181,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
+	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
@@ -188,6 +191,23 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler(context)
 
 	return internalAPI.Serve(nil)
+}
+
+// NewOrdersAPIHandler returns a handler for the Orders API
+func NewOrdersAPIHandler(context HandlerContext) http.Handler {
+
+	// Wire up the handlers to the ordersAPIMux
+	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ordersAPI := ordersops.NewMymoveAPI(ordersSpec)
+	ordersAPI.GetOrdersHandler = GetOrdersHandler(context)
+	ordersAPI.IndexOrdersHandler = IndexOrdersHandler(context)
+	ordersAPI.PostRevisionHandler = PostRevisionHandler(context)
+	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler(context)
+	return ordersAPI.Serve(nil)
 }
 
 // Converts the value returned by Pop's ValidateAnd* methods into a payload that can

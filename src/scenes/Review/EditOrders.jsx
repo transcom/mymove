@@ -26,6 +26,8 @@ import './Review.css';
 import profileImage from './images/profile.png';
 
 const editOrdersFormName = 'edit_orders';
+const uploaderLabelIdle =
+  'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
 
 let EditOrdersForm = props => {
   const {
@@ -75,6 +77,7 @@ let EditOrdersForm = props => {
         <Uploader
           document={initialValues.uploaded_orders}
           onChange={onUpload}
+          labelIdle={uploaderLabelIdle}
         />
       )}
       <SaveCancelButtons valid={valid} submitting={submitting} />

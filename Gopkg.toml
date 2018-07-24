@@ -1,5 +1,5 @@
 required = [
-	"github.com/GoASTScanner/gas/cmd/gas",
+	"github.com/securego/gosec/cmd/gosec",
 	"github.com/gobuffalo/pop/soda",
 	"github.com/golang/lint/golint",
 	"github.com/go-swagger/go-swagger/cmd/swagger",
@@ -13,5 +13,5 @@ required = [
   branch = "master"
 
 [[constraint]]
+  name = "github.com/securego/gosec"
   branch = "master"
-  name = "github.com/GoASTScanner/gas"
