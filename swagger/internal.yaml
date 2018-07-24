@@ -640,6 +640,7 @@ definitions:
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
+      EXPENSE: Expense
   MovingExpenseDocumentPayload:
     type: object
     properties:

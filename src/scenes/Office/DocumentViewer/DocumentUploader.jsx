@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues, reduxForm } from 'redux-form';
+import { getFormValues, reduxForm, FormSection } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
@@ -36,24 +36,25 @@ export class DocumentUploader extends Component {
     this.setState({
       moveDocumentCreateError: null,
     });
-    this.props
-      .createMoveDocument(
-        moveId,
-        uploadIds,
-        formValues.title,
-        formValues.move_document_type,
-        'AWAITING_REVIEW',
-        formValues.notes,
-      )
-      .then(() => {
-        reset();
-        this.uploader.clearFiles();
-      })
-      .catch(err => {
-        this.setState({
-          moveDocumentCreateError: err,
-        });
-      });
+    debugger;
+    // this.props
+    //   .createMoveDocument(
+    //     moveId,
+    //     uploadIds,
+    //     formValues.title,
+    //     formValues.move_document_type,
+    //     'AWAITING_REVIEW',
+    //     formValues.notes,
+    //   )
+    //   .then(() => {
+    //     reset();
+    //     this.uploader.clearFiles();
+    //   })
+    //   .catch(err => {
+    //     this.setState({
+    //       moveDocumentCreateError: err,
+    //     });
+    //   });
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -78,10 +79,21 @@ export class DocumentUploader extends Component {
   }
 
   render() {
-    const { handleSubmit, schema, formValues } = this.props;
+    const {
+      handleSubmit,
+      moveDocSchema,
+      movingExpenseSchema,
+      reimbursementSchema,
+      formValues,
+    } = this.props;
+    const isExpenseDocument =
+      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE' ||
+      get(this.props, 'formValues.move_document_type', false) ===
+        'STORAGE_EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
+    console.log('formValues', formValues);
     return (
       <Fragment>
         {this.state.moveDocumentCreateError && (
@@ -96,23 +108,67 @@ export class DocumentUploader extends Component {
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <h3>Upload a new document</h3>
           <SwaggerField
-            title="Title"
-            fieldName="title"
-            swagger={schema}
-            required
-          />
-          <SwaggerField
             title="Document type"
             fieldName="move_document_type"
-            swagger={schema}
+            swagger={moveDocSchema}
             required
           />
-          <SwaggerField title="Notes" fieldName="notes" swagger={schema} />
-          <div>
-            <h4>Attach PDF or image</h4>
-            <p>
-              Upload a PDF or take a picture of each page and upload the images.
-            </p>
+          {get(this.props, 'formValues.move_document_type', false) ===
+            'OTHER' && (
+            <Fragment>
+              <SwaggerField
+                title="Document title"
+                fieldName="title"
+                swagger={moveDocSchema}
+                required
+              />
+              <SwaggerField
+                title="Notes"
+                fieldName="notes"
+                swagger={moveDocSchema}
+              />
+              <div>
+                <h4>Attach PDF or image</h4>
+                <p>
+                  Upload a PDF or take a picture of each page and upload the
+                  images.
+                </p>
+              </div>
+            </Fragment>
+          )}
+          {isExpenseDocument && (
+            <Fragment>
+              <FormSection name="movingExpenseDocument">
+                <SwaggerField
+                  title="Document title"
+                  fieldName="title"
+                  swagger={movingExpenseSchema}
+                  required
+                />
+                <SwaggerField
+                  title="Expense type"
+                  fieldName="moving_expense_type"
+                  swagger={movingExpenseSchema}
+                  required
+                />
+              </FormSection>
+              <FormSection name="reimbursement">
+                <SwaggerField
+                  title="Amount"
+                  fieldName="requested_amount"
+                  swagger={reimbursementSchema}
+                  required
+                />
+                <SwaggerField
+                  title="Method of Payment"
+                  fieldName="method_of_receipt"
+                  swagger={reimbursementSchema}
+                  required
+                />
+              </FormSection>
+            </Fragment>
+          )}
+          {get(this.props, 'formValues.move_document_type', false) && (
             <div className="uploader-box">
               <Uploader
                 onRef={ref => (this.uploader = ref)}
@@ -121,7 +177,7 @@ export class DocumentUploader extends Component {
               />
               <div className="hint">(Each page must be clear and legible)</div>
             </div>
-          </div>
+          )}
           <button className="submit" disabled={!isValid}>
             Save
           </button>
@@ -142,9 +198,19 @@ DocumentUploader.propTypes = {
 function mapStateToProps(state) {
   const props = {
     formValues: getFormValues(moveDocumentFormName)(state),
-    schema: get(
+    moveDocSchema: get(
       state,
       'swagger.spec.definitions.CreateMoveDocumentPayload',
+      {},
+    ),
+    movingExpenseSchema: get(
+      state,
+      'swagger.spec.definitions.CreateMovingExpenseDocumentPayload',
+      {},
+    ),
+    reimbursementSchema: get(
+      state,
+      'swagger.spec.definitions.Reimbursement',
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
