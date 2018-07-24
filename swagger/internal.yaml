@@ -712,12 +712,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -735,8 +729,6 @@ definitions:
         title: Notes
     required:
       - id
-      - move_id
-      - document
       - title
       - move_document_type
       - moving_expense_type
@@ -2711,7 +2703,7 @@ paths:
           description: move not found
         500:
           description: internal server error
-  /moves/{moveId}/documents:
+  /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
@@ -2767,7 +2759,7 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/documents/{moveDocumentId}:
+  /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
@@ -2775,12 +2767,6 @@ paths:
       tags:
         - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the move document
         - in: path
           name: moveDocumentId
           type: string
@@ -2839,7 +2825,7 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/moving_expense_documents/{movingExpenseDocumentId}:
+  /moving_expense_documents/{movingExpenseDocumentId}:
     put:
       summary: Updates a moving expense document
       description: Update a moving expense document with the given information
@@ -2847,12 +2833,6 @@ paths:
       tags:
         - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the moving expense document
         - in: path
           name: movingExpenseDocumentId
           type: string
