@@ -18,27 +18,32 @@ import (
 // ErrZeroLengthFile represents an error caused by a file with no content
 var ErrZeroLengthFile = errors.New("File has length of 0")
 
-// NewLocalFile creates a *runtime.File from a file on the local filesystem
+// NewLocalFile creates a *runtime.File from a local filepath
 func NewLocalFile(filePath string) (*runtime.File, error) {
-	info, err := os.Stat(filePath)
+	// #nosec never comes from user input
+	file, err := os.Open(filePath)
 	if err != nil {
-		return nil, errors.Wrap(err, "could not stat file")
+		return nil, errors.Wrap(err, "could not open file")
 	}
+
+	return RuntimeFile(file)
+}
+
+// RuntimeFile creates a *runtime.File from an os.File
+func RuntimeFile(file *os.File) (*runtime.File, error) {
+	info, err := file.Stat()
+	if err != nil {
+		return nil, errors.Wrap(err, "could not get file stats")
+	}
+
 	header := multipart.FileHeader{
 		Filename: info.Name(),
 		Size:     info.Size(),
 	}
 
-	/*
-		#nosec - this path should never come from user input
-	*/
-	data, err := os.Open(filePath)
-	if err != nil {
-		return nil, errors.Wrap(err, "could not open file")
-	}
 	return &runtime.File{
 		Header: &header,
-		Data:   data,
+		Data:   file,
 	}, nil
 }
 

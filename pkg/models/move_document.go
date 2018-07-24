@@ -30,6 +30,14 @@ type MoveDocumentType string
 const (
 	// MoveDocumentTypeOTHER captures enum value "OTHER"
 	MoveDocumentTypeOTHER MoveDocumentType = "OTHER"
+	// MoveDocumentTypeWEIGHTTICKET captures enum value "WEIGHTTICKET"
+	MoveDocumentTypeWEIGHTTICKET MoveDocumentType = "WEIGHT_TICKET"
+	// MoveDocumentTypeSTORAGEEXPENSE captures enum value "STORAGEEXPENSE"
+	MoveDocumentTypeSTORAGEEXPENSE MoveDocumentType = "STORAGE_EXPENSE"
+	// MoveDocumentTypeSHIPMENTSUMMARY captures enum value "SHIPMENTSUMMARY"
+	MoveDocumentTypeSHIPMENTSUMMARY MoveDocumentType = "SHIPMENT_SUMMARY"
+	// MoveDocumentTypeEXPENSE captures enum value "EXPENSE"
+	MoveDocumentTypeEXPENSE MoveDocumentType = "EXPENSE"
 )
 
 // MoveDocument is an object representing a move document

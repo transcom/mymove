@@ -3044,6 +3044,37 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/create_summary:
+    post:
+      summary: Creates PPM summary PDF
+      description: Creates a PPM summary PDF
+      operationId: createPPMSummary
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM to create a summary for
+      responses:
+        200:
+          description: returns a PPM summary upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to perform this action
+        422:
+          description: malformed PDF contained in uploads
+        424:
+          description: no files to be processed into PDF summary
+        500:
+          description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM

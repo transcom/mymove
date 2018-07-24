@@ -34,7 +34,7 @@ func GenerateAdvancePaperwork(g *Generator, moveID uuid.UUID, build string) (str
 		return "", err
 	}
 
-	ordersPaths, err := g.GenerateUploadsPDF(order.UploadedOrders.Uploads)
+	ordersPaths, err := g.ConvertUploadsToPDF(order.UploadedOrders.Uploads)
 	if err != nil {
 		return "", err
 	}
@@ -52,7 +52,7 @@ func GenerateAdvancePaperwork(g *Generator, moveID uuid.UUID, build string) (str
 		}
 	}
 
-	mergedFile, err := g.mergePDFFiles(inputFiles)
+	mergedFile, err := g.MergePDFFiles(inputFiles)
 	if err != nil {
 		return "", err
 	}

@@ -152,6 +152,29 @@ func (p *PersonallyProcuredMove) RequestPayment() error {
 	return nil
 }
 
+// FetchMoveDocumentsForTypes returns all the linked move documents with the given document types
+func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []MoveDocumentType) (MoveDocuments, error) {
+	var moveDocs MoveDocuments
+
+	q := db.Where("personally_procured_move_id = ?", p.ID)
+
+	// If we were given doc types, append that WHERE statement
+	if len(docTypes) > 0 {
+		convertedTypes := make([]interface{}, len(docTypes))
+		for i, t := range docTypes {
+			convertedTypes[i] = string(t)
+		}
+		q = q.Where("move_document_type in (?)", convertedTypes...)
+	}
+
+	err := q.Eager("Document.Uploads").All(&moveDocs)
+	if err != nil {
+		return MoveDocuments{}, nil
+	}
+
+	return moveDocs, nil
+}
+
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model
 func FetchPersonallyProcuredMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*PersonallyProcuredMove, error) {
 	var ppm PersonallyProcuredMove

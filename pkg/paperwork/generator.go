@@ -62,8 +62,23 @@ func (g *Generator) newTempFile() (*os.File, error) {
 	return outputFile, nil
 }
 
-// GenerateUploadsPDF turns a slice of Uploads into a slice of paths to converted PDF files
-func (g *Generator) GenerateUploadsPDF(uploads models.Uploads) ([]string, error) {
+// CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
+func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (*os.File, error) {
+	pdfs, err := g.ConvertUploadsToPDF(uploads)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while converting uploads")
+	}
+
+	mergedPdf, err := g.MergePDFFiles(pdfs)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while merging PDFs")
+	}
+
+	return mergedPdf, err
+}
+
+// ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
+func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
@@ -75,7 +90,7 @@ func (g *Generator) GenerateUploadsPDF(uploads models.Uploads) ([]string, error)
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
-				pdf, err := g.pdfFromImages(images)
+				pdf, err := g.PDFFromImages(images)
 				if err != nil {
 					return nil, err
 				}
@@ -97,12 +112,21 @@ func (g *Generator) GenerateUploadsPDF(uploads models.Uploads) ([]string, error)
 
 	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
-		pdf, err := g.pdfFromImages(images)
+		pdf, err := g.PDFFromImages(images)
 		if err != nil {
 			return nil, err
 		}
 		pdfs = append(pdfs, pdf)
 	}
+
+	config := pdfcpu.NewDefaultConfiguration()
+	for _, f := range pdfs {
+		err := api.Validate(f, config)
+		if err != nil {
+			return nil, err
+		}
+	}
+
 	return pdfs, nil
 }
 
@@ -112,12 +136,12 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
-// pdfFromImages returns the path to tempfile PDF containing all images included
+// PDFFromImages returns the path to tempfile PDF containing all images included
 // in urls.
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
+func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	horizontalMargin := 0.0
 	topMargin := 0.0
 	bodyWidth := PdfPageWidth - (horizontalMargin * 2)
@@ -149,8 +173,8 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 	return outputFile.Name(), nil
 }
 
-// Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) mergePDFFiles(paths []string) (*os.File, error) {
+// MergePDFFiles Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) MergePDFFiles(paths []string) (*os.File, error) {
 	mergedFile, err := g.newTempFile()
 	if err != nil {
 		return &os.File{}, err
@@ -181,5 +205,5 @@ func (g *Generator) MergeImagesToPDF(paths []string) (string, error) {
 		})
 	}
 
-	return g.pdfFromImages(images)
+	return g.PDFFromImages(images)
 }
