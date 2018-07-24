@@ -2516,7 +2516,7 @@ paths:
           required: true
           description: UUID of the Shipment being updated
         - in: body
-          name: patchShipment
+          name: shipment
           required: true
           schema:
             $ref: '#/definitions/Shipment'
