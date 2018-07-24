@@ -712,10 +712,6 @@ definitions:
   UpdateMovingExpenseDocumentPayload:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -734,7 +730,6 @@ definitions:
         x-nullable: true
         title: Notes
     required:
-      - id
       - title
       - move_document_type
       - moving_expense_type
