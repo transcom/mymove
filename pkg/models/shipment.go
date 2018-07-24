@@ -115,7 +115,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, TspID uuid.UUID) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID) ([]Shipment, error) {
 	shipments := []Shipment{}
 
 	var sql string
@@ -131,7 +131,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, TspID uuid.UUID) ([]Shipment, error
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").RawQuery(sql, TspID).All(&shipments)
+		"PartialSITDeliveryAddress").RawQuery(sql, tspID).All(&shipments)
 
 	return shipments, err
 }
