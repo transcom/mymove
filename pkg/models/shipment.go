@@ -127,31 +127,11 @@ func FetchShipmentsByTSP(tx *pop.Connection, TspID uuid.UUID) ([]Shipment, error
 			shipments.id=shipment_offers.shipment_id
 		WHERE shipment_offers.transportation_service_provider_id = $1`
 
-	err := tx.RawQuery(sql, TspID).All(&shipments)
-
-	// Hydrate the related address models if they are assigned
-	for i, s := range shipments {
-		if *s.PickupAddressID != uuid.Nil {
-			pickupAddress := Address{}
-			err = tx.Find(&pickupAddress, s.PickupAddressID)
-			shipments[i].PickupAddress = &pickupAddress
-		}
-		if *s.SecondaryPickupAddressID != uuid.Nil {
-			secondaryPickupAddress := Address{}
-			err = tx.Find(&secondaryPickupAddress, s.SecondaryPickupAddressID)
-			shipments[i].SecondaryPickupAddress = &secondaryPickupAddress
-		}
-		if *s.DeliveryAddressID != uuid.Nil {
-			deliveryAddress := Address{}
-			err = tx.Find(&deliveryAddress, s.DeliveryAddressID)
-			shipments[i].DeliveryAddress = &deliveryAddress
-		}
-		if *s.PartialSITDeliveryAddressID != uuid.Nil {
-			partialSITDeliveryAddress := Address{}
-			err = tx.Find(&partialSITDeliveryAddress, s.PartialSITDeliveryAddressID)
-			shipments[i].PartialSITDeliveryAddress = &partialSITDeliveryAddress
-		}
-	}
+	err := tx.Eager(
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"PartialSITDeliveryAddress").RawQuery(sql, TspID).All(&shipments)
 
 	return shipments, err
 }
