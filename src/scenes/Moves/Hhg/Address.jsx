@@ -27,9 +27,9 @@ export class ShipmentAddress extends Component {
           Now let's review your pickup and delivery locations
         </h3>
 
-        <h4>Pickup Location</h4>
         <div className="usa-grid">
           <div className="usa-width-one-whole">
+            <h4>Pickup Location</h4>
             <div className="address-segment usa-grid">
               <SwaggerField
                 fieldName="street_address_1"
