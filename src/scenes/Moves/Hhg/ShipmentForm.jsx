@@ -55,7 +55,11 @@ export class ShipmentForm extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <ShipmentDatePicker schema={schema} error={error} />
+        <div className="usa-grid">
+          <h3>Shipment 1 (HHG)</h3>
+          <ShipmentDatePicker schema={schema} error={error} />
+          <ShipmentAddress schema={schema} error={error} />
+        </div>
       </ShipmentFormWizardForm>
     );
   }

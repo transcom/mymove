@@ -64,7 +64,6 @@ export class HHGDatePicker extends Component {
       //   additionalParams={{ serviceMemberId }}
       // >
       <div className="usa-grid">
-        <h3>Shipment 1 (HHG)</h3>
         <h2 className="instruction-heading">
           Great! Let's find a date for a moving company to move your stuff.
         </h2>

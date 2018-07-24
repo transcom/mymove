@@ -57,136 +57,135 @@ export class ShipmentAddress extends Component {
       false,
     );
     return (
-      <AddressWizardForm
-        // handleSubmit={this.handleSubmit}
-        handleSubmit={false}
-        className={formName}
-        pageList={pages}
-        pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
-        serverError={error}
-        initialValues={initialValues}
-      >
-        <div className="usa-grid">
-          <h3>Shipment 1 (HHG)</h3>
-          <h3 className="instruction-heading">
-            Now let's review your pickup and delivery locations
-          </h3>
+      // <AddressWizardForm
+      //   // handleSubmit={this.handleSubmit}
+      //   handleSubmit={false}
+      //   className={formName}
+      //   pageList={pages}
+      //   pageKey={pageKey}
+      //   hasSucceeded={hasSubmitSuccess}
+      //   serverError={error}
+      //   initialValues={initialValues}
+      // >
+      <div className="usa-grid">
+        <h3 className="instruction-heading">
+          Now let's review your pickup and delivery locations
+        </h3>
 
-          <h4>Pickup Location</h4>
+        <h4>Pickup Location</h4>
 
-          <div className="usa-width-one-whole">
-            <div className="address-segment">
-              <SwaggerField
-                fieldName="street_address_1"
-                swagger={this.props.schema}
-                required
-              />
-              <SwaggerField
-                fieldName="street_address_2"
-                swagger={this.props.schema}
-              />
-              <SwaggerField
-                className="usa-width-one-fourth"
-                fieldName="city"
-                swagger={this.props.schema}
-                required
-              />
-              <SwaggerField
-                className="usa-width-one-sixth"
-                fieldName="state"
-                swagger={this.props.schema}
-                required
-              />
-              <SwaggerField
-                className="usa-width-one-fourth"
-                fieldName="postal_code"
-                swagger={this.props.schema}
-                required
-              />
-            </div>
+        <div className="usa-width-one-whole">
+          <div className="address-segment">
             <SwaggerField
-              className="radio-title"
-              fieldName="has_secondary_pickup_address"
-              swagger={hhgSchema}
-              component={YesNoBoolean}
+              fieldName="street_address_1"
+              swagger={this.props.schema}
+              required
             />
-            {hasSecondary && (
-              <Fragment>
-                <div className="address-segment">
-                  <SwaggerField
-                    fieldName="street_address_1"
-                    swagger={this.props.schema}
-                    required={hasSecondary}
-                  />
-                  <SwaggerField
-                    fieldName="street_address_2"
-                    swagger={this.props.schema}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-fourth"
-                    fieldName="city"
-                    swagger={this.props.schema}
-                    required={hasSecondary}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-sixth"
-                    fieldName="state"
-                    swagger={this.props.schema}
-                    required={hasSecondary}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-fourth"
-                    fieldName="postal_code"
-                    swagger={this.props.schema}
-                    required={hasSecondary}
-                  />
-                </div>
-              </Fragment>
-            )}
-            <h4>Delivery location</h4>
             <SwaggerField
-              className="radio-title"
-              fieldName="has_delivery_address"
-              swagger={hhgSchema}
-              component={YesNoBoolean}
+              fieldName="street_address_2"
+              swagger={this.props.schema}
             />
-            {hasDelivery && (
-              <Fragment>
-                <div className="address-segment">
-                  <SwaggerField
-                    fieldName="street_address_1"
-                    swagger={this.props.schema}
-                    required={hasDelivery}
-                  />
-                  <SwaggerField
-                    fieldName="street_address_2"
-                    swagger={this.props.schema}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-fourth"
-                    fieldName="city"
-                    swagger={this.props.schema}
-                    required={hasDelivery}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-sixth"
-                    fieldName="state"
-                    swagger={this.props.schema}
-                    required={hasDelivery}
-                  />
-                  <SwaggerField
-                    className="usa-width-one-fourth"
-                    fieldName="postal_code"
-                    swagger={this.props.schema}
-                    required={hasDelivery}
-                  />
-                </div>
-              </Fragment>
-            )}
+            <SwaggerField
+              className="usa-width-one-fourth"
+              fieldName="city"
+              swagger={this.props.schema}
+              required
+            />
+            <SwaggerField
+              className="usa-width-one-sixth"
+              fieldName="state"
+              swagger={this.props.schema}
+              required
+            />
+            <SwaggerField
+              className="usa-width-one-fourth"
+              fieldName="postal_code"
+              swagger={this.props.schema}
+              required
+            />
           </div>
+          <SwaggerField
+            className="radio-title"
+            fieldName="has_secondary_pickup_address"
+            swagger={hhgSchema}
+            component={YesNoBoolean}
+          />
+          {hasSecondary && (
+            <Fragment>
+              <div className="address-segment">
+                <SwaggerField
+                  fieldName="street_address_1"
+                  swagger={this.props.schema}
+                  required={hasSecondary}
+                />
+                <SwaggerField
+                  fieldName="street_address_2"
+                  swagger={this.props.schema}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="city"
+                  swagger={this.props.schema}
+                  required={hasSecondary}
+                />
+                <SwaggerField
+                  className="usa-width-one-sixth"
+                  fieldName="state"
+                  swagger={this.props.schema}
+                  required={hasSecondary}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="postal_code"
+                  swagger={this.props.schema}
+                  required={hasSecondary}
+                />
+              </div>
+            </Fragment>
+          )}
+          <h4>Delivery location</h4>
+          <SwaggerField
+            className="radio-title"
+            fieldName="has_delivery_address"
+            swagger={hhgSchema}
+            component={YesNoBoolean}
+          />
+          {hasDelivery && (
+            <Fragment>
+              <div className="address-segment">
+                <SwaggerField
+                  fieldName="street_address_1"
+                  swagger={this.props.schema}
+                  required={hasDelivery}
+                />
+                <SwaggerField
+                  fieldName="street_address_2"
+                  swagger={this.props.schema}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="city"
+                  swagger={this.props.schema}
+                  required={hasDelivery}
+                />
+                <SwaggerField
+                  className="usa-width-one-sixth"
+                  fieldName="state"
+                  swagger={this.props.schema}
+                  required={hasDelivery}
+                />
+                <SwaggerField
+                  className="usa-width-one-fourth"
+                  fieldName="postal_code"
+                  swagger={this.props.schema}
+                  required={hasDelivery}
+                />
+              </div>
+            </Fragment>
+          )}
         </div>
-      </AddressWizardForm>
+      </div>
+      // </AddressWizardForm>
     );
   }
 }
