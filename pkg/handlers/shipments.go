@@ -99,7 +99,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	return shipmentop.NewCreateShipmentCreated().WithPayload(shipmentPayload)
 }
 
-func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessages.PatchShipment) {
+func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessages.Shipment) {
 
 	if payload.PickupDate != nil {
 		shipment.PickupDate = (*time.Time)(payload.PickupDate)

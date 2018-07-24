@@ -135,7 +135,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 
 	newAddress := otherFakeAddressPayload()
 
-	payload := internalmessages.PatchShipment{
+	payload := internalmessages.Shipment{
 		EstimatedPackDays:           swag.Int64(15),
 		HasSecondaryPickupAddress:   false,
 		HasDeliveryAddress:          true,
@@ -197,7 +197,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 
 	newAddress := otherFakeAddressPayload()
 
-	payload := internalmessages.PatchShipment{
+	payload := internalmessages.Shipment{
 		EstimatedPackDays:           swag.Int64(15),
 		HasSecondaryPickupAddress:   false,
 		HasDeliveryAddress:          true,
