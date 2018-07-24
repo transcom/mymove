@@ -69,7 +69,7 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
-  return <div className="hhg-tab">Placeholder Content</div>;
+  return <div className="hhg-tab" />;
 };
 
 class CancelPanel extends Component {
