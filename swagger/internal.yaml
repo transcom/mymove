@@ -616,7 +616,7 @@ definitions:
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
       status:
-         $ref: '#/definitions/MoveDocumentStatus'
+        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -731,9 +731,9 @@ definitions:
         title: Notes
     required:
       - title
+      - status
       - move_document_type
       - moving_expense_type
-      - status
       - reimbursement
   MovingExpenseType:
     type: string
@@ -2649,6 +2649,46 @@ paths:
           description: move not found
         500:
           description: server error
+  /moves/{moveId}/shipment/{shipmentId}:
+    patch:
+      summary: Updates a Shipment for the given move
+      description: Update a Shipment tied to the move ID
+      operationId: patchShipment
+      tags:
+        - shipments
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move this Shipment is associated with
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Shipment being updated
+        - in: body
+          name: shipment
+          required: true
+          schema:
+            $ref: '#/definitions/Shipment'
+      responses:
+        201:
+          description: updated Shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment not found
+        500:
+          description: server error
   /reimbursement/{reimbursementId}/approve:
     post:
       summary: Approves the reimbursement
@@ -2705,7 +2745,7 @@ paths:
           description: move not found
         500:
           description: internal server error
-  /moves/{moveId}/documents:
+  /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
@@ -2761,7 +2801,7 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/documents/{moveDocumentId}:
+  /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
@@ -2769,12 +2809,6 @@ paths:
       tags:
         - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the move document
         - in: path
           name: moveDocumentId
           type: string
@@ -2833,7 +2867,7 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/moving_expense_documents/{movingExpenseDocumentId}:
+  /moving_expense_documents/{movingExpenseDocumentId}:
     put:
       summary: Updates a moving expense document
       description: Update a moving expense document with the given information
@@ -2841,12 +2875,6 @@ paths:
       tags:
         - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the moving expense document
         - in: path
           name: movingExpenseDocumentId
           type: string
@@ -2862,7 +2890,7 @@ paths:
         200:
           description: updated instance of moving expense document
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
+            $ref: '#/definitions/MovingExpenseDocumentPayload'
         400:
           description: invalid request
         401:

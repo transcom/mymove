@@ -1,4 +1,4 @@
-raw("delete from personally_procured_moves;")
+sql("delete from personally_procured_moves;")
 
 add_column("personally_procured_moves", "has_additional_postal_code", "bool", {"null": true})
 add_column("personally_procured_moves", "has_sit", "bool", {"null": true})
