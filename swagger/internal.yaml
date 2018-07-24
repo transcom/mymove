@@ -722,6 +722,8 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       reimbursement:
         $ref: '#/definitions/Reimbursement'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -730,6 +732,7 @@ definitions:
     required:
       - id
       - title
+      - status
       - move_document_type
       - moving_expense_type
       - reimbursement
