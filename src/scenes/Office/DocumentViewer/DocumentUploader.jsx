@@ -36,25 +36,46 @@ export class DocumentUploader extends Component {
     this.setState({
       moveDocumentCreateError: null,
     });
-    debugger;
-    // this.props
-    //   .createMoveDocument(
-    //     moveId,
-    //     uploadIds,
-    //     formValues.title,
-    //     formValues.move_document_type,
-    //     'AWAITING_REVIEW',
-    //     formValues.notes,
-    //   )
-    //   .then(() => {
-    //     reset();
-    //     this.uploader.clearFiles();
-    //   })
-    //   .catch(err => {
-    //     this.setState({
-    //       moveDocumentCreateError: err,
+    // if (get(formValues, 'movingExpenseDocument'), false) {
+    //   this.props
+    //     .createMovingExpenseDocument(
+    //       moveId,
+    //       uploadIds,
+    //       formValues.title,
+    //       formValues.movingExpenseDocument.moving_expense_type,
+    //       formValues.move_document_type,
+    //       formValues.reimbursement,
+    //       formValues.notes,
+    //     )
+    //     .then(() => {
+    //       reset();
+    //       this.uploader.clearFiles();
+    //     })
+    //     .catch(err => {
+    //       this.setState({
+    //         moveDocumentCreateError: err,
+    //       });
     //     });
-    //   });
+    // }
+    debugger;
+    this.props
+      .createMoveDocument(
+        moveId,
+        uploadIds,
+        formValues.title,
+        formValues.move_document_type,
+        'AWAITING_REVIEW',
+        formValues.notes,
+      )
+      .then(() => {
+        reset();
+        this.uploader.clearFiles();
+      })
+      .catch(err => {
+        this.setState({
+          moveDocumentCreateError: err,
+        });
+      });
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -113,29 +134,6 @@ export class DocumentUploader extends Component {
             swagger={moveDocSchema}
             required
           />
-          {get(this.props, 'formValues.move_document_type', false) ===
-            'OTHER' && (
-            <Fragment>
-              <SwaggerField
-                title="Document title"
-                fieldName="title"
-                swagger={moveDocSchema}
-                required
-              />
-              <SwaggerField
-                title="Notes"
-                fieldName="notes"
-                swagger={moveDocSchema}
-              />
-              <div>
-                <h4>Attach PDF or image</h4>
-                <p>
-                  Upload a PDF or take a picture of each page and upload the
-                  images.
-                </p>
-              </div>
-            </Fragment>
-          )}
           {isExpenseDocument && (
             <Fragment>
               <FormSection name="movingExpenseDocument">
@@ -170,6 +168,24 @@ export class DocumentUploader extends Component {
           )}
           {get(this.props, 'formValues.move_document_type', false) && (
             <div className="uploader-box">
+              <SwaggerField
+                title="Document title"
+                fieldName="title"
+                swagger={moveDocSchema}
+                required
+              />
+              <SwaggerField
+                title="Notes"
+                fieldName="notes"
+                swagger={moveDocSchema}
+              />
+              <div>
+                <h4>Attach PDF or image</h4>
+                <p>
+                  Upload a PDF or take a picture of each page and upload the
+                  images.
+                </p>
+              </div>
               <Uploader
                 onRef={ref => (this.uploader = ref)}
                 onChange={this.onChange}
