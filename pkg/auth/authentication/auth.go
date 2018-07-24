@@ -102,16 +102,7 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
 			// Set all session values to nil
-			session.IDToken = ""
-			session.UserID = uuid.Nil
-			session.Email = ""
-			session.FirstName = ""
-			session.Middle = ""
-			session.LastName = ""
-			session.ServiceMemberID = uuid.Nil
-			session.OfficeUserID = uuid.Nil
-			session.TspUserID = uuid.Nil
-			session.EntityID = uuid.Nil
+			session = &auth.Session{}
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 		} else {
