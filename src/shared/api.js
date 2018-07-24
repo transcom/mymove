@@ -53,3 +53,23 @@ export async function CreateDocument(name, serviceMemberId) {
   checkResponse(response, 'failed to create document due to server error');
   return response.body;
 }
+
+export async function CreateShipment(moveId, params) {
+  const client = await getClient();
+  const response = await client.apis.shipments.createShipment({
+    move_id: moveId,
+    shipment: params,
+  });
+  checkResponse(response, 'failed to create shipment due to server error');
+  return response.body;
+}
+
+export async function UpdateShipment(moveId, params) {
+  const client = await getClient();
+  const response = await client.apis.shipments.updateShipment({
+    move_id: moveId,
+    shipment: params,
+  });
+  checkResponse(response, 'failed to update shipment due to server error');
+  return response.body;
+}
