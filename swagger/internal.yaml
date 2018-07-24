@@ -711,10 +711,6 @@ definitions:
   UpdateMovingExpenseDocumentPayload:
     type: object
     properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -727,20 +723,16 @@ definitions:
          $ref: '#/definitions/MoveDocumentStatus'
       reimbursement:
         $ref: '#/definitions/Reimbursement'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
         x-nullable: true
         title: Notes
     required:
-      - id
       - title
       - status
       - move_document_type
       - moving_expense_type
-      - status
       - reimbursement
   MovingExpenseType:
     type: string
@@ -2897,7 +2889,7 @@ paths:
         200:
           description: updated instance of moving expense document
           schema:
-            $ref: '#/definitions/MoveDocumentPayload'
+            $ref: '#/definitions/MovingExpenseDocumentPayload'
         400:
           description: invalid request
         401:
