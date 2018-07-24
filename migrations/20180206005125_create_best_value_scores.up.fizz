@@ -1,6 +1,6 @@
-create_table("best_value_scores") {
+create_table("best_value_scores", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("transportation_service_provider_id", "uuid", {})
 	t.Column("score", "integer", {})
 	t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
-}
+})

@@ -1,4 +1,4 @@
-sql("delete from orders;")
+raw("delete from orders;")
 
 add_column("orders", "uploaded_orders_id", "uuid", {})
 add_foreign_key("orders", "uploaded_orders_id", {"documents": ["id"]}, {})

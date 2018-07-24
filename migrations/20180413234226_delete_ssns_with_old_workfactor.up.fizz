@@ -1,1 +1,1 @@
-sql("DELETE from social_security_numbers")
+raw("DELETE from social_security_numbers")

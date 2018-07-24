@@ -1,7 +1,7 @@
-create_table("duty_stations") {
+create_table("duty_stations", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("name", "string", {})
 	t.Column("branch", "string", {})
 	t.Column("address_id", "uuid", {})
 	t.ForeignKey("address_id", {"addresses": ["id"]}, {})
-}
+})
