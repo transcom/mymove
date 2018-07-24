@@ -1,4 +1,4 @@
-create_table("office_users") {
+create_table("office_users", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("user_id", "uuid", {})
 	t.Column("last_name", "text", {})
@@ -9,4 +9,4 @@ create_table("office_users") {
 	t.Column("transportation_office_id", "uuid", {})
 	t.ForeignKey("user_id", {"users": ["id"]}, {})
 	t.ForeignKey("transportation_office_id", {"transportation_offices": ["id"]}, {})
-}
+})

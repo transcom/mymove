@@ -1,6 +1,6 @@
-create_table("traffic_distribution_lists") {
+create_table("traffic_distribution_lists", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("source_rate_area", "string", {})
 	t.Column("destination_region", "string", {})
 	t.Column("code_of_service", "string", {})
-}
+})

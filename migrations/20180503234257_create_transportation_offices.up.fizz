@@ -1,4 +1,4 @@
-create_table("transportation_offices") {
+create_table("transportation_offices", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("shipping_office_id", "uuid", {"null": true})
 	t.Column("name", "text", {})
@@ -10,4 +10,4 @@ create_table("transportation_offices") {
 	t.Column("note", "text", {"null": true})
 	t.ForeignKey("shipping_office_id", {"transportation_offices": ["id"]}, {})
 	t.ForeignKey("address_id", {"addresses": ["id"]}, {})
-}
+})

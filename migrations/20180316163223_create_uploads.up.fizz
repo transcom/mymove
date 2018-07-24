@@ -1,4 +1,4 @@
-create_table("uploads") {
+create_table("uploads", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("document_id", "uuid", {})
 	t.Column("uploader_id", "uuid", {})
@@ -9,4 +9,4 @@ create_table("uploads") {
 	t.Column("s3_id", "uuid", {})
 	t.ForeignKey("document_id", {"documents": ["id"]}, {})
 	t.ForeignKey("uploader_id", {"users": ["id"]}, {})
-}
+})

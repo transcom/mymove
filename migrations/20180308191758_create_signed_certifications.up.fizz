@@ -1,4 +1,4 @@
-create_table("signed_certifications") {
+create_table("signed_certifications", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("submitting_user_id", "uuid", {})
 	t.Column("move_id", "uuid", {})
@@ -6,4 +6,4 @@ create_table("signed_certifications") {
 	t.Column("signature", "text", {})
 	t.Column("date", "date", {})
 	t.ForeignKey("submitting_user_id", {"users": ["id"]}, {})
-}
+})

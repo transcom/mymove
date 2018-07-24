@@ -1,7 +1,7 @@
-create_table("shipments") {
+create_table("shipments", func(t) {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("traffic_distribution_list_id", "uuid", {})
 	t.Column("pickup_date", "datetime", {})
 	t.Column("delivery_date", "datetime", {})
 	t.ForeignKey("traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
-}
+})
