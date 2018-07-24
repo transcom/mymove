@@ -57,7 +57,6 @@ export class DocumentUploader extends Component {
     //       });
     //     });
     // }
-    debugger;
     this.props
       .createMoveDocument(
         moveId,
@@ -166,34 +165,32 @@ export class DocumentUploader extends Component {
               </FormSection>
             </Fragment>
           )}
-          {get(this.props, 'formValues.move_document_type', false) && (
-            <div className="uploader-box">
-              <SwaggerField
-                title="Document title"
-                fieldName="title"
-                swagger={moveDocSchema}
-                required
-              />
-              <SwaggerField
-                title="Notes"
-                fieldName="notes"
-                swagger={moveDocSchema}
-              />
-              <div>
-                <h4>Attach PDF or image</h4>
-                <p>
-                  Upload a PDF or take a picture of each page and upload the
-                  images.
-                </p>
-              </div>
-              <Uploader
-                onRef={ref => (this.uploader = ref)}
-                onChange={this.onChange}
-                onAddFile={this.onAddFile}
-              />
-              <div className="hint">(Each page must be clear and legible)</div>
+          <div className="uploader-box">
+            <SwaggerField
+              title="Document title"
+              fieldName="title"
+              swagger={moveDocSchema}
+              required
+            />
+            <SwaggerField
+              title="Notes"
+              fieldName="notes"
+              swagger={moveDocSchema}
+            />
+            <div>
+              <h4>Attach PDF or image</h4>
+              <p>
+                Upload a PDF or take a picture of each page and upload the
+                images.
+              </p>
             </div>
-          )}
+            <Uploader
+              onRef={ref => (this.uploader = ref)}
+              onChange={this.onChange}
+              onAddFile={this.onAddFile}
+            />
+            <div className="hint">(Each page must be clear and legible)</div>
+          </div>
           <button className="submit" disabled={!isValid}>
             Save
           </button>
