@@ -1,4 +1,31 @@
-import { ShipmentsIndex } from './api';
+import { ShipmentsIndex, CreateShipment, UpdateShipment } from './api';
+
+import * as ReduxHelpers from 'shared/ReduxHelpers';
+
+// SINGLE RESOURCE ACTION TYPES
+const createShipmentType = 'CREATE_SHIPMENT';
+const updateShipmentType = 'UPDATE_SHIPMENT';
+
+// SINGLE RESOURCE ACTION TYPES
+
+const CREATE_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  createShipmentType,
+);
+const UPDATE_SHIPMENT = ReduxHelpers.generateAsyncActionTypes(
+  updateShipmentType,
+);
+
+// SINGLE-RESOURCE ACTION CREATORS
+
+export const createShipment = ReduxHelpers.generateAsyncActionCreator(
+  createShipmentType,
+  CreateShipment,
+);
+
+export const updateShipment = ReduxHelpers.generateAsyncActionCreator(
+  updateShipmentType,
+  UpdateShipment,
+);
 
 // Types
 export const SHOW_SHIPMENTS = 'SHOW_SHIPMENTS';
@@ -32,15 +59,64 @@ export function loadShipments() {
 }
 
 // Reducer
-export function shipmentsReducer(
-  state = { shipments: [], hasError: false },
-  action,
-) {
+
+const initialState = {
+  shipments: [],
+  hasError: false,
+  shipmentIsCreating: false,
+  shipmentIsUpdating: false,
+  shipmentHasCreateSuccess: false,
+  shipmentHasUpdateSuccess: false,
+  shipmentHasCreateError: null,
+  shipmentHasUpdateError: null,
+};
+
+export function shipmentsReducer(state = initialState, action) {
   switch (action.type) {
     case SHOW_SHIPMENTS_SUCCESS:
       return { shipments: action.shipments, hasError: false };
     case SHOW_SHIPMENTS_FAILURE:
       return { shipments: [], hasError: true };
+    case CREATE_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsCreating: true,
+        shipmentHasCreateSuccess: false,
+      });
+    case CREATE_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsCreating: false,
+        shipment: action.payload,
+        shipmentHasCreateSuccess: true,
+        shipmentHasCreateError: false,
+      });
+    case CREATE_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsCreating: false,
+        shipment: null,
+        shipmentHasCreateSuccess: false,
+        shipmentHasCreateError: true,
+        error: action.error,
+      });
+    case UPDATE_SHIPMENT.start:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: true,
+        shipmentHasUpdateSuccess: false,
+      });
+    case UPDATE_SHIPMENT.success:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        shipment: action.payload,
+        shipmentHasUpdateSuccess: true,
+        shipmentHasUpdateError: false,
+      });
+    case UPDATE_SHIPMENT.failure:
+      return Object.assign({}, state, {
+        shipmentIsUpdating: false,
+        shipment: null,
+        shipmentHasUpdateSuccess: false,
+        shipmentHasUpdateError: true,
+        error: action.error,
+      });
     default:
       return state;
   }

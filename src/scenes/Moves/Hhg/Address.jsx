@@ -29,12 +29,12 @@ const hhgSchema = {
 };
 
 export class ShipmentAddress extends Component {
-  // handleSubmit = () => {
-  //   return false;
-  //   // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
-  //   // const newAddresses = { ...this.props.values };
-  //   // this.props.updateShipment(newAddress);
-  // };
+  handleSubmit = () => {
+    return false;
+    // Create new HHG primary (and secondary) pickup addresses, delivery address if it exists
+    // const newAddresses = { ...this.props.values };
+    // this.props.updateShipment(newAddress);
+  };
 
   render() {
     const {
