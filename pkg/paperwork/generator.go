@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
 	"github.com/hhrutter/pdfcpu/pkg/api"
 	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
@@ -63,21 +62,15 @@ func (g *Generator) newTempFile() (*os.File, error) {
 	return outputFile, nil
 }
 
-// GenerateOrderPDF returns a slice of paths to PDF files that represent all files
-// uploaded for Orders.
-func (g *Generator) GenerateOrderPDF(orderID uuid.UUID) ([]string, error) {
-	order, err := models.FetchOrderForPDFConversion(g.db, orderID)
-	if err != nil {
-		return nil, err
-	}
-
+// GenerateUploadsPDF turns a slice of Uploads into a slice of paths to converted PDF files
+func (g *Generator) GenerateUploadsPDF(uploads models.Uploads) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
 	// path for each image once downloaded
 	images := make([]inputFile, 0)
 
-	for _, upload := range order.UploadedOrders.Uploads {
+	for _, upload := range uploads {
 		if upload.ContentType == "application/pdf" {
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
@@ -102,7 +95,7 @@ func (g *Generator) GenerateOrderPDF(orderID uuid.UUID) ([]string, error) {
 		}
 	}
 
-	// Merge all images in urls into a new PDF
+	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
 		pdf, err := g.pdfFromImages(images)
 		if err != nil {
@@ -156,55 +149,19 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 	return outputFile.Name(), nil
 }
 
-// GenerateAdvancePaperwork generates the advance paperwork for a move.
-// Outputs to a tempfile
-func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (string, error) {
-	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
-	if err != nil {
-		return "", err
-	}
-
-	summary := NewShipmentSummary(&move)
-	outfile, err := g.newTempFile()
-	if err != nil {
-		return "", err
-	}
-	if err := summary.DrawForm(outfile); err != nil {
-		return "", err
-	}
-	outfile.Close()
-
-	generatedPath := outfile.Name()
-	ordersPaths, err := g.GenerateOrderPDF(move.OrdersID)
-	if err != nil {
-		return "", err
-	}
-
+// Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) mergePDFFiles(paths []string) (*os.File, error) {
 	mergedFile, err := g.newTempFile()
 	if err != nil {
-		return "", err
-	}
-
-	var inputFiles []string
-	g.logger.Debug("adding orders and shipment summary to packet", zap.Any("inputFiles", inputFiles))
-	inputFiles = append(ordersPaths, generatedPath)
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance != nil && ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
-			g.logger.Debug("adding direct deposit form to packet", zap.Any("inputFiles", inputFiles))
-			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
-			inputFiles = append(inputFiles, ddFormPath)
-			break
-		}
+		return &os.File{}, err
 	}
 
 	config := pdfcpu.NewDefaultConfiguration()
-	if err = api.Merge(inputFiles, mergedFile.Name(), config); err != nil {
-		return "", err
+	if err = api.Merge(paths, mergedFile.Name(), config); err != nil {
+		return &os.File{}, err
 	}
 
-	return mergedFile.Name(), nil
-
+	return mergedFile, nil
 }
 
 // MergeImagesToPDF creates a PDF containing the images at the specified paths.

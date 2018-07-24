@@ -76,7 +76,7 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
 
-func (suite *PaperworkSuite) TestGenerateOrderPDF() {
+func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 	order := testdatagen.MakeDefaultOrder(suite.db)
 
 	document := testdatagen.MakeDefaultDocument(suite.db)
@@ -100,10 +100,14 @@ func (suite *PaperworkSuite) TestGenerateOrderPDF() {
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
 
+	err = suite.db.Load(&document, "Uploads")
+	suite.FatalNil(err)
+	suite.Equal(3, len(document.Uploads))
+
 	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
 	suite.FatalNil(err)
 
-	paths, err := generator.GenerateOrderPDF(order.ID)
+	paths, err := generator.GenerateUploadsPDF(document.Uploads)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
