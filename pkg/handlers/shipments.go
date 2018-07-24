@@ -105,8 +105,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
  * ------------------------------------------
  */
 
-func publicPayloadForShipmentModel(s models.Shipment) *apimessages.ShipmentPayload {
-	shipmentPayload := &apimessages.ShipmentPayload{
+func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
+	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
 		TrafficDistributionListID:    *fmtUUID(*s.TrafficDistributionListID),
 		PickupDate:                   *fmtDate(*s.PickupDate),
@@ -153,7 +153,7 @@ func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsPar
 		return publicshipmentop.NewIndexShipmentsBadRequest()
 	}
 
-	isp := make(apimessages.IndexShipmentsPayload, len(shipments))
+	isp := make(apimessages.IndexShipments, len(shipments))
 	for i, s := range shipments {
 		isp[i] = publicPayloadForShipmentModel(s)
 	}

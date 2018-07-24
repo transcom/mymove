@@ -241,7 +241,7 @@ paths:
         200:
           description: returns an array of Shipments
           schema:
-            $ref: '#/definitions/IndexShipmentsPayload'
+            $ref: '#/definitions/IndexShipments'
         400:
           description: invalid request
         401:
@@ -268,7 +268,7 @@ paths:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -296,12 +296,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
       responses:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -335,7 +335,7 @@ paths:
         200:
           description: returns updated (accepted) shipment object
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -345,7 +345,7 @@ paths:
         409:
           description: the shipment is not in a state to be accepted
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /shipments/{shipment_uuid}/claims:
@@ -485,7 +485,7 @@ paths:
         200:
           description: returns updated (refused) shipment object
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -560,7 +560,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/ShipmentPayload'
+              $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         403:
@@ -872,11 +872,11 @@ definitions:
     description: Office Codes for Transcom offices originating GBLs
     example: LHNQ
     pattern: '^[A-Z]{4}$' # Should we make this an enum?
-  IndexShipmentsPayload:
+  IndexShipments:
     type: array
     items:
-      $ref: '#/definitions/ShipmentPayload'
-  ShipmentPayload:
+      $ref: '#/definitions/Shipment'
+  Shipment:
     type: object
     description: A shipment connected to a move offer
     properties:
@@ -967,7 +967,7 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       shipment:
-        $ref: '#/definitions/ShipmentPayload'
+        $ref: '#/definitions/Shipment'
       transportation_service_provider_id:
         type: string
         description: ID of the TSP connected to this offer
