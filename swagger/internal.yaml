@@ -715,12 +715,6 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -729,6 +723,8 @@ definitions:
         example: very_useful_document.pdf
       moving_expense_type:
         $ref: '#/definitions/MovingExpenseType'
+      status:
+         $ref: '#/definitions/MoveDocumentStatus'
       reimbursement:
         $ref: '#/definitions/Reimbursement'
       notes:
@@ -738,11 +734,10 @@ definitions:
         title: Notes
     required:
       - id
-      - move_id
-      - document
       - title
       - move_document_type
       - moving_expense_type
+      - status
       - reimbursement
   MovingExpenseType:
     type: string
