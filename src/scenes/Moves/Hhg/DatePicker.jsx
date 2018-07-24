@@ -64,10 +64,10 @@ export class HHGDatePicker extends Component {
       //   additionalParams={{ serviceMemberId }}
       // >
       <div className="usa-grid">
-        <h2 className="instruction-heading">
+        <h3 className="instruction-heading">
           Great! Let's find a date for a moving company to move your stuff.
-        </h2>
-        <h3>Select a move date</h3>
+        </h3>
+        <h4>Select a move date</h4>
 
         <div className="usa-width-one-third">
           <DayPicker
