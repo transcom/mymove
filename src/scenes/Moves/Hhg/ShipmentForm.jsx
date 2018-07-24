@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
+import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
+import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
 const formName = 'shipment_form';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
@@ -46,7 +48,6 @@ export class ShipmentForm extends Component {
     return (
       <ShipmentFormWizardForm
         // handleSubmit={this.handleSubmit}
-        handleSubmit={false}
         className={formName}
         pageList={pages}
         pageKey={pageKey}
@@ -54,9 +55,7 @@ export class ShipmentForm extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <div>form content</div>
-        // Contents: // DatePicker content // Address content // Weights/progear
-        content
+        <ShipmentDatePicker schema={schema} error={error} />
       </ShipmentFormWizardForm>
     );
   }
@@ -75,7 +74,7 @@ function mapStateToProps(state) {
   const props = {
     // schema: get(
     //   state,
-    //   'swagger.spec.definitions.UpdateHouseholdGoodsPayload',
+    //   'swagger.spec.definitions.CreateHouseholdGoodsPayload',
     //   {},
     // ),
     schema,
