@@ -9,6 +9,8 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
+import './ShipmentForm.css';
+
 const formName = 'shipment_form';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 //hard-coded placeholder schema:
@@ -56,8 +58,10 @@ export class ShipmentForm extends Component {
         serverError={error}
         initialValues={initialValues}
       >
-        <div className="usa-grid">
-          <h3 className="form-title">Shipment 1 (HHG)</h3>
+        <div className="shipment-form">
+          <div className="usa-grid">
+            <h3 className="form-title">Shipment 1 (HHG)</h3>
+          </div>
           <ShipmentDatePicker
             schema={schema}
             error={error}
