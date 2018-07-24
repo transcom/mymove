@@ -190,7 +190,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
 		return shipmentop.NewPatchShipmentBadRequest()
 	}
-	patchShipmentWithPayload(shipment, params.PatchShipment)
+	patchShipmentWithPayload(shipment, params.Shipment)
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, shipment)
 

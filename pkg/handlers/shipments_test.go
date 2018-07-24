@@ -144,10 +144,10 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	}
 
 	patchShipmentParams := shipmentop.PatchShipmentParams{
-		HTTPRequest:   req,
-		MoveID:        strfmt.UUID(move.ID.String()),
-		ShipmentID:    strfmt.UUID(shipment1.ID.String()),
-		PatchShipment: &payload,
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(move.ID.String()),
+		ShipmentID:  strfmt.UUID(shipment1.ID.String()),
+		Shipment:    &payload,
 	}
 
 	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
@@ -206,10 +206,10 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 	}
 
 	patchShipmentParams := shipmentop.PatchShipmentParams{
-		HTTPRequest:   req,
-		MoveID:        strfmt.UUID(badMoveID.String()),
-		ShipmentID:    strfmt.UUID(shipment1.ID.String()),
-		PatchShipment: &payload,
+		HTTPRequest: req,
+		MoveID:      strfmt.UUID(badMoveID.String()),
+		ShipmentID:  strfmt.UUID(shipment1.ID.String()),
+		Shipment:    &payload,
 	}
 
 	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
