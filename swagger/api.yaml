@@ -236,9 +236,9 @@ paths:
         - name: offset
           in: query
           type: integer
-          description: offset into records to begin selection from.
-          minimum: 0
-          default: 0
+          description: offset into records to select from. Actual offset is this value multiplied by limit.
+          minimum: 1
+          default: 1
       responses:
         200:
           description: returns an array of Shipments
