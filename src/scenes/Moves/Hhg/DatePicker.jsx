@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
@@ -6,7 +7,10 @@ import { getFormValues, reduxForm } from 'redux-form';
 import DayPicker from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-import { no_op } from 'shared/utils';
+import {
+  createOrUpdateShipment,
+  selectShipment,
+} from 'shared/Entities/modules/shipments';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
 import './DatePicker.css';
@@ -27,6 +31,13 @@ const schema = {
 const HHGDateWizardForm = reduxifyWizardForm(formName);
 
 export class HHGDatePicker extends Component {
+  handleSubmit = () => {
+    debugger;
+    const moveId = this.props.match.params.moveId;
+    const shipment = this.props.formValues;
+    createOrUpdateShipment(moveId, shipment);
+  };
+
   state = { showInfo: false };
 
   constructor(props) {
@@ -54,11 +65,11 @@ export class HHGDatePicker extends Component {
 
     return (
       <HHGDateWizardForm
-        handleSubmit={no_op}
+        handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
+        hasSucceeded={false}
         serverError={error}
         // initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
@@ -123,7 +134,6 @@ export class HHGDatePicker extends Component {
 HHGDatePicker.propTypes = {
   schema: PropTypes.object.isRequired,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -135,15 +145,13 @@ function mapStateToProps(state) {
     // ),
     schema,
     formValues: getFormValues(formName)(state),
-    hasSubmitSuccess: state.orders.currentOrders
-      ? state.orders.hasSubmitSuccess
-      : state.hhg.hasSubmitSuccess,
-    ...state.hhg,
+    move: get(state, 'moves.currentMove', {}),
+    shipment: {},
   };
   return props;
 }
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({ createOrUpdateShipment }, dispatch);
 }
 
 export default reduxForm({ form: formName })(

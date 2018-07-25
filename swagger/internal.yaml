@@ -1343,8 +1343,10 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
+        title: 'Do you know your home address at your destination yet?'
       has_partial_sit_delivery_address:
         type: boolean
       weight_estimate:

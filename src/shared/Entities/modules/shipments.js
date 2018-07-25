@@ -1,6 +1,8 @@
 import { shipments } from '../schema';
-import { ADD_ENTITIES } from '../actions';
-import { denormalize } from 'normalizr';
+import { ADD_ENTITIES, addEntities } from '../actions';
+import { denormalize, normalize } from 'normalizr';
+
+import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'shipments';
 
@@ -17,10 +19,21 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export function createShipment(moveId, shipment) {
+export function createOrUpdateShipment(moveId, shipment) {
+  if (shipment.id) {
+    return updateShipment(moveId, shipment, shipment.id);
+  } else {
+    return createShipment(moveId, shipment);
+  }
+}
+
+export function createShipment(
+  moveId,
+  shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
+) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.shipment.createShipment({
+    const response = await client.apis.shipments.createShipment({
       moveId,
       shipment,
     });
@@ -31,10 +44,14 @@ export function createShipment(moveId, shipment) {
   };
 }
 
-export const updateShipment = (moveId, shipmentId, shipment) => {
+export function updateShipment(
+  moveId,
+  shipmentId,
+  shipment /*shape: {pickup_address, requested_pickup_date, weight_estimate}*/,
+) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.shipment.updateShipment({
+    const response = await client.apis.shipments.patchShipment({
       moveId,
       shipmentId,
       shipment,
@@ -44,7 +61,7 @@ export const updateShipment = (moveId, shipmentId, shipment) => {
     dispatch(addEntities(data.entities));
     return response;
   };
-};
+}
 
 export const selectShipment = (state, id) => {
   return denormalize([id], shipments, state.entities)[0];
