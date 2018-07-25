@@ -870,42 +870,39 @@ definitions:
   GBLOC:
     type: string
     description: Office Codes for Transcom offices originating GBLs
+    pattern: '^[A-Z]{4}$'
     example: LHNQ
-    pattern: '^[A-Z]{4}$' # Should we make this an enum?
   IndexShipments:
     type: array
     items:
       $ref: '#/definitions/Shipment'
   Shipment:
     type: object
-    description: A shipment connected to a move offer
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       traffic_distribution_list_id:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+        readOnly: true
       pickup_date:
         type: string
-        format: date
-        example: 2018-03-15
-      delivery_date:
-        type: string
-        format: date
-        example: 2018-03-15
-      created_at:
-        type: string
         format: date-time
-      updated_at:
+      delivery_date:
         type: string
         format: date-time
       source_gbloc:
         $ref: '#/definitions/GBLOC'
+        readOnly: true
       market:
         $ref: '#/definitions/ShipmentMarket'
+        readOnly: true
+        x-nullable: true
       book_date:
         type: string
         format: date
@@ -917,48 +914,61 @@ definitions:
         type: string
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       status:
         $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
       estimated_pack_days:
         type: integer
         description: Estimated days packing
+        minimum: 0
         example: 2
+        x-nullable: true
       estimated_transit_days:
         type: integer
         description: Estimated days in transit
-        example: 3
+        minimum: 0
+        example: 30
+        x-nullable: true
       pickup_address:
         $ref: '#/definitions/Address'
+        x-nullable: true
       has_secondary_pickup_address:
         type: boolean
         example: false
-        x-nullable: true
       secondary_pickup_address:
         $ref: '#/definitions/Address'
+        x-nullable: true
       has_delivery_address:
         type: boolean
         example: false
-        x-nullable: true
       delivery_address:
         $ref: '#/definitions/Address'
+        x-nullable: true
       has_partial_sit_delivery_address:
         type: boolean
         example: false
-        x-nullable: true
       partial_sit_delivery_address:
         $ref: '#/definitions/Address'
+        x-nullable: true
       weight_estimate:
         type: integer
         description: Estimated weight of the shipment in lbs
-        example: 2000
+        minimum: 0
+        example: 10000
+        x-nullable: true
       progear_weight_estimate:
         type: integer
         description: Estimated weight of the progear in lbs
+        minimum: 0
         example: 500
+        x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         description: Estimated weight of the spouse progear in lbs
-        example: 250
+        minimum: 0
+        example: 200
+        x-nullable: true
   ShipmentAcceptPayload:
     type: object
     properties:
