@@ -231,11 +231,13 @@ paths:
           in: query
           type: integer
           description: maximum number of records to return
+          minimum: 1
           default: 25
         - name: offset
           in: query
           type: integer
           description: offset into records to begin selection from.
+          minimum: 0
           default: 0
       responses:
         200:

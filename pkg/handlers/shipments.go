@@ -241,9 +241,9 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
+func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmentsParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(p.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
 	// TspUserID
@@ -261,7 +261,15 @@ func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsPar
 		return publicshipmentop.NewIndexShipmentsForbidden()
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID)
+	// Manage limit and offset values
+	if *params.Limit < int64(1) {
+		*params.Limit = int64(1)
+	}
+	if *params.Offset < int64(0) {
+		*params.Offset = int64(0)
+	}
+
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID, *params.Limit, *params.Offset)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewIndexShipmentsBadRequest()

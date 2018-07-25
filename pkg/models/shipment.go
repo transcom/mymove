@@ -116,7 +116,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, limit int64, offset int64) ([]Shipment, error) {
 	shipments := []Shipment{}
 
 	var sql string
@@ -126,13 +126,14 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID) ([]Shipment, error
 		FROM shipments
 		LEFT JOIN shipment_offers ON
 			shipments.id=shipment_offers.shipment_id
-		WHERE shipment_offers.transportation_service_provider_id = $1`
+		WHERE shipment_offers.transportation_service_provider_id = $1
+		LIMIT $2 OFFSET $3`
 
 	err := tx.Eager(
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").RawQuery(sql, tspID).All(&shipments)
+		"PartialSITDeliveryAddress").RawQuery(sql, tspID, limit, offset).All(&shipments)
 
 	return shipments, err
 }
