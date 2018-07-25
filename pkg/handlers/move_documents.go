@@ -68,7 +68,6 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 		uploads,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
-		models.MoveDocumentStatus(payload.Status),
 		payload.Notes)
 
 	if err != nil || verrs.HasAny() {
