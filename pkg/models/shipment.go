@@ -116,24 +116,51 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, orderBy string, limit int64, offset int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+
 	shipments := []Shipment{}
 
-	var sql string
-
-	sql = `SELECT
-			shipments.*
-		FROM shipments
-		LEFT JOIN shipment_offers ON
-			shipments.id=shipment_offers.shipment_id
-		WHERE shipment_offers.transportation_service_provider_id = $1
-		ORDER BY $2 LIMIT $3 OFFSET $4`
-
-	err := tx.Eager(
+	query := tx.Eager(
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").RawQuery(sql, tspID, orderBy, limit, offset).All(&shipments)
+		"PartialSITDeliveryAddress").
+		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
+
+	if status != nil {
+		query = query.Where("shipments.status = $2", *status)
+	}
+
+	// Manage ordering by pickup or delivery date
+	if orderBy != nil {
+		switch *orderBy {
+		case "PICKUP_DATE_ASC":
+			*orderBy = "pickup_date ASC"
+		case "PICKUP_DATE_DESC":
+			*orderBy = "pickup_date DESC"
+		case "DELIVERY_DATE_ASC":
+			*orderBy = "delivery_date ASC"
+		case "DELIVERY_DATE_DESC":
+			*orderBy = "delivery_date DESC"
+		default:
+			// Any other input is ignored
+			*orderBy = ""
+		}
+		if *orderBy != "" {
+			query = query.Order(*orderBy)
+		}
+	}
+
+	// Manage limit and offset values
+	if *limit < int64(1) {
+		*limit = int64(1)
+	}
+	if *offset < int64(0) {
+		*offset = int64(0)
+	}
+
+	err := query.Limit(int(*limit)).Paginate(1, int(*offset)).All(&shipments)
 
 	return shipments, err
 }
