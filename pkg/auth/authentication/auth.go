@@ -86,7 +86,6 @@ func NewLogoutHandler(ac Context, clientAuthSecretKey string, noSessionTimeout b
 	return handler
 }
 
-// LogoutHandler handles removing session information on logout
 func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	session := auth.SessionFromRequestContext(r)
 	if session != nil {
@@ -101,8 +100,8 @@ func (h LogoutHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			} else {
 				logoutURL = h.loginGovProvider.LogoutURL(redirectURL, session.IDToken)
 			}
-			// Set all session values to nil
-			session = &auth.Session{}
+			session.IDToken = ""
+			session.UserID = uuid.Nil
 			auth.WriteSessionCookie(w, session, h.clientAuthSecretKey, h.noSessionTimeout, h.logger)
 			http.Redirect(w, r, logoutURL, http.StatusTemporaryRedirect)
 		} else {
@@ -157,7 +156,7 @@ func NewCallbackHandler(ac Context, db *pop.Connection, clientAuthSecretKey stri
 	return handler
 }
 
-// CallbackHandler handles the callback from the Login.gov authorization flow
+// AuthorizationCallbackHandler handles the callback from the Login.gov authorization flow
 func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	session := auth.SessionFromRequestContext(r)
@@ -216,7 +215,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.OfficeUserID != nil {
 			session.OfficeUserID = *(userIdentity.OfficeUserID)
-			session.OfficeUserTransportationOfficeID = *(userIdentity.OfficeUserTransportationOfficeID)
 		} else if session.IsOfficeApp() {
 			// In case they managed to login before the office_user record was created
 			officeUser, err := models.FetchOfficeUserByEmail(h.db, session.Email)
@@ -230,7 +228,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.OfficeUserID = officeUser.ID
-			session.OfficeUserTransportationOfficeID = officeUser.TransportationOfficeID
 			officeUser.UserID = &userIdentity.ID
 			err = h.db.Save(officeUser)
 			if err != nil {
@@ -242,7 +239,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		if userIdentity.TspUserID != nil {
 			session.TspUserID = *(userIdentity.TspUserID)
-			session.TspUserTransportationServiceProviderID = *(userIdentity.TspUserTransportationServiceProviderID)
 		} else if session.IsTspApp() {
 			// In case they managed to login before the tsp_user record was created
 			tspUser, err := models.FetchTspUserByEmail(h.db, session.Email)
@@ -256,7 +252,6 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			session.TspUserID = tspUser.ID
-			session.TspUserTransportationServiceProviderID = tspUser.TransportationServiceProviderID
 			tspUser.UserID = &userIdentity.ID
 			err = h.db.Save(tspUser)
 			if err != nil {
@@ -304,12 +299,10 @@ func (h CallbackHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			session.UserID = user.ID
 			if officeUser != nil {
 				session.OfficeUserID = officeUser.ID
-				session.OfficeUserTransportationOfficeID = officeUser.TransportationOfficeID
 				officeUser.UserID = &user.ID
 				err = h.db.Save(officeUser)
 			} else if tspUser != nil {
 				session.TspUserID = tspUser.ID
-				session.TspUserTransportationServiceProviderID = tspUser.TransportationServiceProviderID
 				tspUser.UserID = &user.ID
 				err = h.db.Save(tspUser)
 			}

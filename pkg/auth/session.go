@@ -12,19 +12,17 @@ const sessionContextKey authSessionKey = "session"
 
 // Session stores information about the currently logged in session
 type Session struct {
-	ApplicationName                        application
-	Hostname                               string
-	IDToken                                string
-	UserID                                 uuid.UUID
-	Email                                  string
-	FirstName                              string
-	Middle                                 string
-	LastName                               string
-	ServiceMemberID                        uuid.UUID
-	OfficeUserID                           uuid.UUID
-	OfficeUserTransportationOfficeID       uuid.UUID
-	TspUserID                              uuid.UUID
-	TspUserTransportationServiceProviderID uuid.UUID
+	ApplicationName application
+	Hostname        string
+	IDToken         string
+	UserID          uuid.UUID
+	Email           string
+	FirstName       string
+	Middle          string
+	LastName        string
+	ServiceMemberID uuid.UUID
+	OfficeUserID    uuid.UUID
+	TspUserID       uuid.UUID
 }
 
 // SetSessionInRequestContext modifies the request's Context() to add the session data

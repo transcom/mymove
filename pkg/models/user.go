@@ -73,22 +73,20 @@ func CreateUser(db *pop.Connection, loginGovID string, email string) (*User, err
 
 // UserIdentity is summary of the information about a user from the database
 type UserIdentity struct {
-	ID                                     uuid.UUID  `db:"id"`
-	Email                                  string     `db:"email"`
-	ServiceMemberID                        *uuid.UUID `db:"sm_id"`
-	ServiceMemberFirstName                 *string    `db:"sm_fname"`
-	ServiceMemberLastName                  *string    `db:"sm_lname"`
-	ServiceMemberMiddle                    *string    `db:"sm_middle"`
-	OfficeUserID                           *uuid.UUID `db:"ou_id"`
-	OfficeUserFirstName                    *string    `db:"ou_fname"`
-	OfficeUserLastName                     *string    `db:"ou_lname"`
-	OfficeUserMiddle                       *string    `db:"ou_middle"`
-	OfficeUserTransportationOfficeID       *uuid.UUID `db:"ou_transportation_office_id"`
-	TspUserID                              *uuid.UUID `db:"tu_id"`
-	TspUserFirstName                       *string    `db:"tu_fname"`
-	TspUserLastName                        *string    `db:"tu_lname"`
-	TspUserMiddle                          *string    `db:"tu_middle"`
-	TspUserTransportationServiceProviderID *uuid.UUID `db:"tu_transportation_service_provider_id"`
+	ID                     uuid.UUID  `db:"id"`
+	Email                  string     `db:"email"`
+	ServiceMemberID        *uuid.UUID `db:"sm_id"`
+	ServiceMemberFirstName *string    `db:"sm_fname"`
+	ServiceMemberLastName  *string    `db:"sm_lname"`
+	ServiceMemberMiddle    *string    `db:"sm_middle"`
+	OfficeUserID           *uuid.UUID `db:"ou_id"`
+	OfficeUserFirstName    *string    `db:"ou_fname"`
+	OfficeUserLastName     *string    `db:"ou_lname"`
+	OfficeUserMiddle       *string    `db:"ou_middle"`
+	TspUserID              *uuid.UUID `db:"tu_id"`
+	TspUserFirstName       *string    `db:"tu_fname"`
+	TspUserLastName        *string    `db:"tu_lname"`
+	TspUserMiddle          *string    `db:"tu_middle"`
 }
 
 // FetchUserIdentity queries the database for information about the logged in user
@@ -104,12 +102,10 @@ func FetchUserIdentity(db *pop.Connection, loginGovID string) (*UserIdentity, er
 				ou.first_name as ou_fname,
 				ou.last_name as ou_lname,
 				ou.middle_initials as ou_middle,
-				ou.transportation_office_id as ou_transportation_office_id,
 				tu.id as tu_id,
 				tu.first_name as tu_fname,
 				tu.last_name as tu_lname,
-				tu.middle_initials as tu_middle,
-				tu.transportation_service_provider_id as tu_transportation_service_provider_id
+				tu.middle_initials as tu_middle
 			FROM users
 			LEFT OUTER JOIN service_members as sm on sm.user_id = users.id
 			LEFT OUTER JOIN office_users as ou on ou.user_id = users.id

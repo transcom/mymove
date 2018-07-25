@@ -246,13 +246,24 @@ type PublicIndexShipmentsHandler HandlerContext
 func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
 
 	session := auth.SessionFromRequestContext(p.HTTPRequest)
+
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
-	// TspUserTransportationServiceProviderID
-	if session.TspUserTransportationServiceProviderID == uuid.Nil {
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
 		return publicshipmentop.NewIndexShipmentsForbidden()
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.db, session.TspUserTransportationServiceProviderID)
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewIndexShipmentsBadRequest()
