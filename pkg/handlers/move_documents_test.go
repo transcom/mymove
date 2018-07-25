@@ -6,14 +6,14 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
 
-	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
+	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	storageTest "github.com/transcom/mymove/pkg/storage/test"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func createMoveDocumentSetup(suite *HandlerSuite) (CreateMoveDocumentHandler, moveop.CreateMoveDocumentParams, internalmessages.CreateMoveDocumentPayload, models.PersonallyProcuredMove) {
+func createMoveDocumentSetup(suite *HandlerSuite) (CreateMoveDocumentHandler, movedocop.CreateMoveDocumentParams, internalmessages.CreateMoveDocumentPayload, models.PersonallyProcuredMove) {
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
 	sm := move.Orders.ServiceMember
@@ -39,7 +39,7 @@ func createMoveDocumentSetup(suite *HandlerSuite) (CreateMoveDocumentHandler, mo
 		Status:                   internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
 
-	params := moveop.CreateMoveDocumentParams{
+	params := movedocop.CreateMoveDocumentParams{
 		HTTPRequest:               request,
 		CreateMoveDocumentPayload: &payload,
 		MoveID: strfmt.UUID(move.ID.String()),
@@ -59,7 +59,7 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	response := handler.Handle(params)
 	// assert we got back the 201 response
 	suite.isNotErrResponse(response)
-	createdResponse := response.(*moveop.CreateMoveDocumentOK)
+	createdResponse := response.(*movedocop.CreateMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
@@ -99,7 +99,7 @@ func (suite *HandlerSuite) TestWrongPPMCreateMoveDocumentHandler() {
 	payload.PersonallyProcuredMoveID = fmtUUID(otherPpm.ID)
 	params.CreateMoveDocumentPayload = &payload
 	response := handler.Handle(params)
-	suite.IsType(&moveop.CreateMoveDocumentBadRequest{}, response)
+	suite.IsType(&movedocop.CreateMoveDocumentBadRequest{}, response)
 }
 
 func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
@@ -118,7 +118,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
-	indexMoveDocParams := moveop.IndexMoveDocumentsParams{
+	indexMoveDocParams := movedocop.IndexMoveDocumentsParams{
 		HTTPRequest: request,
 		MoveID:      strfmt.UUID(move.ID.String()),
 	}
@@ -130,7 +130,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	response := handler.Handle(indexMoveDocParams)
 
 	// assert we got back the 201 response
-	indexResponse := response.(*moveop.IndexMoveDocumentsOK)
+	indexResponse := response.(*movedocop.IndexMoveDocumentsOK)
 	indexPayload := indexResponse.Payload
 	suite.NotNil(indexPayload)
 
@@ -178,10 +178,9 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 		Status: internalmessages.MoveDocumentStatusOK,
 	}
 
-	updateMoveDocParams := moveop.UpdateMoveDocumentParams{
+	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		HTTPRequest:        request,
 		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveID:             strfmt.UUID(move.ID.String()),
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
@@ -189,7 +188,7 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
-	updateResponse := response.(*moveop.UpdateMoveDocumentOK)
+	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
 	updatePayload := updateResponse.Payload
 	suite.NotNil(updatePayload)
 
@@ -199,12 +198,4 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 
-	// When: The wrong move id is passed in, expect 404
-	updateMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	badMoveResponse := handler.Handle(updateMoveDocParams)
-
-	_, ok := badMoveResponse.(*moveop.UpdateMoveDocumentBadRequest)
-	if !ok {
-		suite.T().Fatalf("Request failed: %#v", badMoveResponse)
-	}
 }
