@@ -1,10 +1,8 @@
 package handlers
 
 import (
-	"fmt"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/gobuffalo/uuid"
-	// "go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
 	movedocop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/move_docs"
@@ -20,8 +18,6 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	if err != nil {
 		return nil, err
 	}
-
-	fmt.Println("DOCUMENT", movingExpenseDocument.MoveDocument)
 
 	movingExpenseDocumentPayload := internalmessages.MovingExpenseDocumentPayload{
 		ID:                fmtUUID(movingExpenseDocument.ID),
@@ -70,8 +66,6 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		}
 		uploads = append(uploads, upload)
 	}
-
-	fmt.Println("UPLOA", uploadIds)
 
 	reimbursement := models.BuildRequestedReimbursement(unit.Cents(*payload.Reimbursement.RequestedAmount), models.MethodOfReceipt(*payload.Reimbursement.MethodOfReceipt))
 
