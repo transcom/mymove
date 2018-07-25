@@ -594,8 +594,6 @@ definitions:
         example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -605,7 +603,6 @@ definitions:
       - upload_ids
       - title
       - move_document_type
-      - status
   UpdateMoveDocumentPayload:
     type: object
     properties:

@@ -42,7 +42,6 @@ export class DocumentUploader extends Component {
         uploadIds,
         formValues.title,
         formValues.move_document_type,
-        'AWAITING_REVIEW',
         formValues.notes,
       )
       .then(() => {
