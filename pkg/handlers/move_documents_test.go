@@ -148,7 +148,6 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
 		HTTPRequest:        request,
 		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveID:             strfmt.UUID(move.ID.String()),
 		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
 	}
 
@@ -166,12 +165,4 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	suite.Require().Equal(*updatePayload.Title, "super_awesome.pdf")
 	suite.Require().Equal(*updatePayload.Notes, "This document is super awesome.")
 
-	// When: The wrong move id is passed in, expect 404
-	updateMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	badMoveResponse := handler.Handle(updateMoveDocParams)
-
-	_, ok := badMoveResponse.(*movedocop.UpdateMoveDocumentBadRequest)
-	if !ok {
-		suite.T().Fatalf("Request failed: %#v", badMoveResponse)
-	}
 }
