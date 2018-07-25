@@ -1,6 +1,5 @@
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
@@ -21,7 +20,7 @@ class WeightEstimates extends Component {
             />
           </div>
         </div>
-        <h3 className="instruction-heading usa-heading">
+        <h3 className="instruction-heading">
           Now enter the weight of your Pro-Gear
         </h3>
         <div className="usa-grid">
@@ -47,10 +46,4 @@ WeightEstimates.propTypes = {
   formValues: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-function mapStateToProps(state) {
-  return {};
-}
-export default connect(mapStateToProps, mapDispatchToProps)(WeightEstimates);
+export default WeightEstimates;
