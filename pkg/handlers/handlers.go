@@ -163,6 +163,8 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
+	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler(context)
+
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
 	internalAPI.ServiceMembersShowServiceMemberHandler = ShowServiceMemberHandler(context)
