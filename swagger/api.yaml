@@ -218,6 +218,18 @@ paths:
           in: query
           type: string
           description: Restrict the list to shipments with matching ShipmentStatus
+          enum:
+            - IN_PROGRESS
+            - COMPLETE
+            - AWARDED
+            - ACCEPTED
+            - REJECTED
+            - IN_TRANSIT
+            - SIT_ORIGIN
+            - SIT_DEST
+            - DELIVERED
+            - COMPLETED
+            - CLAIMS
         - name: order_by
           in: query
           type: string
