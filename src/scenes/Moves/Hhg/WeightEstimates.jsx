@@ -1,8 +1,6 @@
 import PropTypes from 'prop-types';
-import React, { Component, Fragment } from 'react';
-import { bindActionCreators } from 'redux';
+import React, { Component } from 'react';
 
-import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 class WeightEstimates extends Component {
