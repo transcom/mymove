@@ -163,9 +163,9 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
 	// the DB offset.  It's first multiplied by the limit and then applied.  Examples:
 	//   - Paginate(0, 25) = LIMIT 25 OFFSET 0  (this is an odd case and is coded into Pop)
-	//   - Paginate(1, 25) = LIMIT 25 oFFSET 0
-	//   - Paginate(2, 25) = LIMIT 25 oFFSET 25
-	//   - Paginate(3, 25) = LIMIT 25 oFFSET 50
+	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
+	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
+	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
 	query.Paginate(int(*offset), int(*limit))
 
 	err := query.All(&shipments)
