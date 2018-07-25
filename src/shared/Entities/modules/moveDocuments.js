@@ -25,7 +25,7 @@ export default function reducer(state = {}, action) {
 export const getMoveDocumentsForMove = moveId => {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.moves.indexMoveDocuments({
+    const response = await client.apis.move_docs.indexMoveDocuments({
       moveId,
     });
     checkResponse(response, 'failed to get move documents due to server error');
@@ -45,7 +45,7 @@ export function createMoveDocument(
 ) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.moves.createMoveDocument({
+    const response = await client.apis.move_docs.createMoveDocument({
       moveId,
       createMoveDocumentPayload: {
         upload_ids: uploadIds,
@@ -67,7 +67,7 @@ export function createMoveDocument(
 export const updateMoveDocument = (moveId, moveDocumentId, payload) => {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.moves.updateMoveDocument({
+    const response = await client.apis.move_docs.updateMoveDocument({
       moveId,
       moveDocumentId,
       updateMoveDocument: payload,
