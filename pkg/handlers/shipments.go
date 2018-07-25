@@ -261,6 +261,18 @@ func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmen
 		return publicshipmentop.NewIndexShipmentsForbidden()
 	}
 
+	// Manage ordering by pickup or delivery date
+	switch *params.OrderBy {
+	case "PICKUP_DATE_ASC":
+		*params.OrderBy = "pickup_date ASC"
+	case "PICKUP_DATE_DESC":
+		*params.OrderBy = "pickup_date DESC"
+	case "DELIVERY_DATE_ASC":
+		*params.OrderBy = "delivery_date ASC"
+	case "DELIVERY_DATE_DESC":
+		*params.OrderBy = "delivery_date DESC"
+	}
+
 	// Manage limit and offset values
 	if *params.Limit < int64(1) {
 		*params.Limit = int64(1)
@@ -269,7 +281,8 @@ func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmen
 		*params.Offset = int64(0)
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID, *params.Limit, *params.Offset)
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID,
+		*params.OrderBy, *params.Limit, *params.Offset)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewIndexShipmentsBadRequest()
