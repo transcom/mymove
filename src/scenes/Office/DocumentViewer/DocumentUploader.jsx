@@ -8,6 +8,7 @@ import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 
@@ -36,27 +37,30 @@ export class DocumentUploader extends Component {
     this.setState({
       moveDocumentCreateError: null,
     });
-    // if (get(formValues, 'movingExpenseDocument'), false) {
-    //   this.props
-    //     .createMovingExpenseDocument(
-    //       moveId,
-    //       uploadIds,
-    //       formValues.title,
-    //       formValues.movingExpenseDocument.moving_expense_type,
-    //       formValues.move_document_type,
-    //       formValues.reimbursement,
-    //       formValues.notes,
-    //     )
-    //     .then(() => {
-    //       reset();
-    //       this.uploader.clearFiles();
-    //     })
-    //     .catch(err => {
-    //       this.setState({
-    //         moveDocumentCreateError: err,
-    //       });
-    //     });
-    // }
+    if (get(formValues, 'movingExpenseDocument', false)) {
+      formValues.reimbursement.requested_amount = parseFloat(
+        formValues.reimbursement.requested_amount,
+      );
+      this.props
+        .createMovingExpenseDocument(
+          moveId,
+          uploadIds,
+          formValues.title,
+          formValues.movingExpenseDocument.moving_expense_type,
+          formValues.move_document_type,
+          formValues.reimbursement,
+          formValues.notes,
+        )
+        .then(() => {
+          reset();
+          this.uploader.clearFiles();
+        })
+        .catch(err => {
+          this.setState({
+            moveDocumentCreateError: err,
+          });
+        });
+    }
     if (get(formValues, 'movingExpenseDocument', false) === false) {
       this.props
         .createMoveDocument(
@@ -135,38 +139,6 @@ export class DocumentUploader extends Component {
             swagger={moveDocSchema}
             required
           />
-          {isExpenseDocument && (
-            <Fragment>
-              <FormSection name="movingExpenseDocument">
-                <SwaggerField
-                  title="Document title"
-                  fieldName="title"
-                  swagger={movingExpenseSchema}
-                  required
-                />
-                <SwaggerField
-                  title="Expense type"
-                  fieldName="moving_expense_type"
-                  swagger={movingExpenseSchema}
-                  required
-                />
-              </FormSection>
-              <FormSection name="reimbursement">
-                <SwaggerField
-                  title="Amount"
-                  fieldName="requested_amount"
-                  swagger={reimbursementSchema}
-                  required
-                />
-                <SwaggerField
-                  title="Method of Payment"
-                  fieldName="method_of_receipt"
-                  swagger={reimbursementSchema}
-                  required
-                />
-              </FormSection>
-            </Fragment>
-          )}
           <div className="uploader-box">
             <SwaggerField
               title="Document title"
@@ -174,6 +146,32 @@ export class DocumentUploader extends Component {
               swagger={moveDocSchema}
               required
             />
+            {isExpenseDocument && (
+              <Fragment>
+                <FormSection name="movingExpenseDocument">
+                  <SwaggerField
+                    title="Expense type"
+                    fieldName="moving_expense_type"
+                    swagger={movingExpenseSchema}
+                    required
+                  />
+                </FormSection>
+                <FormSection name="reimbursement">
+                  <SwaggerField
+                    title="Amount"
+                    fieldName="requested_amount"
+                    swagger={reimbursementSchema}
+                    required
+                  />
+                  <SwaggerField
+                    title="Method of Payment"
+                    fieldName="method_of_receipt"
+                    swagger={reimbursementSchema}
+                    required
+                  />
+                </FormSection>
+              </Fragment>
+            )}
             <SwaggerField
               title="Notes"
               fieldName="notes"
@@ -237,6 +235,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       createMoveDocument,
+      createMovingExpenseDocument,
       push,
     },
     dispatch,

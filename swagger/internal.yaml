@@ -1671,7 +1671,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
@@ -1690,7 +1690,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:

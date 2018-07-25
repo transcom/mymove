@@ -58,7 +58,7 @@ export function createMovingExpenseDocument(
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
         // should this be in brackets? test it
-        reimbursement: { reimbursement },
+        reimbursement: reimbursement,
         notes: notes,
       },
     });
