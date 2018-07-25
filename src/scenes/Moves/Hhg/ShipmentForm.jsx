@@ -9,6 +9,7 @@ import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
+import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
 import { createOrUpdateShipment } from 'shared/Entities/modules/shipments';
 
@@ -76,6 +77,7 @@ export class ShipmentForm extends Component {
             error={error}
             formValues={this.props.formValues}
           />
+          <WeightEstimates />
         </div>
       </ShipmentFormWizardForm>
     );
