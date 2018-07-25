@@ -510,6 +510,43 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
+  GenericMoveDocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      document:
+        $ref: '#/definitions/DocumentPayload'
+      title:
+        type: string
+        example: very_useful_document.pdf
+        title: Document Title
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
+    required:
+      - id
+      - move_id
+      - document
+      - title
+      - move_document_type
+      - status
   MoveDocumentPayload:
     type: object
     properties:
@@ -597,11 +634,127 @@ definitions:
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
+      - EXPENSE
     x-display-value:
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
+  MovingExpenseDocumentPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      document:
+        $ref: '#/definitions/DocumentPayload'
+      move_document_type:
+        type: string
+        $ref: '#/definitions/MoveDocumentType'
+      status:
+        $ref: '#/definitions/MoveDocumentStatus'
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - id
+      - move_id
+      - document
+      - title
+      - move_document_type
+      - status
+      - moving_expense_type
+      - reimbursement
+  CreateMovingExpenseDocumentPayload:
+    type: object
+    properties:
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      reimbursement:
+        $ref: '#/definitions/CreateReimbursement'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - upload_ids
+      - title
+      - move_document_type
+      - moving_expense_type
+      - reimbursement
+  UpdateMovingExpenseDocumentPayload:
+    type: object
+    properties:
+      move_document_type:
+        type: string
+        $ref: '#/definitions/MoveDocumentType'
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      status:
+         $ref: '#/definitions/MoveDocumentStatus'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - title
+      - status
+      - move_document_type
+      - moving_expense_type
+      - reimbursement
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - RENTAL_EQUIPMENT
+      - PACKING_MATERIALS
+      - WEIGHING_FEES
+      - GAS
+      - TOLLS
+      - OIL
+      - OTHER
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted Expense
+      RENTAL_EQUIPMENT: Rental Equipment
+      PACKING_MATERIALS: Packing Materials
+      WEIGHING_FEES: Weighing Fees
+      GAS: Gas
+      TOLLS: Tolls
+      OIL: Oil
+      OTHER: Other
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -2591,13 +2744,13 @@ paths:
           description: move not found
         500:
           description: internal server error
-  /moves/{moveId}/documents:
+  /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
-        - moves
+        - move_docs
       parameters:
         - in: path
           name: moveId
@@ -2621,7 +2774,7 @@ paths:
       description: Created a move document with the given information
       operationId: createMoveDocument
       tags:
-        - moves
+        - move_docs
       parameters:
         - name: moveId
           in: path
@@ -2647,20 +2800,14 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/documents/{moveDocumentId}:
+  /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
-        - moves
+        - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the move document
         - in: path
           name: moveDocumentId
           type: string
@@ -2685,6 +2832,72 @@ paths:
           description: user is not authorized
         404:
           description: move document not found
+        500:
+          description: internal server error
+  /moves/{moveId}/moving_expense_documents:
+    post:
+      summary: Creates a moving expense document
+      description: Created a moving expense document with the given information
+      operationId: createMovingExpenseDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createMovingExpenseDocumentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
+      responses:
+        200:
+          description: returns new moving expense document object
+          schema:
+            $ref: '#/definitions/MovingExpenseDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error
+  /moving_expense_documents/{movingExpenseDocumentId}:
+    put:
+      summary: Updates a moving expense document
+      description: Update a moving expense document with the given information
+      operationId: updateMovingExpenseDocument
+      tags:
+        - move_docs
+      parameters:
+        - in: path
+          name: movingExpenseDocumentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the moving expense document model
+        - in: body
+          name: updateMovingExpenseDocument
+          required: true
+          schema:
+            $ref: '#/definitions/UpdateMovingExpenseDocumentPayload'
+      responses:
+        200:
+          description: updated instance of moving expense document
+          schema:
+            $ref: '#/definitions/MovingExpenseDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: moving expense document not found
         500:
           description: internal server error
   /moves/{moveId}/approve:
