@@ -959,36 +959,6 @@ definitions:
         type: integer
         description: Estimated weight of the spouse progear in lbs
         example: 250
-  ShipmentOfferPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment:
-        $ref: '#/definitions/Shipment'
-      transportation_service_provider_id:
-        type: string
-        description: ID of the TSP connected to this offer
-        format: uuid
-      administrative_shipment:
-        type: boolean
-        example: false
-        x-nullable: true
-      created_at:
-        type: string
-        format: date-time
-      updated_at:
-        type: string
-        format: date-time
-      accepted:
-        type: boolean
-        example: false
-        x-nullable: true
-      rejected:
-        type: string
-        description: Reason the offer was rejected
   ShipmentAcceptPayload:
     type: object
     properties:
