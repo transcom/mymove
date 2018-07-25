@@ -57,24 +57,26 @@ export class DocumentUploader extends Component {
     //       });
     //     });
     // }
-    this.props
-      .createMoveDocument(
-        moveId,
-        uploadIds,
-        formValues.title,
-        formValues.move_document_type,
-        'AWAITING_REVIEW',
-        formValues.notes,
-      )
-      .then(() => {
-        reset();
-        this.uploader.clearFiles();
-      })
-      .catch(err => {
-        this.setState({
-          moveDocumentCreateError: err,
+    if (get(formValues, 'movingExpenseDocument', false) === false) {
+      this.props
+        .createMoveDocument(
+          moveId,
+          uploadIds,
+          formValues.title,
+          formValues.move_document_type,
+          'AWAITING_REVIEW',
+          formValues.notes,
+        )
+        .then(() => {
+          reset();
+          this.uploader.clearFiles();
+        })
+        .catch(err => {
+          this.setState({
+            moveDocumentCreateError: err,
+          });
         });
-      });
+    }
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {

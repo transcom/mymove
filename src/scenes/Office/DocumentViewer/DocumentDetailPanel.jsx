@@ -112,7 +112,11 @@ function mapStateToProps(state, props) {
       'swagger.spec.definitions.UpdateMoveDocumentPayload',
       {},
     ),
-
+    movingExpenseDocumentSchema: get(
+      state,
+      'swagger.spec.definitions.UpdateMovingExpenseDocumentPayload',
+      {},
+    ),
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
