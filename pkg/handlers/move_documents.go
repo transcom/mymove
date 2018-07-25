@@ -69,7 +69,7 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 	if payload.PersonallyProcuredMoveID != nil {
 		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 
-		// Enfore that the ppm's move_id matches our move
+		// Enforce that the ppm's move_id matches our move
 		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
 		if err != nil {
 			return responseForError(h.logger, err)
