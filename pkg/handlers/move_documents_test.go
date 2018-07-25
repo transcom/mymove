@@ -13,8 +13,9 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
-func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.db)
+func createMoveDocumentSetup(suite *HandlerSuite) (CreateMoveDocumentHandler, moveop.CreateMoveDocumentParams, internalmessages.CreateMoveDocumentPayload, models.PersonallyProcuredMove) {
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	upload := testdatagen.MakeUpload(suite.db, testdatagen.Assertions{
@@ -29,17 +30,18 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
-	newMoveDocPayload := internalmessages.CreateMoveDocumentPayload{
-		UploadIds:        uploadIds,
-		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
-		Title:            fmtString("awesome_document.pdf"),
-		Notes:            fmtString("Some notes here"),
-		Status:           internalmessages.MoveDocumentStatusAWAITINGREVIEW,
+	payload := internalmessages.CreateMoveDocumentPayload{
+		UploadIds:                uploadIds,
+		PersonallyProcuredMoveID: fmtUUID(ppm.ID),
+		MoveDocumentType:         internalmessages.MoveDocumentTypeOTHER,
+		Title:                    fmtString("awesome_document.pdf"),
+		Notes:                    fmtString("Some notes here"),
+		Status:                   internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
 
-	newMoveDocParams := moveop.CreateMoveDocumentParams{
+	params := moveop.CreateMoveDocumentParams{
 		HTTPRequest:               request,
-		CreateMoveDocumentPayload: &newMoveDocPayload,
+		CreateMoveDocumentPayload: &payload,
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
@@ -47,7 +49,14 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
 	handler := CreateMoveDocumentHandler(context)
-	response := handler.Handle(newMoveDocParams)
+
+	return handler, params, payload, ppm
+}
+
+func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
+	handler, params, payload, _ := createMoveDocumentSetup(suite)
+
+	response := handler.Handle(params)
 	// assert we got back the 201 response
 	suite.isNotErrResponse(response)
 	createdResponse := response.(*moveop.CreateMoveDocumentOK)
@@ -57,31 +66,52 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	// Make sure the Upload was associated to the new document
 	createdDocumentID := createdPayload.Document.ID
 	var fetchedUpload models.Upload
-	suite.db.Find(&fetchedUpload, upload.ID)
+	suite.db.Find(&fetchedUpload, payload.UploadIds[0])
 	suite.Equal(createdDocumentID.String(), fetchedUpload.DocumentID.String())
+}
+
+func (suite *HandlerSuite) TestWrongUserCreateMoveDocumentHandler() {
+	handler, params, _, _ := createMoveDocumentSetup(suite)
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
-	request = suite.authenticateRequest(request, wrongUser)
-	newMoveDocParams.HTTPRequest = request
+	params.HTTPRequest = suite.authenticateRequest(params.HTTPRequest, wrongUser)
 
-	badUserResponse := handler.Handle(newMoveDocParams)
-	suite.checkResponseForbidden(badUserResponse)
+	response := handler.Handle(params)
+	suite.checkResponseForbidden(response)
+}
 
-	// Now try a bad move
-	newMoveDocParams.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
-	badMoveResponse := handler.Handle(newMoveDocParams)
-	suite.checkResponseNotFound(badMoveResponse)
+func (suite *HandlerSuite) TestBadMoveCreateMoveDocumentHandler() {
+	handler, params, _, _ := createMoveDocumentSetup(suite)
+
+	params.MoveID = strfmt.UUID(uuid.Must(uuid.NewV4()).String())
+	response := handler.Handle(params)
+	suite.checkResponseNotFound(response)
+}
+
+func (suite *HandlerSuite) TestWrongPPMCreateMoveDocumentHandler() {
+	handler, params, payload, ppm := createMoveDocumentSetup(suite)
+
+	otherPpm := testdatagen.MakePPM(suite.db, testdatagen.Assertions{
+		Order: ppm.Move.Orders,
+	})
+
+	payload.PersonallyProcuredMoveID = fmtUUID(otherPpm.ID)
+	params.CreateMoveDocumentPayload = &payload
+	response := handler.Handle(params)
+	suite.IsType(&moveop.CreateMoveDocumentBadRequest{}, response)
 }
 
 func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
-	move1 := testdatagen.MakeDefaultMove(suite.db)
-	sm := move1.Orders.ServiceMember
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	move := ppm.Move
+	sm := move.Orders.ServiceMember
 
 	moveDocument := testdatagen.MakeMoveDocument(suite.db, testdatagen.Assertions{
 		MoveDocument: models.MoveDocument{
-			MoveID: move1.ID,
-			Move:   move1,
+			MoveID: move.ID,
+			Move:   move,
+			PersonallyProcuredMoveID: &ppm.ID,
 		},
 	})
 
@@ -90,7 +120,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 
 	indexMoveDocParams := moveop.IndexMoveDocumentsParams{
 		HTTPRequest: request,
-		MoveID:      strfmt.UUID(move1.ID.String()),
+		MoveID:      strfmt.UUID(move.ID.String()),
 	}
 
 	context := NewHandlerContext(suite.db, suite.logger)
@@ -106,6 +136,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 
 	for _, moveDoc := range indexPayload {
 		suite.Require().Equal(*moveDoc.ID, strfmt.UUID(moveDocument.ID.String()), "expected move ids to match")
+		suite.Require().Equal(*moveDoc.PersonallyProcuredMoveID, strfmt.UUID(ppm.ID.String()), "expected ppm ids to match")
 	}
 
 	// Next try the wrong user

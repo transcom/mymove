@@ -521,6 +521,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       document:
         $ref: '#/definitions/DocumentPayload'
       title:
@@ -546,6 +551,11 @@ definitions:
   CreateMoveDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       upload_ids:
         type: array
         items:
@@ -572,6 +582,11 @@ definitions:
   UpdateMoveDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       title:
         type: string
         example: very_useful_document.pdf

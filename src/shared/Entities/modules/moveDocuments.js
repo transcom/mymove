@@ -38,6 +38,7 @@ export const getMoveDocumentsForMove = moveId => {
 
 export function createMoveDocument(
   moveId,
+  personallyProcuredMoveId,
   uploadIds,
   title,
   moveDocumentType,
@@ -49,6 +50,7 @@ export function createMoveDocument(
     const response = await client.apis.moves.createMoveDocument({
       moveId,
       createMoveDocumentPayload: {
+        personally_procured_move_id: personallyProcuredMoveId,
         upload_ids: uploadIds,
         title: title,
         move_document_type: moveDocumentType,
