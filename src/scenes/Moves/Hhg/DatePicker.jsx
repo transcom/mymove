@@ -6,12 +6,9 @@ import { getFormValues, reduxForm } from 'redux-form';
 import DayPicker from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-import { no_op } from 'shared/utils';
-import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-
 import './DatePicker.css';
 
-const formName = 'hhg_date_picker';
+const formName = 'shipment_form';
 const schema = {
   properties: {
     planned_move_date: {
@@ -24,7 +21,6 @@ const schema = {
     },
   },
 };
-const HHGDateWizardForm = reduxifyWizardForm(formName);
 
 export class HHGDatePicker extends Component {
   state = { showInfo: false };
@@ -36,40 +32,20 @@ export class HHGDatePicker extends Component {
       selectedDay: undefined,
     };
   }
+  // TODO: set to store's formValues later instead of local state
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
   }
 
   render() {
-    const {
-      pages,
-      pageKey,
-      error,
-      serviceMemberId,
-      hasSubmitSuccess,
-    } = this.props;
-
-    // initialValues has to be null until there are values from the action since only the first values are taken
-
     return (
-      <HHGDateWizardForm
-        handleSubmit={no_op}
-        className={formName}
-        pageList={pages}
-        pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
-        serverError={error}
-        // initialValues={initialValues}
-        additionalParams={{ serviceMemberId }}
-      >
+      <div className="form-section">
+        <h3 className="instruction-heading usa-heading">
+          Great! Let's find a date for a moving company to move your stuff.
+        </h3>
+        <h4 className="usa-heading">Select a move date</h4>
         <div className="usa-grid">
-          <h3>Shipment 1 (HHG)</h3>
-          <h2 className="instruction-heading">
-            Great! Let's find a date for a moving company to move your stuff.
-          </h2>
-          <h3>Select a move date</h3>
-
           <div className="usa-width-one-third">
             <DayPicker
               onDayClick={this.handleDayClick}
@@ -116,7 +92,7 @@ export class HHGDatePicker extends Component {
             )}
           </div>
         </div>
-      </HHGDateWizardForm>
+      </div>
     );
   }
 }
