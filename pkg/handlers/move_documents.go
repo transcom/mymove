@@ -19,13 +19,14 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 	}
 
 	moveDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:               fmtUUID(moveDocument.ID),
-		MoveID:           fmtUUID(moveDocument.MoveID),
-		Document:         documentPayload,
-		Title:            &moveDocument.Title,
-		MoveDocumentType: internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
-		Status:           internalmessages.MoveDocumentStatus(moveDocument.Status),
-		Notes:            moveDocument.Notes,
+		ID:     fmtUUID(moveDocument.ID),
+		MoveID: fmtUUID(moveDocument.MoveID),
+		PersonallyProcuredMoveID: fmtUUIDPtr(moveDocument.PersonallyProcuredMoveID),
+		Document:                 documentPayload,
+		Title:                    &moveDocument.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
+		Status:                   internalmessages.MoveDocumentStatus(moveDocument.Status),
+		Notes:                    moveDocument.Notes,
 	}
 
 	return &moveDocumentPayload, nil
@@ -64,8 +65,25 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 		uploads = append(uploads, upload)
 	}
 
+	var ppmID *uuid.UUID
+	if payload.PersonallyProcuredMoveID != nil {
+		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+
+		// Enforce that the ppm's move_id matches our move
+		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		if !uuid.Equal(ppm.MoveID, moveID) {
+			return movedocop.NewCreateMoveDocumentBadRequest()
+		}
+
+		ppmID = &id
+	}
+
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
 		uploads,
+		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes)
@@ -97,6 +115,10 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	}
 
 	payload := params.UpdateMoveDocument
+	if payload.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+		moveDoc.PersonallyProcuredMoveID = &ppmID
+	}
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
 	moveDoc.Status = models.MoveDocumentStatus(payload.Status)

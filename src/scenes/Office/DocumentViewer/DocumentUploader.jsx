@@ -31,7 +31,7 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, moveId, reset } = this.props;
+    const { formValues, officePPM, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
       moveDocumentCreateError: null,
@@ -39,6 +39,7 @@ export class DocumentUploader extends Component {
     this.props
       .createMoveDocument(
         moveId,
+        officePPM.id,
         uploadIds,
         formValues.title,
         formValues.move_document_type,
@@ -147,6 +148,7 @@ function mapStateToProps(state) {
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
+    officePPM: get(state.office, 'officePPMs.0', {}),
   };
   return props;
 }
