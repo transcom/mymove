@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -238,29 +237,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
  */
 
 func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
-	// Given: a TSP User
-	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
-
-	// Shipment is created and saved
-	now := time.Now()
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
-	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
-	suite.Nil(err)
-
-	// Shipment Offer is created and synced to TSP ID and Shipment ID
-	shipmentOfferAssertions := testdatagen.Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			ShipmentID:                      shipment.ID,
-			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-		},
-	}
-	testdatagen.MakeShipmentOffer(suite.db, shipmentOfferAssertions)
+	tspUser, shipment, _ := testdatagen.CreateShipmentOfferData(suite.db)
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)

@@ -3,6 +3,7 @@ package testdatagen
 import (
 	"fmt"
 	"math/rand"
+	"time"
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
@@ -60,15 +61,46 @@ func MakeShipmentOfferData(db *pop.Connection) {
 		fmt.Println("TSP ID import failed.")
 	}
 
-	// Add one offered shipment record using existing, random shipment and TSP IDs
+	// Add one offered shipment record for each shipment and a random TSP IDs
+	for _, shipment := range shipmentList {
+		shipmentOfferAssertions := Assertions{
+			ShipmentOffer: models.ShipmentOffer{
+				ShipmentID:                      shipment.ID,
+				TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
+				AdministrativeShipment:          false,
+				Accepted:                        swag.Bool(true),
+				RejectionReason:                 nil,
+			},
+		}
+		MakeShipmentOffer(db, shipmentOfferAssertions)
+	}
+}
+
+// CreateShipmentOfferData creates a TSP User, A Shipment, and then them to a Shipment Offer
+func CreateShipmentOfferData(db *pop.Connection) (tspUser models.TspUser, shipment models.Shipment, shipmentOffer models.ShipmentOffer) {
+
+	// Given: a TSP User
+	newTspUser := MakeDefaultTspUser(db)
+
+	// Shipment is created and saved
+	now := time.Now()
+	tdl, _ := MakeTDL(
+		db,
+		DefaultSrcRateArea,
+		DefaultDstRegion,
+		DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+	newShipment, _ := MakeShipment(db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+
+	// Shipment Offer is created and synced to TSP ID and Shipment ID
 	shipmentOfferAssertions := Assertions{
 		ShipmentOffer: models.ShipmentOffer{
-			ShipmentID:                      shipmentList[rand.Intn(len(shipmentList))].ID,
-			TransportationServiceProviderID: tspList[rand.Intn(len(tspList))].ID,
-			AdministrativeShipment:          false,
-			Accepted:                        swag.Bool(true),
-			RejectionReason:                 nil,
+			ShipmentID:                      newShipment.ID,
+			TransportationServiceProviderID: newTspUser.TransportationServiceProviderID,
 		},
 	}
-	MakeShipmentOffer(db, shipmentOfferAssertions)
+	newShipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
+
+	return newTspUser, newShipment, newShipmentOffer
 }
