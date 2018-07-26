@@ -1,1 +1,1 @@
-exec('./apply-secure-migration.sh 20180518011909_2018_tdl_secure_migration.sql')
+exec("./apply-secure-migration.sh 20180518011909_2018_tdl_secure_migration.sql")

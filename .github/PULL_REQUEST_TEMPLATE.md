@@ -8,7 +8,7 @@ Is there anything you would like reviewers to give additional scrutiny?
 
 ## Code Review Verification Steps
 
-* [ ] All tests pass.
+* [ ] End to end tests pass (`make e2e_test`).
 * [ ] Code follows the guidelines for [Logging](https://github.com/transcom/mymove/blob/master/docs/backend.md#logging)
 * [ ] The requirements listed in
  [Querying the Database Safely](https://github.com/transcom/mymove/blob/master/docs/backend.md#querying-the-database-safely)
@@ -20,7 +20,7 @@ Is there anything you would like reviewers to give additional scrutiny?
   * [ ] Communicated to @willowbl00
   * [ ] Added to the list of [network dependencies](https://github.com/transcom/mymove#client-network-dependencies)
 * [ ] Request review from a member of a different team.
-* [ ] (TRIAL) Have the Pivotal acceptance criteria been met for this change?
+* [ ] Have the Pivotal acceptance criteria been met for this change?
 
 ## References
 

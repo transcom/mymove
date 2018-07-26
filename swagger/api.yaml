@@ -17,6 +17,8 @@ paths:
       summary: retrieve a list of blacked out dates (for accessible TSPs)
       description: Gets a list of blackout periods which the current user can see
       operationId: indexBlackouts
+      tags:
+        - blackouts
       parameters:
         - in: query
           name: start_date
@@ -41,19 +43,50 @@ paths:
         200:
           description: list of associated blackouts
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Blackout'
+            $ref: '#/definitions/IndexBlackoutsPayload'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
         500:
           description: server error
+    post:
+      summary: Adds a new Blackout period to the list of blackouts
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
+       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
+       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
+
+       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+       originate in the given GBLOC.
+      operationId: createBlackout
+      tags:
+        - blackouts
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: body
+          description: The blackout period to add
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateBlackoutPayload'
+      responses:
+        201:
+          description: The blackout as added to the database including DB ID
+          schema:
+            $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to create blackouts
+        500:
+          description: server error
   /blackouts/{blackout_uuid}:
     get:
       summary: retrieve the details of a blackout period
       operationId: getBlackout
+      tags:
+        - blackouts
       parameters:
         - in: path
           name: blackout_uuid
@@ -65,7 +98,39 @@ paths:
         200:
           description: the details of the requested blackout period
           schema:
-              $ref: '#/definitions/Blackout'
+              $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+        500:
+          description: server error
+    patch:
+      summary: update the associated blackout
+      operationId: updateBlackout
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+        - in: body
+          name: update
+          required: true
+          schema:
+            $ref: '#/definitions/BlackoutPayload'
+      responses:
+        200:
+          description: the blackout was successfully updated
+          schema:
+              $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         401:
@@ -79,6 +144,8 @@ paths:
     delete:
       summary: delete the associated blackout period
       operationId: deleteBlackout
+      tags:
+        - blackouts
       parameters:
         - in: path
           name: blackout_uuid
@@ -99,41 +166,13 @@ paths:
           description: no blackout found with that UUID
         500:
           description: server error
-    patch:
-      summary: update the associated blackout
-      operationId: updateBlackout
-      parameters:
-        - in: path
-          name: blackout_uuid
-          type: string
-          format: uuid
-          required: true
-          description: the unique identifier for the blackout
-        - in: body
-          name: update
-          required: true
-          schema:
-            $ref: '#/definitions/Blackout'
-      responses:
-        200:
-          description: the blackout was successfully updated
-          schema:
-              $ref: '#/definitions/Blackout'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access the associated blackout
-        404:
-          description: no blackout found with that UUID
-        500:
-          description: server error
   /documents/{document_uuid}/uploads:
     post:
       summary: Adds a new upload to a document
       description: Uploads represent a single digital file, such as a JPEG or PDF.
       operationId: createDocumentUpload
+      tags:
+        - documents
       consumes:
         - multipart/form-data
       parameters:
@@ -172,6 +211,8 @@ paths:
       summary: Gets visible shipments
       description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
       operationId: indexShipments
+      tags:
+        - shipments
       parameters:
         - name: status
           in: query
@@ -200,13 +241,13 @@ paths:
         200:
           description: returns an array of Shipments
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/Shipment'
+            $ref: '#/definitions/IndexShipments'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
         500:
           description: server error
   /shipments/{shipment_uuid}:
@@ -214,6 +255,8 @@ paths:
       summary: Gets a particular shipment
       description: Allows a user to retrieve the details of a particular shipment
       operationId: getShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -240,6 +283,8 @@ paths:
       summary: Updates a particular shipment
       description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
       operationId: updateShipment
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -271,7 +316,9 @@ paths:
     post:
       summary: Accepts an awarded shipment
       description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
-      operationId: acceptShipment
+      operationId: createShipmentAccept
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -283,7 +330,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/AcceptShipmentPayload'
+            $ref: '#/definitions/ShipmentAcceptPayload'
       responses:
         200:
           description: returns updated (accepted) shipment object
@@ -305,6 +352,8 @@ paths:
     get:
       summary: Gets the list of claims associated with a shipment
       operationId: getShipmentClaims
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -331,7 +380,9 @@ paths:
     get:
       summary: Gets the detailed contact information for a move
       description: Accepts a shipment awarded to a TSP
-      operationId: shipmentContactDetails
+      operationId: getShipmentContactDetails
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -356,6 +407,8 @@ paths:
     get:
       summary: Gets the list of documents associated with a Shipment
       operationId: getShipmentDocuments
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -380,6 +433,8 @@ paths:
       summary: Creates a new document associated with a shipment
       description: Creates the storage for the new document and sets the UUID
       operationId: createShipmentDocument
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -410,7 +465,9 @@ paths:
     post:
       summary: Rejects an awarded shipment
       description: Allows a TSP to reject an awarded shipment
-      operationId: refuseShipment
+      operationId: createShipmentRefuse
+      tags:
+        - shipments
       parameters:
         - name: shipment_uuid
           in: path
@@ -423,7 +480,7 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/RefuseShipmentPayload'
+            $ref: '#/definitions/ShipmentRefusePayload'
       responses:
         200:
           description: returns updated (refused) shipment object
@@ -442,6 +499,8 @@ paths:
       summary: List all TSPs
       description: Gets a list of all the TSPs which the logged in user has access to.
       operationId: indexTSPs
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
       responses:
         200:
@@ -460,7 +519,9 @@ paths:
     get:
       summary: Retrieve shipments associated with a TSP
       description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
-      operationId: tspShipments
+      operationId: getTspShipments
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
@@ -512,7 +573,9 @@ paths:
     get:
       summary: Retrieve a list of the blackouts associated with a TSP
       description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
-      operationId: tspBlackouts
+      operationId: getTspBlackouts
+      tags:
+        - tsps
       x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
       parameters:
         - in: path
@@ -546,7 +609,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/Blackout'
+              $ref: '#/definitions/BlackoutPayload'
         400:
           description: invalid request
         403:
@@ -555,55 +618,7 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-    post:
-      summary: Adds a new Blackout period to the list of blackouts associated with his TSP
-      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB. Similarly, the tsp_id field should be
-       omitted as this will be derived from the path. Supplying either of these fields in the payload will result in a
-       400 bad request.
-
-       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
-       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
-       originate in the given GBLOC.
-      operationId: createBlackout
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
-      parameters:
-        - in: path
-          name: tsp_uuid
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the TSP
-        - in: body
-          description: The blackout period to add
-          name: payload
-          required: true
-          schema:
-            $ref: '#/definitions/Blackout'
-      responses:
-        201:
-          description: The blackout as added to the database including DB ID
-          schema:
-            $ref: '#/definitions/Blackout'
-        400:
-          description: invalid request
-        403:
-          description: not authorized to create blackouts for this TSP
-        404:
-          description: TSP UUID not found in system
-        500:
-          description: server error
 definitions:
-  AcceptShipmentPayload:
-    type: object
-    properties:
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-    required:
-      - origin_shipping_agent
-      - destination_shipping_agent
   Address:
     type: object
     properties:
@@ -618,7 +633,7 @@ definitions:
         title: Address Line 2
       street_address_3:
         type: string
-        example: Montmâtre
+        example: Montmârtre
         x-nullable: true
         title: Address Line 3
       city:
@@ -631,18 +646,54 @@ definitions:
         example: CA
       postal_code:
         type: string
+        description: zip code, international allowed
         format: zip
         title: ZIP/Postal Code
         example: "'90210' or 'N15 3NL'"
       country:
         type: string
-        example: Luxembourg
         title: Country
+        x-nullable: true
+        example: "United States"
+        default: United States
     required:
-    - street_address_1
-    - city
-    - postal_code
-  Blackout:
+      - street_address_1
+      - city
+      - postal_code
+  IndexBlackoutsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/BlackoutPayload'
+  CreateBlackoutPayload:
+    type: object
+    properties:
+      start_date:
+        type: string
+        description: the first day to blackout
+        format: date
+        example: 2018-10-21
+      end_date:
+        type: string
+        description: the first day after the blackout ends
+        format: date
+        example: 2018-10-29
+      gbloc:
+        $ref: '#/definitions/GBLOC'
+      zip3:
+        type: string
+        description: restricts the search to blackout periods with an explicit source rate area (zip3)
+        example: 941
+        pattern: '^[0-9]{3}$'
+      channel:
+        $ref: '#/definitions/Channel'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      code_of_service:
+        $ref: '#/definitions/CodeOfService'
+    required:
+      - start_date
+      - end_date
+  BlackoutPayload:
     type: object
     properties:
       id:
@@ -819,79 +870,115 @@ definitions:
   GBLOC:
     type: string
     description: Office Codes for Transcom offices originating GBLs
+    pattern: '^[A-Z]{4}$'
     example: LHNQ
-    pattern: '^[A-Z]{4}$' # Should we make this an enum?
-  RefuseShipmentPayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
+  IndexShipments:
+    type: array
+    items:
+      $ref: '#/definitions/Shipment'
   Shipment:
     type: object
-    description: A shipment which may be awarded to a TSP
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-      customer:
-        $ref: '#/definitions/Customer'
-      tsp_id:
+        readOnly: true
+      traffic_distribution_list_id:
         type: string
         format: uuid
-        description: The ID of the TSP to whom the shipment has been offered/accepted
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_locator:
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+        readOnly: true
+      pickup_date:
         type: string
-        pattern: '^[A-Z0-9]{6}$'
-        description: The 'record locator' used to refer back to the Move associated with this Shipment. This is the human readable identifier for the move which can be used to link back to the Service Member, orders etc.
-      dates:
-        $ref: '#/definitions/ShipmentDates'
-      estimated_weight:
-        type: integer
-        description: Estimated weight of the shipment in lbs
-        example: 500
-      type:
-        $ref: '#/definitions/ShipmentType'
+        format: date-time
+      delivery_date:
+        type: string
+        format: date-time
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
+        readOnly: true
       market:
         $ref: '#/definitions/ShipmentMarket'
-      channel:
-        $ref: '#/definitions/Channel'
-      origin_gbloc:
-        $ref: '#/definitions/GBLOC'
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      primary_pickup:
-        $ref: '#/definitions/Address'
-      secondary_pickup:
-        $ref: '#/definitions/Address'
-      primary_delivery:
-        $ref: '#/definitions/Address'
-      secondary_delivery:
-        $ref: '#/definitions/Address'
-      bill_of_lading_number:
+        readOnly: true
+        x-nullable: true
+      book_date:
         type: string
-        description: B/L Number once a GBL has been printed for the shipment
-        example: AGFM0001021
+        format: date
+        example: 2018-03-15
+      requested_pickup_date:
+        type: string
+        format: date-time
+      move_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
+      estimated_pack_days:
+        type: integer
+        description: Estimated days packing
+        minimum: 0
+        example: 2
+        x-nullable: true
+      estimated_transit_days:
+        type: integer
+        description: Estimated days in transit
+        minimum: 0
+        example: 30
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+        example: false
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_delivery_address:
+        type: boolean
+        example: false
+      delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_partial_sit_delivery_address:
+        type: boolean
+        example: false
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      weight_estimate:
+        type: integer
+        description: Estimated weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+      progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the progear in lbs
+        minimum: 0
+        example: 500
+        x-nullable: true
+      spouse_progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the spouse progear in lbs
+        minimum: 0
+        example: 200
+        x-nullable: true
+  ShipmentAcceptPayload:
+    type: object
+    properties:
       origin_shipping_agent:
         $ref: '#/definitions/ShippingAgentContact'
       destination_shipping_agent:
         $ref: '#/definitions/ShippingAgentContact'
-      contact_url:
-        type: string
-        format: URL
-        description: URL to use to load the contact details for this shipment
-      accept_url:
-        type: string
-        format: URL
-        description: URL to use to accept the shipment
-      reject_url:
-        type: string
-        format: URL
-        description: URL to use to reject the shipment
+    required:
+      - origin_shipping_agent
+      - destination_shipping_agent
   ShippingAgentContact:
     type: object
     properties:
@@ -1011,7 +1098,7 @@ definitions:
         example: 2018-03-15
   ShipmentMarket:
     type: string
-    description: One of the possible 'Markets' for a shipment (see ?????)
+    description: One of the possible 'Markets' for a shipment
     example: dHHG
     enum:
       - dHHG
@@ -1021,9 +1108,16 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
+  ShipmentRefusePayload:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
+    example: IN_PROGRESS
     enum:
       - IN_PROGRESS
       - COMPLETE

@@ -12,6 +12,9 @@ import WizardPage from 'shared/WizardPage';
 
 import './UploadOrders.css';
 
+const uploaderLabelIdle =
+  'Drag & drop or <span class="filepond--label-action">click to upload orders</span>';
+
 export class UploadOrders extends Component {
   constructor(props) {
     super(props);
@@ -89,6 +92,7 @@ export class UploadOrders extends Component {
             <Uploader
               document={currentOrders.uploaded_orders}
               onChange={this.onChange}
+              labelIdle={uploaderLabelIdle}
             />
             <div className="hint">(Each page must be clear and legible)</div>
           </div>

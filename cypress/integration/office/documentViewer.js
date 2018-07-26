@@ -10,7 +10,7 @@ describe('The document viewer', function() {
     cy.contains('Sign In');
   });
   it('produces error when move cannot be found', () => {
-    cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b/documents');
+    cy.visit('/moves/9bfa91d2-7a0c-4de0-ae02-b90988cf8b4b858b/documents');
     cy.contains('An error occurred'); //todo: we want better messages when we are making custom call
   });
   it('loads basic information about the move', () => {
@@ -33,14 +33,14 @@ describe('The document viewer', function() {
       .get('button.submit')
       .should('not.be.disabled')
       .click();
-    // TODO: add tests for uploaded document viewe
+    // TODO: add tests for uploaded document viewer
   });
   it('shows the newly uploaded document in the document list tab', () => {
     cy.visit('/moves/c9df71f2-334f-4f0e-b2e7-050ddb22efa1/documents');
     cy.contains('All Documents (1)');
     cy.contains('super secret info document');
     cy
-      .get('.doclist')
+      .get('.pad-ns')
       .find('a')
       .should('have.attr', 'href')
       .and('match', /^\/moves\/[^/]+\/documents\/[^/]+/);

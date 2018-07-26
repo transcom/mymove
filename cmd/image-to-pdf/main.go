@@ -34,7 +34,10 @@ func main() {
 		log.Fatalf("Failed to initialize Zap logging due to %v", err)
 	}
 
-	generator := paperwork.NewGenerator(nil, logger, nil)
+	generator, err := paperwork.NewGenerator(nil, logger, nil)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
 
 	if len(inputFiles) == 0 {
 		log.Fatal("Must specify at least one input file")

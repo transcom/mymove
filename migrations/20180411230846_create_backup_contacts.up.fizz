@@ -1,8 +1,8 @@
-create_table("backup_contacts", func(t) {
+create_table("backup_contacts") {
 	t.Column("id", "uuid", {"primary": true})
 	t.Column("service_member_id", "uuid", {})
 	t.Column("name", "string", {})
 	t.Column("email", "string", {})
 	t.Column("phone", "string", {"null": true})
 	t.Column("permission", "string", {})
-})
+}

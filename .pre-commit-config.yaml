@@ -1,6 +1,6 @@
 repos:
   - repo: git://github.com/pre-commit/pre-commit-hooks
-    rev: v1.2.3
+    rev: v1.4.0
     hooks:
       - id: check-json
       - id: check-merge-conflict
@@ -12,7 +12,7 @@ repos:
         exclude: public/swagger-ui/*
 
   - repo: git://github.com/igorshubovych/markdownlint-cli
-    rev: v0.9.0
+    rev: v0.11.0
     hooks:
       - id: markdownlint
         entry: markdownlint --ignore .github/*.md
@@ -50,6 +50,13 @@ repos:
         entry: bin/swagger validate swagger/internal.yaml
         language: script
 
+  - repo: local
+    hooks:
+      - id: swagger
+        name: Orders Swagger
+        entry: bin/swagger validate swagger/orders.yaml
+        language: script
+
   # Ensure markdown files have updated table of contents
   - repo: local
     hooks:
@@ -68,9 +75,9 @@ repos:
 
   - repo: local
     hooks:
-      - id: gas
-        name: go abstract syntax (gas) scanner
-        entry: bin/gas -exclude=G104 -fmt text -quiet ./...
+      - id: gosec
+        name: gosec scanner
+        entry: bin/gosec -exclude=G104 -fmt text -quiet ./...
         language: script
         description: Inspects source code for security problems by scanning the Go AST.
         files: \.go$

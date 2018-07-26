@@ -3,13 +3,14 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-
 import { getFormValues, reduxForm } from 'redux-form';
+import PropTypes from 'prop-types';
 
-import { createMoveDocument } from './ducks.js';
-import Uploader from 'shared/Uploader';
 import Alert from 'shared/Alert';
+import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import Uploader from 'shared/Uploader';
+
 import './DocumentUploader.css';
 
 const moveDocumentFormName = 'move_document_upload';
@@ -20,24 +21,40 @@ export class DocumentUploader extends Component {
 
     this.state = {
       newUploads: [],
+      uploaderIsIdle: true,
+      moveDocumentCreateError: null,
     };
 
     this.onChange = this.onChange.bind(this);
     this.onSubmit = this.onSubmit.bind(this);
+    this.onAddFile = this.onAddFile.bind(this);
   }
 
   onSubmit() {
-    const { formValues } = this.props;
+    const { formValues, officePPM, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
-    const moveId = this.props.match.params.moveId;
-    this.props.createMoveDocument(
-      moveId,
-      uploadIds,
-      formValues.title,
-      formValues.move_document_type,
-      'AWAITING_REVIEW',
-      formValues.notes,
-    );
+    this.setState({
+      moveDocumentCreateError: null,
+    });
+    this.props
+      .createMoveDocument(
+        moveId,
+        officePPM.id,
+        uploadIds,
+        formValues.title,
+        formValues.move_document_type,
+        'AWAITING_REVIEW',
+        formValues.notes,
+      )
+      .then(() => {
+        reset();
+        this.uploader.clearFiles();
+      })
+      .catch(err => {
+        this.setState({
+          moveDocumentCreateError: err,
+        });
+      });
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -48,9 +65,16 @@ export class DocumentUploader extends Component {
     // });
   }
 
-  onChange(files) {
+  onAddFile() {
     this.setState({
-      newUploads: files,
+      uploaderIsIdle: false,
+    });
+  }
+
+  onChange(newUploads, uploaderIsIdle) {
+    this.setState({
+      newUploads,
+      uploaderIsIdle,
     });
   }
 
@@ -58,10 +82,10 @@ export class DocumentUploader extends Component {
     const { handleSubmit, schema, formValues } = this.props;
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
-    const isValid = hasFormFilled && hasFiles;
+    const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
     return (
       <Fragment>
-        {this.props.moveDocumentCreateError && (
+        {this.state.moveDocumentCreateError && (
           <div className="usa-grid">
             <div className="usa-width-one-whole error-message">
               <Alert type="error" heading="An error occurred">
@@ -91,7 +115,11 @@ export class DocumentUploader extends Component {
               Upload a PDF or take a picture of each page and upload the images.
             </p>
             <div className="uploader-box">
-              <Uploader onChange={this.onChange} />
+              <Uploader
+                onRef={ref => (this.uploader = ref)}
+                onChange={this.onChange}
+                onAddFile={this.onAddFile}
+              />
               <div className="hint">(Each page must be clear and legible)</div>
             </div>
           </div>
@@ -108,7 +136,9 @@ DocumentUploader = reduxForm({
   form: moveDocumentFormName,
 })(DocumentUploader);
 
-DocumentUploader.propTypes = {};
+DocumentUploader.propTypes = {
+  moveId: PropTypes.string.isRequired,
+};
 
 function mapStateToProps(state) {
   const props = {
@@ -119,6 +149,7 @@ function mapStateToProps(state) {
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
+    officePPM: get(state.office, 'officePPMs.0', {}),
   };
   return props;
 }
