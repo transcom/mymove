@@ -18,5 +18,5 @@ export default function reducer(state = {}, action) {
 }
 
 export const selectAddress = (state, id) => {
-  return denormalize([id], shipments, state.entities)[0];
+  return denormalize([id], addresses, state.entities)[0];
 };

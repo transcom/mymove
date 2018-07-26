@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -27,6 +28,7 @@ func payloadForAddressModel(a *models.Address) *internalmessages.Address {
 		return nil
 	}
 	return &internalmessages.Address{
+		ID:             strfmt.UUID(a.ID.String()),
 		StreetAddress1: swag.String(a.StreetAddress1),
 		StreetAddress2: a.StreetAddress2,
 		StreetAddress3: a.StreetAddress3,

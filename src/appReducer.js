@@ -34,12 +34,16 @@ import uploads, {
 import shipments, {
   STATE_KEY as SHIPMENTS_STATE_KEY,
 } from 'shared/Entities/modules/shipments';
+import addresses, {
+  STATE_KEY as ADDRESSES_STATE_KEY,
+} from 'shared/Entities/modules/addresses';
 
 const entititesReducer = combineReducers({
   [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
   [DOCUMENTS_STATE_KEY]: documentModel,
   [UPLOADS_STATE_KEY]: uploads,
   [SHIPMENTS_STATE_KEY]: shipments,
+  [ADDRESSES_STATE_KEY]: addresses,
 });
 
 export const appReducer = combineReducers({

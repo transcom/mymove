@@ -32,10 +32,11 @@ export const personallyProcuredMove = new schema.Entity(
 export const personallyProcuredMoves = new schema.Array(personallyProcuredMove);
 
 // Addresses
-export const address = new schema.Entity('address');
+export const address = new schema.Entity('addresses');
+export const addresses = new schema.Array(address);
 
 // Shipments
-export const shipment = new schema.Entity('shipment');
+export const shipment = new schema.Entity('shipments');
 shipment.define({
   pickup_address: address,
   secondary_pickup_address: address,

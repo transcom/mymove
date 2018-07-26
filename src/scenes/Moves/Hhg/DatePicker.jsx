@@ -4,38 +4,13 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, reduxForm } from 'redux-form';
-import DayPicker from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
+import { defaultFormat } from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
-
-import {
-  createOrUpdateShipment,
-  selectShipment,
-} from 'shared/Entities/modules/shipments';
 
 import './DatePicker.css';
 
-const formName = 'shipment_form';
-const schema = {
-  properties: {
-    planned_move_date: {
-      type: 'string',
-      format: 'date',
-      example: '2018-04-26',
-      title: 'Move Date',
-      'x-nullable': true,
-      'x-always-required': true,
-    },
-  },
-};
-
 export class HHGDatePicker extends Component {
-  handleSubmit = () => {
-    debugger;
-    const moveId = this.props.match.params.moveId;
-    const shipment = this.props.formValues;
-    createOrUpdateShipment(moveId, shipment);
-  };
-
   state = { showInfo: false };
 
   constructor(props) {
@@ -45,10 +20,11 @@ export class HHGDatePicker extends Component {
       selectedDay: undefined,
     };
   }
-  // TODO: set to store's formValues later instead of local state
+
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
+    this.props.setDate(defaultFormat(day));
   }
 
   render() {
@@ -110,28 +86,7 @@ export class HHGDatePicker extends Component {
   }
 }
 HHGDatePicker.propTypes = {
-  schema: PropTypes.object.isRequired,
   error: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const props = {
-    // schema: get(
-    //   state,
-    //   'swagger.spec.definitions.UpdateHouseholdGoodsPayload',
-    //   {},
-    // ),
-    schema,
-    formValues: getFormValues(formName)(state),
-    move: get(state, 'moves.currentMove', {}),
-    shipment: {},
-  };
-  return props;
-}
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ createOrUpdateShipment }, dispatch);
-}
-
-export default reduxForm({ form: formName })(
-  connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker),
-);
+export default HHGDatePicker;

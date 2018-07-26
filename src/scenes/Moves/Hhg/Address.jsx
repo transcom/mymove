@@ -74,7 +74,7 @@ export class ShipmentAddress extends Component {
             />
             {hasSecondary && (
               <Fragment>
-                <FormSection name="secondaryPickupAddress">
+                <FormSection name="secondary_pickup_address">
                   <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"
@@ -126,7 +126,7 @@ export class ShipmentAddress extends Component {
             />
             {hasDelivery && (
               <Fragment>
-                <FormSection name="deliveryAddress">
+                <FormSection name="delivery_address">
                   <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"

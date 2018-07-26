@@ -9,6 +9,11 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
+import {
+  createOrUpdateShipment,
+  // selectShipment,
+} from 'shared/Entities/modules/shipments';
+
 import './ShipmentForm.css';
 
 const formName = 'shipment_form';
@@ -30,6 +35,10 @@ export class ShipmentForm extends Component {
       });
   };
 
+  setDate = (day) => {
+    this.setState({'requestedPickupDate': day});
+  };
+
   render() {
     const {
       pages,
@@ -38,6 +47,8 @@ export class ShipmentForm extends Component {
       error,
       initialValues,
     } = this.props;
+
+    const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
     // Shipment Wizard
     return (
@@ -49,6 +60,7 @@ export class ShipmentForm extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
+        additionalValues={{requested_pickup_date: requestedPickupDate}}
       >
         <div className="shipment-form">
           <div className="usa-grid">
@@ -58,6 +70,7 @@ export class ShipmentForm extends Component {
             schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
+            setDate={this.setDate}
           />
           <ShipmentAddress
             schema={this.props.schema}
@@ -77,13 +90,14 @@ ShipmentForm.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
+  return bindActionCreators({createOrUpdateShipment}, dispatch);
 }
 function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swagger.spec.definitions.Shipment', {}),
     move: get(state, 'moves.currentMove', {}),
     initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
+    formValues: getFormValues(formName)(state),
   };
   return props;
 }

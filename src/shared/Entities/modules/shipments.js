@@ -9,9 +9,11 @@ export const STATE_KEY = 'shipments';
 export default function reducer(state = {}, action) {
   switch (action.type) {
     case ADD_ENTITIES:
+      debugger;
       return {
         ...state,
         ...action.payload.shipments,
+        ...action.payload.addresses,
       };
 
     default:
