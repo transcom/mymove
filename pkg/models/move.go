@@ -179,6 +179,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 // CreateMoveDocument creates a move document associated to a move
 func (m Move) CreateMoveDocument(db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	status MoveDocumentStatus,
@@ -216,14 +217,15 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 
 		// Finally create the MoveDocument to tie it to the Move
 		newMoveDocument = &MoveDocument{
-			Move:             m,
-			MoveID:           m.ID,
-			Document:         newDoc,
-			DocumentID:       newDoc.ID,
-			MoveDocumentType: moveDocumentType,
-			Title:            title,
-			Status:           status,
-			Notes:            notes,
+			Move:                     m,
+			MoveID:                   m.ID,
+			Document:                 newDoc,
+			DocumentID:               newDoc.ID,
+			PersonallyProcuredMoveID: personallyProcuredMoveID,
+			MoveDocumentType:         moveDocumentType,
+			Title:                    title,
+			Status:                   status,
+			Notes:                    notes,
 		}
 		verrs, err = db.ValidateAndCreate(newMoveDocument)
 		if err != nil || verrs.HasAny() {

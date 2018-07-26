@@ -19,10 +19,11 @@ func MakeMoveDocument(db *pop.Connection, assertions Assertions) models.MoveDocu
 	}
 
 	moveDocument := models.MoveDocument{
-		DocumentID:       document.ID,
-		Document:         document,
-		MoveID:           move.ID,
-		Move:             move,
+		DocumentID: document.ID,
+		Document:   document,
+		MoveID:     move.ID,
+		Move:       move,
+		PersonallyProcuredMoveID: nil,
 		Status:           models.MoveDocumentStatusAWAITINGREVIEW,
 		MoveDocumentType: models.MoveDocumentTypeOTHER,
 		Title:            "My-very-special-document.pdf",
