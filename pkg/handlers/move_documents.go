@@ -31,11 +31,11 @@ func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.
 	return &moveDocumentPayload, nil
 }
 
-// CreateMoveDocumentHandler creates a MoveDocument
-type CreateMoveDocumentHandler HandlerContext
+// CreateGenericMoveDocumentHandler creates a MoveDocument
+type CreateGenericMoveDocumentHandler HandlerContext
 
 // Handle is the handler
-func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentParams) middleware.Responder {
+func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -46,12 +46,12 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 		return responseForError(h.logger, err)
 	}
 
-	payload := params.CreateMoveDocumentPayload
+	payload := params.CreateGenericMoveDocumentPayload
 
 	// Fetch uploads to confirm ownership
 	uploadIds := payload.UploadIds
 	if len(uploadIds) == 0 {
-		return movedocop.NewCreateMoveDocumentBadRequest()
+		return movedocop.NewCreateGenericMoveDocumentBadRequest()
 	}
 
 	uploads := models.Uploads{}
@@ -78,14 +78,14 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return movedocop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }
 
-// UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
-type UpdateMoveDocumentHandler HandlerContext
+// UpdateGenericMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
+type UpdateGenericMoveDocumentHandler HandlerContext
 
 // Handle ... updates a move document from a request payload
-func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentParams) middleware.Responder {
+func (h UpdateGenericMoveDocumentHandler) Handle(params movedocop.UpdateGenericMoveDocumentParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
@@ -96,7 +96,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		return responseForError(h.logger, err)
 	}
 
-	payload := params.UpdateMoveDocument
+	payload := params.UpdateGenericMoveDocument
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
 	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
@@ -110,7 +110,7 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
+	return movedocop.NewUpdateGenericMoveDocumentOK().WithPayload(moveDocPayload)
 }
 
 // IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.

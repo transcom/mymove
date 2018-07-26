@@ -29,27 +29,27 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
-	newMoveDocPayload := internalmessages.CreateMoveDocumentPayload{
+	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
 		UploadIds:        uploadIds,
 		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
 		Title:            fmtString("awesome_document.pdf"),
 		Notes:            fmtString("Some notes here"),
 	}
 
-	newMoveDocParams := movedocop.CreateMoveDocumentParams{
-		HTTPRequest:               request,
-		CreateMoveDocumentPayload: &newMoveDocPayload,
+	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{
+		HTTPRequest:                      request,
+		CreateGenericMoveDocumentPayload: &newMoveDocPayload,
 		MoveID: strfmt.UUID(move.ID.String()),
 	}
 
 	context := NewHandlerContext(suite.db, suite.logger)
 	fakeS3 := storageTest.NewFakeS3Storage(true)
 	context.SetFileStorer(fakeS3)
-	handler := CreateMoveDocumentHandler(context)
+	handler := CreateGenericMoveDocumentHandler(context)
 	response := handler.Handle(newMoveDocParams)
 	// assert we got back the 201 response
 	suite.isNotErrResponse(response)
-	createdResponse := response.(*movedocop.CreateMoveDocumentOK)
+	createdResponse := response.(*movedocop.CreateGenericMoveDocumentOK)
 	createdPayload := createdResponse.Payload
 	suite.NotNil(createdPayload.ID)
 
@@ -121,7 +121,7 @@ func (suite *HandlerSuite) TestIndexMoveDocumentsHandler() {
 	suite.checkResponseNotFound(badMoveResponse)
 }
 
-func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
+func (suite *HandlerSuite) TestUpdateGenericMoveDocumentHandler() {
 	// When: there is a move and move document
 	move := testdatagen.MakeDefaultMove(suite.db)
 	sm := move.Orders.ServiceMember
@@ -140,23 +140,23 @@ func (suite *HandlerSuite) TestUpdateMoveDocumentHandler() {
 	request = suite.authenticateRequest(request, sm)
 
 	// And: the title and status are updated
-	updateMoveDocPayload := internalmessages.UpdateMoveDocumentPayload{
+	updateMoveDocPayload := internalmessages.UpdateGenericMoveDocumentPayload{
 		Title:  fmtString("super_awesome.pdf"),
 		Notes:  fmtString("This document is super awesome."),
 		Status: internalmessages.MoveDocumentStatusOK,
 	}
 
-	updateMoveDocParams := movedocop.UpdateMoveDocumentParams{
-		HTTPRequest:        request,
-		UpdateMoveDocument: &updateMoveDocPayload,
-		MoveDocumentID:     strfmt.UUID(moveDocument.ID.String()),
+	updateMoveDocParams := movedocop.UpdateGenericMoveDocumentParams{
+		HTTPRequest:               request,
+		UpdateGenericMoveDocument: &updateMoveDocPayload,
+		MoveDocumentID:            strfmt.UUID(moveDocument.ID.String()),
 	}
 
-	handler := UpdateMoveDocumentHandler(NewHandlerContext(suite.db, suite.logger))
+	handler := UpdateGenericMoveDocumentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(updateMoveDocParams)
 
 	// Then: we expect to get back a 200 response
-	updateResponse := response.(*movedocop.UpdateMoveDocumentOK)
+	updateResponse := response.(*movedocop.UpdateGenericMoveDocumentOK)
 	updatePayload := updateResponse.Payload
 	suite.NotNil(updatePayload)
 

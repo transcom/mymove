@@ -12,14 +12,14 @@ import (
 	"github.com/transcom/mymove/pkg/unit"
 )
 
-func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpenseDocument models.MovingExpenseDocument) (*internalmessages.MovingExpenseDocumentPayload, error) {
+func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpenseDocument models.MovingExpenseDocument) (*internalmessages.MoveDocumentPayload, error) {
 
 	documentPayload, err := payloadForDocumentModel(storer, movingExpenseDocument.MoveDocument.Document)
 	if err != nil {
 		return nil, err
 	}
 
-	movingExpenseDocumentPayload := internalmessages.MovingExpenseDocumentPayload{
+	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
 		ID:                fmtUUID(movingExpenseDocument.ID),
 		MoveID:            fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
 		Document:          documentPayload,
