@@ -32,7 +32,7 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, moveId, reset } = this.props;
+    const { formValues, currentPpm, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
       moveDocumentCreateError: null,
@@ -45,6 +45,7 @@ export class DocumentUploader extends Component {
         .createMovingExpenseDocument(
           moveId,
           uploadIds,
+          currentPpm.id,
           formValues.title,
           formValues.movingExpenseDocument.moving_expense_type,
           formValues.move_document_type,
@@ -65,10 +66,10 @@ export class DocumentUploader extends Component {
       this.props
         .createMoveDocument(
           moveId,
+          currentPpm.id,
           uploadIds,
           formValues.title,
           formValues.move_document_type,
-          'AWAITING_REVIEW',
           formValues.notes,
         )
         .then(() => {
@@ -113,9 +114,7 @@ export class DocumentUploader extends Component {
       formValues,
     } = this.props;
     const isExpenseDocument =
-      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE' ||
-      get(this.props, 'formValues.move_document_type', false) ===
-        'STORAGE_EXPENSE';
+      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
@@ -227,6 +226,8 @@ function mapStateToProps(state) {
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
+    currentPpm:
+      get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   };
   return props;
 }

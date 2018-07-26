@@ -41,6 +41,7 @@ export const getMovingExpenseDocumentsForMove = moveId => {
 
 export function createMovingExpenseDocument(
   moveId,
+  personallyProcuredMoveId,
   uploadIds,
   title,
   movingExpenseType,
@@ -54,10 +55,10 @@ export function createMovingExpenseDocument(
       moveId,
       createMovingExpenseDocumentPayload: {
         upload_ids: uploadIds,
+        personally_procured_move_id: personallyProcuredMoveId,
         title: title,
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
-        // should this be in brackets? test it
         reimbursement: reimbursement,
         notes: notes,
       },

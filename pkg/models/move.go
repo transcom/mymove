@@ -180,6 +180,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
 	uploads Uploads,
 	moveDocumentType MoveDocumentType,
+	personallyProcuredMoveID *uuid.UUID,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
 
@@ -211,15 +212,17 @@ func (m Move) createMoveDocumentWithoutTransaction(
 
 	// Finally create the MoveDocument to tie it to the Move
 	newMoveDocument := &MoveDocument{
-		Move:             m,
-		MoveID:           m.ID,
-		Document:         newDoc,
-		DocumentID:       newDoc.ID,
-		MoveDocumentType: moveDocumentType,
-		Title:            title,
-		Status:           MoveDocumentStatusAWAITINGREVIEW,
-		Notes:            notes,
+		Move:                     m,
+		MoveID:                   m.ID,
+		Document:                 newDoc,
+		DocumentID:               newDoc.ID,
+		MoveDocumentType:         moveDocumentType,
+		PersonallyProcuredMoveID: personallyProcuredMoveID,
+		Title:  title,
+		Status: MoveDocumentStatusAWAITINGREVIEW,
+		Notes:  notes,
 	}
+
 	verrs, err = db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
 		responseVErrors.Append(verrs)
@@ -230,10 +233,11 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	return newMoveDocument, responseVErrors, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move
+// CreateMoveDocument creates a move document associated to a move & ppm
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -249,6 +253,7 @@ func (m Move) CreateMoveDocument(
 			db,
 			uploads,
 			moveDocumentType,
+			personallyProcuredMoveID,
 			title,
 			notes)
 
@@ -263,10 +268,11 @@ func (m Move) CreateMoveDocument(
 	return newMoveDocument, responseVErrors, responseError
 }
 
-// CreateMovingExpenseDocument creates a move document associated to a move
+// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
 func (m Move) CreateMovingExpenseDocument(
 	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
@@ -285,6 +291,7 @@ func (m Move) CreateMovingExpenseDocument(
 			db,
 			uploads,
 			moveDocumentType,
+			personallyProcuredMoveID,
 			title,
 			notes)
 		if responseVErrors.HasAny() || responseError != nil {
