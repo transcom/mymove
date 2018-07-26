@@ -21,6 +21,11 @@ class WeightEstimates extends Component {
         <h3 className="instruction-heading">
           Now enter the weight of your Pro-Gear
         </h3>
+        <p>
+          You are entitled to move up to 2000 lbs. of pro-gear and 500 lbs. of
+          spouse pro-gear. Pro-Gear includes uniforms, deployment gear, and any
+          other gear you or your spouse need to perform your jobs.
+        </p>
         <div className="usa-grid">
           <div className="usa-width-one-whole">
             <SwaggerField
