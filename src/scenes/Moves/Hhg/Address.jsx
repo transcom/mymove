@@ -15,21 +15,6 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import './Address.css';
 
 export class ShipmentAddress extends Component {
-  handleSubmit = () => {
-    const moveId = this.props.match.params.moveId;
-    const shipment = this.props.formValues;
-    this.props
-      .createOrUpdateShipment(moveId, shipment)
-      .then(() => {
-        console.log('You did it!');
-      })
-      .catch(err => {
-        this.setState({
-          shipmentError: err,
-        });
-      });
-  };
-
   render() {
     const hasSecondary = get(
       this.props,
@@ -195,7 +180,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   const props = {
     schema: get(state, 'swagger.spec.definitions.Shipment', {}),
-    formValues: getFormValues(formName)(state),
     move: get(state, 'moves.currentMove', {}),
     initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
   };

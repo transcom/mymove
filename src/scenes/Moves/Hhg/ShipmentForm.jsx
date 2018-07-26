@@ -13,44 +13,36 @@ import './ShipmentForm.css';
 
 const formName = 'shipment_form';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
-//hard-coded placeholder schema:
-const schema = {
-  properties: {
-    planned_move_date: {
-      type: 'string',
-      format: 'date',
-      example: '2018-04-26',
-      title: 'Move Date',
-      'x-nullable': true,
-      'x-always-required': true,
-    },
-    has_secondary_pickup_address: {
-      type: 'boolean',
-      title: 'Do you have household goods at any other pickup location?',
-      'x-nullable': true,
-    },
-    has_delivery_address: {
-      type: 'boolean',
-      title: 'Do you know your home address at your destination yet?',
-      'x-nullable': true,
-    },
-  },
-};
 
 export class ShipmentForm extends Component {
+  handleSubmit = () => {
+    const moveId = this.props.match.params.moveId;
+    const shipment = this.props.formValues;
+    this.props
+      .createOrUpdateShipment(moveId, shipment)
+      .then(() => {
+        console.log('You did it!');
+      })
+      .catch(err => {
+        this.setState({
+          shipmentError: err,
+        });
+      });
+  };
+
   render() {
     const {
       pages,
       pageKey,
       hasSubmitSuccess,
       error,
-      currentServiceMember,
+      initialValues,
     } = this.props;
-    const initialValues = get(currentServiceMember, 'residential_address');
+
     // Shipment Wizard
     return (
       <ShipmentFormWizardForm
-        // handleSubmit={this.handleSubmit}
+        handleSubmit={this.handleSubmit}
         className={formName}
         pageList={pages}
         pageKey={pageKey}
@@ -63,12 +55,12 @@ export class ShipmentForm extends Component {
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
           <ShipmentDatePicker
-            schema={schema}
+            schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
           />
           <ShipmentAddress
-            schema={schema}
+            schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
           />
@@ -89,14 +81,9 @@ function mapDispatchToProps(dispatch) {
 }
 function mapStateToProps(state) {
   const props = {
-    // schema: get(
-    //   state,
-    //   'swagger.spec.definitions.CreateHouseholdGoodsPayload',
-    //   {},
-    // ),
-    schema,
-    formValues: getFormValues(formName)(state),
-    ...state.serviceMember,
+    schema: get(state, 'swagger.spec.definitions.Shipment', {}),
+    move: get(state, 'moves.currentMove', {}),
+    initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
   };
   return props;
 }
