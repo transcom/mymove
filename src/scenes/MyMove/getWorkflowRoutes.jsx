@@ -224,15 +224,6 @@ const pages = {
       <ShipmentForm pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/moves/:moveId/hhg-address': {
-    isInFlow: hasHHG,
-    isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.pickup_address]);
-    },
-    render: (key, pages) => ({ match }) => (
-      <ShipmentAddress pages={pages} pageKey={key} match={match} />
-    ),
-  },
   '/moves/:moveId/hhg-weight': {
     isInFlow: hasHHG,
     isComplete: always, //todo fix this when implemented
