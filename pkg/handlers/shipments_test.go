@@ -283,9 +283,11 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
 
 	// And: Returned query to have at least one shipment in the list
-	suite.Assertions.Equal(1, len(okResponse.Payload))
+	suite.Equal(1, len(okResponse.Payload))
 	if len(okResponse.Payload) == 1 {
+		responsePayload := okResponse.Payload[0]
 		// And: Payload is equivalent to original shipment
-		suite.Assertions.Equal(shipment.WeightEstimate, okResponse.Payload[0].WeightEstimate)
+		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
+		suite.Equal(strfmt.UUID(shipment.MoveID.String()), responsePayload.MoveID)
 	}
 }
