@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -9,9 +11,16 @@ import (
 
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
+
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
@@ -221,4 +230,63 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
+}
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
+	// Given: a TSP User
+	tspUser := testdatagen.MakeDefaultTspUser(suite.db)
+
+	// Shipment is created and saved
+	now := time.Now()
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	suite.Nil(err)
+
+	// Shipment Offer is created and synced to TSP ID and Shipment ID
+	shipmentOfferAssertions := testdatagen.Assertions{
+		ShipmentOffer: models.ShipmentOffer{
+			ShipmentID:                      shipment.ID,
+			TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+		},
+	}
+	testdatagen.MakeShipmentOffer(suite.db, shipmentOfferAssertions)
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+
+	limit := int64(25)
+	offset := int64(1)
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Limit:       &limit,
+		Offset:      &offset,
+	}
+
+	// And: an index of shipments is returned
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+
+	// And: Returned query to have at least one shipment in the list
+	suite.Assertions.Equal(1, len(okResponse.Payload))
+	if len(okResponse.Payload) == 1 {
+		// And: Payload is equivalent to original shipment
+		suite.Assertions.Equal(shipment.WeightEstimate, okResponse.Payload[0].WeightEstimate)
+	}
 }
