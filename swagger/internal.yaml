@@ -2703,7 +2703,6 @@ paths:
           description: shipment not found
         500:
           description: server error
-  /moves/{moveId}/shipment/{shipmentId}:
     get:
       summary: Returns a Shipment for the given move
       description: Returns a Shipment tied to the move ID
