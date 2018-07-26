@@ -11,12 +11,8 @@ import {
 } from 'shared/Entities/modules/shipments';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 
 import './Address.css';
-
-const formName = 'shipment';
-const AddressWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentAddress extends Component {
   handleSubmit = () => {
@@ -35,14 +31,6 @@ export class ShipmentAddress extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      initialValues,
-    } = this.props;
-
     const hasSecondary = get(
       this.props,
       'formValues.has_secondary_pickup_address',
@@ -55,26 +43,15 @@ export class ShipmentAddress extends Component {
     );
 
     return (
-      <AddressWizardForm
-        handleSubmit={this.handleSubmit}
-        className={formName}
-        pageList={pages}
-        pageKey={pageKey}
-        hasSucceeded={false}
-        serverError={error}
-        initialValues={initialValues}
-      >
+      <div className="form-section">
+        <h3 className="instruction-heading">
+          Now let's review your pickup and delivery locations
+        </h3>
+
         <div className="usa-grid">
-          <h3>Shipment 1 (HHG)</h3>
-          <h3 className="instruction-heading">
-            Now let's review your pickup and delivery locations
-          </h3>
-
-          <h4>Pickup Location</h4>
-
           <div className="usa-width-one-whole">
             <FormSection name="pickup_address">
-              <div className="address-segment">
+              <div className="address-segment usa-grid">
                 <SwaggerField
                   fieldName="street_address_1"
                   swagger={this.props.schema.properties.pickup_address}
@@ -113,7 +90,7 @@ export class ShipmentAddress extends Component {
             {hasSecondary && (
               <Fragment>
                 <FormSection name="secondaryPickupAddress">
-                  <div className="address-segment">
+                  <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"
                       swagger={
@@ -165,7 +142,7 @@ export class ShipmentAddress extends Component {
             {hasDelivery && (
               <Fragment>
                 <FormSection name="deliveryAddress">
-                  <div className="address-segment">
+                  <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"
                       swagger={this.props.schema.properties.delivery_address}
@@ -199,7 +176,7 @@ export class ShipmentAddress extends Component {
             )}
           </div>
         </div>
-      </AddressWizardForm>
+      </div>
     );
   }
 }
