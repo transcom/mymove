@@ -1,25 +1,11 @@
 import { filter, map } from 'lodash';
 import { movingExpenseDocuments } from '../schema';
-import { ADD_ENTITIES, addEntities } from '../actions';
+import { addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
 import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'movingExpenseDocuments';
-
-// Reducer
-export default function reducer(state = {}, action) {
-  switch (action.type) {
-    case ADD_ENTITIES:
-      return {
-        ...state,
-        ...action.payload.movingExpenseDocuments,
-      };
-
-    default:
-      return state;
-  }
-}
 
 // Actions
 export const getMovingExpenseDocumentsForMove = moveId => {
@@ -66,7 +52,7 @@ export function createMovingExpenseDocument(
       response,
       'failed to create moving expense document due to server error',
     );
-    const data = normalize(response.body, schema.movingExpenseDocuments);
+    const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
   };
@@ -88,15 +74,10 @@ export const updateMovingExpenseDocument = (
       response,
       'failed to update movinge expense document due to server error',
     );
-    const data = normalize(response.body, schema.movingExpenseDocuments);
+    const data = normalize(response.body, schema.moveDocument);
     dispatch(addEntities(data.entities));
     return response;
   };
-};
-
-// Selectors
-export const selectMovingExpenseDocument = (state, id) => {
-  return denormalize([id], movingExpenseDocuments, state.entities)[0];
 };
 
 export const selectAllMovingExpenseDocumentsForMove = (state, id) => {

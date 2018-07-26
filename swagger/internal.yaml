@@ -540,39 +540,11 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       reimbursement:
         $ref: '#/definitions/Reimbursement'
-    required:
-      - id
-      - move_id
-      - document
-      - title
-      - move_document_type
-      - status
-  GenericMoveDocumentPayload:
-    type: object
-    properties:
-      id:
+      moving_expense_document_id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      title:
-        type: string
-        example: very_useful_document.pdf
-        title: Document Title
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      notes:
-        type: string
-        example: This document is good to go!
         x-nullable: true
-        title: Notes
     required:
       - id
       - move_id
@@ -638,45 +610,6 @@ definitions:
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
-  MovingExpenseDocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      move_document_type:
-        type: string
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      title:
-        type: string
-        example: very_useful_document.pdf
-      moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - id
-      - move_id
-      - document
-      - title
-      - move_document_type
-      - status
-      - moving_expense_type
-      - reimbursement
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
@@ -2887,7 +2820,7 @@ paths:
         200:
           description: updated instance of moving expense document
           schema:
-            $ref: '#/definitions/MovingExpenseDocumentPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:

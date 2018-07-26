@@ -20,15 +20,16 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	}
 
 	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:                fmtUUID(movingExpenseDocument.ID),
-		MoveID:            fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
-		Document:          documentPayload,
-		Title:             &movingExpenseDocument.MoveDocument.Title,
-		MoveDocumentType:  internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
-		Status:            internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
-		Notes:             movingExpenseDocument.MoveDocument.Notes,
-		MovingExpenseType: internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
-		Reimbursement:     payloadForReimbursementModel(&movingExpenseDocument.Reimbursement),
+		ID: fmtUUID(movingExpenseDocument.MoveDocument.ID),
+		MovingExpenseDocumentID: fmtUUID(movingExpenseDocument.ID),
+		MoveID:                  fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
+		Document:                documentPayload,
+		Title:                   &movingExpenseDocument.MoveDocument.Title,
+		MoveDocumentType:        internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
+		Status:                  internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
+		Notes:                   movingExpenseDocument.MoveDocument.Notes,
+		MovingExpenseType:       internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
+		Reimbursement:           payloadForReimbursementModel(&movingExpenseDocument.Reimbursement),
 	}
 
 	return &movingExpenseDocumentPayload, nil

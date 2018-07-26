@@ -30,6 +30,7 @@ type Assertions struct {
 	MoveDocument           models.MoveDocument
 	DutyStation            models.DutyStation
 	BlackoutDate           models.BlackoutDate
+	MovingExpenseDocument  models.MovingExpenseDocument
 }
 
 func stringPointer(s string) *string {

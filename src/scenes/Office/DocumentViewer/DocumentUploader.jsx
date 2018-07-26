@@ -213,7 +213,7 @@ function mapStateToProps(state) {
     formValues: getFormValues(moveDocumentFormName)(state),
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateMoveDocumentPayload',
+      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
       {},
     ),
     movingExpenseSchema: get(

@@ -27,7 +27,7 @@ export const moveDocuments = new schema.Array(moveDocument);
 
 // MovingExpenseDocuments
 export const movingExpenseDocument = new schema.Entity(
-  'MovingExpenseDocuments',
+  'movingExpenseDocuments',
   {
     document: documentModel,
   },
