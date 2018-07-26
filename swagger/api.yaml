@@ -241,11 +241,13 @@ paths:
         200:
           description: returns an array of Shipments
           schema:
-            $ref: '#/definitions/IndexShipmentsPayload'
+            $ref: '#/definitions/IndexShipments'
         400:
           description: invalid request
         401:
           description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
         500:
           description: server error
   /shipments/{shipment_uuid}:
@@ -266,7 +268,7 @@ paths:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -294,12 +296,12 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
       responses:
         200:
           description: returns the details of the shipment
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -333,7 +335,7 @@ paths:
         200:
           description: returns updated (accepted) shipment object
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -343,7 +345,7 @@ paths:
         409:
           description: the shipment is not in a state to be accepted
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /shipments/{shipment_uuid}/claims:
@@ -483,7 +485,7 @@ paths:
         200:
           description: returns updated (refused) shipment object
           schema:
-            $ref: '#/definitions/ShipmentPayload'
+            $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         401:
@@ -558,7 +560,7 @@ paths:
           schema:
             type: array
             items:
-              $ref: '#/definitions/ShipmentPayload'
+              $ref: '#/definitions/Shipment'
         400:
           description: invalid request
         403:
@@ -631,7 +633,7 @@ definitions:
         title: Address Line 2
       street_address_3:
         type: string
-        example: Montmâtre
+        example: Montmârtre
         x-nullable: true
         title: Address Line 3
       city:
@@ -644,17 +646,20 @@ definitions:
         example: CA
       postal_code:
         type: string
+        description: zip code, international allowed
         format: zip
         title: ZIP/Postal Code
         example: "'90210' or 'N15 3NL'"
       country:
         type: string
-        example: Luxembourg
         title: Country
+        x-nullable: true
+        example: "United States"
+        default: United States
     required:
-    - street_address_1
-    - city
-    - postal_code
+      - street_address_1
+      - city
+      - postal_code
   IndexBlackoutsPayload:
     type: array
     items:
@@ -865,77 +870,105 @@ definitions:
   GBLOC:
     type: string
     description: Office Codes for Transcom offices originating GBLs
+    pattern: '^[A-Z]{4}$'
     example: LHNQ
-    pattern: '^[A-Z]{4}$' # Should we make this an enum?
-  IndexShipmentsPayload:
+  IndexShipments:
     type: array
     items:
-      $ref: '#/definitions/ShipmentPayload'
-  ShipmentPayload:
+      $ref: '#/definitions/Shipment'
+  Shipment:
     type: object
-    description: A shipment which may be awarded to a TSP
     properties:
       id:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-      customer:
-        $ref: '#/definitions/Customer'
-      tsp_id:
+        readOnly: true
+      traffic_distribution_list_id:
         type: string
         format: uuid
-        description: The ID of the TSP to whom the shipment has been offered/accepted
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_locator:
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+        readOnly: true
+      pickup_date:
         type: string
-        pattern: '^[A-Z0-9]{6}$'
-        description: The 'record locator' used to refer back to the Move associated with this Shipment. This is the human readable identifier for the move which can be used to link back to the Service Member, orders etc.
-      dates:
-        $ref: '#/definitions/ShipmentDates'
-      estimated_weight:
-        type: integer
-        description: Estimated weight of the shipment in lbs
-        example: 500
-      type:
-        $ref: '#/definitions/ShipmentType'
+        format: date-time
+      delivery_date:
+        type: string
+        format: date-time
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
+        readOnly: true
       market:
         $ref: '#/definitions/ShipmentMarket'
-      channel:
-        $ref: '#/definitions/Channel'
-      origin_gbloc:
-        $ref: '#/definitions/GBLOC'
-      destination_gbloc:
-        $ref: '#/definitions/GBLOC'
-      primary_pickup:
-        $ref: '#/definitions/Address'
-      secondary_pickup:
-        $ref: '#/definitions/Address'
-      primary_delivery:
-        $ref: '#/definitions/Address'
-      secondary_delivery:
-        $ref: '#/definitions/Address'
-      bill_of_lading_number:
+        readOnly: true
+        x-nullable: true
+      book_date:
         type: string
-        description: B/L Number once a GBL has been printed for the shipment
-        example: AGFM0001021
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      contact_url:
+        format: date
+        example: 2018-03-15
+      requested_pickup_date:
         type: string
-        format: URL
-        description: URL to use to load the contact details for this shipment
-      accept_url:
+        format: date-time
+      move_id:
         type: string
-        format: URL
-        description: URL to use to accept the shipment
-      reject_url:
-        type: string
-        format: URL
-        description: URL to use to reject the shipment
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
+      estimated_pack_days:
+        type: integer
+        description: Estimated days packing
+        minimum: 0
+        example: 2
+        x-nullable: true
+      estimated_transit_days:
+        type: integer
+        description: Estimated days in transit
+        minimum: 0
+        example: 30
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+        example: false
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_delivery_address:
+        type: boolean
+        example: false
+      delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_partial_sit_delivery_address:
+        type: boolean
+        example: false
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      weight_estimate:
+        type: integer
+        description: Estimated weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+      progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the progear in lbs
+        minimum: 0
+        example: 500
+        x-nullable: true
+      spouse_progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the spouse progear in lbs
+        minimum: 0
+        example: 200
+        x-nullable: true
   ShipmentAcceptPayload:
     type: object
     properties:
@@ -1065,7 +1098,7 @@ definitions:
         example: 2018-03-15
   ShipmentMarket:
     type: string
-    description: One of the possible 'Markets' for a shipment (see ?????)
+    description: One of the possible 'Markets' for a shipment
     example: dHHG
     enum:
       - dHHG
@@ -1084,6 +1117,7 @@ definitions:
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
+    example: IN_PROGRESS
     enum:
       - IN_PROGRESS
       - COMPLETE

@@ -28,6 +28,13 @@ func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
 	return &fmtDateTime
 }
 
+func fmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
+	if dateTime == nil {
+		return nil
+	}
+	return (*strfmt.DateTime)(dateTime)
+}
+
 func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
