@@ -36,7 +36,6 @@ func createMoveDocumentSetup(suite *HandlerSuite) (CreateMoveDocumentHandler, mo
 		MoveDocumentType:         internalmessages.MoveDocumentTypeOTHER,
 		Title:                    fmtString("awesome_document.pdf"),
 		Notes:                    fmtString("Some notes here"),
-		Status:                   internalmessages.MoveDocumentStatusAWAITINGREVIEW,
 	}
 
 	params := movedocop.CreateMoveDocumentParams{
