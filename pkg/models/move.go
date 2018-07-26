@@ -29,6 +29,8 @@ const (
 	MoveStatusCOMPLETED MoveStatus = "COMPLETED"
 	// MoveStatusCANCELED captures enum value "CANCELED"
 	MoveStatusCANCELED MoveStatus = "CANCELED"
+	// MoveStatusPAYMENTREQUESTED captures enum value "PAYMENT_REQUESTED"
+	MoveStatusPAYMENTREQUESTED MoveStatus = "PAYMENT_REQUESTED"
 )
 
 const maxLocatorAttempts = 3
@@ -116,6 +118,16 @@ func (m *Move) Approve() error {
 	return nil
 }
 
+// Complete Completes the Move
+func (m *Move) Complete() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	m.Status = MoveStatusCOMPLETED
+	return nil
+}
+
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
@@ -144,6 +156,18 @@ func (m *Move) Cancel(reason string) error {
 	if err != nil {
 		return err
 	}
+
+	return nil
+}
+
+// RequestPayment Requests payment for this move
+func (m *Move) RequestPayment() error {
+	// We can cancel any move that isn't already complete.
+	if m.Status != MoveStatusCOMPLETED {
+		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
+	}
+
+	m.Status = MoveStatusPAYMENTREQUESTED
 
 	return nil
 }

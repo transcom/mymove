@@ -366,3 +366,41 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 
 	return nil
 }
+
+// RequestPPMPaymentHandler Patchs a PPM
+type RequestPPMPaymentHandler HandlerContext
+
+// Handle is the handler
+func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = ppm.RequestPayment()
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = ppm.Move.RequestPayment()
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err := models.SaveMoveStatuses(h.db, &ppm.Move)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload)
+
+}

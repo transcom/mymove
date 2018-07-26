@@ -21,6 +21,9 @@ var ErrLocatorGeneration = errors.New("LOCATOR_ERRORS")
 // ErrInvalidPatchGate means that an attempt to patch a model was not given the correct set of fields
 var ErrInvalidPatchGate = errors.New("INVALID_PATCH_GATE")
 
+// ErrInvalidTransition is an error representing an invalid state transition.
+var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
+
 // recordNotFoundErrorString is the error string returned when no matching rows exist in the database
 // This is ugly, but the best we can do with go's Postgresql adapter
 const recordNotFoundErrorString = "sql: no rows in result set"
