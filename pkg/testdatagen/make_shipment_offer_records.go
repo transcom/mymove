@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
 
 	"github.com/transcom/mymove/pkg/models"
 )
@@ -76,14 +77,41 @@ func MakeShipmentOfferData(db *pop.Connection) {
 	}
 }
 
-// CreateShipmentOfferData creates a TSP User, A Shipment, and then them to a Shipment Offer
-func CreateShipmentOfferData(db *pop.Connection) (tspUser models.TspUser, shipment models.Shipment, shipmentOffer models.ShipmentOffer) {
+// CreateShipmentOfferData creates a list of TSP Users, Shipments, and Shipment Offers
+// Must pass in the number of tsp users to create and number of shipments.
+// The split of shipment offers should be the length of TSP users and the sum should equal the number of shipments
+func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments int, numShipmentOfferSplit []int) ([]models.TspUser, []models.Shipment, []models.ShipmentOffer, error) {
+	var tspUserList []models.TspUser
+	var shipmentList []models.Shipment
+	var shipmentOfferList []models.ShipmentOffer
 
-	// Given: a TSP User
-	newTspUser := MakeDefaultTspUser(db)
+	// Error check some inputs
+	if len(numShipmentOfferSplit) != numTspUsers {
+		err := errors.New("Length of numShipmentOfferSplit should equal numTspUsers")
+		return tspUserList, shipmentList, shipmentOfferList, err
+	}
 
-	// Shipment is created and saved
-	now := time.Now()
+	soSplitSum := 0
+	for _, val := range numShipmentOfferSplit {
+		soSplitSum += val
+	}
+	if soSplitSum != numShipments {
+		err := errors.New("Number of shipment offers in split should equal numShipments")
+		return tspUserList, shipmentList, shipmentOfferList, err
+	}
+
+	// Create TSP Users
+	for i := 1; i <= numTspUsers; i++ {
+		tspUserAssertions := Assertions{
+			TspUser: models.TspUser{
+				Email: fmt.Sprintf("leo_spaceman%d@example.com", i),
+			},
+		}
+		tspUser := MakeTspUser(db, tspUserAssertions)
+		tspUserList = append(tspUserList, tspUser)
+	}
+
+	// Create shipments
 	tdl, _ := MakeTDL(
 		db,
 		DefaultSrcRateArea,
@@ -91,16 +119,30 @@ func CreateShipmentOfferData(db *pop.Connection) (tspUser models.TspUser, shipme
 		DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	newShipment, _ := MakeShipment(db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
-
-	// Shipment Offer is created and synced to TSP ID and Shipment ID
-	shipmentOfferAssertions := Assertions{
-		ShipmentOffer: models.ShipmentOffer{
-			ShipmentID:                      newShipment.ID,
-			TransportationServiceProviderID: newTspUser.TransportationServiceProviderID,
-		},
+	oneWeek, _ := time.ParseDuration("7d")
+	for i := 1; i <= numShipments; i++ {
+		now := time.Now()
+		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market)
+		shipmentList = append(shipmentList, shipment)
 	}
-	newShipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
 
-	return newTspUser, newShipment, newShipmentOffer
+	// A Shipment Offer is created for each Shipment and split among TSPs
+	count := 0
+	for index, split := range numShipmentOfferSplit {
+		tspUser := tspUserList[index]
+		subShipmentList := shipmentList[count : count+split]
+		count += split
+		for _, shipment := range subShipmentList {
+			shipmentOfferAssertions := Assertions{
+				ShipmentOffer: models.ShipmentOffer{
+					ShipmentID:                      shipment.ID,
+					TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+				},
+			}
+			shipmentOffer := MakeShipmentOffer(db, shipmentOfferAssertions)
+			shipmentOfferList = append(shipmentOfferList, shipmentOffer)
+		}
+	}
+
+	return tspUserList, shipmentList, shipmentOfferList, nil
 }

@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http/httptest"
-	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -239,7 +239,16 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 
 // TestPublicIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
 func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
-	tspUser, shipment, _ := testdatagen.CreateShipmentOfferData(suite.db)
+	numTspUsers := 1
+	numShipments := 1
+	numShipmentOfferSplit := []int{1}
+	tspUsers, shipments, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+	shipment := shipments[0]
 
 	// And: the context contains the auth values
 	req := httptest.NewRequest("GET", "/shipments", nil)
@@ -279,52 +288,16 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 // TestPublicIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
 func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 
-	// Given: multiple TSP Users
-	tspUserAssertions1 := testdatagen.Assertions{
-		TspUser: models.TspUser{
-			Email: "leo_spaceman1@example.com",
-		},
-	}
-	tspUserAssertions2 := testdatagen.Assertions{
-		TspUser: models.TspUser{
-			Email: "leo_spaceman2@example.com",
-		},
-	}
-	tspUser1 := testdatagen.MakeTspUser(suite.db, tspUserAssertions1)
-	tspUser2 := testdatagen.MakeTspUser(suite.db, tspUserAssertions2)
-
-	// Make multiple shipments to offer to TSPs
+	numTspUsers := 2
 	numShipments := 25
-	shipmentList := []models.Shipment{}
-	tdl, _ := testdatagen.MakeTDL(
-		suite.db,
-		testdatagen.DefaultSrcRateArea,
-		testdatagen.DefaultDstRegion,
-		testdatagen.DefaultCOS)
-	market := "dHHG"
-	sourceGBLOC := "OHAI"
-	oneWeek, _ := time.ParseDuration("7d")
-	for i := 1; i <= numShipments; i++ {
-		now := time.Now()
-		shipment, _ := testdatagen.MakeShipment(suite.db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market)
-		shipmentList = append(shipmentList, shipment)
+	numShipmentOfferSplit := []int{15, 10}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
 	}
 
-	for index, shipment := range shipmentList {
-		var tspUser models.TspUser
-		if index < 15 {
-			tspUser = tspUser1
-		} else {
-			tspUser = tspUser2
-		}
-		shipmentOfferAssertions := testdatagen.Assertions{
-			ShipmentOffer: models.ShipmentOffer{
-				ShipmentID:                      shipment.ID,
-				TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
-			},
-		}
-		testdatagen.MakeShipmentOffer(suite.db, shipmentOfferAssertions)
-	}
+	tspUser1 := tspUsers[0]
+	tspUser2 := tspUsers[1]
 
 	// Constants
 	limit := int64(25)
