@@ -68,8 +68,8 @@ const always = () => true;
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
 // Reuse when HHG flow split into multiple screens
-// const hasHHG = ({ selectedMoveType }) =>
-//   selectedMoveType !== null && selectedMoveType !== 'PPM';
+const hasHHG = ({ selectedMoveType }) =>
+  selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'HHG';
 const isCombo = ({ selectedMoveType }) =>
@@ -217,7 +217,7 @@ const pages = {
     ),
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: state => state.selectedMoveType === 'HHG',
+    isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
       return every([hhg.requested_pickup_date, hhg.pickup_address]);
     },
