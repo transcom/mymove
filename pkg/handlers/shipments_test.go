@@ -13,6 +13,17 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
+func (suite *HandlerSuite) verifyAddressFields(expected, actual *internalmessages.Address) {
+	suite.T().Helper()
+	suite.Equal(expected.StreetAddress1, actual.StreetAddress1, "Street1 did not match")
+	suite.Equal(expected.StreetAddress2, actual.StreetAddress2, "Street2 did not match")
+	suite.Equal(expected.StreetAddress3, actual.StreetAddress3, "Street3 did not match")
+	suite.Equal(expected.City, actual.City, "City did not match")
+	suite.Equal(expected.State, actual.State, "State did not match")
+	suite.Equal(expected.PostalCode, actual.PostalCode, "PostalCode did not match")
+	suite.Equal(expected.Country, actual.Country, "Country did not match")
+}
+
 func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	move := testdatagen.MakeMove(suite.db, testdatagen.Assertions{})
 	sm := move.Orders.ServiceMember
@@ -56,13 +67,13 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
 	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
-	suite.Equal(addressPayload, unwrapped.Payload.PickupAddress)
+	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
 	suite.Equal(true, unwrapped.Payload.HasSecondaryPickupAddress)
-	suite.Equal(addressPayload, unwrapped.Payload.SecondaryPickupAddress)
+	suite.verifyAddressFields(addressPayload, unwrapped.Payload.SecondaryPickupAddress)
 	suite.Equal(true, unwrapped.Payload.HasDeliveryAddress)
-	suite.Equal(addressPayload, unwrapped.Payload.DeliveryAddress)
+	suite.verifyAddressFields(addressPayload, unwrapped.Payload.DeliveryAddress)
 	suite.Equal(true, unwrapped.Payload.HasPartialSitDeliveryAddress)
-	suite.Equal(addressPayload, unwrapped.Payload.PartialSitDeliveryAddress)
+	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PartialSitDeliveryAddress)
 	suite.Equal(swag.Int64(4500), unwrapped.Payload.WeightEstimate)
 	suite.Equal(swag.Int64(325), unwrapped.Payload.ProgearWeightEstimate)
 	suite.Equal(swag.Int64(120), unwrapped.Payload.SpouseProgearWeightEstimate)
@@ -153,12 +164,12 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 	handler := PatchShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchShipmentParams)
 
-	// assert we got back the 201 response
-	okResponse := response.(*shipmentop.PatchShipmentCreated)
+	// assert we got back the 200 response
+	okResponse := response.(*shipmentop.PatchShipmentOK)
 	patchShipmentPayload := okResponse.Payload
 
 	suite.Equal(patchShipmentPayload.HasDeliveryAddress, true, "HasDeliveryAddress should have been updated.")
-	suite.Equal(patchShipmentPayload.DeliveryAddress, newAddress, "DeliveryAddress should have been updated.")
+	suite.verifyAddressFields(newAddress, patchShipmentPayload.DeliveryAddress)
 
 	suite.Equal(patchShipmentPayload.HasSecondaryPickupAddress, false, "HasSecondaryPickupAddress should have been updated.")
 	suite.Nil(patchShipmentPayload.SecondaryPickupAddress, "SecondaryPickupAddress should have been updated to nil.")
