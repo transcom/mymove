@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -236,6 +237,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
  * ------------------------------------------
  */
 
+// TestPublicIndexShipmentsHandlerAllShipments tests the api endpoint with no query parameters
 func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	tspUser, shipment, _ := testdatagen.CreateShipmentOfferData(suite.db)
 
@@ -267,4 +269,95 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
 		suite.Equal(strfmt.UUID(shipment.MoveID.String()), responsePayload.MoveID)
 	}
+}
+
+// Create two TSP users
+// Create 25 shipments (add different types?)
+// Put 15 shipments offers to first TSP, 10 shipment offers to second TSP
+// Do pagination with limit of 5 and page through results
+
+// TestPublicIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
+
+	// Given: multiple TSP Users
+	tspUserAssertions1 := testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Email: "leo_spaceman1@example.com",
+		},
+	}
+	tspUserAssertions2 := testdatagen.Assertions{
+		TspUser: models.TspUser{
+			Email: "leo_spaceman2@example.com",
+		},
+	}
+	tspUser1 := testdatagen.MakeTspUser(suite.db, tspUserAssertions1)
+	tspUser2 := testdatagen.MakeTspUser(suite.db, tspUserAssertions2)
+
+	// Make multiple shipments to offer to TSPs
+	numShipments := 25
+	shipmentList := []models.Shipment{}
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "OHAI"
+	oneWeek, _ := time.ParseDuration("7d")
+	for i := 1; i <= numShipments; i++ {
+		now := time.Now()
+		shipment, _ := testdatagen.MakeShipment(suite.db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market)
+		shipmentList = append(shipmentList, shipment)
+	}
+
+	for index, shipment := range shipmentList {
+		var tspUser models.TspUser
+		if index < 15 {
+			tspUser = tspUser1
+		} else {
+			tspUser = tspUser2
+		}
+		shipmentOfferAssertions := testdatagen.Assertions{
+			ShipmentOffer: models.ShipmentOffer{
+				ShipmentID:                      shipment.ID,
+				TransportationServiceProviderID: tspUser.TransportationServiceProviderID,
+			},
+		}
+		testdatagen.MakeShipmentOffer(suite.db, shipmentOfferAssertions)
+	}
+
+	// Constants
+	limit := int64(25)
+	offset := int64(1)
+
+	// Handler to Test
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+
+	// Test query with first user
+	req1 := httptest.NewRequest("GET", "/shipments", nil)
+	req1 = suite.authenticateTspRequest(req1, tspUser1)
+	params1 := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req1,
+		Limit:       &limit,
+		Offset:      &offset,
+	}
+
+	response1 := handler.Handle(params1)
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response1)
+	okResponse1 := response1.(*publicshipmentop.IndexShipmentsOK)
+	suite.Equal(15, len(okResponse1.Payload))
+
+	// Test query with second user
+	req2 := httptest.NewRequest("GET", "/shipments", nil)
+	req2 = suite.authenticateTspRequest(req2, tspUser2)
+	params2 := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req2,
+		Limit:       &limit,
+		Offset:      &offset,
+	}
+
+	response2 := handler.Handle(params2)
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response2)
+	okResponse2 := response2.(*publicshipmentop.IndexShipmentsOK)
+	suite.Equal(10, len(okResponse2.Payload))
 }
