@@ -5,6 +5,7 @@ import { routerReducer } from 'react-router-redux';
 import { loggedInUserReducer } from 'shared/User/ducks';
 import userReducer from 'shared/User/ducks';
 import swaggerReducer from 'shared/Swagger/ducks';
+import uiReducer from 'shared/UI/ducks';
 
 import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
@@ -67,6 +68,7 @@ export const appReducer = combineReducers({
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
   entities: entititesReducer,
+  ui: uiReducer,
 });
 
 export default appReducer;

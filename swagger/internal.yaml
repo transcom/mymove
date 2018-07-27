@@ -2695,7 +2695,7 @@ paths:
           schema:
             $ref: '#/definitions/Shipment'
       responses:
-        201:
+        200:
           description: updated Shipment
           schema:
             $ref: '#/definitions/Shipment'

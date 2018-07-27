@@ -5,7 +5,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues, reduxForm } from 'redux-form';
 import { DayPicker } from 'react-day-picker';
-import { defaultFormat } from 'react-day-picker/DayPickerInput';
 import 'react-day-picker/lib/style.css';
 
 import './DatePicker.css';
@@ -21,10 +20,20 @@ export class HHGDatePicker extends Component {
     };
   }
 
+  formatDate(date) {
+    if (date) {
+      const year = date.getFullYear();
+      const month = `${date.getMonth() + 1}`.padStart(2, 0);
+      const day = `${date.getDate()}`.padStart(2, 0);
+      return `${year}-${month}-${day}`;
+    }
+    return '';
+  }
+
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
-    this.props.setDate(defaultFormat(day));
+    this.props.setDate(this.formatDate(day));
   }
 
   render() {

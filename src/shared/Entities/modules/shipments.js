@@ -9,11 +9,9 @@ export const STATE_KEY = 'shipments';
 export default function reducer(state = {}, action) {
   switch (action.type) {
     case ADD_ENTITIES:
-      debugger;
       return {
         ...state,
         ...action.payload.shipments,
-        ...action.payload.addresses,
       };
 
     default:
@@ -21,9 +19,9 @@ export default function reducer(state = {}, action) {
   }
 }
 
-export function createOrUpdateShipment(moveId, shipment) {
-  if (shipment.id) {
-    return updateShipment(moveId, shipment, shipment.id);
+export function createOrUpdateShipment(moveId, shipment, id) {
+  if (id) {
+    return updateShipment(moveId, id, shipment);
   } else {
     return createShipment(moveId, shipment);
   }
@@ -66,5 +64,8 @@ export function updateShipment(
 }
 
 export const selectShipment = (state, id) => {
+  if (!id) {
+    return null;
+  }
   return denormalize([id], shipments, state.entities)[0];
 };

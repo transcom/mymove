@@ -72,9 +72,16 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
 
+	var requestedPickupDate *time.Time
+	if payload.RequestedPickupDate != nil {
+		date := time.Time(*payload.RequestedPickupDate)
+		requestedPickupDate = &date
+	}
+
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		Status:                       "DRAFT",
+		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
 		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
@@ -199,7 +206,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	return shipmentop.NewPatchShipmentCreated().WithPayload(shipmentPayload)
+	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
 /*

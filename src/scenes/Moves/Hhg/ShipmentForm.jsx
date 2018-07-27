@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
+import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
@@ -24,9 +25,9 @@ export class ShipmentForm extends Component {
     const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
     this.props
-      .createOrUpdateShipment(moveId, shipment)
-      .then(() => {
-        console.log('You did it!');
+      .createOrUpdateShipment(moveId, shipment, this.props.currentShipment.id)
+      .then(data => {
+        this.props.setCurrentShipment(data.body);
       })
       .catch(err => {
         this.setState({
@@ -35,8 +36,8 @@ export class ShipmentForm extends Component {
       });
   };
 
-  setDate = (day) => {
-    this.setState({'requestedPickupDate': day});
+  setDate = day => {
+    this.setState({ requestedPickupDate: day });
   };
 
   render() {
@@ -60,7 +61,7 @@ export class ShipmentForm extends Component {
         hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
-        additionalValues={{requested_pickup_date: requestedPickupDate}}
+        additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
         <div className="shipment-form">
           <div className="usa-grid">
@@ -90,7 +91,10 @@ ShipmentForm.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({createOrUpdateShipment}, dispatch);
+  return bindActionCreators(
+    { createOrUpdateShipment, setCurrentShipment },
+    dispatch,
+  );
 }
 function mapStateToProps(state) {
   const props = {
@@ -98,6 +102,7 @@ function mapStateToProps(state) {
     move: get(state, 'moves.currentMove', {}),
     initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
     formValues: getFormValues(formName)(state),
+    currentShipment: currentShipment(state) || {},
   };
   return props;
 }
