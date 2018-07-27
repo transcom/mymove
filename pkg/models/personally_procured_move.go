@@ -28,6 +28,8 @@ const (
 	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
 	PPMStatusCOMPLETED PPMStatus = "COMPLETED"
+	// PPMStatusPAYMENTREQUESTED captures enum value "PAYMENT_REQUESTED"
+	PPMStatusPAYMENTREQUESTED PPMStatus = "PAYMENT_REQUESTED"
 	// PPMStatusCANCELED captures enum value "CANCELED"
 	PPMStatusCANCELED PPMStatus = "CANCELED"
 )
@@ -85,16 +87,68 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 	return validate.NewErrors(), nil
 }
 
-// State Machine
+// State Machinery
 // Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
 
-// Cancel cancels the PPM
+// Submit marks the PPM request for review
+func (p *PersonallyProcuredMove) Submit() error {
+	if p.Status != PPMStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, "Submit")
+	}
+
+	p.Status = PPMStatusSUBMITTED
+	return nil
+}
+
+// Approve approves the PPM to go forward.
+func (p *PersonallyProcuredMove) Approve() error {
+	if p.Status != PPMStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+
+	p.Status = PPMStatusAPPROVED
+	return nil
+}
+
+// Begin marks the PPM as IN_PROGRESS
+func (p *PersonallyProcuredMove) Begin() error {
+	if p.Status != PPMStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Begin")
+	}
+
+	p.Status = PPMStatusINPROGRESS
+	return nil
+}
+
+// Complete marks the PPM as completed
+func (p *PersonallyProcuredMove) Complete() error {
+	if p.Status != PPMStatusINPROGRESS {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	p.Status = PPMStatusCOMPLETED
+	return nil
+}
+
+// Cancel marks the PPM as Canceled
 func (p *PersonallyProcuredMove) Cancel() error {
+	// The only type of PPM that can't be canceled is one that has been completed?
+	// Maybe you can cancel anything.
 	if p.Status == PPMStatusCOMPLETED || p.Status == PPMStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
 	p.Status = PPMStatusCANCELED
+	return nil
+}
+
+// RequestPayment requests payment for the PPM
+func (p *PersonallyProcuredMove) RequestPayment() error {
+	if p.Status != PPMStatusCOMPLETED {
+		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
+	}
+
+	p.Status = PPMStatusPAYMENTREQUESTED
 	return nil
 }
 

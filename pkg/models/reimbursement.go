@@ -55,9 +55,6 @@ type Reimbursement struct {
 // State Machine
 // Avoid calling Reimbursement.Status = ... ever. Use these methods to change the state.
 
-// ErrInvalidTransition is an error representing an invalid transition.
-var ErrInvalidTransition = errors.New("INVALID_TRANSITION")
-
 // Request officially requests the reimbursement.
 func (r *Reimbursement) Request() error {
 	if r.Status != ReimbursementStatusDRAFT {

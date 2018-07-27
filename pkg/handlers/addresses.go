@@ -4,9 +4,16 @@ import (
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
+
+/*
+ * --------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * --------------------------------------------
+ */
 
 func addressModelFromPayload(rawAddress *internalmessages.Address) *models.Address {
 	if rawAddress == nil {
@@ -47,4 +54,25 @@ func updateAddressWithPayload(a *models.Address, payload *internalmessages.Addre
 	a.State = *payload.State
 	a.PostalCode = *payload.PostalCode
 	a.Country = payload.Country
+}
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+func publicPayloadForAddressModel(a *models.Address) *apimessages.Address {
+	if a == nil {
+		return nil
+	}
+	return &apimessages.Address{
+		StreetAddress1: swag.String(a.StreetAddress1),
+		StreetAddress2: a.StreetAddress2,
+		StreetAddress3: a.StreetAddress3,
+		City:           swag.String(a.City),
+		State:          *swag.String(a.State),
+		PostalCode:     swag.String(a.PostalCode),
+		Country:        a.Country,
+	}
 }
