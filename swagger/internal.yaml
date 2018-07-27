@@ -2723,7 +2723,7 @@ paths:
           required: true
           description: UUID of the Shipment being updated
       responses:
-        201:
+        200:
           description: Returns Shipment for hhg move
           schema:
             $ref: '#/definitions/Shipment'
