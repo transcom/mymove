@@ -9,6 +9,7 @@ import { renderStatusIcon } from 'shared/utils';
 import { formatDate } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
   selectMoveDocument,
   updateMoveDocument,
@@ -22,6 +23,8 @@ const DocumentDetailDisplay = props => {
     values: props.moveDocument,
     schema: props.moveDocSchema,
   };
+  const isExpenseDocument =
+    get(moveDoc, 'move_document_type', '') === 'EXPENSE';
   return (
     <React.Fragment>
       <div>
@@ -49,6 +52,27 @@ const DocumentDetailDisplay = props => {
             Missing
           </PanelField>
         )}
+        {isExpenseDocument &&
+          moveDoc.moving_expense_type && (
+            <PanelSwaggerField
+              fieldName="moving_expense_type"
+              {...moveDocFieldProps}
+            />
+          )}
+        {isExpenseDocument &&
+          get(moveDoc, 'reimbursement.requested_amount') && (
+            <PanelSwaggerField
+              fieldName="requested_amount"
+              {...moveDocFieldProps}
+            />
+          )}
+        {isExpenseDocument &&
+          get(moveDoc, 'reimbursement.method_of_receipt') && (
+            <PanelSwaggerField
+              fieldName="method_of_receipt"
+              {...moveDocFieldProps}
+            />
+          )}
         {moveDoc.status ? (
           <PanelSwaggerField fieldName="status" {...moveDocFieldProps} />
         ) : (
@@ -69,20 +93,28 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  const schema = props.moveDocSchema;
+  const { formValues, moveDocSchema } = props;
+  const isExpenseDocument =
+    get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
 
   return (
     <React.Fragment>
       <div>
         <FormSection name="moveDocument">
-          <SwaggerField fieldName="title" swagger={schema} required />
+          <SwaggerField fieldName="title" swagger={moveDocSchema} required />
           <SwaggerField
             fieldName="move_document_type"
-            swagger={schema}
+            swagger={moveDocSchema}
             required
           />
-          <SwaggerField fieldName="status" swagger={schema} required />
-          <SwaggerField fieldName="notes" swagger={schema} />
+          {isExpenseDocument && (
+            <ExpenseDocumentForm
+              movingExpenseDocumentSchema={props.movingExpenseDocumentSchema}
+              reimbursementSchema={props.reimbursementSchema}
+            />
+          )}
+          <SwaggerField fieldName="status" swagger={moveDocSchema} required />
+          <SwaggerField fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
       </div>
     </React.Fragment>
@@ -106,6 +138,7 @@ function mapStateToProps(state, props) {
     initialValues: {
       moveDocument: moveDocument,
     },
+    formValues: getFormValues(formName)(state),
 
     moveDocSchema: get(
       state,
@@ -117,6 +150,11 @@ function mapStateToProps(state, props) {
       'swagger.spec.definitions.UpdateMovingExpenseDocumentPayload',
       {},
     ),
+    reimbursementSchema: get(
+      state,
+      'swagger.spec.definitions.Reimbursement',
+      {},
+    ),
     hasError: false,
     errorMessage: state.office.error,
     isUpdating: false,
@@ -126,6 +164,11 @@ function mapStateToProps(state, props) {
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
+      values.moveDocument.personally_procured_move_id = get(
+        state.office,
+        'officePPMs.0.id',
+      );
+      // Todo: flatten movingExpenseDocument formsection to just moving_expense_type
       return [
         get(state, 'office.officeMove.id'),
         get(moveDocument, 'id'),

@@ -54,8 +54,8 @@ export function createMovingExpenseDocument(
     const response = await client.apis.move_docs.createMovingExpenseDocument({
       moveId,
       createMovingExpenseDocumentPayload: {
-        upload_ids: uploadIds,
         personally_procured_move_id: personallyProcuredMoveId,
+        upload_ids: uploadIds,
         title: title,
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
