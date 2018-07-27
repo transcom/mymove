@@ -1,9 +1,5 @@
-import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { getFormValues, reduxForm } from 'redux-form';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 

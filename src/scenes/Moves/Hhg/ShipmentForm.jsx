@@ -10,10 +10,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
-import {
-  createOrUpdateShipment,
-  // selectShipment,
-} from 'shared/Entities/modules/shipments';
+import { createOrUpdateShipment } from 'shared/Entities/modules/shipments';
 
 import './ShipmentForm.css';
 
@@ -24,8 +21,9 @@ export class ShipmentForm extends Component {
   handleSubmit = () => {
     const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
+    const currentShipmentId = get(this, 'props.currentShipment.id');
     this.props
-      .createOrUpdateShipment(moveId, shipment, this.props.currentShipment.id)
+      .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
         this.props.setCurrentShipment(data.body);
       })

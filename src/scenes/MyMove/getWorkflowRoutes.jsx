@@ -27,7 +27,6 @@ import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
-import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -39,36 +38,38 @@ const PageNotInFlow = ({ location }) => (
   </div>
 );
 
-const Placeholder = props => {
-  return (
-    <WizardPage
-      handleSubmit={() => undefined}
-      pageList={props.pageList}
-      pageKey={props.pageKey}
-    >
-      <div className="Todo-phase2">
-        <h1>Placeholder for {props.title}</h1>
-        <h2>{props.description}</h2>
-      </div>
-    </WizardPage>
-  );
-};
+// USE THESE FOR STUBBING OUT FUTURE WORK
+// const Placeholder = props => {
+//   return (
+//     <WizardPage
+//       handleSubmit={() => undefined}
+//       pageList={props.pageList}
+//       pageKey={props.pageKey}
+//     >
+//       <div className="Todo-phase2">
+//         <h1>Placeholder for {props.title}</h1>
+//         <h2>{props.description}</h2>
+//       </div>
+//     </WizardPage>
+//   );
+// };
 
-const stub = (key, pages, description) => ({ match }) => (
-  <Placeholder
-    pageList={pages}
-    pageKey={key}
-    title={key}
-    description={description}
-  />
-);
+// const stub = (key, pages, description) => ({ match }) => (
+//   <Placeholder
+//     pageList={pages}
+//     pageKey={key}
+//     title={key}
+//     description={description}
+//   />
+// );
 
 const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
-const hasHHG = ({ selectedMoveType }) =>
-  selectedMoveType !== null && selectedMoveType !== 'PPM';
+// Reuse when HHG flow split into multiple screens
+// const hasHHG = ({ selectedMoveType }) =>
+//   selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'HHG';
 const isCombo = ({ selectedMoveType }) =>
@@ -218,26 +219,11 @@ const pages = {
   '/moves/:moveId/hhg-start': {
     isInFlow: state => state.selectedMoveType === 'HHG',
     isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.requested_pickup_date]);
+      return every([hhg.requested_pickup_date, hhg.pickup_address]);
     },
     render: (key, pages) => ({ match }) => (
       <ShipmentForm pages={pages} pageKey={key} match={match} />
     ),
-  },
-  '/moves/:moveId/hhg-address': {
-    isInFlow: hasHHG,
-    isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.pickup_address]);
-    },
-    render: (key, pages) => ({ match }) => (
-      <ShipmentAddress pages={pages} pageKey={key} match={match} />
-    ),
-  },
-  '/moves/:moveId/hhg-weight': {
-    isInFlow: hasHHG,
-    isComplete: always, //todo fix this when implemented
-    render: stub,
-    description: 'enter your HHG weight',
   },
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,

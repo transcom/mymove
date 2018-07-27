@@ -1,7 +1,5 @@
 import { ShipmentsIndex } from './api';
 
-import * as ReduxHelpers from 'shared/ReduxHelpers';
-
 // Types
 export const SHOW_SHIPMENTS = 'SHOW_SHIPMENTS';
 export const SHOW_SHIPMENTS_SUCCESS = 'SHOW_SHIPMENTS_SUCCESS';

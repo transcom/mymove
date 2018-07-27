@@ -1,14 +1,8 @@
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { getFormValues, FormSection } from 'redux-form';
+import { FormSection } from 'redux-form';
 
-import {
-  createOrUpdateShipment,
-  selectShipment,
-} from 'shared/Entities/modules/shipments';
 import YesNoBoolean from 'shared/Inputs/YesNoBoolean';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
@@ -171,18 +165,4 @@ ShipmentAddress.propTypes = {
   error: PropTypes.object,
 };
 
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators(
-    { createOrUpdateShipment, selectShipment },
-    dispatch,
-  );
-}
-function mapStateToProps(state) {
-  const props = {
-    schema: get(state, 'swagger.spec.definitions.Shipment', {}),
-    move: get(state, 'moves.currentMove', {}),
-    initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
-  };
-  return props;
-}
-export default connect(mapStateToProps, mapDispatchToProps)(ShipmentAddress);
+export default ShipmentAddress;
