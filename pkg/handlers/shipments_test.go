@@ -3,6 +3,7 @@ package handlers
 import (
 	"fmt"
 	"net/http/httptest"
+	"time"
 
 	"github.com/go-openapi/strfmt"
 	"github.com/go-openapi/swag"
@@ -280,11 +281,6 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	}
 }
 
-// Create two TSP users
-// Create 25 shipments (add different types?)
-// Put 15 shipments offers to first TSP, 10 shipment offers to second TSP
-// Do pagination with limit of 5 and page through results
-
 // TestPublicIndexShipmentsHandlerPaginated tests the api endpoint with pagination query parameters
 func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 
@@ -333,4 +329,104 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerPaginated() {
 	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response2)
 	okResponse2 := response2.(*publicshipmentop.IndexShipmentsOK)
 	suite.Equal(10, len(okResponse2.Payload))
+}
+
+// TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc sorts returned shipments
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupAsc() {
+	numTspUsers := 1
+	numShipments := 3
+	numShipmentOfferSplit := []int{3}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+
+	limit := int64(25)
+	offset := int64(1)
+	orderBy := "PICKUP_DATE_ASC"
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Limit:       &limit,
+		Offset:      &offset,
+		OrderBy:     &orderBy,
+	}
+
+	// And: an index of shipments is returned
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+
+	// And: Returned query to have at least one shipment in the list
+	suite.Equal(3, len(okResponse.Payload))
+
+	var pickupDate time.Time
+	empty := time.Time{}
+	for _, responsePayload := range okResponse.Payload {
+		if pickupDate == empty {
+			pickupDate = time.Time(responsePayload.PickupDate)
+		} else {
+			newDT := time.Time(responsePayload.PickupDate)
+			suite.True(newDT.After(pickupDate))
+			pickupDate = newDT
+		}
+	}
+}
+
+// TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc sorts returned shipments
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDesc() {
+	numTspUsers := 1
+	numShipments := 3
+	numShipmentOfferSplit := []int{3}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+
+	limit := int64(25)
+	offset := int64(1)
+	orderBy := "PICKUP_DATE_DESC"
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Limit:       &limit,
+		Offset:      &offset,
+		OrderBy:     &orderBy,
+	}
+
+	// And: an index of shipments is returned
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+
+	// And: Returned query to have at least one shipment in the list
+	suite.Equal(3, len(okResponse.Payload))
+
+	var pickupDate time.Time
+	empty := time.Time{}
+	for _, responsePayload := range okResponse.Payload {
+		if pickupDate == empty {
+			pickupDate = time.Time(responsePayload.PickupDate)
+		} else {
+			newDT := time.Time(responsePayload.PickupDate)
+			suite.True(newDT.Before(pickupDate))
+			pickupDate = newDT
+		}
+	}
 }

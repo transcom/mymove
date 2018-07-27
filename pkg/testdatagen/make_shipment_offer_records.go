@@ -124,6 +124,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 		now := time.Now()
 		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market)
 		shipmentList = append(shipmentList, shipment)
+		time.Sleep(100 * time.Millisecond)
 	}
 
 	// A Shipment Offer is created for each Shipment and split among TSPs
