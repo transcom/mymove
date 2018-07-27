@@ -387,12 +387,7 @@ func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) m
 		return responseForError(h.logger, err)
 	}
 
-	err = ppm.Move.RequestPayment()
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	verrs, err := models.SaveMoveStatuses(h.db, &ppm.Move)
+	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}

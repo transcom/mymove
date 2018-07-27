@@ -616,8 +616,4 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 
 	suite.Require().Equal(internalmessages.PPMStatusPAYMENTREQUESTED, created.Payload.Status, "expected payment requested")
 
-	err = suite.db.Find(&move, move.ID)
-
-	suite.Require().Equal(string(models.MoveStatusPAYMENTREQUESTED), string(move.Status), "expected payment requested")
-
 }

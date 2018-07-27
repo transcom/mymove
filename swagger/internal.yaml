@@ -1754,14 +1754,12 @@ definitions:
       - APPROVED
       - COMPLETED
       - CANCELED
-      - PAYMENT_REQUESTED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
       COMPLETED: Completed
       CANCELED: Canceled
-      PAYMENT_REQUESTED: Payment Requested
   PPMStatus:
     type: string
     title: Move status
