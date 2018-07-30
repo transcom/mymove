@@ -8,7 +8,6 @@ import { getFormValues } from 'redux-form';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
-import fetchShipment from 'scenes/Moves/Hhg/ducks';
 
 import './ShipmentForm.css';
 
@@ -86,7 +85,7 @@ ShipmentForm.propTypes = {
 };
 
 function mapDispatchToProps(dispatch) {
-  return bindActionCreators({ GetShipment }, dispatch);
+  return bindActionCreators({}, dispatch);
 }
 function mapStateToProps(state) {
   const props = {

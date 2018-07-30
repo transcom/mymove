@@ -69,7 +69,7 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
-  return <div className="hhg-tab" />;
+  return <div className="hhg-tab">The Shipment data: {props.officeHHG}</div>;
 };
 
 class CancelPanel extends Component {
@@ -203,7 +203,8 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
-    const hhg = this.props.officeHHG;
+    // const hhg = this.props.officeHHG;
+    const hhg = { exists: true };
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
@@ -422,7 +423,7 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
-  officeHHG: get(state, 'office.officeHHGs.0', {}),
+  officeHHG: get(state, 'office.officeMove.shipments.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(
     state,
