@@ -218,18 +218,7 @@ paths:
           in: query
           type: string
           description: Restrict the list to shipments with matching ShipmentStatus
-          enum:
-            - IN_PROGRESS
-            - COMPLETE
-            - AWARDED
-            - ACCEPTED
-            - REJECTED
-            - IN_TRANSIT
-            - SIT_ORIGIN
-            - SIT_DEST
-            - DELIVERED
-            - COMPLETED
-            - CLAIMS
+          enum: *SHIPMENTSTATUS
         - name: order_by
           in: query
           type: string
@@ -1132,7 +1121,7 @@ definitions:
     type: string
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
-    enum:
+    enum: &SHIPMENTSTATUS
       - IN_PROGRESS
       - COMPLETE
       - AWARDED
