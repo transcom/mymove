@@ -18,9 +18,12 @@ import '../office.css';
 
 const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
+  const schema = moveDoc.moving_expense_type
+    ? props.movingExpenseSchema
+    : props.moveDocSchema;
   const moveDocFieldProps = {
     values: props.moveDocument,
-    schema: props.moveDocSchema,
+    schema: schema,
   };
   return (
     <React.Fragment>
@@ -115,12 +118,12 @@ function mapStateToProps(state, props) {
 
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      'swagger.spec.definitions.UpdateGenericMoveDocumentPayload',
       {},
     ),
     movingExpenseSchema: get(
       state,
-      'swagger.spec.definitions.CreateMovingExpenseDocumentPayload',
+      'swagger.spec.definitions.UpdateMovingExpenseDocumentPayload',
       {},
     ),
     reimbursementSchema: get(

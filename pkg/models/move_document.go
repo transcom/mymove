@@ -52,18 +52,19 @@ const (
 
 // MoveDocument is an object representing a move document
 type MoveDocument struct {
-	ID                    uuid.UUID              `json:"id" db:"id"`
-	DocumentID            uuid.UUID              `json:"document_id" db:"document_id"`
-	Document              Document               `belongs_to:"documents"`
-	MoveID                uuid.UUID              `json:"move_id" db:"move_id"`
-	Move                  Move                   `belongs_to:"moves"`
-	Title                 string                 `json:"title" db:"title"`
-	Status                MoveDocumentStatus     `json:"status" db:"status"`
-	MoveDocumentType      MoveDocumentType       `json:"move_document_type" db:"move_document_type"`
-	MovingExpenseDocument *MovingExpenseDocument `has_one:"moving_expense_document"`
-	Notes                 *string                `json:"notes" db:"notes"`
-	CreatedAt             time.Time              `json:"created_at" db:"created_at"`
-	UpdatedAt             time.Time              `json:"updated_at" db:"updated_at"`
+	ID                       uuid.UUID              `json:"id" db:"id"`
+	DocumentID               uuid.UUID              `json:"document_id" db:"document_id"`
+	Document                 Document               `belongs_to:"documents"`
+	MoveID                   uuid.UUID              `json:"move_id" db:"move_id"`
+	Move                     Move                   `belongs_to:"moves"`
+	PersonallyProcuredMoveID *uuid.UUID             `json:"personally_procured_move_id" db:"personally_procured_move_id"`
+	Title                    string                 `json:"title" db:"title"`
+	Status                   MoveDocumentStatus     `json:"status" db:"status"`
+	MoveDocumentType         MoveDocumentType       `json:"move_document_type" db:"move_document_type"`
+	MovingExpenseDocument    *MovingExpenseDocument `has_one:"moving_expense_document"`
+	Notes                    *string                `json:"notes" db:"notes"`
+	CreatedAt                time.Time              `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time              `json:"updated_at" db:"updated_at"`
 }
 
 // MoveDocuments is not required by pop and may be deleted
@@ -135,7 +136,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		if saveAction == MoveDocumentSaveActionSAVE_EXPENSE_MODEL {
+		if saveAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
 			// Save reimbursement first
 			reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
 			if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
@@ -153,7 +154,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				responseError = errors.Wrap(err, "Error Creating Moving Expense Document")
 				return transactionError
 			}
-		} else if saveAction == MoveDocumentSaveActionDELETE_EXPENSE_MODEL {
+		} else if saveAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
 			// Destroy reimbursement first
 			reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
 			if err := db.Destroy(&reimbursement); err != nil {

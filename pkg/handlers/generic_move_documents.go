@@ -64,8 +64,25 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 		uploads = append(uploads, upload)
 	}
 
+	var ppmID *uuid.UUID
+	if payload.PersonallyProcuredMoveID != nil {
+		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+
+		// Enforce that the ppm's move_id matches our move
+		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		if !uuid.Equal(ppm.MoveID, moveID) {
+			return movedocop.NewCreateGenericMoveDocumentBadRequest()
+		}
+
+		ppmID = &id
+	}
+
 	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
 		uploads,
+		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes)

@@ -548,3 +548,72 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 	suite.Require().Equal(internalmessages.ReimbursementStatusDRAFT, *created.Payload.Advance.Status, "expected Draft")
 	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
 }
+
+func (suite *HandlerSuite) TestRequestPPMPayment() {
+	t := suite.T()
+
+	initialSize := internalmessages.TShirtSize("S")
+	initialWeight := swag.Int64(1)
+
+	move := testdatagen.MakeDefaultMove(suite.db)
+
+	err := move.Submit()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = move.Approve()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = move.Complete()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+
+	suite.mustSave(&move)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:         move.ID,
+		Move:           move,
+		Size:           &initialSize,
+		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
+	}
+	err = ppm1.Submit()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = ppm1.Approve()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = ppm1.Begin()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = ppm1.Complete()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+
+	suite.mustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+
+	requestPaymentParams := ppmop.RequestPPMPaymentParams{
+		HTTPRequest:              req,
+		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
+	}
+
+	handler := RequestPPMPaymentHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(requestPaymentParams)
+
+	created, ok := response.(*ppmop.RequestPPMPaymentOK)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	suite.Require().Equal(internalmessages.PPMStatusPAYMENTREQUESTED, created.Payload.Status, "expected payment requested")
+
+}

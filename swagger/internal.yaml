@@ -521,6 +521,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       document:
         $ref: '#/definitions/DocumentPayload'
       title:
@@ -540,11 +545,6 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       reimbursement:
         $ref: '#/definitions/Reimbursement'
-      moving_expense_document_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
     required:
       - id
       - move_id
@@ -555,6 +555,11 @@ definitions:
   CreateGenericMoveDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       upload_ids:
         type: array
         items:
@@ -578,6 +583,11 @@ definitions:
   UpdateGenericMoveDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       title:
         type: string
         example: very_useful_document.pdf
@@ -613,6 +623,11 @@ definitions:
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       upload_ids:
         type: array
         items:
@@ -642,6 +657,11 @@ definitions:
   UpdateMovingExpenseDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -1686,6 +1706,7 @@ definitions:
       - IN_PROGRESS
       - COMPLETED
       - CANCELED
+      - PAYMENT_REQUESTED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
@@ -1693,6 +1714,7 @@ definitions:
       IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
+      PAYMENT_REQUESTED: Payment Requested
   OrdersStatus:
     type: string
     title: Move status
@@ -2545,6 +2567,35 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
+    post:
+      summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
+      description: Moves the PPM and the move into the PAYMENT_REQUESTED state
+      operationId: requestPPMPayment
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: Sucesssfully requested payement
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: server error
   /moves/{moveId}/shipment:
     post:
       summary: Creates a new Shipment for the given move

@@ -20,13 +20,14 @@ func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocume
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:               fmtUUID(moveDoc.ID),
-		MoveID:           fmtUUID(moveDoc.MoveID),
-		Document:         documentPayload,
-		Title:            &moveDoc.Title,
-		MoveDocumentType: internalmessages.MoveDocumentType(moveDoc.MoveDocumentType),
-		Status:           internalmessages.MoveDocumentStatus(moveDoc.Status),
-		Notes:            moveDoc.Notes,
+		ID:     fmtUUID(moveDoc.ID),
+		MoveID: fmtUUID(moveDoc.MoveID),
+		PersonallyProcuredMoveID: fmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
+		Document:                 documentPayload,
+		Title:                    &moveDoc.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(moveDoc.MoveDocumentType),
+		Status:                   internalmessages.MoveDocumentStatus(moveDoc.Status),
+		Notes:                    moveDoc.Notes,
 	}
 
 	if moveDoc.MovingExpenseDocument != nil {
@@ -50,15 +51,16 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	}
 
 	payload := internalmessages.MoveDocumentPayload{
-		ID:                fmtUUID(docExtractor.ID),
-		MoveID:            fmtUUID(docExtractor.MoveID),
-		Document:          documentPayload,
-		Title:             &docExtractor.Title,
-		MoveDocumentType:  internalmessages.MoveDocumentType(docExtractor.MoveDocumentType),
-		Status:            internalmessages.MoveDocumentStatus(docExtractor.Status),
-		Notes:             docExtractor.Notes,
-		MovingExpenseType: expenseType,
-		Reimbursement:     payloadForReimbursementModel(&docExtractor.Reimbursement),
+		ID:     fmtUUID(docExtractor.ID),
+		MoveID: fmtUUID(docExtractor.MoveID),
+		PersonallyProcuredMoveID: fmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
+		Document:                 documentPayload,
+		Title:                    &docExtractor.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(docExtractor.MoveDocumentType),
+		Status:                   internalmessages.MoveDocumentStatus(docExtractor.Status),
+		Notes:                    docExtractor.Notes,
+		MovingExpenseType:        expenseType,
+		Reimbursement:            payloadForReimbursementModel(&docExtractor.Reimbursement),
 	}
 
 	return &payload, nil
@@ -114,7 +116,10 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 	}
 
 	payload := params.UpdateMoveDocument
-
+	if payload.PersonallyProcuredMoveID != nil {
+		ppmID := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+		moveDoc.PersonallyProcuredMoveID = &ppmID
+	}
 	newType := models.MoveDocumentType(payload.MoveDocumentType)
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
@@ -146,11 +151,11 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 			moveDoc.MovingExpenseDocument.Reimbursement.RequestedAmount = reimbursementAmt
 			moveDoc.MovingExpenseDocument.Reimbursement.MethodOfReceipt = reimbursementMethod
 		}
-		saveAction = models.MoveDocumentSaveActionSAVE_EXPENSE_MODEL
+		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
 	} else {
 		if moveDoc.MovingExpenseDocument != nil {
 			// We just care if a MovingExpenseType exists, as it needs to be deleted
-			saveAction = models.MoveDocumentSaveActionDELETE_EXPENSE_MODEL
+			saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
 		}
 	}
 

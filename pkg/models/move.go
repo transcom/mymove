@@ -116,6 +116,16 @@ func (m *Move) Approve() error {
 	return nil
 }
 
+// Complete Completes the Move
+func (m *Move) Complete() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	m.Status = MoveStatusCOMPLETED
+	return nil
+}
+
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
@@ -179,6 +189,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 func (m Move) createMoveDocumentWithoutTransaction(
 	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -211,14 +222,15 @@ func (m Move) createMoveDocumentWithoutTransaction(
 
 	// Finally create the MoveDocument to tie it to the Move
 	newMoveDocument := &MoveDocument{
-		Move:             m,
-		MoveID:           m.ID,
-		Document:         newDoc,
-		DocumentID:       newDoc.ID,
-		MoveDocumentType: moveDocumentType,
-		Title:            title,
-		Status:           MoveDocumentStatusAWAITINGREVIEW,
-		Notes:            notes,
+		Move:                     m,
+		MoveID:                   m.ID,
+		Document:                 newDoc,
+		DocumentID:               newDoc.ID,
+		PersonallyProcuredMoveID: personallyProcuredMoveID,
+		MoveDocumentType:         moveDocumentType,
+		Title:                    title,
+		Status:                   MoveDocumentStatusAWAITINGREVIEW,
+		Notes:                    notes,
 	}
 	verrs, err = db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
@@ -234,6 +246,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
@@ -248,6 +261,7 @@ func (m Move) CreateMoveDocument(
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
 			uploads,
+			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
 			notes)
@@ -267,6 +281,7 @@ func (m Move) CreateMoveDocument(
 func (m Move) CreateMovingExpenseDocument(
 	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
@@ -284,6 +299,7 @@ func (m Move) CreateMovingExpenseDocument(
 		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
 			db,
 			uploads,
+			personallyProcuredMoveID,
 			moveDocumentType,
 			title,
 			notes)

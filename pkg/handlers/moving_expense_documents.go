@@ -20,16 +20,15 @@ func payloadForMovingExpenseDocumentModel(storer storage.FileStorer, movingExpen
 	}
 
 	movingExpenseDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID: fmtUUID(movingExpenseDocument.MoveDocument.ID),
-		MovingExpenseDocumentID: fmtUUID(movingExpenseDocument.ID),
-		MoveID:                  fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
-		Document:                documentPayload,
-		Title:                   &movingExpenseDocument.MoveDocument.Title,
-		MoveDocumentType:        internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
-		Status:                  internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
-		Notes:                   movingExpenseDocument.MoveDocument.Notes,
-		MovingExpenseType:       internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
-		Reimbursement:           payloadForReimbursementModel(&movingExpenseDocument.Reimbursement),
+		ID:                fmtUUID(movingExpenseDocument.MoveDocument.ID),
+		MoveID:            fmtUUID(movingExpenseDocument.MoveDocument.MoveID),
+		Document:          documentPayload,
+		Title:             &movingExpenseDocument.MoveDocument.Title,
+		MoveDocumentType:  internalmessages.MoveDocumentType(movingExpenseDocument.MoveDocument.MoveDocumentType),
+		Status:            internalmessages.MoveDocumentStatus(movingExpenseDocument.MoveDocument.Status),
+		Notes:             movingExpenseDocument.MoveDocument.Notes,
+		MovingExpenseType: internalmessages.MovingExpenseType(movingExpenseDocument.MovingExpenseType),
+		Reimbursement:     payloadForReimbursementModel(&movingExpenseDocument.Reimbursement),
 	}
 
 	return &movingExpenseDocumentPayload, nil
@@ -68,11 +67,28 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 		uploads = append(uploads, upload)
 	}
 
+	var ppmID *uuid.UUID
+	if payload.PersonallyProcuredMoveID != nil {
+		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
+
+		// Enforce that the ppm's move_id matches our move
+		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		if !uuid.Equal(ppm.MoveID, moveID) {
+			return movedocop.NewCreateMovingExpenseDocumentBadRequest()
+		}
+
+		ppmID = &id
+	}
+
 	reimbursement := models.BuildRequestedReimbursement(unit.Cents(*payload.Reimbursement.RequestedAmount), models.MethodOfReceipt(*payload.Reimbursement.MethodOfReceipt))
 
 	newMovingExpenseDocument, verrs, err := move.CreateMovingExpenseDocument(
 		h.db,
 		uploads,
+		ppmID,
 		models.MoveDocumentType(payload.MoveDocumentType),
 		*payload.Title,
 		payload.Notes,
