@@ -80,35 +80,3 @@ func (h CreateGenericMoveDocumentHandler) Handle(params movedocop.CreateGenericM
 	}
 	return movedocop.NewCreateGenericMoveDocumentOK().WithPayload(newPayload)
 }
-
-// UpdateGenericMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
-type UpdateGenericMoveDocumentHandler HandlerContext
-
-// Handle ... updates a move document from a request payload
-func (h UpdateGenericMoveDocumentHandler) Handle(params movedocop.UpdateGenericMoveDocumentParams) middleware.Responder {
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-	moveDocID, _ := uuid.FromString(params.MoveDocumentID.String())
-
-	// Fetch move document from move id
-	moveDoc, err := models.FetchMoveDocument(h.db, session, moveDocID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	payload := params.UpdateGenericMoveDocument
-	moveDoc.Title = *payload.Title
-	moveDoc.Notes = payload.Notes
-	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
-
-	verrs, err := models.SaveMoveDocument(h.db, moveDoc)
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	moveDocPayload, err := payloadForGenericMoveDocumentModel(h.storage, *moveDoc)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-	return movedocop.NewUpdateGenericMoveDocumentOK().WithPayload(moveDocPayload)
-}

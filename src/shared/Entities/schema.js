@@ -25,15 +25,6 @@ export const moveDocument = new schema.Entity('moveDocuments', {
 });
 export const moveDocuments = new schema.Array(moveDocument);
 
-// MovingExpenseDocuments
-export const movingExpenseDocument = new schema.Entity(
-  'movingExpenseDocuments',
-  {
-    document: documentModel,
-  },
-);
-export const movingExpenseDocuments = new schema.Array(movingExpenseDocument);
-
 // PPMs
 export const personallyProcuredMove = new schema.Entity(
   'personallyProcuredMove',

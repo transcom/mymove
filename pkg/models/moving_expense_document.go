@@ -31,6 +31,22 @@ const (
 	MovingExpenseTypeOTHER MovingExpenseType = "OTHER"
 )
 
+// IsExpenseModelDocumentType determines whether a MoveDocumentType is associated with a MovingExpenseDocument
+func IsExpenseModelDocumentType(docType MoveDocumentType) bool {
+	expenseModelDocumentTypes := []MoveDocumentType{
+		MoveDocumentTypeSTORAGEEXPENSE,
+		MoveDocumentTypeEXPENSE,
+	}
+
+	for _, t := range expenseModelDocumentTypes {
+		if t == docType {
+			return true
+		}
+	}
+
+	return false
+}
+
 // MovingExpenseDocument is an object representing a move document
 type MovingExpenseDocument struct {
 	ID                uuid.UUID         `json:"id" db:"id"`

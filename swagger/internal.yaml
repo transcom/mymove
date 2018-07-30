@@ -2733,9 +2733,9 @@ paths:
           description: server error
   /move_documents/{moveDocumentId}:
     put:
-      summary: Updates a generic move document
+      summary: Updates a move document
       description: Update a move document with the given information
-      operationId: updateGenericMoveDocument
+      operationId: updateMoveDocument
       tags:
         - move_docs
       parameters:
@@ -2746,10 +2746,10 @@ paths:
           required: true
           description: UUID of the move document model
         - in: body
-          name: updateGenericMoveDocument
+          name: updateMoveDocument
           required: true
           schema:
-            $ref: '#/definitions/UpdateGenericMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
       responses:
         200:
           description: updated instance of move document
@@ -2797,40 +2797,6 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moving_expense_documents/{movingExpenseDocumentId}:
-    put:
-      summary: Updates a moving expense document
-      description: Update a moving expense document with the given information
-      operationId: updateMovingExpenseDocument
-      tags:
-        - move_docs
-      parameters:
-        - in: path
-          name: movingExpenseDocumentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the moving expense document model
-        - in: body
-          name: updateMovingExpenseDocument
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMovingExpenseDocumentPayload'
-      responses:
-        200:
-          description: updated instance of moving expense document
-          schema:
-            $ref: '#/definitions/MoveDocumentPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: moving expense document not found
-        500:
-          description: internal server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed

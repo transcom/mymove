@@ -49,6 +49,12 @@ const DocumentDetailDisplay = props => {
             Missing
           </PanelField>
         )}
+        {moveDoc.moving_expense_type && (
+          <PanelSwaggerField
+            fieldName="moving_expense_type"
+            {...moveDocFieldProps}
+          />
+        )}
         {moveDoc.status ? (
           <PanelSwaggerField fieldName="status" {...moveDocFieldProps} />
         ) : (
@@ -109,7 +115,17 @@ function mapStateToProps(state, props) {
 
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.MoveDocumentPayload',
+      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      {},
+    ),
+    movingExpenseSchema: get(
+      state,
+      'swagger.spec.definitions.CreateMovingExpenseDocumentPayload',
+      {},
+    ),
+    reimbursementSchema: get(
+      state,
+      'swagger.spec.definitions.Reimbursement',
       {},
     ),
     hasError: false,
