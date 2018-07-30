@@ -24,6 +24,7 @@ export class WizardPage extends Component {
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
+    this.beforeTransition = beforeTransition.bind(this);
     this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
@@ -35,9 +36,7 @@ export class WizardPage extends Component {
   cancelFlow() {
     this.props.push(`/`);
   }
-  beforeTransition(func) {
-    beforeTransition(this.props, this.goto, func);
-  }
+
   goto(path) {
     const {
       push,

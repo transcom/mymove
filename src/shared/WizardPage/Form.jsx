@@ -27,6 +27,7 @@ export class WizardFormPage extends Component {
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
     this.state = { transitionFunc: null };
+    this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
@@ -46,9 +47,6 @@ export class WizardFormPage extends Component {
   }
   componentDidMount() {
     window.scrollTo(0, 0);
-  }
-  beforeTransition(func) {
-    beforeTransition(this.props, this.goto, func);
   }
   goto(path) {
     const {
