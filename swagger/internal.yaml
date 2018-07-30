@@ -466,6 +466,10 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      shipments:
+        type: array
+        items:
+          $ref: '#/definitions/Shipment'
       cancel_reason:
         type: string
         example: "Change of orders"
