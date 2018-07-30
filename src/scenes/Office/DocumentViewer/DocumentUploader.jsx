@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues, reduxForm, FormSection } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
