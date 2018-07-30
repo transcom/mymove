@@ -26,31 +26,22 @@ export class PpmSizeWizardPage extends Component {
         weight = weightRange.min + (weightRange.max - weightRange.min) / 2;
       }
 
-      createOrUpdatePpm(moveId, {
+      return createOrUpdatePpm(moveId, {
         size: pendingPpmSize,
         weight_estimate: weight,
       });
     }
   };
   render() {
-    const {
-      pages,
-      pageKey,
-      pendingPpmSize,
-      currentPpm,
-      hasSubmitSuccess,
-      error,
-    } = this.props;
+    const { pages, pageKey, pendingPpmSize, currentPpm, error } = this.props;
     const ppmSize = pendingPpmSize || (currentPpm && currentPpm.size);
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
-        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={Boolean(ppmSize)}
         pageIsDirty={Boolean(pendingPpmSize)}
-        hasSucceeded={hasSubmitSuccess}
         error={error}
       >
         <PpmSize />
@@ -64,7 +55,6 @@ PpmSizeWizardPage.propTypes = {
   currentPpm: PropTypes.shape({ size: PropTypes.string, id: PropTypes.string }),
   error: PropTypes.object,
   weightInfo: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

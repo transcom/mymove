@@ -17,6 +17,7 @@ import {
   getPreviousPagePath,
   isFirstPage,
   isLastPage,
+  beforeTransition,
 } from './utils';
 
 export class WizardFormPage extends Component {
@@ -41,21 +42,13 @@ export class WizardFormPage extends Component {
     }
     /* eslint-enable security/detect-object-injection */
 
-    if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.serverError) window.scrollTo(0, 0);
   }
   componentDidMount() {
     window.scrollTo(0, 0);
   }
   beforeTransition(func) {
-    const { dirty, pageList, pageKey, handleSubmit } = this.props;
-    const path = func(pageList, pageKey);
-    if (dirty && handleSubmit) {
-      handleSubmit();
-      this.setState({ transitionFunc: func });
-    } else {
-      this.goto(path);
-    }
+    beforeTransition(this.props, this.goto, func);
   }
   goto(path) {
     const {
@@ -160,7 +153,6 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  hasSucceeded: PropTypes.bool.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

@@ -189,7 +189,6 @@ const pages = {
       return (
         <WizardPage
           handleSubmit={no_op}
-          isAsync={false}
           pageList={pages}
           pageKey={key}
           additionalParams={{ moveId: props.moveId }}

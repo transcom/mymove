@@ -31,7 +31,7 @@ export class UploadOrders extends Component {
   }
 
   handleSubmit() {
-    this.props.addUploads(this.state.newUploads);
+    return this.props.addUploads(this.state.newUploads);
   }
 
   setShowAmendedOrders(show) {
@@ -50,14 +50,7 @@ export class UploadOrders extends Component {
   }
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      currentOrders,
-      uploads,
-    } = this.props;
+    const { pages, pageKey, error, currentOrders, uploads } = this.props;
     const isValid = Boolean(uploads.length || this.state.newUploads.length);
     const isDirty = Boolean(this.state.newUploads.length);
     return (
@@ -67,7 +60,6 @@ export class UploadOrders extends Component {
         pageKey={pageKey}
         pageIsValid={isValid}
         pageIsDirty={isDirty}
-        hasSucceeded={hasSubmitSuccess}
         error={error}
       >
         <div>
@@ -121,7 +113,6 @@ export class UploadOrders extends Component {
 }
 
 UploadOrders.propTypes = {
-  hasSubmitSuccess: PropTypes.bool.isRequired,
   deleteUpload: PropTypes.func.isRequired,
 };
 

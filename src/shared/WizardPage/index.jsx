@@ -15,6 +15,7 @@ import {
   getPreviousPagePath,
   isFirstPage,
   isLastPage,
+  beforeTransition,
 } from './utils';
 
 export class WizardPage extends Component {
@@ -26,7 +27,6 @@ export class WizardPage extends Component {
     this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
-    if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.error) window.scrollTo(0, 0);
   }
   componentDidMount() {
@@ -36,24 +36,7 @@ export class WizardPage extends Component {
     this.props.push(`/`);
   }
   beforeTransition(func) {
-    const {
-      isAsync,
-      pageIsDirty,
-      pageList,
-      pageKey,
-      handleSubmit,
-    } = this.props;
-    const path = func(pageList, pageKey);
-    if (pageIsDirty && handleSubmit) {
-      handleSubmit();
-      if (isAsync) {
-        this.setState({ transitionFunc: func });
-      } else {
-        this.goto(path);
-      }
-    } else {
-      this.goto(path);
-    }
+    beforeTransition(this.props, this.goto, func);
   }
   goto(path) {
     const {
@@ -151,13 +134,6 @@ export class WizardPage extends Component {
 
 WizardPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  isAsync: PropTypes.bool.isRequired,
-  hasSucceeded: (props, propName) => {
-    //eslint-disable-next-line
-    if (props['isAsync'] && typeof props[propName] !== 'boolean') {
-      return new Error('Async WizardPages must have hasSucceeded boolean prop');
-    }
-  },
   error: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

@@ -148,7 +148,6 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateMoveDocumentPayload',
       {},
     ),
-    moveDocumentCreateError: state.office.moveDocumentCreateError,
     officePPM: get(state.office, 'officePPMs.0', {}),
   };
   return props;

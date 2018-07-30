@@ -1,11 +1,12 @@
 import { get } from 'lodash';
 import PropTypes from 'prop-types';
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { getFormValues } from 'redux-form';
 import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
+import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
@@ -18,11 +19,15 @@ const formName = 'shipment_form';
 const ShipmentFormWizardForm = reduxifyWizardForm(formName);
 
 export class ShipmentForm extends Component {
+  state = {
+    shipmentError: null,
+  };
+
   handleSubmit = () => {
     const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
     const currentShipmentId = get(this, 'props.currentShipment.id');
-    this.props
+    return this.props
       .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
         this.props.setCurrentShipment(data.body);
@@ -31,6 +36,7 @@ export class ShipmentForm extends Component {
         this.setState({
           shipmentError: err,
         });
+        return { error: err };
       });
   };
 
@@ -39,13 +45,7 @@ export class ShipmentForm extends Component {
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      initialValues,
-    } = this.props;
+    const { pages, pageKey, error, initialValues } = this.props;
 
     const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
@@ -56,11 +56,21 @@ export class ShipmentForm extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
         additionalValues={{ requested_pickup_date: requestedPickupDate }}
       >
+        <Fragment>
+          {this.state.shipmentError && (
+            <div className="usa-grid">
+              <div className="usa-width-one-whole error-message">
+                <Alert type="error" heading="An error occurred">
+                  Something went wrong contacting the server.
+                </Alert>
+              </div>
+            </div>
+          )}
+        </Fragment>
         <div className="shipment-form">
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
@@ -85,7 +95,6 @@ ShipmentForm.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

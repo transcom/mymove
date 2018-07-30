@@ -175,9 +175,9 @@ export class BackupContact extends Component {
       if (this.props.currentBackupContacts.length > 0) {
         // update existing
         const oldOne = this.props.currentBackupContacts[0];
-        this.props.updateBackupContact(oldOne.id, pendingValues);
+        return this.props.updateBackupContact(oldOne.id, pendingValues);
       } else {
-        this.props.createBackupContact(
+        return this.props.createBackupContact(
           this.props.match.params.serviceMemberId,
           pendingValues,
         );
@@ -193,7 +193,7 @@ export class BackupContact extends Component {
   };
 
   render() {
-    const { pages, pageKey, hasSubmitSuccess, error } = this.props;
+    const { pages, pageKey, error } = this.props;
     const isValid = this.state.isValid;
     const isDirty = this.state.isDirty;
 
@@ -208,12 +208,10 @@ export class BackupContact extends Component {
     return (
       <WizardPage
         handleSubmit={this.handleSubmit}
-        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
         pageIsDirty={isDirty}
-        hasSucceeded={hasSubmitSuccess}
         error={error}
       >
         <ContactForm
@@ -232,7 +230,6 @@ BackupContact.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
@@ -248,9 +245,6 @@ function mapDispatchToProps(dispatch) {
 function mapStateToProps(state) {
   return {
     currentBackupContacts: state.serviceMember.currentBackupContacts,
-    hasSubmitSuccess:
-      state.serviceMember.createBackupContactSuccess ||
-      state.serviceMember.updateBackupContactSuccess,
     error: state.serviceMember.error,
     schema: get(
       state,
