@@ -116,6 +116,16 @@ func (m *Move) Approve() error {
 	return nil
 }
 
+// Complete Completes the Move
+func (m *Move) Complete() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	m.Status = MoveStatusCOMPLETED
+	return nil
+}
+
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
