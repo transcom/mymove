@@ -20,7 +20,6 @@ export class ShipmentAddress extends Component {
       'formValues.has_delivery_address',
       false,
     );
-
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
