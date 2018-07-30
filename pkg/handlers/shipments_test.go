@@ -255,12 +255,8 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 	req := httptest.NewRequest("GET", "/shipments", nil)
 	req = suite.authenticateTspRequest(req, tspUser)
 
-	limit := int64(25)
-	offset := int64(1)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Limit:       &limit,
-		Offset:      &offset,
 	}
 
 	// And: an index of shipments is returned

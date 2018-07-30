@@ -153,10 +153,17 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 	}
 
 	// Manage limit and offset values
-	if *limit < int64(1) {
+	defaultLimit := int64(25)
+	if limit == nil {
+		limit = &defaultLimit
+	} else if *limit < int64(1) {
 		*limit = int64(1)
 	}
-	if *offset < int64(1) {
+
+	defaultOffset := int64(1)
+	if offset == nil {
+		offset = &defaultOffset
+	} else if *offset < int64(1) {
 		*offset = int64(1)
 	}
 
