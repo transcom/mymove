@@ -526,3 +526,69 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryD
 		}
 	}
 }
+
+// TestPublicIndexShipmentsHandlerFilterByStatus tests the api endpoint with defined status query param
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
+
+	numTspUsers := 1
+	numShipments := 25
+	numShipmentOfferSplit := []int{25}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// Constants
+	status := "DEFAULT"
+
+	// Handler to Test
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+
+	// Test query with first user
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Status:      &status,
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.Equal(25, len(okResponse.Payload))
+}
+
+// TestPublicIndexShipmentsHandlerFilterByStatusNoResults tests the api endpoint with defined status query param that returns nothing
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResults() {
+
+	numTspUsers := 1
+	numShipments := 25
+	numShipmentOfferSplit := []int{25}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// Constants
+	status := "NOTASTATUS"
+
+	// Handler to Test
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+
+	// Test query with first user
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Status:      &status,
+	}
+
+	response := handler.Handle(params)
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+	suite.Equal(0, len(okResponse.Payload))
+}
