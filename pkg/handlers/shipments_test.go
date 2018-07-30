@@ -430,3 +430,103 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsPickupDes
 		}
 	}
 }
+
+// TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc sorts returned shipments
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryAsc() {
+	numTspUsers := 1
+	numShipments := 3
+	numShipmentOfferSplit := []int{3}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+
+	limit := int64(25)
+	offset := int64(1)
+	orderBy := "DELIVERY_DATE_ASC"
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Limit:       &limit,
+		Offset:      &offset,
+		OrderBy:     &orderBy,
+	}
+
+	// And: an index of shipments is returned
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+
+	// And: Returned query to have at least one shipment in the list
+	suite.Equal(3, len(okResponse.Payload))
+
+	var deliveryDate time.Time
+	empty := time.Time{}
+	for _, responsePayload := range okResponse.Payload {
+		if deliveryDate == empty {
+			deliveryDate = time.Time(responsePayload.DeliveryDate)
+		} else {
+			newDT := time.Time(responsePayload.DeliveryDate)
+			suite.True(newDT.After(deliveryDate))
+			deliveryDate = newDT
+		}
+	}
+}
+
+// TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc sorts returned shipments
+func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerSortShipmentsDeliveryDesc() {
+	numTspUsers := 1
+	numShipments := 3
+	numShipmentOfferSplit := []int{3}
+	tspUsers, _, _, err := testdatagen.CreateShipmentOfferData(suite.db, numTspUsers, numShipments, numShipmentOfferSplit)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	tspUser := tspUsers[0]
+
+	// And: the context contains the auth values
+	req := httptest.NewRequest("GET", "/shipments", nil)
+	req = suite.authenticateTspRequest(req, tspUser)
+
+	limit := int64(25)
+	offset := int64(1)
+	orderBy := "DELIVERY_DATE_DESC"
+	params := publicshipmentop.IndexShipmentsParams{
+		HTTPRequest: req,
+		Limit:       &limit,
+		Offset:      &offset,
+		OrderBy:     &orderBy,
+	}
+
+	// And: an index of shipments is returned
+	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(params)
+
+	// Then: expect a 200 status code
+	suite.Assertions.IsType(&publicshipmentop.IndexShipmentsOK{}, response)
+	okResponse := response.(*publicshipmentop.IndexShipmentsOK)
+
+	// And: Returned query to have at least one shipment in the list
+	suite.Equal(3, len(okResponse.Payload))
+
+	var deliveryDate time.Time
+	empty := time.Time{}
+	for _, responsePayload := range okResponse.Payload {
+		if deliveryDate == empty {
+			deliveryDate = time.Time(responsePayload.DeliveryDate)
+		} else {
+			newDT := time.Time(responsePayload.DeliveryDate)
+			suite.True(newDT.Before(deliveryDate))
+			deliveryDate = newDT
+		}
+	}
+}
