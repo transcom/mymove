@@ -11,6 +11,548 @@ consumes:
   - application/json
 produces:
   - application/json
+definitions:
+  Address:
+    type: object
+    properties:
+      street_address_1:
+        type: string
+        example: 123 Main Ave
+        title: Address Line 1
+      street_address_2:
+        type: string
+        example: Apartment 9000
+        x-nullable: true
+        title: Address Line 2
+      street_address_3:
+        type: string
+        example: Montmârtre
+        x-nullable: true
+        title: Address Line 3
+      city:
+        type: string
+        example: Anytown
+        title: City
+      state:
+        title: State
+        type: string
+        example: CA
+      postal_code:
+        type: string
+        description: zip code, international allowed
+        format: zip
+        title: ZIP/Postal Code
+        example: "'90210' or 'N15 3NL'"
+      country:
+        type: string
+        title: Country
+        x-nullable: true
+        example: "United States"
+        default: United States
+    required:
+      - street_address_1
+      - city
+      - postal_code
+  IndexBlackoutsPayload:
+    type: array
+    items:
+      $ref: '#/definitions/BlackoutPayload'
+  CreateBlackoutPayload:
+    type: object
+    properties:
+      start_date:
+        type: string
+        description: the first day to blackout
+        format: date
+        example: 2018-10-21
+      end_date:
+        type: string
+        description: the first day after the blackout ends
+        format: date
+        example: 2018-10-29
+      gbloc:
+        $ref: '#/definitions/GBLOC'
+      zip3:
+        type: string
+        description: restricts the search to blackout periods with an explicit source rate area (zip3)
+        example: 941
+        pattern: '^[0-9]{3}$'
+      channel:
+        $ref: '#/definitions/Channel'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      code_of_service:
+        $ref: '#/definitions/CodeOfService'
+    required:
+      - start_date
+      - end_date
+  BlackoutPayload:
+    type: object
+    properties:
+      id:
+        type: string
+        description: unique id of the blackout in the system
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      tsp_id:
+        type: string
+        description: ID of the TSP filing this blackout
+        format: uuid
+      start_date:
+        type: string
+        description: the first day to blackout
+        format: date
+        example: 2018-10-21
+      end_date:
+        type: string
+        description: the first day after the blackout ends
+        format: date
+        example: 2018-10-29
+      gbloc:
+        $ref: '#/definitions/GBLOC'
+      zip3:
+        type: string
+        description: restricts the search to blackout periods with an explicit source rate area (zip3)
+        example: 941
+        pattern: '^[0-9]{3}$'
+      channel:
+        $ref: '#/definitions/Channel'
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+      code_of_service:
+        $ref: '#/definitions/CodeOfService'
+    required:
+      - start_date
+      - end_date
+  Channel:
+    type: object
+    description: The channel (pickup location & destination region)
+    properties:
+      origin:
+        type: string
+        enum: # Add other values
+          - US49
+        example: US49
+      destination:
+        type: string
+        enum: # Add other values
+          - REGION_6
+        example: REGION_6
+  Document:
+    type: object
+    description: A document is one or more uploaded files (usually images or PDFs) which can be associated with a shipment
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Unique ID for this document within the system
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        description: Human readable name for the document
+        example: Preload Weight Ticket 2017-10-21
+        maxLength: 1024
+      uploads:
+        type: array
+        items:
+          $ref: '#/definitions/DocumentUpload'
+      created:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:20:50.52Z
+        description: When the document was created
+      last_modified:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:22:30.52Z
+        description: When the document was last added to
+      upload_url:
+        type: string
+        format: uri
+        example: https://test_api.move.mil/api/v1/documents/c56a4180-65aa-42ec-a945-5fd21dec0538/uploads
+        description: Location to which uploads should be posted.
+    required:
+      - name
+  DocumentUpload:
+    type: object
+    description: Details of a file uploaded as part of a Document. Usually, but not always, an image or PDF
+    properties:
+      id:
+        type: string
+        format: uuid
+        description: Unique ID for this object
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        description: Human readable name for the document
+        example: Page 3
+        maxLength: 1024
+      uploaded:
+        type: string
+        format: dateTime
+        description: When the Upload was created
+        example: 2018-04-12T23:22:30.52Z
+      mime_type:
+        type: string
+        description: The mime type for the file
+        example: 'application/pdf'
+        enum:
+          - application/pdf
+          - image/jpeg
+          - image/png
+    required:
+      - name
+  Claim:
+    type: object
+    description: A claim resulting from an earlier shipment
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      shipment_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      claim_date:
+        type: string
+        format: dateTime
+        example: 2018-04-12T23:20:50.52Z
+      description:
+        type: string
+        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
+  CodeOfService:
+    type: string
+    description: Code for service provided by a TSP
+    enum:
+      - COS_D
+      - COS_2
+      - COS_4
+      - COS_5
+      - COS_6
+      - COS_T
+      - COS_7
+      - COS_8
+      - COS_J
+      - COS_B
+      - COS_H
+      - COS_S
+    x-display-value:
+      COS_D: Loose or containerized household goods CONUS
+      COS_2: Moving household goods in containers CONUS
+      COS_4: International Door to Door
+      COS_5: International Door to Door Container Government Ocean Transport
+      COS_6: International Door to Door Air Container
+      COS_T: International Door to Door; Air Mobility Command (AMC)
+      COS_7: International Land-Water-Land Baggage
+      COS_8: International Land-Air-Land Baggage
+      COS_J: International Land-Air (AMC)-Land Baggage
+      COS_B: Tow-away boat
+      COS_H: Haul-away boat
+      COS_S: Mobile Home (CONUS)
+  Customer:
+    type: object
+    description: The person moving
+    properties:
+      given_name:
+        type: string
+        example: Mary
+      family_name:
+        type: string
+        example: Johnson
+  GBLOC:
+    type: string
+    description: Office Codes for Transcom offices originating GBLs
+    pattern: '^[A-Z]{4}$'
+    example: LHNQ
+  IndexShipments:
+    type: array
+    items:
+      $ref: '#/definitions/Shipment'
+  Shipment:
+    type: object
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      traffic_distribution_list_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+        readOnly: true
+      pickup_date:
+        type: string
+        format: date-time
+      delivery_date:
+        type: string
+        format: date-time
+      source_gbloc:
+        $ref: '#/definitions/GBLOC'
+        readOnly: true
+      market:
+        $ref: '#/definitions/ShipmentMarket'
+        readOnly: true
+        x-nullable: true
+      book_date:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_pickup_date:
+        type: string
+        format: date-time
+      move_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
+      status:
+        $ref: '#/definitions/ShipmentStatus'
+        readOnly: true
+      estimated_pack_days:
+        type: integer
+        description: Estimated days packing
+        minimum: 0
+        example: 2
+        x-nullable: true
+      estimated_transit_days:
+        type: integer
+        description: Estimated days in transit
+        minimum: 0
+        example: 30
+        x-nullable: true
+      pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_secondary_pickup_address:
+        type: boolean
+        example: false
+      secondary_pickup_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_delivery_address:
+        type: boolean
+        example: false
+      delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      has_partial_sit_delivery_address:
+        type: boolean
+        example: false
+      partial_sit_delivery_address:
+        $ref: '#/definitions/Address'
+        x-nullable: true
+      weight_estimate:
+        type: integer
+        description: Estimated weight of the shipment in lbs
+        minimum: 0
+        example: 10000
+        x-nullable: true
+      progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the progear in lbs
+        minimum: 0
+        example: 500
+        x-nullable: true
+      spouse_progear_weight_estimate:
+        type: integer
+        description: Estimated weight of the spouse progear in lbs
+        minimum: 0
+        example: 200
+        x-nullable: true
+  ShipmentAcceptPayload:
+    type: object
+    properties:
+      origin_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+      destination_shipping_agent:
+        $ref: '#/definitions/ShippingAgentContact'
+    required:
+      - origin_shipping_agent
+      - destination_shipping_agent
+  ShippingAgentContact:
+    type: object
+    properties:
+      name:
+        type: string
+        example: Speedy Moving and Storage
+      phone_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+      email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email used to contact shipping agent
+        example: jackson_flies@gmail.com
+    required:
+      - name
+      - phone_number
+      - email
+  ShipmentContactDetails:
+    type: object
+    description: Contact details for customer for Shipment
+    properties:
+      primary_name:
+        type: string
+        description: Name of the primary contact person
+        example: Mike Jackson
+      primary_title:
+        type: string
+        example: Lt. Colonel
+        description: title of primary contact
+      primary_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1212
+      primary_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email of primary contact person
+        example: mjackson@gmail.com
+      secondary_name:
+        type: string
+        example: Mary Jackson
+      secondary_title:
+        type: string
+        example: Wing Commander
+      secondary_phone:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+      secondary_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email of secondary contact person
+        example: jackson_flies@gmail.com
+  ShipmentDates:
+    type: object
+    description: The various dates associated with a shipment
+    properties:
+      requested_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_latest_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      requested_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_latest_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      planned_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      scheduled_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      required_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_pack:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_pickup:
+        type: string
+        format: date
+        example: 2018-03-15
+      actual_delivery:
+        type: string
+        format: date
+        example: 2018-03-15
+  ShipmentMarket:
+    type: string
+    description: One of the possible 'Markets' for a shipment
+    example: dHHG
+    enum:
+      - dHHG
+      - iHHG
+      - iUB
+    x-display-value:
+      dHHG: Domestic HHG
+      iHHG: International HHG
+      iUB: International unaccompanied baggage
+  ShipmentRefusePayload:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
+  ShipmentStatus:
+    type: string
+    description: The stages in the lifecycle of a Shipment
+    example: IN_PROGRESS
+    enum: &SHIPMENTSTATUS
+      - IN_PROGRESS
+      - COMPLETE
+      - AWARDED
+      - ACCEPTED
+      - REJECTED
+      - IN_TRANSIT
+      - SIT_ORIGIN
+      - SIT_DEST
+      - DELIVERED
+      - COMPLETED
+      - CLAIMS
+  ShipmentType:
+    type: string
+    description: The type of a shipment
+    example: HHG
+    enum: # Todo(Nick) - There may be more of these
+      - HHG
+      - PPM
+  TSP:
+    type: object
+    description: The primary definition of a Transport Service Provider
+    properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      name:
+        type: string
+        example: Moving Company, Inc.
+        minLength: 1
+        maxLength: 1024
+      scac:
+        type: string
+        description: The SCAC associated with the TSP
+        format: '^[A-Z]{2,4}$'
+        example: USPS
+      contact_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        example: john_bob@example.com
 paths:
   /blackouts:
     get:
@@ -621,545 +1163,3 @@ paths:
           description: TSP UUID not found in system
         500:
           description: server error
-definitions:
-  Address:
-    type: object
-    properties:
-      street_address_1:
-        type: string
-        example: 123 Main Ave
-        title: Address Line 1
-      street_address_2:
-        type: string
-        example: Apartment 9000
-        x-nullable: true
-        title: Address Line 2
-      street_address_3:
-        type: string
-        example: Montmârtre
-        x-nullable: true
-        title: Address Line 3
-      city:
-        type: string
-        example: Anytown
-        title: City
-      state:
-        title: State
-        type: string
-        example: CA
-      postal_code:
-        type: string
-        description: zip code, international allowed
-        format: zip
-        title: ZIP/Postal Code
-        example: "'90210' or 'N15 3NL'"
-      country:
-        type: string
-        title: Country
-        x-nullable: true
-        example: "United States"
-        default: United States
-    required:
-      - street_address_1
-      - city
-      - postal_code
-  IndexBlackoutsPayload:
-    type: array
-    items:
-      $ref: '#/definitions/BlackoutPayload'
-  CreateBlackoutPayload:
-    type: object
-    properties:
-      start_date:
-        type: string
-        description: the first day to blackout
-        format: date
-        example: 2018-10-21
-      end_date:
-        type: string
-        description: the first day after the blackout ends
-        format: date
-        example: 2018-10-29
-      gbloc:
-        $ref: '#/definitions/GBLOC'
-      zip3:
-        type: string
-        description: restricts the search to blackout periods with an explicit source rate area (zip3)
-        example: 941
-        pattern: '^[0-9]{3}$'
-      channel:
-        $ref: '#/definitions/Channel'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-      code_of_service:
-        $ref: '#/definitions/CodeOfService'
-    required:
-      - start_date
-      - end_date
-  BlackoutPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        description: unique id of the blackout in the system
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      tsp_id:
-        type: string
-        description: ID of the TSP filing this blackout
-        format: uuid
-      start_date:
-        type: string
-        description: the first day to blackout
-        format: date
-        example: 2018-10-21
-      end_date:
-        type: string
-        description: the first day after the blackout ends
-        format: date
-        example: 2018-10-29
-      gbloc:
-        $ref: '#/definitions/GBLOC'
-      zip3:
-        type: string
-        description: restricts the search to blackout periods with an explicit source rate area (zip3)
-        example: 941
-        pattern: '^[0-9]{3}$'
-      channel:
-        $ref: '#/definitions/Channel'
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-      code_of_service:
-        $ref: '#/definitions/CodeOfService'
-    required:
-      - start_date
-      - end_date
-  Channel:
-    type: object
-    description: The channel (pickup location & destination region)
-    properties:
-      origin:
-        type: string
-        enum: # Add other values
-          - US49
-        example: US49
-      destination:
-        type: string
-        enum: # Add other values
-          - REGION_6
-        example: REGION_6
-  Document:
-    type: object
-    description: A document is one or more uploaded files (usually images or PDFs) which can be associated with a shipment
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: Unique ID for this document within the system
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        description: Human readable name for the document
-        example: Preload Weight Ticket 2017-10-21
-        maxLength: 1024
-      uploads:
-        type: array
-        items:
-          $ref: '#/definitions/DocumentUpload'
-      created:
-        type: string
-        format: dateTime
-        example: 2018-04-12T23:20:50.52Z
-        description: When the document was created
-      last_modified:
-        type: string
-        format: dateTime
-        example: 2018-04-12T23:22:30.52Z
-        description: When the document was last added to
-      upload_url:
-        type: string
-        format: uri
-        example: https://test_api.move.mil/api/v1/documents/c56a4180-65aa-42ec-a945-5fd21dec0538/uploads
-        description: Location to which uploads should be posted.
-    required:
-      - name
-  DocumentUpload:
-    type: object
-    description: Details of a file uploaded as part of a Document. Usually, but not always, an image or PDF
-    properties:
-      id:
-        type: string
-        format: uuid
-        description: Unique ID for this object
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        description: Human readable name for the document
-        example: Page 3
-        maxLength: 1024
-      uploaded:
-        type: string
-        format: dateTime
-        description: When the Upload was created
-        example: 2018-04-12T23:22:30.52Z
-      mime_type:
-        type: string
-        description: The mime type for the file
-        example: 'application/pdf'
-        enum:
-          - application/pdf
-          - image/jpeg
-          - image/png
-    required:
-      - name
-  Claim:
-    type: object
-    description: A claim resulting from an earlier shipment
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      shipment_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      claim_date:
-        type: string
-        format: dateTime
-        example: 2018-04-12T23:20:50.52Z
-      description:
-        type: string
-        example: "During shipment the Grandfather clock was dropped resulting in a break to the glass in front of the face"
-  CodeOfService:
-    type: string
-    description: Code for service provided by a TSP
-    enum:
-      - COS_D
-      - COS_2
-      - COS_4
-      - COS_5
-      - COS_6
-      - COS_T
-      - COS_7
-      - COS_8
-      - COS_J
-      - COS_B
-      - COS_H
-      - COS_S
-    x-display-value:
-      COS_D: Loose or containerized household goods CONUS
-      COS_2: Moving household goods in containers CONUS
-      COS_4: International Door to Door
-      COS_5: International Door to Door Container Government Ocean Transport
-      COS_6: International Door to Door Air Container
-      COS_T: International Door to Door; Air Mobility Command (AMC)
-      COS_7: International Land-Water-Land Baggage
-      COS_8: International Land-Air-Land Baggage
-      COS_J: International Land-Air (AMC)-Land Baggage
-      COS_B: Tow-away boat
-      COS_H: Haul-away boat
-      COS_S: Mobile Home (CONUS)
-  Customer:
-    type: object
-    description: The person moving
-    properties:
-      given_name:
-        type: string
-        example: Mary
-      family_name:
-        type: string
-        example: Johnson
-  GBLOC:
-    type: string
-    description: Office Codes for Transcom offices originating GBLs
-    pattern: '^[A-Z]{4}$'
-    example: LHNQ
-  IndexShipments:
-    type: array
-    items:
-      $ref: '#/definitions/Shipment'
-  Shipment:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      traffic_distribution_list_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
-        readOnly: true
-      pickup_date:
-        type: string
-        format: date-time
-      delivery_date:
-        type: string
-        format: date-time
-      source_gbloc:
-        $ref: '#/definitions/GBLOC'
-        readOnly: true
-      market:
-        $ref: '#/definitions/ShipmentMarket'
-        readOnly: true
-        x-nullable: true
-      book_date:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_pickup_date:
-        type: string
-        format: date-time
-      move_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
-      status:
-        $ref: '#/definitions/ShipmentStatus'
-        readOnly: true
-      estimated_pack_days:
-        type: integer
-        description: Estimated days packing
-        minimum: 0
-        example: 2
-        x-nullable: true
-      estimated_transit_days:
-        type: integer
-        description: Estimated days in transit
-        minimum: 0
-        example: 30
-        x-nullable: true
-      pickup_address:
-        $ref: '#/definitions/Address'
-        x-nullable: true
-      has_secondary_pickup_address:
-        type: boolean
-        example: false
-      secondary_pickup_address:
-        $ref: '#/definitions/Address'
-        x-nullable: true
-      has_delivery_address:
-        type: boolean
-        example: false
-      delivery_address:
-        $ref: '#/definitions/Address'
-        x-nullable: true
-      has_partial_sit_delivery_address:
-        type: boolean
-        example: false
-      partial_sit_delivery_address:
-        $ref: '#/definitions/Address'
-        x-nullable: true
-      weight_estimate:
-        type: integer
-        description: Estimated weight of the shipment in lbs
-        minimum: 0
-        example: 10000
-        x-nullable: true
-      progear_weight_estimate:
-        type: integer
-        description: Estimated weight of the progear in lbs
-        minimum: 0
-        example: 500
-        x-nullable: true
-      spouse_progear_weight_estimate:
-        type: integer
-        description: Estimated weight of the spouse progear in lbs
-        minimum: 0
-        example: 200
-        x-nullable: true
-  ShipmentAcceptPayload:
-    type: object
-    properties:
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-    required:
-      - origin_shipping_agent
-      - destination_shipping_agent
-  ShippingAgentContact:
-    type: object
-    properties:
-      name:
-        type: string
-        example: Speedy Moving and Storage
-      phone_number:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
-      email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email used to contact shipping agent
-        example: jackson_flies@gmail.com
-    required:
-      - name
-      - phone_number
-      - email
-  ShipmentContactDetails:
-    type: object
-    description: Contact details for customer for Shipment
-    properties:
-      primary_name:
-        type: string
-        description: Name of the primary contact person
-        example: Mike Jackson
-      primary_title:
-        type: string
-        example: Lt. Colonel
-        description: title of primary contact
-      primary_phone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1212
-      primary_email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email of primary contact person
-        example: mjackson@gmail.com
-      secondary_name:
-        type: string
-        example: Mary Jackson
-      secondary_title:
-        type: string
-        example: Wing Commander
-      secondary_phone:
-        type: string
-        format: telephone
-        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
-        example: 212-555-1213
-      secondary_email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        description: Email of secondary contact person
-        example: jackson_flies@gmail.com
-  ShipmentDates:
-    type: object
-    description: The various dates associated with a shipment
-    properties:
-      requested_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      requested_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_latest_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      planned_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      scheduled_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      required_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pack:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_pickup:
-        type: string
-        format: date
-        example: 2018-03-15
-      actual_delivery:
-        type: string
-        format: date
-        example: 2018-03-15
-  ShipmentMarket:
-    type: string
-    description: One of the possible 'Markets' for a shipment
-    example: dHHG
-    enum:
-      - dHHG
-      - iHHG
-      - iUB
-    x-display-value:
-      dHHG: Domestic HHG
-      iHHG: International HHG
-      iUB: International unaccompanied baggage
-  ShipmentRefusePayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
-  ShipmentStatus:
-    type: string
-    description: The stages in the lifecycle of a Shipment
-    example: IN_PROGRESS
-    enum: &SHIPMENTSTATUS
-      - IN_PROGRESS
-      - COMPLETE
-      - AWARDED
-      - ACCEPTED
-      - REJECTED
-      - IN_TRANSIT
-      - SIT_ORIGIN
-      - SIT_DEST
-      - DELIVERED
-      - COMPLETED
-      - CLAIMS
-  ShipmentType:
-    type: string
-    description: The type of a shipment
-    example: HHG
-    enum: # Todo(Nick) - There may be more of these
-      - HHG
-      - PPM
-  TSP:
-    type: object
-    description: The primary definition of a Transport Service Provider
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      name:
-        type: string
-        example: Moving Company, Inc.
-        minLength: 1
-        maxLength: 1024
-      scac:
-        type: string
-        description: The SCAC associated with the TSP
-        format: '^[A-Z]{2,4}$'
-        example: USPS
-      contact_email:
-        type: string
-        format: x-email
-        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
-        example: john_bob@example.com
