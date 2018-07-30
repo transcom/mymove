@@ -153,18 +153,14 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 	}
 
 	// Manage limit and offset values
-	defaultLimit := int64(25)
-	if limit == nil {
-		limit = &defaultLimit
-	} else if *limit < int64(1) {
-		*limit = int64(1)
+	var limitVar = 25
+	if limit != nil && *limit > 0 {
+		limitVar = int(*limit)
 	}
 
-	defaultOffset := int64(1)
-	if offset == nil {
-		offset = &defaultOffset
-	} else if *offset < int64(1) {
-		*offset = int64(1)
+	var offsetVar = 1
+	if offset != nil && *offset > 1 {
+		offsetVar = int(*offset)
 	}
 
 	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
@@ -173,7 +169,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
 	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
 	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
-	query.Paginate(int(*offset), int(*limit))
+	query.Paginate(offsetVar, limitVar)
 
 	err := query.All(&shipments)
 
