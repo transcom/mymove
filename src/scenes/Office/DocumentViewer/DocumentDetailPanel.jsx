@@ -9,21 +9,29 @@ import { renderStatusIcon } from 'shared/utils';
 import { formatDate } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
+import ExpenseDocumentForm from './ExpenseDocumentForm';
 import {
   selectMoveDocument,
   updateMoveDocument,
 } from 'shared/Entities/modules/moveDocuments';
+import { isMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 
 import '../office.css';
 
 const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
-  const schema = moveDoc.moving_expense_type
-    ? props.movingExpenseSchema
-    : props.moveDocSchema;
+  const isExpenseDocument = isMovingExpenseDocument(moveDoc);
   const moveDocFieldProps = {
     values: props.moveDocument,
-    schema: schema,
+    schema: props.moveDocSchema,
+  };
+  const expenseFieldProps = {
+    values: props.moveDocument,
+    schema: props.movingExpenseSchema,
+  };
+  const reimbursementFieldProps = {
+    values: get(props.moveDocument, 'reimbursement', {}),
+    schema: props.reimbursementSchema,
   };
   return (
     <React.Fragment>
@@ -52,12 +60,27 @@ const DocumentDetailDisplay = props => {
             Missing
           </PanelField>
         )}
-        {moveDoc.moving_expense_type && (
-          <PanelSwaggerField
-            fieldName="moving_expense_type"
-            {...moveDocFieldProps}
-          />
-        )}
+        {isExpenseDocument &&
+          moveDoc.moving_expense_type && (
+            <PanelSwaggerField
+              fieldName="moving_expense_type"
+              {...expenseFieldProps}
+            />
+          )}
+        {isExpenseDocument &&
+          get(moveDoc, 'reimbursement.requested_amount') && (
+            <PanelSwaggerField
+              fieldName="requested_amount"
+              {...reimbursementFieldProps}
+            />
+          )}
+        {isExpenseDocument &&
+          get(moveDoc, 'reimbursement.method_of_receipt') && (
+            <PanelSwaggerField
+              fieldName="method_of_receipt"
+              {...reimbursementFieldProps}
+            />
+          )}
         {moveDoc.status ? (
           <PanelSwaggerField fieldName="status" {...moveDocFieldProps} />
         ) : (
@@ -78,20 +101,28 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  const schema = props.moveDocSchema;
+  const { formValues, moveDocSchema } = props;
+  const isExpenseDocument =
+    get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
 
   return (
     <React.Fragment>
       <div>
         <FormSection name="moveDocument">
-          <SwaggerField fieldName="title" swagger={schema} required />
+          <SwaggerField fieldName="title" swagger={moveDocSchema} required />
           <SwaggerField
             fieldName="move_document_type"
-            swagger={schema}
+            swagger={moveDocSchema}
             required
           />
-          <SwaggerField fieldName="status" swagger={schema} required />
-          <SwaggerField fieldName="notes" swagger={schema} />
+          {isExpenseDocument && (
+            <ExpenseDocumentForm
+              movingExpenseDocumentSchema={props.movingExpenseDocumentSchema}
+              reimbursementSchema={props.reimbursementSchema}
+            />
+          )}
+          <SwaggerField fieldName="status" swagger={moveDocSchema} required />
+          <SwaggerField fieldName="notes" swagger={moveDocSchema} />
         </FormSection>
       </div>
     </React.Fragment>
@@ -115,6 +146,7 @@ function mapStateToProps(state, props) {
     initialValues: {
       moveDocument: moveDocument,
     },
+    formValues: getFormValues(formName)(state),
 
     moveDocSchema: get(
       state,
@@ -140,6 +172,11 @@ function mapStateToProps(state, props) {
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
       let values = getFormValues(formName)(state);
+      values.moveDocument.personally_procured_move_id = get(
+        state.office,
+        'officePPMs.0.id',
+      );
+      // Todo: flatten movingExpenseDocument formsection to just moving_expense_type
       return [
         get(state, 'office.officeMove.id'),
         get(moveDocument, 'id'),

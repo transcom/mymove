@@ -232,6 +232,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 		Status:                   MoveDocumentStatusAWAITINGREVIEW,
 		Notes:                    notes,
 	}
+
 	verrs, err = db.ValidateAndCreate(newMoveDocument)
 	if err != nil || verrs.HasAny() {
 		responseVErrors.Append(verrs)
@@ -242,7 +243,7 @@ func (m Move) createMoveDocumentWithoutTransaction(
 	return newMoveDocument, responseVErrors, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move
+// CreateMoveDocument creates a move document associated to a move & ppm
 func (m Move) CreateMoveDocument(
 	db *pop.Connection,
 	uploads Uploads,
@@ -277,7 +278,7 @@ func (m Move) CreateMoveDocument(
 	return newMoveDocument, responseVErrors, responseError
 }
 
-// CreateMovingExpenseDocument creates a move document associated to a move
+// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
 func (m Move) CreateMovingExpenseDocument(
 	db *pop.Connection,
 	uploads Uploads,

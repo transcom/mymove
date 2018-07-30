@@ -3,7 +3,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { push } from 'react-router-redux';
 import { bindActionCreators } from 'redux';
-import { getFormValues, reduxForm, FormSection } from 'redux-form';
+import { getFormValues, reduxForm } from 'redux-form';
 import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
@@ -11,6 +11,7 @@ import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
 import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
+import ExpenseDocumentForm from './ExpenseDocumentForm';
 
 import './DocumentUploader.css';
 
@@ -32,7 +33,7 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, officePPM, moveId, reset } = this.props;
+    const { formValues, currentPpm, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
       moveDocumentCreateError: null,
@@ -44,8 +45,8 @@ export class DocumentUploader extends Component {
       this.props
         .createMovingExpenseDocument(
           moveId,
+          currentPpm.id,
           uploadIds,
-          officePPM.id,
           formValues.title,
           formValues.movingExpenseDocument.moving_expense_type,
           formValues.move_document_type,
@@ -66,10 +67,10 @@ export class DocumentUploader extends Component {
       this.props
         .createMoveDocument(
           moveId,
+          currentPpm.id,
           uploadIds,
           formValues.title,
           formValues.move_document_type,
-          'AWAITING_REVIEW',
           formValues.notes,
         )
         .then(() => {
@@ -114,9 +115,7 @@ export class DocumentUploader extends Component {
       formValues,
     } = this.props;
     const isExpenseDocument =
-      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE' ||
-      get(this.props, 'formValues.move_document_type', false) ===
-        'STORAGE_EXPENSE';
+      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
@@ -148,30 +147,10 @@ export class DocumentUploader extends Component {
               required
             />
             {isExpenseDocument && (
-              <Fragment>
-                <FormSection name="movingExpenseDocument">
-                  <SwaggerField
-                    title="Expense type"
-                    fieldName="moving_expense_type"
-                    swagger={movingExpenseSchema}
-                    required
-                  />
-                </FormSection>
-                <FormSection name="reimbursement">
-                  <SwaggerField
-                    title="Amount"
-                    fieldName="requested_amount"
-                    swagger={reimbursementSchema}
-                    required
-                  />
-                  <SwaggerField
-                    title="Method of Payment"
-                    fieldName="method_of_receipt"
-                    swagger={reimbursementSchema}
-                    required
-                  />
-                </FormSection>
-              </Fragment>
+              <ExpenseDocumentForm
+                movingExpenseSchema={movingExpenseSchema}
+                reimbursementSchema={reimbursementSchema}
+              />
             )}
             <SwaggerField
               title="Notes"
@@ -228,7 +207,8 @@ function mapStateToProps(state) {
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
-    officePPM: get(state.office, 'officePPMs.0', {}),
+    currentPpm:
+      get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   };
   return props;
 }

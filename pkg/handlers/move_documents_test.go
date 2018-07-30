@@ -14,7 +14,8 @@ import (
 )
 
 func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
-	move := testdatagen.MakeDefaultMove(suite.db)
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	move := ppm.Move
 	sm := move.Orders.ServiceMember
 
 	upload := testdatagen.MakeUpload(suite.db, testdatagen.Assertions{
@@ -30,10 +31,11 @@ func (suite *HandlerSuite) TestCreateMoveDocumentHandler() {
 	request = suite.authenticateRequest(request, sm)
 
 	newMoveDocPayload := internalmessages.CreateGenericMoveDocumentPayload{
-		UploadIds:        uploadIds,
-		MoveDocumentType: internalmessages.MoveDocumentTypeOTHER,
-		Title:            fmtString("awesome_document.pdf"),
-		Notes:            fmtString("Some notes here"),
+		UploadIds:                uploadIds,
+		PersonallyProcuredMoveID: fmtUUID(ppm.ID),
+		MoveDocumentType:         internalmessages.MoveDocumentTypeOTHER,
+		Title:                    fmtString("awesome_document.pdf"),
+		Notes:                    fmtString("Some notes here"),
 	}
 
 	newMoveDocParams := movedocop.CreateGenericMoveDocumentParams{

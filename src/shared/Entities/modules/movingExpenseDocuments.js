@@ -1,12 +1,20 @@
-import { filter, map } from 'lodash';
+import { includes, get, filter, map } from 'lodash';
 import { moveDocuments } from '../schema';
 import { addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
 import { getClient, checkResponse } from 'shared/api';
 
+const expenseTypes = ['EXPENSE', 'STORAGE_EXPENSE'];
+
+export function isMovingExpenseDocument(moveDocument) {
+  const type = get(moveDocument, 'move_document_type', '');
+  return includes(expenseTypes, type);
+}
+
 export function createMovingExpenseDocument(
   moveId,
+  personallyProcuredMoveId,
   uploadIds,
   title,
   movingExpenseType,
@@ -19,11 +27,11 @@ export function createMovingExpenseDocument(
     const response = await client.apis.move_docs.createMovingExpenseDocument({
       moveId,
       createMovingExpenseDocumentPayload: {
+        personally_procured_move_id: personallyProcuredMoveId,
         upload_ids: uploadIds,
         title: title,
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
-        // should this be in brackets? test it
         reimbursement: reimbursement,
         notes: notes,
       },
