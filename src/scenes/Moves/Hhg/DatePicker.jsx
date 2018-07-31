@@ -3,6 +3,7 @@ import React, { Component } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
+import { formatSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
 
 export class HHGDatePicker extends Component {
@@ -16,20 +17,10 @@ export class HHGDatePicker extends Component {
     };
   }
 
-  formatDate(date) {
-    if (date) {
-      const year = date.getFullYear();
-      const month = `${date.getMonth() + 1}`.padStart(2, 0);
-      const day = `${date.getDate()}`.padStart(2, 0);
-      return `${year}-${month}-${day}`;
-    }
-    return '';
-  }
-
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
-    this.props.setDate(this.formatDate(day));
+    this.props.setDate(formatSwaggerDate(day));
   }
 
   render() {
