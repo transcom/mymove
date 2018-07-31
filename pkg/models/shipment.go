@@ -156,7 +156,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Eager("PickupAddress", "SecondaryPickupAddress", "DeliveryAddress", "PartialSITDeliveryAddress").Find(&shipment, id)
+	err := db.Eager().Find(&shipment, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
