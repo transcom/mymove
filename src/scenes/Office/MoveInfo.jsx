@@ -46,7 +46,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 
 const BasicsTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
       <CustomerInfoPanel
         title="Customer Info"
@@ -60,7 +60,7 @@ const BasicsTabContent = props => {
 
 const PPMTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
       <IncentiveCalculator />
       <StorageReimbursementCalculator />
@@ -71,7 +71,7 @@ const PPMTabContent = props => {
 
 const HHGTabContent = props => {
   return (
-    <div className="hhg-tab">
+    <div className="office-tab">
       <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
     </div>
   );
@@ -209,7 +209,6 @@ class MoveInfo extends Component {
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
-    console.log('hhg', hhg);
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
