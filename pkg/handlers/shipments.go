@@ -177,7 +177,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	}
 }
 
-// PatchShipmentHandler Patchs a PPM
+// PatchShipmentHandler Patchs an HHG
 type PatchShipmentHandler HandlerContext
 
 // Handle is the handler
@@ -208,6 +208,32 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
 	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
+}
+
+// GetShipmentHandler Returns an HHG
+type GetShipmentHandler HandlerContext
+
+// Handle is the handler
+func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	shipment, err := models.FetchShipment(h.db, session, shipmentID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	if shipment.MoveID != moveID {
+		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
+		return shipmentop.NewGetShipmentBadRequest()
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
 /*

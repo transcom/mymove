@@ -28,6 +28,7 @@ type Shipment struct {
 	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
 	Market                    *string    `json:"market" db:"market"`
 	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
+	Move                      Move       `belongs_to:"move"`
 	Status                    string     `json:"status" db:"status"`
 
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
