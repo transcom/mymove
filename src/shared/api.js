@@ -1,5 +1,6 @@
 import Swagger from 'swagger-client';
 let client = null;
+let publicClient = null;
 
 export async function getClient() {
   if (!client) {
@@ -9,10 +10,10 @@ export async function getClient() {
 }
 
 export async function getPublicClient() {
-  if (!client) {
-    client = await Swagger('/api/v1/swagger.yaml');
+  if (!publicClient) {
+    publicClient = await Swagger('/api/v1/swagger.yaml');
   }
-  return client;
+  return publicClient;
 }
 
 export function checkResponse(response, errorMessage) {
