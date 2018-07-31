@@ -38,29 +38,30 @@ const PageNotInFlow = ({ location }) => (
   </div>
 );
 
-const Placeholder = props => {
-  return (
-    <WizardPage
-      handleSubmit={() => undefined}
-      pageList={props.pageList}
-      pageKey={props.pageKey}
-    >
-      <div className="Todo-phase2">
-        <h1>Placeholder for {props.title}</h1>
-        <h2>{props.description}</h2>
-      </div>
-    </WizardPage>
-  );
-};
+// USE THESE FOR STUBBING OUT FUTURE WORK
+// const Placeholder = props => {
+//   return (
+//     <WizardPage
+//       handleSubmit={() => undefined}
+//       pageList={props.pageList}
+//       pageKey={props.pageKey}
+//     >
+//       <div className="Todo-phase2">
+//         <h1>Placeholder for {props.title}</h1>
+//         <h2>{props.description}</h2>
+//       </div>
+//     </WizardPage>
+//   );
+// };
 
-const stub = (key, pages, description) => ({ match }) => (
-  <Placeholder
-    pageList={pages}
-    pageKey={key}
-    title={key}
-    description={description}
-  />
-);
+// const stub = (key, pages, description) => ({ match }) => (
+//   <Placeholder
+//     pageList={pages}
+//     pageKey={key}
+//     title={key}
+//     description={description}
+//   />
+// );
 
 const always = () => true;
 // Todo: update this when moves can be completed
@@ -215,19 +216,13 @@ const pages = {
     ),
   },
   '/moves/:moveId/hhg-start': {
-    isInFlow: state => state.selectedMoveType === 'HHG',
+    isInFlow: hasHHG,
     isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.requested_pickup_date]);
+      return every([hhg.requested_pickup_date, hhg.pickup_address]);
     },
     render: (key, pages) => ({ match }) => (
       <ShipmentForm pages={pages} pageKey={key} match={match} />
     ),
-  },
-  '/moves/:moveId/hhg-weight': {
-    isInFlow: hasHHG,
-    isComplete: always, //todo fix this when implemented
-    render: stub,
-    description: 'enter your HHG weight',
   },
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,
