@@ -72,10 +72,7 @@ const PPMTabContent = props => {
 const HHGTabContent = props => {
   return (
     <div className="hhg-tab">
-      <DatesAndTrackingPanel
-        title="Dates and Tracking"
-        moveId={props.match.params.moveId}
-      />
+      <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
     </div>
   );
 };
@@ -212,6 +209,7 @@ class MoveInfo extends Component {
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
     const hhg = this.props.officeHHG;
+    console.log('hhg', hhg);
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
@@ -325,6 +323,7 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
+                    moveId={this.props.match.params.moveId}
                   />
                 </PrivateRoute>
               </Switch>

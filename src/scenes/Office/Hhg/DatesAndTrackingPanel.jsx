@@ -13,7 +13,7 @@ import { PanelSwaggerField } from 'shared/EditablePanel';
 const DatesAndTrackingDisplay = props => {
   const fieldProps = {
     schema: props.shipmentSchema,
-    values: props.officeHHG,
+    values: props.initialValues,
   };
 
   return (
@@ -41,7 +41,7 @@ const DatesAndTrackingEdit = props => {
   );
 };
 
-const formName = 'office_move_info_accounting';
+const formName = 'office_shipment_info_dates_and_tracking';
 
 let DatesAndTrackingPanel = editablePanel(
   DatesAndTrackingDisplay,
@@ -50,11 +50,11 @@ let DatesAndTrackingPanel = editablePanel(
 DatesAndTrackingPanel = reduxForm({ form: formName })(DatesAndTrackingPanel);
 
 function mapStateToProps(state) {
-  let shipment = get(state, 'office.officeShipment', {});
+  let shipment = get(state, 'office.officeMove.shipments.0', {});
 
   return {
     // reduxForm
-    initialValues: state.office.officeOrders,
+    initialValues: shipment,
 
     // Wrapper
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
