@@ -42,7 +42,6 @@ export function createMoveDocument(
   uploadIds,
   title,
   moveDocumentType,
-  status,
   notes,
 ) {
   return async function(dispatch, getState, { schema }) {
@@ -54,7 +53,6 @@ export function createMoveDocument(
         upload_ids: uploadIds,
         title: title,
         move_document_type: moveDocumentType,
-        status: status,
         notes: notes,
       },
     });
