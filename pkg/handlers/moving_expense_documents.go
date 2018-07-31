@@ -106,39 +106,3 @@ func (h CreateMovingExpenseDocumentHandler) Handle(params movedocop.CreateMoving
 	}
 	return movedocop.NewCreateMovingExpenseDocumentOK().WithPayload(newPayload)
 }
-
-// // UpdateMovingExpenseDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{movingExpenseDocumentId}
-// type UpdateMovingExpenseDocumentHandler HandlerContext
-
-// // Handle ... updates a move document from a request payload
-// func (h UpdateMovingExpenseDocumentHandler) Handle(params movedocop.UpdateMovingExpenseDocumentParams) middleware.Responder {
-// 	session := auth.SessionFromRequestContext(params.HTTPRequest)
-
-// 	moveID, _ := uuid.FromString(params.MoveID.String())
-// 	moveDocID, _ := uuid.FromString(params.MovingExpenseDocumentID.String())
-
-// 	// Fetch move document from move id
-// 	moveDoc, err := models.FetchMovingExpenseDocument(h.db, session, moveDocID)
-// 	if err != nil {
-// 		return responseForError(h.logger, err)
-// 	}
-
-// 	if moveDoc.MoveID != moveID {
-// 		h.logger.Info("Move ID for Move Document does not match requested Move Document ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", moveDoc.MoveID.String()))
-// 		return movedocop.NewUpdateMovingExpenseDocumentBadRequest()
-// 	}
-// 	payload := params.UpdateMovingExpenseDocument
-// 	moveDoc.Title = *payload.Title
-// 	moveDoc.Notes = payload.Notes
-
-// 	verrs, err := models.SaveMovingExpenseDocument(h.db, moveDoc)
-// 	if err != nil || verrs.HasAny() {
-// 		return responseForVErrors(h.logger, verrs, err)
-// 	}
-
-// 	moveDocPayload, err := payloadForMovingExpenseDocumentModel(h.storage, *moveDoc)
-// 	if err != nil {
-// 		return responseForError(h.logger, err)
-// 	}
-// 	return movedocop.NewUpdateMovingExpenseDocumentOK().WithPayload(moveDocPayload)
-// }

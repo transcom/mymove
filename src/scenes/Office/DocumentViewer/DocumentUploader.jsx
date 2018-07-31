@@ -118,7 +118,6 @@ export class DocumentUploader extends Component {
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
-    console.log('formValues', formValues);
     return (
       <Fragment>
         {this.state.moveDocumentCreateError && (
