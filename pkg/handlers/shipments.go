@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -234,12 +235,69 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
  * ------------------------------------------
  */
 
-// PublicIndexShipmentHandler returns a list of shipments
-type PublicIndexShipmentHandler HandlerContext
+func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
+	shipmentPayload := &apimessages.Shipment{
+		ID: *fmtUUID(s.ID),
+		TrafficDistributionListID:    fmtUUID(*s.TrafficDistributionListID),
+		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
+		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
+		Market:                       apimessages.ShipmentMarket(*s.Market),
+		BookDate:                     *fmtDatePtr(s.BookDate),
+		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
+		MoveID:                       *fmtUUID(s.MoveID),
+		Status:                       apimessages.ShipmentStatus(s.Status),
+		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),
+		PickupAddress:                publicPayloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    *fmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:       publicPayloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           *fmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:              publicPayloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: *fmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:    publicPayloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:               fmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:        fmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate:  fmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+	}
+	return shipmentPayload
+}
+
+// PublicIndexShipmentsHandler returns a list of shipments
+type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
+func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(p.HTTPRequest)
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewIndexShipmentsBadRequest()
+	}
+
+	isp := make(apimessages.IndexShipments, len(shipments))
+	for i, s := range shipments {
+		isp[i] = publicPayloadForShipmentModel(s)
+	}
+	return publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
 }
 
 // PublicGetShipmentHandler returns a particular shipment

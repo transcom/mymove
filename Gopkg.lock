@@ -42,7 +42,7 @@
   version = "v9"
 
 [[projects]]
-  digest = "1:a22c709afb7abc23003020a59b4bd04bec903284f58c198c49c0bea7e525fa8e"
+  digest = "1:210019ddc3c1db5cd3beb40fa12fde34da6bf38fd0b1e69392de88f86cd9a7e4"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -84,8 +84,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "bc3f534c19ffdf835e524e11f0f825b3eaf541c3"
-  version = "v1.14.31"
+  revision = "8475c414b1bd58b8cc214873a8854e3a621e67d7"
+  version = "v1.15.0"
 
 [[projects]]
   branch = "master"
@@ -304,7 +304,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:4c1a8d23f76fc3d5ca514a32880abdc894c45eb131f1950dcbe605f79542afe8"
+  digest = "1:8a9753d7d9c4e2d4c1a909c04dda12b907b843e2d37e26a2960fcbeef2cceeb8"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     "cmd/swagger",
@@ -315,7 +315,7 @@
     "scan",
   ]
   pruneopts = ""
-  revision = "520df0b783544e055aed1a7c015314f43f755d0b"
+  revision = "ae7a7d32f3390510d5d3cf77bc14d03c159fa54d"
 
 [[projects]]
   digest = "1:f23957829bec661c8e4c3cd421383c8270b4e01c93cf2046bb8844532ac0022c"
@@ -345,12 +345,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:94ab904da3a528888677f39d32f9625ea8b2d639146af9c79ff97bda3e8554ae"
+  digest = "1:8ac51c6e631370a05c2fb01715168a3a9f76572b275d85f07c7fc89f5e1782e8"
   name = "github.com/gobuffalo/packr"
   packages = ["."]
   pruneopts = ""
-  revision = "147bee9cde84aeca6693d1b1aedc595298f24d5b"
-  version = "v1.12.0"
+  revision = "9e76dbe10b00dd1fa8f29cfa4fac72297beb32a4"
+  version = "v1.12.1"
 
 [[projects]]
   digest = "1:6502e29eb97605dda5f850969358a7c3daa9368875c3a0f6e0fc8f6c1b6c4dec"
@@ -367,7 +367,7 @@
   version = "v3.7.9"
 
 [[projects]]
-  digest = "1:a717cfb64867df27048a1fce7371427385ae87585d92cda397b96c0446dd734f"
+  digest = "1:8e0a3917210df7c63e3f113f0d1dad0d71d5f077bb82211b57c3655c2dfb145c"
   name = "github.com/gobuffalo/pop"
   packages = [
     ".",
@@ -381,8 +381,8 @@
     "soda/cmd/schema",
   ]
   pruneopts = ""
-  revision = "9936c00d4230dae87d8ac5cf73149d9de7b0e899"
-  version = "v4.6.1"
+  revision = "c0faa0f7edf8c0db4befe9abc41d135003a97d53"
+  version = "v4.6.2"
 
 [[projects]]
   digest = "1:3d19e757471e083adee651a220ae293c2f63c2e2fb92f8212c0cc9ccd3fc7b05"
@@ -432,12 +432,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:a1a1522a8c1fad5675ce8ec9de96f30b898df7c8c229928c35dbd8cf277e6d62"
+  digest = "1:66d63ec7b6035984dced87ad37066e5f4ad277c60234a9d9925537248e983200"
   name = "github.com/gorilla/handlers"
   packages = ["."]
   pruneopts = ""
-  revision = "90663712d74cb411cbef281bc1e08c19d1a76145"
-  version = "v1.3.0"
+  revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -578,7 +578,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a08d7acad9a44f9aff9571a4ed9e5661169650ef3e8aaccb2086d73cfd6cb984"
+  digest = "1:e977ed7b0619844e394c4e725d008ade0840f1882c500a66e797b98bde70cf87"
   name = "github.com/mailru/easyjson"
   packages = [
     "buffer",
@@ -586,7 +586,7 @@
     "jwriter",
   ]
   pruneopts = ""
-  revision = "d5012789d6659eeed305f54c1b1542e7b65829e6"
+  revision = "03f2033d19d5860aef995fe360ac7d395cd8ce65"
 
 [[projects]]
   digest = "1:b4d82c505839d8dcd541473dd9b1ce5218d2e0acf0901f610b7684d51a6ec8c4"
@@ -735,7 +735,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:64e1eb3017fbb9dfd4f5ef54ee448516ba7d35f0adce7f70cf6e5054395ac983"
+  digest = "1:e0e8b716c6c8db808dfc55a2172aeb08fd7c99e507d842f20885412200d72c8b"
   name = "github.com/securego/gosec"
   packages = [
     ".",
@@ -744,7 +744,7 @@
     "rules",
   ]
   pruneopts = ""
-  revision = "2785f7aaf8c5236da2412f85e76351123b21b350"
+  revision = "639987a2958103837efe05b0d487d4a6bf1a9aa0"
 
 [[projects]]
   digest = "1:15bd5ec281b02420085efa18da9e3ab40d90cf8dbd008629fc1a0ae4415e21b0"
@@ -995,7 +995,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:00ff990baae4665bb0a8174af5ff78228574227ed96c89671247a56852a50e21"
+  digest = "1:8e4a79517b6b555b3a9dc63bb9bc91382a725f6b1a7f4471bb07e5fa3f1bd1f6"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -1006,7 +1006,7 @@
     "netutil",
   ]
   pruneopts = ""
-  revision = "a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1"
+  revision = "c4299a1a0d8524c11563db160fbf9bddbceadb21"
 
 [[projects]]
   branch = "master"
@@ -1029,11 +1029,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:677e38cad6833ad266ec843739d167755eda1e6f2d8af1c63102b0426ad820db"
+  digest = "1:dd631ee90bd2e7aa16b6e094217d77a797684b52811374c948c695cbb46b5bbb"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "bd9dbc187b6e1dacfdd2722a87e83093c2d7bd6e"
 
 [[projects]]
   digest = "1:5acd3512b047305d49e8763eef7ba423901e85d5dd2fd1e71778a0ea8de10bd4"
@@ -1061,7 +1061,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0a7c4519ae77a3efda26ca65984efe97392362bc3c6591f23775178f785d1d59"
+  digest = "1:5245bbf30a228b22cb61683ba5ad9641b98e0f81a9c4918394f49b40f6aa80f7"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -1074,7 +1074,7 @@
     "internal/fastwalk",
   ]
   pruneopts = ""
-  revision = "ded554d0681e0cba3cf074977cdc12e2c0906fe6"
+  revision = "8cc4e8a6f4841aa92a8683fca47bc5d64b58875b"
 
 [[projects]]
   digest = "1:c1771ca6060335f9768dff6558108bc5ef6c58506821ad43377ee23ff059e472"
