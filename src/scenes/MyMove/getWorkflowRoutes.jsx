@@ -27,7 +27,6 @@ import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
 import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
-import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -222,15 +221,6 @@ const pages = {
     },
     render: (key, pages) => ({ match }) => (
       <ShipmentForm pages={pages} pageKey={key} match={match} />
-    ),
-  },
-  '/moves/:moveId/hhg-address': {
-    isInFlow: hasHHG,
-    isComplete: (sm, orders, move, hhg) => {
-      return every([hhg.pickup_address]);
-    },
-    render: (key, pages) => ({ match }) => (
-      <ShipmentAddress pages={pages} pageKey={key} match={match} />
     ),
   },
   '/moves/:moveId/hhg-weight': {
