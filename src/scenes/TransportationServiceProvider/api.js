@@ -6,11 +6,13 @@ export async function RetrieveShipmentsForTSP(queueType) {
     new: ['AWARDED'],
     all: [],
   };
+  /* eslint-disable security/detect-object-injection */
   const shipmentStatus =
     (queueType &&
       queueToStatus[queueType] &&
       queueToStatus[queueType].join(',')) ||
     '';
+  /* eslint-enable security/detect-object-injection */
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexShipments({
     status: shipmentStatus,
