@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
 import editablePanel from '../editablePanel';
+import { formatDate } from 'shared/formatters';
 
 import { updateShipment } from './ducks';
 
@@ -11,17 +12,13 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const DatesAndTrackingDisplay = props => {
-  const fieldProps = {
-    schema: props.shipmentSchema,
-    values: props.initialValues,
-  };
-
   return (
     <div className="editable-panel-column">
       <PanelSwaggerField
         title="Pickup Date"
         fieldName="pickup_date"
-        {...fieldProps}
+        values={{ pickup_date: formatDate(props.initialValues.pickup_date) }}
+        schema={props.shipmentSchema}
       />
     </div>
   );
