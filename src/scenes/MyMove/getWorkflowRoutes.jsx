@@ -1,6 +1,6 @@
 import React from 'react';
 import { Route } from 'react-router-dom';
-import { every, some, get, findKey } from 'lodash';
+import { every, some, get, findKey, pick } from 'lodash';
 import PrivateRoute from 'shared/User/PrivateRoute';
 import WizardPage from 'shared/WizardPage';
 import generatePath from 'shared/WizardPage/generatePath';
@@ -292,30 +292,27 @@ const pages = {
     },
   },
 };
-export const getPagesInFlow = state =>
+export const getPagesInFlow = ({ selectedMoveType, lastMoveIsCanceled }) =>
   Object.keys(pages).filter(pageKey => {
     // eslint-disable-next-line security/detect-object-injection
     const page = pages[pageKey];
-    return page.isInFlow(state);
+    return page.isInFlow({ selectedMoveType, lastMoveIsCanceled });
   });
 
-// We need to pass in state here to determine which page "isInFlow"
-// TODO: Refactor to include only parts of state needed to determine isInFlow
-export const getNextIncompletePage = (
-  state,
-  {
-    serviceMember = {},
-    orders = {},
-    move = {},
-    ppm = {},
-    hhg = {},
-    backupContacts = [],
-  },
-) => {
+export const getNextIncompletePage = ({
+  selectedMoveType = undefined,
+  lastMoveIsCanceled = false,
+  serviceMember = {},
+  orders = {},
+  move = {},
+  ppm = {},
+  hhg = {},
+  backupContacts = [],
+}) => {
   const rawPath = findKey(
     pages,
     p =>
-      p.isInFlow(state) &&
+      p.isInFlow({ selectedMoveType, lastMoveIsCanceled }) &&
       !p.isComplete(serviceMember, orders, move, ppm, hhg, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
@@ -326,11 +323,12 @@ export const getNextIncompletePage = (
 };
 
 export const getWorkflowRoutes = props => {
-  const pageList = getPagesInFlow(props);
+  const flowProps = pick(props, ['selectedMoveType', 'lastMoveIsCanceled']);
+  const pageList = getPagesInFlow(flowProps);
   return Object.keys(pages).map(key => {
     // eslint-disable-next-line security/detect-object-injection
     const currPage = pages[key];
-    if (currPage.isInFlow(props)) {
+    if (currPage.isInFlow(flowProps)) {
       const render = currPage.render(
         key,
         pageList,
