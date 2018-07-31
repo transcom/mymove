@@ -146,6 +146,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 			}
 			// Make sure the moveDocument has the associated ID
 			moveDocument.MovingExpenseDocument.ReimbursementID = reimbursement.ID
+			moveDocument.MovingExpenseDocument.Reimbursement = reimbursement
 
 			// Then save expense document
 			expenseDocument := moveDocument.MovingExpenseDocument

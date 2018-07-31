@@ -100,7 +100,6 @@ const DocumentDetailEdit = props => {
   const { formValues, moveDocSchema, reimbursementSchema } = props;
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
-  console.log(props);
   return (
     <React.Fragment>
       <div>
@@ -138,7 +137,7 @@ function mapStateToProps(state, props) {
   let moveDocument = selectMoveDocument(state, moveDocumentId);
   // Don't pass 0-value reimbursement values to update endpoint
   if (
-    (get(moveDocument), 'reimbursement.id', '') ===
+    get(moveDocument, 'reimbursement.id', '') ===
     '00000000-0000-0000-0000-000000000000'
   ) {
     moveDocument = omit(moveDocument, 'reimbursement');

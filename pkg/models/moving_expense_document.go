@@ -34,7 +34,6 @@ const (
 // IsExpenseModelDocumentType determines whether a MoveDocumentType is associated with a MovingExpenseDocument
 func IsExpenseModelDocumentType(docType MoveDocumentType) bool {
 	expenseModelDocumentTypes := []MoveDocumentType{
-		MoveDocumentTypeSTORAGEEXPENSE,
 		MoveDocumentTypeEXPENSE,
 	}
 
