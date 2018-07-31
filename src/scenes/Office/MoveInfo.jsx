@@ -317,8 +317,7 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
-                  />{' '}
-                  //temp value for displaying raw data
+                  />
                 </PrivateRoute>
               </Switch>
             </div>
