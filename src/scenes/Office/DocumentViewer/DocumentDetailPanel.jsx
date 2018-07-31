@@ -1,7 +1,7 @@
 import React from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, omit } from 'lodash';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
@@ -24,10 +24,6 @@ const DocumentDetailDisplay = props => {
   const moveDocFieldProps = {
     values: props.moveDocument,
     schema: props.moveDocSchema,
-  };
-  const expenseFieldProps = {
-    values: props.moveDocument,
-    schema: props.movingExpenseSchema,
   };
   const reimbursementFieldProps = {
     values: get(props.moveDocument, 'reimbursement', {}),
@@ -64,7 +60,7 @@ const DocumentDetailDisplay = props => {
           moveDoc.moving_expense_type && (
             <PanelSwaggerField
               fieldName="moving_expense_type"
-              {...expenseFieldProps}
+              {...moveDocFieldProps}
             />
           )}
         {isExpenseDocument &&
@@ -101,12 +97,7 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  const {
-    formValues,
-    moveDocSchema,
-    movingExpenseSchema,
-    reimbursementSchema,
-  } = props;
+  const { formValues, moveDocSchema, reimbursementSchema } = props;
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
   console.log(props);
@@ -123,7 +114,6 @@ const DocumentDetailEdit = props => {
           {isExpenseDocument && (
             <ExpenseDocumentForm
               moveDocSchema={moveDocSchema}
-              movingExpenseSchema={movingExpenseSchema}
               reimbursementSchema={reimbursementSchema}
             />
           )}
@@ -145,23 +135,23 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
-  const moveDocument = selectMoveDocument(state, moveDocumentId);
-
+  let moveDocument = selectMoveDocument(state, moveDocumentId);
+  // Don't pass 0-value reimbursement values to update endpoint
+  if (
+    (get(moveDocument), 'reimbursement.id', '') ===
+    '00000000-0000-0000-0000-000000000000'
+  ) {
+    moveDocument = omit(moveDocument, 'reimbursement');
+  }
   return {
     // reduxForm
     initialValues: {
       moveDocument: moveDocument,
     },
     formValues: getFormValues(formName)(state),
-
     moveDocSchema: get(
       state,
       'swagger.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
-    movingExpenseSchema: get(
-      state,
-      'swagger.spec.definitions.UpdateMovingExpenseDocumentPayload',
       {},
     ),
     reimbursementSchema: get(
@@ -182,7 +172,17 @@ function mapStateToProps(state, props) {
         state.office,
         'officePPMs.0.id',
       );
-      // Todo: flatten movingExpenseDocument formsection to just moving_expense_type
+      if (
+        get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
+        get(values.moveDocument, 'reimbursement', false)
+      ) {
+        values.moveDocument = omit(values.moveDocument, 'reimbursement');
+      }
+      if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
+        values.moveDocument.reimbursement.requested_amount = parseFloat(
+          values.moveDocument.reimbursement.requested_amount,
+        );
+      }
       return [
         get(state, 'office.officeMove.id'),
         get(moveDocument, 'id'),

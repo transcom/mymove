@@ -38,7 +38,7 @@ export class DocumentUploader extends Component {
     this.setState({
       moveDocumentCreateError: null,
     });
-    if (get(formValues, 'movingExpenseDocument', false)) {
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.reimbursement.requested_amount = parseFloat(
         formValues.reimbursement.requested_amount,
       );
@@ -48,7 +48,7 @@ export class DocumentUploader extends Component {
           currentPpm.id,
           uploadIds,
           formValues.title,
-          formValues.movingExpenseDocument.moving_expense_type,
+          formValues.moving_expense_type,
           formValues.move_document_type,
           formValues.reimbursement,
           formValues.notes,
@@ -62,9 +62,7 @@ export class DocumentUploader extends Component {
             moveDocumentCreateError: err,
           });
         });
-    }
-    if (get(formValues, 'movingExpenseDocument', false) === false) {
-      debugger;
+    } else {
       this.props
         .createMoveDocument(
           moveId,
@@ -110,8 +108,8 @@ export class DocumentUploader extends Component {
   render() {
     const {
       handleSubmit,
+      moveDocSchema,
       genericMoveDocSchema,
-      movingExpenseSchema,
       reimbursementSchema,
       formValues,
     } = this.props;
@@ -149,8 +147,7 @@ export class DocumentUploader extends Component {
             />
             {isExpenseDocument && (
               <ExpenseDocumentForm
-                // genericMoveDocSchema={genericMoveDocSchema}
-                movingExpenseSchema={movingExpenseSchema}
+                moveDocSchema={moveDocSchema}
                 reimbursementSchema={reimbursementSchema}
               />
             )}
@@ -198,9 +195,9 @@ function mapStateToProps(state) {
       'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
       {},
     ),
-    movingExpenseSchema: get(
+    moveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateMovingExpenseDocumentPayload',
+      'swagger.spec.definitions.MoveDocumentPayload',
       {},
     ),
     reimbursementSchema: get(
