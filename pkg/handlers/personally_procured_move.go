@@ -244,7 +244,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
+	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 
 }
 

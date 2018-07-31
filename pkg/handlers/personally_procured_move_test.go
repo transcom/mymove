@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
-	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
 	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
@@ -255,7 +255,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
-	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
 	if patchPPMPayload.WeightEstimate != weight {
@@ -279,7 +279,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 
 	response = handler.Handle(patchPPMParams)
 	// assert we got back the 201 response
-	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload = okResponse.Payload
 
 	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
@@ -472,7 +472,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -490,7 +490,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	response = handler.Handle(patchPPMParams)
 
 	// assert we got back the created response
-	updated, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	updated, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -552,7 +552,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 
 	response = handler.Handle(patchPPMParams)
 
-	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
