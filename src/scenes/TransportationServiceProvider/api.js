@@ -7,7 +7,7 @@ export async function RetrieveShipmentsForTSP(queueType) {
     all: [],
   };
   /* eslint-disable security/detect-object-injection */
-  const shipmentStatus =
+  const status =
     (queueType &&
       queueToStatus[queueType] &&
       queueToStatus[queueType].join(',')) ||
@@ -15,7 +15,7 @@ export async function RetrieveShipmentsForTSP(queueType) {
   /* eslint-enable security/detect-object-injection */
   const client = await getPublicClient();
   const response = await client.apis.shipments.indexShipments({
-    status: shipmentStatus,
+    status,
     limit: 25,
     offset: 1,
   });
