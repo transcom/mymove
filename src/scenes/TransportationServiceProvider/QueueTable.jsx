@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { withRouter } from 'react-router';
 import ReactTable from 'react-table';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
 import 'react-table/react-table.css';
 import { RetrieveShipmentsForTSP } from './api.js';
 
@@ -27,25 +26,20 @@ class QueueTable extends Component {
     }
   }
 
-  static defaultProps = {
-    moveLocator: '',
-    firstName: '',
-    lastName: '',
-  };
+  async fetchData() {
+    this.setState({
+      data: [],
+      pages: null,
+      loading: true,
+    });
 
-  fetchData() {
-    RetrieveShipmentsForTSP(this.props.queueType).then(
-      response => {
-        this.setState({
-          data: response,
-          pages: 1,
-          loading: false,
-        });
-      },
-      response => {
-        // TODO: add error handling
-      },
-    );
+    const body = await RetrieveShipmentsForTSP(this.props.queueType);
+
+    this.setState({
+      data: body,
+      pages: 1,
+      loading: false,
+    });
   }
 
   render() {
