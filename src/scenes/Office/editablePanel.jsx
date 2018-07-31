@@ -40,8 +40,7 @@ export default function editablePanel(
 
     render() {
       const isEditable =
-        (editEnabled &&
-          (this.state.isEditable || this.props.isUpdating || isEditable)) ||
+        (editEnabled && (this.state.isEditable || this.props.isUpdating)) ||
         false;
       const Content = isEditable ? EditComponent : DisplayComponent;
 
