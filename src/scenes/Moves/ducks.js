@@ -71,6 +71,9 @@ export const moveIsApproved = state =>
 export const lastMoveIsCanceled = state =>
   get(state, 'moves.latestMove.status') === 'CANCELED';
 
+export const selectedMoveType = state =>
+  get(state, 'moves.currentMove.selected_move_type');
+
 // Reducer
 const initialState = {
   currentMove: null,
