@@ -16,6 +16,8 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalapi"
 	internalops "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/gen/ordersapi"
+	ordersops "github.com/transcom/mymove/pkg/gen/ordersapi/ordersoperations"
 	"github.com/transcom/mymove/pkg/gen/restapi"
 	publicops "github.com/transcom/mymove/pkg/gen/restapi/apioperations"
 	"github.com/transcom/mymove/pkg/notifications"
@@ -106,12 +108,22 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	}
 
 	publicAPI := publicops.NewMymoveAPI(apiSpec)
-	publicAPI.IndexTSPsHandler = TSPIndexHandler(context)
-	publicAPI.TspShipmentsHandler = TSPShipmentsHandler(context)
+
+	// Blackouts
+
+	// Documents
+
+	// Shipments
+	publicAPI.ShipmentsIndexShipmentsHandler = PublicIndexShipmentsHandler(context)
+
+	// TSPs
+	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
+	publicAPI.TspsGetTspShipmentsHandler = PublicTspsGetTspShipmentsHandler(context)
+
 	return publicAPI.Serve(nil)
 }
 
-// NewInternalAPIHandler returns a handler for the public API
+// NewInternalAPIHandler returns a handler for the internal API
 func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalSpec, err := loads.Analyzed(internalapi.SwaggerJSON, "")
@@ -133,12 +145,12 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmPatchPersonallyProcuredMoveHandler = PatchPersonallyProcuredMoveHandler(context)
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
+	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
+	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
 	internalAPI.TransportationOfficesShowDutyStationTransportationOfficeHandler = ShowDutyStationTransportationOfficeHandler(context)
-
-	internalAPI.ShipmentsIndexShipmentsHandler = IndexShipmentsHandler(context)
 
 	internalAPI.OrdersCreateOrdersHandler = CreateOrdersHandler(context)
 	internalAPI.OrdersUpdateOrdersHandler = UpdateOrdersHandler(context)
@@ -148,7 +160,10 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
-	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+
+	internalAPI.MoveDocsCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
+	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
@@ -168,6 +183,9 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.QueuesShowQueueHandler = ShowQueueHandler(context)
 
+	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
+	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler(context)
+
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
 	internalAPI.OfficeApproveReimbursementHandler = ApproveReimbursementHandler(context)
@@ -176,6 +194,23 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.EntitlementsValidateEntitlementHandler = ValidateEntitlementHandler(context)
 
 	return internalAPI.Serve(nil)
+}
+
+// NewOrdersAPIHandler returns a handler for the Orders API
+func NewOrdersAPIHandler(context HandlerContext) http.Handler {
+
+	// Wire up the handlers to the ordersAPIMux
+	ordersSpec, err := loads.Analyzed(ordersapi.SwaggerJSON, "")
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	ordersAPI := ordersops.NewMymoveAPI(ordersSpec)
+	ordersAPI.GetOrdersHandler = GetOrdersHandler(context)
+	ordersAPI.IndexOrdersHandler = IndexOrdersHandler(context)
+	ordersAPI.PostRevisionHandler = PostRevisionHandler(context)
+	ordersAPI.PostRevisionToOrdersHandler = PostRevisionToOrdersHandler(context)
+	return ordersAPI.Serve(nil)
 }
 
 // Converts the value returned by Pop's ValidateAnd* methods into a payload that can

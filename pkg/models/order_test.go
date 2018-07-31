@@ -40,7 +40,6 @@ func (suite *ModelSuite) TestFetchOrder() {
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
-		Name:            UploadedOrdersDocumentName,
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
@@ -107,7 +106,6 @@ func (suite *ModelSuite) TestOrderStateMachine() {
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
-		Name:            UploadedOrdersDocumentName,
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode
@@ -153,7 +151,6 @@ func (suite *ModelSuite) TestCanceledMoveCancelsOrder() {
 	uploadedOrder := Document{
 		ServiceMember:   serviceMember1,
 		ServiceMemberID: serviceMember1.ID,
-		Name:            UploadedOrdersDocumentName,
 	}
 	deptIndicator := testdatagen.DefaultDepartmentIndicator
 	TAC := testdatagen.DefaultTransportationAccountingCode

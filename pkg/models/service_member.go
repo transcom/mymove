@@ -185,7 +185,6 @@ func (s ServiceMember) CreateOrder(db *pop.Connection,
 		uploadedOrders := Document{
 			ServiceMemberID: s.ID,
 			ServiceMember:   s,
-			Name:            UploadedOrdersDocumentName,
 		}
 		verrs, err := db.ValidateAndCreate(&uploadedOrders)
 		if err != nil || verrs.HasAny() {

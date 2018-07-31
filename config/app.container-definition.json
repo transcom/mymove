@@ -59,6 +59,14 @@
       "value": "office.{{domain}}"
     },
     {
+      "name": "HTTP_TSP_SERVER_NAME",
+      "value": "tsp.{{domain}}"
+    },
+    {
+      "name": "HTTP_ORDERS_SERVER_NAME",
+      "value": "orders.{{domain}}"
+    },
+    {
       "name": "AWS_S3_BUCKET_NAME",
       "value": "transcom-ppp-app-{{environment}}-us-west-2"
     },

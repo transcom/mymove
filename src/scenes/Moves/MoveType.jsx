@@ -12,6 +12,7 @@ import hhgPpmCombo from 'shared/icon/hhg-ppm-combo.svg';
 import './MoveType.css';
 
 import { mobileSize } from 'shared/constants';
+import { withContext } from 'shared/AppContext';
 
 class BigButtonGroup extends Component {
   constructor() {
@@ -27,6 +28,7 @@ class BigButtonGroup extends Component {
   };
   render() {
     const isMobile = this.props.windowWidth < mobileSize;
+    const hhgEnabled = this.props.context.flags.hhg;
     const createButton = (
       value,
       description,
@@ -141,7 +143,7 @@ class BigButtonGroup extends Component {
       },
       'truck-gray',
       isMobile,
-      true,
+      !hhgEnabled,
     );
 
     return (
@@ -159,23 +161,17 @@ BigButtonGroup.propTypes = {
   onMoveTypeSelected: PropTypes.func,
 };
 
-const BigButtonGroupWithSize = windowSize(BigButtonGroup);
+const BigButtonGroupWithSize = withContext(windowSize(BigButtonGroup));
 
 export class MoveType extends Component {
-  componentDidMount() {
-    // TODO: Remove line below once other move type options are available
-    this.props.setPendingMoveType('PPM');
-  }
-
   onMoveTypeSelected = value => {
     this.props.setPendingMoveType(value);
   };
   render() {
     // TODO: once Combo and HHG options available, remove currentOption and disabled prop
-    const currentOption = 'PPM';
-    // const { currentMove } = this.props;
-    // const selectedOption =
-    //   pendingMoveType || (currentMove && currentMove.selected_move_type);
+    const { pendingMoveType, currentMove } = this.props;
+    const selectedOption =
+      pendingMoveType || (currentMove && currentMove.selected_move_type);
     return (
       <div className="usa-grid-full select-move-type">
         <h2>
@@ -190,7 +186,7 @@ export class MoveType extends Component {
           </a>
         </h2>
         <BigButtonGroupWithSize
-          selectedOption={currentOption}
+          selectedOption={selectedOption}
           onMoveTypeSelected={this.onMoveTypeSelected}
         />
       </div>

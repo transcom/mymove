@@ -13,11 +13,14 @@
   color: #5b616b;
   border-bottom: 6px solid #fff;
   margin-right: 1.5em;
-  padding-bottom: 0.2em;
+  margin-bottom: 0;
   cursor: pointer;
   text-decoration: none;
 }
-.doc-viewer .active {
+.doc-viewer .react-tabs__tab-list {
+  padding-left: 0;
+}
+.doc-viewer .react-tabs__tab--selected {
   color: black;
   border-bottom-color: #0070bd;
   cursor: auto;
@@ -25,4 +28,13 @@
 
 .doc-viewer .tab-content {
   border-top: none;
+}
+
+.doc-viewer .tab-content a {
+  text-decoration: none;
+  color: #0071bc;
+}
+
+.pad-ns {
+  padding: 2rem 0rem 2rem 0rem;
 }

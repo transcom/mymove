@@ -1,6 +1,6 @@
 drop_table("best_value_scores")
 
-create_table("transportation_service_provider_performances", func(t) {
+create_table("transportation_service_provider_performances") {
   t.Column("id", "uuid", {"primary": true})
   t.Column("performance_period_start", "date", {})
   t.Column("performance_period_end", "date", {})
@@ -11,7 +11,7 @@ create_table("transportation_service_provider_performances", func(t) {
   t.Column("transportation_service_provider_id", "uuid", {})
   t.ForeignKey("traffic_distribution_list_id", {"traffic_distribution_lists": ["id"]}, {})
   t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
-})
+}
 
 add_index("transportation_service_provider_performances", [
   "performance_period_start",

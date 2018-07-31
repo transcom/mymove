@@ -8,31 +8,50 @@ import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import Alert from 'shared/Alert';
 import { PanelField } from 'shared/EditablePanel';
 import { loadMoveDependencies } from '../ducks.js';
-import { RoutedTabs, NavTab } from 'react-router-tabs';
+import { Tab, Tabs, TabList, TabPanel } from 'react-tabs';
 import PrivateRoute from 'shared/User/PrivateRoute';
-import { Switch, Redirect } from 'react-router-dom';
+import { Switch, Redirect, Link } from 'react-router-dom';
+import DocumentList from './DocumentList';
+import DocumentUploader from './DocumentUploader';
+import DocumentDetailPanel from './DocumentDetailPanel';
+import DocumentUploadViewer from './DocumentUploadViewer';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+} from 'shared/Entities/modules/moveDocuments';
+
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faPlusCircle from '@fortawesome/fontawesome-free-solid/faPlusCircle';
 
 import './index.css';
 class DocumentViewer extends Component {
   componentDidMount() {
     //this is probably overkill, but works for now
     this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
   componentWillUpdate() {
     document.title = 'Document Viewer';
   }
   render() {
-    const { serviceMember, move } = this.props;
-
+    const { serviceMember, move, moveDocuments } = this.props;
+    const numMoveDocs = moveDocuments ? moveDocuments.length : 0;
     const name = compact([
       serviceMember.last_name,
       serviceMember.first_name,
     ]).join(', ');
 
-    const defaultUrl = this.props.match.url;
-    const detailUrl = `${this.props.match.path}/details`;
-    const listUrl = `${this.props.match.path}/list`;
+    // urls: has full url with IDs
+    const defaultUrl = move ? `/moves/${move.id}/documents` : '';
+    const newUrl = move ? `/moves/${move.id}/documents/new` : '';
 
+    // paths: has placeholders (e.g. ":moveId")
+    const defaultPath = `/moves/:moveId/documents`;
+    const newPath = `/moves/:moveId/documents/new`;
+    const documentPath = `/moves/:moveId/documents/:moveDocumentId`;
+
+    const defaultTabIndex =
+      this.props.match.params.moveDocumentId !== 'new' ? 1 : 0;
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -54,12 +73,22 @@ class DocumentViewer extends Component {
           <div className="tab-content">
             <Switch>
               <PrivateRoute
-                path={detailUrl}
-                render={() => <div> details coming soon</div>}
+                exact
+                path={defaultPath}
+                render={() => <Redirect replace to={newUrl} />}
+              />
+              <PrivateRoute
+                path={newPath}
+                moveId={move.id}
+                render={() => <DocumentUploader moveId={move.id} />}
+              />
+              <PrivateRoute
+                path={documentPath}
+                component={DocumentUploadViewer}
               />
               <PrivateRoute
                 path={defaultUrl}
-                render={() => <div> document uploader coming soon</div>}
+                render={() => <div> document viewer coming soon</div>}
               />
             </Switch>
           </div>
@@ -68,34 +97,49 @@ class DocumentViewer extends Component {
           <h3>{name}</h3>
           <PanelField title="Move Locator">{move.locator}</PanelField>
           <PanelField title="DoD ID">{serviceMember.edipi}</PanelField>
-          <RoutedTabs
-            startPathWith={this.props.match.url}
-            className="doc-viewer-tabs"
-          >
-            <NavTab to="/list">
-              <span className="title">Document(s)</span>
-            </NavTab>
-
-            <NavTab to="/details">
-              <span className="title">Details</span>
-            </NavTab>
-          </RoutedTabs>
           <div className="tab-content">
-            <Switch>
-              <PrivateRoute
-                exact
-                path={this.props.match.url}
-                render={() => <Redirect replace to={listUrl} />}
-              />
-              <PrivateRoute
-                path={listUrl}
-                render={() => <div> list coming soon</div>}
-              />
-              <PrivateRoute
-                path={detailUrl}
-                render={() => <div> details coming soon</div>}
-              />
-            </Switch>
+            <Tabs defaultIndex={defaultTabIndex}>
+              <TabList className="doc-viewer-tabs">
+                <Tab className="title nav-tab">
+                  All Documents ({numMoveDocs})
+                </Tab>
+                {/* TODO: Handle routing of /new route better */}
+                {this.props.match.params.moveDocumentId &&
+                  this.props.match.params.moveDocumentId !== 'new' && (
+                    <Tab className="title nav-tab">Details</Tab>
+                  )}
+              </TabList>
+
+              <TabPanel>
+                <div className="pad-ns">
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon link-blue"
+                      icon={faPlusCircle}
+                    />
+                  </span>
+                  <Link to={newUrl}>Upload new document</Link>
+                </div>
+                <div>
+                  {' '}
+                  <DocumentList
+                    moveDocuments={moveDocuments}
+                    moveId={move.id}
+                  />
+                </div>
+              </TabPanel>
+
+              {this.props.match.params.moveDocumentId &&
+                this.props.match.params.moveDocumentId !== 'new' && (
+                  <TabPanel>
+                    <DocumentDetailPanel
+                      className="document-viewer"
+                      moveDocumentId={this.props.match.params.moveDocumentId}
+                      title=""
+                    />
+                  </TabPanel>
+                )}
+            </Tabs>
           </div>
         </div>
       </div>
@@ -109,9 +153,12 @@ DocumentViewer.propTypes = {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
-  ordersSchema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
   orders: state.office.officeOrders || {},
   move: get(state, 'office.officeMove', {}),
+  moveDocuments: selectAllDocumentsForMove(
+    state,
+    get(state, 'office.officeMove.id', ''),
+  ),
   serviceMember: state.office.officeServiceMember || {},
   loadDependenciesHasSuccess: state.office.loadDependenciesHasSuccess,
   loadDependenciesHasError: state.office.loadDependenciesHasError,
@@ -119,6 +166,9 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadMoveDependencies }, dispatch);
+  bindActionCreators(
+    { loadMoveDependencies, getMoveDocumentsForMove },
+    dispatch,
+  );
 
 export default connect(mapStateToProps, mapDispatchToProps)(DocumentViewer);

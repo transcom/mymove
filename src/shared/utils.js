@@ -1,4 +1,9 @@
+import React from 'react';
 import { get, includes, find } from 'lodash';
+import FontAwesomeIcon from '@fortawesome/react-fontawesome';
+import faClock from '@fortawesome/fontawesome-free-solid/faClock';
+import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
+import faExclamationCircle from '@fortawesome/fontawesome-free-solid/faExclamationCircle';
 
 export const no_op = () => undefined;
 export const no_op_action = () => {
@@ -35,4 +40,28 @@ export function fetchActive(foos) {
       ),
     ) || null
   );
+}
+
+export function renderStatusIcon(status) {
+  if (!status) {
+    return;
+  }
+  if (
+    status === 'AWAITING_REVIEW' ||
+    status === 'DRAFT' ||
+    status === 'SUBMITTED'
+  ) {
+    return <FontAwesomeIcon className="icon approval-waiting" icon={faClock} />;
+  }
+  if (status === 'OK') {
+    return <FontAwesomeIcon className="icon approval-ready" icon={faCheck} />;
+  }
+  if (status === 'HAS_ISSUE') {
+    return (
+      <FontAwesomeIcon
+        className="icon approval-problem"
+        icon={faExclamationCircle}
+      />
+    );
+  }
 }

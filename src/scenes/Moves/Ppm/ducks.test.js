@@ -147,6 +147,22 @@ describe('Ppm Reducer', () => {
     });
   });
 
+  describe('CLEAR_SIT_ESTIMATE', () => {
+    it('Should handle SUCCESS', () => {
+      const initialState = {};
+      const newState = ppmReducer(initialState, {
+        type: 'CLEAR_SIT_ESTIMATE',
+      });
+
+      expect(newState).toEqual({
+        sitReimbursement: null,
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
+        hasEstimateInProgress: false,
+        rateEngineError: null,
+      });
+    });
+  });
   describe('GET_SIT_ESTIMATE', () => {
     it('Should handle SUCCESS', () => {
       const initialState = {};

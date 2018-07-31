@@ -78,9 +78,12 @@ func main() {
 	listenInterface := flag.String("interface", "", "The interface spec to listen for connections on. Default is all.")
 	myHostname := flag.String("http_my_server_name", "localhost", "Hostname according to environment.")
 	officeHostname := flag.String("http_office_server_name", "officelocal", "Hostname according to environment.")
+	tspHostname := flag.String("http_tsp_server_name", "tsplocal", "Hostname according to environment.")
+	ordersHostname := flag.String("http_orders_server_name", "orderslocal", "Hostname according to environment.")
 	port := flag.String("port", "8080", "the HTTP `port` to listen on.")
 	internalSwagger := flag.String("internal-swagger", "swagger/internal.yaml", "The location of the internal API swagger definition")
 	apiSwagger := flag.String("swagger", "swagger/api.yaml", "The location of the public API swagger definition")
+	ordersSwagger := flag.String("orders-swagger", "swagger/orders.yaml", "The location of the Orders API swagger definition")
 	debugLogging := flag.Bool("debug_logging", false, "log messages at the debug level.")
 	clientAuthSecretKey := flag.String("client_auth_secret_key", "", "Client auth secret JWT key.")
 	noSessionTimeout := flag.Bool("no_session_timeout", false, "whether user sessions should timeout.")
@@ -94,6 +97,7 @@ func main() {
 	loginGovSecretKey := flag.String("login_gov_secret_key", "", "Login.gov auth secret JWT key.")
 	loginGovMyClientID := flag.String("login_gov_my_client_id", "", "Client ID registered with login gov.")
 	loginGovOfficeClientID := flag.String("login_gov_office_client_id", "", "Client ID registered with login gov.")
+	loginGovTSPClientID := flag.String("login_gov_tsp_client_id", "", "Client ID registered with login gov.")
 	loginGovHostname := flag.String("login_gov_hostname", "", "Hostname for communicating with login gov.")
 
 	/* For bing Maps use the following
@@ -146,14 +150,14 @@ func main() {
 
 	// Register Login.gov authentication provider for My.(move.mil)
 	loginGovProvider := authentication.NewLoginGovProvider(*loginGovHostname, *loginGovSecretKey, logger)
-	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
+	err = loginGovProvider.RegisterProvider(*myHostname, *loginGovMyClientID, *officeHostname, *loginGovOfficeClientID, *tspHostname, *loginGovTSPClientID, *loginGovCallbackProtocol, *loginGovCallbackPort)
 	if err != nil {
 		logger.Fatal("Registering login provider", zap.Error(err))
 	}
 
 	// Session management and authentication middleware
 	sessionCookieMiddleware := auth.SessionCookieMiddleware(logger, *clientAuthSecretKey, *noSessionTimeout)
-	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname)
+	appDetectionMiddleware := auth.DetectorMiddleware(logger, *myHostname, *officeHostname, *tspHostname)
 	userAuthMiddleware := authentication.UserAuthMiddleware(logger)
 
 	handlerContext := handlers.NewHandlerContext(dbConnection, logger)
@@ -230,6 +234,21 @@ func main() {
 	// Stub health check
 	site.HandleFunc(pat.Get("/health"), func(w http.ResponseWriter, r *http.Request) {})
 
+	// Allow public content through without any auth or app checks
+	site.Handle(pat.Get("/static/*"), clientHandler)
+	site.Handle(pat.Get("/swagger-ui/*"), clientHandler)
+	site.Handle(pat.Get("/downloads/*"), clientHandler)
+	site.Handle(pat.Get("/favicon.ico"), clientHandler)
+
+	ordersMux := goji.SubMux()
+	ordersDetectionMiddleware := auth.OrdersDetectorMiddleware(logger, *ordersHostname)
+	ordersMux.Use(ordersDetectionMiddleware)
+	ordersMux.Use(noCacheMiddleware)
+	ordersMux.Handle(pat.Get("/swagger.yaml"), fileHandler(*ordersSwagger))
+	ordersMux.Handle(pat.Get("/docs"), fileHandler(path.Join(*build, "swagger-ui", "orders.html")))
+	ordersMux.Handle(pat.New("/*"), handlers.NewOrdersAPIHandler(handlerContext))
+	site.Handle(pat.Get("/orders/v0/*"), ordersMux)
+
 	root := goji.NewMux()
 	root.Use(sessionCookieMiddleware)
 	root.Use(appDetectionMiddleware) // Comes after the sessionCookieMiddleware as it sets session state
@@ -279,11 +298,6 @@ func main() {
 		fs := storage.NewFilesystemHandler("tmp")
 		root.Handle(pat.Get("/storage/*"), fs)
 	}
-
-	root.Handle(pat.Get("/static/*"), clientHandler)
-	root.Handle(pat.Get("/swagger-ui/*"), clientHandler)
-	root.Handle(pat.Get("/downloads/*"), clientHandler)
-	root.Handle(pat.Get("/favicon.ico"), clientHandler)
 
 	// Serve index.html to all requests that haven't matches a previous route,
 	root.HandleFunc(pat.Get("/*"), indexHandler(*build, *newRelicApplicationID, *newRelicLicenseKey, logger))

@@ -61,14 +61,22 @@ export class Landing extends Component {
   };
 
   getNextIncompletePage = () => {
-    const { serviceMember, orders, move, ppm, backupContacts } = this.props;
-    return getNextIncompletePageInternal(
+    const {
       serviceMember,
       orders,
       move,
       ppm,
+      hhg,
       backupContacts,
-    );
+    } = this.props;
+    return getNextIncompletePageInternal(this.props.reduxState, {
+      serviceMember,
+      orders,
+      move,
+      ppm,
+      hhg,
+      backupContacts,
+    });
   };
   render() {
     const {
@@ -131,6 +139,7 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => ({
+  reduxState: state,
   isLoggedIn: state.user.isLoggedIn,
   isProfileComplete: isProfileComplete(state),
   serviceMember: state.serviceMember.currentServiceMember || {},

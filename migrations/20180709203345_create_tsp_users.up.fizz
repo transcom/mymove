@@ -1,0 +1,13 @@
+create_table("tsp_users") {
+	t.Column("id", "uuid", {"primary": true})
+	t.Column("user_id", "uuid", {"null": true})
+	t.Column("last_name", "text", {})
+	t.Column("first_name", "text", {})
+	t.Column("middle_initials", "text", {"null": true})
+	t.Column("email", "text", {})
+	t.Column("telephone", "text", {})
+	t.Column("transportation_service_provider_id", "uuid", {})
+	t.ForeignKey("user_id", {"users": ["id"]}, {})
+	t.ForeignKey("transportation_service_provider_id", {"transportation_service_providers": ["id"]}, {})
+}
+add_index("tsp_users", "email", {"unique": true})

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize } from 'lodash';
+import { get, capitalize, isEmpty } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
@@ -14,16 +14,24 @@ import AccountingPanel from './AccountingPanel';
 import BackupInfoPanel from './BackupInfoPanel';
 import CustomerInfoPanel from './CustomerInfoPanel';
 import OrdersPanel from './OrdersPanel';
-import PaymentsPanel from './PaymentsPanel';
-import PPMEstimatesPanel from './PPMEstimatesPanel';
-import StorageReimbursementCalculator from './StorageReimbursementCalculator';
+import PaymentsPanel from './Ppm/PaymentsPanel';
+import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
+import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
+import IncentiveCalculator from './Ppm/IncentiveCalculator';
+import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import { withContext } from 'shared/AppContext';
+
 import {
   loadMoveDependencies,
   approveBasics,
   approvePPM,
   cancelMove,
-} from './ducks.js';
+} from './ducks';
 import { formatDate } from 'shared/formatters';
+import {
+  selectAllDocumentsForMove,
+  getMoveDocumentsForMove,
+} from 'shared/Entities/modules/moveDocuments';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faPhone from '@fortawesome/fontawesome-free-solid/faPhone';
@@ -53,10 +61,15 @@ const PPMTabContent = props => {
   return (
     <div className="basics">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <IncentiveCalculator />
       <StorageReimbursementCalculator />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
     </div>
   );
+};
+
+const HHGTabContent = props => {
+  return <div className="hhg-tab" />;
 };
 
 class CancelPanel extends Component {
@@ -141,6 +154,7 @@ class CancelPanel extends Component {
 class MoveInfo extends Component {
   componentDidMount() {
     this.props.loadMoveDependencies(this.props.match.params.moveId);
+    this.props.getMoveDocumentsForMove(this.props.match.params.moveId);
   }
 
   approveBasics = () => {
@@ -189,10 +203,11 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
-
+    const hhg = this.props.officeHHG;
+    const { moveDocuments } = this.props;
+    const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
-
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -260,10 +275,24 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              <NavTab to="/ppm">
-                <span className="title">PPM</span>
-                {this.renderPPMTabStatus()}
-              </NavTab>
+              {!isEmpty(ppm) && (
+                <NavTab to="/ppm">
+                  <span className="title">PPM</span>
+                  {this.renderPPMTabStatus()}
+                </NavTab>
+              )}
+              {!isEmpty(hhg) && (
+                <NavTab to="/hhg">
+                  <span className="title">HHG</span>
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-waiting"
+                      icon={faClock}
+                    />
+                    Placeholder Status
+                  </span>
+                </NavTab>
+              )}
             </RoutedTabs>
 
             <div className="tab-content">
@@ -279,9 +308,15 @@ class MoveInfo extends Component {
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
+                !isEmpty(ppm) &&
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
+                />
+                !isEmpty(hhg) &&
+                <PrivateRoute
+                  path={`${this.props.match.path}/hhg`}
+                  component={HHGTabContent}
                 />
               </Switch>
             </div>
@@ -318,14 +353,24 @@ class MoveInfo extends Component {
             <div className="documents">
               <h2 className="extras usa-heading">
                 Documents
-                <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+                {!showDocumentViewer && (
+                  <FontAwesomeIcon className="icon" icon={faExternalLinkAlt} />
+                )}
+                {showDocumentViewer && (
+                  <Link to={`/moves/${move.id}/documents`} target="_blank">
+                    <FontAwesomeIcon
+                      className="icon"
+                      icon={faExternalLinkAlt}
+                    />
+                  </Link>
+                )}
               </h2>
               {!upload ? (
                 <p>No orders have been uploaded.</p>
               ) : (
                 <div>
                   {move.status === 'APPROVED' ? (
-                    <div className="document">
+                    <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'green' }}
                         className="icon"
@@ -336,7 +381,7 @@ class MoveInfo extends Component {
                       </Link>
                     </div>
                   ) : (
-                    <div className="document">
+                    <div className="panel-field">
                       <FontAwesomeIcon
                         style={{ color: 'red' }}
                         className="icon"
@@ -349,6 +394,12 @@ class MoveInfo extends Component {
                   )}
                 </div>
               )}
+              {showDocumentViewer && (
+                <DocumentList
+                  moveDocuments={moveDocuments}
+                  moveId={this.props.match.params.moveId}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -359,6 +410,9 @@ class MoveInfo extends Component {
 
 MoveInfo.propTypes = {
   loadMoveDependencies: PropTypes.func.isRequired,
+  context: PropTypes.shape({
+    flags: PropTypes.shape({ documentViewer: PropTypes.bool }).isRequired,
+  }).isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -368,15 +422,28 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
+  officeHHG: get(state, 'office.officeHHGs.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
+  moveDocuments: selectAllDocumentsForMove(
+    state,
+    get(state, 'office.officeMove.id', ''),
+  ),
   loadDependenciesHasSuccess: get(state, 'office.loadDependenciesHasSuccess'),
   loadDependenciesHasError: get(state, 'office.loadDependenciesHasError'),
 });
 
 const mapDispatchToProps = dispatch =>
   bindActionCreators(
-    { loadMoveDependencies, approveBasics, approvePPM, cancelMove },
+    {
+      loadMoveDependencies,
+      getMoveDocumentsForMove,
+      approveBasics,
+      approvePPM,
+      cancelMove,
+    },
     dispatch,
   );
 
-export default connect(mapStateToProps, mapDispatchToProps)(MoveInfo);
+export default withContext(
+  connect(mapStateToProps, mapDispatchToProps)(MoveInfo),
+);

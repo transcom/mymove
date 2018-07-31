@@ -3,11 +3,12 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import 'filepond-polyfill/dist/filepond-polyfill.js';
 import { FilePond, registerPlugin } from 'react-filepond';
+import { FileStatus } from 'filepond';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { CreateUpload, DeleteUpload } from 'shared/api.js';
 import isMobile from 'is-mobile';
-import { concat, reject } from 'lodash';
+import { concat, reject, every, includes } from 'lodash';
 
 import 'filepond/dist/filepond.min.css';
 import './index.css';
@@ -21,6 +22,11 @@ registerPlugin(FilepondPluginFileValidateType);
 registerPlugin(FilepondPluginImageExifOrientation);
 registerPlugin(FilePondImagePreview);
 
+const idleStatuses = [
+  FileStatus.PROCESSING_COMPLETE,
+  FileStatus.PROCESSING_ERROR,
+];
+
 export class Uploader extends Component {
   constructor(props) {
     super(props);
@@ -30,7 +36,42 @@ export class Uploader extends Component {
     };
   }
 
+  componentDidMount() {
+    if (this.props.onRef) {
+      this.props.onRef(this);
+    }
+  }
+
+  componentWillUnmount() {
+    if (this.props.onRef) {
+      this.props.onRef(undefined);
+    }
+  }
+
+  clearFiles() {
+    this.pond._pond.removeFiles();
+
+    this.setState({
+      files: [],
+    });
+
+    if (this.props.onChange) {
+      this.props.onChange([], true);
+    }
+  }
+
+  isIdle() {
+    // Returns a boolean: is FilePond done with all uploading?
+    const existingFiles = this.pond._pond.getFiles();
+    const isIdle = every(existingFiles, f => {
+      return includes(idleStatuses, f.status);
+    });
+
+    return isIdle;
+  }
+
   handlePondInit() {
+    const { labelIdle } = this.props;
     this.pond._pond.setOptions({
       allowMultiple: true,
       server: {
@@ -41,9 +82,22 @@ export class Uploader extends Component {
       iconUndo: this.pond._pond.iconRemove,
       imagePreviewMaxHeight: 100,
       labelIdle:
-        'Drag & drop or <span class="filepond--label-action">click to upload orders</span>',
+        labelIdle ||
+        'Drag & drop or <span class="filepond--label-action">click to upload</span>',
       labelTapToUndo: 'tap to delete',
       acceptedFileTypes: ['image/*', 'application/pdf'],
+    });
+
+    this.pond._pond.on('processfile', e => {
+      if (this.props.onChange) {
+        this.props.onChange(this.state.files, this.isIdle());
+      }
+    });
+
+    this.pond._pond.on('addfilestart', e => {
+      if (this.props.onAddFile) {
+        this.props.onAddFile();
+      }
     });
 
     // Don't mention drag and drop if on mobile device
@@ -56,18 +110,13 @@ export class Uploader extends Component {
 
   processFile = (fieldName, file, metadata, load, error, progress, abort) => {
     const self = this;
-    CreateUpload(file, this.props.document.id)
+    const docID = this.props.document ? this.props.document.id : null;
+    CreateUpload(file, docID)
       .then(item => {
         load(item.id);
         const newFiles = concat(self.state.files, item);
         self.setState({
           files: newFiles,
-        });
-        // Call onChange after the upload completes
-        self.pond._pond.onOnce('processfile', e => {
-          if (self.props.onChange) {
-            self.props.onChange(newFiles);
-          }
         });
       })
       .catch(error);
@@ -87,7 +136,7 @@ export class Uploader extends Component {
           files: newFiles,
         });
         if (this.props.onChange) {
-          this.props.onChange(newFiles);
+          this.props.onChange(newFiles, this.isIdle());
         }
       })
       .catch(error);
@@ -106,8 +155,9 @@ export class Uploader extends Component {
 }
 
 Uploader.propTypes = {
-  document: PropTypes.object.isRequired,
+  document: PropTypes.object,
   onChange: PropTypes.func,
+  labelIdle: PropTypes.string,
 };
 
 function mapStateToProps(state) {

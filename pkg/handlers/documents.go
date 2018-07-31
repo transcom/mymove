@@ -2,17 +2,22 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
-	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"go.uber.org/zap"
 
 	auth "github.com/transcom/mymove/pkg/auth"
 	documentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/documents"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
-	"github.com/transcom/mymove/pkg/gen/restapi/apioperations"
+	publicdocumentsop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/documents"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+/*
+ * ------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * ------------------------------------------
+ */
 
 func payloadForDocumentModel(storer storage.FileStorer, document models.Document) (*internalmessages.DocumentPayload, error) {
 	uploads := make([]*internalmessages.UploadPayload, len(document.Uploads))
@@ -29,7 +34,6 @@ func payloadForDocumentModel(storer storage.FileStorer, document models.Document
 	documentPayload := &internalmessages.DocumentPayload{
 		ID:              fmtUUID(document.ID),
 		ServiceMemberID: fmtUUID(document.ServiceMemberID),
-		Name:            swag.String(document.Name),
 		Uploads:         uploads,
 	}
 	return documentPayload, nil
@@ -55,7 +59,6 @@ func (h CreateDocumentHandler) Handle(params documentop.CreateDocumentParams) mi
 
 	newDocument := models.Document{
 		ServiceMemberID: serviceMember.ID,
-		Name:            params.DocumentPayload.Name,
 	}
 
 	verrs, err := h.db.ValidateAndCreate(&newDocument)
@@ -108,6 +111,14 @@ need to be reconciled. This will be done when the NotImplemented code below is I
 type CreateDocumentUploadHandler HandlerContext
 
 // Handle creates a new DocumentUpload from a request payload
-func (h CreateDocumentUploadHandler) Handle(params apioperations.CreateDocumentUploadParams) middleware.Responder {
+func (h CreateDocumentUploadHandler) Handle(params publicdocumentsop.CreateDocumentUploadParams) middleware.Responder {
 	return middleware.NotImplemented("operation .createDocumentUpload has not yet been implemented")
 }
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+// NO CODE YET!

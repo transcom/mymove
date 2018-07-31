@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
-import editablePanel from './editablePanel';
+import editablePanel from '../editablePanel';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { formatCentsRange } from 'shared/formatters';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';

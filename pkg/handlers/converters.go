@@ -5,6 +5,8 @@ import (
 
 	"github.com/go-openapi/strfmt"
 	"github.com/gobuffalo/uuid"
+
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // These functions facilitate converting from the go types the db uses
@@ -26,6 +28,13 @@ func fmtDateTime(dateTime time.Time) *strfmt.DateTime {
 	return &fmtDateTime
 }
 
+func fmtDateTimePtr(dateTime *time.Time) *strfmt.DateTime {
+	if dateTime == nil {
+		return nil
+	}
+	return (*strfmt.DateTime)(dateTime)
+}
+
 func fmtDate(date time.Time) *strfmt.Date {
 	fmtDate := strfmt.Date(date)
 	return &fmtDate
@@ -38,14 +47,30 @@ func fmtDatePtr(date *time.Time) *strfmt.Date {
 	return (*strfmt.Date)(date)
 }
 
+func fmtPoundPtr(weight *unit.Pound) *int64 {
+	if weight == nil {
+		return nil
+	}
+	value := weight.Int64()
+	return &value
+}
+
+func poundPtrFromInt64Ptr(num *int64) *unit.Pound {
+	if num == nil {
+		return nil
+	}
+	value := int(*num)
+	pound := unit.Pound(value)
+	return &pound
+}
+
 func fmtURI(uri string) *strfmt.URI {
 	fmtURI := strfmt.URI(uri)
 	return &fmtURI
 }
 
-func fmtInt64(i int) *int64 {
-	fmtInt := int64(i)
-	return &fmtInt
+func fmtInt64(i int64) *int64 {
+	return &i
 }
 
 func fmtBool(b bool) *bool {

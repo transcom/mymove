@@ -10,10 +10,12 @@ import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';
 import { loadEntitlementsFromState } from 'shared/entitlements';
+import { formatCents } from 'shared/formatters';
 
 // Types
 export const SET_PENDING_PPM_SIZE = 'SET_PENDING_PPM_SIZE';
 export const SET_PENDING_PPM_WEIGHT = 'SET_PENDING_PPM_WEIGHT';
+const CLEAR_SIT_ESTIMATE = 'CLEAR_SIT_ESTIMATE';
 export const CREATE_OR_UPDATE_PPM = ReduxHelpers.generateAsyncActionTypes(
   'CREATE_OR_UPDATE_PPM',
 );
@@ -24,11 +26,6 @@ export const GET_PPM_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
 export const GET_SIT_ESTIMATE = ReduxHelpers.generateAsyncActionTypes(
   'GET_SIT_ESTIMATE',
 );
-
-function formatSitEstimate(estimate) {
-  // Range values arrive in cents, so convert to dollars
-  return `$${(estimate / 100).toFixed(2)}`;
-}
 
 // Action creation
 export function setPendingPpmSize(value) {
@@ -78,6 +75,10 @@ export function getPpmSitEstimate(
       .then(item => dispatch(action.success(item)))
       .catch(error => dispatch(action.error(error)));
   };
+}
+
+export function clearPpmSitEstimate() {
+  return { type: CLEAR_SIT_ESTIMATE };
 }
 
 export function createOrUpdatePpm(moveId, ppm) {
@@ -300,7 +301,7 @@ export function ppmReducer(state = initialState, action) {
       let estimate = null;
       if (isNumber(action.payload.estimate)) {
         // Convert from cents
-        estimate = formatSitEstimate(action.payload.estimate);
+        estimate = '$' + formatCents(action.payload.estimate);
       }
       return Object.assign({}, state, {
         sitReimbursement: estimate,
@@ -316,6 +317,14 @@ export function ppmReducer(state = initialState, action) {
         hasEstimateError: true,
         hasEstimateInProgress: false,
         rateEngineError: action.error,
+      });
+    case CLEAR_SIT_ESTIMATE:
+      return Object.assign({}, state, {
+        sitReimbursement: null,
+        hasEstimateSuccess: true,
+        hasEstimateError: false,
+        hasEstimateInProgress: false,
+        rateEngineError: null,
       });
     default:
       return state;

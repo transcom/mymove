@@ -63,6 +63,9 @@ client_test_coverage : client_deps
 office_client_run: client_deps
 	HOST=officelocal yarn start
 
+tsp_client_run: client_deps
+	HOST=tsplocal yarn start
+
 server_deps_update: server_generate
 	dep ensure -v -update
 server_deps: go_version .server_deps.stamp
@@ -71,7 +74,7 @@ server_deps: go_version .server_deps.stamp
 	dep ensure -vendor-only
 	# Unfortunately, dep ensure blows away ./vendor every time so these builds always take a while
 	go install ./vendor/github.com/golang/lint/golint # golint needs to be accessible for the pre-commit task to run, so `install` it
-	go build -i -o bin/gas ./vendor/github.com/GoASTScanner/gas/cmd/gas
+	go build -i -o bin/gosec ./vendor/github.com/securego/gosec/cmd/gosec
 	go build -i -o bin/gin ./vendor/github.com/codegangsta/gin
 	go build -i -o bin/soda ./vendor/github.com/gobuffalo/pop/soda
 	go build -i -o bin/swagger ./vendor/github.com/go-swagger/go-swagger/cmd/swagger
@@ -96,6 +99,10 @@ server_run: server_deps server_generate db_dev_run
 # This is just an alais for backwards compatibility
 server_run_dev: server_run
 
+server_run_debug:
+	INTERFACE=localhost DEBUG_LOGGING=true \
+	$(AWS_VAULT) dlv debug cmd/webserver/main.go
+
 server_build_docker:
 	docker build . -t ppp:web-dev
 server_run_only_docker: db_dev_run
@@ -109,6 +116,7 @@ tools_build: server_deps
 	go build -i -o bin/rateengine ./cmd/demo/rateengine.go
 	go build -i -o bin/make-office-user ./cmd/make_office_user
 	go build -i -o bin/load-office-data ./cmd/load_office_data
+	go build -i -o bin/make-tsp-user ./cmd/make_tsp_user
 	go build -i -o bin/load-user-gen ./cmd/load_user_gen
 	go build -i -o bin/paperwork ./cmd/paperwork
 
@@ -181,16 +189,18 @@ db_e2e_init: tools_build db_dev_run db_test_reset
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations up
 
-db_e2e_reset: tools_build db_dev_run
+db_e2e_reset: db_dev_run
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		./bin/soda -e test migrate -c config/database.yml -p cypress/migrations reset
 
 db_test_reset:
 	# Initialize a test database if we're not in a CircleCI environment.
-	[ -z "$(CIRCLECI)" ] && \
-		dropdb -p 5432 -h localhost -U postgres --if-exists test_db && \
-		createdb -p 5432 -h localhost -U postgres test_db || \
-		echo "Relying on CircleCI's test database setup."
+ifndef CIRCLECI
+	dropdb -p 5432 -h localhost -U postgres --if-exists test_db
+	createdb -p 5432 -h localhost -U postgres test_db
+else
+	echo "Relying on CircleCI's test database setup."
+endif
 	DB_HOST=localhost DB_PORT=5432 DB_NAME=test_db \
 		bin/wait-for-db
 	# We need to move to the bin/ directory so that the cwd contains `apply-secure-migration.sh`

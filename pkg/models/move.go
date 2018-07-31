@@ -116,6 +116,16 @@ func (m *Move) Approve() error {
 	return nil
 }
 
+// Complete Completes the Move
+func (m *Move) Complete() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	m.Status = MoveStatusCOMPLETED
+	return nil
+}
+
 // Cancel cancels the Move and its associated PPMs
 func (m *Move) Cancel(reason string) error {
 	// We can cancel any move that isn't already complete.
@@ -151,7 +161,14 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document").Find(&move, id)
+
+	// Eager loading of nested has_many associations is broken
+	for i, moveDoc := range move.MoveDocuments {
+		db.Load(&moveDoc.Document, "Uploads")
+		move.MoveDocuments[i] = moveDoc
+	}
+
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
@@ -171,27 +188,67 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 
 // CreateMoveDocument creates a move document associated to a move
 func (m Move) CreateMoveDocument(db *pop.Connection,
-	document Document,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
+	title string,
 	status MoveDocumentStatus,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
 
-	newMoveDocument := MoveDocument{
-		Move:             m,
-		MoveID:           m.ID,
-		Document:         document,
-		DocumentID:       document.ID,
-		MoveDocumentType: moveDocumentType,
-		Status:           status,
-		Notes:            notes,
-	}
+	var newMoveDocument *MoveDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
 
-	verrs, err := db.ValidateAndCreate(&newMoveDocument)
-	if err != nil || verrs.HasAny() {
-		return nil, verrs, err
-	}
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
 
-	return &newMoveDocument, verrs, nil
+		// Make a generic Document
+		newDoc := Document{
+			ServiceMemberID: m.Orders.ServiceMemberID,
+			Uploads:         uploads,
+		}
+		verrs, err := db.ValidateAndCreate(&newDoc)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating document for move document")
+			return transactionError
+		}
+
+		// Associate uploads to the new document
+		for _, upload := range uploads {
+			upload.DocumentID = &newDoc.ID
+			verrs, err := db.ValidateAndUpdate(&upload)
+			if err != nil || verrs.HasAny() {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error updating upload")
+				return transactionError
+			}
+		}
+
+		// Finally create the MoveDocument to tie it to the Move
+		newMoveDocument = &MoveDocument{
+			Move:                     m,
+			MoveID:                   m.ID,
+			Document:                 newDoc,
+			DocumentID:               newDoc.ID,
+			PersonallyProcuredMoveID: personallyProcuredMoveID,
+			MoveDocumentType:         moveDocumentType,
+			Title:                    title,
+			Status:                   status,
+			Notes:                    notes,
+		}
+		verrs, err = db.ValidateAndCreate(newMoveDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating move document")
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newMoveDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move

@@ -18,6 +18,25 @@ import { documentReducer } from 'shared/Uploader/ducks';
 import { reviewReducer } from 'scenes/Review/ducks';
 import transportationOfficeReducer from 'shared/TransportationOffices/ducks';
 import { officeReducer } from 'scenes/Office/ducks';
+import { tspReducer } from 'scenes/TransportationServiceProvider/ducks';
+import officePpmReducer from 'scenes/Office/Ppm/ducks';
+
+// Entities
+import moveDocuments, {
+  STATE_KEY as MOVEDOCUMENTS_STATE_KEY,
+} from 'shared/Entities/modules/moveDocuments';
+import documentModel, {
+  STATE_KEY as DOCUMENTS_STATE_KEY,
+} from 'shared/Entities/modules/documents';
+import uploads, {
+  STATE_KEY as UPLOADS_STATE_KEY,
+} from 'shared/Entities/modules/uploads';
+
+const entititesReducer = combineReducers({
+  [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
+  [DOCUMENTS_STATE_KEY]: documentModel,
+  [UPLOADS_STATE_KEY]: uploads,
+});
 
 export const appReducer = combineReducers({
   user: userReducer,
@@ -36,7 +55,10 @@ export const appReducer = combineReducers({
   upload: documentReducer,
   review: reviewReducer,
   office: officeReducer,
+  tsp: tspReducer,
   transportationOffices: transportationOfficeReducer,
+  ppmIncentive: officePpmReducer,
+  entities: entititesReducer,
 });
 
 export default appReducer;

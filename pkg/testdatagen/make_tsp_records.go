@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"fmt"
 	"log"
 	"math/rand"
 
@@ -25,7 +26,10 @@ func MakeTSP(db *pop.Connection, SCAC string) (models.TransportationServiceProvi
 		StandardCarrierAlphaCode: SCAC,
 	}
 
-	_, err := db.ValidateAndSave(&tsp)
+	verrs, err := db.ValidateAndSave(&tsp)
+	if verrs.HasAny() {
+		err = fmt.Errorf("TSP validation errors: %v", verrs)
+	}
 	if err != nil {
 		log.Panic(err)
 	}

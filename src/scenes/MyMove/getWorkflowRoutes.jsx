@@ -26,6 +26,8 @@ import Transition from 'scenes/Moves/Transition';
 import PpmDateAndLocations from 'scenes/Moves/Ppm/DateAndLocation';
 import PpmWeight from 'scenes/Moves/Ppm/Weight';
 import PpmSize from 'scenes/Moves/Ppm/PPMSizeWizard';
+import ShipmentForm from 'scenes/Moves/Hhg/ShipmentForm';
+import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 import Review from 'scenes/Review/Review';
 import Agreement from 'scenes/Legalese';
 
@@ -44,7 +46,7 @@ const Placeholder = props => {
       pageList={props.pageList}
       pageKey={props.pageKey}
     >
-      <div className="Todo">
+      <div className="Todo-phase2">
         <h1>Placeholder for {props.title}</h1>
         <h2>{props.description}</h2>
       </div>
@@ -133,7 +135,7 @@ const pages = {
   },
   '/service-member/:serviceMemberId/backup-contacts': {
     isInFlow: myFirstRodeo,
-    isComplete: (sm, orders, move, ppm, backup_contacts) => {
+    isComplete: (sm, orders, move, ppm, hhg, backup_contacts) => {
       return sm.is_profile_complete || backup_contacts.length > 0;
     },
     render: (key, pages) => ({ match }) => (
@@ -204,19 +206,39 @@ const pages = {
       <MoveType pages={pages} pageKey={key} match={match} />
     ),
   },
-  '/moves/:moveId/schedule': {
+  '/moves/:moveId/hhg-transition': {
+    isInFlow: isCombo,
+    isComplete: always,
+    render: (key, pages) => ({ match }) => (
+      <WizardPage handleSubmit={no_op} pageList={pages} pageKey={key}>
+        <Transition />
+      </WizardPage>
+    ),
+  },
+  '/moves/:moveId/hhg-start': {
+    isInFlow: state => state.selectedMoveType === 'HHG',
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.requested_pickup_date]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <ShipmentForm pages={pages} pageKey={key} match={match} />
+    ),
+  },
+  '/moves/:moveId/hhg-address': {
+    isInFlow: hasHHG,
+    isComplete: (sm, orders, move, hhg) => {
+      return every([hhg.pickup_address]);
+    },
+    render: (key, pages) => ({ match }) => (
+      <ShipmentAddress pages={pages} pageKey={key} match={match} />
+    ),
+  },
+  '/moves/:moveId/hhg-weight': {
     isInFlow: hasHHG,
     isComplete: always, //todo fix this when implemented
     render: stub,
-    description: 'Pick a move date',
+    description: 'enter your HHG weight',
   },
-  '/moves/:moveId/address': {
-    isInFlow: hasHHG,
-    isComplete: always, //todo fix this when implemented
-    render: stub,
-    description: 'enter your addresses',
-  },
-
   '/moves/:moveId/ppm-transition': {
     isInFlow: isCombo,
     isComplete: always,
@@ -277,23 +299,32 @@ export const getPagesInFlow = state =>
     return page.isInFlow(state);
   });
 
+// We need to pass in state here to determine which page "isInFlow"
+// TODO: Refactor to include only parts of state needed to determine isInFlow
 export const getNextIncompletePage = (
-  service_member = {},
-  orders = {},
-  move = {},
-  ppm = {},
-  backupContacts = [],
+  state,
+  {
+    serviceMember = {},
+    orders = {},
+    move = {},
+    ppm = {},
+    hhg = {},
+    backupContacts = [],
+  },
 ) => {
   const rawPath = findKey(
     pages,
-    p => !p.isComplete(service_member, orders, move, ppm, backupContacts),
+    p =>
+      p.isInFlow(state) &&
+      !p.isComplete(serviceMember, orders, move, ppm, hhg, backupContacts),
   );
   const compiledPath = generatePath(rawPath, {
-    serviceMemberId: get(service_member, 'id'),
+    serviceMemberId: get(serviceMember, 'id'),
     moveId: get(move, 'id'),
   });
   return compiledPath;
 };
+
 export const getWorkflowRoutes = props => {
   const pageList = getPagesInFlow(props);
   return Object.keys(pages).map(key => {

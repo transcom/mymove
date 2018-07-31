@@ -1,0 +1,23 @@
+.tspHeaderOne {
+  margin: 1%;
+}
+
+.tspHeaderTwo {
+  float: right;
+}
+.forms-shared {
+  width: 35%;
+  float: left;
+  margin: 2%;
+}
+.user-shared {
+  width: 45%;
+  float: left;
+  margin: 2%;
+}
+.magnifying-glass {
+  color: white;
+}
+header.header {
+  border-bottom: 3px solid black;
+}

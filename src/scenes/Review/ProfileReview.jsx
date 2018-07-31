@@ -16,14 +16,22 @@ class ProfileReview extends Component {
     this.props.push(this.getNextIncompletePage());
   };
   getNextIncompletePage = () => {
-    const { serviceMember, orders, move, ppm, backupContacts } = this.props;
-    return getNextIncompletePageInternal(
+    const {
       serviceMember,
       orders,
       move,
       ppm,
+      hhg,
       backupContacts,
-    );
+    } = this.props;
+    return getNextIncompletePageInternal(this.props.reduxState, {
+      serviceMember,
+      orders,
+      move,
+      ppm,
+      hhg,
+      backupContacts,
+    });
   };
   render() {
     return (
@@ -50,6 +58,7 @@ ProfileReview.propTypes = {
 
 function mapStateToProps(state) {
   return {
+    reduxState: state,
     serviceMember: state.serviceMember.currentServiceMember,
   };
 }

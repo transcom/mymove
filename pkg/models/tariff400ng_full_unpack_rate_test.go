@@ -79,7 +79,7 @@ func (suite *ModelSuite) Test_FetchFullUnPackRateCents() {
 		t.Fatalf("Unable to query full unpack rate: %v", err)
 	}
 	if rate != rateExpected {
-		t.Errorf("Incorrect full unpack rate recieved. Got: %d. Expected: %d.", rate, rateExpected)
+		t.Errorf("Incorrect full unpack rate received. Got: %d. Expected: %d.", rate, rateExpected)
 	}
 
 	// Test exclusivity of effective_date_upper
