@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -116,7 +118,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
 
 	shipments := []Shipment{}
 
@@ -128,8 +130,12 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
-	if status != nil {
-		query = query.Where("shipments.status = $2", *status)
+	if len(status) > 0 {
+		statusStrings := make([]string, len(status))
+		for index, st := range status {
+			statusStrings[index] = fmt.Sprintf("'%s'", st)
+		}
+		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
 	}
 
 	// Manage ordering by pickup or delivery date

@@ -512,6 +512,7 @@ definitions:
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
+      - DEFAULT
       - IN_PROGRESS
       - COMPLETE
       - AWARDED
@@ -758,9 +759,12 @@ paths:
       parameters:
         - name: status
           in: query
-          type: string
+          type: array
+          items:
+            type: string
+            enum: *SHIPMENTSTATUS
+          collectionFormat: csv
           description: Restrict the list to shipments with matching ShipmentStatus
-          enum: *SHIPMENTSTATUS
         - name: order_by
           in: query
           type: string
