@@ -11,627 +11,6 @@ consumes:
   - application/json
 produces:
   - application/json
-paths:
-  /blackouts:
-    get:
-      summary: retrieve a list of blacked out dates (for accessible TSPs)
-      description: Gets a list of blackout periods which the current user can see
-      operationId: indexBlackouts
-      tags:
-        - blackouts
-      parameters:
-        - in: query
-          name: start_date
-          type: string
-          format: date
-          description: restricts the search to blackout periods for which the endDate is after this date
-        - in: query
-          name: end_date
-          type: string
-          format: date
-          description: restricts the search to blackout periods which startDate is before this date
-        - in: query
-          name: gbloc
-          type: string
-          description: restricts the search to return blackout periods which originate from this GBLOC
-          pattern: '^[A-Z]{4}$'
-        - in: query
-          name: source_service_area
-          type: string
-          description: restricts the search to blackout periods with an explicit source rate area (zip3)
-      responses:
-        200:
-          description: list of associated blackouts
-          schema:
-            $ref: '#/definitions/IndexBlackoutsPayload'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        500:
-          description: server error
-    post:
-      summary: Adds a new Blackout period to the list of blackouts
-      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
-       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
-       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
-
-       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
-       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
-       originate in the given GBLOC.
-      operationId: createBlackout
-      tags:
-        - blackouts
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
-      parameters:
-        - in: body
-          description: The blackout period to add
-          name: payload
-          required: true
-          schema:
-            $ref: '#/definitions/CreateBlackoutPayload'
-      responses:
-        201:
-          description: The blackout as added to the database including DB ID
-          schema:
-            $ref: '#/definitions/BlackoutPayload'
-        400:
-          description: invalid request
-        403:
-          description: not authorized to create blackouts
-        500:
-          description: server error
-  /blackouts/{blackout_uuid}:
-    get:
-      summary: retrieve the details of a blackout period
-      operationId: getBlackout
-      tags:
-        - blackouts
-      parameters:
-        - in: path
-          name: blackout_uuid
-          type: string
-          format: uuid
-          required: true
-          description: the unique identifier for the blackout
-      responses:
-        200:
-          description: the details of the requested blackout period
-          schema:
-              $ref: '#/definitions/BlackoutPayload'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access the associated blackout
-        404:
-          description: no blackout found with that UUID
-        500:
-          description: server error
-    patch:
-      summary: update the associated blackout
-      operationId: updateBlackout
-      tags:
-        - blackouts
-      parameters:
-        - in: path
-          name: blackout_uuid
-          type: string
-          format: uuid
-          required: true
-          description: the unique identifier for the blackout
-        - in: body
-          name: update
-          required: true
-          schema:
-            $ref: '#/definitions/BlackoutPayload'
-      responses:
-        200:
-          description: the blackout was successfully updated
-          schema:
-              $ref: '#/definitions/BlackoutPayload'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access the associated blackout
-        404:
-          description: no blackout found with that UUID
-        500:
-          description: server error
-    delete:
-      summary: delete the associated blackout period
-      operationId: deleteBlackout
-      tags:
-        - blackouts
-      parameters:
-        - in: path
-          name: blackout_uuid
-          type: string
-          format: uuid
-          required: true
-          description: the unique identifier for the blackout
-      responses:
-        200:
-          description: the blackout was successfully deleted
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access the associated blackout
-        404:
-          description: no blackout found with that UUID
-        500:
-          description: server error
-  /documents/{document_uuid}/uploads:
-    post:
-      summary: Adds a new upload to a document
-      description: Uploads represent a single digital file, such as a JPEG or PDF.
-      operationId: createDocumentUpload
-      tags:
-        - documents
-      consumes:
-        - multipart/form-data
-      parameters:
-        - in: path
-          name: document_uuid
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the document to which the Upload is added
-        - in: formData
-          name: file
-          type: file
-          description: The file to upload.
-          required: true
-        - in: formData
-          name: name
-          type: string
-          description: Human readable name for the upload
-      responses:
-        201:
-          description: created upload
-          schema:
-            $ref: '#/definitions/DocumentUpload'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to see the details of this shipment
-        404:
-          description: dcoument UUID not found in system
-        500:
-          description: server error
-  /shipments:
-    get:
-      summary: Gets visible shipments
-      description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
-      operationId: indexShipments
-      tags:
-        - shipments
-      parameters:
-        - name: status
-          in: query
-          type: string
-          description: Restrict the list to shipments with matching ShipmentStatus
-          enum:
-            - IN_PROGRESS
-            - COMPLETE
-            - AWARDED
-            - ACCEPTED
-            - REJECTED
-            - IN_TRANSIT
-            - SIT_ORIGIN
-            - SIT_DEST
-            - DELIVERED
-            - COMPLETED
-            - CLAIMS
-        - name: order_by
-          in: query
-          type: string
-          description: Sort the returned list according to this ordering
-          enum:
-            - PICKUP_DATE_ASC
-            - PICKUP_DATE_DESC
-            - DELIVERY_DATE_ASC
-            - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          minimum: 1
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to select from. Actual offset is this value multiplied by limit.
-          minimum: 1
-          default: 1
-      responses:
-        200:
-          description: returns an array of Shipments
-          schema:
-            $ref: '#/definitions/IndexShipments'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to list these shipments
-        500:
-          description: server error
-  /shipments/{shipment_uuid}:
-    get:
-      summary: Gets a particular shipment
-      description: Allows a user to retrieve the details of a particular shipment
-      operationId: getShipment
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns the details of the shipment
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to see the details of this shipment
-        404:
-          description: shipment UUID not found in system
-        500:
-          description: server error
-    patch:
-      summary: Updates a particular shipment
-      description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
-      operationId: updateShipment
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: update
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/Shipment'
-      responses:
-        200:
-          description: returns the details of the shipment
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to see the details of this shipment
-        404:
-          description: shipment UUID not found in system
-        500:
-          description: server error
-  /shipments/{shipment_uuid}/accept:
-    post:
-      summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
-      operationId: createShipmentAccept
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: payload
-          in: body
-          required: true
-          schema:
-            $ref: '#/definitions/ShipmentAcceptPayload'
-      responses:
-        200:
-          description: returns updated (accepted) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
-        409:
-          description: the shipment is not in a state to be accepted
-          schema:
-            $ref: '#/definitions/Shipment'
-        500:
-          description: server error
-  /shipments/{shipment_uuid}/claims:
-    get:
-      summary: Gets the list of claims associated with a shipment
-      operationId: getShipmentClaims
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment for which contact details are requested
-      responses:
-        200:
-          description: returns contact details for the shipment
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Claim'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access this shipment
-        500:
-          description: server error
-  /shipments/{shipment_uuid}/contact_details:
-    get:
-      summary: Gets the detailed contact information for a move
-      description: Accepts a shipment awarded to a TSP
-      operationId: getShipmentContactDetails
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment for which contact details are requested
-      responses:
-        200:
-          description: returns contact details for the shipment
-          schema:
-            $ref: '#/definitions/ShipmentContactDetails'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access this shipment
-        500:
-          description: server error
-  /shipments/{shipment_uuid}/documents:
-    get:
-      summary: Gets the list of documents associated with a Shipment
-      operationId: getShipmentDocuments
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-      responses:
-        200:
-          description: returns the documents associated with the shipment
-          schema:
-            $ref: '#/definitions/Document'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to access this shipment
-        500:
-          description: server error
-    post:
-      summary: Creates a new document associated with a shipment
-      description: Creates the storage for the new document and sets the UUID
-      operationId: createShipmentDocument
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - name: payload
-          in: body
-          required: true
-          description: A bare bones Document object containing the name of the new document
-          schema:
-            $ref: '#/definitions/Document'
-      responses:
-        200:
-          description: returns updated document with UUID and create time set.
-          schema:
-            $ref: '#/definitions/Document'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to add documents to this shipment
-        500:
-          description: server error
-  /shipments/{shipment_uuid}/refuse:
-    post:
-      summary: Rejects an awarded shipment
-      description: Allows a TSP to reject an awarded shipment
-      operationId: createShipmentRefuse
-      tags:
-        - shipments
-      parameters:
-        - name: shipment_uuid
-          in: path
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the shipment
-        - in: body
-          name: payload
-          description: reason for refusing award
-          required: true
-          schema:
-            $ref: '#/definitions/ShipmentRefusePayload'
-      responses:
-        200:
-          description: returns updated (refused) shipment object
-          schema:
-            $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to use this endpoint
-        403:
-          description: not authorized to accept this shipment
-        500:
-          description: server error
-  /tsps:
-    get:
-      summary: List all TSPs
-      description: Gets a list of all the TSPs which the logged in user has access to.
-      operationId: indexTSPs
-      tags:
-        - tsps
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
-      responses:
-        200:
-          description: list of TSPs
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/TSP'
-        400:
-          description: invalid request
-        401:
-          description: must be authenticated to access this endpoint
-        500:
-          description: server error
-  /tsps/{tsp_uuid}/shipments:
-    get:
-      summary: Retrieve shipments associated with a TSP
-      description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
-      operationId: getTspShipments
-      tags:
-        - tsps
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
-      parameters:
-        - in: path
-          name: tsp_uuid
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the TSP
-        - name: status
-          in: query
-          type: string
-          required: false
-          description: Status of shipments to load, e.g. AWARDED
-        - name: order_by
-          in: query
-          type: string
-          description: Sort the returned list according to this ordering
-          enum:
-            - PICKUP_DATE_ASC
-            - PICKUP_DATE_DESC
-            - DELIVERY_DATE_ASC
-            - DELIVERY_DATE_DESC
-        - name: limit
-          in: query
-          type: integer
-          description: maximum number of records to return
-          default: 25
-        - name: offset
-          in: query
-          type: integer
-          description: offset into records to begin selection from.
-          default: 0
-      responses:
-        200:
-          description: list of associated shipments
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/Shipment'
-        400:
-          description: invalid request
-        403:
-          description: not authorized to get list of shipments for this TSP
-        404:
-          description: TSP UUID not found in system
-        500:
-          description: server error
-  /tsps/{tsp_uuid}/blackouts:
-    get:
-      summary: Retrieve a list of the blackouts associated with a TSP
-      description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
-      operationId: getTspBlackouts
-      tags:
-        - tsps
-      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
-      parameters:
-        - in: path
-          name: tsp_uuid
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the TSP
-        - in: query
-          name: start_date
-          type: string
-          format: date
-          description: restricts the search to blackout periods for which the endDate is after this date
-        - in: query
-          name: end_date
-          type: string
-          format: date
-          description: restricts the search to blackout periods which startDate is before this date
-        - in: query
-          name: gbloc
-          description: restricts the search to return blackout periods which originate from this GBLOC
-          type: string
-          pattern: '^[A-Z]{4}$'
-        - in: query
-          name: source_service_area
-          type: string
-          description: restricts the search to blackout periods with and explicit source service area
-      responses:
-        200:
-          description: list of associated blackouts
-          schema:
-            type: array
-            items:
-              $ref: '#/definitions/BlackoutPayload'
-        400:
-          description: invalid request
-        403:
-          description: not authorized to get list of blackouts for this TSP
-        404:
-          description: TSP UUID not found in system
-        500:
-          description: server error
 definitions:
   Address:
     type: object
@@ -1132,7 +511,7 @@ definitions:
     type: string
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
-    enum:
+    enum: &SHIPMENTSTATUS
       - IN_PROGRESS
       - COMPLETE
       - AWARDED
@@ -1174,3 +553,613 @@ definitions:
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         example: john_bob@example.com
+paths:
+  /blackouts:
+    get:
+      summary: retrieve a list of blacked out dates (for accessible TSPs)
+      description: Gets a list of blackout periods which the current user can see
+      operationId: indexBlackouts
+      tags:
+        - blackouts
+      parameters:
+        - in: query
+          name: start_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods for which the endDate is after this date
+        - in: query
+          name: end_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods which startDate is before this date
+        - in: query
+          name: gbloc
+          type: string
+          description: restricts the search to return blackout periods which originate from this GBLOC
+          pattern: '^[A-Z]{4}$'
+        - in: query
+          name: source_service_area
+          type: string
+          description: restricts the search to blackout periods with an explicit source rate area (zip3)
+      responses:
+        200:
+          description: list of associated blackouts
+          schema:
+            $ref: '#/definitions/IndexBlackoutsPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        500:
+          description: server error
+    post:
+      summary: Adds a new Blackout period to the list of blackouts
+      description: This is used to create a new blackout. When posting to this URL the payload Blackout should not
+       contain an ID as this will be created when it is added to the DB.  Supplying this fields in the payload will
+       result in a 400 bad request. The TSP ID will be inferred from the authenticated account making the request.
+
+       At least one of GBLOC, zip3, Channel/COS or Market must be supplied. If more than one of these fields are supplied
+       they will be AND'd together, i.e. GBLOC, Channel will restrict to shipments in the particular Channel which
+       originate in the given GBLOC.
+      operationId: createBlackout
+      tags:
+        - blackouts
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: body
+          description: The blackout period to add
+          name: payload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateBlackoutPayload'
+      responses:
+        201:
+          description: The blackout as added to the database including DB ID
+          schema:
+            $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to create blackouts
+        500:
+          description: server error
+  /blackouts/{blackout_uuid}:
+    get:
+      summary: retrieve the details of a blackout period
+      operationId: getBlackout
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+      responses:
+        200:
+          description: the details of the requested blackout period
+          schema:
+              $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+        500:
+          description: server error
+    patch:
+      summary: update the associated blackout
+      operationId: updateBlackout
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+        - in: body
+          name: update
+          required: true
+          schema:
+            $ref: '#/definitions/BlackoutPayload'
+      responses:
+        200:
+          description: the blackout was successfully updated
+          schema:
+              $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+        500:
+          description: server error
+    delete:
+      summary: delete the associated blackout period
+      operationId: deleteBlackout
+      tags:
+        - blackouts
+      parameters:
+        - in: path
+          name: blackout_uuid
+          type: string
+          format: uuid
+          required: true
+          description: the unique identifier for the blackout
+      responses:
+        200:
+          description: the blackout was successfully deleted
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access the associated blackout
+        404:
+          description: no blackout found with that UUID
+        500:
+          description: server error
+  /documents/{document_uuid}/uploads:
+    post:
+      summary: Adds a new upload to a document
+      description: Uploads represent a single digital file, such as a JPEG or PDF.
+      operationId: createDocumentUpload
+      tags:
+        - documents
+      consumes:
+        - multipart/form-data
+      parameters:
+        - in: path
+          name: document_uuid
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the document to which the Upload is added
+        - in: formData
+          name: file
+          type: file
+          description: The file to upload.
+          required: true
+        - in: formData
+          name: name
+          type: string
+          description: Human readable name for the upload
+      responses:
+        201:
+          description: created upload
+          schema:
+            $ref: '#/definitions/DocumentUpload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: dcoument UUID not found in system
+        500:
+          description: server error
+  /shipments:
+    get:
+      summary: Gets visible shipments
+      description: Allows a user to retrieve a list of shipments. The shipments are restricted to those they have authorization to view
+      operationId: indexShipments
+      tags:
+        - shipments
+      parameters:
+        - name: status
+          in: query
+          type: string
+          description: Restrict the list to shipments with matching ShipmentStatus
+          enum: *SHIPMENTSTATUS
+        - name: order_by
+          in: query
+          type: string
+          description: Sort the returned list according to this ordering
+          enum:
+            - PICKUP_DATE_ASC
+            - PICKUP_DATE_DESC
+            - DELIVERY_DATE_ASC
+            - DELIVERY_DATE_DESC
+        - name: limit
+          in: query
+          type: integer
+          description: maximum number of records to return
+          minimum: 1
+          default: 25
+        - name: offset
+          in: query
+          type: integer
+          description: offset into records to select from. Actual offset is this value multiplied by limit.
+          minimum: 1
+          default: 1
+      responses:
+        200:
+          description: returns an array of Shipments
+          schema:
+            $ref: '#/definitions/IndexShipments'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to list these shipments
+        500:
+          description: server error
+  /shipments/{shipment_uuid}:
+    get:
+      summary: Gets a particular shipment
+      description: Allows a user to retrieve the details of a particular shipment
+      operationId: getShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns the details of the shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: shipment UUID not found in system
+        500:
+          description: server error
+    patch:
+      summary: Updates a particular shipment
+      description: Takes a partial Shipment object and replaces the fields in the DB with the ones passed in the body
+      operationId: updateShipment
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: update
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/Shipment'
+      responses:
+        200:
+          description: returns the details of the shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to see the details of this shipment
+        404:
+          description: shipment UUID not found in system
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/accept:
+    post:
+      summary: Accepts an awarded shipment
+      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
+      operationId: createShipmentAccept
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: payload
+          in: body
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentAcceptPayload'
+      responses:
+        200:
+          description: returns updated (accepted) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        409:
+          description: the shipment is not in a state to be accepted
+          schema:
+            $ref: '#/definitions/Shipment'
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/claims:
+    get:
+      summary: Gets the list of claims associated with a shipment
+      operationId: getShipmentClaims
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment for which contact details are requested
+      responses:
+        200:
+          description: returns contact details for the shipment
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Claim'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/contact_details:
+    get:
+      summary: Gets the detailed contact information for a move
+      description: Accepts a shipment awarded to a TSP
+      operationId: getShipmentContactDetails
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment for which contact details are requested
+      responses:
+        200:
+          description: returns contact details for the shipment
+          schema:
+            $ref: '#/definitions/ShipmentContactDetails'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/documents:
+    get:
+      summary: Gets the list of documents associated with a Shipment
+      operationId: getShipmentDocuments
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+      responses:
+        200:
+          description: returns the documents associated with the shipment
+          schema:
+            $ref: '#/definitions/Document'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to access this shipment
+        500:
+          description: server error
+    post:
+      summary: Creates a new document associated with a shipment
+      description: Creates the storage for the new document and sets the UUID
+      operationId: createShipmentDocument
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - name: payload
+          in: body
+          required: true
+          description: A bare bones Document object containing the name of the new document
+          schema:
+            $ref: '#/definitions/Document'
+      responses:
+        200:
+          description: returns updated document with UUID and create time set.
+          schema:
+            $ref: '#/definitions/Document'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to add documents to this shipment
+        500:
+          description: server error
+  /shipments/{shipment_uuid}/refuse:
+    post:
+      summary: Rejects an awarded shipment
+      description: Allows a TSP to reject an awarded shipment
+      operationId: createShipmentRefuse
+      tags:
+        - shipments
+      parameters:
+        - name: shipment_uuid
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the shipment
+        - in: body
+          name: payload
+          description: reason for refusing award
+          required: true
+          schema:
+            $ref: '#/definitions/ShipmentRefusePayload'
+      responses:
+        200:
+          description: returns updated (refused) shipment object
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to accept this shipment
+        500:
+          description: server error
+  /tsps:
+    get:
+      summary: List all TSPs
+      description: Gets a list of all the TSPs which the logged in user has access to.
+      operationId: indexTSPs
+      tags:
+        - tsps
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom & JPPSO user groups
+      responses:
+        200:
+          description: list of TSPs
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/TSP'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to access this endpoint
+        500:
+          description: server error
+  /tsps/{tsp_uuid}/shipments:
+    get:
+      summary: Retrieve shipments associated with a TSP
+      description: Gets a list of all shipments associated with a TSP. Shipments can be restricted to be in a certain state, e.g. AWARDED
+      operationId: getTspShipments
+      tags:
+        - tsps
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: path
+          name: tsp_uuid
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the TSP
+        - name: status
+          in: query
+          type: string
+          required: false
+          description: Status of shipments to load, e.g. AWARDED
+        - name: order_by
+          in: query
+          type: string
+          description: Sort the returned list according to this ordering
+          enum:
+            - PICKUP_DATE_ASC
+            - PICKUP_DATE_DESC
+            - DELIVERY_DATE_ASC
+            - DELIVERY_DATE_DESC
+        - name: limit
+          in: query
+          type: integer
+          description: maximum number of records to return
+          default: 25
+        - name: offset
+          in: query
+          type: integer
+          description: offset into records to begin selection from.
+          default: 0
+      responses:
+        200:
+          description: list of associated shipments
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of shipments for this TSP
+        404:
+          description: TSP UUID not found in system
+        500:
+          description: server error
+  /tsps/{tsp_uuid}/blackouts:
+    get:
+      summary: Retrieve a list of the blackouts associated with a TSP
+      description: Gets a list of all blackouts associated with a TSP. Blackouts retrieved can be restricted by one or more
+      operationId: getTspBlackouts
+      tags:
+        - tsps
+      x-access: Access to this endpoint is restricted to members of the Admin, Transcom and JPPSO user groups along with the agents of the TSP.
+      parameters:
+        - in: path
+          name: tsp_uuid
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the TSP
+        - in: query
+          name: start_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods for which the endDate is after this date
+        - in: query
+          name: end_date
+          type: string
+          format: date
+          description: restricts the search to blackout periods which startDate is before this date
+        - in: query
+          name: gbloc
+          description: restricts the search to return blackout periods which originate from this GBLOC
+          type: string
+          pattern: '^[A-Z]{4}$'
+        - in: query
+          name: source_service_area
+          type: string
+          description: restricts the search to blackout periods with and explicit source service area
+      responses:
+        200:
+          description: list of associated blackouts
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/BlackoutPayload'
+        400:
+          description: invalid request
+        403:
+          description: not authorized to get list of blackouts for this TSP
+        404:
+          description: TSP UUID not found in system
+        500:
+          description: server error
