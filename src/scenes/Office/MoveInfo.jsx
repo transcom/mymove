@@ -19,6 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -69,7 +70,14 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
-  return <div className="hhg-tab">The Shipment data: {props.officeHHG}</div>;
+  return (
+    <div className="hhg-tab">
+      <DatesAndTrackingPanel
+        title="Dates and Tracking"
+        moveId={props.match.params.moveId}
+      />
+    </div>
+  );
 };
 
 class CancelPanel extends Component {
