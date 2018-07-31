@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import Alert from 'shared/Alert';
 import { EditablePanel } from 'shared/EditablePanel';
 
-export default function editablePanel(DisplayComponent, EditComponent) {
+export default function editablePanel(
+  DisplayComponent,
+  EditComponent,
+  editEnabled = true,
+) {
   const Wrapper = class extends Component {
     constructor(props) {
       super(props);
@@ -36,7 +40,9 @@ export default function editablePanel(DisplayComponent, EditComponent) {
 
     render() {
       const isEditable =
-        this.state.isEditable || this.props.isUpdating || false;
+        (editEnabled &&
+          (this.state.isEditable || this.props.isUpdating || isEditable)) ||
+        false;
       const Content = isEditable ? EditComponent : DisplayComponent;
 
       return (
@@ -53,6 +59,7 @@ export default function editablePanel(DisplayComponent, EditComponent) {
             onEdit={this.toggleEditable}
             onCancel={this.cancel}
             isEditable={isEditable}
+            editEnabled={editEnabled}
             isValid={this.props.formIsValid}
           >
             <Content {...this.props} />

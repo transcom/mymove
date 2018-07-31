@@ -39,10 +39,12 @@ const DatesAndTrackingEdit = props => {
 };
 
 const formName = 'office_shipment_info_dates_and_tracking';
+const editEnabled = false; // to remove the "Edit" button on panel header and disable editing
 
 let DatesAndTrackingPanel = editablePanel(
   DatesAndTrackingDisplay,
   DatesAndTrackingEdit,
+  editEnabled,
 );
 DatesAndTrackingPanel = reduxForm({ form: formName })(DatesAndTrackingPanel);
 
