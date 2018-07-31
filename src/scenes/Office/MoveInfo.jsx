@@ -203,8 +203,7 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
-    // const hhg = this.props.officeHHG;
-    const hhg = { exists: true };
+    const hhg = this.props.officeHHG;
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
@@ -315,10 +314,12 @@ class MoveInfo extends Component {
                   component={PPMTabContent}
                 />
                 !isEmpty(hhg) &&
-                <PrivateRoute
-                  path={`${this.props.match.path}/hhg`}
-                  component={HHGTabContent}
-                />
+                <PrivateRoute path={`${this.props.match.path}/hhg`}>
+                  <HHGTabContent
+                    officeHHG={JSON.stringify(this.props.officeHHG)}
+                  />{' '}
+                  //temp value for displaying raw data
+                </PrivateRoute>
               </Switch>
             </div>
           </div>
