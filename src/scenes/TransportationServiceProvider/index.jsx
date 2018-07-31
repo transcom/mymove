@@ -48,8 +48,13 @@ class TspWrapper extends Component {
             <div>
               <LogoutOnInactivity />
               <Switch>
-                <Redirect from="/" to="/queues/all" exact />
-                <PrivateRoute path="/queues/:queueType" component={Queues} />
+                <Redirect from="/" to="/queues/new" exact />
+                {/* Be specific about available routes by listing them */}
+                <PrivateRoute
+                  path="/queues/:queueType(new|all)"
+                  component={Queues}
+                />
+                {/* TODO: cgilmer (2018/07/31) Need a NotFound component to route to */}
               </Switch>
             </div>
           </main>

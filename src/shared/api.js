@@ -8,6 +8,13 @@ export async function getClient() {
   return client;
 }
 
+export async function getPublicClient() {
+  if (!client) {
+    client = await Swagger('/api/v1/swagger.yaml');
+  }
+  return client;
+}
+
 export function checkResponse(response, errorMessage) {
   if (!response.ok) {
     throw new Error(`${errorMessage}: ${response.url}: ${response.statusText}`);

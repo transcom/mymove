@@ -4,7 +4,7 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import { get } from 'lodash';
 import 'react-table/react-table.css';
-import { RetrieveMovesForTSP } from './api.js';
+import { RetrieveShipmentsForTSP } from './api.js';
 
 class QueueTable extends Component {
   constructor() {
@@ -34,7 +34,7 @@ class QueueTable extends Component {
   };
 
   fetchData() {
-    RetrieveMovesForTSP(this.props.queueType).then(
+    RetrieveShipmentsForTSP(this.props.queueType).then(
       response => {
         this.setState({
           data: response,
@@ -50,8 +50,8 @@ class QueueTable extends Component {
 
   render() {
     const titles = {
-      all: 'All Moves',
-      other: 'OTHER',
+      new: 'New Shipments',
+      all: 'All Shipments',
     };
 
     return (
