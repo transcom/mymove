@@ -25,6 +25,12 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ppmPayloads = append(ppmPayloads, payload)
 	}
 
+	var shipmentPayloads []*internalmessages.Shipment
+	for _, shipment := range move.Shipments {
+		payload := payloadForShipmentModel(shipment)
+		shipmentPayloads = append(shipmentPayloads, payload)
+	}
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               fmtDateTime(move.CreatedAt),
 		SelectedMoveType:        move.SelectedMoveType,
@@ -34,6 +40,7 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                fmtUUID(order.ID),
 		Status:                  internalmessages.MoveStatus(move.Status),
+		Shipments:               shipmentPayloads,
 	}
 	return movePayload, nil
 }
