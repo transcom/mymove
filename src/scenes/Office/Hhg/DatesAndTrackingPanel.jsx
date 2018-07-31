@@ -3,9 +3,9 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
-import editablePanel from './editablePanel';
+import editablePanel from '../editablePanel';
 
-// import { updateOrders } from './ducks';
+import { updateShipment } from './ducks';
 
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
@@ -50,7 +50,7 @@ let DatesAndTrackingPanel = editablePanel(
 DatesAndTrackingPanel = reduxForm({ form: formName })(DatesAndTrackingPanel);
 
 function mapStateToProps(state) {
-  let orders = get(state, 'office.officeOrders', {});
+  let shipment = get(state, 'office.officeShipment', {});
 
   return {
     // reduxForm
@@ -59,7 +59,7 @@ function mapStateToProps(state) {
     // Wrapper
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
     hasError:
-      state.office.ordersHaveLoadError || state.office.ordersHaveUpdateError,
+      state.office.shipmentHasLoadError || state.office.shipmentHasUpdateError,
     errorMessage: state.office.error,
 
     shipment: shipment,
