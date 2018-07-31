@@ -101,10 +101,15 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  const { formValues, moveDocSchema } = props;
+  const {
+    formValues,
+    moveDocSchema,
+    movingExpenseSchema,
+    reimbursementSchema,
+  } = props;
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
-
+  console.log(props);
   return (
     <React.Fragment>
       <div>
@@ -117,8 +122,9 @@ const DocumentDetailEdit = props => {
           />
           {isExpenseDocument && (
             <ExpenseDocumentForm
-              movingExpenseDocumentSchema={props.movingExpenseDocumentSchema}
-              reimbursementSchema={props.reimbursementSchema}
+              moveDocSchema={moveDocSchema}
+              movingExpenseSchema={movingExpenseSchema}
+              reimbursementSchema={reimbursementSchema}
             />
           )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
@@ -150,7 +156,7 @@ function mapStateToProps(state, props) {
 
     moveDocSchema: get(
       state,
-      'swagger.spec.definitions.UpdateGenericMoveDocumentPayload',
+      'swagger.spec.definitions.MoveDocumentPayload',
       {},
     ),
     movingExpenseSchema: get(

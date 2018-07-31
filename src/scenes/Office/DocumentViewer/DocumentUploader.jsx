@@ -64,6 +64,7 @@ export class DocumentUploader extends Component {
         });
     }
     if (get(formValues, 'movingExpenseDocument', false) === false) {
+      debugger;
       this.props
         .createMoveDocument(
           moveId,
@@ -109,7 +110,7 @@ export class DocumentUploader extends Component {
   render() {
     const {
       handleSubmit,
-      moveDocSchema,
+      genericMoveDocSchema,
       movingExpenseSchema,
       reimbursementSchema,
       formValues,
@@ -136,18 +137,19 @@ export class DocumentUploader extends Component {
           <SwaggerField
             title="Document type"
             fieldName="move_document_type"
-            swagger={moveDocSchema}
+            swagger={genericMoveDocSchema}
             required
           />
           <div className="uploader-box">
             <SwaggerField
               title="Document title"
               fieldName="title"
-              swagger={moveDocSchema}
+              swagger={genericMoveDocSchema}
               required
             />
             {isExpenseDocument && (
               <ExpenseDocumentForm
+                // genericMoveDocSchema={genericMoveDocSchema}
                 movingExpenseSchema={movingExpenseSchema}
                 reimbursementSchema={reimbursementSchema}
               />
@@ -155,7 +157,7 @@ export class DocumentUploader extends Component {
             <SwaggerField
               title="Notes"
               fieldName="notes"
-              swagger={moveDocSchema}
+              swagger={genericMoveDocSchema}
             />
             <div>
               <h4>Attach PDF or image</h4>
@@ -191,7 +193,7 @@ DocumentUploader.propTypes = {
 function mapStateToProps(state) {
   const props = {
     formValues: getFormValues(moveDocumentFormName)(state),
-    moveDocSchema: get(
+    genericMoveDocSchema: get(
       state,
       'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
       {},

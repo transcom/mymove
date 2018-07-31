@@ -4,19 +4,18 @@ import PropTypes from 'prop-types';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 
 const ExpenseDocumentForm = props => {
-  const movingExpenseDocumentSchema = props.movingExpenseDocumentSchema;
+  const movingExpenseSchema = props.movingExpenseSchema;
+  // const genericMoveDocSchema = props.genericMoveDocSchema;
   const reimbursementSchema = props.reimbursementSchema;
-
+  console.log('expense doc schema', movingExpenseSchema);
   return (
     <Fragment>
-      <FormSection name="movingExpenseDocument">
-        <SwaggerField
-          title="Expense type"
-          fieldName="moving_expense_type"
-          swagger={movingExpenseDocumentSchema}
-          required
-        />
-      </FormSection>
+      <SwaggerField
+        title="Expense type"
+        fieldName="moving_expense_type"
+        swagger={movingExpenseSchema}
+        required
+      />
       <FormSection name="reimbursement">
         <SwaggerField
           title="Amount"
@@ -35,7 +34,8 @@ const ExpenseDocumentForm = props => {
   );
 };
 ExpenseDocumentForm.propTypes = {
-  movingExpenseDocumentSchema: PropTypes.object,
+  // genericMoveDocSchema: PropTypes.object,
+  movingExpenseSchema: PropTypes.object,
   reimbursementSchema: PropTypes.object,
 };
 export default ExpenseDocumentForm;
