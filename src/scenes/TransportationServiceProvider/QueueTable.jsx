@@ -65,36 +65,20 @@ class QueueTable extends Component {
                 accessor: 'status',
               },
               {
-                Header: 'Locator #',
-                accessor: 'locator',
+                Header: 'GBL',
+                accessor: 'source_gbloc',
               },
               {
-                Header: 'Customer name',
-                accessor: 'customer_name',
+                Header: 'Requested Pickup Date',
+                accessor: 'requested_pickup_date',
               },
               {
-                Header: 'DOD ID',
-                accessor: 'edipi',
+                Header: 'Pickup Date',
+                accessor: 'pickup_date',
               },
               {
-                Header: 'Rank',
-                accessor: 'rank',
-              },
-              {
-                Header: 'Move type',
-                accessor: 'orders_type',
-              },
-              {
-                Header: 'Move date',
-                accessor: 'move_date',
-              },
-              {
-                Header: 'Created',
-                accessor: 'created_at',
-              },
-              {
-                Header: 'Last modified',
-                accessor: 'last_modified_date',
+                Header: 'Delivery Date',
+                accessor: 'delivery_date',
               },
             ]}
             data={this.state.data}
@@ -114,10 +98,6 @@ class QueueTable extends Component {
   }
 }
 
-const mapStateToProps = state => ({
-  moveLocator: get(state, 'office.officeMove.locator', 'Unloaded'),
-  firstName: get(state, 'office.officeServiceMember.first_name', 'Unloaded'),
-  lastName: get(state, 'office.officeServiceMember.last_name', 'Unloaded'),
-});
+const mapStateToProps = state => ({});
 
 export default withRouter(connect(mapStateToProps)(QueueTable));
