@@ -22,7 +22,7 @@ const ExpenseDocumentForm = props => {
           required
         />
         <SwaggerField
-          title="Method of Payment"
+          title="Payment Method"
           fieldName="method_of_receipt"
           swagger={reimbursementSchema}
           required

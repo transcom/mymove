@@ -73,6 +73,7 @@ const DocumentDetailDisplay = props => {
         {isExpenseDocument &&
           get(moveDoc, 'reimbursement.method_of_receipt') && (
             <PanelSwaggerField
+              title="Payment Method"
               fieldName="method_of_receipt"
               {...reimbursementFieldProps}
             />
@@ -87,9 +88,7 @@ const DocumentDetailDisplay = props => {
         {moveDoc.notes ? (
           <PanelSwaggerField fieldName="notes" {...moveDocFieldProps} />
         ) : (
-          <PanelField title="Notes" className="missing">
-            Missing
-          </PanelField>
+          <PanelField title="Notes" />
         )}
       </div>
     </React.Fragment>

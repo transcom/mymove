@@ -1682,8 +1682,8 @@ definitions:
       - OTHER_DD
       - GTCC
     x-display-value:
-      MIL_PAY: Direct deposit to MilPay
-      OTHER_DD: Direct deposit to other account
+      MIL_PAY: MilPay
+      OTHER_DD: Other account
       GTCC: GTCC
   MoveStatus:
     type: string

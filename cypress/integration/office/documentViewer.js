@@ -52,9 +52,7 @@ describe('The document viewer', function() {
     cy.get('input[name="title"]').type('expense document');
     cy.get('select[name="moving_expense_type"]').select('Contracted Expense');
     cy.get('input[name="reimbursement.requested_amount"]').type('12');
-    cy
-      .get('select[name="reimbursement.method_of_receipt"]')
-      .select('Direct deposit to MilPay');
+    cy.get('select[name="reimbursement.method_of_receipt"]').select('MilPay');
 
     cy.get('button.submit').should('be.disabled');
 
@@ -75,7 +73,7 @@ describe('The document viewer', function() {
 
     cy.contains('expense document').click();
     cy.contains('Details').click();
-    cy.contains('Direct deposit to MilPay');
+    cy.contains('MilPay');
     cy.contains('Edit').click();
 
     cy
