@@ -11,6 +11,7 @@ import (
 	"github.com/pkg/errors"
 
 	"crypto/sha256"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 )
@@ -46,6 +47,7 @@ type Move struct {
 	Orders                  Order                              `belongs_to:"orders"`
 	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
 	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	Shipments               Shipments                          `has_many:"shipments"`
 	MoveDocuments           MoveDocuments                      `has_many:"move_documents" order_by:"created_at desc"`
 	Status                  MoveStatus                         `json:"status" db:"status"`
 	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
@@ -161,7 +163,7 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document", "Shipments").Find(&move, id)
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {

@@ -148,7 +148,6 @@ ShipmentAddress.propTypes = {
   schema: PropTypes.object.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
