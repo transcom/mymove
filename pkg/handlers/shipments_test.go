@@ -541,7 +541,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	tspUser := tspUsers[0]
 
 	// Constants
-	status := "DEFAULT"
+	status := []string{"DEFAULT"}
 
 	// Handler to Test
 	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -551,7 +551,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	req = suite.authenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Status:      &status,
+		Status:      status,
 	}
 
 	response := handler.Handle(params)
@@ -574,7 +574,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	tspUser := tspUsers[0]
 
 	// Constants
-	status := "NOTASTATUS"
+	status := []string{"NOTASTATUS"}
 
 	// Handler to Test
 	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -584,7 +584,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	req = suite.authenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Status:      &status,
+		Status:      status,
 	}
 
 	response := handler.Handle(params)
