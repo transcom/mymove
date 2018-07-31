@@ -6,7 +6,7 @@ import {
   ShowServiceMemberOrders,
 } from './api.js';
 import { createOrUpdateMoveType } from 'scenes/Moves/ducks';
-import { DeleteUploads } from 'shared/api.js';
+import { DeleteUploads } from 'shared/api';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import { GET_LOGGED_IN_USER } from 'shared/User/ducks';
 import { fetchActive } from 'shared/utils';

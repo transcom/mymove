@@ -1,9 +1,34 @@
+import {get, uniqueId} from 'lodash';
 import Swagger from 'swagger-client';
+
+import store from 'shared/store';
+
 let client = null;
+
+window.request = function(label, opName, params) {
+  const operation = get(client, 'apis.' + opName);
+
+  if (!operation) {
+    throw(new Error(`Operation '${opName}' does not exist!`));
+  }
+
+  const id = uniqueId('req_');
+
+  store.dispatch({type: `@@swagger/${opName}/START`, label, id});
+
+  return operation(params)
+    .then(payload => store.dispatch({type: `@@swagger/${opName}/SUCCESS`, id, payload}))
+    .catch(error => store.dispatch({type: `@@swagger/${opName}/FAILURE`, id, error}));
+}
 
 export async function getClient() {
   if (!client) {
-    client = await Swagger('/internal/swagger.yaml');
+    client = await Swagger({
+      url: '/internal/swagger.yaml',
+      requestInterceptor: req => {
+        console.debug(req);
+      }
+    });
   }
   return client;
 }
