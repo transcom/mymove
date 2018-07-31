@@ -67,7 +67,6 @@ const always = () => true;
 // Todo: update this when moves can be completed
 const myFirstRodeo = props => !props.lastMoveIsCanceled;
 const notMyFirstRodeo = props => props.lastMoveIsCanceled;
-// Reuse when HHG flow split into multiple screens
 const hasHHG = ({ selectedMoveType }) =>
   selectedMoveType !== null && selectedMoveType !== 'PPM';
 const hasPPM = ({ selectedMoveType }) =>
