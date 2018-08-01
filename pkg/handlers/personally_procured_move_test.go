@@ -587,14 +587,6 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	if err != nil {
 		t.Fatal("Should transition.")
 	}
-	err = ppm1.Begin()
-	if err != nil {
-		t.Fatal("Should transition.")
-	}
-	err = ppm1.Complete()
-	if err != nil {
-		t.Fatal("Should transition.")
-	}
 
 	suite.mustSave(&ppm1)
 

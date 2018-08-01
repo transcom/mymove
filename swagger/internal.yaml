@@ -1767,7 +1767,6 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - IN_PROGRESS
       - COMPLETED
       - CANCELED
       - PAYMENT_REQUESTED
@@ -1775,7 +1774,6 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
       PAYMENT_REQUESTED: Payment Requested
