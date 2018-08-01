@@ -70,12 +70,19 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	pickupAddress := addressModelFromPayload(payload.PickupAddress)
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
-	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
+	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+
+	var requestedPickupDate *time.Time
+	if payload.RequestedPickupDate != nil {
+		date := time.Time(*payload.RequestedPickupDate)
+		requestedPickupDate = &date
+	}
 
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		Status:                       "DRAFT",
+		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
 		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
@@ -200,7 +207,7 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	return shipmentop.NewPatchShipmentCreated().WithPayload(shipmentPayload)
+	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
 }
 
 // GetShipmentHandler Returns an HHG
@@ -267,9 +274,9 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
+func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmentsParams) middleware.Responder {
 
-	session := auth.SessionFromRequestContext(p.HTTPRequest)
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// Possible they are coming from the wrong endpoint and thus the session is missing the
 	// TspUserID
@@ -287,7 +294,8 @@ func (h PublicIndexShipmentsHandler) Handle(p publicshipmentop.IndexShipmentsPar
 		return publicshipmentop.NewIndexShipmentsForbidden()
 	}
 
-	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID)
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID,
+		params.Status, params.OrderBy, params.Limit, params.Offset)
 	if err != nil {
 		h.logger.Error("DB Query", zap.Error(err))
 		return publicshipmentop.NewIndexShipmentsBadRequest()

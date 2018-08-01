@@ -1451,8 +1451,10 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
+        title: 'Do you know your home address at your destination yet?'
       has_partial_sit_delivery_address:
         type: boolean
       weight_estimate:
@@ -1479,6 +1481,10 @@ definitions:
   Address:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       street_address_1:
         type: string
         example: 123 Main Ave
@@ -2490,7 +2496,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
@@ -2527,7 +2533,7 @@ paths:
           schema:
             $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
@@ -2660,7 +2666,7 @@ paths:
           schema:
             $ref: '#/definitions/Shipment'
       responses:
-        201:
+        200:
           description: updated Shipment
           schema:
             $ref: '#/definitions/Shipment'
