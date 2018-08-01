@@ -188,13 +188,70 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move
-func (m Move) CreateMoveDocument(db *pop.Connection,
+func (m Move) createMoveDocumentWithoutTransaction(
+	db *pop.Connection,
 	uploads Uploads,
 	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	status MoveDocumentStatus,
+	notes *string) (*MoveDocument, *validate.Errors, error) {
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Make a generic Document
+	newDoc := Document{
+		ServiceMemberID: m.Orders.ServiceMemberID,
+		Uploads:         uploads,
+	}
+	verrs, err := db.ValidateAndCreate(&newDoc)
+	if err != nil || verrs.HasAny() {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating document for move document")
+		return nil, responseVErrors, responseError
+	}
+
+	// Associate uploads to the new document
+	for _, upload := range uploads {
+		upload.DocumentID = &newDoc.ID
+		verrs, err := db.ValidateAndUpdate(&upload)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating upload")
+			return nil, responseVErrors, responseError
+		}
+	}
+
+	// Finally create the MoveDocument to tie it to the Move
+	newMoveDocument := &MoveDocument{
+		Move:                     m,
+		MoveID:                   m.ID,
+		Document:                 newDoc,
+		DocumentID:               newDoc.ID,
+		PersonallyProcuredMoveID: personallyProcuredMoveID,
+		MoveDocumentType:         moveDocumentType,
+		Title:                    title,
+		Status:                   MoveDocumentStatusAWAITINGREVIEW,
+		Notes:                    notes,
+	}
+
+	verrs, err = db.ValidateAndCreate(newMoveDocument)
+	if err != nil || verrs.HasAny() {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating move document")
+		return nil, responseVErrors, responseError
+	}
+
+	return newMoveDocument, responseVErrors, nil
+}
+
+// CreateMoveDocument creates a move document associated to a move & ppm
+func (m Move) CreateMoveDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	moveDocumentType MoveDocumentType,
+	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
 
 	var newMoveDocument *MoveDocument
@@ -204,45 +261,15 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		// Make a generic Document
-		newDoc := Document{
-			ServiceMemberID: m.Orders.ServiceMemberID,
-			Uploads:         uploads,
-		}
-		verrs, err := db.ValidateAndCreate(&newDoc)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating document for move document")
-			return transactionError
-		}
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			moveDocumentType,
+			title,
+			notes)
 
-		// Associate uploads to the new document
-		for _, upload := range uploads {
-			upload.DocumentID = &newDoc.ID
-			verrs, err := db.ValidateAndUpdate(&upload)
-			if err != nil || verrs.HasAny() {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error updating upload")
-				return transactionError
-			}
-		}
-
-		// Finally create the MoveDocument to tie it to the Move
-		newMoveDocument = &MoveDocument{
-			Move:                     m,
-			MoveID:                   m.ID,
-			Document:                 newDoc,
-			DocumentID:               newDoc.ID,
-			PersonallyProcuredMoveID: personallyProcuredMoveID,
-			MoveDocumentType:         moveDocumentType,
-			Title:                    title,
-			Status:                   status,
-			Notes:                    notes,
-		}
-		verrs, err = db.ValidateAndCreate(newMoveDocument)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating move document")
+		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
 
@@ -251,6 +278,66 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 	})
 
 	return newMoveDocument, responseVErrors, responseError
+}
+
+// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
+func (m Move) CreateMovingExpenseDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	moveDocumentType MoveDocumentType,
+	title string,
+	notes *string,
+	reimbursement Reimbursement,
+	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
+
+	var newMovingExpenseDocument *MovingExpenseDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			moveDocumentType,
+			title,
+			notes)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		// Save the reimbursement to get an ID.
+		if verrs, err := db.ValidateAndCreate(&reimbursement); verrs.HasAny() || err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error Creating Moving Expense Advance")
+			return transactionError
+		}
+
+		// Finally, create the MovingExpenseDocument
+		newMovingExpenseDocument = &MovingExpenseDocument{
+			MoveDocumentID:    newMoveDocument.ID,
+			MoveDocument:      *newMoveDocument,
+			MovingExpenseType: movingExpenseType,
+			ReimbursementID:   reimbursement.ID,
+			Reimbursement:     reimbursement,
+		}
+		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			newMovingExpenseDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move
