@@ -30,7 +30,7 @@ export class ShipmentForm extends Component {
     return this.props
       .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
-        this.props.setCurrentShipment(data.body);
+        return this.props.setCurrentShipment(data.body);
       })
       .catch(err => {
         this.setState({

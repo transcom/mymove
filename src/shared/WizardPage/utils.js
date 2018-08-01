@@ -23,7 +23,7 @@ export async function beforeTransition(func) {
   const path = func(pageList, pageKey);
   if (dirty && handleSubmit) {
     const awaitSubmit = await handleSubmit();
-    if (!awaitSubmit.error) {
+    if (!awaitSubmit || !awaitSubmit.error) {
       this.goto(path);
     }
   } else {
