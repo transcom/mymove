@@ -26,7 +26,6 @@ export class WizardFormPage extends Component {
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
-    this.state = { transitionFunc: null };
     this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate(prevProps) {
@@ -60,11 +59,7 @@ export class WizardFormPage extends Component {
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
-  onSubmitSuccessful() {
-    const { transitionFunc } = this.state;
-    const { pageKey, pageList } = this.props;
-    if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
-  }
+
   cancelFlow() {
     this.props.push(`/`);
   }

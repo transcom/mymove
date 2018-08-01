@@ -25,7 +25,6 @@ export class WizardPage extends Component {
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
     this.beforeTransition = beforeTransition.bind(this);
-    this.state = { transitionFunc: null };
   }
   componentDidUpdate() {
     if (this.props.error) window.scrollTo(0, 0);
@@ -49,11 +48,7 @@ export class WizardPage extends Component {
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
-  onSubmitSuccessful() {
-    const { transitionFunc } = this.state;
-    const { pageKey, pageList } = this.props;
-    if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
-  }
+
   nextPage() {
     this.beforeTransition(getNextPagePath);
   }
@@ -145,7 +140,6 @@ WizardPage.propTypes = {
 };
 
 WizardPage.defaultProps = {
-  isAsync: false,
   pageIsValid: true,
   dirty: true,
 };
