@@ -89,6 +89,7 @@ describe('Ppm Reducer', () => {
         sitReimbursement: null,
         hasSubmitError: false,
         hasSubmitSuccess: true,
+        hasSubmitInProgress: false,
       });
     });
 
@@ -106,6 +107,7 @@ describe('Ppm Reducer', () => {
         hasSubmitError: true,
         hasSubmitSuccess: false,
         error: 'No bueno.',
+        hasSubmitInProgress: false,
       });
     });
   });
