@@ -2560,7 +2560,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
@@ -2597,7 +2597,7 @@ paths:
           schema:
             $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
