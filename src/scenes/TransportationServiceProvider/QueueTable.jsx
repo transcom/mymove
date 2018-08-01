@@ -121,7 +121,7 @@ class QueueTable extends Component {
             getTrProps={(state, rowInfo) => ({
               onDoubleClick: e =>
                 this.props.history.push(
-                  `${this.props.queueType}/moves/${rowInfo.original.id}`,
+                  `${this.props.queueType}/shipments/${rowInfo.original.id}`,
                 ),
             })}
           />
