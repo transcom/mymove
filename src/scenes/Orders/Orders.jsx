@@ -35,9 +35,12 @@ export class Orders extends Component {
         (pendingValues.has_dependents && pendingValues.spouse_has_pro_gear) ||
         false;
       if (this.props.currentOrders) {
-        this.props.updateOrders(this.props.currentOrders.id, pendingValues);
+        return this.props.updateOrders(
+          this.props.currentOrders.id,
+          pendingValues,
+        );
       } else {
-        this.props.createOrders(pendingValues);
+        return this.props.createOrders(pendingValues);
       }
     }
   };
@@ -49,7 +52,6 @@ export class Orders extends Component {
       error,
       currentOrders,
       serviceMemberId,
-      hasSubmitSuccess,
     } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = currentOrders ? currentOrders : null;
@@ -59,7 +61,6 @@ export class Orders extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
@@ -105,7 +106,6 @@ Orders.propTypes = {
   updateOrders: PropTypes.func.isRequired,
   currentOrders: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
@@ -114,9 +114,6 @@ function mapStateToProps(state) {
     schema: get(state, 'swagger.spec.definitions.CreateUpdateOrders', {}),
     formValues: getFormValues(formName)(state),
     currentOrders: state.orders.currentOrders,
-    hasSubmitSuccess: state.orders.currentOrders
-      ? state.orders.hasSubmitSuccess
-      : state.moves.hasSubmitSuccess,
   };
   return props;
 }

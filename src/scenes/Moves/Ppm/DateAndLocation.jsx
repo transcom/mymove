@@ -37,7 +37,7 @@ export class DateAndLocation extends Component {
         pendingValues.days_in_storage = null;
       }
       const moveId = this.props.match.params.moveId;
-      this.props.createOrUpdatePpm(moveId, pendingValues);
+      return this.props.createOrUpdatePpm(moveId, pendingValues);
     }
   };
 
@@ -76,7 +76,6 @@ export class DateAndLocation extends Component {
     const {
       pages,
       pageKey,
-      hasSubmitSuccess,
       error,
       currentOrders,
       initialValues,
@@ -88,7 +87,6 @@ export class DateAndLocation extends Component {
         handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
         enableReinitialize={true} //this is needed as the pickup_postal_code value needs to be initialized to the users residential address
@@ -197,7 +195,6 @@ DateAndLocation.propTypes = {
   schema: PropTypes.object.isRequired,
   createOrUpdatePpm: PropTypes.func.isRequired,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapStateToProps(state) {
