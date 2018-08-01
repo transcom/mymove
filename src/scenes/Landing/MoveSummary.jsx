@@ -173,8 +173,16 @@ export const SubmittedMoveSummary = props => {
 };
 
 export const ApprovedMoveSummary = withContext(props => {
-  const { ppm, orders, profile, move, entitlement } = props;
+  const {
+    ppm,
+    orders,
+    profile,
+    move,
+    entitlement,
+    requestPaymentSuccess,
+  } = props;
   const canRequestPayment = props.context.flags.paymentRequest;
+  const paymentRequested = ppm.status === 'PAYMENT_REQUESTED';
   const moveInProgress = moment(
     ppm.planned_move_date,
     'YYYY-MM-DD',
@@ -194,6 +202,12 @@ export const ApprovedMoveSummary = withContext(props => {
             <img className="move_sm" src={ppmCar} alt="ppm-car" />
             Move your own stuff (PPM)
           </div>
+
+          {requestPaymentSuccess && (
+            <Alert type="success" heading="">
+              Payment request submitted
+            </Alert>
+          )}
 
           <div className="shipment_box_contents">
             {moveInProgress ? (
@@ -222,26 +236,35 @@ export const ApprovedMoveSummary = withContext(props => {
                     </a>
                   </div>
                 )}
-                <div className="step">
-                  <div className="title">Next Step: Request payment</div>
-                  <div>
-                    Request a PPM payment, a storage payment, or an advance
-                    against your PPM payment before your move is done.
+                {paymentRequested ? (
+                  <div className="step">
+                    <div className="title">Your payment is in review</div>
+                    <div>
+                      You will receive a notification from your destination PPPO
+                      office when it has been reviewed.
+                    </div>
                   </div>
-                  {canRequestPayment && (
-                    <Link
-                      to={`moves/${move.id}/request-payment`}
-                      className="usa-button usa-button-secondary"
-                    >
-                      Request Payment
-                    </Link>
-                  )}
-                  {!canRequestPayment && (
-                    <button className="usa-button-secondary" disabled={true}>
-                      Request Payment - Coming Soon!
-                    </button>
-                  )}
-                </div>
+                ) : (
+                  <div className="step">
+                    <div className="title">Next Step: Request payment</div>
+                    <div>
+                      Request a PPM payment, a storage payment, or an advance
+                      against your PPM payment before your move is done.
+                    </div>
+                    {canRequestPayment ? (
+                      <Link
+                        to={`moves/${move.id}/request-payment`}
+                        className="usa-button usa-button-secondary"
+                      >
+                        Request Payment
+                      </Link>
+                    ) : (
+                      <button className="usa-button-secondary" disabled={true}>
+                        Request Payment - Coming Soon!
+                      </button>
+                    )}
+                  </div>
+                )}
               </div>
               <div className="usa-width-one-third">
                 <MoveDetails ppm={ppm} />
@@ -346,6 +369,7 @@ export const MoveSummary = props => {
     entitlement,
     resumeMove,
     reviewProfile,
+    requestPaymentSuccess,
   } = props;
   const move_status = get(move, 'status', 'DRAFT');
   const ppm_status = get(ppm, 'status', 'DRAFT');
@@ -374,6 +398,7 @@ export const MoveSummary = props => {
           entitlement={entitlement}
           resumeMove={resumeMove}
           reviewProfile={reviewProfile}
+          requestPaymentSuccess={requestPaymentSuccess}
         />
 
         <div className="sidebar usa-width-one-fourth">
