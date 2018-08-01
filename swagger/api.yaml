@@ -269,6 +269,54 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Shipment'
+  Move:
+    type: object
+    properties:
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+        example: "12432"
+      cancel_reason:
+        type: string
+        example: "Change of orders"
+        x-nullable: true
+    required:
+      - orders_id
+      - locator
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - COMPLETED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      COMPLETED: Completed
+      CANCELED: Canceled
+  SelectedMoveType:
+    type: string
+    title: Selected Move Type
+    enum:
+      - HHG
+      - PPM
+      - COMBO
+    x-nullable: true
+    x-display-value:
+      HHG: Household Goods Move
+      PPM: Personal Procured Move
+      COMBO: Both HHG and PPM
   Shipment:
     type: object
     properties:
@@ -303,11 +351,9 @@ definitions:
       requested_pickup_date:
         type: string
         format: date-time
-      move_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
+      move:
+        $ref: '#/definitions/Move'
+        x-nullable: true
       status:
         $ref: '#/definitions/ShipmentStatus'
         readOnly: true

@@ -38,18 +38,18 @@ var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
 // Move is an object representing a move
 type Move struct {
-	ID                      uuid.UUID                          `json:"id" db:"id"`
-	Locator                 string                             `json:"locator" db:"locator"`
-	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
-	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
-	Orders                  Order                              `belongs_to:"orders"`
-	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments           MoveDocuments                      `has_many:"move_documents" order_by:"created_at desc"`
-	Status                  MoveStatus                         `json:"status" db:"status"`
-	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
-	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
+	ID                      uuid.UUID               `json:"id" db:"id"`
+	Locator                 string                  `json:"locator" db:"locator"`
+	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
+	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
+	Orders                  Order                   `belongs_to:"orders"`
+	SelectedMoveType        *string                 `json:"selected_move_type" db:"selected_move_type"`
+	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	Status                  MoveStatus              `json:"status" db:"status"`
+	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 }
 
 // Moves is not required by pop and may be deleted
@@ -347,12 +347,16 @@ func createNewMove(db *pop.Connection,
 	orders Order,
 	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
+	var stringSelectedType string
+	if selectedType != nil {
+		stringSelectedType = string(*selectedType)
+	}
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
 			OrdersID:         orders.ID,
 			Locator:          GenerateLocator(),
-			SelectedMoveType: selectedType,
+			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 		}
 		verrs, err := db.ValidateAndCreate(&move)

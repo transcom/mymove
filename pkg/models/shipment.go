@@ -32,6 +32,7 @@ type Shipment struct {
 	BookDate                  *time.Time `json:"book_date" db:"book_date"`
 	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
+	Move                      *Move      `belongs_to:"move"`
 	Status                    string     `json:"status" db:"status"`
 
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
@@ -123,6 +124,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 	shipments := []Shipment{}
 
 	query := tx.Eager(
+		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",

@@ -273,7 +273,6 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 		responsePayload := okResponse.Payload[0]
 		// And: Payload is equivalent to original shipment
 		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
-		suite.Equal(strfmt.UUID(shipment.MoveID.String()), responsePayload.MoveID)
 	}
 }
 
