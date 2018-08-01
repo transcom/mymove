@@ -325,7 +325,7 @@ definitions:
         example: US34
       destination_region:
         type: string
-        example: 5
+        example: "5"
       code_of_service:
         type: string
         example: D
