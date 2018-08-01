@@ -3,11 +3,10 @@ import React from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { reduxForm, getFormValues, isValid } from 'redux-form';
+
 import editablePanel from '../editablePanel';
 import { formatDate } from 'shared/formatters';
-
-import { updateShipment } from './ducks';
-
+import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
@@ -78,7 +77,7 @@ function mapStateToProps(state) {
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
-      update: updateShipment,
+      update: no_op,
     },
     dispatch,
   );
