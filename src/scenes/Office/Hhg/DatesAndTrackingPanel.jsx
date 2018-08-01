@@ -16,8 +16,10 @@ const DatesAndTrackingDisplay = props => {
     <div className="editable-panel-column">
       <PanelSwaggerField
         title="Pickup Date"
-        fieldName="pickup_date"
-        values={{ pickup_date: formatDate(props.initialValues.pickup_date) }}
+        fieldName="requested_pickup_date"
+        values={{
+          requested_pickup_date: formatDate(props.initialValues.pickup_date),
+        }}
         schema={props.shipmentSchema}
       />
     </div>
@@ -30,7 +32,7 @@ const DatesAndTrackingEdit = props => {
     <div className="editable-panel-column">
       <SwaggerField
         title="Pickup Date"
-        fieldName="pickup_date"
+        fieldName="requested_pickup_date"
         swagger={shipmentSchema}
         required
       />
