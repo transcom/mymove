@@ -211,7 +211,7 @@ export class BackupContact extends Component {
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
-        pageIsDirty={isDirty}
+        dirty={isDirty}
         error={error}
       >
         <ContactForm

@@ -41,7 +41,7 @@ export class PpmSizeWizardPage extends Component {
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={Boolean(ppmSize)}
-        pageIsDirty={Boolean(pendingPpmSize)}
+        dirty={Boolean(pendingPpmSize)}
         error={error}
       >
         <PpmSize />

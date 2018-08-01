@@ -197,7 +197,6 @@ export class PpmWeight extends Component {
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
     };
-
     if (advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
       const requestedAmount = Math.round(
@@ -210,7 +209,6 @@ export class PpmWeight extends Component {
     } else {
       ppmBody.has_requested_advance = false;
     }
-
     return createOrUpdatePpm(moveId, ppmBody);
   };
   onWeightSelecting = value => {

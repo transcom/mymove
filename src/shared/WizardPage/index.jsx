@@ -71,11 +71,11 @@ export class WizardPage extends Component {
       children,
       error,
       pageIsValid,
-      pageIsDirty,
+      dirty,
     } = this.props;
     const canMoveForward = pageIsValid;
     const canMoveBackward =
-      (pageIsValid || !pageIsDirty) && !isFirstPage(pageList, pageKey);
+      (pageIsValid || !dirty) && !isFirstPage(pageList, pageKey);
     return (
       <div className="usa-grid">
         {error && (
@@ -137,7 +137,7 @@ WizardPage.propTypes = {
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,
   pageIsValid: PropTypes.bool,
-  pageIsDirty: PropTypes.bool,
+  dirty: PropTypes.bool,
   push: PropTypes.func,
   match: PropTypes.object, //from withRouter
   additionalParams: PropTypes.object,
@@ -147,7 +147,7 @@ WizardPage.propTypes = {
 WizardPage.defaultProps = {
   isAsync: false,
   pageIsValid: true,
-  pageIsDirty: true,
+  dirty: true,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -59,7 +59,7 @@ export class UploadOrders extends Component {
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={isValid}
-        pageIsDirty={isDirty}
+        dirty={isDirty}
         error={error}
       >
         <div>

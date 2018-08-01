@@ -29,7 +29,7 @@ export class MoveTypeWizardPage extends Component {
         pageList={pages}
         pageKey={pageKey}
         pageIsValid={Boolean(moveType)}
-        pageIsDirty={Boolean(pendingMoveType)}
+        dirty={Boolean(pendingMoveType)}
         error={error}
       >
         <MoveType />

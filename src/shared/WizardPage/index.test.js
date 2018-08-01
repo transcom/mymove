@@ -136,7 +136,7 @@ describe('given a WizardPage', () => {
             match={{}}
             isAsync={true}
             hasSucceeded={false}
-            pageIsDirty={false}
+            dirty={false}
           >
             <div>This is page 2</div>
           </WizardPage>,
@@ -503,7 +503,7 @@ describe('given a WizardPage', () => {
             match={{}}
             isAsync={true}
             hasSucceeded={false}
-            pageIsDirty={false}
+            dirty={false}
           >
             <div>This is page 2</div>
           </WizardPage>,
