@@ -4,6 +4,7 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import 'react-table/react-table.css';
 import { RetrieveShipmentsForTSP } from './api.js';
+import { formatDate } from 'shared/formatters';
 
 class QueueTable extends Component {
   constructor() {
@@ -63,28 +64,41 @@ class QueueTable extends Component {
                 accessor: 'source_gbloc',
               },
               {
-                Header: 'Requested Pickup Date',
-                accessor: 'requested_pickup_date',
-              },
-              {
                 Header: 'Locator #',
                 accessor: 'move.locator',
               },
               {
-                Header: 'Source Rate Area',
-                accessor: 'traffic_distribution_list.source_rate_area',
+                Header: 'Channel',
+                accessor: 'traffic_distribution_list',
+                Cell: row => (
+                  <span className="channel">
+                    {row.value.source_rate_area} to Region{' '}
+                    {row.value.destination_region}
+                  </span>
+                ),
               },
               {
-                Header: 'Destination Region',
-                accessor: 'traffic_distribution_list.destination_region',
+                Header: 'Requested Pickup Date',
+                accessor: 'requested_pickup_date',
+                Cell: row => (
+                  <span className="requested_pickup_date">
+                    {formatDate(row.value)}
+                  </span>
+                ),
               },
               {
                 Header: 'Pickup Date',
                 accessor: 'pickup_date',
+                Cell: row => (
+                  <span className="pickup_date">{formatDate(row.value)}</span>
+                ),
               },
               {
                 Header: 'Delivery Date',
                 accessor: 'delivery_date',
+                Cell: row => (
+                  <span className="delivery_date">{formatDate(row.value)}</span>
+                ),
               },
             ]}
             data={this.state.data}
