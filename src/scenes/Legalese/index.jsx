@@ -50,7 +50,7 @@ export class SignedCertification extends Component {
     if (pendingValues) {
       const moveId = this.props.match.params.moveId;
 
-      this.props
+      return this.props
         .signAndSubmitForApproval(
           moveId,
           this.props.certificationText,
@@ -83,7 +83,6 @@ export class SignedCertification extends Component {
             className={formName}
             pageList={pages}
             pageKey={pageKey}
-            hasSucceeded={false}
             initialValues={initialValues}
           >
             <div className="usa-grid">
