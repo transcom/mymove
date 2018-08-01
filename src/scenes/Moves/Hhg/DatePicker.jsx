@@ -83,6 +83,7 @@ export class HHGDatePicker extends Component {
 }
 HHGDatePicker.propTypes = {
   error: PropTypes.object,
+  formValues: PropTypes.object,
 };
 
 export default HHGDatePicker;

@@ -78,7 +78,7 @@ export class ShipmentForm extends Component {
             formValues={this.props.formValues}
           />
           <WeightEstimates
-            schema={schema}
+            schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
           />
