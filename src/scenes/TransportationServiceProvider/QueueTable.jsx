@@ -4,7 +4,7 @@ import ReactTable from 'react-table';
 import { connect } from 'react-redux';
 import 'react-table/react-table.css';
 import { RetrieveShipmentsForTSP } from './api.js';
-import { formatDate } from 'shared/formatters';
+import { formatDateTime } from 'shared/formatters';
 
 class QueueTable extends Component {
   constructor() {
@@ -82,7 +82,7 @@ class QueueTable extends Component {
                 accessor: 'requested_pickup_date',
                 Cell: row => (
                   <span className="requested_pickup_date">
-                    {formatDate(row.value)}
+                    {formatDateTime(row.value)}
                   </span>
                 ),
               },
@@ -90,14 +90,18 @@ class QueueTable extends Component {
                 Header: 'Pickup Date',
                 accessor: 'pickup_date',
                 Cell: row => (
-                  <span className="pickup_date">{formatDate(row.value)}</span>
+                  <span className="pickup_date">
+                    {formatDateTime(row.value)}
+                  </span>
                 ),
               },
               {
                 Header: 'Delivery Date',
                 accessor: 'delivery_date',
                 Cell: row => (
-                  <span className="delivery_date">{formatDate(row.value)}</span>
+                  <span className="delivery_date">
+                    {formatDateTime(row.value)}
+                  </span>
                 ),
               },
             ]}
