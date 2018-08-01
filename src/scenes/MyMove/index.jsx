@@ -27,7 +27,7 @@ import Footer from 'shared/Footer';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivacyPolicyStatement from 'shared/Statements/PrivacyAndPolicyStatement';
 import AccessibilityStatement from 'shared/Statements/AccessibilityStatement';
-import { lastMoveIsCanceled } from 'scenes/Moves/ducks';
+import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 import { getWorkflowRoutes } from './getWorkflowRoutes';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
@@ -145,7 +145,7 @@ const mapStateToProps = state => {
   return {
     swaggerError: state.swagger.hasErrored,
     currentServiceMemberId: get(state, 'serviceMember.currentServiceMember.id'),
-    selectedMoveType: get(state, 'moves.currentMove.selected_move_type', 'PPM'), // hack: this makes development easier when an eng has to reload a page in the ppm flow over and over but there must be a better way.
+    selectedMoveType: selectedMoveType(state),
     moveId: get(state, 'moves.currentMove.id'),
     lastMoveIsCanceled: lastMoveIsCanceled(state),
     latestMove: get(state, 'moves.latestMove'),

@@ -30,6 +30,7 @@ type Shipment struct {
 	BookDate                  *time.Time `json:"book_date" db:"book_date"`
 	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
+	Move                      Move       `belongs_to:"move"`
 	Status                    string     `json:"status" db:"status"`
 
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
@@ -195,7 +196,7 @@ func (s *Shipment) Validate(tx *pop.Connection) (*validate.Errors, error) {
 // FetchShipment Fetches and Validates a Shipment model
 func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Shipment, error) {
 	var shipment Shipment
-	err := db.Q().Find(&shipment, id)
+	err := db.Eager().Find(&shipment, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
 			return nil, ErrFetchNotFound
