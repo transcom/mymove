@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 import { MoveSummary } from './MoveSummary';
 
+import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+
 import {
   createServiceMember,
   isProfileComplete,
@@ -62,6 +64,8 @@ export class Landing extends Component {
 
   getNextIncompletePage = () => {
     const {
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -69,7 +73,9 @@ export class Landing extends Component {
       hhg,
       backupContacts,
     } = this.props;
-    return getNextIncompletePageInternal(this.props.reduxState, {
+    return getNextIncompletePageInternal({
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -141,7 +147,8 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => ({
-  reduxState: state,
+  lastMoveIsCanceled: lastMoveIsCanceled(state),
+  selectedMoveType: selectedMoveType(state),
   isLoggedIn: state.user.isLoggedIn,
   isProfileComplete: isProfileComplete(state),
   serviceMember: state.serviceMember.currentServiceMember || {},

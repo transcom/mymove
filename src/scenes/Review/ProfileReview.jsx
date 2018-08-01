@@ -4,6 +4,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { push } from 'react-router-redux';
+import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
 
 import Summary from './Summary';
 import { getNextIncompletePage as getNextIncompletePageInternal } from 'scenes/MyMove/getWorkflowRoutes';
@@ -17,6 +18,8 @@ class ProfileReview extends Component {
   };
   getNextIncompletePage = () => {
     const {
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -24,7 +27,9 @@ class ProfileReview extends Component {
       hhg,
       backupContacts,
     } = this.props;
-    return getNextIncompletePageInternal(this.props.reduxState, {
+    return getNextIncompletePageInternal({
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -58,8 +63,9 @@ ProfileReview.propTypes = {
 
 function mapStateToProps(state) {
   return {
-    reduxState: state,
     serviceMember: state.serviceMember.currentServiceMember,
+    lastMoveIsCanceled: lastMoveIsCanceled(state),
+    selectedMoveType: selectedMoveType(state),
   };
 }
 function mapDispatchToProps(dispatch) {

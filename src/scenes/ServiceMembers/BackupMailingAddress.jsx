@@ -15,17 +15,11 @@ const BackupMailingWizardForm = reduxifyWizardForm(formName);
 export class BackupMailingAddress extends Component {
   handleSubmit = () => {
     const newAddress = { backup_mailing_address: this.props.values };
-    this.props.updateServiceMember(newAddress);
+    return this.props.updateServiceMember(newAddress);
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      currentServiceMember,
-    } = this.props;
+    const { pages, pageKey, error, currentServiceMember } = this.props;
     // initialValues has to be null until there are values from the action since only the first values are taken
     const initialValues = get(currentServiceMember, 'backup_mailing_address');
     const serviceMemberId = this.props.match.params.serviceMemberId;
@@ -35,7 +29,6 @@ export class BackupMailingAddress extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
         additionalParams={{ serviceMemberId }}
@@ -71,7 +64,6 @@ BackupMailingAddress.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

@@ -49,20 +49,14 @@ export class DutyStation extends Component {
   handleSubmit = (somethings, elses) => {
     const pendingValues = this.props.values;
     if (pendingValues) {
-      this.props.updateServiceMember({
+      return this.props.updateServiceMember({
         current_station_id: pendingValues.current_station.id,
       });
     }
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      existingStation,
-    } = this.props;
+    const { pages, pageKey, error, existingStation } = this.props;
 
     let initialValues = null;
     if (existingStation) {
@@ -71,11 +65,9 @@ export class DutyStation extends Component {
     return (
       <DutyStationWizardForm
         handleSubmit={this.handleSubmit}
-        isAsync={true}
         pageList={pages}
         pageKey={pageKey}
         initialValues={initialValues}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
       >
         <h1 className="sm-heading">Current Duty Station</h1>
@@ -86,7 +78,6 @@ export class DutyStation extends Component {
 }
 DutyStation.propTypes = {
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
   updateServiceMember: PropTypes.func.isRequired,
 };
 
