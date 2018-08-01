@@ -104,6 +104,15 @@ class QueueTable extends Component {
                   </span>
                 ),
               },
+              {
+                Header: 'Last modified',
+                accessor: 'updated_at',
+                Cell: row => (
+                  <span className="updated_at">
+                    {formatDateTime(row.value)}
+                  </span>
+                ),
+              },
             ]}
             data={this.state.data}
             loading={this.state.loading} // Display the loading overlay when we need it

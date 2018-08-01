@@ -248,6 +248,8 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
