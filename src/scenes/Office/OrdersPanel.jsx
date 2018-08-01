@@ -162,7 +162,10 @@ const OrdersEdit = props => {
 const formName = 'office_move_info_orders';
 
 let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
-OrdersPanel = reduxForm({ form: formName })(OrdersPanel);
+OrdersPanel = reduxForm({
+  form: formName,
+  enableReinitialize: true,
+})(OrdersPanel);
 
 function mapStateToProps(state) {
   let formValues = getFormValues(formName)(state);

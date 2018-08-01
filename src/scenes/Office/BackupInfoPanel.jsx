@@ -123,6 +123,7 @@ let BackupInfoPanel = editablePanel(BackupInfoDisplay, BackupInfoEdit);
 BackupInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
+  enableReinitialize: true,
 })(BackupInfoPanel);
 
 function mapStateToProps(state) {

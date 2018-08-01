@@ -181,6 +181,7 @@ let CustomerInfoPanel = editablePanel(CustomerInfoDisplay, CustomerInfoEdit);
 CustomerInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
+  enableReinitialize: true,
 })(CustomerInfoPanel);
 
 function mapStateToProps(state) {
