@@ -599,13 +599,6 @@ definitions:
       COMPLETE: Complete
       DELIVERED: Delivered
       COMPLETED: Completed
-  ShipmentType:
-    type: string
-    description: The type of a shipment
-    example: HHG
-    enum: # Todo(Nick) - There may be more of these
-      - HHG
-      - PPM
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
