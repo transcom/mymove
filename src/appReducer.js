@@ -5,6 +5,7 @@ import { routerReducer } from 'react-router-redux';
 import { loggedInUserReducer } from 'shared/User/ducks';
 import userReducer from 'shared/User/ducks';
 import swaggerReducer from 'shared/Swagger/ducks';
+import uiReducer from 'shared/UI/ducks';
 
 import { feedbackReducer } from 'scenes/Feedback/ducks';
 import { moveReducer } from 'scenes/Moves/ducks';
@@ -31,11 +32,19 @@ import documentModel, {
 import uploads, {
   STATE_KEY as UPLOADS_STATE_KEY,
 } from 'shared/Entities/modules/uploads';
+import shipments, {
+  STATE_KEY as SHIPMENTS_STATE_KEY,
+} from 'shared/Entities/modules/shipments';
+import addresses, {
+  STATE_KEY as ADDRESSES_STATE_KEY,
+} from 'shared/Entities/modules/addresses';
 
 const entititesReducer = combineReducers({
   [MOVEDOCUMENTS_STATE_KEY]: moveDocuments,
   [DOCUMENTS_STATE_KEY]: documentModel,
   [UPLOADS_STATE_KEY]: uploads,
+  [SHIPMENTS_STATE_KEY]: shipments,
+  [ADDRESSES_STATE_KEY]: addresses,
 });
 
 export const appReducer = combineReducers({
@@ -59,6 +68,7 @@ export const appReducer = combineReducers({
   transportationOffices: transportationOfficeReducer,
   ppmIncentive: officePpmReducer,
   entities: entititesReducer,
+  ui: uiReducer,
 });
 
 export default appReducer;
