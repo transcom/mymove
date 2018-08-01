@@ -16,20 +16,22 @@ import (
 
 // Assertions defines assertions about what the data contains
 type Assertions struct {
-	User                   models.User
-	OfficeUser             models.OfficeUser
-	TspUser                models.TspUser
-	ServiceMember          models.ServiceMember
-	Order                  models.Order
-	Move                   models.Move
-	PersonallyProcuredMove models.PersonallyProcuredMove
-	Document               models.Document
-	BackupContact          models.BackupContact
-	Upload                 models.Upload
 	Address                models.Address
-	MoveDocument           models.MoveDocument
-	DutyStation            models.DutyStation
+	BackupContact          models.BackupContact
 	BlackoutDate           models.BlackoutDate
+	Document               models.Document
+	DutyStation            models.DutyStation
+	Move                   models.Move
+	MoveDocument           models.MoveDocument
+	OfficeUser             models.OfficeUser
+	Order                  models.Order
+	PersonallyProcuredMove models.PersonallyProcuredMove
+	ServiceMember          models.ServiceMember
+	Shipment               models.Shipment
+	ShipmentOffer          models.ShipmentOffer
+	TspUser                models.TspUser
+	Upload                 models.Upload
+	User                   models.User
 }
 
 func stringPointer(s string) *string {
