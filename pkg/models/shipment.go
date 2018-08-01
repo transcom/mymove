@@ -20,13 +20,15 @@ import (
 // BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
 	ID                        uuid.UUID  `json:"id" db:"id"`
-	PickupDate                *time.Time `json:"pickup_date" db:"pickup_date"`
-	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
-	DeliveryDate              *time.Time `json:"delivery_date" db:"delivery_date"`
-	BookDate                  *time.Time `json:"book_date" db:"book_date"`
 	TrafficDistributionListID *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	PickupDate                *time.Time `json:"pickup_date" db:"pickup_date"`
+	DeliveryDate              *time.Time `json:"delivery_date" db:"delivery_date"`
+	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
 	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
 	Market                    *string    `json:"market" db:"market"`
+	BookDate                  *time.Time `json:"book_date" db:"book_date"`
+	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
 	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
 	Move                      Move       `belongs_to:"move"`
 	Status                    string     `json:"status" db:"status"`
@@ -47,8 +49,6 @@ type Shipment struct {
 	WeightEstimate               *unit.Pound `json:"weight_estimate" db:"weight_estimate"`
 	ProgearWeightEstimate        *unit.Pound `json:"progear_weight_estimate" db:"progear_weight_estimate"`
 	SpouseProgearWeightEstimate  *unit.Pound `json:"spouse_progear_weight_estimate" db:"spouse_progear_weight_estimate"`
-	CreatedAt                    time.Time   `json:"created_at" db:"created_at"`
-	UpdatedAt                    time.Time   `json:"updated_at" db:"updated_at"`
 }
 
 // ShipmentWithOffer represents a single offered shipment within a Service Member's move.
@@ -117,23 +117,62 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+
 	shipments := []Shipment{}
 
-	var sql string
-
-	sql = `SELECT
-			shipments.*
-		FROM shipments
-		LEFT JOIN shipment_offers ON
-			shipments.id=shipment_offers.shipment_id
-		WHERE shipment_offers.transportation_service_provider_id = $1`
-
-	err := tx.Eager(
+	query := tx.Eager(
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
-		"PartialSITDeliveryAddress").RawQuery(sql, tspID).All(&shipments)
+		"PartialSITDeliveryAddress").
+		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
+
+	if status != nil {
+		query = query.Where("shipments.status = $2", *status)
+	}
+
+	// Manage ordering by pickup or delivery date
+	if orderBy != nil {
+		switch *orderBy {
+		case "PICKUP_DATE_ASC":
+			*orderBy = "pickup_date ASC"
+		case "PICKUP_DATE_DESC":
+			*orderBy = "pickup_date DESC"
+		case "DELIVERY_DATE_ASC":
+			*orderBy = "delivery_date ASC"
+		case "DELIVERY_DATE_DESC":
+			*orderBy = "delivery_date DESC"
+		default:
+			// Any other input is ignored
+			*orderBy = ""
+		}
+		if *orderBy != "" {
+			query.Order(*orderBy)
+		}
+	}
+
+	// Manage limit and offset values
+	var limitVar = 25
+	if limit != nil && *limit > 0 {
+		limitVar = int(*limit)
+	}
+
+	var offsetVar = 1
+	if offset != nil && *offset > 1 {
+		offsetVar = int(*offset)
+	}
+
+	// Pop doesn't have a direct Offset() function and instead paginates. This means the offset isn't actually
+	// the DB offset.  It's first multiplied by the limit and then applied.  Examples:
+	//   - Paginate(0, 25) = LIMIT 25 OFFSET 0  (this is an odd case and is coded into Pop)
+	//   - Paginate(1, 25) = LIMIT 25 OFFSET 0
+	//   - Paginate(2, 25) = LIMIT 25 OFFSET 25
+	//   - Paginate(3, 25) = LIMIT 25 OFFSET 50
+	query.Paginate(offsetVar, limitVar)
+
+	err := query.All(&shipments)
 
 	return shipments, err
 }
