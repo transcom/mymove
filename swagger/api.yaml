@@ -581,17 +581,24 @@ definitions:
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
       - DEFAULT
-      - IN_PROGRESS
-      - COMPLETE
       - AWARDED
       - ACCEPTED
       - REJECTED
+      - IN_PROGRESS
       - IN_TRANSIT
-      - SIT_ORIGIN
-      - SIT_DEST
+      - COMPLETE
       - DELIVERED
       - COMPLETED
-      - CLAIMS
+    x-display-value:
+      DEFAULT: Default
+      AWARDED: Awarded
+      ACCEPTED: Accepted
+      REJECTED: Rejected
+      IN_PROGRESS: In Progress
+      IN_TRANSIT: In Transit
+      COMPLETE: Complete
+      DELIVERED: Delivered
+      COMPLETED: Completed
   ShipmentType:
     type: string
     description: The type of a shipment
