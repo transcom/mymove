@@ -21,19 +21,20 @@ import (
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                        uuid.UUID  `json:"id" db:"id"`
-	TrafficDistributionListID *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	PickupDate                *time.Time `json:"pickup_date" db:"pickup_date"`
-	DeliveryDate              *time.Time `json:"delivery_date" db:"delivery_date"`
-	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
-	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
-	Market                    *string    `json:"market" db:"market"`
-	BookDate                  *time.Time `json:"book_date" db:"book_date"`
-	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
-	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
-	Move                      *Move      `belongs_to:"move"`
-	Status                    string     `json:"status" db:"status"`
+	ID                        uuid.UUID                `json:"id" db:"id"`
+	TrafficDistributionListID *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TrafficDistributionList   *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
+	PickupDate                *time.Time               `json:"pickup_date" db:"pickup_date"`
+	DeliveryDate              *time.Time               `json:"delivery_date" db:"delivery_date"`
+	CreatedAt                 time.Time                `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time                `json:"updated_at" db:"updated_at"`
+	SourceGBLOC               *string                  `json:"source_gbloc" db:"source_gbloc"`
+	Market                    *string                  `json:"market" db:"market"`
+	BookDate                  *time.Time               `json:"book_date" db:"book_date"`
+	RequestedPickupDate       *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
+	MoveID                    uuid.UUID                `json:"move_id" db:"move_id"`
+	Move                      *Move                    `belongs_to:"move"`
+	Status                    string                   `json:"status" db:"status"`
 
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays         *int64      `json:"estimated_transit_days" db:"estimated_transit_days"`
@@ -124,6 +125,7 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, o
 	shipments := []Shipment{}
 
 	query := tx.Eager(
+		"TrafficDistributionList",
 		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",

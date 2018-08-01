@@ -317,6 +317,25 @@ definitions:
       HHG: Household Goods Move
       PPM: Personal Procured Move
       COMBO: Both HHG and PPM
+  TrafficDistributionList:
+    type: object
+    properties:
+      source_rate_area:
+        type: string
+        example: US34
+      destination_region:
+        type: string
+        example: 5
+      code_of_service:
+        type: string
+        example: D
+        enum:
+          - D
+          - "2"
+    required:
+      - source_rate_area
+      - destination_region
+      - code_of_service
   Shipment:
     type: object
     properties:
@@ -325,11 +344,8 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      traffic_distribution_list_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
       pickup_date:
         type: string

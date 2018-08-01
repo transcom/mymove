@@ -245,7 +245,7 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
-		TrafficDistributionListID:    fmtUUID(*s.TrafficDistributionListID),
+		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),

@@ -67,8 +67,16 @@ class QueueTable extends Component {
                 accessor: 'requested_pickup_date',
               },
               {
-                Header: 'Locator',
+                Header: 'Locator #',
                 accessor: 'move.locator',
+              },
+              {
+                Header: 'Source Rate Area',
+                accessor: 'traffic_distribution_list.source_rate_area',
+              },
+              {
+                Header: 'Destination Region',
+                accessor: 'traffic_distribution_list.destination_region',
               },
               {
                 Header: 'Pickup Date',
