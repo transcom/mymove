@@ -17,7 +17,9 @@ const DatesAndTrackingDisplay = props => {
         title="Pickup Date"
         fieldName="requested_pickup_date"
         values={{
-          requested_pickup_date: formatDate(props.initialValues.pickup_date),
+          requested_pickup_date: formatDate(
+            props.initialValues.requested_pickup_date,
+          ),
         }}
         schema={props.shipmentSchema}
       />
