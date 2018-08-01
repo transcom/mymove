@@ -31,6 +31,7 @@ type Assertions struct {
 	ShipmentOffer          models.ShipmentOffer
 	TspUser                models.TspUser
 	Upload                 models.Upload
+	MovingExpenseDocument  models.MovingExpenseDocument
 	User                   models.User
 }
 
