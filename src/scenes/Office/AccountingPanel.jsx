@@ -59,9 +59,11 @@ const AccountingEdit = props => {
 const formName = 'office_move_info_accounting';
 
 let AccountingPanel = editablePanel(AccountingDisplay, AccountingEdit);
-AccountingPanel = reduxForm({ form: formName, enableReinitialize: true })(
-  AccountingPanel,
-);
+AccountingPanel = reduxForm({
+  form: formName,
+  enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
+})(AccountingPanel);
 
 function mapStateToProps(state) {
   let orders = get(state, 'office.officeOrders', {});

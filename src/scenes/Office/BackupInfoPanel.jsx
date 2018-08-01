@@ -124,6 +124,7 @@ BackupInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
   enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
 })(BackupInfoPanel);
 
 function mapStateToProps(state) {

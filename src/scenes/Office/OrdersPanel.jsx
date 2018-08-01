@@ -165,6 +165,7 @@ let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
 OrdersPanel = reduxForm({
   form: formName,
   enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
 })(OrdersPanel);
 
 function mapStateToProps(state) {

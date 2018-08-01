@@ -182,6 +182,7 @@ CustomerInfoPanel = reduxForm({
   form: formName,
   validate: validateRequiredFields,
   enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
 })(CustomerInfoPanel);
 
 function mapStateToProps(state) {
