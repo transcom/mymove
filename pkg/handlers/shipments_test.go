@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -284,6 +285,8 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 		responsePayload := okResponse.Payload[0]
 		// And: Payload is equivalent to original shipment
 		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
+		suite.Equal(apimessages.SelectedMoveType(*shipment.Move.SelectedMoveType), *responsePayload.Move.SelectedMoveType)
+		suite.Equal(shipment.TrafficDistributionList.SourceRateArea, *responsePayload.TrafficDistributionList.SourceRateArea)
 	}
 }
 
