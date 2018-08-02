@@ -128,6 +128,31 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	return &moveDoc, nil
 }
 
+// FetchApprovedMovingExpenseDocuments fetches all approved move expense document for a ppm
+func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (MoveDocuments, error) {
+	var moveDocuments MoveDocuments
+	err := db.Where("move_document_type = 'EXPENSE'").Where("status = 'OK'").Where("personally_procured_move_id = $1", ppmID.String()).All(&moveDocuments)
+	if err != nil {
+		if errors.Cause(err).Error() != recordNotFoundErrorString {
+			return nil, err
+		}
+	}
+
+	for i, moveDoc := range moveDocuments {
+		movingExpenseDocument := MovingExpenseDocument{}
+		moveDoc.MovingExpenseDocument = nil
+		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager("Reimbursement").First(&movingExpenseDocument)
+		if err != nil {
+			if errors.Cause(err).Error() != recordNotFoundErrorString {
+				return nil, err
+			}
+		} else {
+			moveDocuments[i].MovingExpenseDocument = &movingExpenseDocument
+		}
+	}
+	return moveDocuments, nil
+}
+
 // SaveMoveDocument saves a move document
 func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction MoveDocumentSaveAction) (*validate.Errors, error) {
 	var responseError error
