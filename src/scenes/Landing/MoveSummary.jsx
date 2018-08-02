@@ -203,13 +203,13 @@ export const ApprovedMoveSummary = withContext(props => {
             Move your own stuff (PPM)
           </div>
 
-          {requestPaymentSuccess && (
-            <Alert type="success" heading="">
-              Payment request submitted
-            </Alert>
-          )}
-
           <div className="shipment_box_contents">
+            {requestPaymentSuccess && (
+              <Alert type="success" heading="">
+                Payment request submitted
+              </Alert>
+            )}
+
             {moveInProgress ? (
               <img className="status_icon" src={ppmInProgress} alt="status" />
             ) : (
