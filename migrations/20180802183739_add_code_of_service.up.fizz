@@ -1,0 +1,1 @@
+add_column("shipment", "code_of_service", "string", {"null": true})
