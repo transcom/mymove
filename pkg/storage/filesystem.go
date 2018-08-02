@@ -2,7 +2,6 @@ package storage
 
 import (
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
@@ -75,27 +74,10 @@ func (fs *Filesystem) PresignedURL(key, contentType string) (string, error) {
 // file is returned.
 //
 // It is the caller's responsibility to delete the tempfile.
-func (fs *Filesystem) Fetch(key string) (string, error) {
-	outputFile, err := ioutil.TempFile(os.TempDir(), "filesystem")
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer outputFile.Close()
-
+func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
-	// #nosec - this code is only used in development as a fallback for S3
-	sourceFile, err := os.Open(sourcePath)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer sourceFile.Close()
-
-	_, err = io.Copy(outputFile, sourceFile)
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-
-	return outputFile.Name(), nil
+	// #nosec
+	return os.Open(sourcePath)
 }
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that

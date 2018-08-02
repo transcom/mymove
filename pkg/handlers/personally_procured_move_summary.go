@@ -57,7 +57,8 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 	}
 
 	// Start with uploaded orders info
-	uploads := ppm.Move.Orders.UploadedOrders.Uploads
+	// uploads := ppm.Move.Orders.UploadedOrders.Uploads
+	uploads := models.Uploads{}
 
 	// Flatten out uploads into a slice
 	for _, moveDoc := range moveDocs {
@@ -74,14 +75,8 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 		return ppmop.NewCreatePPMSummaryUnprocessableEntity()
 	}
 
-	file, err := uploader.RuntimeFile(mergedPdf)
-	if err != nil {
-		h.logger.Error("failed to convert to runtime.File", zap.Error(err))
-		return ppmop.NewCreatePPMSummaryInternalServerError()
-	}
-
 	// Upload merged PDF to S3 and return Upload object
-	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, file)
+	pdfUpload, verrs, err := loader.CreateUpload(nil, session.UserID, mergedPdf)
 	if verrs.HasAny() || err != nil {
 		return responseForVErrors(h.logger, verrs, err)
 	}

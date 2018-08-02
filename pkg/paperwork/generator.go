@@ -1,16 +1,16 @@
 package paperwork
 
 import (
-	"io/ioutil"
-	"os"
+	"io"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/pop"
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pjdufour-truss/pdfcpu/pkg/api"
+	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -28,24 +28,35 @@ const (
 
 // Generator encapsulates the prerequisites for PDF generation.
 type Generator struct {
-	db       *pop.Connection
-	logger   *zap.Logger
-	uploader *uploader.Uploader
-	workDir  string
+	db        *pop.Connection
+	fs        *afero.Afero
+	logger    *zap.Logger
+	uploader  *uploader.Uploader
+	pdfConfig *pdfcpu.Configuration
+	workDir   string
 }
 
 // NewGenerator creates a new Generator.
 func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) (*Generator, error) {
-	directory, err := ioutil.TempDir("", "generator")
+	var fs = afero.NewMemMapFs()
+	afs := &afero.Afero{Fs: fs}
+
+	pdfConfig := pdfcpu.NewInMemoryConfiguration()
+	pdfConfig.FileSystem = fs
+
+	// directory, err := ioutil.TempDir("", "generator")
+	directory, err := afs.TempDir("", "generator")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &Generator{
-		db:       db,
-		logger:   logger,
-		uploader: uploader,
-		workDir:  directory,
+		db:        db,
+		fs:        afs,
+		logger:    logger,
+		uploader:  uploader,
+		pdfConfig: pdfConfig,
+		workDir:   directory,
 	}, nil
 }
 
@@ -54,8 +65,9 @@ type inputFile struct {
 	ContentType string
 }
 
-func (g *Generator) newTempFile() (*os.File, error) {
-	outputFile, err := ioutil.TempFile(g.workDir, "temp")
+func (g *Generator) newTempFile() (afero.File, error) {
+	// outputFile, err := ioutil.TempFile(g.workDir, "temp")
+	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
@@ -63,7 +75,7 @@ func (g *Generator) newTempFile() (*os.File, error) {
 }
 
 // CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
-func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (*os.File, error) {
+func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (afero.File, error) {
 	pdfs, err := g.ConvertUploadsToPDF(uploads)
 	if err != nil {
 		return nil, errors.Wrap(err, "Error while converting uploads")
@@ -99,10 +111,24 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 			}
 		}
 
-		path, err := g.uploader.Download(&upload)
+		download, err := g.uploader.Download(&upload)
+		defer download.Close()
 		if err != nil {
 			return nil, err
 		}
+
+		outputFile, err := g.newTempFile()
+		if err != nil {
+			return nil, err
+		}
+
+		_, err = io.Copy(outputFile, download)
+		if err != nil {
+			return nil, err
+		}
+
+		path := outputFile.Name()
+
 		if upload.ContentType == "application/pdf" {
 			pdfs = append(pdfs, path)
 		} else {
@@ -119,9 +145,8 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		pdfs = append(pdfs, pdf)
 	}
 
-	config := pdfcpu.NewDefaultConfiguration()
 	for _, f := range pdfs {
-		err := api.Validate(f, config)
+		err := api.Validate(f, g.pdfConfig)
 		if err != nil {
 			return nil, err
 		}
@@ -174,15 +199,14 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 }
 
 // MergePDFFiles Merges a slice of paths to PDF files into a single PDF
-func (g *Generator) MergePDFFiles(paths []string) (*os.File, error) {
+func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	mergedFile, err := g.newTempFile()
 	if err != nil {
-		return &os.File{}, err
+		return mergedFile, err
 	}
 
-	config := pdfcpu.NewDefaultConfiguration()
-	if err = api.Merge(paths, mergedFile.Name(), config); err != nil {
-		return &os.File{}, err
+	if err = api.Merge(paths, mergedFile.Name(), g.pdfConfig); err != nil {
+		return mergedFile, err
 	}
 
 	return mergedFile, nil

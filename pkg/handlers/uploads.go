@@ -1,13 +1,13 @@
 package handlers
 
 import (
-	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -33,12 +33,19 @@ type CreateUploadHandler HandlerContext
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
-	file, ok := params.File.(*runtime.File)
+	file, ok := params.File.(afero.File)
 	if !ok {
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
-	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
+
+	info, err := file.Stat()
+	if err != nil {
+		h.logger.Error("Failed to read file info")
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	h.logger.Info("File name and size: ", zap.String("name", file.Name()), zap.Int64("size", info.Size()))
 
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)

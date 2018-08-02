@@ -2,8 +2,6 @@ package storage
 
 import (
 	"io"
-	"io/ioutil"
-	"os"
 	"path"
 	"time"
 
@@ -70,7 +68,7 @@ func (s *S3) Delete(key string) error {
 // path to this file is returned.
 //
 // It is the caller's responsibility to cleanup this file.
-func (s *S3) Fetch(key string) (string, error) {
+func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
 	input := &s3.GetObjectInput{
@@ -80,18 +78,10 @@ func (s *S3) Fetch(key string) (string, error) {
 
 	getObjectOutput, err := s.client.GetObject(input)
 	if err != nil {
-		return "", errors.Wrap(err, "get object on S3 failed")
+		return nil, errors.Wrap(err, "get object on S3 failed")
 	}
 
-	outputFile, err := ioutil.TempFile(os.TempDir(), "s3")
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer outputFile.Close()
-
-	io.Copy(outputFile, getObjectOutput.Body)
-
-	return outputFile.Name(), nil
+	return getObjectOutput.Body, nil
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.
