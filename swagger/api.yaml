@@ -430,7 +430,7 @@ definitions:
         minimum: 0
         example: 200
         x-nullable: true
-  ShipmentAcceptPayload:
+  ShipmentAccept:
     type: object
     properties:
       origin_shipping_agent:
@@ -461,6 +461,12 @@ definitions:
       - name
       - phone_number
       - email
+  ShipmentReject:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
@@ -569,12 +575,6 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
-  ShipmentRefusePayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
@@ -932,7 +932,7 @@ paths:
   /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
+      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
       operationId: createShipmentAccept
       tags:
         - shipments
@@ -947,7 +947,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAcceptPayload'
+            $ref: '#/definitions/ShipmentAccept'
       responses:
         200:
           description: returns updated (accepted) shipment object
@@ -1078,11 +1078,11 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/refuse:
+  /shipments/{shipment_uuid}/reject:
     post:
       summary: Rejects an awarded shipment
-      description: Allows a TSP to reject an awarded shipment
-      operationId: createShipmentRefuse
+      description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
+      operationId: createShipmentReject
       tags:
         - shipments
       parameters:
@@ -1097,10 +1097,10 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/ShipmentRefusePayload'
+            $ref: '#/definitions/ShipmentReject'
       responses:
         200:
-          description: returns updated (refused) shipment object
+          description: returns updated (rejected) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -1108,7 +1108,11 @@ paths:
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to accept this shipment
+          description: not authorized to reject this shipment
+        409:
+          description: the shipment is not in a state to be rejected
+          schema:
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /tsps:
