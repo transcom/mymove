@@ -1525,16 +1525,19 @@ definitions:
         type: integer
         minimum: 0
         example: 10000
+        title: Weight
         x-nullable: true
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
+        title: Pro-Gear Weight
         x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
+        title: Spouse's Pro-Gear
         x-nullable: true
       created_at:
         type: string
