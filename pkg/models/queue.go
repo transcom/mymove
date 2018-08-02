@@ -17,6 +17,7 @@ type MoveQueueItem struct {
 	CustomerName     string                              `json:"customer_name" db:"customer_name"`
 	Locator          string                              `json:"locator" db:"locator"`
 	Status           string                              `json:"status" db:"status"`
+	PpmStatus        string                              `json:"ppm_status" db:"ppm_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
 	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
@@ -41,7 +42,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.planned_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
-				moves.status as status
+				moves.status as status,
+				ppm.status as ppm_status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -59,7 +61,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.planned_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
-				moves.status as status
+				moves.status as status,
+				ppm.status as ppm_status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
@@ -77,7 +80,8 @@ func GetMoveQueueItems(db *pop.Connection, lifecycleState string) ([]MoveQueueIt
 				ppm.planned_move_date as move_date,
 				moves.created_at as created_at,
 				moves.updated_at as last_modified_date,
-				moves.status as status
+				moves.status as status,
+				ppm.status as ppm_status
 			FROM moves
 			JOIN orders as ord ON moves.orders_id = ord.id
 			JOIN service_members AS sm ON ord.service_member_id = sm.id
