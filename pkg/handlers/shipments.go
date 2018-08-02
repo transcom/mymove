@@ -28,6 +28,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
 		SourceGbloc:                  s.SourceGBLOC,
 		Market:                       s.Market,
+		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
 		BookDate:                     fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
@@ -97,8 +98,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
-		Market:        market,
-		CodeOfService: codeOfService,
+		Market:        &market,
+		CodeOfService: &codeOfService,
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)

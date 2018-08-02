@@ -1378,6 +1378,10 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      code_of_service:
+        type: string
+        x-nullable: true
+        readOnly: true
       status:
         type: string
         readOnly: true
