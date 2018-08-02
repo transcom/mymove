@@ -374,8 +374,9 @@ export const MoveSummary = props => {
   const move_status = get(move, 'status', 'DRAFT');
   const ppm_status = get(ppm, 'status', 'DRAFT');
   const status =
-    move_status === 'APPROVED' && ppm_status === 'SUBMITTED'
-      ? ppm_status
+    move_status === 'APPROVED' &&
+    (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT')
+      ? 'SUBMITTED'
       : move_status;
   const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   return (
