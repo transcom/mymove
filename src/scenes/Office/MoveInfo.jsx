@@ -19,6 +19,7 @@ import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -45,7 +46,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 
 const BasicsTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
       <CustomerInfoPanel
         title="Customer Info"
@@ -59,7 +60,7 @@ const BasicsTabContent = props => {
 
 const PPMTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
       <IncentiveCalculator />
       <StorageReimbursementCalculator />
@@ -69,7 +70,11 @@ const PPMTabContent = props => {
 };
 
 const HHGTabContent = props => {
-  return <div className="hhg-tab">The Shipment data: {props.officeHHG}</div>;
+  return (
+    <div className="office-tab">
+      <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
+    </div>
+  );
 };
 
 class CancelPanel extends Component {
@@ -317,6 +322,7 @@ class MoveInfo extends Component {
                 <PrivateRoute path={`${this.props.match.path}/hhg`}>
                   <HHGTabContent
                     officeHHG={JSON.stringify(this.props.officeHHG)}
+                    moveId={this.props.match.params.moveId}
                   />
                 </PrivateRoute>
               </Switch>

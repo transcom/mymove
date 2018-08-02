@@ -20,7 +20,7 @@ export default function uiReducer(state = initialState, action) {
 
 export function setCurrentShipment(shipment) {
   return function(dispatch, getState) {
-    dispatch({ type: SET_CURRENT_SHIPMENT, shipment });
+    return dispatch({ type: SET_CURRENT_SHIPMENT, shipment });
   };
 }
 
