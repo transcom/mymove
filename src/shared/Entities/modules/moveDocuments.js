@@ -42,19 +42,17 @@ export function createMoveDocument(
   uploadIds,
   title,
   moveDocumentType,
-  status,
   notes,
 ) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
-    const response = await client.apis.move_docs.createMoveDocument({
+    const response = await client.apis.move_docs.createGenericMoveDocument({
       moveId,
-      createMoveDocumentPayload: {
+      createGenericMoveDocumentPayload: {
         personally_procured_move_id: personallyProcuredMoveId,
         upload_ids: uploadIds,
         title: title,
         move_document_type: moveDocumentType,
-        status: status,
         notes: notes,
       },
     });

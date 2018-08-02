@@ -514,43 +514,6 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/MoveDocumentPayload'
-  GenericMoveDocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      title:
-        type: string
-        example: very_useful_document.pdf
-        title: Document Title
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-      moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
-    required:
-      - id
-      - move_id
-      - document
-      - title
-      - move_document_type
-      - status
   MoveDocumentPayload:
     type: object
     properties:
@@ -582,6 +545,10 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      reimbursement:
+        $ref: '#/definitions/Reimbursement'
     required:
       - id
       - move_id
@@ -589,7 +556,7 @@ definitions:
       - title
       - move_document_type
       - status
-  CreateMoveDocumentPayload:
+  CreateGenericMoveDocumentPayload:
     type: object
     properties:
       personally_procured_move_id:
@@ -608,8 +575,6 @@ definitions:
         example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -619,8 +584,7 @@ definitions:
       - upload_ids
       - title
       - move_document_type
-      - status
-  UpdateMoveDocumentPayload:
+  UpdateGenericMoveDocumentPayload:
     type: object
     properties:
       personally_procured_move_id:
@@ -659,48 +623,15 @@ definitions:
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
-  MovingExpenseDocumentPayload:
-    type: object
-    properties:
-      id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      move_id:
-        type: string
-        format: uuid
-        example: c56a4180-65aa-42ec-a945-5fd21dec0538
-      document:
-        $ref: '#/definitions/DocumentPayload'
-      move_document_type:
-        type: string
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      title:
-        type: string
-        example: very_useful_document.pdf
-      moving_expense_type:
-        $ref: '#/definitions/MovingExpenseType'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - id
-      - move_id
-      - document
-      - title
-      - move_document_type
-      - status
-      - moving_expense_type
-      - reimbursement
+      EXPENSE: Expense
   CreateMovingExpenseDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       upload_ids:
         type: array
         items:
@@ -730,6 +661,11 @@ definitions:
   UpdateMovingExpenseDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       move_document_type:
         type: string
         $ref: '#/definitions/MoveDocumentType'
@@ -1701,7 +1637,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
@@ -1720,7 +1656,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
@@ -1755,8 +1691,8 @@ definitions:
       - OTHER_DD
       - GTCC
     x-display-value:
-      MIL_PAY: Direct deposit to MilPay
-      OTHER_DD: Direct deposit to other account
+      MIL_PAY: MilPay
+      OTHER_DD: Other account
       GTCC: GTCC
   MoveStatus:
     type: string
@@ -2865,7 +2801,7 @@ paths:
     post:
       summary: Creates a move document
       description: Created a move document with the given information
-      operationId: createMoveDocument
+      operationId: createGenericMoveDocument
       tags:
         - move_docs
       parameters:
@@ -2876,10 +2812,10 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: createMoveDocumentPayload
+          name: createGenericMoveDocumentPayload
           required: true
           schema:
-            $ref: '#/definitions/CreateMoveDocumentPayload'
+            $ref: '#/definitions/CreateGenericMoveDocumentPayload'
       responses:
         200:
           description: returns new move document object
@@ -2911,7 +2847,7 @@ paths:
           name: updateMoveDocument
           required: true
           schema:
-            $ref: '#/definitions/UpdateMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
       responses:
         200:
           description: updated instance of move document
@@ -2950,7 +2886,7 @@ paths:
         200:
           description: returns new moving expense document object
           schema:
-            $ref: '#/definitions/MovingExpenseDocumentPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
         400:
           description: invalid request
         401:
@@ -2959,40 +2895,6 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moving_expense_documents/{movingExpenseDocumentId}:
-    put:
-      summary: Updates a moving expense document
-      description: Update a moving expense document with the given information
-      operationId: updateMovingExpenseDocument
-      tags:
-        - move_docs
-      parameters:
-        - in: path
-          name: movingExpenseDocumentId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the moving expense document model
-        - in: body
-          name: updateMovingExpenseDocument
-          required: true
-          schema:
-            $ref: '#/definitions/UpdateMovingExpenseDocumentPayload'
-      responses:
-        200:
-          description: updated instance of moving expense document
-          schema:
-            $ref: '#/definitions/MovingExpenseDocumentPayload'
-        400:
-          description: invalid request
-        401:
-          description: request requires user authentication
-        403:
-          description: user is not authorized
-        404:
-          description: moving expense document not found
-        500:
-          description: internal server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed

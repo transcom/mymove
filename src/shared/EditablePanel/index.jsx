@@ -111,11 +111,12 @@ export class EditablePanel extends Component {
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.isEditable && (
-            <a className="editable-panel-edit" onClick={this.handleEditClick}>
-              Edit
-            </a>
-          )}
+          {!this.props.isEditable &&
+            this.props.editEnabled && (
+              <a className="editable-panel-edit" onClick={this.handleEditClick}>
+                Edit
+              </a>
+            )}
         </div>
         <div className="editable-panel-content">
           {this.props.children}
@@ -130,8 +131,13 @@ EditablePanel.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  editEnabled: PropTypes.bool,
   isValid: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+};
+
+EditablePanel.defaultProps = {
+  editEnabled: true,
 };
