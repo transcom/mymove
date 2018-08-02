@@ -17,7 +17,7 @@ import { submitExpenseDocs } from './ducks.js';
 import './PaymentRequest.css';
 
 function RequestPaymentSection(props) {
-  const { ppm, updatingPPM, submitDocs } = props;
+  const { ppm, updatingPPM, submitDocs disableSubmit } = props;
 
   if (!ppm) {
     return null;
@@ -30,7 +30,7 @@ function RequestPaymentSection(props) {
         <button
           onClick={submitDocs}
           className="usa-button"
-          disabled={updatingPPM}
+          disabled={updatingPPM||disableSubmit}
         >
           Submit Payment Request
         </button>
@@ -74,6 +74,7 @@ export class PaymentRequest extends Component {
     const { moveDocuments, updateError } = this.props;
     const { moveId } = this.props.match.params;
     const numMoveDocs = get(moveDocuments, 'length', 'TBD');
+    const disableSubmit = numMoveDocs === 0;
     return (
       <div className="usa-grid payment-request">
         <div className="usa-width-two-thirds">
@@ -96,7 +97,9 @@ export class PaymentRequest extends Component {
             ppm={this.props.currentPpm}
             updatingPPM={this.props.updatingPPM}
             submitDocs={this.submitDocs}
+            disableSubmit={disableSubmit}
           />
+          )}
         </div>
         <div className="usa-width-one-third">
           <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
