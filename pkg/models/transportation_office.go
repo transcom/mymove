@@ -24,6 +24,7 @@ type TransportationOffice struct {
 	Hours            *string               `json:"hours" db:"hours"`
 	Services         *string               `json:"services" db:"services"`
 	Note             *string               `json:"note" db:"note"`
+	Gbloc            *string               `json:"gbloc" db:"gbloc"`
 	CreatedAt        time.Time             `json:"created_at" db:"created_at"`
 	UpdatedAt        time.Time             `json:"updated_at" db:"updated_at"`
 }

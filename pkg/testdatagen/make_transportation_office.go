@@ -1,6 +1,7 @@
 package testdatagen
 
 import (
+	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -14,6 +15,7 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 		Name:      "JPPSO Testy McTest",
 		AddressID: address.ID,
 		Address:   address,
+		Gbloc:     swag.String("LKBM"),
 		Latitude:  1.23445,
 		Longitude: -23.34455,
 	}
