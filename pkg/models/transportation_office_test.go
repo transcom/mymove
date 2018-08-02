@@ -23,7 +23,7 @@ func CreateTestShippingOffice(suite *ModelSuite) TransportationOffice {
 	office := TransportationOffice{
 		Name:      "JPSO Supreme",
 		AddressID: address.ID,
-		Gbloc:     StringPointer("BMAF"),
+		Gbloc:     "BMAF",
 		Latitude:  61.1262383,
 		Longitude: -149.9212882,
 		Hours:     StringPointer("0900-1800 Mon-Sat"),
@@ -52,7 +52,7 @@ func (suite *ModelSuite) Test_TransportationOffice() {
 		Name:             "Best PPO of the North",
 		ShippingOfficeID: &jppso.ID,
 		AddressID:        ppoAddress.ID,
-		Gbloc:            StringPointer("ACQR"),
+		Gbloc:            "ACQR",
 		Latitude:         57.0512403,
 		Longitude:        -135.332707,
 		Services:         StringPointer("Moose Shipping, Personal Goods"),
