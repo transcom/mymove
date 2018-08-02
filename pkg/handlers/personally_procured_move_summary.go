@@ -12,18 +12,18 @@ import (
 	"github.com/transcom/mymove/pkg/uploader"
 )
 
-var moveDocumentSummaryTypes = []models.MoveDocumentType{
+var moveDocumentAttachmentsTypes = []models.MoveDocumentType{
 	models.MoveDocumentTypeOTHER,
 	models.MoveDocumentTypeWEIGHTTICKET,
 	models.MoveDocumentTypeSTORAGEEXPENSE,
 	models.MoveDocumentTypeEXPENSE,
 }
 
-// CreatePersonallyProcuredMoveSummaryHandler creates a PPM Summary
-type CreatePersonallyProcuredMoveSummaryHandler HandlerContext
+// CreatePersonallyProcuredMoveAttachmentsHandler creates a PPM Attachments PDF
+type CreatePersonallyProcuredMoveAttachmentsHandler HandlerContext
 
 // Handle is the handler
-func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePPMSummaryParams) middleware.Responder {
+func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.CreatePPMAttachmentsParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	// #nosec UUID is pattern matched by swagger and will be ok
@@ -40,12 +40,12 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 	}
 
 	// Fetch move documents with matching types
-	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.db, moveDocumentSummaryTypes)
+	moveDocs, err := ppm.FetchMoveDocumentsForTypes(h.db, moveDocumentAttachmentsTypes)
 	if err != nil {
-		return ppmop.NewCreatePPMSummaryInternalServerError()
+		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 	if len(moveDocs) == 0 {
-		return ppmop.NewCreatePPMSummaryFailedDependency()
+		return ppmop.NewCreatePPMAttachmentsFailedDependency()
 	}
 
 	// Init our tools
@@ -53,7 +53,7 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 	generator, err := paperwork.NewGenerator(h.db, h.logger, loader)
 	if err != nil {
 		h.logger.Error("failed to initialize generator", zap.Error(err))
-		return ppmop.NewCreatePPMSummaryInternalServerError()
+		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
 	// Start with uploaded orders info
@@ -65,14 +65,14 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 		uploads = append(uploads, moveDoc.Document.Uploads...)
 	}
 	if len(uploads) == 0 {
-		return ppmop.NewCreatePPMSummaryFailedDependency()
+		return ppmop.NewCreatePPMAttachmentsFailedDependency()
 	}
 
 	// Convert to PDF and merge into single PDF
 	mergedPdf, err := generator.CreateMergedPDFUpload(uploads)
 	if err != nil {
 		h.logger.Error("failed to merge PDF files", zap.Error(err))
-		return ppmop.NewCreatePPMSummaryUnprocessableEntity()
+		return ppmop.NewCreatePPMAttachmentsUnprocessableEntity()
 	}
 
 	// Upload merged PDF to S3 and return Upload object
@@ -84,9 +84,9 @@ func (h CreatePersonallyProcuredMoveSummaryHandler) Handle(params ppmop.CreatePP
 	url, err := loader.PresignedURL(pdfUpload)
 	if err != nil {
 		h.logger.Error("failed to get presigned url", zap.Error(err))
-		return ppmop.NewCreatePPMSummaryInternalServerError()
+		return ppmop.NewCreatePPMAttachmentsInternalServerError()
 	}
 
 	uploadPayload := payloadForUploadModel(*pdfUpload, url)
-	return ppmop.NewCreatePPMSummaryOK().WithPayload(uploadPayload)
+	return ppmop.NewCreatePPMAttachmentsOK().WithPayload(uploadPayload)
 }

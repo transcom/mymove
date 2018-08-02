@@ -38,25 +38,28 @@ func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStor
 // file using the supplied storer, and saving an Upload object to the database containing
 // the file's metadata.
 func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file afero.File) (*models.Upload, *validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
 	info, err := file.Stat()
 	if err != nil {
 		u.logger.Error("Could not get file info", zap.Error(err))
 	}
 
 	if info.Size() == 0 {
-		return nil, nil, ErrZeroLengthFile
+		return nil, responseVErrors, ErrZeroLengthFile
 	}
 
 	contentType, err := storage.DetectContentType(file)
 	if err != nil {
 		u.logger.Error("Could not detect content type", zap.Error(err))
-		return nil, nil, err
+		return nil, responseVErrors, err
 	}
 
 	checksum, err := storage.ComputeChecksum(file)
 	if err != nil {
 		u.logger.Error("Could not compute checksum", zap.Error(err))
-		return nil, nil, err
+		return nil, responseVErrors, err
 	}
 
 	id := uuid.Must(uuid.NewV4())
@@ -70,9 +73,6 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		ContentType: contentType,
 		Checksum:    checksum,
 	}
-
-	responseVErrors := validate.NewErrors()
-	var responseError error
 
 	u.db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")

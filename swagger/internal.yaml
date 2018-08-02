@@ -3044,11 +3044,11 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
-  /personally_procured_moves/{personallyProcuredMoveId}/create_summary:
+  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
     post:
-      summary: Creates PPM summary PDF
-      description: Creates a PPM summary PDF
-      operationId: createPPMSummary
+      summary: Creates PPM attachments PDF
+      description: Creates a PPM attachments PDF
+      operationId: createPPMAttachments
       tags:
         - ppm
       parameters:
@@ -3057,10 +3057,10 @@ paths:
           type: string
           format: uuid
           required: true
-          description: UUID of the PPM to create a summary for
+          description: UUID of the PPM to create an attachments PDF for
       responses:
         200:
-          description: returns a PPM summary upload
+          description: returns a PPM attachments upload
           schema:
             $ref: '#/definitions/UploadPayload'
         400:
@@ -3072,7 +3072,7 @@ paths:
         422:
           description: malformed PDF contained in uploads
         424:
-          description: no files to be processed into PDF summary
+          description: no files to be processed into attachments PDF
         500:
           description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:

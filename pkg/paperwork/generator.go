@@ -188,11 +188,13 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	var opt gofpdf.ImageOptions
 	for _, image := range images {
 		pdf.AddPage()
+		file, _ := g.fs.Open(image.Path)
+		pdf.RegisterImageReader(image.Path, contentTypeToImageType[image.ContentType], file)
 		opt.ImageType = contentTypeToImageType[image.ContentType]
 		pdf.ImageOptions(image.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
 	}
 
-	if err = pdf.OutputAndClose(outputFile); err != nil {
+	if err = pdf.OutputAndClose(outputFile.(afero.File)); err != nil {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
 	}
 	return outputFile.Name(), nil
@@ -208,6 +210,9 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	if err = api.Merge(paths, mergedFile.Name(), g.pdfConfig); err != nil {
 		return mergedFile, err
 	}
+
+	// Reload the file from memstore
+	mergedFile, _ = g.fs.Open(mergedFile.Name())
 
 	return mergedFile, nil
 }
