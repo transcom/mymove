@@ -17,6 +17,7 @@ import {
   getPreviousPagePath,
   isFirstPage,
   isLastPage,
+  beforeTransition,
 } from './utils';
 
 export class WizardFormPage extends Component {
@@ -25,7 +26,7 @@ export class WizardFormPage extends Component {
     this.nextPage = this.nextPage.bind(this);
     this.previousPage = this.previousPage.bind(this);
     this.cancelFlow = this.cancelFlow.bind(this);
-    this.state = { transitionFunc: null };
+    this.beforeTransition = beforeTransition.bind(this);
   }
   componentDidUpdate(prevProps) {
     if (this.props.additionalValues) {
@@ -41,21 +42,10 @@ export class WizardFormPage extends Component {
     }
     /* eslint-enable security/detect-object-injection */
 
-    if (this.props.hasSucceeded) this.onSubmitSuccessful();
     if (this.props.serverError) window.scrollTo(0, 0);
   }
   componentDidMount() {
     window.scrollTo(0, 0);
-  }
-  beforeTransition(func) {
-    const { dirty, pageList, pageKey, handleSubmit } = this.props;
-    const path = func(pageList, pageKey);
-    if (dirty && handleSubmit) {
-      handleSubmit();
-      this.setState({ transitionFunc: func });
-    } else {
-      this.goto(path);
-    }
   }
   goto(path) {
     const {
@@ -69,11 +59,7 @@ export class WizardFormPage extends Component {
     // comes from react router redux: doing this moves to the route at path  (might consider going back to history since we need withRouter)
     push(generatePath(path, combinedParams));
   }
-  onSubmitSuccessful() {
-    const { transitionFunc } = this.state;
-    const { pageKey, pageList } = this.props;
-    if (transitionFunc) this.goto(transitionFunc(pageList, pageKey));
-  }
+
   cancelFlow() {
     this.props.push(`/`);
   }
@@ -160,7 +146,6 @@ export class WizardFormPage extends Component {
 
 WizardFormPage.propTypes = {
   handleSubmit: PropTypes.func.isRequired,
-  hasSucceeded: PropTypes.bool.isRequired,
   serverError: PropTypes.object,
   pageList: PropTypes.arrayOf(PropTypes.string).isRequired,
   pageKey: PropTypes.string.isRequired,

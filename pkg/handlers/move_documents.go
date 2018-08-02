@@ -9,34 +9,69 @@ import (
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/storage"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
-func payloadForMoveDocumentModel(storer storage.FileStorer, moveDocument models.MoveDocument) (*internalmessages.MoveDocumentPayload, error) {
+func payloadForMoveDocument(storer storage.FileStorer, moveDoc models.MoveDocument) (*internalmessages.MoveDocumentPayload, error) {
 
-	documentPayload, err := payloadForDocumentModel(storer, moveDocument.Document)
+	documentPayload, err := payloadForDocumentModel(storer, moveDoc.Document)
 	if err != nil {
 		return nil, err
 	}
 
-	moveDocumentPayload := internalmessages.MoveDocumentPayload{
-		ID:     fmtUUID(moveDocument.ID),
-		MoveID: fmtUUID(moveDocument.MoveID),
-		PersonallyProcuredMoveID: fmtUUIDPtr(moveDocument.PersonallyProcuredMoveID),
+	payload := internalmessages.MoveDocumentPayload{
+		ID:     fmtUUID(moveDoc.ID),
+		MoveID: fmtUUID(moveDoc.MoveID),
+		PersonallyProcuredMoveID: fmtUUIDPtr(moveDoc.PersonallyProcuredMoveID),
 		Document:                 documentPayload,
-		Title:                    &moveDocument.Title,
-		MoveDocumentType:         internalmessages.MoveDocumentType(moveDocument.MoveDocumentType),
-		Status:                   internalmessages.MoveDocumentStatus(moveDocument.Status),
-		Notes:                    moveDocument.Notes,
+		Title:                    &moveDoc.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(moveDoc.MoveDocumentType),
+		Status:                   internalmessages.MoveDocumentStatus(moveDoc.Status),
+		Notes:                    moveDoc.Notes,
 	}
 
-	return &moveDocumentPayload, nil
+	if moveDoc.MovingExpenseDocument != nil {
+		payload.MovingExpenseType = internalmessages.MovingExpenseType(moveDoc.MovingExpenseDocument.MovingExpenseType)
+		payload.Reimbursement = payloadForReimbursementModel(&moveDoc.MovingExpenseDocument.Reimbursement)
+	}
+
+	return &payload, nil
 }
 
-// CreateMoveDocumentHandler creates a MoveDocument
-type CreateMoveDocumentHandler HandlerContext
+func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor models.MoveDocumentExtractor) (*internalmessages.MoveDocumentPayload, error) {
 
-// Handle is the handler
-func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentParams) middleware.Responder {
+	documentPayload, err := payloadForDocumentModel(storer, docExtractor.Document)
+	if err != nil {
+		return nil, err
+	}
+
+	var expenseType internalmessages.MovingExpenseType
+	if docExtractor.MovingExpenseType != nil {
+		expenseType = internalmessages.MovingExpenseType(*docExtractor.MovingExpenseType)
+	}
+
+	payload := internalmessages.MoveDocumentPayload{
+		ID:     fmtUUID(docExtractor.ID),
+		MoveID: fmtUUID(docExtractor.MoveID),
+		PersonallyProcuredMoveID: fmtUUIDPtr(docExtractor.PersonallyProcuredMoveID),
+		Document:                 documentPayload,
+		Title:                    &docExtractor.Title,
+		MoveDocumentType:         internalmessages.MoveDocumentType(docExtractor.MoveDocumentType),
+		Status:                   internalmessages.MoveDocumentStatus(docExtractor.Status),
+		Notes:                    docExtractor.Notes,
+		MovingExpenseType:        expenseType,
+		Reimbursement:            payloadForReimbursementModel(&docExtractor.Reimbursement),
+	}
+
+	return &payload, nil
+}
+
+// IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
+type IndexMoveDocumentsHandler HandlerContext
+
+// Handle handles the request
+func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
+	// #nosec User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
@@ -47,57 +82,22 @@ func (h CreateMoveDocumentHandler) Handle(params movedocop.CreateMoveDocumentPar
 		return responseForError(h.logger, err)
 	}
 
-	payload := params.CreateMoveDocumentPayload
-
-	// Fetch uploads to confirm ownership
-	uploadIds := payload.UploadIds
-	if len(uploadIds) == 0 {
-		return movedocop.NewCreateMoveDocumentBadRequest()
-	}
-
-	uploads := models.Uploads{}
-	for _, id := range uploadIds {
-		converted := uuid.Must(uuid.FromString(id.String()))
-		upload, err := models.FetchUpload(h.db, session, converted)
-		if err != nil {
-			return responseForError(h.logger, err)
-		}
-		uploads = append(uploads, upload)
-	}
-
-	var ppmID *uuid.UUID
-	if payload.PersonallyProcuredMoveID != nil {
-		id := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
-
-		// Enforce that the ppm's move_id matches our move
-		ppm, err := models.FetchPersonallyProcuredMove(h.db, session, id)
-		if err != nil {
-			return responseForError(h.logger, err)
-		}
-		if !uuid.Equal(ppm.MoveID, moveID) {
-			return movedocop.NewCreateMoveDocumentBadRequest()
-		}
-
-		ppmID = &id
-	}
-
-	newMoveDocument, verrs, err := move.CreateMoveDocument(h.db,
-		uploads,
-		ppmID,
-		models.MoveDocumentType(payload.MoveDocumentType),
-		*payload.Title,
-		models.MoveDocumentStatus(payload.Status),
-		payload.Notes)
-
-	if err != nil || verrs.HasAny() {
-		return responseForVErrors(h.logger, verrs, err)
-	}
-
-	newPayload, err := payloadForMoveDocumentModel(h.storage, *newMoveDocument)
+	moveDocs, err := move.FetchAllMoveDocumentsForMove(h.db)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return movedocop.NewCreateMoveDocumentOK().WithPayload(newPayload)
+
+	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocs))
+	for i, doc := range moveDocs {
+		moveDocumentPayload, err := payloadForMoveDocumentExtractor(h.storage, doc)
+		if err != nil {
+			return responseForError(h.logger, err)
+		}
+		moveDocumentsPayload[i] = moveDocumentPayload
+	}
+
+	response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
+	return response
 }
 
 // UpdateMoveDocumentHandler updates a move document via PUT /moves/{moveId}/documents/{moveDocumentId}
@@ -120,49 +120,53 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		ppmID := uuid.Must(uuid.FromString(payload.PersonallyProcuredMoveID.String()))
 		moveDoc.PersonallyProcuredMoveID = &ppmID
 	}
+	newType := models.MoveDocumentType(payload.MoveDocumentType)
 	moveDoc.Title = *payload.Title
 	moveDoc.Notes = payload.Notes
 	moveDoc.Status = models.MoveDocumentStatus(payload.Status)
+	moveDoc.MoveDocumentType = newType
 
-	verrs, err := models.SaveMoveDocument(h.db, moveDoc)
+	var saveAction models.MoveDocumentSaveAction
+
+	// If we are an expense type, we need to either delete, create, or update a MovingExpenseType
+	// depending on which type of document already exists
+	if models.IsExpenseModelDocumentType(newType) {
+		// We should have a MovingExpenseDocument model
+		reimbursementAmt := unit.Cents(*payload.Reimbursement.RequestedAmount)
+		reimbursementMethod := models.MethodOfReceipt(*payload.Reimbursement.MethodOfReceipt)
+		if moveDoc.MovingExpenseDocument == nil {
+			// But we don't have one, so create it to be saved later
+			reimbursement := models.BuildRequestedReimbursement(
+				reimbursementAmt,
+				reimbursementMethod)
+			moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
+				MoveDocumentID:    moveDoc.ID,
+				MoveDocument:      *moveDoc,
+				MovingExpenseType: models.MovingExpenseType(payload.MovingExpenseType),
+				Reimbursement:     reimbursement,
+			}
+		} else {
+			// We have one already, so update the fields
+			moveDoc.MovingExpenseDocument.MovingExpenseType = models.MovingExpenseType(payload.MovingExpenseType)
+			moveDoc.MovingExpenseDocument.Reimbursement.RequestedAmount = reimbursementAmt
+			moveDoc.MovingExpenseDocument.Reimbursement.MethodOfReceipt = reimbursementMethod
+		}
+		saveAction = models.MoveDocumentSaveActionSAVEEXPENSEMODEL
+	} else {
+		if moveDoc.MovingExpenseDocument != nil {
+			// We just care if a MovingExpenseType exists, as it needs to be deleted
+			saveAction = models.MoveDocumentSaveActionDELETEEXPENSEMODEL
+		}
+	}
+
+	verrs, err := models.SaveMoveDocument(h.db, moveDoc, saveAction)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
 
-	moveDocPayload, err := payloadForMoveDocumentModel(h.storage, *moveDoc)
+	moveDocPayload, err := payloadForMoveDocument(h.storage, *moveDoc)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
 	return movedocop.NewUpdateMoveDocumentOK().WithPayload(moveDocPayload)
-}
-
-// IndexMoveDocumentsHandler returns a list of all the Move Documents associated with this move.
-type IndexMoveDocumentsHandler HandlerContext
-
-// Handle handles the request
-func (h IndexMoveDocumentsHandler) Handle(params movedocop.IndexMoveDocumentsParams) middleware.Responder {
-	// #nosec User should always be populated by middleware
-	session := auth.SessionFromRequestContext(params.HTTPRequest)
-	// #nosec UUID is pattern matched by swagger and will be ok
-	moveID, _ := uuid.FromString(params.MoveID.String())
-
-	// Validate that this move belongs to the current user
-	move, err := models.FetchMove(h.db, session, moveID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	// Fetch move documents on move documents model
-	moveDocuments := move.MoveDocuments
-
-	moveDocumentsPayload := make(internalmessages.IndexMoveDocumentPayload, len(moveDocuments))
-	for i, moveDocument := range moveDocuments {
-		moveDocumentPayload, err := payloadForMoveDocumentModel(h.storage, moveDocument)
-		if err != nil {
-			return responseForError(h.logger, err)
-		}
-		moveDocumentsPayload[i] = moveDocumentPayload
-	}
-	response := movedocop.NewIndexMoveDocumentsOK().WithPayload(moveDocumentsPayload)
-	return response
 }
