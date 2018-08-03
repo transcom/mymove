@@ -74,6 +74,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal("dHGG", unwrapped.Payload.Market)
+	suite.Equal("D", unwrapped.Payload.CodeOfService)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
 	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
@@ -113,6 +115,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal("dHGG", unwrapped.Payload.Market)
+	suite.Equal("D", unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
 	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
 	suite.Nil(unwrapped.Payload.PickupAddress)
