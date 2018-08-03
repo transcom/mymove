@@ -1716,7 +1716,6 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - IN_PROGRESS
       - COMPLETED
       - CANCELED
       - PAYMENT_REQUESTED
@@ -1724,7 +1723,6 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
       PAYMENT_REQUESTED: Payment Requested
@@ -1924,7 +1922,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         type: string
-        example: Booked - Awaiting Review
+        example: APPROVED
+      ppm_status:
+        type: string
+        example: PAYMENT_REQUESTED
       locator:
         type: string
         example: "12432"
@@ -1969,6 +1970,7 @@ definitions:
     required:
       - id
       - status
+      - ppm_status
       - locator
       - customer_name
       - edipi
