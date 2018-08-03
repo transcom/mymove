@@ -629,3 +629,53 @@ func (suite *HandlerSuite) TestRequestPPMPayment() {
 	suite.Require().Equal(internalmessages.PPMStatusPAYMENTREQUESTED, created.Payload.Status, "expected payment requested")
 
 }
+
+func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
+	t := suite.T()
+	// When: There is a move, ppm, move document and 2 expense docs
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID: ppm.Move.ID,
+			Move:   ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:           "OK",
+			MoveDocumentType: "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+		Reimbursement: models.Reimbursement{
+			RequestedAmount: 100,
+			MethodOfReceipt: models.MethodOfReceiptMILPAY,
+		},
+	}
+
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, sm)
+
+	requestExpenseSumParams := ppmop.RequestPPMExpenseSummaryParams{
+		HTTPRequest:              req,
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+	}
+
+	handler := RequestPPMExpenseSummaryHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(requestExpenseSumParams)
+
+	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+	// Then: expect the following values to be equal
+	suite.Assertions.Equal(internalmessages.MovingExpenseTypeCONTRACTEDEXPENSE, expenseSummary.Payload.Categories[0].Category)
+	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.Categories[0].PaymentMethods.MILPAY)
+	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.Categories[0].Total)
+	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.GrandTotal.PaymentMethodTotals.MILPAY)
+	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.GrandTotal.Total)
+}

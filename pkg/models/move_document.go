@@ -130,6 +130,16 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 
 // FetchApprovedMovingExpenseDocuments fetches all approved move expense document for a ppm
 func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Session, ppmID uuid.UUID) (MoveDocuments, error) {
+	// Allow all logged in office users to fetch move docs
+	if session.IsOfficeApp() && session.OfficeUserID == uuid.Nil {
+		return nil, ErrFetchForbidden
+	}
+	// Validate the move is associated to the logged-in service member
+	_, fetchErr := FetchPersonallyProcuredMove(db, session, ppmID)
+	if fetchErr != nil {
+		return nil, ErrFetchForbidden
+	}
+
 	var moveDocuments MoveDocuments
 	err := db.Where("move_document_type = 'EXPENSE'").Where("status = 'OK'").Where("personally_procured_move_id = $1", ppmID.String()).All(&moveDocuments)
 	if err != nil {
@@ -150,6 +160,7 @@ func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Sessi
 			moveDocuments[i].MovingExpenseDocument = &movingExpenseDocument
 		}
 	}
+
 	return moveDocuments, nil
 }
 
