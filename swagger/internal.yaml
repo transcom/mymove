@@ -92,6 +92,11 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      gbloc:
+        type: string
+        format: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
       latitude:
         type: number
         format: float
@@ -1720,7 +1725,6 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - IN_PROGRESS
       - COMPLETED
       - CANCELED
       - PAYMENT_REQUESTED
@@ -1728,7 +1732,6 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
       PAYMENT_REQUESTED: Payment Requested
@@ -1928,7 +1931,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         type: string
-        example: Booked - Awaiting Review
+        example: APPROVED
+      ppm_status:
+        type: string
+        example: PAYMENT_REQUESTED
       locator:
         type: string
         example: "12432"
@@ -1973,6 +1979,7 @@ definitions:
     required:
       - id
       - status
+      - ppm_status
       - locator
       - customer_name
       - edipi

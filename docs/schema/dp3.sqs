@@ -1421,7 +1421,7 @@
         </location>
         <size>
             <width>675.00</width>
-            <height>200.00</height>
+            <height>220.00</height>
         </size>
         <zorder>29</zorder>
         <SQLField>
@@ -1506,6 +1506,11 @@
             <autoIncrement><![CDATA[0]]></autoIncrement>
             <notNull><![CDATA[0]]></notNull>
             <uid><![CDATA[5BEAEF60-0362-4E42-931A-093A376B2927]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[gbloc]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[C0123AB8-9F46-474C-B661-E54BCDD86B81]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[10]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -3008,17 +3013,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1089.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[745.000000]]></windowHeight>
-        <windowLocationX><![CDATA[-1366.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[282.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{0, 1030}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1366.000000]]></windowWidth>
+        <windowHeight><![CDATA[778.000000]]></windowHeight>
+        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[99.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{786, 1163.5}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>

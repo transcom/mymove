@@ -57,6 +57,14 @@ class QueueTable extends Component {
       all: 'All Moves',
     };
 
+    this.state.data.forEach(row => {
+      if (row.ppm_status === 'PAYMENT_REQUESTED') {
+        row.synthetic_status = row.ppm_status;
+      } else {
+        row.synthetic_status = row.status;
+      }
+    });
+
     return (
       <div>
         {this.props.flashMessage ? (
@@ -72,7 +80,7 @@ class QueueTable extends Component {
             columns={[
               {
                 Header: 'Status',
-                accessor: 'status',
+                accessor: 'synthetic_status',
               },
               {
                 Header: 'Locator #',
