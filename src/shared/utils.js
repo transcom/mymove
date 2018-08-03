@@ -35,7 +35,7 @@ export function fetchActive(foos) {
   return (
     find(foos, i =>
       includes(
-        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS'],
+        ['DRAFT', 'SUBMITTED', 'APPROVED', 'IN_PROGRESS', 'PAYMENT_REQUESTED'],
         get(i, 'status'),
       ),
     ) || null
