@@ -23,12 +23,12 @@ export default function uiReducer(state = initialState, action) {
           ...state,
           currentShipmentID: activeShipment ? activeShipment.id : null,
         };
-      } catch(e) {
+      } catch (e) {
         console.debug(e);
         return state;
       }
     case SET_CURRENT_SHIPMENT:
-     return {
+      return {
         ...state,
         currentShipmentID: action.shipment.id,
       };

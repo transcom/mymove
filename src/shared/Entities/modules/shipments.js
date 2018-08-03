@@ -27,10 +27,7 @@ export function createOrUpdateShipment(moveId, shipment, id) {
   }
 }
 
-export function getShipment(
-  moveId,
-  shipmentId
-) {
+export function getShipment(moveId, shipmentId) {
   return async function(dispatch, getState, { schema }) {
     const client = await getClient();
     const response = await client.apis.shipments.getShipment({
@@ -80,9 +77,9 @@ export function updateShipment(
   };
 }
 
-export function selectShipment (state, id) {
+export function selectShipment(state, id) {
   if (!id) {
     return null;
   }
   return denormalize([id], shipments, state.entities)[0];
-};
+}
