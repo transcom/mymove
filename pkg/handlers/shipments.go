@@ -342,7 +342,7 @@ func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentPara
 		return publicshipmentop.NewGetShipmentBadRequest()
 	}
 
-	sp := publicPayloadForShipmentModel(shipment)
+	sp := publicPayloadForShipmentModel(*shipment)
 	return publicshipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
