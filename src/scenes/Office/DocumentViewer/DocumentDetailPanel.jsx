@@ -7,6 +7,7 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 import editablePanel from '../editablePanel';
 import { renderStatusIcon } from 'shared/utils';
 import { formatDate } from 'shared/formatters';
+// import { formatCents } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
@@ -22,13 +23,14 @@ const DocumentDetailDisplay = props => {
   const moveDoc = props.moveDocument;
   const isExpenseDocument = isMovingExpenseDocument(moveDoc);
   const moveDocFieldProps = {
-    values: props.moveDocument,
+    values: moveDoc,
     schema: props.moveDocSchema,
   };
   const reimbursementFieldProps = {
-    values: get(props.moveDocument, 'reimbursement', {}),
+    values: get(moveDoc, 'reimbursement', {}),
     schema: props.reimbursementSchema,
   };
+
   return (
     <React.Fragment>
       <div>
@@ -97,8 +99,18 @@ const DocumentDetailDisplay = props => {
 
 const DocumentDetailEdit = props => {
   const { formValues, moveDocSchema, reimbursementSchema } = props;
+
+  // Should the amount be modified here?
+  // let moveDoc = props.moveDocument;
+  // if (get(moveDoc, 'reimbursement.requested_amount')) {
+  //   let requested_amount = get(moveDoc, 'reimbursement.requested_amount')
+  //   let requestedAmount = parseFloat(requested_amount) / 100;
+  //   moveDoc.reimbursement.requested_amount = requestedAmount
+  //   console.log("edit panel amount", moveDoc.reimbursement.requested_amount = requestedAmount)
+  // }
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
+
   return (
     <React.Fragment>
       <div>
@@ -141,10 +153,23 @@ function mapStateToProps(state, props) {
   ) {
     moveDocument = omit(moveDocument, 'reimbursement');
   }
+  // This modifies the moveDocument model, and so the value gets divided by 100 2 twice.
+  // How
+  // let money = {};
+  // if (get(moveDocument, 'reimbursement.requested_amount')) {
+  //   let requested_amount = get(moveDocument, 'reimbursement.requested_amount')
+  //   let requestedAmount = formatCents(requested_amount);
+  //   money['reimbursement'] = {}
+  //   money['reimbursement']['requested_amount'] = requestedAmount;
+  //   money['reimbursement']['method_of_receipt'] = moveDocument.reimbursement.method_of_receipt
+  //   console.log("amount", money);
+  // }
   return {
     // reduxForm
+    // Populates the edit panel, NOT the display panel
     initialValues: {
       moveDocument: moveDocument,
+      // money: money,
     },
     formValues: getFormValues(formName)(state),
     moveDocSchema: get(
