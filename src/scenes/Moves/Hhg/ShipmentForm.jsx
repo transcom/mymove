@@ -8,10 +8,13 @@ import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
-import ShipmentAddress from 'scenes/Moves/Hhg/Address';
+import DatePicker from 'scenes/Moves/Hhg/DatePicker';
+import Address from 'scenes/Moves/Hhg/Address';
 
-import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
+import {
+  createOrUpdateShipment,
+  getShipment,
+} from 'shared/Entities/modules/shipments';
 
 import './ShipmentForm.css';
 
@@ -53,7 +56,7 @@ export class ShipmentForm extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, initialValues } = this.props;
+    const { pages, pageKey, error, initialValues, formValues } = this.props;
 
     const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
@@ -83,13 +86,13 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <ShipmentDatePicker
+          <DatePicker
             schema={this.props.schema}
             error={error}
-            formValues={this.props.formValues}
+            selectedDay={get(formValues, 'requested_pickup_date')}
             setDate={this.setDate}
           />
-          <ShipmentAddress
+          <Address
             schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
