@@ -20,6 +20,12 @@ export class ShipmentAddress extends Component {
       'formValues.has_delivery_address',
       false,
     );
+    const addressSchema = get(
+      this.props,
+      'schema.properties.pickup_address',
+      {},
+    );
+
     return (
       <div className="form-section">
         <h3 className="instruction-heading">
@@ -32,29 +38,29 @@ export class ShipmentAddress extends Component {
               <div className="address-segment usa-grid">
                 <SwaggerField
                   fieldName="street_address_1"
-                  swagger={this.props.schema.properties.pickup_address}
+                  swagger={addressSchema}
                   required
                 />
                 <SwaggerField
                   fieldName="street_address_2"
-                  swagger={this.props.schema.properties.pickup_address}
+                  swagger={addressSchema}
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="city"
-                  swagger={this.props.schema.properties.pickup_address}
+                  swagger={addressSchema}
                   required
                 />
                 <SwaggerField
                   className="usa-width-one-sixth"
                   fieldName="state"
-                  swagger={this.props.schema.properties.pickup_address}
+                  swagger={addressSchema}
                   required
                 />
                 <SwaggerField
                   className="usa-width-one-fourth"
                   fieldName="postal_code"
-                  swagger={this.props.schema.properties.pickup_address}
+                  swagger={addressSchema}
                   required
                 />
               </div>
@@ -71,39 +77,29 @@ export class ShipmentAddress extends Component {
                   <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"
-                      swagger={
-                        this.props.schema.properties.secondary_pickup_address
-                      }
+                      swagger={addressSchema}
                       required={hasSecondary}
                     />
                     <SwaggerField
                       fieldName="street_address_2"
-                      swagger={
-                        this.props.schema.properties.secondary_pickup_address
-                      }
+                      swagger={addressSchema}
                     />
                     <SwaggerField
                       className="usa-width-one-fourth"
                       fieldName="city"
-                      swagger={
-                        this.props.schema.properties.secondary_pickup_address
-                      }
+                      swagger={addressSchema}
                       required={hasSecondary}
                     />
                     <SwaggerField
                       className="usa-width-one-sixth"
                       fieldName="state"
-                      swagger={
-                        this.props.schema.properties.secondary_pickup_address
-                      }
+                      swagger={addressSchema}
                       required={hasSecondary}
                     />
                     <SwaggerField
                       className="usa-width-one-fourth"
                       fieldName="postal_code"
-                      swagger={
-                        this.props.schema.properties.secondary_pickup_address
-                      }
+                      swagger={addressSchema}
                       required={hasSecondary}
                     />
                   </div>
@@ -123,29 +119,29 @@ export class ShipmentAddress extends Component {
                   <div className="address-segment usa-grid">
                     <SwaggerField
                       fieldName="street_address_1"
-                      swagger={this.props.schema.properties.delivery_address}
+                      swagger={addressSchema}
                       required={hasDelivery}
                     />
                     <SwaggerField
                       fieldName="street_address_2"
-                      swagger={this.props.schema.properties.delivery_address}
+                      swagger={addressSchema}
                     />
                     <SwaggerField
                       className="usa-width-one-fourth"
                       fieldName="city"
-                      swagger={this.props.schema.properties.delivery_address}
+                      swagger={addressSchema}
                       required={hasDelivery}
                     />
                     <SwaggerField
                       className="usa-width-one-sixth"
                       fieldName="state"
-                      swagger={this.props.schema.properties.delivery_address}
+                      swagger={addressSchema}
                       required={hasDelivery}
                     />
                     <SwaggerField
                       className="usa-width-one-fourth"
                       fieldName="postal_code"
-                      swagger={this.props.schema.properties.delivery_address}
+                      swagger={addressSchema}
                       required={hasDelivery}
                     />
                   </div>
