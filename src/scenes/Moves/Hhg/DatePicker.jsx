@@ -26,11 +26,11 @@ export class HHGDatePicker extends Component {
   render() {
     return (
       <div className="form-section">
-        <h3 className="instruction-heading usa-heading">
+        <h3 className="instruction-heading">
           Great! Let's find a date for a moving company to move your stuff.
         </h3>
-        <h4 className="usa-heading">Select a move date</h4>
         <div className="usa-grid">
+          <h4>Select a move date</h4>
           <div className="usa-width-one-third">
             <DayPicker
               onDayClick={this.handleDayClick}
@@ -83,6 +83,7 @@ export class HHGDatePicker extends Component {
 }
 HHGDatePicker.propTypes = {
   error: PropTypes.object,
+  formValues: PropTypes.object,
 };
 
 export default HHGDatePicker;
