@@ -7,21 +7,9 @@ import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
 
 export class HHGDatePicker extends Component {
-  state = { showInfo: false };
-
-  constructor(props) {
-    super(props);
-    this.handleDayClick = this.handleDayClick.bind(this);
-    this.state = {
-      selectedDay: this.props.selectedDay,
-    };
-  }
-
-  handleDayClick(day) {
-    this.setState({ selectedDay: day });
-    this.setState({ showInfo: true });
+  handleDayClick = day => {
     this.props.setDate(formatSwaggerDate(day));
-  }
+  };
 
   render() {
     return (
@@ -39,7 +27,7 @@ export class HHGDatePicker extends Component {
           </div>
 
           <div className="usa-width-two-thirds">
-            {this.state.showInfo && (
+            {this.props.selectedDay && (
               <table className="Todo-phase2">
                 <tbody>
                   <tr>
@@ -83,6 +71,7 @@ export class HHGDatePicker extends Component {
 }
 HHGDatePicker.propTypes = {
   error: PropTypes.object,
+  selectedDay: PropTypes.string,
 };
 
 export default HHGDatePicker;

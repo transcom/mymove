@@ -89,7 +89,7 @@ export class ShipmentForm extends Component {
           <DatePicker
             schema={this.props.schema}
             error={error}
-            selectedDay={get(formValues, 'requested_pickup_date')}
+            selectedDay={get(formValues, 'requested_pickup_date', null)}
             setDate={this.setDate}
           />
           <Address
