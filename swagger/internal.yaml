@@ -92,6 +92,11 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      gbloc:
+        type: string
+        format: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
       latitude:
         type: number
         format: float
@@ -1375,6 +1380,10 @@ definitions:
         x-nullable: true
         readOnly: true
       market:
+        type: string
+        x-nullable: true
+        readOnly: true
+      code_of_service:
         type: string
         x-nullable: true
         readOnly: true
