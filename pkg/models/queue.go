@@ -17,7 +17,7 @@ type MoveQueueItem struct {
 	CustomerName     string                              `json:"customer_name" db:"customer_name"`
 	Locator          string                              `json:"locator" db:"locator"`
 	Status           string                              `json:"status" db:"status"`
-	PpmStatus        string                              `json:"ppm_status" db:"ppm_status"`
+	PpmStatus        *string                             `json:"ppm_status" db:"ppm_status"`
 	OrdersType       string                              `json:"orders_type" db:"orders_type"`
 	MoveDate         *time.Time                          `json:"move_date" db:"move_date"`
 	CustomerDeadline time.Time                           `json:"customer_deadline" db:"customer_deadline"`
