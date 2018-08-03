@@ -95,6 +95,7 @@ definitions:
       gbloc:
         type: string
         format: string
+        pattern: '^[A-Z]{4}$'
         example: JENQ
       latitude:
         type: number
