@@ -20,6 +20,7 @@ import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import RoutingPanel from './Hhg/RoutingPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -73,6 +74,7 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
+      <RoutingPanel title="Routing" moveId={props.moveId} />
     </div>
   );
 };
