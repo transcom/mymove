@@ -29,6 +29,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		SourceGbloc:                  s.SourceGBLOC,
 		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
+		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
 		BookDate:                     fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
@@ -87,6 +88,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+	market := "dHHG"
+	codeOfService := "D"
 
 	var requestedPickupDate *time.Time
 	if payload.RequestedPickupDate != nil {
@@ -111,6 +114,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
+		Market:        &market,
+		CodeOfService: &codeOfService,
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)

@@ -122,8 +122,6 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 
-	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
-
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	err = move.Submit()
