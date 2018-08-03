@@ -63,6 +63,7 @@ type ShipmentWithOffer struct {
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
 	SourceGBLOC                     *string    `db:"source_gbloc"`
 	Market                          *string    `db:"market"`
+	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Accepted                        *bool      `db:"accepted"`
 	RejectionReason                 *string    `db:"rejection_reason"`
 	AdministrativeShipment          *bool      `db:"administrative_shipment"`

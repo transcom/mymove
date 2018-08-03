@@ -15,7 +15,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	tdl models.TrafficDistributionList, sourceGBLOC string, market *string) (models.Shipment, error) {
 	move := MakeDefaultMove(db)
 	pickupAddress := MakeAddress(db, Assertions{})
-	codeOfService := "dHGG"
+	codeOfService := "D"
 	shipment := models.Shipment{
 		TrafficDistributionListID: uuidPointer(tdl.ID),
 		PickupDate:                timePointer(pickup),
