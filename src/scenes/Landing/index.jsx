@@ -98,6 +98,7 @@ export class Landing extends Component {
       orders,
       move,
       ppm,
+      requestPaymentSuccess,
     } = this.props;
     return (
       <div className="usa-grid">
@@ -135,6 +136,7 @@ export class Landing extends Component {
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
+                  requestPaymentSuccess={requestPaymentSuccess}
                 />
               )}
           </Fragment>
@@ -164,6 +166,7 @@ const mapStateToProps = state => ({
   createdServiceMember: state.serviceMember.currentServiceMember,
   moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
   entitlement: loadEntitlementsFromState(state),
+  requestPaymentSuccess: state.ppm.requestPaymentSuccess,
 });
 
 function mapDispatchToProps(dispatch) {

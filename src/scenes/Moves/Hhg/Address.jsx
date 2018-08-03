@@ -156,8 +156,8 @@ export class ShipmentAddress extends Component {
 }
 ShipmentAddress.propTypes = {
   schema: PropTypes.object.isRequired,
-  currentServiceMember: PropTypes.object,
   error: PropTypes.object,
+  formValues: PropTypes.object,
 };
 
 export default ShipmentAddress;
