@@ -8,7 +8,6 @@ import { withContext } from 'shared/AppContext';
 
 class ShipmentInfo extends Component {
   render() {
-    console.log(this.props);
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -23,7 +22,7 @@ class ShipmentInfo extends Component {
         </div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
-            <ul className="move-info-header-meta">
+            <ul className="move-info-header-meta Todo-phase2">
               <li>GBL# KKFA9999999</li>
               <li>Locator# ABC89</li>
               <li>KKFA to HAFC</li>
