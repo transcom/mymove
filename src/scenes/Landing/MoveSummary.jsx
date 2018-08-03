@@ -203,13 +203,13 @@ export const ApprovedMoveSummary = withContext(props => {
             Move your own stuff (PPM)
           </div>
 
-          {requestPaymentSuccess && (
-            <Alert type="success" heading="">
-              Payment request submitted
-            </Alert>
-          )}
-
           <div className="shipment_box_contents">
+            {requestPaymentSuccess && (
+              <Alert type="success" heading="">
+                Payment request submitted
+              </Alert>
+            )}
+
             {moveInProgress ? (
               <img className="status_icon" src={ppmInProgress} alt="status" />
             ) : (
@@ -374,8 +374,9 @@ export const MoveSummary = props => {
   const move_status = get(move, 'status', 'DRAFT');
   const ppm_status = get(ppm, 'status', 'DRAFT');
   const status =
-    move_status === 'APPROVED' && ppm_status === 'SUBMITTED'
-      ? ppm_status
+    move_status === 'APPROVED' &&
+    (ppm_status === 'SUBMITTED' || ppm_status === 'DRAFT')
+      ? 'SUBMITTED'
       : move_status;
   const StatusComponent = moveSummaryStatusComponents[status]; // eslint-disable-line security/detect-object-injection
   return (

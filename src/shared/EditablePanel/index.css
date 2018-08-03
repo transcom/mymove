@@ -18,7 +18,7 @@
   font-size: .9em;
 }
 
-.basics .editable-panel-header {
+.office-tab .editable-panel-header {
   font-size: 1.7rem;
   font-weight: bold;
   background-color: #f1f1f1;
@@ -39,7 +39,7 @@
   display: inline-block;
 }
 
-.basics .editable-panel-content {
+.office-tab .editable-panel-content {
   padding-left: 1.7rem;
   padding-right: 1.7rem;
   border: solid #f1f1f1;
@@ -68,7 +68,7 @@
   margin-left: 2em;
 }
 
-.basics .editable-panel-edit {
+.office-tab .editable-panel-edit {
   font-weight: normal;
   font-size: .9em;
   position: absolute;
@@ -85,13 +85,13 @@
   text-decoration: none;
 }
 
-.basics.editable-panel.is-editable .editable-panel-header {
+.office-tab.editable-panel.is-editable .editable-panel-header {
   background: rgb(176,176,176);
   border-color: rgb(176,176,176);
   color: white;
 }
 
-.basics.editable-panel.is-editable .editable-panel-content {
+.office-tab.editable-panel.is-editable .editable-panel-content {
   border-style: dashed;
   border-color: rgb(176,176,176);
 }

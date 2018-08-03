@@ -92,6 +92,11 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      gbloc:
+        type: string
+        format: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
       latitude:
         type: number
         format: float
@@ -1461,16 +1466,19 @@ definitions:
         type: integer
         minimum: 0
         example: 10000
+        title: Weight
         x-nullable: true
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
+        title: Pro-Gear Weight
         x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
+        title: Spouse's Pro-Gear
         x-nullable: true
       created_at:
         type: string
@@ -1919,7 +1927,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         type: string
-        example: Booked - Awaiting Review
+        example: APPROVED
+      ppm_status:
+        type: string
+        example: PAYMENT_REQUESTED
       locator:
         type: string
         example: "12432"
@@ -1964,6 +1975,7 @@ definitions:
     required:
       - id
       - status
+      - ppm_status
       - locator
       - customer_name
       - edipi

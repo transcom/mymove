@@ -6,6 +6,14 @@ Explain a little about the changes at a high level.
 
 Is there anything you would like reviewers to give additional scrutiny?
 
+## Setup
+
+Add any steps or code to run in this section to help others prepare to run your code:
+
+```sh
+echo "Code goes here"
+```
+
 ## Code Review Verification Steps
 
 * [ ] End to end tests pass (`make e2e_test`).
