@@ -1,7 +1,7 @@
-import { shipments } from '../schema';
-import { ADD_ENTITIES, addEntities } from '../actions';
 import { denormalize, normalize } from 'normalizr';
 
+import { shipments } from '../schema';
+import { ADD_ENTITIES, addEntities } from '../actions';
 import { getClient, checkResponse } from 'shared/api';
 
 export const STATE_KEY = 'shipments';
@@ -25,6 +25,23 @@ export function createOrUpdateShipment(moveId, shipment, id) {
   } else {
     return createShipment(moveId, shipment);
   }
+}
+
+export function getShipment(
+  moveId,
+  shipmentId
+) {
+  return async function(dispatch, getState, { schema }) {
+    const client = await getClient();
+    const response = await client.apis.shipments.getShipment({
+      moveId,
+      shipmentId,
+    });
+    checkResponse(response, 'failed to get shipment due to server error');
+    const data = normalize(response.body, schema.shipment);
+    dispatch(addEntities(data.entities));
+    return response;
+  };
 }
 
 export function createShipment(
@@ -63,7 +80,7 @@ export function updateShipment(
   };
 }
 
-export const selectShipment = (state, id) => {
+export function selectShipment (state, id) {
   if (!id) {
     return null;
   }

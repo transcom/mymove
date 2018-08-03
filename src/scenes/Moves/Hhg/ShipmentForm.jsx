@@ -11,7 +11,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
 import ShipmentAddress from 'scenes/Moves/Hhg/Address';
 
-import { createOrUpdateShipment } from 'shared/Entities/modules/shipments';
+import { createOrUpdateShipment, getShipment } from 'shared/Entities/modules/shipments';
 
 import './ShipmentForm.css';
 
@@ -23,10 +23,18 @@ export class ShipmentForm extends Component {
     shipmentError: null,
   };
 
+  componentDidUpdate(prevProps) {
+    const currentID = get(this.props, 'currentShipment.id');
+    if (currentID !== get(prevProps, 'currentShipment.id')) {
+      this.props.getShipment(this.props.currentShipment.move_id, currentID);
+    }
+  }
+
   handleSubmit = () => {
     const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
-    const currentShipmentId = get(this, 'props.currentShipment.id');
+    const currentShipmentId = get(this.props, 'currentShipment.id');
+
     return this.props
       .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
@@ -99,17 +107,18 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment },
+    { createOrUpdateShipment, setCurrentShipment, getShipment },
     dispatch,
   );
 }
 function mapStateToProps(state) {
+  const shipment = currentShipment(state);
   const props = {
     schema: get(state, 'swagger.spec.definitions.Shipment', {}),
     move: get(state, 'moves.currentMove', {}),
-    initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
     formValues: getFormValues(formName)(state),
-    currentShipment: currentShipment(state) || {},
+    currentShipment: shipment,
+    initialValues: shipment,
   };
   return props;
 }
