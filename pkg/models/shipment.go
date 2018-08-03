@@ -237,8 +237,7 @@ func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUI
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
 		"PartialSITDeliveryAddress").
-		Where("shipment.id = $1", shipmentID).
-		Where("shipment_offers.transportation_service_provider_id = $2", tspID).
+		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
 		All(&shipments)
 
