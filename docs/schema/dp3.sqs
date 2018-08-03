@@ -541,12 +541,12 @@
         <name><![CDATA[public.shipment_offers]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>342.00</x>
-            <y>1985.00</y>
+            <x>343.00</x>
+            <y>1969.00</y>
         </location>
         <size>
-            <width>286.00</width>
-            <height>200.00</height>
+            <width>331.00</width>
+            <height>340.00</height>
         </size>
         <zorder>15</zorder>
         <SQLField>
@@ -633,6 +633,41 @@
             <collapseSimpleIndex><![CDATA[1]]></collapseSimpleIndex>
             <uid><![CDATA[94CB2CF9-2F33-45A3-A6FA-CF5ECA371B2A]]></uid>
         </SQLIndex>
+        <SQLField>
+            <name><![CDATA[market]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[33A9E527-BCE2-4EDB-AC86-76F58711889E]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[code_of_service]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[0C9C4B30-7780-439B-8E6A-27F80127EBBD]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[book_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[F1D36D7A-90EC-4C92-9F51-B0BCB2F6582D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[A0D21DB2-0235-464A-919A-D8D8F6175211]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[requested_pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[8CACA18F-1E1A-470F-BD43-CE0D727EC6DD]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[traffic_distribution_list_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <uid><![CDATA[206D31D0-F3D3-4B3B-BC96-A874A0447367]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[source_gbloc]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[117A1AB0-C1BF-4FBD-ACA4-A27F19745D8D]]></uid>
+        </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[34583D64-2F55-498C-8EA6-0FC6128EF11C]]></uid>
@@ -3013,17 +3048,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[570.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
-        <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
+        <SourceSidebarWidth><![CDATA[0.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[778.000000]]></windowHeight>
-        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[99.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{786, 1163.5}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[1440.000000]]></windowWidth>
+        <windowHeight><![CDATA[1027.000000]]></windowHeight>
+        <windowLocationX><![CDATA[833.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[0.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{231, 1096.5}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[847.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>
