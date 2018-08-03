@@ -315,7 +315,35 @@ type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
 func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentBadRequest()
+	}
+
+	sp := publicPayloadForShipmentModel(shipment)
+	return publicshipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
 // PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
