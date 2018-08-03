@@ -314,7 +314,7 @@ func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmen
 type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
+func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
 	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
 }
 
