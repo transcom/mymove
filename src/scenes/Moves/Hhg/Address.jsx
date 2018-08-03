@@ -34,6 +34,7 @@ export class ShipmentAddress extends Component {
 
         <div className="usa-grid">
           <div className="usa-width-one-whole">
+            <h4>Pickup Location</h4>
             <FormSection name="pickup_address">
               <div className="address-segment usa-grid">
                 <SwaggerField
@@ -73,6 +74,7 @@ export class ShipmentAddress extends Component {
             />
             {hasSecondary && (
               <Fragment>
+                <h4>Secondary Pickup Location</h4>
                 <FormSection name="secondary_pickup_address">
                   <div className="address-segment usa-grid">
                     <SwaggerField
@@ -106,7 +108,6 @@ export class ShipmentAddress extends Component {
                 </FormSection>
               </Fragment>
             )}
-            <h4>Delivery location</h4>
             <SwaggerField
               className="radio-title"
               fieldName="has_delivery_address"
@@ -115,6 +116,7 @@ export class ShipmentAddress extends Component {
             />
             {hasDelivery && (
               <Fragment>
+                <h4>Delivery Location</h4>
                 <FormSection name="delivery_address">
                   <div className="address-segment usa-grid">
                     <SwaggerField
