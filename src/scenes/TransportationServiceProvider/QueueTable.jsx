@@ -34,13 +34,22 @@ class QueueTable extends Component {
       loading: true,
     });
 
-    const body = await RetrieveShipmentsForTSP(this.props.queueType);
+    // Catch any errors here and render an empty queue
+    try {
+      const body = await RetrieveShipmentsForTSP(this.props.queueType);
 
-    this.setState({
-      data: body,
-      pages: 1,
-      loading: false,
-    });
+      this.setState({
+        data: body,
+        pages: 1,
+        loading: false,
+      });
+    } catch (e) {
+      this.setState({
+        data: [],
+        pages: 1,
+        loading: false,
+      });
+    }
   }
 
   render() {
