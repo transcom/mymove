@@ -259,7 +259,7 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
-		Move:                         publicPayloadForMoveModel(&s.Move),
+		Move:                         publicPayloadForMoveModel(s.Move),
 		Status:                       apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
 		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),
