@@ -116,19 +116,12 @@ export class DodInfo extends Component {
     const pendingValues = this.props.values;
     if (pendingValues) {
       const patch = pick(pendingValues, subsetOfFields);
-      this.props.updateServiceMember(patch);
+      return this.props.updateServiceMember(patch);
     }
   };
 
   render() {
-    const {
-      pages,
-      pageKey,
-      hasSubmitSuccess,
-      error,
-      currentServiceMember,
-      schema,
-    } = this.props;
+    const { pages, pageKey, error, currentServiceMember, schema } = this.props;
     const initialValues = currentServiceMember
       ? pick(currentServiceMember, subsetOfFields)
       : null;
@@ -143,7 +136,6 @@ export class DodInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
         ssnOnServer={ssnOnServer}
@@ -167,7 +159,6 @@ DodInfo.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {

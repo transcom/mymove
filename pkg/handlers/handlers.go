@@ -162,9 +162,11 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
 
-	internalAPI.MoveDocsCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
+	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler(context)
 	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
 	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
+
+	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
@@ -186,6 +188,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler(context)
+	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)

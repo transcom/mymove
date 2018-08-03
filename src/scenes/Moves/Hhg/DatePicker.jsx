@@ -1,26 +1,10 @@
 import PropTypes from 'prop-types';
 import React, { Component } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { getFormValues, reduxForm } from 'redux-form';
-import DayPicker from 'react-day-picker';
+import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
+import { formatSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
-
-const formName = 'shipment_form';
-const schema = {
-  properties: {
-    planned_move_date: {
-      type: 'string',
-      format: 'date',
-      example: '2018-04-26',
-      title: 'Move Date',
-      'x-nullable': true,
-      'x-always-required': true,
-    },
-  },
-};
 
 export class HHGDatePicker extends Component {
   state = { showInfo: false };
@@ -32,20 +16,21 @@ export class HHGDatePicker extends Component {
       selectedDay: undefined,
     };
   }
-  // TODO: set to store's formValues later instead of local state
+
   handleDayClick(day) {
     this.setState({ selectedDay: day });
     this.setState({ showInfo: true });
+    this.props.setDate(formatSwaggerDate(day));
   }
 
   render() {
     return (
       <div className="form-section">
-        <h3 className="instruction-heading usa-heading">
+        <h3 className="instruction-heading">
           Great! Let's find a date for a moving company to move your stuff.
         </h3>
-        <h4 className="usa-heading">Select a move date</h4>
         <div className="usa-grid">
+          <h4>Select a move date</h4>
           <div className="usa-width-one-third">
             <DayPicker
               onDayClick={this.handleDayClick}
@@ -97,31 +82,8 @@ export class HHGDatePicker extends Component {
   }
 }
 HHGDatePicker.propTypes = {
-  schema: PropTypes.object.isRequired,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
+  formValues: PropTypes.object,
 };
 
-function mapStateToProps(state) {
-  const props = {
-    // schema: get(
-    //   state,
-    //   'swagger.spec.definitions.UpdateHouseholdGoodsPayload',
-    //   {},
-    // ),
-    schema,
-    formValues: getFormValues(formName)(state),
-    hasSubmitSuccess: state.orders.currentOrders
-      ? state.orders.hasSubmitSuccess
-      : state.hhg.hasSubmitSuccess,
-    ...state.hhg,
-  };
-  return props;
-}
-function mapDispatchToProps(dispatch) {
-  return bindActionCreators({}, dispatch);
-}
-
-export default reduxForm({ form: formName })(
-  connect(mapStateToProps, mapDispatchToProps)(HHGDatePicker),
-);
+export default HHGDatePicker;

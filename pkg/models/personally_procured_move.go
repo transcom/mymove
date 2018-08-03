@@ -24,12 +24,10 @@ const (
 	PPMStatusSUBMITTED PPMStatus = "SUBMITTED"
 	// PPMStatusAPPROVED captures enum value "APPROVED"
 	PPMStatusAPPROVED PPMStatus = "APPROVED"
-	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
-	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
-	// PPMStatusCOMPLETED captures enum value "COMPLETED"
-	PPMStatusCOMPLETED PPMStatus = "COMPLETED"
 	// PPMStatusPAYMENTREQUESTED captures enum value "PAYMENT_REQUESTED"
 	PPMStatusPAYMENTREQUESTED PPMStatus = "PAYMENT_REQUESTED"
+	// PPMStatusCOMPLETED captures enum value "COMPLETED"
+	PPMStatusCOMPLETED PPMStatus = "COMPLETED"
 	// PPMStatusCANCELED captures enum value "CANCELED"
 	PPMStatusCANCELED PPMStatus = "CANCELED"
 )
@@ -110,19 +108,19 @@ func (p *PersonallyProcuredMove) Approve() error {
 	return nil
 }
 
-// Begin marks the PPM as IN_PROGRESS
-func (p *PersonallyProcuredMove) Begin() error {
+// RequestPayment requests payment for the PPM
+func (p *PersonallyProcuredMove) RequestPayment() error {
 	if p.Status != PPMStatusAPPROVED {
-		return errors.Wrap(ErrInvalidTransition, "Begin")
+		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
 	}
 
-	p.Status = PPMStatusINPROGRESS
+	p.Status = PPMStatusPAYMENTREQUESTED
 	return nil
 }
 
 // Complete marks the PPM as completed
 func (p *PersonallyProcuredMove) Complete() error {
-	if p.Status != PPMStatusINPROGRESS {
+	if p.Status != PPMStatusPAYMENTREQUESTED {
 		return errors.Wrap(ErrInvalidTransition, "Complete")
 	}
 
@@ -139,16 +137,6 @@ func (p *PersonallyProcuredMove) Cancel() error {
 	}
 
 	p.Status = PPMStatusCANCELED
-	return nil
-}
-
-// RequestPayment requests payment for the PPM
-func (p *PersonallyProcuredMove) RequestPayment() error {
-	if p.Status != PPMStatusCOMPLETED {
-		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
-	}
-
-	p.Status = PPMStatusPAYMENTREQUESTED
 	return nil
 }
 

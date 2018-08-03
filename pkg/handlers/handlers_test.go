@@ -120,6 +120,17 @@ func (suite *HandlerSuite) authenticateOfficeRequest(req *http.Request, user mod
 	return req.WithContext(ctx)
 }
 
+func (suite *HandlerSuite) authenticateTspRequest(req *http.Request, user models.TspUser) *http.Request {
+	session := auth.Session{
+		ApplicationName: auth.TspApp,
+		UserID:          *user.UserID,
+		IDToken:         "fake token",
+		TspUserID:       user.ID,
+	}
+	ctx := auth.SetSessionInRequestContext(req, &session)
+	return req.WithContext(ctx)
+}
+
 func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	fixtureDir := "fixtures"
 	cwd, err := os.Getwd()

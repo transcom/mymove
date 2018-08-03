@@ -6,6 +6,8 @@ import { bindActionCreators } from 'redux';
 import { withLastLocation } from 'react-router-last-location';
 import { MoveSummary } from './MoveSummary';
 
+import { selectedMoveType, lastMoveIsCanceled } from 'scenes/Moves/ducks';
+
 import {
   createServiceMember,
   isProfileComplete,
@@ -62,6 +64,8 @@ export class Landing extends Component {
 
   getNextIncompletePage = () => {
     const {
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -69,7 +73,9 @@ export class Landing extends Component {
       hhg,
       backupContacts,
     } = this.props;
-    return getNextIncompletePageInternal(this.props.reduxState, {
+    return getNextIncompletePageInternal({
+      selectedMoveType,
+      lastMoveIsCanceled,
       serviceMember,
       orders,
       move,
@@ -92,6 +98,7 @@ export class Landing extends Component {
       orders,
       move,
       ppm,
+      requestPaymentSuccess,
     } = this.props;
     return (
       <div className="usa-grid">
@@ -129,6 +136,7 @@ export class Landing extends Component {
                   editMove={this.editMove}
                   resumeMove={this.resumeMove}
                   reviewProfile={this.reviewProfile}
+                  requestPaymentSuccess={requestPaymentSuccess}
                 />
               )}
           </Fragment>
@@ -139,7 +147,8 @@ export class Landing extends Component {
 }
 
 const mapStateToProps = state => ({
-  reduxState: state,
+  lastMoveIsCanceled: lastMoveIsCanceled(state),
+  selectedMoveType: selectedMoveType(state),
   isLoggedIn: state.user.isLoggedIn,
   isProfileComplete: isProfileComplete(state),
   serviceMember: state.serviceMember.currentServiceMember || {},
@@ -157,6 +166,7 @@ const mapStateToProps = state => ({
   createdServiceMember: state.serviceMember.currentServiceMember,
   moveSubmitSuccess: state.signedCertification.moveSubmitSuccess,
   entitlement: loadEntitlementsFromState(state),
+  requestPaymentSuccess: state.ppm.requestPaymentSuccess,
 });
 
 function mapDispatchToProps(dispatch) {
