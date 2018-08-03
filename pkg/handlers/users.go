@@ -38,13 +38,13 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
+		serviceMember.DutyStation = dutyStation
+
 		// Fetch duty station transportation office
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, *serviceMember.DutyStationID)
-		if err != nil {
-			return responseForError(h.logger, err)
+		if err == nil {
+			serviceMember.DutyStation.TransportationOffice = transportationOffice
 		}
-		serviceMember.DutyStation = dutyStation
-		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office
@@ -78,5 +78,4 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		ServiceMember: payloadForServiceMemberModel(h.storage, serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
-
 }
