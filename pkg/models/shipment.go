@@ -26,6 +26,7 @@ type Shipment struct {
 	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
 	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
 	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
+	DestinationGBLOC          *string    `json:"destination_gbloc" db:"destination_gbloc"`
 	Market                    *string    `json:"market" db:"market"`
 	BookDate                  *time.Time `json:"book_date" db:"book_date"`
 	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`

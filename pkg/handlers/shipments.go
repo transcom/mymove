@@ -27,6 +27,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		MoveID: strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
 		SourceGbloc:                  s.SourceGBLOC,
+		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
 		Status:                       s.Status,
 		BookDate:                     fmtDatePtr(s.BookDate),
@@ -68,6 +69,20 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	payload := params.Shipment
 
+	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	var destinationGbloc string
+	if orders.NewDutyStationID != nil {
+		destinationTransportationOffice := FetchDutyStationTransportationOffice(h.db, NewDutyStationID)
+		if destinationTransportationOffice != nil {
+			destinationGbloc = destinationTransportationOffice.gbloc
+		}
+	}
+	serviceMember, err := models.FetchServiceMember(h.db, session, orders.ServiceMemberID)
+
 	pickupAddress := addressModelFromPayload(payload.PickupAddress)
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
@@ -82,6 +97,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		Status:                       "DRAFT",
+		DestinationGBLOC:             destinationGbloc,
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
@@ -249,6 +265,7 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc:             apimessages.GBLOC(*s.DestinationGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
