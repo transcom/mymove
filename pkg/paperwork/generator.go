@@ -104,7 +104,8 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 				// that have already been encountered before handling this PDF.
 				pdf, err := g.PDFFromImages(images)
 				if err != nil {
-					return nil, err
+					g.logger.Error("Converting images", zap.Error(err))
+					return nil, errors.Wrap(err, "Converting images")
 				}
 				pdfs = append(pdfs, pdf)
 				images = make([]inputFile, 0)
@@ -114,17 +115,20 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		download, err := g.uploader.Download(&upload)
 		defer download.Close()
 		if err != nil {
-			return nil, err
+			g.logger.Error("Downloading file from upload", zap.Error(err))
+			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
 
 		outputFile, err := g.newTempFile()
 		if err != nil {
-			return nil, err
+			g.logger.Error("Creating temp file", zap.Error(err))
+			return nil, errors.Wrap(err, "Creating temp file")
 		}
 
 		_, err = io.Copy(outputFile, download)
 		if err != nil {
-			return nil, err
+			g.logger.Error("Copying to afero file", zap.Error(err))
+			return nil, errors.Wrap(err, "Copying to afero file")
 		}
 
 		path := outputFile.Name()
@@ -140,7 +144,8 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 	if len(images) > 0 {
 		pdf, err := g.PDFFromImages(images)
 		if err != nil {
-			return nil, err
+			g.logger.Error("Converting remaining images to pdf", zap.Error(err))
+			return nil, errors.Wrap(err, "Converting remaining images to pdf")
 		}
 		pdfs = append(pdfs, pdf)
 	}
@@ -148,7 +153,8 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 	for _, f := range pdfs {
 		err := api.Validate(f, g.pdfConfig)
 		if err != nil {
-			return nil, err
+			g.logger.Error("Validating pdfs", zap.Error(err))
+			return nil, errors.Wrap(err, "Validating pdfs")
 		}
 	}
 
@@ -212,7 +218,10 @@ func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	}
 
 	// Reload the file from memstore
-	mergedFile, _ = g.fs.Open(mergedFile.Name())
+	mergedFile, err = g.fs.Open(mergedFile.Name())
+	if err != nil {
+		return mergedFile, err
+	}
 
 	return mergedFile, nil
 }

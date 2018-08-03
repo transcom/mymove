@@ -4,19 +4,16 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
-	"os"
 	"path"
 
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
+	"github.com/pjdufour-truss/pdfcpu/pkg/api"
+	"github.com/spf13/afero"
 
 	"github.com/transcom/mymove/pkg/testdatagen"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
-func (suite *PaperworkSuite) sha256ForPath(path string) (string, error) {
-	file, err := os.Open(path)
+func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string, error) {
+	file, err := fs.Open(path)
 	if err != nil {
 		suite.Nil(err)
 	}
@@ -32,34 +29,36 @@ func (suite *PaperworkSuite) sha256ForPath(path string) (string, error) {
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
 	images := []inputFile{
 		{Path: "testdata/orders1.jpg", ContentType: "image/jpeg"},
 		{Path: "testdata/orders2.jpg", ContentType: "image/jpeg"},
 	}
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
-	suite.FatalNil(err)
+	for _, image := range images {
+		_, err := suite.openLocalFile(image.Path, generator.fs)
+		suite.FatalNil(err)
+	}
 
-	generatedPath, err := generator.pdfFromImages(images)
+	generatedPath, err := generator.PDFFromImages(images)
 	suite.Nil(err, "failed to generate pdf")
 	suite.NotEmpty(generatedPath, "got an empty path to the generated file")
-	defer os.Remove(generatedPath)
 
 	// verify that the images are in the pdf by extracting them and checking their checksums
-	tmpdir, err := ioutil.TempDir("", "extracted_images")
+	tmpdir, err := afero.TempDir(generator.fs, "", "extracted_images")
 	suite.Nil(err, "could not create temp dir")
-	defer os.RemoveAll(tmpdir)
 
-	pdfcpuConfig := pdfcpu.NewDefaultConfiguration()
-	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, pdfcpuConfig)
+	api.ExtractImages(generatedPath, tmpdir, []string{"-2"}, generator.pdfConfig)
 
 	checksums := make([]string, 2)
-	files, err := ioutil.ReadDir(tmpdir)
+	files, err := afero.ReadDir(generator.fs, tmpdir)
 	suite.Nil(err)
 
 	suite.Equal(2, len(files), "did not find 2 images")
 
 	for _, file := range files {
-		checksum, err := suite.sha256ForPath(path.Join(tmpdir, file.Name()))
+		checksum, err := suite.sha256ForPath(path.Join(tmpdir, file.Name()), generator.fs)
 		suite.FatalNil(err, "error calculating hash")
 		if err != nil {
 			suite.FailNow(err.Error())
@@ -67,11 +66,11 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 		checksums = append(checksums, checksum)
 	}
 
-	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg")
+	orders1Checksum, err := suite.sha256ForPath("testdata/orders1.jpg", generator.fs)
 	suite.Nil(err, "error calculating hash")
 	suite.Contains(checksums, orders1Checksum, "did not find hash for orders1.jpg")
 
-	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg")
+	orders2Checksum, err := suite.sha256ForPath("testdata/orders2.jpg", generator.fs)
 	suite.Nil(err, "error calculating hash")
 	suite.Contains(checksums, orders2Checksum, "did not find hash for orders2.jpg")
 }
@@ -85,17 +84,21 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 	order.UploadedOrdersID = document.ID
 	suite.mustSave(&order)
 
-	file, err := uploader.NewLocalFile("testdata/orders1.jpg")
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
+
 	suite.FatalNil(err)
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.FatalNil(err)
 
-	file, err = uploader.NewLocalFile("testdata/orders1.pdf")
+	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
 	suite.FatalNil(err)
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.FatalNil(err)
 
-	file, err = uploader.NewLocalFile("testdata/orders2.jpg")
+	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
 	suite.Nil(err)
 	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Nil(err)
@@ -104,10 +107,7 @@ func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
 	suite.FatalNil(err)
 	suite.Equal(3, len(document.Uploads))
 
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
-	suite.FatalNil(err)
-
-	paths, err := generator.GenerateUploadsPDF(document.Uploads)
+	paths, err := generator.ConvertUploadsToPDF(document.Uploads)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")

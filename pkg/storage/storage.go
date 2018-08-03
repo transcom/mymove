@@ -49,6 +49,9 @@ func ComputeChecksum(data io.ReadSeeker) (string, error) {
 // of the provided data. It expects that the passed io object will be seeked to its
 // beginning and will seek back to the beginning after reading its content.
 func DetectContentType(data io.ReadSeeker) (string, error) {
+	// Start by seeking to beginning
+	data.Seek(0, io.SeekStart)
+
 	buffer := make([]byte, 512)
 	if _, err := data.Read(buffer); err != nil {
 		return "", errors.Wrap(err, "could not read first bytes of file")

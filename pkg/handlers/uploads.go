@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
@@ -33,19 +34,13 @@ type CreateUploadHandler HandlerContext
 // Handle creates a new Upload from a request payload
 func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middleware.Responder {
 
-	file, ok := params.File.(afero.File)
+	file, ok := params.File.(*runtime.File)
 	if !ok {
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
-	info, err := file.Stat()
-	if err != nil {
-		h.logger.Error("Failed to read file info")
-		return uploadop.NewCreateUploadInternalServerError()
-	}
-
-	h.logger.Info("File name and size: ", zap.String("name", file.Name()), zap.Int64("size", info.Size()))
+	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	// User should always be populated by middleware
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
@@ -66,8 +61,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
+	aFile, ok := file.Data.(afero.File)
+	if !ok {
+		h.logger.Error("This should always be able to be converted into an afero file.")
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
 	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
-	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, file)
+	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
 	if err != nil {
 		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
 			return uploadop.NewCreateUploadBadRequest()

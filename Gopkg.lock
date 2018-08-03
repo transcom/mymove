@@ -459,20 +459,6 @@
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
 
 [[projects]]
-  digest = "1:093ef1b141b93f2e943dd1c989bb31c1491491127f1d9395d3531964470c1917"
-  name = "github.com/hhrutter/pdfcpu"
-  packages = [
-    "pkg/api",
-    "pkg/compress/lzw",
-    "pkg/filter",
-    "pkg/log",
-    "pkg/pdfcpu",
-  ]
-  pruneopts = ""
-  revision = "d8343a4c98430531d4b27ecabb176379f6fa2a0b"
-  version = "v0.1.14"
-
-[[projects]]
   digest = "1:302c6eb8e669c997bec516a138b8fc496018faa1ece4c13e445a2749fbe079bb"
   name = "github.com/imdario/mergo"
   packages = ["."]
@@ -703,14 +689,17 @@
 
 [[projects]]
   branch = "fs"
-  digest = "1:668c67d5615cda352194571fb045b2a6b6e66c48fecccef9238a1017621b50aa"
+  digest = "1:5b968cbe9db51f3d51d7e30cf100a5f6d2f407c6013f4525f1491ea0cc7ebaea"
   name = "github.com/pjdufour-truss/pdfcpu"
   packages = [
     "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
     "pkg/pdfcpu",
   ]
   pruneopts = ""
-  revision = "80130550ea44bdaca607bf766d0b629600842ec1"
+  revision = "abe08471ef6525706474e93517b0a1a95ab588ab"
 
 [[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
@@ -1171,8 +1160,6 @@
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/golang/lint/golint",
-    "github.com/hhrutter/pdfcpu/pkg/api",
-    "github.com/hhrutter/pdfcpu/pkg/pdfcpu",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",

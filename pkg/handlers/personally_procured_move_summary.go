@@ -57,8 +57,7 @@ func (h CreatePersonallyProcuredMoveAttachmentsHandler) Handle(params ppmop.Crea
 	}
 
 	// Start with uploaded orders info
-	// uploads := ppm.Move.Orders.UploadedOrders.Uploads
-	uploads := models.Uploads{}
+	uploads := ppm.Move.Orders.UploadedOrders.Uploads
 
 	// Flatten out uploads into a slice
 	for _, moveDoc := range moveDocs {
