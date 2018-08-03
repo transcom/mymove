@@ -4,11 +4,6 @@ import { schema } from 'normalizr';
 // User
 export const user = new schema.Entity('users');
 
-// Service Member
-export const serviceMember = new schema.Entity('serviceMembers', {
-  user: user,
-});
-
 // Uploads
 export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
@@ -48,6 +43,7 @@ export const shipments = new schema.Array(shipment);
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
+  shipments: shipments,
 });
 export const moves = new schema.Array(move);
 personallyProcuredMove.define({
@@ -61,4 +57,11 @@ moveDocument.define({
 export const order = new schema.Entity('orders', {
   uploaded_orders: documentModel,
   moves: moves,
+});
+export const orders = new schema.Array(order);
+
+// Service Member
+export const serviceMember = new schema.Entity('serviceMembers', {
+  user: user,
+  orders: orders,
 });
