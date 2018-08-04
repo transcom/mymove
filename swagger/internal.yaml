@@ -1383,12 +1383,12 @@ definitions:
       market:
         type: string
         x-nullable: true
-        title: Market
+        title: Shipment market
         readOnly: true
       code_of_service:
         type: string
         x-nullable: true
-        title: Code of Service
+        title: Code of service
         readOnly: true
       status:
         type: string

@@ -9,15 +9,34 @@ import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
+// TODO: add shipment_type
+// TODO: combine source_gbloc and destination_gbloc values to one value
+// TODO: debug why code_of_service value is not in response (could be datagen needs updating)
 const RoutingPanelDisplay = props => {
   return (
     <div className="editable-panel-column">
       <PanelSwaggerField
-        title="Market"
+        title="Shipment market"
         fieldName="market"
         values={{
           market: props.initialValues.market,
           source_gbloc: props.initialValues.source_gbloc,
+          code_of_service: props.initialValues.code_of_service,
+        }}
+        schema={props.shipmentSchema}
+      />
+      <PanelSwaggerField
+        title="Channel"
+        fieldName="source_gbloc"
+        values={{
+          source_gbloc: props.initialValues.source_gbloc,
+        }}
+        schema={props.shipmentSchema}
+      />
+      <PanelSwaggerField
+        title="Code of service"
+        fieldName="code_of_service"
+        values={{
           code_of_service: props.initialValues.code_of_service,
         }}
         schema={props.shipmentSchema}
@@ -33,6 +52,18 @@ const RoutingPanelEdit = props => {
       <SwaggerField
         title="Market"
         fieldName="market"
+        swagger={shipmentSchema}
+        required
+      />
+      <SwaggerField
+        title="Channel"
+        fieldName="source_gbloc"
+        swagger={shipmentSchema}
+        required
+      />
+      <SwaggerField
+        title="Code of service"
+        fieldName="code_of_service"
         swagger={shipmentSchema}
         required
       />
