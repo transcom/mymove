@@ -141,7 +141,7 @@ func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Sessi
 	}
 
 	var moveDocuments MoveDocuments
-	err := db.Where("move_document_type = 'EXPENSE'").Where("status = 'OK'").Where("personally_procured_move_id = $1", ppmID.String()).All(&moveDocuments)
+	err := db.Where("move_document_type = $1", string(MoveDocumentTypeEXPENSE)).Where("status = $2", string(MoveDocumentStatusOK)).Where("personally_procured_move_id = $3", ppmID.String()).All(&moveDocuments)
 	if err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {
 			return nil, err
