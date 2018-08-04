@@ -23,6 +23,7 @@ func payloadForTransportationOfficeModel(office models.TransportationOffice) *in
 		CreatedAt:  fmtDateTime(office.CreatedAt),
 		UpdatedAt:  fmtDateTime(office.UpdatedAt),
 		Name:       swag.String(office.Name),
+		Gbloc:      office.Gbloc,
 		Address:    payloadForAddressModel(&office.Address),
 		PhoneLines: phoneLines,
 	}

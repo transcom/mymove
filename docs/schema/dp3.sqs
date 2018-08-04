@@ -541,12 +541,12 @@
         <name><![CDATA[public.shipment_offers]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>342.00</x>
-            <y>1985.00</y>
+            <x>343.00</x>
+            <y>1969.00</y>
         </location>
         <size>
-            <width>286.00</width>
-            <height>200.00</height>
+            <width>331.00</width>
+            <height>340.00</height>
         </size>
         <zorder>15</zorder>
         <SQLField>
@@ -567,8 +567,8 @@
             <referencesTable><![CDATA[public.shipments]]></referencesTable>
             <sourceCardinality>0</sourceCardinality>
             <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[A515FE90-6267-4BEF-AB82-932997C8C1AE]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[8EFD03C9-97E4-4840-8482-7728815AE49C]]></referencesTableUID>
+            <referencesFieldUID><![CDATA[1C0462DD-6B37-4327-8640-3614B9051A4D]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[60AD4181-DF23-481F-A2FD-3A5C2632D852]]></referencesTableUID>
             <deferrable><![CDATA[0]]></deferrable>
             <foreignKeyName><![CDATA[awarded_shipments_shipment_id_fkey]]></foreignKeyName>
             <initiallyDeferred><![CDATA[0]]></initiallyDeferred>
@@ -633,6 +633,41 @@
             <collapseSimpleIndex><![CDATA[1]]></collapseSimpleIndex>
             <uid><![CDATA[94CB2CF9-2F33-45A3-A6FA-CF5ECA371B2A]]></uid>
         </SQLIndex>
+        <SQLField>
+            <name><![CDATA[market]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[33A9E527-BCE2-4EDB-AC86-76F58711889E]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[code_of_service]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[0C9C4B30-7780-439B-8E6A-27F80127EBBD]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[book_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[F1D36D7A-90EC-4C92-9F51-B0BCB2F6582D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[A0D21DB2-0235-464A-919A-D8D8F6175211]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[requested_pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <uid><![CDATA[8CACA18F-1E1A-470F-BD43-CE0D727EC6DD]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[traffic_distribution_list_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <uid><![CDATA[206D31D0-F3D3-4B3B-BC96-A874A0447367]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[source_gbloc]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[117A1AB0-C1BF-4FBD-ACA4-A27F19745D8D]]></uid>
+        </SQLField>
         <labelWindowIndex><![CDATA[23]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[34583D64-2F55-498C-8EA6-0FC6128EF11C]]></uid>
@@ -1353,8 +1388,8 @@
             <referencesTable><![CDATA[public.shipments]]></referencesTable>
             <sourceCardinality>1</sourceCardinality>
             <destinationCardinality>5</destinationCardinality>
-            <referencesFieldUID><![CDATA[DD0203CE-9A08-4D1A-9202-07C481AE8E09]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[8EFD03C9-97E4-4840-8482-7728815AE49C]]></referencesTableUID>
+            <referencesFieldUID><![CDATA[F64E7253-E4DB-4529-AD45-81D287BD8F77]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[60AD4181-DF23-481F-A2FD-3A5C2632D852]]></referencesTableUID>
             <forcedUnique><![CDATA[1]]></forcedUnique>
             <notNull><![CDATA[1]]></notNull>
             <uid><![CDATA[57FF3C9F-EC81-48A3-9FCB-DE4B85B7654C]]></uid>
@@ -1421,7 +1456,7 @@
         </location>
         <size>
             <width>675.00</width>
-            <height>200.00</height>
+            <height>220.00</height>
         </size>
         <zorder>29</zorder>
         <SQLField>
@@ -1507,6 +1542,11 @@
             <notNull><![CDATA[0]]></notNull>
             <uid><![CDATA[5BEAEF60-0362-4E42-931A-093A376B2927]]></uid>
         </SQLField>
+        <SQLField>
+            <name><![CDATA[gbloc]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[C0123AB8-9F46-474C-B661-E54BCDD86B81]]></uid>
+        </SQLField>
         <labelWindowIndex><![CDATA[10]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[5CF1B648-1711-4A7B-BC51-3830FE982AD8]]></uid>
@@ -1574,6 +1614,231 @@
         <labelWindowIndex><![CDATA[33]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[5E54C7B3-3716-426A-A74C-ADF53624D090]]></uid>
+    </SQLTable>
+    <SQLTable>
+        <name><![CDATA[public.shipments]]></name>
+        <schema><![CDATA[public]]></schema>
+        <location>
+            <x>166.00</x>
+            <y>1413.00</y>
+        </location>
+        <size>
+            <width>440.00</width>
+            <height>540.00</height>
+        </size>
+        <zorder>14</zorder>
+        <SQLField>
+            <name><![CDATA[id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <primaryKey>1</primaryKey>
+            <forcedUnique><![CDATA[1]]></forcedUnique>
+            <notNull><![CDATA[1]]></notNull>
+            <uid><![CDATA[1C0462DD-6B37-4327-8640-3614B9051A4D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[traffic_distribution_list_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.traffic_distribution_lists</referencesTable>
+            <deleteAction>12</deleteAction>
+            <updateAction>12</updateAction>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.traffic_distribution_lists]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[E6D3D5F3-E444-4B5C-8748-621AD4EC8525]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[55C7CDC6-65DA-4D09-9458-143958183C46]]></referencesTableUID>
+            <deferrable><![CDATA[0]]></deferrable>
+            <foreignKeyName><![CDATA[shipments_traffic_distribution_list_id_fkey]]></foreignKeyName>
+            <initiallyDeferred><![CDATA[0]]></initiallyDeferred>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[CA852FF3-6A53-44E6-8AB3-DF72E138D80D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[4A206F1F-CBB2-41F0-8552-FCD20A1C883C]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[delivery_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[B75B6ED7-8863-4FF7-9169-8147CA6AD6DB]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[created_at]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[5CD5F692-FAD6-45EF-B7DA-B2D91DB0B106]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[updated_at]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[0E0CC70D-E3BB-4BF8-B5C5-35C4DF6F6929]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[source_gbloc]]></name>
+            <type><![CDATA[character varying(255)]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[D9AE27B2-64D4-463F-9C13-1E32B023EBF6]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[market]]></name>
+            <type><![CDATA[character varying(255)]]></type>
+            <uid><![CDATA[360F692E-F54E-4164-A31F-D0CA8731B0C3]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[book_date]]></name>
+            <type><![CDATA[date]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[138BDD58-8A01-4E56-99A3-951F75ADE8FE]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[requested_pickup_date]]></name>
+            <type><![CDATA[timestamp without time zone]]></type>
+            <notNull><![CDATA[0]]></notNull>
+            <uid><![CDATA[AB733923-2AB9-45A0-AFE4-3122D71A2049]]></uid>
+        </SQLField>
+        <SQLIndex>
+            <name><![CDATA[shipments_index]]></name>
+            <fieldName><![CDATA[traffic_distribution_list_id]]></fieldName>
+            <fieldName><![CDATA[pickup_date]]></fieldName>
+            <fieldName><![CDATA[delivery_date]]></fieldName>
+            <SQLIndexEntry>
+                <name><![CDATA[traffic_distribution_list_id]]></name>
+                <prefixSize><![CDATA[]]></prefixSize>
+                <fieldUid><![CDATA[CA852FF3-6A53-44E6-8AB3-DF72E138D80D]]></fieldUid>
+            </SQLIndexEntry>
+            <SQLIndexEntry>
+                <name><![CDATA[pickup_date]]></name>
+                <prefixSize><![CDATA[]]></prefixSize>
+                <fieldUid><![CDATA[4A206F1F-CBB2-41F0-8552-FCD20A1C883C]]></fieldUid>
+            </SQLIndexEntry>
+            <SQLIndexEntry>
+                <name><![CDATA[delivery_date]]></name>
+                <prefixSize><![CDATA[]]></prefixSize>
+                <fieldUid><![CDATA[B75B6ED7-8863-4FF7-9169-8147CA6AD6DB]]></fieldUid>
+            </SQLIndexEntry>
+            <collapseSimpleIndex><![CDATA[1]]></collapseSimpleIndex>
+            <uid><![CDATA[6F2B8362-E594-412E-9F27-A234B6F9CCDE]]></uid>
+        </SQLIndex>
+        <SQLField>
+            <name><![CDATA[move_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <forcedUnique><![CDATA[1]]></forcedUnique>
+            <notNull><![CDATA[1]]></notNull>
+            <uid><![CDATA[F64E7253-E4DB-4529-AD45-81D287BD8F77]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[status]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <defaultValue><![CDATA[DRAFT]]></defaultValue>
+            <notNull><![CDATA[1]]></notNull>
+            <uid><![CDATA[6927603A-5CE8-40DB-A41C-A4B3BC0395FE]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[estimated_pack_days]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[BF23064E-F129-4B29-9942-6B3F857FC1D9]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[estimated_transit_days]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[C996ECB9-7D07-4CD8-A2C6-57F7DCA2EEC4]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[pickup_address_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.addresses</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.addresses]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
+            <uid><![CDATA[8B0B6312-67E9-4CE3-96C4-E4DC77BDAAD3]]></uid>
+            <unique><![CDATA[0]]></unique>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[has_secondary_pickup_address]]></name>
+            <type><![CDATA[BOOL]]></type>
+            <uid><![CDATA[F3A52E36-5238-4C47-B8F9-4C74914D7F0A]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[secondary_pickup_address_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.addresses</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.addresses]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
+            <uid><![CDATA[A0495DEF-CB44-48F7-85D0-E7EB834C06D0]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[has_delivery_address]]></name>
+            <type><![CDATA[BOOL]]></type>
+            <uid><![CDATA[74FA3980-EF41-4358-AFE6-40E424D6BF31]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[delivery_address_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.addresses</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.addresses]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
+            <uid><![CDATA[9C69CF0F-859F-48F0-9D1B-6A6E77312F36]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[has_partial_sit_delivery_address]]></name>
+            <type><![CDATA[BOOL]]></type>
+            <uid><![CDATA[22676AF0-5794-4BA3-BD6C-5CF90FC35A61]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[partial_sit_delivery_address_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.addresses</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.addresses]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
+            <uid><![CDATA[D707E5CC-DCF3-4F62-9939-5B50470AF056]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[weight_estimate]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[56A314F6-E3AD-4B38-8513-48B549F49E23]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[progear_weight_estimate]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[1B913389-9129-4906-833D-D4163288D79D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[spouse_progear_weight_estimate]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[F9948CB3-DD81-4D46-AB9B-E83FD55BB299]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[code_of_service]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[59FB2E5F-B8AC-4F93-B54F-76031395687A]]></uid>
+        </SQLField>
+        <labelWindowIndex><![CDATA[22]]></labelWindowIndex>
+        <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
+        <uid><![CDATA[60AD4181-DF23-481F-A2FD-3A5C2632D852]]></uid>
     </SQLTable>
     <SQLTable>
         <name><![CDATA[moving_expense_documents]]></name>
@@ -1931,226 +2196,6 @@
         <labelWindowIndex><![CDATA[21]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
         <uid><![CDATA[8EB17F34-F064-4E1A-BDEC-49D84D44C827]]></uid>
-    </SQLTable>
-    <SQLTable>
-        <name><![CDATA[public.shipments]]></name>
-        <schema><![CDATA[public]]></schema>
-        <location>
-            <x>166.00</x>
-            <y>1413.00</y>
-        </location>
-        <size>
-            <width>440.00</width>
-            <height>520.00</height>
-        </size>
-        <zorder>14</zorder>
-        <SQLField>
-            <name><![CDATA[id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <primaryKey>1</primaryKey>
-            <forcedUnique><![CDATA[1]]></forcedUnique>
-            <notNull><![CDATA[1]]></notNull>
-            <uid><![CDATA[A515FE90-6267-4BEF-AB82-932997C8C1AE]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[traffic_distribution_list_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.traffic_distribution_lists</referencesTable>
-            <deleteAction>12</deleteAction>
-            <updateAction>12</updateAction>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.traffic_distribution_lists]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[E6D3D5F3-E444-4B5C-8748-621AD4EC8525]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[55C7CDC6-65DA-4D09-9458-143958183C46]]></referencesTableUID>
-            <deferrable><![CDATA[0]]></deferrable>
-            <foreignKeyName><![CDATA[shipments_traffic_distribution_list_id_fkey]]></foreignKeyName>
-            <initiallyDeferred><![CDATA[0]]></initiallyDeferred>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[BFBC046C-DED8-465C-901B-327009E30FBF]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pickup_date]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[E1D27694-7464-4168-BE4C-CF7BA1315BEC]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[delivery_date]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[8FCA9BC1-F4F5-45F7-9D20-7D7A53D4B77B]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[created_at]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[392EB13C-68A5-46CA-95A2-0CEDDAC12ADE]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[updated_at]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[C96F75EC-5497-40A9-B161-CBFC1584ED00]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[source_gbloc]]></name>
-            <type><![CDATA[character varying(255)]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[6CDED8CE-04A0-4132-88C0-7EFBE833C537]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[market]]></name>
-            <type><![CDATA[character varying(255)]]></type>
-            <uid><![CDATA[D4C5B512-7E59-4B81-86F2-C32378B8670F]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[book_date]]></name>
-            <type><![CDATA[date]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[E44C9013-DFF0-46F4-9AF9-A5F7E6B0ACB3]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[requested_pickup_date]]></name>
-            <type><![CDATA[timestamp without time zone]]></type>
-            <notNull><![CDATA[0]]></notNull>
-            <uid><![CDATA[36E36782-4203-4C5D-8E6A-270B8A4ED3ED]]></uid>
-        </SQLField>
-        <SQLIndex>
-            <name><![CDATA[shipments_index]]></name>
-            <fieldName><![CDATA[traffic_distribution_list_id]]></fieldName>
-            <fieldName><![CDATA[pickup_date]]></fieldName>
-            <fieldName><![CDATA[delivery_date]]></fieldName>
-            <SQLIndexEntry>
-                <name><![CDATA[traffic_distribution_list_id]]></name>
-                <prefixSize><![CDATA[]]></prefixSize>
-                <fieldUid><![CDATA[BFBC046C-DED8-465C-901B-327009E30FBF]]></fieldUid>
-            </SQLIndexEntry>
-            <SQLIndexEntry>
-                <name><![CDATA[pickup_date]]></name>
-                <prefixSize><![CDATA[]]></prefixSize>
-                <fieldUid><![CDATA[E1D27694-7464-4168-BE4C-CF7BA1315BEC]]></fieldUid>
-            </SQLIndexEntry>
-            <SQLIndexEntry>
-                <name><![CDATA[delivery_date]]></name>
-                <prefixSize><![CDATA[]]></prefixSize>
-                <fieldUid><![CDATA[8FCA9BC1-F4F5-45F7-9D20-7D7A53D4B77B]]></fieldUid>
-            </SQLIndexEntry>
-            <collapseSimpleIndex><![CDATA[1]]></collapseSimpleIndex>
-            <uid><![CDATA[78CAB42C-EC5C-4B52-A370-B9F453833948]]></uid>
-        </SQLIndex>
-        <SQLField>
-            <name><![CDATA[move_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <forcedUnique><![CDATA[1]]></forcedUnique>
-            <notNull><![CDATA[1]]></notNull>
-            <uid><![CDATA[DD0203CE-9A08-4D1A-9202-07C481AE8E09]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[status]]></name>
-            <type><![CDATA[TEXT]]></type>
-            <defaultValue><![CDATA[DRAFT]]></defaultValue>
-            <notNull><![CDATA[1]]></notNull>
-            <uid><![CDATA[5400B081-1900-4F21-977D-6AAE2E693C81]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[estimated_pack_days]]></name>
-            <type><![CDATA[INTEGER]]></type>
-            <uid><![CDATA[ED96F3B8-E61D-40A0-A7BD-D2768B8B224F]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[estimated_transit_days]]></name>
-            <type><![CDATA[INTEGER]]></type>
-            <uid><![CDATA[EE275274-8961-489F-8CB1-AAA7093FF737]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[pickup_address_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.addresses</referencesTable>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.addresses]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
-            <uid><![CDATA[BD7CA1C5-E85B-4428-92FD-EB9FDA027F2E]]></uid>
-            <unique><![CDATA[0]]></unique>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[has_secondary_pickup_address]]></name>
-            <type><![CDATA[BOOL]]></type>
-            <uid><![CDATA[0A770D06-E5E6-4FC1-B806-8E6DED12A725]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[secondary_pickup_address_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.addresses</referencesTable>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.addresses]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
-            <uid><![CDATA[161B061A-D006-4D1F-B04C-05FB5A1E4566]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[has_delivery_address]]></name>
-            <type><![CDATA[BOOL]]></type>
-            <uid><![CDATA[1D5AC72E-D2DF-47EF-9DDE-26B62559ED5C]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[delivery_address_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.addresses</referencesTable>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.addresses]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
-            <uid><![CDATA[65982243-4257-4044-A209-BAE80B5B9474]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[has_partial_sit_delivery_address]]></name>
-            <type><![CDATA[BOOL]]></type>
-            <uid><![CDATA[16E3E71A-0148-4BC5-801F-3C53AEDF9B91]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[partial_sit_delivery_address_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.addresses</referencesTable>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.addresses]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[9D04A5A6-1FAA-489C-9586-3415B0B643C0]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[890BF783-0CB3-44C2-BBA2-2232EDC7F995]]></referencesTableUID>
-            <uid><![CDATA[001FFCAB-8A3E-4CA0-9201-6D458374DDF2]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[weight_estimate]]></name>
-            <type><![CDATA[INTEGER]]></type>
-            <uid><![CDATA[D9E46821-404B-48D6-8887-C903C6EEE12E]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[progear_weight_estimate]]></name>
-            <type><![CDATA[INTEGER]]></type>
-            <uid><![CDATA[D516D05C-F13E-4C5E-AADC-EF6E637AFE5F]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[spouse_progear_weight_estimate]]></name>
-            <type><![CDATA[INTEGER]]></type>
-            <uid><![CDATA[A4924C8E-D360-4AEB-BB5F-BFE34A1ACA6D]]></uid>
-        </SQLField>
-        <labelWindowIndex><![CDATA[22]]></labelWindowIndex>
-        <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
-        <uid><![CDATA[8EFD03C9-97E4-4840-8482-7728815AE49C]]></uid>
     </SQLTable>
     <SQLTable>
         <name><![CDATA[office_users]]></name>
@@ -2993,7 +3038,7 @@
     <SQLDocumentInfo>
         <encodedPrintInfo><![CDATA[BAtzdHJlYW10eXBlZIHoA4QBQISEhAtOU1ByaW50SW5mbwGEhAhOU09iamVjdACFkoSEhBNOU011dGFibGVEaWN0aW9uYXJ5AISEDE5TRGljdGlvbmFyeQCUhAFpDZKEhIQITlNTdHJpbmcBlIQBKw5OU1BNUGFnZUZvcm1hdIaShISEDU5TTXV0YWJsZURhdGEAhIQGTlNEYXRhAJSXgbIbhAdbNzA5MGNdPD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPCFET0NUWVBFIHBsaXN0IFBVQkxJQyAiLS8vQXBwbGUvL0RURCBQTElTVCAxLjAvL0VOIiAiaHR0cDovL3d3dy5hcHBsZS5jb20vRFREcy9Qcm9wZXJ0eUxpc3QtMS4wLmR0ZCI+CjxwbGlzdCB2ZXJzaW9uPSIxLjAiPgo8ZGljdD4KCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1Ib3Jpem9udGFsUmVzPC9rZXk+Cgk8ZGljdD4KCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5pdGVtQXJyYXk8L2tleT4KCQk8YXJyYXk+CgkJCTxkaWN0PgoJCQkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFnZUZvcm1hdC5QTUhvcml6b250YWxSZXM8L2tleT4KCQkJCTxyZWFsPjcyPC9yZWFsPgoJCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LnN0YXRlRmxhZzwva2V5PgoJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJPC9kaWN0PgoJCTwvYXJyYXk+Cgk8L2RpY3Q+Cgk8a2V5PmNvbS5hcHBsZS5wcmludC5QYWdlRm9ybWF0LlBNT3JpZW50YXRpb248L2tleT4KCTxkaWN0PgoJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJPHN0cmluZz5jb20uYXBwbGUuam9idGlja2V0PC9zdHJpbmc+CgkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCTxhcnJheT4KCQkJPGRpY3Q+CgkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYWdlRm9ybWF0LlBNT3JpZW50YXRpb248L2tleT4KCQkJCTxpbnRlZ2VyPjE8L2ludGVnZXI+CgkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQk8L2RpY3Q+CgkJPC9hcnJheT4KCTwvZGljdD4KCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1TY2FsaW5nPC9rZXk+Cgk8ZGljdD4KCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5pdGVtQXJyYXk8L2tleT4KCQk8YXJyYXk+CgkJCTxkaWN0PgoJCQkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFnZUZvcm1hdC5QTVNjYWxpbmc8L2tleT4KCQkJCTxyZWFsPjE8L3JlYWw+CgkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQk8L2RpY3Q+CgkJPC9hcnJheT4KCTwvZGljdD4KCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1WZXJ0aWNhbFJlczwva2V5PgoJPGRpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LmNyZWF0b3I8L2tleT4KCQk8c3RyaW5nPmNvbS5hcHBsZS5qb2J0aWNrZXQ8L3N0cmluZz4KCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJPGFycmF5PgoJCQk8ZGljdD4KCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1WZXJ0aWNhbFJlczwva2V5PgoJCQkJPHJlYWw+NzI8L3JlYWw+CgkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQk8L2RpY3Q+CgkJPC9hcnJheT4KCTwvZGljdD4KCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1WZXJ0aWNhbFNjYWxpbmc8L2tleT4KCTxkaWN0PgoJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJPHN0cmluZz5jb20uYXBwbGUuam9idGlja2V0PC9zdHJpbmc+CgkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCTxhcnJheT4KCQkJPGRpY3Q+CgkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYWdlRm9ybWF0LlBNVmVydGljYWxTY2FsaW5nPC9rZXk+CgkJCQk8cmVhbD4xPC9yZWFsPgoJCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LnN0YXRlRmxhZzwva2V5PgoJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJPC9kaWN0PgoJCTwvYXJyYXk+Cgk8L2RpY3Q+Cgk8a2V5PmNvbS5hcHBsZS5wcmludC5zdWJUaWNrZXQucGFwZXJfaW5mb190aWNrZXQ8L2tleT4KCTxkaWN0PgoJCTxrZXk+UE1QUERQYXBlckNvZGVOYW1lPC9rZXk+CgkJPGRpY3Q+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJCTxhcnJheT4KCQkJCTxkaWN0PgoJCQkJCTxrZXk+UE1QUERQYXBlckNvZGVOYW1lPC9rZXk+CgkJCQkJPHN0cmluZz5MZXR0ZXI8L3N0cmluZz4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5QTVBQRFRyYW5zbGF0aW9uU3RyaW5nUGFwZXJOYW1lPC9rZXk+CgkJPGRpY3Q+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJCTxhcnJheT4KCQkJCTxkaWN0PgoJCQkJCTxrZXk+UE1QUERUcmFuc2xhdGlvblN0cmluZ1BhcGVyTmFtZTwva2V5PgoJCQkJCTxzdHJpbmc+VVMgTGV0dGVyPC9zdHJpbmc+CgkJCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LnN0YXRlRmxhZzwva2V5PgoJCQkJCTxpbnRlZ2VyPjA8L2ludGVnZXI+CgkJCQk8L2RpY3Q+CgkJCTwvYXJyYXk+CgkJPC9kaWN0PgoJCTxrZXk+UE1UaW9nYVBhcGVyTmFtZTwva2V5PgoJCTxkaWN0PgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCQk8c3RyaW5nPmNvbS5hcHBsZS5qb2J0aWNrZXQ8L3N0cmluZz4KCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCQk8YXJyYXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PlBNVGlvZ2FQYXBlck5hbWU8L2tleT4KCQkJCQk8c3RyaW5nPm5hLWxldHRlcjwvc3RyaW5nPgoJCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5zdGF0ZUZsYWc8L2tleT4KCQkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQkJPC9kaWN0PgoJCQk8L2FycmF5PgoJCTwvZGljdD4KCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYWdlRm9ybWF0LlBNQWRqdXN0ZWRQYWdlUmVjdDwva2V5PgoJCTxkaWN0PgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCQk8c3RyaW5nPmNvbS5hcHBsZS5qb2J0aWNrZXQ8L3N0cmluZz4KCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCQk8YXJyYXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYWdlRm9ybWF0LlBNQWRqdXN0ZWRQYWdlUmVjdDwva2V5PgoJCQkJCTxhcnJheT4KCQkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCQkJPHJlYWw+NzM0PC9yZWFsPgoJCQkJCQk8cmVhbD41NzY8L3JlYWw+CgkJCQkJPC9hcnJheT4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFnZUZvcm1hdC5QTUFkanVzdGVkUGFwZXJSZWN0PC9rZXk+CgkJPGRpY3Q+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJCTxhcnJheT4KCQkJCTxkaWN0PgoJCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhZ2VGb3JtYXQuUE1BZGp1c3RlZFBhcGVyUmVjdDwva2V5PgoJCQkJCTxhcnJheT4KCQkJCQkJPHJlYWw+LTE4PC9yZWFsPgoJCQkJCQk8cmVhbD4tMTg8L3JlYWw+CgkJCQkJCTxyZWFsPjc3NDwvcmVhbD4KCQkJCQkJPHJlYWw+NTk0PC9yZWFsPgoJCQkJCTwvYXJyYXk+CgkJCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LnN0YXRlRmxhZzwva2V5PgoJCQkJCTxpbnRlZ2VyPjA8L2ludGVnZXI+CgkJCQk8L2RpY3Q+CgkJCTwvYXJyYXk+CgkJPC9kaWN0PgoJCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhcGVySW5mby5QTVBQRFBhcGVyRGltZW5zaW9uPC9rZXk+CgkJPGRpY3Q+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJCTxhcnJheT4KCQkJCTxkaWN0PgoJCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhcGVySW5mby5QTVBQRFBhcGVyRGltZW5zaW9uPC9rZXk+CgkJCQkJPGFycmF5PgoJCQkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQkJCQk8cmVhbD42MTI8L3JlYWw+CgkJCQkJCTxyZWFsPjc5MjwvcmVhbD4KCQkJCQk8L2FycmF5PgoJCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5zdGF0ZUZsYWc8L2tleT4KCQkJCQk8aW50ZWdlcj4wPC9pbnRlZ2VyPgoJCQkJPC9kaWN0PgoJCQk8L2FycmF5PgoJCTwvZGljdD4KCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYXBlckluZm8uUE1QYXBlck5hbWU8L2tleT4KCQk8ZGljdD4KCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LmNyZWF0b3I8L2tleT4KCQkJPHN0cmluZz5jb20uYXBwbGUuam9idGlja2V0PC9zdHJpbmc+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5pdGVtQXJyYXk8L2tleT4KCQkJPGFycmF5PgoJCQkJPGRpY3Q+CgkJCQkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFwZXJJbmZvLlBNUGFwZXJOYW1lPC9rZXk+CgkJCQkJPHN0cmluZz5uYS1sZXR0ZXI8L3N0cmluZz4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFwZXJJbmZvLlBNVW5hZGp1c3RlZFBhZ2VSZWN0PC9rZXk+CgkJPGRpY3Q+CgkJCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5jcmVhdG9yPC9rZXk+CgkJCTxzdHJpbmc+Y29tLmFwcGxlLmpvYnRpY2tldDwvc3RyaW5nPgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuaXRlbUFycmF5PC9rZXk+CgkJCTxhcnJheT4KCQkJCTxkaWN0PgoJCQkJCTxrZXk+Y29tLmFwcGxlLnByaW50LlBhcGVySW5mby5QTVVuYWRqdXN0ZWRQYWdlUmVjdDwva2V5PgoJCQkJCTxhcnJheT4KCQkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCQkJPHJlYWw+NzM0PC9yZWFsPgoJCQkJCQk8cmVhbD41NzY8L3JlYWw+CgkJCQkJPC9hcnJheT4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFwZXJJbmZvLlBNVW5hZGp1c3RlZFBhcGVyUmVjdDwva2V5PgoJCTxkaWN0PgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCQk8c3RyaW5nPmNvbS5hcHBsZS5qb2J0aWNrZXQ8L3N0cmluZz4KCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCQk8YXJyYXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYXBlckluZm8uUE1VbmFkanVzdGVkUGFwZXJSZWN0PC9rZXk+CgkJCQkJPGFycmF5PgoJCQkJCQk8cmVhbD4tMTg8L3JlYWw+CgkJCQkJCTxyZWFsPi0xODwvcmVhbD4KCQkJCQkJPHJlYWw+Nzc0PC9yZWFsPgoJCQkJCQk8cmVhbD41OTQ8L3JlYWw+CgkJCQkJPC9hcnJheT4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQuUGFwZXJJbmZvLnBwZC5QTVBhcGVyTmFtZTwva2V5PgoJCTxkaWN0PgoJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuY3JlYXRvcjwva2V5PgoJCQk8c3RyaW5nPmNvbS5hcHBsZS5qb2J0aWNrZXQ8L3N0cmluZz4KCQkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0Lml0ZW1BcnJheTwva2V5PgoJCQk8YXJyYXk+CgkJCQk8ZGljdD4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC5QYXBlckluZm8ucHBkLlBNUGFwZXJOYW1lPC9rZXk+CgkJCQkJPHN0cmluZz5MZXR0ZXI8L3N0cmluZz4KCQkJCQk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQuc3RhdGVGbGFnPC9rZXk+CgkJCQkJPGludGVnZXI+MDwvaW50ZWdlcj4KCQkJCTwvZGljdD4KCQkJPC9hcnJheT4KCQk8L2RpY3Q+CgkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LkFQSVZlcnNpb248L2tleT4KCQk8c3RyaW5nPjAwLjIwPC9zdHJpbmc+CgkJPGtleT5jb20uYXBwbGUucHJpbnQudGlja2V0LnR5cGU8L2tleT4KCQk8c3RyaW5nPmNvbS5hcHBsZS5wcmludC5QYXBlckluZm9UaWNrZXQ8L3N0cmluZz4KCTwvZGljdD4KCTxrZXk+Y29tLmFwcGxlLnByaW50LnRpY2tldC5BUElWZXJzaW9uPC9rZXk+Cgk8c3RyaW5nPjAwLjIwPC9zdHJpbmc+Cgk8a2V5PmNvbS5hcHBsZS5wcmludC50aWNrZXQudHlwZTwva2V5PgoJPHN0cmluZz5jb20uYXBwbGUucHJpbnQuUGFnZUZvcm1hdFRpY2tldDwvc3RyaW5nPgo8L2RpY3Q+CjwvcGxpc3Q+CoaShJmZC05TUGFwZXJTaXplhpKEhIQHTlNWYWx1ZQCUhAEqhIQLe0NHU2l6ZT1kZH2fgWQCgRgDhpKEmZkWTlNIb3Jpem9udGFsbHlDZW50ZXJlZIaShISECE5TTnVtYmVyAJ+ehIQBY6EBhpKEmZkUTlNWZXJ0aWNhbGx5Q2VudGVyZWSGkqKShJmZDE5TTGVmdE1hcmdpboaShKOehIQBZKIShpKEmZkNTlNSaWdodE1hcmdpboaSp5KEmZkLTlNUb3BNYXJnaW6GkoSjnqiiHoaShJmZDU5TT3JpZW50YXRpb26GkoSjnoSEAXGjAIaShJmZFU5TSG9yaXpvbmFsUGFnaW5hdGlvboaSrZKEmZkUTlNWZXJ0aWNhbFBhZ2luYXRpb26Gkq2ShJmZDk5TQm90dG9tTWFyZ2luhpKEo56oojSGkoSZmQtOU1BhcGVyTmFtZYaShJmZCW5hLWxldHRlcoaShJmZD05TU2NhbGluZ0ZhY3RvcoaShKOeqKIBhoaG]]></encodedPrintInfo>
         <autoSizeTablesOption><![CDATA[0]]></autoSizeTablesOption>
-        <documentScaleFactor><![CDATA[1.194]]></documentScaleFactor>
+        <documentScaleFactor><![CDATA[0.75]]></documentScaleFactor>
         <exportDialect><![CDATA[postgres]]></exportDialect>
         <fileversion><![CDATA[4]]></fileversion>
         <generator><![CDATA[com.malcolmhardie.sqleditor]]></generator>
@@ -3003,17 +3048,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[2283.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[570.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
-        <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
+        <SourceSidebarWidth><![CDATA[0.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1417.000000]]></windowHeight>
-        <windowLocationX><![CDATA[1440.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[540.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{0, 760.5}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[2560.000000]]></windowWidth>
+        <windowHeight><![CDATA[1027.000000]]></windowHeight>
+        <windowLocationX><![CDATA[833.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[0.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{231, 1096.5}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[847.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>

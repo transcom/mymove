@@ -17,3 +17,16 @@ export function isLastPage(pageList, currentPage) {
   const index = pageList.indexOf(currentPage);
   return index === pageList.length - 1;
 }
+
+export async function beforeTransition(func) {
+  const { dirty, pageList, pageKey, handleSubmit } = this.props;
+  const path = func(pageList, pageKey);
+  if (dirty && handleSubmit) {
+    const awaitSubmit = await handleSubmit();
+    if (!awaitSubmit || !awaitSubmit.error) {
+      this.goto(path);
+    }
+  } else {
+    this.goto(path);
+  }
+}

@@ -72,3 +72,12 @@ export async function GetPpmSitEstimate(
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
 }
+
+export async function RequestPayment(personallyProcuredMoveId) {
+  const client = await getClient();
+  const response = await client.apis.ppm.requestPPMPayment({
+    personallyProcuredMoveId,
+  });
+  checkResponse(response, 'failed to update ppm status due to server error');
+  return response.body;
+}

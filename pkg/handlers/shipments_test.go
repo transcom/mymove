@@ -68,12 +68,16 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
-
 	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	market := "dHHG"
+	codeOfService := "D"
+
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
+	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
 	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
@@ -105,6 +109,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	handler := CreateShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
+	market := "dHHG"
+	codeOfService := "D"
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
 
@@ -113,6 +119,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(&market, unwrapped.Payload.Market)
+	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
 	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
 	suite.Nil(unwrapped.Payload.PickupAddress)

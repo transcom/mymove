@@ -44,7 +44,7 @@ export class ContactInfo extends Component {
   handleSubmit = () => {
     const pendingValues = this.props.values;
     if (pendingValues) {
-      this.props.updateServiceMember(pendingValues);
+      return this.props.updateServiceMember(pendingValues);
     }
   };
 
@@ -52,7 +52,6 @@ export class ContactInfo extends Component {
     const {
       pages,
       pageKey,
-      hasSubmitSuccess,
       error,
       currentServiceMember,
       userEmail,
@@ -71,7 +70,6 @@ export class ContactInfo extends Component {
         className={formName}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         serverError={error}
         initialValues={initialValues}
       >
@@ -102,7 +100,6 @@ ContactInfo.propTypes = {
   updateServiceMember: PropTypes.func.isRequired,
   currentServiceMember: PropTypes.object,
   error: PropTypes.object,
-  hasSubmitSuccess: PropTypes.bool.isRequired,
 };
 
 function mapDispatchToProps(dispatch) {
