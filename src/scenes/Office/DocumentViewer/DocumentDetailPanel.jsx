@@ -6,8 +6,7 @@ import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
 import { renderStatusIcon } from 'shared/utils';
-import { formatDate } from 'shared/formatters';
-import { formatCents } from 'shared/formatters';
+import { formatDate, formatCents } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
@@ -30,7 +29,6 @@ const DocumentDetailDisplay = props => {
     values: get(moveDoc, 'reimbursement', {}),
     schema: props.reimbursementSchema,
   };
-
   return (
     <React.Fragment>
       <div>
@@ -99,10 +97,8 @@ const DocumentDetailDisplay = props => {
 
 const DocumentDetailEdit = props => {
   const { formValues, moveDocSchema, reimbursementSchema } = props;
-
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
-
   return (
     <React.Fragment>
       <div>
@@ -145,7 +141,7 @@ function mapStateToProps(state, props) {
   ) {
     moveDocument = omit(moveDocument, 'reimbursement');
   }
-  // Comment this
+  // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
   let initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
   let requested_amount = get(
     initialMoveDocument,
@@ -181,6 +177,7 @@ function mapStateToProps(state, props) {
     // editablePanel
     formIsValid: isValid(formName)(state),
     getUpdateArgs: function() {
+      // Make a copy of values to not modify moveDocument
       let values = JSON.parse(JSON.stringify(getFormValues(formName)(state)));
       values.moveDocument.personally_procured_move_id = get(
         state.office,

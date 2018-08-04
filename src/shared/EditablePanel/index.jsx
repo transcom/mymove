@@ -30,7 +30,6 @@ export const SwaggerValue = props => {
   const swaggerProps = schema.properties[fieldName];
 
   let value = values[fieldName];
-  // debugger;
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
   }
