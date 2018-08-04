@@ -23,8 +23,9 @@ import (
  */
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
-		ID:     strfmt.UUID(s.ID.String()),
-		MoveID: strfmt.UUID(s.MoveID.String()),
+		ID:                           strfmt.UUID(s.ID.String()),
+		MoveID:                       strfmt.UUID(s.MoveID.String()),
+		ServiceMemberID:              strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
 		SourceGbloc:                  s.SourceGBLOC,
 		DestinationGbloc:             s.DestinationGBLOC,
@@ -82,7 +83,9 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 			destinationGbloc = destinationTransportationOffice.gbloc
 		}
 	}
-	serviceMember, err := models.FetchServiceMember(h.db, session, orders.ServiceMemberID)
+
+	var sourceGbloc string
+	sourceTransportationOffice := FetchDutyStationTransportationOffice(h.db)
 
 	pickupAddress := addressModelFromPayload(payload.PickupAddress)
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)

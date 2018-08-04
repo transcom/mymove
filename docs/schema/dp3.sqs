@@ -4,7 +4,7 @@
         <name><![CDATA[public.orders]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>1031.00</x>
+            <x>1030.00</x>
             <y>3.00</y>
         </location>
         <size>
@@ -118,11 +118,6 @@
             <name><![CDATA[orders_type_detail]]></name>
             <type><![CDATA[CHARACTER VARYING(255)]]></type>
             <uid><![CDATA[249D7CAC-75E8-478D-AB11-EBD0A8968335]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[current_duty_station_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <uid><![CDATA[7A738122-98DB-4AE3-94B8-8F548466C948]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[orders_number]]></name>
@@ -1624,7 +1619,7 @@
         </location>
         <size>
             <width>440.00</width>
-            <height>540.00</height>
+            <height>560.00</height>
         </size>
         <zorder>14</zorder>
         <SQLField>
@@ -1653,6 +1648,20 @@
             <initiallyDeferred><![CDATA[0]]></initiallyDeferred>
             <notNull><![CDATA[0]]></notNull>
             <uid><![CDATA[CA852FF3-6A53-44E6-8AB3-DF72E138D80D]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[service_member_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.service_members</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.service_members]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[7FC11267-B91A-404A-8D03-22C4476DDC33]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[CBB330F3-59D0-43C1-90B1-0AA075782C03]]></referencesTableUID>
+            <uid><![CDATA[B76F4388-BC18-4760-A586-392E3EEFD868]]></uid>
+            <unique><![CDATA[0]]></unique>
         </SQLField>
         <SQLField>
             <name><![CDATA[pickup_date]]></name>
@@ -3048,17 +3057,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[570.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
-        <SourceSidebarWidth><![CDATA[0.000000]]></SourceSidebarWidth>
+        <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1027.000000]]></windowHeight>
-        <windowLocationX><![CDATA[833.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[0.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{231, 1096.5}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[847.000000]]></windowWidth>
+        <windowHeight><![CDATA[778.000000]]></windowHeight>
+        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[99.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{229.5, 0}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>

@@ -1,0 +1,2 @@
+add_column("shipments", "destination_gbloc", "string", {"null": true})
+add_column("shipments", "service_member_id", "uuid", {}))
