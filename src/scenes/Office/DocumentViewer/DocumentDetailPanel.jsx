@@ -5,7 +5,7 @@ import { get, omit } from 'lodash';
 import { reduxForm, getFormValues, isValid, FormSection } from 'redux-form';
 
 import editablePanel from '../editablePanel';
-import { renderStatusIcon } from 'shared/utils';
+import { renderStatusIcon, convertDollarsToCents } from 'shared/utils';
 import { formatDate, formatCents } from 'shared/formatters';
 import { PanelSwaggerField, PanelField } from 'shared/EditablePanel';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
@@ -200,8 +200,8 @@ function mapStateToProps(state, props) {
         '',
       );
       if (requested_amount) {
-        values.moveDocument.reimbursement.requested_amount = Math.round(
-          parseFloat(requested_amount) * 100,
+        values.moveDocument.reimbursement.requested_amount = convertDollarsToCents(
+          requested_amount,
         );
       }
       return [
