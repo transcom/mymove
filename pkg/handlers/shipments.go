@@ -28,6 +28,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
 		SourceGbloc:                  s.SourceGBLOC,
 		Market:                       s.Market,
+		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
 		BookDate:                     fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
@@ -72,6 +73,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+	market := "dHHG"
+	codeOfService := "D"
 
 	var requestedPickupDate *time.Time
 	if payload.RequestedPickupDate != nil {
@@ -95,6 +98,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
+		Market:        &market,
+		CodeOfService: &codeOfService,
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)
@@ -245,14 +250,16 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
-		TrafficDistributionListID:    fmtUUID(*s.TrafficDistributionListID),
+		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
-		MoveID:                       *fmtUUID(s.MoveID),
+		Move:                         publicPayloadForMoveModel(s.Move),
 		Status:                       apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
 		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),

@@ -9,6 +9,7 @@ import (
 	"github.com/go-openapi/swag"
 	"github.com/gobuffalo/uuid"
 
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -68,12 +69,16 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
-
 	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	market := "dHHG"
+	codeOfService := "D"
+
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
+	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(swag.Int64(2), unwrapped.Payload.EstimatedPackDays)
 	suite.Equal(swag.Int64(5), unwrapped.Payload.EstimatedTransitDays)
 	suite.verifyAddressFields(addressPayload, unwrapped.Payload.PickupAddress)
@@ -105,6 +110,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	handler := CreateShipmentHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(params)
 
+	market := "dHHG"
+	codeOfService := "D"
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
 
@@ -113,6 +120,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Equal(1, count)
 
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
+	suite.Equal(&market, unwrapped.Payload.Market)
+	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Nil(unwrapped.Payload.EstimatedPackDays)
 	suite.Nil(unwrapped.Payload.EstimatedTransitDays)
 	suite.Nil(unwrapped.Payload.PickupAddress)
@@ -284,7 +293,8 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerAllShipments() {
 		responsePayload := okResponse.Payload[0]
 		// And: Payload is equivalent to original shipment
 		suite.Equal(strfmt.UUID(shipment.ID.String()), responsePayload.ID)
-		suite.Equal(strfmt.UUID(shipment.MoveID.String()), responsePayload.MoveID)
+		suite.Equal(apimessages.SelectedMoveType(*shipment.Move.SelectedMoveType), *responsePayload.Move.SelectedMoveType)
+		suite.Equal(shipment.TrafficDistributionList.SourceRateArea, *responsePayload.TrafficDistributionList.SourceRateArea)
 	}
 }
 
@@ -552,7 +562,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	tspUser := tspUsers[0]
 
 	// Constants
-	status := "DEFAULT"
+	status := []string{"DEFAULT"}
 
 	// Handler to Test
 	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -562,7 +572,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatus() {
 	req = suite.authenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Status:      &status,
+		Status:      status,
 	}
 
 	response := handler.Handle(params)
@@ -585,7 +595,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	tspUser := tspUsers[0]
 
 	// Constants
-	status := "NOTASTATUS"
+	status := []string{"NOTASTATUS"}
 
 	// Handler to Test
 	handler := PublicIndexShipmentsHandler(NewHandlerContext(suite.db, suite.logger))
@@ -595,7 +605,7 @@ func (suite *HandlerSuite) TestPublicIndexShipmentsHandlerFilterByStatusNoResult
 	req = suite.authenticateTspRequest(req, tspUser)
 	params := publicshipmentop.IndexShipmentsParams{
 		HTTPRequest: req,
-		Status:      &status,
+		Status:      status,
 	}
 
 	response := handler.Handle(params)
