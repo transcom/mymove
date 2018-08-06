@@ -8,6 +8,7 @@ import { bindActionCreators } from 'redux';
 import TspHeader from 'shared/Header/Tsp';
 import QueueList from './QueueList';
 import QueueTable from './QueueTable';
+import ShipmentInfo from './ShipmentInfo';
 import { loadLoggedInUser } from 'shared/User/ducks';
 import { loadSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
@@ -49,6 +50,10 @@ class TspWrapper extends Component {
               <LogoutOnInactivity />
               <Switch>
                 <Redirect from="/" to="/queues/new" exact />
+                <PrivateRoute
+                  path="/queues/:queueType(new|all)/shipments/:shipmentId"
+                  component={ShipmentInfo}
+                />
                 {/* Be specific about available routes by listing them */}
                 <PrivateRoute
                   path="/queues/:queueType(new|all)"
