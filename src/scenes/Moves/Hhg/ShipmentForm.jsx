@@ -27,9 +27,22 @@ export class ShipmentForm extends Component {
     shipmentError: null,
   };
 
+  componentDidMount() {
+    this.loadShipment();
+  }
+
   componentDidUpdate(prevProps) {
+    if (
+      get(this.props, 'currentShipment.id') !==
+      get(prevProps, 'currentShipment.id')
+    ) {
+      this.loadShipment();
+    }
+  }
+
+  loadShipment() {
     const currentID = get(this.props, 'currentShipment.id');
-    if (currentID !== get(prevProps, 'currentShipment.id')) {
+    if (currentID) {
       this.props.getShipment(this.props.currentShipment.move_id, currentID);
     }
   }
