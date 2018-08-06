@@ -12,12 +12,19 @@ import (
 // MakeShipment creates a single shipment record.
 func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	pickup time.Time, delivery time.Time,
-	tdl models.TrafficDistributionList, sourceGBLOC string, market *string) (models.Shipment, error) {
-	move := MakeDefaultMove(db)
+	tdl models.TrafficDistributionList, sourceGBLOC string, market *string, move *models.Move) (models.Shipment, error) {
+
+	var moveObj models.Move
+	if move == nil {
+		moveObj = MakeDefaultMove(db)
+	} else {
+		moveObj = *move
+	}
 	pickupAddress := MakeAddress(db, Assertions{})
 	codeOfService := "D"
 	shipment := models.Shipment{
 		TrafficDistributionListID: uuidPointer(tdl.ID),
+		TrafficDistributionList:   &tdl,
 		PickupDate:                timePointer(pickup),
 		DeliveryDate:              timePointer(delivery),
 		// CreatedAt
@@ -27,7 +34,8 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		CodeOfService:                &codeOfService,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),
 		RequestedPickupDate:          timePointer(requestedPickup),
-		MoveID:                       move.ID,
+		MoveID:                       moveObj.ID,
+		Move:                         &moveObj,
 		Status:                       "DEFAULT",
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
@@ -76,7 +84,7 @@ func MakeShipmentData(db *pop.Connection) {
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 
-	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0], sourceGBLOC, &market)
-	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1], sourceGBLOC, &market)
-	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2], sourceGBLOC, &market)
+	MakeShipment(db, now, now, now.Add(thirtyMin), tdlList[0], sourceGBLOC, &market, nil)
+	MakeShipment(db, now.Add(oneWeek), now.Add(oneWeek), now.Add(oneWeek).Add(thirtyMin), tdlList[1], sourceGBLOC, &market, nil)
+	MakeShipment(db, now.Add(oneWeek*2), now.Add(oneWeek*2), now.Add(oneWeek*2).Add(thirtyMin), tdlList[2], sourceGBLOC, &market, nil)
 }
