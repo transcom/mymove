@@ -327,15 +327,15 @@ func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) m
 type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentAcceptHandler) Handle(p publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
+func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// PublicCreateShipmentRefuseHandler allows a TSP to refuse a particular shipment
-type PublicCreateShipmentRefuseHandler HandlerContext
+// PublicCreateShipmentRejectHandler allows a TSP to refuse a particular shipment
+type PublicCreateShipmentRejectHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentRefuseHandler) Handle(p publicshipmentop.CreateShipmentRefuseParams) middleware.Responder {
+func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.CreateShipmentRejectParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 
