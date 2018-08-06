@@ -1,6 +1,8 @@
 package models
 
 import (
+	"fmt"
+	"strings"
 	"time"
 
 	"github.com/gobuffalo/pop"
@@ -19,21 +21,22 @@ import (
 // DeliveryDate: when the shipment is to be delivered
 // BookDate: when the shipment was most recently offered to a TSP
 type Shipment struct {
-	ID                        uuid.UUID  `json:"id" db:"id"`
-	TrafficDistributionListID *uuid.UUID `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
-	PickupDate                *time.Time `json:"pickup_date" db:"pickup_date"`
-	DeliveryDate              *time.Time `json:"delivery_date" db:"delivery_date"`
-	CreatedAt                 time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt                 time.Time  `json:"updated_at" db:"updated_at"`
-	SourceGBLOC               *string    `json:"source_gbloc" db:"source_gbloc"`
-	DestinationGBLOC          *string    `json:"destination_gbloc" db:"destination_gbloc"`
-	Market                    *string    `json:"market" db:"market"`
-	BookDate                  *time.Time `json:"book_date" db:"book_date"`
-	RequestedPickupDate       *time.Time `json:"requested_pickup_date" db:"requested_pickup_date"`
-	MoveID                    uuid.UUID  `json:"move_id" db:"move_id"`
-	Move                      Move       `belongs_to:"move"`
-	Status                    string     `json:"status" db:"status"`
-	CodeOfService             *string    `json:"code_of_service" db:"code_of_service"`
+	ID                        uuid.UUID                `json:"id" db:"id"`
+	TrafficDistributionListID *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
+	TrafficDistributionList   *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
+	PickupDate                *time.Time               `json:"pickup_date" db:"pickup_date"`
+	DeliveryDate              *time.Time               `json:"delivery_date" db:"delivery_date"`
+	CreatedAt                 time.Time                `json:"created_at" db:"created_at"`
+	UpdatedAt                 time.Time                `json:"updated_at" db:"updated_at"`
+	SourceGBLOC               *string                  `json:"source_gbloc" db:"source_gbloc"`
+	DestinationGBLOC          *string                  `json:"destination_gbloc" db:"destination_gbloc"`
+	Market                    *string                  `json:"market" db:"market"`
+	BookDate                  *time.Time               `json:"book_date" db:"book_date"`
+	RequestedPickupDate       *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`
+	MoveID                    uuid.UUID                `json:"move_id" db:"move_id"`
+	Move                      *Move                    `belongs_to:"move"`
+	Status                    string                   `json:"status" db:"status"`
+	CodeOfService             *string                  `json:"code_of_service" db:"code_of_service"`
 
 	EstimatedPackDays            *int64      `json:"estimated_pack_days" db:"estimated_pack_days"`
 	EstimatedTransitDays         *int64      `json:"estimated_transit_days" db:"estimated_transit_days"`
@@ -122,11 +125,13 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 }
 
 // FetchShipmentsByTSP looks up all shipments belonging to a TSP ID
-func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
+func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status []string, orderBy *string, limit *int64, offset *int64) ([]Shipment, error) {
 
 	shipments := []Shipment{}
 
 	query := tx.Eager(
+		"TrafficDistributionList",
+		"Move",
 		"PickupAddress",
 		"SecondaryPickupAddress",
 		"DeliveryAddress",
@@ -134,8 +139,12 @@ func FetchShipmentsByTSP(tx *pop.Connection, tspID uuid.UUID, status *string, or
 		Where("shipment_offers.transportation_service_provider_id = $1", tspID).
 		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id")
 
-	if status != nil {
-		query = query.Where("shipments.status = $2", *status)
+	if len(status) > 0 {
+		statusStrings := make([]string, len(status))
+		for index, st := range status {
+			statusStrings[index] = fmt.Sprintf("'%s'", st)
+		}
+		query = query.Where(fmt.Sprintf("shipments.status IN (%s)", strings.Join(statusStrings, ", ")))
 	}
 
 	// Manage ordering by pickup or delivery date
@@ -219,6 +228,34 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	}
 
 	return &shipment, nil
+}
+
+// FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
+func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
+
+	shipments := []Shipment{}
+
+	err := tx.Eager(
+		"TrafficDistributionList",
+		"Move",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"PartialSITDeliveryAddress").
+		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&shipments)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Unlikely that we see more than one but to be safe this will error.
+	if len(shipments) != 1 {
+		return nil, ErrFetchNotFound
+	}
+
+	return &shipments[0], err
 }
 
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.

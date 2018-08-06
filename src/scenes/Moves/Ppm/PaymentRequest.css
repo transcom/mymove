@@ -9,3 +9,9 @@
 .payment-request .doc-list-title {
   border-bottom: 1px solid #d7d7d7;
 }
+
+@media only screen and (max-width: 481px) {
+  .payment-request .usa-width-two-thirds {
+    border-right-width: 0;
+  }
+}

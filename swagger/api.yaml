@@ -269,6 +269,73 @@ definitions:
     type: array
     items:
       $ref: '#/definitions/Shipment'
+  Move:
+    type: object
+    properties:
+      selected_move_type:
+        $ref: '#/definitions/SelectedMoveType'
+      orders_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      status:
+        $ref: '#/definitions/MoveStatus'
+      locator:
+        type: string
+        example: "12432"
+      cancel_reason:
+        type: string
+        example: "Change of orders"
+        x-nullable: true
+    required:
+      - orders_id
+      - locator
+  MoveStatus:
+    type: string
+    title: Move status
+    enum:
+      - DRAFT
+      - SUBMITTED
+      - APPROVED
+      - COMPLETED
+      - CANCELED
+    x-display-value:
+      DRAFT: Draft
+      SUBMITTED: Submitted
+      APPROVED: Approved
+      COMPLETED: Completed
+      CANCELED: Canceled
+  SelectedMoveType:
+    type: string
+    title: Selected Move Type
+    enum:
+      - HHG
+      - PPM
+      - COMBO
+    x-nullable: true
+    x-display-value:
+      HHG: Household Goods Move
+      PPM: Personal Procured Move
+      COMBO: Both HHG and PPM
+  TrafficDistributionList:
+    type: object
+    properties:
+      source_rate_area:
+        type: string
+        example: US34
+      destination_region:
+        type: string
+        example: "5"
+      code_of_service:
+        type: string
+        example: D
+        enum:
+          - D
+          - "2"
+    required:
+      - source_rate_area
+      - destination_region
+      - code_of_service
   Shipment:
     type: object
     properties:
@@ -277,16 +344,19 @@ definitions:
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      traffic_distribution_list_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        x-nullable: true
+      traffic_distribution_list:
+        $ref: '#/definitions/TrafficDistributionList'
         readOnly: true
       pickup_date:
         type: string
         format: date-time
       delivery_date:
+        type: string
+        format: date-time
+      created_at:
+        type: string
+        format: date-time
+      updated_at:
         type: string
         format: date-time
       source_gbloc:
@@ -306,11 +376,9 @@ definitions:
       requested_pickup_date:
         type: string
         format: date-time
-      move_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
+      move:
+        $ref: '#/definitions/Move'
+        x-nullable: true
       status:
         $ref: '#/definitions/ShipmentStatus'
         readOnly: true
@@ -365,7 +433,7 @@ definitions:
         minimum: 0
         example: 200
         x-nullable: true
-  ShipmentAcceptPayload:
+  ShipmentAccept:
     type: object
     properties:
       origin_shipping_agent:
@@ -396,6 +464,12 @@ definitions:
       - name
       - phone_number
       - email
+  ShipmentReject:
+    type: object
+    properties:
+      reason:
+        type: string
+        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
@@ -504,35 +578,28 @@ definitions:
       dHHG: Domestic HHG
       iHHG: International HHG
       iUB: International unaccompanied baggage
-  ShipmentRefusePayload:
-    type: object
-    properties:
-      reason:
-        type: string
-        example: We are overbooked and did not manage to file blackout dates in a timely fashion.
   ShipmentStatus:
     type: string
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
-      - IN_PROGRESS
-      - COMPLETE
       - AWARDED
       - ACCEPTED
       - REJECTED
+      - IN_PROGRESS
       - IN_TRANSIT
-      - SIT_ORIGIN
-      - SIT_DEST
+      - COMPLETE
       - DELIVERED
       - COMPLETED
-      - CLAIMS
-  ShipmentType:
-    type: string
-    description: The type of a shipment
-    example: HHG
-    enum: # Todo(Nick) - There may be more of these
-      - HHG
-      - PPM
+    x-display-value:
+      AWARDED: Awarded
+      ACCEPTED: Accepted
+      REJECTED: Rejected
+      IN_PROGRESS: In Progress
+      IN_TRANSIT: In Transit
+      DELIVERED: Delivered
+      COMPLETED: Completed
+      CANCELED: Canceled
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -761,9 +828,12 @@ paths:
       parameters:
         - name: status
           in: query
-          type: string
+          type: array
+          items:
+            type: string
+            enum: *SHIPMENTSTATUS
+          collectionFormat: csv
           description: Restrict the list to shipments with matching ShipmentStatus
-          enum: *SHIPMENTSTATUS
         - name: order_by
           in: query
           type: string
@@ -796,6 +866,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
         500:
           description: server error
   /shipments/{shipment_uuid}:
@@ -863,7 +935,7 @@ paths:
   /shipments/{shipment_uuid}/accept:
     post:
       summary: Accepts an awarded shipment
-      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED
+      description: Accepts a shipment awarded to a TSP. The status of the shipment will be updated to ACCEPTED.
       operationId: createShipmentAccept
       tags:
         - shipments
@@ -878,7 +950,7 @@ paths:
           in: body
           required: true
           schema:
-            $ref: '#/definitions/ShipmentAcceptPayload'
+            $ref: '#/definitions/ShipmentAccept'
       responses:
         200:
           description: returns updated (accepted) shipment object
@@ -1009,11 +1081,11 @@ paths:
           description: not authorized to add documents to this shipment
         500:
           description: server error
-  /shipments/{shipment_uuid}/refuse:
+  /shipments/{shipment_uuid}/reject:
     post:
       summary: Rejects an awarded shipment
-      description: Allows a TSP to reject an awarded shipment
-      operationId: createShipmentRefuse
+      description: Rejects a shipment awarded to a TSP. The status of the shipment will be updated to REJECTED.
+      operationId: createShipmentReject
       tags:
         - shipments
       parameters:
@@ -1028,10 +1100,10 @@ paths:
           description: reason for refusing award
           required: true
           schema:
-            $ref: '#/definitions/ShipmentRefusePayload'
+            $ref: '#/definitions/ShipmentReject'
       responses:
         200:
-          description: returns updated (refused) shipment object
+          description: returns updated (rejected) shipment object
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -1039,7 +1111,11 @@ paths:
         401:
           description: must be authenticated to use this endpoint
         403:
-          description: not authorized to accept this shipment
+          description: not authorized to reject this shipment
+        409:
+          description: the shipment is not in a state to be rejected
+          schema:
+            $ref: '#/definitions/Shipment'
         500:
           description: server error
   /tsps:
