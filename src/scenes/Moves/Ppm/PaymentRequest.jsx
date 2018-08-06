@@ -6,7 +6,7 @@ import Alert from 'shared/Alert'; // eslint-disable-line
 import { get } from 'lodash';
 
 import DocumentUploader from 'scenes/Office/DocumentViewer/DocumentUploader';
-import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+
 import {
   selectAllDocumentsForMove,
   getMoveDocumentsForMove,
@@ -17,7 +17,7 @@ import { submitExpenseDocs } from './ducks.js';
 import './PaymentRequest.css';
 
 function RequestPaymentSection(props) {
-  const { ppm, updatingPPM, submitDocs disableSubmit } = props;
+  const { ppm, updatingPPM, submitDocs, disableSubmit } = props;
 
   if (!ppm) {
     return null;
@@ -30,7 +30,7 @@ function RequestPaymentSection(props) {
         <button
           onClick={submitDocs}
           className="usa-button"
-          disabled={updatingPPM||disableSubmit}
+          disabled={updatingPPM || disableSubmit}
         >
           Submit Payment Request
         </button>
@@ -92,14 +92,12 @@ export class PaymentRequest extends Component {
             additional details.
           </div>
           <DocumentUploader moveId={moveId} />
-
           <RequestPaymentSection
             ppm={this.props.currentPpm}
             updatingPPM={this.props.updatingPPM}
             submitDocs={this.submitDocs}
             disableSubmit={disableSubmit}
           />
-          )}
         </div>
         <div className="usa-width-one-third">
           <h4 className="doc-list-title">All Documents ({numMoveDocs})</h4>
