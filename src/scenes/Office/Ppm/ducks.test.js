@@ -1,5 +1,4 @@
 import reducer, { getIncentiveActionType, getTabularExpenses } from './ducks';
-import { pick } from 'lodash';
 describe('office ppm reducer', () => {
   describe('GET_PPM_INCENTIVE', () => {
     it('handles SUCCESS', () => {
@@ -73,7 +72,11 @@ describe('getTabularExpenses', () => {
       OTHER: 'Other',
     },
   };
-
+  describe('when there is no expense data', () => {
+    it('return and empty array', () => {
+      expect(getTabularExpenses(null, null)).toEqual([]);
+    });
+  });
   describe('when there is no milpay', () => {
     const expenseData = {
       categories: [

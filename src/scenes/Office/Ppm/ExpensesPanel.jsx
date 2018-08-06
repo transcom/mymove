@@ -1,47 +1,25 @@
 import { get } from 'lodash';
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { formatCents } from 'shared/formatters';
-import { getTabularExpenses } from 'scenes/Office/Ppm/ducks';
+import {
+  getTabularExpenses,
+  getPpmExpenseSummary,
+} from 'scenes/Office/Ppm/ducks';
 import { connect } from 'react-redux';
 
 const dollar = cents => (cents ? '$' + formatCents(cents) : null);
 
 class ExpensesPanel extends Component {
+  componentDidMount() {
+    if (this.props.ppmId) this.props.getPpmExpenseSummary(this.props.ppmId);
+  }
+  componentDidUpdate(prevProps) {
+    if (this.props.ppmId && this.props.ppmId !== prevProps.ppmId)
+      this.props.getPpmExpenseSummary(this.props.ppmId);
+  }
   render() {
-    const expenseData = {
-      categories: [
-        {
-          category: 'CONTRACTED_EXPENSE',
-          payment_methods: {
-            GTCC: 600,
-          },
-          total: 600,
-        },
-        {
-          category: 'RENTAL_EQUIPMENT',
-          payment_methods: {
-            MIL_PAY: 500,
-          },
-          total: 500,
-        },
-        {
-          category: 'TOLLS',
-          payment_methods: {
-            OTHER_DD: 500,
-          },
-          total: 500,
-        },
-      ],
-      grand_total: {
-        payment_method_totals: {
-          GTCC: 600,
-          MIL_PAY: 500,
-          OTHER_DD: 500,
-        },
-        total: 1600,
-      },
-    };
-    const { schemaMovingExpenseType } = this.props;
+    const { schemaMovingExpenseType, expenseData } = this.props;
 
     const tabularData = getTabularExpenses(
       expenseData,
@@ -101,11 +79,22 @@ class ExpensesPanel extends Component {
 }
 function mapStateToProps(state) {
   return {
+    ppmId: get(state.office, 'officePPMs[0].id'),
     schemaMovingExpenseType: get(
       state,
       'swagger.spec.definitions.MovingExpenseType',
       {},
     ),
+    expenseData: get(state, 'ppmIncentive.summary'),
   };
 }
-export default connect(mapStateToProps)(ExpensesPanel);
+
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      getPpmExpenseSummary,
+    },
+    dispatch,
+  );
+
+export default connect(mapStateToProps, mapDispatchToProps)(ExpensesPanel);
