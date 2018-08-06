@@ -1,3 +1,4 @@
+import { get } from 'lodash';
 import { GetPpmIncentive } from './api.js';
 import * as ReduxHelpers from 'shared/ReduxHelpers';
 import reduceReducers from 'reduce-reducers';
@@ -6,7 +7,6 @@ const CLEAR_PPM_INCENTIVE = 'CLEAR_PPM_INCENTIVE';
 export const getIncentiveActionType = ReduxHelpers.generateAsyncActionTypes(
   GET_PPM_INCENTIVE,
 );
-
 export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(
   GET_PPM_INCENTIVE,
   GetPpmIncentive,
@@ -14,6 +14,48 @@ export const getPpmIncentive = ReduxHelpers.generateAsyncActionCreator(
 
 export const clearPpmIncentive = () => ({ type: CLEAR_PPM_INCENTIVE });
 
+const getOtherExpenses = item => {
+  const other = get(item, 'payment_methods.OTHER_DD', 0);
+  const milPay = get(item, 'payment_methods.MIL_PAY', 0);
+  const val = other + milPay;
+  return val > 0 ? val : null;
+};
+export const getTabularExpenses = (expenseData, movingExpenseSchema) => {
+  const expenses = movingExpenseSchema.enum.map(type => {
+    const item = expenseData.categories.find(item => item.category === type);
+    if (!item)
+      return {
+        type: get(movingExpenseSchema['x-display-value'], type),
+        GTCC: null,
+        other: null,
+        total: null,
+      };
+    return {
+      type: get(movingExpenseSchema['x-display-value'], type),
+      GTCC: get(item, 'payment_methods.GTCC', null),
+      other: getOtherExpenses(item),
+      total: item.total,
+    };
+  });
+  const otherDD = get(
+    expenseData,
+    'grand_total.payment_method_totals.OTHER_DD',
+    0,
+  );
+  const milPay = get(
+    expenseData,
+    'grand_total.payment_method_totals.MIL_PAY',
+    0,
+  );
+  const other = otherDD + milPay;
+  expenses.push({
+    type: 'Total',
+    GTCC: get(expenseData, 'grand_total.payment_method_totals.GTCC'),
+    other: other > 0 ? other : null,
+    total: get(expenseData, 'grand_total.total'),
+  });
+  return expenses;
+};
 function clearReducer(state, action) {
   if (action.type === CLEAR_PPM_INCENTIVE)
     return { ...state, calculation: null };
