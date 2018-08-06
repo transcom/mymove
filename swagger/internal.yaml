@@ -92,6 +92,11 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      gbloc:
+        type: string
+        format: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
       latitude:
         type: number
         format: float
@@ -431,6 +436,38 @@ definitions:
     required:
       - gcc
       - incentive_percentage
+  ExpenseSummaryPayload:
+    type: object
+    properties:
+      categories:
+        type: array
+        items:
+          $ref: '#/definitions/CategoryExpenseSummary'
+      grand_total:
+        type: object
+        properties:
+          payment_method_totals:
+            $ref: '#/definitions/PaymentMethodsTotals'
+          total:
+            type: integer
+  CategoryExpenseSummary:
+    type: object
+    properties:
+      category:
+        $ref: '#/definitions/MovingExpenseType'
+      payment_methods:
+        $ref: '#/definitions/PaymentMethodsTotals'
+      total:
+        type: integer
+  PaymentMethodsTotals:
+    type: object
+    properties:
+      MIL_PAY:
+        type: integer
+      OTHER_DD:
+        type: integer
+      GTCC:
+        type: integer
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -1378,6 +1415,10 @@ definitions:
         type: string
         x-nullable: true
         readOnly: true
+      code_of_service:
+        type: string
+        x-nullable: true
+        readOnly: true
       status:
         type: string
         readOnly: true
@@ -1461,16 +1502,19 @@ definitions:
         type: integer
         minimum: 0
         example: 10000
+        title: Weight
         x-nullable: true
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
+        title: Pro-Gear Weight
         x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
+        title: Spouse's Pro-Gear
         x-nullable: true
       created_at:
         type: string
@@ -1713,7 +1757,6 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - IN_PROGRESS
       - COMPLETED
       - CANCELED
       - PAYMENT_REQUESTED
@@ -1721,7 +1764,6 @@ definitions:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
       PAYMENT_REQUESTED: Payment Requested
@@ -1921,7 +1963,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         type: string
-        example: Booked - Awaiting Review
+        example: APPROVED
+      ppm_status:
+        type: string
+        example: PAYMENT_REQUESTED
       locator:
         type: string
         example: "12432"
@@ -1966,6 +2011,7 @@ definitions:
     required:
       - id
       - status
+      - ppm_status
       - locator
       - customer_name
       - edipi
@@ -2577,6 +2623,35 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
+    get:
+      summary: Returns an expense summary organized by expense type
+      description: Calculates and returns an expense summary organized by expense type
+      operationId: requestPPMExpenseSummary
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: Successfully calculated expense summary
+          schema:
+            $ref: '#/definitions/ExpenseSummaryPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: personally procured move not found
+        500:
+          description: server error
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -2593,7 +2668,7 @@ paths:
           description: UUID of the PPM
       responses:
         200:
-          description: Sucesssfully requested payement
+          description: Sucesssfully requested payment
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
         400:

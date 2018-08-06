@@ -14,6 +14,7 @@ func MakeTransportationOffice(db *pop.Connection) models.TransportationOffice {
 		Name:      "JPPSO Testy McTest",
 		AddressID: address.ID,
 		Address:   address,
+		Gbloc:     "LKBM",
 		Latitude:  1.23445,
 		Longitude: -23.34455,
 	}

@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { get } from 'lodash';
 
+import { formatCents } from 'shared/formatters';
+
 import './index.css';
 
 export const PanelField = props => {
@@ -30,6 +32,9 @@ export const SwaggerValue = props => {
   let value = values[fieldName];
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
+  }
+  if (swaggerProps.format === 'cents') {
+    value = formatCents(value);
   }
   /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;

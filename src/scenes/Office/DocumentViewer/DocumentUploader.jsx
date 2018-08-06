@@ -40,7 +40,7 @@ export class DocumentUploader extends Component {
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
       formValues.reimbursement.requested_amount = parseFloat(
-        formValues.reimbursement.requested_amount,
+        formValues.reimbursement.requested_amount * 100,
       );
       this.props
         .createMovingExpenseDocument(
