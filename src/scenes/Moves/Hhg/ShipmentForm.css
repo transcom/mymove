@@ -1,3 +1,7 @@
 .shipment-form .form-section {
   margin-top: 7rem;
 }
+
+.shipment-form h3.instruction-heading {
+  font-size: 2rem;
+}

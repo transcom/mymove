@@ -89,13 +89,13 @@ func (m *Move) Submit() error {
 
 	m.Status = MoveStatusSUBMITTED
 
-	//TODO: update PPM status too
-	// for i, _ := range m.PersonallyProcuredMoves {
-	// 	err := m.PersonallyProcuredMoves[i].Submit()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	// Update PPM status too
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Submit()
+		if err != nil {
+			return err
+		}
+	}
 
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
