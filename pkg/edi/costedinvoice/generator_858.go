@@ -3,6 +3,7 @@ package edicostedinvoice
 import (
 	"errors"
 	"fmt"
+	"time"
 
 	"github.com/gobuffalo/pop"
 
@@ -13,10 +14,29 @@ import (
 
 const delimiter = "~"
 const dateFormat = "20060102"
+const timeFormat = "1504"
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, error) {
-	// TODO: enerate transaction set header and stuffs
+	currentTime := time.Now()
+	isa := edisegment.ISA{
+		AuthorizationInformationQualifier: "00",
+		AuthorizationInformation:          "          ",
+		SecurityInformationQualifier:      "00",
+		SecurityInformation:               "          ",
+		InterchangeSenderIDQualifier:      "ZZ",
+		InterchangeSenderID:               fmt.Sprintf("%-15v", "W28GPR-DPS"), // TODO: update with our own after talking to US Bank. Must be 15 characters
+		InterchangeReceiverIDQualifier:    "12",
+		InterchangeReceiverID:             fmt.Sprintf("%-15v", "8004171844"), // Syncada - extra blank spaces are intentional
+		InterchangeDate:                   currentTime.Format(dateFormat),
+		InterchangeTime:                   currentTime.Format(timeFormat),
+		InterchangeControlStandards:       "U",
+		InterchangeControlVersionNumber:   "00401",
+		InterchangeControlNumber:          "000000001",
+		AcknowledgementRequested:          "1",
+		UsageIndicator:                    "T", // T for test, P for production
+		ComponentElementSeparator:         "|",
+	}
 	transaction := ""
 	for index, shipment := range shipments {
 		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
