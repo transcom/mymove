@@ -11,3 +11,12 @@ export async function GetPpmIncentive(moveDate, originZip, destZip, weight) {
   checkResponse(response, 'failed to update ppm due to server error');
   return response.body;
 }
+
+export async function GetExpenseSummary(personallyProcuredMoveId) {
+  const client = await getClient();
+  const response = await client.apis.ppm.requestPPMExpenseSummary({
+    personallyProcuredMoveId,
+  });
+  checkResponse(response, 'failed to retrieve summary due to server error');
+  return response.body;
+}
