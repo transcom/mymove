@@ -390,8 +390,70 @@ head .panel-subhead {
   margin: 1em;
   display: block;
 }
-.calculator-panel .buttons {
-}
+
 .calculator-panel .calculated-result {
   margin: 1em;
+}
+
+.expense-panel {
+  border: solid #f1f1f1;
+  border-width: 3px;
+  width: 100%;
+  empty-cells: hide;
+  margin-bottom: 18px;
+}
+.expense-panel table {
+  margin: 1em;
+  width: 97%;
+  display: table;
+  border-spacing: 2px;
+}
+
+.expense-panel th,
+.expense-panel td {
+  border: none;
+}
+
+.expense-panel .expense-header {
+  font-weight: bold;
+  font-size: 0.9em;
+  border-bottom: solid 1px #a2a2a2;
+  text-align: right;
+  width: 15%;
+}
+.expense-panel .payment-method {
+  border-bottom-width: 0;
+  text-align: center;
+  text-decoration: underline;
+}
+.expense-panel th {
+  padding: 0;
+}
+
+.expense-panel table > tbody > tr > td {
+  border-bottom: 1px solid #f1f1f1;
+  font-size: 0.8em;
+  padding: 4px 0;
+}
+
+.expense-panel table > tbody > tr > td:first-child {
+  width: 1%;
+  white-space: nowrap;
+}
+.expense-panel table > tbody > tr > td:last-child {
+  padding-left: 10px;
+  font-weight: bold;
+}
+.expense-panel table > tbody > tr:first-child > td {
+  padding-top: 0;
+}
+.expense-panel table > tbody > tr:last-child > td {
+  border-bottom-width: 0;
+  font-weight: bold;
+}
+.expense-panel table > tbody tr:nth-last-child(2) > td {
+  border-bottom-color: black;
+}
+.expense-panel table > tbody > tr > td:last-child {
+  font-weight: normal;
 }
