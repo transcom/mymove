@@ -42,6 +42,9 @@ export function fetchActive(foos) {
   );
 }
 
+export const convertDollarsToCents = dollars =>
+  Math.round(parseFloat(dollars) * 100);
+
 export function renderStatusIcon(status) {
   if (!status) {
     return;
