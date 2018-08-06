@@ -23,9 +23,8 @@ import (
  */
 func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 	shipmentPayload := &internalmessages.Shipment{
-		ID:                           strfmt.UUID(s.ID.String()),
-		MoveID:                       strfmt.UUID(s.MoveID.String()),
-		ServiceMemberID:              strfmt.UUID(s.MoveID.String()),
+		ID:     strfmt.UUID(s.ID.String()),
+		MoveID: strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
 		SourceGbloc:                  s.SourceGBLOC,
 		DestinationGbloc:             s.DestinationGBLOC,
@@ -71,22 +70,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	payload := params.Shipment
 
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
-	if err != nil {
-		return responseForError(h.logger, err)
-	}
-
-	var destinationGbloc string
-	if orders.NewDutyStationID != nil {
-		destinationTransportationOffice := FetchDutyStationTransportationOffice(h.db, NewDutyStationID)
-		if destinationTransportationOffice != nil {
-			destinationGbloc = destinationTransportationOffice.gbloc
-		}
-	}
-
-	var sourceGbloc string
-	sourceTransportationOffice := FetchDutyStationTransportationOffice(h.db)
-
 	pickupAddress := addressModelFromPayload(payload.PickupAddress)
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
 	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
@@ -103,7 +86,6 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
 		Status:                       "DRAFT",
-		DestinationGBLOC:             destinationGbloc,
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,

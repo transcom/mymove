@@ -138,11 +138,16 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 }
 
-func (suite *ModelSuite) TestSaveMoveStatusesFail() {
+func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = ""
 
+	session := &auth.Session{
+		UserID:          orders.ServiceMember.UserID,
+		ServiceMemberID: orders.ServiceMemberID,
+		ApplicationName: auth.MyApp,
+	}
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
 	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
@@ -150,14 +155,19 @@ func (suite *ModelSuite) TestSaveMoveStatusesFail() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveStatuses(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.db, move)
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 
-func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
+func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
+	session := &auth.Session{
+		UserID:          orders.ServiceMember.UserID,
+		ServiceMemberID: orders.ServiceMemberID,
+		ApplicationName: auth.MyApp,
+	}
 
 	var selectedType = internalmessages.SelectedMoveTypeCOMBO
 
@@ -166,7 +176,7 @@ func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveStatuses(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.db, move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.Nil(err)
 }

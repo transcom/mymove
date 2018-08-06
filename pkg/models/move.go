@@ -463,9 +463,8 @@ func createNewMove(db *pop.Connection,
 	return nil, verrs, ErrLocatorGeneration
 }
 
-// SaveMoveStatuses safely saves a Move status and its associated PPMs' Advances' statuses.
-// TODO: Add functionality to save more than just status on these objects
-func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+// SaveMoveDependencies safely saves a Move status and its dependencies.
+func SaveMoveDependencies(db *pop.Connection, session *auth.Session, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -488,6 +487,28 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			}
 		}
 
+		// Save Shipment GBLOCs
+		orders, err := FetchOrder(db, session, move.OrdersID)
+		if err != nil {
+			responseError = errors.Wrap(err, "Error fetching orders")
+			return transactionError
+		}
+		for _, shipment := range move.Shipments {
+			destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
+			if err != nil {
+				responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
+				return transactionError
+			}
+			shipment.DestinationGBLOC = &destinationGbloc
+			// TODO: Implement sourceGbloc calculation
+
+			if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving Shipment")
+				return transactionError
+			}
+		}
+
 		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
@@ -505,6 +526,14 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 	})
 
 	return responseVErrors, responseError
+}
+
+func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
+	transportationOffice, err := FetchDutyStationTransportationOffice(db, dutyStationID)
+	if err != nil {
+		return "XXXX", errors.Wrap(err, "could not load transportation office for duty station")
+	}
+	return transportationOffice.Gbloc, nil
 }
 
 // FetchMoveForAdvancePaperwork returns a Move with all of the associations required

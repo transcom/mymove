@@ -53,21 +53,3 @@ func (t *TransportationOffice) ValidateCreate(tx *pop.Connection) (*validate.Err
 func (t *TransportationOffice) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
-
-// FetchGbloc ...uses orders or SM id to select an associated gbloc
-func FetchGbloc(db *pop.Connection, ordersID uuid.UUID) (string, error) {
-	var destinationGbloc string
-	var query = `
-		SELECT gbloc
-		FROM transportation_offices
-		JOIN duty_stations ON transportation_offices.id = duty_stations.transportation_office_id,
-		JOIN orders ON duty_stations.id = orders.new_duty_station_id
-		WHERE orders.id = $1
-		LIMIT 1
-	`
-	err := db.RawQuery(query, *ordersID).First(destinationGbloc)
-	if err != nil {
-		return nil, err
-	}
-	return destinationGbloc, nil
-}

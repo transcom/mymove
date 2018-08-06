@@ -1367,11 +1367,6 @@ definitions:
         format: uuid
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         readOnly: true
-      service_member_id:
-        type: string
-        format: uuid
-        example: d56a4180-65aa-42ec-a945-5fd21dec0538
-        readOnly: true
       traffic_distribution_list_id:
         type: string
         format: uuid

@@ -160,7 +160,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveStatuses(h.db, move)
+	verrs, err := models.SaveMoveDependencies(h.db, session, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
