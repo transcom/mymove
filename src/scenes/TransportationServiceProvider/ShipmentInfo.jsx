@@ -8,6 +8,7 @@ import { NavLink } from 'react-router-dom';
 import { withContext } from 'shared/AppContext';
 
 import { loadShipmentDependencies } from './ducks';
+import { formatDate } from 'shared/formatters';
 
 class ShipmentInfo extends Component {
   componentDidMount() {
@@ -15,6 +16,7 @@ class ShipmentInfo extends Component {
   }
 
   render() {
+    var move = this.props.shipment.move;
     return (
       <div>
         <div className="usa-grid grid-wide">
@@ -30,10 +32,13 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta Todo-phase2">
-              <li>GBL# KKFA9999999</li>
-              <li>Locator# ABC89</li>
+              <li>GBL# {this.props.shipment.source_gbloc}</li>
+              <li>Locator# {move && move.locator}</li>
               <li>KKFA to HAFC</li>
-              <li>Move date 07-Jun-2018</li>
+              <li>
+                Requested Move date{' '}
+                {formatDate(this.props.shipment.requested_pickup_date)}
+              </li>
               <li>
                 Status: <b>At Destination</b>
               </li>
@@ -56,6 +61,7 @@ class ShipmentInfo extends Component {
 
 const mapStateToProps = state => ({
   swaggerError: state.swagger.hasErrored,
+  shipment: get(state, 'tsp.shipment', {}),
   loadTspDependenciesHasSuccess: get(
     state,
     'tsp.loadTspDependenciesHasSuccess',
