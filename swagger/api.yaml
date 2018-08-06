@@ -580,7 +580,6 @@ definitions:
     description: The stages in the lifecycle of a Shipment
     example: IN_PROGRESS
     enum: &SHIPMENTSTATUS
-      - DEFAULT
       - AWARDED
       - ACCEPTED
       - REJECTED
@@ -590,15 +589,14 @@ definitions:
       - DELIVERED
       - COMPLETED
     x-display-value:
-      DEFAULT: Default
       AWARDED: Awarded
       ACCEPTED: Accepted
       REJECTED: Rejected
       IN_PROGRESS: In Progress
       IN_TRANSIT: In Transit
-      COMPLETE: Complete
       DELIVERED: Delivered
       COMPLETED: Completed
+      CANCELED: Canceled
   TSP:
     type: object
     description: The primary definition of a Transport Service Provider
@@ -865,6 +863,8 @@ paths:
           description: must be authenticated to use this endpoint
         403:
           description: not authorized to list these shipments
+        422:
+          description: cannot process request with given information
         500:
           description: server error
   /shipments/{shipment_uuid}:
