@@ -120,9 +120,16 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
 	oneWeek, _ := time.ParseDuration("7d")
+	selectedMoveType := "HHG"
+	moveAssertions := Assertions{
+		Move: models.Move{
+			SelectedMoveType: &selectedMoveType,
+		},
+	}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
-		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market)
+		move := MakeMove(db, moveAssertions)
+		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market, &move)
 		shipmentList = append(shipmentList, shipment)
 		time.Sleep(100 * time.Millisecond)
 	}
