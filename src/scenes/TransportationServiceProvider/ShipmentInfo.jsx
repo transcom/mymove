@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get } from 'lodash';
+import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
 
@@ -20,7 +20,8 @@ class ShipmentInfo extends Component {
     return (
       <div>
         <div className="usa-grid grid-wide">
-          <div className="usa-width-two-thirds">
+          <div className="usa-width-two-thirds Todo-phase2">
+            {/* This comes from the Server Member model which is not yet on Shipments */}
             <h1>Shipment Info: LastName, FirstName</h1>
           </div>
           <div className="usa-width-one-third nav-controls">
@@ -31,16 +32,17 @@ class ShipmentInfo extends Component {
         </div>
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
-            <ul className="move-info-header-meta Todo-phase2">
+            <ul className="move-info-header-meta">
               <li>GBL# {this.props.shipment.source_gbloc}</li>
               <li>Locator# {move && move.locator}</li>
-              <li>KKFA to HAFC</li>
+              {/* This comes from Service Member and Order models which are currently not connected to Shipments */}
+              <li className="Todo-phase2">KKFA to HAFC</li>
               <li>
                 Requested Move date{' '}
                 {formatDate(this.props.shipment.requested_pickup_date)}
               </li>
               <li>
-                Status: <b>At Destination</b>
+                Status: <b>{capitalize(this.props.shipment.status)}</b>
               </li>
             </ul>
           </div>
