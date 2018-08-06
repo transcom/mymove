@@ -19,7 +19,8 @@ export function createMovingExpenseDocument(
   title,
   movingExpenseType,
   moveDocumentType,
-  reimbursement,
+  requestedAmountCents,
+  paymentMethod,
   notes,
 ) {
   return async function(dispatch, getState, { schema }) {
@@ -32,7 +33,8 @@ export function createMovingExpenseDocument(
         title: title,
         moving_expense_type: movingExpenseType,
         move_document_type: moveDocumentType,
-        reimbursement: reimbursement,
+        requested_amount_cents: requestedAmountCents,
+        payment_method: paymentMethod,
         notes: notes,
       },
     });
