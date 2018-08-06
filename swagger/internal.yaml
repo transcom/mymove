@@ -584,8 +584,21 @@ definitions:
         title: Notes
       moving_expense_type:
         $ref: '#/definitions/MovingExpenseType'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Method of Payment
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other account
+          GTCC: GTCC
     required:
       - id
       - move_id
@@ -682,8 +695,21 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
-      reimbursement:
-        $ref: '#/definitions/CreateReimbursement'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Method of Payment
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other payment method
+          GTCC: GTCC
       notes:
         type: string
         example: This document is good to go!
@@ -694,7 +720,8 @@ definitions:
       - title
       - move_document_type
       - moving_expense_type
-      - reimbursement
+      - requested_amount_cents
+      - payment_method
   UpdateMovingExpenseDocumentPayload:
     type: object
     properties:
@@ -713,8 +740,21 @@ definitions:
         $ref: '#/definitions/MovingExpenseType'
       status:
          $ref: '#/definitions/MoveDocumentStatus'
-      reimbursement:
-        $ref: '#/definitions/Reimbursement'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Method of Payment
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other account
+          GTCC: GTCC
       notes:
         type: string
         example: This document is good to go!
@@ -725,7 +765,8 @@ definitions:
       - status
       - move_document_type
       - moving_expense_type
-      - reimbursement
+      - payment_method
+      - requested_amount_cents
   MovingExpenseType:
     type: string
     title: Moving Expense Type

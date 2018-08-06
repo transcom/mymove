@@ -415,14 +415,11 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 	for _, moveDoc := range moveDocsExpense {
 		// First add up grand totals by payment type and grand total
 		expenseDoc := moveDoc.MovingExpenseDocument
-		reimbursement := moveDoc.MovingExpenseDocument.Reimbursement
-		amount := reimbursement.RequestedAmount.Int64()
+		amount := expenseDoc.RequestedAmountCents.Int64()
 		methodTotals := expenseSummaryPayload.GrandTotal.PaymentMethodTotals
-		switch reimbursement.MethodOfReceipt {
+		switch expenseDoc.PaymentMethod {
 		case "OTHER_DD":
 			methodTotals.OTHERDD += amount
-		case "MIL_PAY":
-			methodTotals.MILPAY += amount
 		case "GTCC":
 			methodTotals.GTCC += amount
 		}
@@ -432,22 +429,18 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 		expenseType := internalmessages.MovingExpenseType(string(expenseDoc.MovingExpenseType))
 		// Check if expense type exists in catMap - increment values if so
 		if CategoryExpenseSummary, ok := catMap[expenseType]; ok {
-			switch reimbursement.MethodOfReceipt {
+			switch expenseDoc.PaymentMethod {
 			case "OTHER_DD":
 				CategoryExpenseSummary.PaymentMethods.OTHERDD += amount
-			case "MIL_PAY":
-				CategoryExpenseSummary.PaymentMethods.MILPAY += amount
 			case "GTCC":
 				CategoryExpenseSummary.PaymentMethods.GTCC += amount
 			}
 			CategoryExpenseSummary.Total += amount
 		} else { // initialize CategoryExpenseSummary
-			var ddAmt, milpayAmt, gtccAmt int64
-			switch reimbursement.MethodOfReceipt {
+			var ddAmt, gtccAmt int64
+			switch expenseDoc.PaymentMethod {
 			case "OTHER_DD":
 				ddAmt = amount
-			case "MIL_PAY":
-				milpayAmt = amount
 			case "GTCC":
 				gtccAmt = amount
 			}
@@ -456,7 +449,6 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 				Total:    amount,
 				PaymentMethods: &internalmessages.PaymentMethodsTotals{
 					OTHERDD: ddAmt,
-					MILPAY:  milpayAmt,
 					GTCC:    gtccAmt,
 				},
 			}

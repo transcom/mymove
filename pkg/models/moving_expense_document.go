@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/uuid"
 	"github.com/gobuffalo/validate"
 	"github.com/gobuffalo/validate/validators"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MovingExpenseType represents types of different moving expenses
@@ -48,14 +49,14 @@ func IsExpenseModelDocumentType(docType MoveDocumentType) bool {
 
 // MovingExpenseDocument is an object representing a move document
 type MovingExpenseDocument struct {
-	ID                uuid.UUID         `json:"id" db:"id"`
-	MoveDocumentID    uuid.UUID         `json:"move_document_id" db:"move_document_id"`
-	MoveDocument      MoveDocument      `belongs_to:"move_documents"`
-	MovingExpenseType MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
-	ReimbursementID   uuid.UUID         `json:"reimbursement_id" db:"reimbursement_id"`
-	Reimbursement     Reimbursement     `belongs_to:"reimbursement"`
-	CreatedAt         time.Time         `json:"created_at" db:"created_at"`
-	UpdatedAt         time.Time         `json:"updated_at" db:"updated_at"`
+	ID                   uuid.UUID         `json:"id" db:"id"`
+	MoveDocumentID       uuid.UUID         `json:"move_document_id" db:"move_document_id"`
+	MoveDocument         MoveDocument      `belongs_to:"move_documents"`
+	MovingExpenseType    MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
+	RequestedAmountCents unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	PaymentMethod        string            `json:"payment_method" db:"payment_method"`
+	CreatedAt            time.Time         `json:"created_at" db:"created_at"`
+	UpdatedAt            time.Time         `json:"updated_at" db:"updated_at"`
 }
 
 // MovingExpenseDocuments is not required by pop and may be deleted
@@ -66,7 +67,6 @@ type MovingExpenseDocuments []MovingExpenseDocument
 func (m *MovingExpenseDocument) Validate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
-		&validators.UUIDIsPresent{Field: m.ReimbursementID, Name: "ReimbursementID"},
 		&validators.StringIsPresent{Field: string(m.MovingExpenseType), Name: "MovingExpenseType"},
 	), nil
 }

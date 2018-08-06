@@ -14,6 +14,7 @@ import (
 
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MoveStatus represents the status of an order record's lifecycle
@@ -288,7 +289,8 @@ func (m Move) CreateMovingExpenseDocument(
 	moveDocumentType MoveDocumentType,
 	title string,
 	notes *string,
-	reimbursement Reimbursement,
+	requestedAmountCents unit.Cents,
+	paymentMethod string,
 	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
 
 	var newMovingExpenseDocument *MovingExpenseDocument
@@ -311,19 +313,19 @@ func (m Move) CreateMovingExpenseDocument(
 		}
 
 		// Save the reimbursement to get an ID.
-		if verrs, err := db.ValidateAndCreate(&reimbursement); verrs.HasAny() || err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error Creating Moving Expense Advance")
-			return transactionError
-		}
+		// if verrs, err := db.ValidateAndCreate(&reimbursement); verrs.HasAny() || err != nil {
+		// 	responseVErrors.Append(verrs)
+		// 	responseError = errors.Wrap(err, "Error Creating Moving Expense Advance")
+		// 	return transactionError
+		// }
 
 		// Finally, create the MovingExpenseDocument
 		newMovingExpenseDocument = &MovingExpenseDocument{
-			MoveDocumentID:    newMoveDocument.ID,
-			MoveDocument:      *newMoveDocument,
-			MovingExpenseType: movingExpenseType,
-			ReimbursementID:   reimbursement.ID,
-			Reimbursement:     reimbursement,
+			MoveDocumentID:       newMoveDocument.ID,
+			MoveDocument:         *newMoveDocument,
+			MovingExpenseType:    movingExpenseType,
+			RequestedAmountCents: requestedAmountCents,
+			PaymentMethod:        paymentMethod,
 		}
 		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
 		if err != nil || verrs.HasAny() {
