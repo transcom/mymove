@@ -228,6 +228,34 @@ func FetchShipment(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Sh
 	return &shipment, nil
 }
 
+// FetchShipmentByTSP looks up a shipments belonging to a TSP ID by Shipment ID
+func FetchShipmentByTSP(tx *pop.Connection, tspID uuid.UUID, shipmentID uuid.UUID) (*Shipment, error) {
+
+	shipments := []Shipment{}
+
+	err := tx.Eager(
+		"TrafficDistributionList",
+		"Move",
+		"PickupAddress",
+		"SecondaryPickupAddress",
+		"DeliveryAddress",
+		"PartialSITDeliveryAddress").
+		Where("shipment_offers.transportation_service_provider_id = $1 and shipments.id = $2", tspID, shipmentID).
+		LeftJoin("shipment_offers", "shipments.id=shipment_offers.shipment_id").
+		All(&shipments)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Unlikely that we see more than one but to be safe this will error.
+	if len(shipments) != 1 {
+		return nil, ErrFetchNotFound
+	}
+
+	return &shipments[0], err
+}
+
 // SaveShipmentAndAddresses saves a Shipment and its Addresses atomically.
 func SaveShipmentAndAddresses(db *pop.Connection, shipment *Shipment) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
