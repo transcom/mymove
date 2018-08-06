@@ -1,12 +1,19 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import { get } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
 
 import { withContext } from 'shared/AppContext';
 
+import { loadShipmentDependencies } from './ducks';
+
 class ShipmentInfo extends Component {
+  componentDidMount() {
+    this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
+  }
+
   render() {
     return (
       <div>
@@ -47,9 +54,22 @@ class ShipmentInfo extends Component {
   }
 }
 
-const mapStateToProps = state => ({});
+const mapStateToProps = state => ({
+  swaggerError: state.swagger.hasErrored,
+  loadTspDependenciesHasSuccess: get(
+    state,
+    'tsp.loadTspDependenciesHasSuccess',
+  ),
+  loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
+});
 
-const mapDispatchToProps = dispatch => bindActionCreators({}, dispatch);
+const mapDispatchToProps = dispatch =>
+  bindActionCreators(
+    {
+      loadShipmentDependencies,
+    },
+    dispatch,
+  );
 
 export default withContext(
   connect(mapStateToProps, mapDispatchToProps)(ShipmentInfo),
