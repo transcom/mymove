@@ -21,6 +21,7 @@ import IncentiveCalculator from './Ppm/IncentiveCalculator';
 import ExpensesPanel from './Ppm/ExpensesPanel';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import LocationsPanel from './Hhg/LocationsPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -75,6 +76,7 @@ const HHGTabContent = props => {
   return (
     <div className="office-tab">
       <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
+      <LocationsPanel title="Locations" moveId={props.moveId} />
     </div>
   );
 };
