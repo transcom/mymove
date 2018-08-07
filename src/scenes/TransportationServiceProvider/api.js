@@ -32,3 +32,22 @@ export async function LoadShipment(shipmentId) {
   checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
 }
+
+export async function AcceptShipment(shipmentId, originShippingAgent, destinationShippingAgent) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.createShipmentAccept({
+    shipment_uuid: shipmentId,
+    originShippingAgent,
+    destinationShippingAgent,
+  });
+  return response.body;
+}
+
+export async function RejectShipment(shipmentId, rejectReason) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.createShipmentReject({
+    shipment_uuid: shipmentId,
+    rejectReason,
+  });
+  return response.body;
+}

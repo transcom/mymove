@@ -5,15 +5,196 @@ import { get, capitalize } from 'lodash';
 
 import { NavLink } from 'react-router-dom';
 
+import Alert from 'shared/Alert'; // eslint-disable-line
 import { withContext } from 'shared/AppContext';
 
-import { loadShipmentDependencies } from './ducks';
+import {
+ loadShipmentDependencies,
+ acceptShipment,
+ rejectShipment,
+} from './ducks';
 import { formatDate } from 'shared/formatters';
+
+class AcceptPanel extends Component {
+  state = {
+    displayState: 'Button',
+    originShippingAgent: {},
+    destinationShippingAgent: {},
+  };
+
+  setConfirmState = () => {
+    this.setState({ displayState: 'Confirm' });
+  };
+
+  setAccept = () => {
+    if (this.state.originShippingAgent !== {} || this.state.destinationShippingAgent !== {}) {
+      this.setState({ displayState: 'Accept' });
+    }
+  };
+
+  setButtonState = () => {
+    this.setState({ displayState: 'Button' });
+  };
+
+  handleChange = event => {
+    this.setState({
+      originShippingAgent: event.target.value.originShippingAgent,
+      destinationShippingAgent: event.target.value.destinationShippingAgent,
+    });
+  };
+
+  acceptShipment = event => {
+    event.preventDefault();
+    this.props.acceptShipment(this.state.originShippingAgent, this.state.destinationShippingAgent);
+    this.setState({ displayState: 'Hide' });
+  };
+
+  render () {
+    if (this.state.displayState === 'Accept') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Accept Shipment</h2>
+          <div className="extras content">
+            <Alert type="warning" heading="Cancelation Warning">
+              Are you sure you want to cancel the entire move?
+            </Alert>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>No, never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.cancelMove}>Yes, cancel move</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Confirm') {
+      return (
+        <div className="cancel-panel">
+          <h2 className="extras usa-heading">Accept Shipment</h2>
+          <div className="extras content">
+            Why is the move being canceled?
+            <textarea required onChange={this.handleChange} />
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>Never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.setCancelState}>
+                  Cancel entire move
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Button') {
+      return (
+        <button className="usa-button-primary" onClick={this.setConfirmState}>
+          Accept Shipment
+        </button>
+      );
+    } else if (this.state.displayState === 'Hide') {
+      return <div></div>;
+    }
+  };
+}
+
+class RejectPanel extends Component {
+  state = {
+    displayState: 'Button',
+    rejectReason: '',
+  };
+
+  setConfirmState = () => {
+    this.setState({ displayState: 'Confirm' });
+  };
+
+  setRejectState = () => {
+    if (this.state.rejectReason !== '') {
+      this.setState({ displayState: 'Reject' });
+    }
+  };
+
+  setButtonState = () => {
+    this.setState({ displayState: 'Button' });
+  };
+
+  handleChange = event => {
+    this.setState({ rejectReason: event.target.value });
+  };
+
+  rejectShipment = event => {
+    event.preventDefault();
+    this.props.rejectShipment(this.state.rejectReason);
+    this.setState({ displayState: 'Hide' });
+  };
+
+  render () {
+    if (this.state.displayState === 'Reject') {
+      return (
+        <div className="reject-panel">
+          <h2 className="extras usa-heading">Reject Shipment</h2>
+          <div className="extras content">
+            <Alert type="warning" heading="Rejection Warning">
+              Are you sure you want to reject the entire move? This will affect your quality score.
+            </Alert>
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>No, never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.rejectMove}>Yes, reject shipment</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Confirm') {
+      return (
+        <div className="reject-panel">
+          <h2 className="extras usa-heading">Reject Shipment</h2>
+          <div className="extras content">
+            Why is the shipment being rejected?
+            <textarea required onChange={this.handleChange} />
+            <div className="usa-grid">
+              <div className="usa-width-one-whole extras options">
+                <a onClick={this.setButtonState}>Never mind</a>
+              </div>
+              <div className="usa-width-one-whole extras options">
+                <button onClick={this.setRejectState}>
+                  Reject shipment
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    } else if (this.state.displayState === 'Button') {
+      return (
+        <button className="usa-button-secondary" onClick={this.setConfirmState}>
+          Reject Shipment
+        </button>
+      );
+    } else if (this.state.displayState === 'Hide') {
+      return <div></div>;
+    }
+  };
+}
 
 class ShipmentInfo extends Component {
   componentDidMount() {
     this.props.loadShipmentDependencies(this.props.match.params.shipmentId);
   }
+
+  acceptShipment = (originShippingAgent, destinationShippingAgent) => {
+    this.props.acceptShipment(this.props.shipment.id, originShippingAgent, destinationShippingAgent);
+  };
+
+  rejectShipment = rejectReason => {
+    this.props.rejectShipment(this.props.shipment.id, rejectReason);
+  };
 
   render() {
     var move = this.props.shipment.move;
@@ -33,10 +214,10 @@ class ShipmentInfo extends Component {
         <div className="usa-grid grid-wide">
           <div className="usa-width-one-whole">
             <ul className="move-info-header-meta">
-              <li>GBL# {this.props.shipment.source_gbloc}</li>
+              {/* Not clear where this comes from yet */}
+              <li className="Todo-phase2">GBL# KKFA9999999</li>
               <li>Locator# {move && move.locator}</li>
-              {/* This comes from Service Member and Order models which are currently not connected to Shipments */}
-              <li className="Todo-phase2">KKFA to HAFC</li>
+              <li>{this.props.shipment.source_gbloc} to {this.props.shipment.destination_gbloc}</li>
               <li>
                 Requested Move date{' '}
                 {formatDate(this.props.shipment.requested_pickup_date)}
@@ -47,14 +228,19 @@ class ShipmentInfo extends Component {
             </ul>
           </div>
         </div>
-        <div className="usa-grid grid-wide tabs">
-          <div className="usa-width-two-thirds">
-            <p>
-              <button className="usa-button-primary">Accept</button>
-              <button className="usa-button-secondary">Reject</button>
-            </p>
+        <div className="usa-grid grid-wide">
+          <div className="usa-width-two-thirds Todo-phase2">
+            <div className="infoPanel-Header">Dates &amp; Tracking</div>
+            <div className="infoPanel-Body usa-grid-full">
+              <div className="usa-width-one-half">
+              </div>
+              <div className="usa-width-one-half">
+              </div>
+            </div>
           </div>
           <div className="usa-width-one-third" />
+            <AcceptPanel acceptShipment={this.acceptShipment} />
+            <RejectPanel rejectShipment={this.rejectShipment} />
         </div>
       </div>
     );
@@ -75,6 +261,8 @@ const mapDispatchToProps = dispatch =>
   bindActionCreators(
     {
       loadShipmentDependencies,
+      acceptShipment,
+      rejectShipment,
     },
     dispatch,
   );

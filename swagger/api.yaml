@@ -585,9 +585,9 @@ definitions:
       - REJECTED
       - IN_PROGRESS
       - IN_TRANSIT
-      - COMPLETE
       - DELIVERED
       - COMPLETED
+      - CANCELED
     x-display-value:
       AWARDED: Awarded
       ACCEPTED: Accepted
@@ -1092,8 +1092,8 @@ paths:
           format: uuid
           required: true
           description: UUID of the shipment
-        - in: body
-          name: payload
+        - name: payload
+          in: body
           description: reason for refusing award
           required: true
           schema:
