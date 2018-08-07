@@ -1,12 +1,15 @@
 package paperwork
 
 import (
+	"io"
 	"log"
+	"os"
 	"strings"
 	"testing"
 
-	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop"
+	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -19,7 +22,7 @@ type PaperworkSuite struct {
 	db           *pop.Connection
 	logger       *zap.Logger
 	uploader     *uploader.Uploader
-	filesToClose []*runtime.File
+	filesToClose []afero.File
 }
 
 func (suite *PaperworkSuite) SetupTest() {
@@ -41,12 +44,33 @@ func (suite *PaperworkSuite) mustSave(model interface{}) {
 
 func (suite *PaperworkSuite) AfterTest() {
 	for _, file := range suite.filesToClose {
-		file.Data.Close()
+		file.Close()
 	}
 }
 
-func (suite *PaperworkSuite) closeFile(file *runtime.File) {
+func (suite *PaperworkSuite) closeFile(file afero.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
+}
+
+func (suite *PaperworkSuite) openLocalFile(path string, fs *afero.Afero) (afero.File, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "could not open file")
+	}
+
+	outputFile, err := fs.Create(path)
+	if err != nil {
+		return nil, errors.Wrap(err, "error creating afero file")
+	}
+
+	_, err = io.Copy(outputFile, file)
+	if err != nil {
+		return nil, errors.Wrap(err, "error copying over file contents")
+	}
+
+	suite.closeFile(outputFile)
+
+	return outputFile, nil
 }
 
 func (suite *PaperworkSuite) FatalNil(err error, messages ...string) {
@@ -73,7 +97,6 @@ func TestPaperworkSuite(t *testing.T) {
 	if err != nil {
 		log.Panic(err)
 	}
-	// storer := storage.NewFilesystem("tmp", "", logger)
 	storer := storageTest.NewFakeS3Storage(true)
 
 	hs := &PaperworkSuite{

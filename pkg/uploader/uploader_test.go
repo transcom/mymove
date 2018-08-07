@@ -1,13 +1,14 @@
 package uploader
 
 import (
+	"io"
 	"log"
 	"os"
 	"path"
 	"testing"
 
-	"github.com/go-openapi/runtime"
 	"github.com/gobuffalo/pop"
+	"github.com/spf13/afero"
 	"github.com/stretchr/testify/suite"
 	"go.uber.org/zap"
 
@@ -21,14 +22,36 @@ type UploaderSuite struct {
 	db           *pop.Connection
 	logger       *zap.Logger
 	storer       storage.FileStorer
-	filesToClose []*runtime.File
+	filesToClose []afero.File
+	fs           *afero.Afero
 }
 
 func (suite *UploaderSuite) SetupTest() {
+	var fs = afero.NewMemMapFs()
+	suite.fs = &afero.Afero{Fs: fs}
 	suite.db.TruncateAll()
 }
 
-func (suite *UploaderSuite) fixture(name string) *runtime.File {
+func (suite *UploaderSuite) openLocalFile(path string) (afero.File, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		suite.logger.Fatal("Error opening local file", zap.Error(err))
+	}
+
+	outputFile, err := suite.fs.Create(path)
+	if err != nil {
+		suite.logger.Fatal("Error creating afero file", zap.Error(err))
+	}
+
+	_, err = io.Copy(outputFile, file)
+	if err != nil {
+		suite.logger.Fatal("Error copying to afero file", zap.Error(err))
+	}
+
+	return outputFile, nil
+}
+
+func (suite *UploaderSuite) fixture(name string) afero.File {
 	fixtureDir := "testdata"
 	cwd, err := os.Getwd()
 	if err != nil {
@@ -36,7 +59,7 @@ func (suite *UploaderSuite) fixture(name string) *runtime.File {
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
-	file, err := NewLocalFile(fixturePath)
+	file, err := suite.openLocalFile(fixturePath)
 
 	if err != nil {
 		suite.T().Fatalf("failed to create a fixture file: %s", err)
@@ -47,11 +70,11 @@ func (suite *UploaderSuite) fixture(name string) *runtime.File {
 
 func (suite *UploaderSuite) AfterTest() {
 	for _, file := range suite.filesToClose {
-		file.Data.Close()
+		file.Close()
 	}
 }
 
-func (suite *UploaderSuite) closeFile(file *runtime.File) {
+func (suite *UploaderSuite) closeFile(file afero.File) {
 	suite.filesToClose = append(suite.filesToClose, file)
 }
 
@@ -98,6 +121,6 @@ func (suite *UploaderSuite) TestUploadFromLocalFileZeroLength() {
 
 	upload, verrs, err := up.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
 	suite.Equal(err, ErrZeroLengthFile)
-	suite.Nil(verrs, "failed to validate upload")
+	suite.False(verrs.HasAny(), "failed to validate upload")
 	suite.Nil(upload, "returned an upload when erroring")
 }

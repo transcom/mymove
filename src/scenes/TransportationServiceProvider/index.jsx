@@ -10,7 +10,7 @@ import QueueList from './QueueList';
 import QueueTable from './QueueTable';
 import ShipmentInfo from './ShipmentInfo';
 import { loadLoggedInUser } from 'shared/User/ducks';
-import { loadSchema } from 'shared/Swagger/ducks';
+import { loadPublicSchema } from 'shared/Swagger/ducks';
 import { no_op } from 'shared/utils';
 import LogoutOnInactivity from 'shared/User/LogoutOnInactivity';
 import PrivateRoute from 'shared/User/PrivateRoute';
@@ -37,7 +37,7 @@ class Queues extends Component {
 class TspWrapper extends Component {
   componentDidMount() {
     document.title = 'Transcom PPP: TSP';
-    this.props.loadSchema();
+    this.props.loadPublicSchema();
   }
 
   render() {
@@ -70,7 +70,7 @@ class TspWrapper extends Component {
 }
 
 TspWrapper.defaultProps = {
-  loadSchema: no_op,
+  loadPublicSchema: no_op,
   loadLoggedInUser: no_op,
 };
 
@@ -79,6 +79,6 @@ const mapStateToProps = state => ({
 });
 
 const mapDispatchToProps = dispatch =>
-  bindActionCreators({ loadSchema, loadLoggedInUser }, dispatch);
+  bindActionCreators({ loadPublicSchema, loadLoggedInUser }, dispatch);
 
 export default connect(mapStateToProps, mapDispatchToProps)(TspWrapper);
