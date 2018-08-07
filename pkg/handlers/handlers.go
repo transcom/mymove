@@ -150,6 +150,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler(context)
+	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler(context)
 	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)

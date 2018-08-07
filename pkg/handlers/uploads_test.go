@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
 
 	"github.com/go-openapi/runtime/middleware"
@@ -60,25 +59,6 @@ func (suite *HandlerSuite) TestCreateUploadsHandlerSuccess() {
 	if upload.Checksum != expectedChecksum {
 		t.Errorf("Did not calculate the correct MD5: expected %s, got %s", expectedChecksum, upload.Checksum)
 	}
-
-	if len(fakeS3.PutFiles) != 1 {
-		t.Errorf("Wrong number of putFiles: expected 1, got %d", len(fakeS3.PutFiles))
-	}
-
-	if _, ok := fakeS3.PutFiles[upload.StorageKey]; !ok {
-		t.Errorf("File not found at expected keyname %s", upload.StorageKey)
-	}
-
-	pos, err := fakeS3.PutFiles[upload.StorageKey].Body.Seek(0, io.SeekCurrent)
-	if err != nil {
-		t.Fatalf("Could't check position in uploaded file: %s", err)
-	}
-
-	if pos != 0 {
-		t.Errorf("Wrong file position: expected 0, got %d", pos)
-	}
-
-	// TODO verify Body
 }
 
 func (suite *HandlerSuite) TestCreateUploadsHandlerFailsWithWrongUser() {
