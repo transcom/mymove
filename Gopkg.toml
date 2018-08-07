@@ -15,3 +15,7 @@ required = [
 [[constraint]]
   name = "github.com/securego/gosec"
   branch = "master"
+
+ [[constraint]]
+  name = "github.com/pjdufour-truss/pdfcpu"
+  branch = "fs"
