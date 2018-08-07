@@ -2,6 +2,10 @@ import * as Cookies from 'js-cookie';
 import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { GetLoggedInUser } from './api.js';
+import { normalize } from 'normalizr';
+
+import { serviceMember } from 'shared/Entities/schema';
+import { addEntities } from 'shared/Entities/actions';
 
 const getLoggedInUserType = 'GET_LOGGED_IN_USER';
 
@@ -16,7 +20,13 @@ export const loadLoggedInUser = () => {
     if (!userInfo.isLoggedIn) return Promise.resolve();
     dispatch(getLoggedInActions.start());
     return GetLoggedInUser()
-      .then(item => dispatch(getLoggedInActions.success(item)))
+      .then(response => {
+        if (response.service_member) {
+          const data = normalize(response.service_member, serviceMember);
+          dispatch(addEntities(data.entities));
+        }
+        return dispatch(getLoggedInActions.success(response));
+      })
       .catch(error => dispatch(getLoggedInActions.error(error)));
   };
 };
