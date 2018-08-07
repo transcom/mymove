@@ -66,7 +66,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
 
-	orders, err := models.FetchOrder(h.db, session, ordersID)
+	orders, err := models.FetchOrderForUser(h.db, session, ordersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -101,7 +101,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -128,7 +128,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -176,7 +176,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveDependencies(h.db, session, move)
+	verrs, err := models.SaveMoveDependencies(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}

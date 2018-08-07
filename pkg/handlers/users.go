@@ -49,7 +49,7 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 
 	// Load the latest orders associations and new duty station transport office
 	if len(serviceMember.Orders) > 0 {
-		orders, err := models.FetchOrder(h.db, session, serviceMember.Orders[0].ID)
+		orders, err := models.FetchOrderForUser(h.db, session, serviceMember.Orders[0].ID)
 		if err != nil {
 			return responseForError(h.logger, err)
 		}

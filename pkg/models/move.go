@@ -180,7 +180,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrder(db, session, move.OrdersID)
+	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}
@@ -467,52 +467,9 @@ func createNewMove(db *pop.Connection,
 	return nil, verrs, ErrLocatorGeneration
 }
 
-// SaveMoveDependencies safely saves a Move status and its dependencies.
-func SaveMoveDependencies(db *pop.Connection, session *auth.Session, move *Move) (*validate.Errors, error) {
-	responseVErrors := validate.NewErrors()
-	var responseError error
-
-	db.Transaction(func(db *pop.Connection) error {
-		transactionError := errors.New("Rollback The transaction")
-
-		verrs, err := SaveMoveStatuses(db, move)
-		if err != nil {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error saving move statuses")
-			return transactionError
-		}
-
-		// Save Shipment GBLOCs
-		orders, err := FetchOrder(db, session, move.OrdersID)
-		if err != nil {
-			responseError = errors.Wrap(err, "Error fetching orders")
-			return transactionError
-		}
-		for _, shipment := range move.Shipments {
-			destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
-			if err != nil {
-				responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
-				return transactionError
-			}
-			shipment.DestinationGBLOC = &destinationGbloc
-			// TODO: Implement sourceGbloc calculation
-
-			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Shipment")
-				return transactionError
-			}
-		}
-
-		return nil
-
-	})
-
-	return responseVErrors, responseError
-}
-
-// SaveMoveStatuses safely saves a Move status, ppms' advances' statuses, and orders statuses.
-func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// and shipment GBLOCs.
+func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -535,6 +492,31 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			}
 		}
 
+		if move.Status == MoveStatusSUBMITTED {
+
+			// Save Shipment GBLOCs
+			orders, err := FetchOrder(db, move.OrdersID)
+			if err != nil {
+				responseError = errors.Wrap(err, "Error fetching orders")
+				return transactionError
+			}
+			for _, shipment := range move.Shipments {
+				destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
+					return transactionError
+				}
+				shipment.DestinationGBLOC = &destinationGbloc
+				// TODO: Implement sourceGbloc calculation
+
+				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Shipment")
+					return transactionError
+				}
+			}
+		}
+
 		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
@@ -546,9 +528,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			responseError = errors.Wrap(err, "Error Saving Move")
 			return transactionError
 		}
-
 		return nil
-
 	})
 
 	return responseVErrors, responseError
@@ -557,7 +537,7 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
 	transportationOffice, err := FetchDutyStationTransportationOffice(db, dutyStationID)
 	if err != nil {
-		return "XXXX", errors.Wrap(err, "could not load transportation office for duty station")
+		return "", errors.Wrap(err, "could not load transportation office for duty station")
 	}
 	return transportationOffice.Gbloc, nil
 }
