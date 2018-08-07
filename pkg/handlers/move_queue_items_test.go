@@ -76,9 +76,7 @@ func (suite *HandlerSuite) TestShowQueueHandler() {
 func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 	for _, queueType := range statusToQueueMap {
 
-		suite.db.TruncateAll()
-
-		// Given: An office user
+		// Given: A non-office user
 		user := testdatagen.MakeDefaultServiceMember(suite.db)
 
 		// And: the context contains the auth values
@@ -94,7 +92,7 @@ func (suite *HandlerSuite) TestShowQueueHandlerForbidden() {
 		showHandler := ShowQueueHandler(NewHandlerContext(suite.db, suite.logger))
 		showResponse := showHandler.Handle(params)
 
-		// Then: Expect a 200 status code
+		// Then: Expect a 403 status code
 		suite.Assertions.IsType(&queueop.ShowQueueForbidden{}, showResponse)
 	}
 }
