@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"io"
+
 	"github.com/go-openapi/runtime"
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
@@ -8,7 +10,6 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
-	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -61,9 +62,16 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
-	aFile, ok := file.Data.(afero.File)
-	if !ok {
-		h.logger.Error("This should always be able to be converted into an afero file.")
+	// Read the incoming data into a new afero.File for consumption
+	aFile, err := h.storage.FileSystem().Create(file.Header.Filename)
+	if err != nil {
+		h.logger.Error("Error opening afero file.", zap.Error(err))
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
+	_, err = io.Copy(aFile, file.Data)
+	if err != nil {
+		h.logger.Error("Error copying incoming data into afero file.", zap.Error(err))
 		return uploadop.NewCreateUploadInternalServerError()
 	}
 
