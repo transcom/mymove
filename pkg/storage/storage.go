@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 )
 
 // StoreResult represents the result of a call to Store().
@@ -20,9 +21,10 @@ type StoreResult struct{}
 // FileStorer is the set of methods needed to store and retrieve objects.
 type FileStorer interface {
 	Store(string, io.ReadSeeker, string) (*StoreResult, error)
-	Fetch(string) (string, error)
+	Fetch(string) (io.ReadCloser, error)
 	Delete(string) error
 	PresignedURL(string, string) (string, error)
+	FileSystem() *afero.Afero
 }
 
 // ComputeChecksum calculates the MD% checksum for the provided data. It expects that
@@ -49,6 +51,9 @@ func ComputeChecksum(data io.ReadSeeker) (string, error) {
 // of the provided data. It expects that the passed io object will be seeked to its
 // beginning and will seek back to the beginning after reading its content.
 func DetectContentType(data io.ReadSeeker) (string, error) {
+	// Start by seeking to beginning
+	data.Seek(0, io.SeekStart)
+
 	buffer := make([]byte, 512)
 	if _, err := data.Read(buffer); err != nil {
 		return "", errors.Wrap(err, "could not read first bytes of file")
