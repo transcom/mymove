@@ -266,7 +266,6 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
