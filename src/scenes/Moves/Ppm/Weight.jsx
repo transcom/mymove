@@ -12,6 +12,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
+import { convertDollarsToCents } from 'shared/utils';
 import {
   getPpmWeightEstimate,
   createOrUpdatePpm,
@@ -199,8 +200,8 @@ export class PpmWeight extends Component {
     };
     if (advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
-      const requestedAmount = Math.round(
-        parseFloat(advanceFormValues.requested_amount) * 100,
+      const requestedAmount = convertDollarsToCents(
+        advanceFormValues.requested_amount,
       );
       ppmBody.advance = {
         requested_amount: requestedAmount,
