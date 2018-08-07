@@ -1,0 +1,141 @@
+.queue-table {
+  font-size: 0.75em;
+  min-width: 1000px;
+}
+
+.queue-table-scrollable {
+  overflow-x: scroll;
+}
+
+.fake-link {
+  text-decoration: underline;
+  color: blue;
+}
+
+.icon {
+  margin: 0 0.3em 0 0.3em;
+}
+
+.form-column {
+  display: inline-block;
+  width: 45%;
+  margin-right: 5%;
+}
+
+/* Queue list page */
+.queue-columns {
+  position: relative;
+}
+
+.queue-menu-column {
+  margin-right: 3rem;
+  width: 18rem;
+  position: absolute;
+}
+
+.queue-list-column {
+  margin-left: 22rem;
+}
+
+.ReactTable .rt-thead .rt-resizable-header-content {
+  text-align: left;
+}
+
+/* Use with .usa-grid for a liquid and nearly full-width grid layout. */
+.grid-wide {
+  max-width: 2000px;
+  margin: auto;
+  padding: 0 2em;
+}
+
+.move-info-header-meta {
+  list-style: none outside;
+  border-top: solid 1px rgb(222, 222, 222);
+  margin: 0;
+  padding: 2px 0 0;
+}
+
+.move-info-header-meta .icon {
+  margin: 0 0.4em;
+}
+
+.move-info-header-meta li {
+  display: inline-block;
+  margin-bottom: 0;
+}
+
+.move-info-header-meta li:after {
+  content: '-';
+  margin: 0 0.8em;
+}
+
+.move-info-header-meta li:last-child:after {
+  content: none;
+  margin: 0;
+}
+
+.nav-controls {
+  text-align: right;
+  padding-top: 0.5em;
+  font-size: 0.9em;
+}
+
+.tabs {
+  margin-top: 2em;
+}
+
+.tabs .nav-tab {
+  border: solid 1px black;
+  border-radius: 4px 4px 0 0;
+  padding: 4px 42px 8px 42px;
+  margin-left: 8px;
+  display: inline-block;
+  text-decoration: none;
+  color: black;
+  background-color: #ececec;
+}
+
+.tabs .nav-tab .status,
+.tabs .nav-tab .title {
+  display: block;
+  text-align: center;
+}
+
+.tabs .nav-tab .status {
+  font-size: 0.7em;
+  margin-top: 2px;
+}
+
+.tabs .nav-tab.active {
+  border-bottom-color: white;
+  background-color: white;
+}
+
+.tabs .nav-tab.active .title {
+  font-weight: bold;
+}
+
+.tabs .nav-tab .icon {
+  margin-right: 4px;
+}
+
+.tab-content {
+  border-top: solid 1px black;
+  margin-top: -1px;
+  padding-top: 2rem;
+}
+
+.extras.usa-heading {
+  margin-top: 0;
+  font-size: 2rem;
+  font-family: sans-serif;
+}
+
+.extras.content {
+  margin-top: 2rem;
+  font-family: sans-serif;
+}
+
+.extras.options {
+  margin-top: 1rem;
+}

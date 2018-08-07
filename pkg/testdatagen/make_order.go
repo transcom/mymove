@@ -30,12 +30,14 @@ func MakeOrder(db *pop.Connection, assertions Assertions) models.Order {
 				ServiceMember:   sm,
 			},
 		})
-		MakeUpload(db, Assertions{
+		u := MakeUpload(db, Assertions{
 			Upload: models.Upload{
 				DocumentID: &document.ID,
 				Document:   document,
+				UploaderID: sm.UserID,
 			},
 		})
+		document.Uploads = append(document.Uploads, u)
 	}
 
 	order := models.Order{

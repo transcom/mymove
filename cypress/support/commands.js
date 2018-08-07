@@ -37,6 +37,10 @@ Cypress.Commands.add('signIntoOffice', () => {
   Cypress.config('baseUrl', 'http://officelocal:4000');
   cy.signInAsUser('9bfa91d2-7a0c-4de0-ae02-b8cf8b4b858b');
 });
+Cypress.Commands.add('signIntoTSP', () => {
+  Cypress.config('baseUrl', 'http://tsplocal:4000');
+  cy.signInAsUser('6cd03e5b-bee8-4e97-a340-fecb8f3d5465');
+});
 Cypress.Commands.add('signInAsUser', userId => {
   cy
     .request({

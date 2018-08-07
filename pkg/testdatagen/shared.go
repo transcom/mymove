@@ -33,6 +33,7 @@ type Assertions struct {
 	Upload                 models.Upload
 	MovingExpenseDocument  models.MovingExpenseDocument
 	User                   models.User
+	Reimbursement          models.Reimbursement
 }
 
 func stringPointer(s string) *string {

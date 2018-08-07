@@ -8,6 +8,7 @@ import (
 	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
+	"github.com/spf13/afero"
 	"github.com/transcom/mymove/pkg/auth"
 	uploadop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/uploads"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
@@ -38,6 +39,7 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		h.logger.Error("This should always be a runtime.File, something has changed in go-swagger.")
 		return uploadop.NewCreateUploadInternalServerError()
 	}
+
 	h.logger.Info("File name and size: ", zap.String("name", file.Header.Filename), zap.Int64("size", file.Header.Size))
 
 	// User should always be populated by middleware
@@ -59,8 +61,14 @@ func (h CreateUploadHandler) Handle(params uploadop.CreateUploadParams) middlewa
 		docID = &document.ID
 	}
 
+	aFile, ok := file.Data.(afero.File)
+	if !ok {
+		h.logger.Error("This should always be able to be converted into an afero file.")
+		return uploadop.NewCreateUploadInternalServerError()
+	}
+
 	uploader := uploaderpkg.NewUploader(h.db, h.logger, h.storage)
-	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, file)
+	newUpload, verrs, err := uploader.CreateUpload(docID, session.UserID, aFile)
 	if err != nil {
 		if cause := errors.Cause(err); cause == uploaderpkg.ErrZeroLengthFile {
 			return uploadop.NewCreateUploadBadRequest()

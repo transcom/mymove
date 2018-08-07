@@ -12,6 +12,7 @@ import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpen
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
 import ExpenseDocumentForm from './ExpenseDocumentForm';
+import { convertDollarsToCents } from 'shared/utils';
 
 import './DocumentUploader.css';
 
@@ -39,7 +40,7 @@ export class DocumentUploader extends Component {
       moveDocumentCreateError: null,
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.reimbursement.requested_amount = parseFloat(
+      formValues.reimbursement.requested_amount = convertDollarsToCents(
         formValues.reimbursement.requested_amount,
       );
       this.props
