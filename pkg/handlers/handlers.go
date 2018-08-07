@@ -115,6 +115,9 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 
 	// Shipments
 	publicAPI.ShipmentsIndexShipmentsHandler = PublicIndexShipmentsHandler(context)
+	publicAPI.ShipmentsGetShipmentHandler = PublicGetShipmentHandler(context)
+	publicAPI.ShipmentsCreateShipmentAcceptHandler = PublicCreateShipmentAcceptHandler(context)
+	publicAPI.ShipmentsCreateShipmentRejectHandler = PublicCreateShipmentRejectHandler(context)
 
 	// TSPs
 	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
@@ -148,6 +151,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
 	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler(context)
 	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler(context)
+	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
