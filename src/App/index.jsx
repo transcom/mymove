@@ -1,7 +1,7 @@
 import React from 'react';
 import { Provider } from 'react-redux';
 
-import store from 'shared/store';
+import { store, tspStore } from 'shared/store';
 import './index.css';
 
 import Loadable from 'react-loadable';
@@ -53,7 +53,7 @@ const App = () => {
     );
   else if (isTspSite)
     return (
-      <Provider store={store}>
+      <Provider store={tspStore}>
         <AppContext.Provider value={tspContext}>
           <Tsp />
         </AppContext.Provider>
