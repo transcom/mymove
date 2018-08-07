@@ -25,10 +25,6 @@ const DocumentDetailDisplay = props => {
     values: moveDoc,
     schema: props.moveDocSchema,
   };
-  const reimbursementFieldProps = {
-    values: get(moveDoc, 'reimbursement', {}),
-    schema: props.reimbursementSchema,
-  };
   return (
     <React.Fragment>
       <div>
@@ -64,18 +60,17 @@ const DocumentDetailDisplay = props => {
             />
           )}
         {isExpenseDocument &&
-          get(moveDoc, 'reimbursement.requested_amount') && (
+          get(moveDoc, 'requested_amount_cents') && (
             <PanelSwaggerField
-              fieldName="requested_amount"
-              {...reimbursementFieldProps}
+              fieldName="requested_amount_cents"
+              {...moveDocFieldProps}
             />
           )}
         {isExpenseDocument &&
-          get(moveDoc, 'reimbursement.method_of_receipt') && (
+          get(moveDoc, 'payment_method') && (
             <PanelSwaggerField
-              title="Payment Method"
-              fieldName="method_of_receipt"
-              {...reimbursementFieldProps}
+              fieldName="payment_method"
+              {...moveDocFieldProps}
             />
           )}
         {moveDoc.status ? (
@@ -96,7 +91,7 @@ const DocumentDetailDisplay = props => {
 };
 
 const DocumentDetailEdit = props => {
-  const { formValues, moveDocSchema, reimbursementSchema } = props;
+  const { formValues, moveDocSchema } = props;
   const isExpenseDocument =
     get(formValues, 'moveDocument.move_document_type', '') === 'EXPENSE';
   return (
@@ -110,10 +105,7 @@ const DocumentDetailEdit = props => {
             required
           />
           {isExpenseDocument && (
-            <ExpenseDocumentForm
-              moveDocSchema={moveDocSchema}
-              reimbursementSchema={reimbursementSchema}
-            />
+            <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
           )}
           <SwaggerField fieldName="status" swagger={moveDocSchema} required />
           <SwaggerField fieldName="notes" swagger={moveDocSchema} />
@@ -134,23 +126,11 @@ DocumentDetailPanel = reduxForm({ form: formName })(DocumentDetailPanel);
 function mapStateToProps(state, props) {
   const moveDocumentId = props.moveDocumentId;
   let moveDocument = selectMoveDocument(state, moveDocumentId);
-  // Don't pass 0-value reimbursement values to update endpoint
-  if (
-    get(moveDocument, 'reimbursement.id', '') ===
-    '00000000-0000-0000-0000-000000000000'
-  ) {
-    moveDocument = omit(moveDocument, 'reimbursement');
-  }
   // Convert cents to collars - make a deep clone copy to not modify moveDocument itself
   let initialMoveDocument = JSON.parse(JSON.stringify(moveDocument));
-  let requested_amount = get(
-    initialMoveDocument,
-    'reimbursement.requested_amount',
-  );
+  let requested_amount = get(initialMoveDocument, 'requested_amount_cents');
   if (requested_amount) {
-    initialMoveDocument.reimbursement.requested_amount = formatCents(
-      requested_amount,
-    );
+    initialMoveDocument.requested_amount_cents = formatCents(requested_amount);
   }
 
   return {
@@ -162,11 +142,6 @@ function mapStateToProps(state, props) {
     moveDocSchema: get(
       state,
       'swagger.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
-    reimbursementSchema: get(
-      state,
-      'swagger.spec.definitions.Reimbursement',
       {},
     ),
     hasError: false,
@@ -185,22 +160,25 @@ function mapStateToProps(state, props) {
       );
       if (
         get(values.moveDocument, 'move_document_type', '') !== 'EXPENSE' &&
-        get(values.moveDocument, 'reimbursement', false)
+        get(values.moveDocument, 'payment_method', false)
       ) {
-        values.moveDocument = omit(values.moveDocument, 'reimbursement');
+        values.moveDocument = omit(values.moveDocument, [
+          'payment_method',
+          'requested_amount_cents',
+        ]);
       }
       if (get(values.moveDocument, 'move_document_type', '') === 'EXPENSE') {
-        values.moveDocument.reimbursement.requested_amount = parseFloat(
-          values.moveDocument.reimbursement.requested_amount,
+        values.moveDocument.requested_amount_cents = parseFloat(
+          values.moveDocument.requested_amount_cents,
         );
       }
       let requested_amount = get(
         values.moveDocument,
-        'reimbursement.requested_amount',
+        'requested_amount_cents',
         '',
       );
       if (requested_amount) {
-        values.moveDocument.reimbursement.requested_amount = Math.round(
+        values.moveDocument.requested_amount_cents = Math.round(
           parseFloat(requested_amount) * 100,
         );
       }

@@ -592,7 +592,7 @@ definitions:
         description: unit is cents
       payment_method:
         type: string
-        title: Method of Payment
+        title: Payment Method
         enum:
           - OTHER
           - GTCC

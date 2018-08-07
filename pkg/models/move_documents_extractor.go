@@ -37,7 +37,7 @@ func (m *Move) FetchAllMoveDocumentsForMove(db *pop.Connection) (MoveDocumentExt
 		Where("move_documents.move_id=$1", m.ID.String())
 
 	sql, args := query.ToSQL(&pop.Model{Value: MoveDocument{}},
-		"move_documents.*, ed.moving_expense_type")
+		"move_documents.*, ed.moving_expense_type, ed.requested_amount_cents, ed.payment_method")
 
 	err := db.RawQuery(sql, args...).Eager("Document.Uploads").All(&moveDocs)
 	if err != nil {
