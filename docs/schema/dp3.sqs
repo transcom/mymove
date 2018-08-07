@@ -203,8 +203,8 @@
         <name><![CDATA[public.schema_migration]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>27.00</x>
-            <y>1144.00</y>
+            <x>26.00</x>
+            <y>1195.00</y>
         </location>
         <size>
             <width>330.00</width>
@@ -1844,12 +1844,12 @@
         <name><![CDATA[moving_expense_documents]]></name>
         <schema><![CDATA[]]></schema>
         <location>
-            <x>23.00</x>
-            <y>977.00</y>
+            <x>29.00</x>
+            <y>1008.00</y>
         </location>
         <size>
             <width>340.00</width>
-            <height>140.00</height>
+            <height>160.00</height>
         </size>
         <zorder>34</zorder>
         <SQLField>
@@ -1880,20 +1880,6 @@
             <uid><![CDATA[DC008605-3BE5-4328-AEC4-1B88A9EEC15D]]></uid>
         </SQLField>
         <SQLField>
-            <name><![CDATA[reimbursement_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <referencesField>id</referencesField>
-            <referencesTable>public.reimbursements</referencesTable>
-            <referencesField><![CDATA[id]]></referencesField>
-            <referencesTable><![CDATA[public.reimbursements]]></referencesTable>
-            <sourceCardinality>0</sourceCardinality>
-            <destinationCardinality>0</destinationCardinality>
-            <referencesFieldUID><![CDATA[5553E9DE-5E56-40C8-8956-B7AFB71322A6]]></referencesFieldUID>
-            <referencesTableUID><![CDATA[581729AC-0E5F-4916-A430-440B089522D2]]></referencesTableUID>
-            <notNull><![CDATA[1]]></notNull>
-            <uid><![CDATA[4FE89224-14BA-4052-9D20-DEE59751B7B1]]></uid>
-        </SQLField>
-        <SQLField>
             <name><![CDATA[created_at]]></name>
             <type><![CDATA[TIMESTAMP]]></type>
             <uid><![CDATA[70AA1177-2672-40C6-88C7-91A0DBB4A484]]></uid>
@@ -1902,6 +1888,16 @@
             <name><![CDATA[updated_at]]></name>
             <type><![CDATA[TIMESTAMP]]></type>
             <uid><![CDATA[2B4C1094-5255-4524-84A8-54B82C350D36]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[requested_amount_cents]]></name>
+            <type><![CDATA[INTEGER]]></type>
+            <uid><![CDATA[E89DD46D-4251-420E-A7C9-515A81CBDBA6]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[payment_method]]></name>
+            <type><![CDATA[CHARACTER VARYING(256)]]></type>
+            <uid><![CDATA[47168651-DC0F-4AA0-B105-9C4222C2163D]]></uid>
         </SQLField>
         <labelWindowIndex><![CDATA[1]]></labelWindowIndex>
         <ui.treeExpanded><![CDATA[1]]></ui.treeExpanded>
@@ -2778,8 +2774,8 @@
         <name><![CDATA[public.issues]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>22.00</x>
-            <y>1239.00</y>
+            <x>27.00</x>
+            <y>1267.00</y>
         </location>
         <size>
             <width>273.00</width>
@@ -3048,17 +3044,17 @@
         <overviewPanelHidden><![CDATA[0]]></overviewPanelHidden>
         <pageBoundariesVisible><![CDATA[0]]></pageBoundariesVisible>
         <PageGridVisible><![CDATA[0]]></PageGridVisible>
-        <RightSidebarWidth><![CDATA[570.000000]]></RightSidebarWidth>
+        <RightSidebarWidth><![CDATA[1163.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
         <SourceSidebarWidth><![CDATA[0.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
-        <windowHeight><![CDATA[1027.000000]]></windowHeight>
-        <windowLocationX><![CDATA[833.000000]]></windowLocationX>
-        <windowLocationY><![CDATA[0.000000]]></windowLocationY>
-        <windowScrollOrigin><![CDATA[{231, 1096.5}]]></windowScrollOrigin>
-        <windowWidth><![CDATA[847.000000]]></windowWidth>
+        <windowHeight><![CDATA[835.000000]]></windowHeight>
+        <windowLocationX><![CDATA[0.000000]]></windowLocationX>
+        <windowLocationY><![CDATA[42.000000]]></windowLocationY>
+        <windowScrollOrigin><![CDATA[{0, 394.5}]]></windowScrollOrigin>
+        <windowWidth><![CDATA[1440.000000]]></windowWidth>
     </SQLDocumentInfo>
     <AllowsIndexRenamingOnInsert><![CDATA[1]]></AllowsIndexRenamingOnInsert>
     <defaultLabelExpanded><![CDATA[1]]></defaultLabelExpanded>

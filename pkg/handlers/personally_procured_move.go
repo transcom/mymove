@@ -410,6 +410,10 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 		Categories: []*internalmessages.CategoryExpenseSummary{},
 	}
 
+	if len(moveDocsExpense) < 1 {
+		return expenseSummaryPayload
+	}
+
 	catMap := map[internalmessages.MovingExpenseType]*internalmessages.CategoryExpenseSummary{}
 
 	for _, moveDoc := range moveDocsExpense {
@@ -418,8 +422,8 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 		amount := expenseDoc.RequestedAmountCents.Int64()
 		methodTotals := expenseSummaryPayload.GrandTotal.PaymentMethodTotals
 		switch expenseDoc.PaymentMethod {
-		case "OTHER_DD":
-			methodTotals.OTHERDD += amount
+		case "OTHER":
+			methodTotals.OTHER += amount
 		case "GTCC":
 			methodTotals.GTCC += amount
 		}
@@ -430,17 +434,17 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 		// Check if expense type exists in catMap - increment values if so
 		if CategoryExpenseSummary, ok := catMap[expenseType]; ok {
 			switch expenseDoc.PaymentMethod {
-			case "OTHER_DD":
-				CategoryExpenseSummary.PaymentMethods.OTHERDD += amount
+			case "OTHER":
+				CategoryExpenseSummary.PaymentMethods.OTHER += amount
 			case "GTCC":
 				CategoryExpenseSummary.PaymentMethods.GTCC += amount
 			}
 			CategoryExpenseSummary.Total += amount
 		} else { // initialize CategoryExpenseSummary
-			var ddAmt, gtccAmt int64
+			var otherAmt, gtccAmt int64
 			switch expenseDoc.PaymentMethod {
-			case "OTHER_DD":
-				ddAmt = amount
+			case "OTHER":
+				otherAmt = amount
 			case "GTCC":
 				gtccAmt = amount
 			}
@@ -448,8 +452,8 @@ func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalm
 				Category: expenseType,
 				Total:    amount,
 				PaymentMethods: &internalmessages.PaymentMethodsTotals{
-					OTHERDD: ddAmt,
-					GTCC:    gtccAmt,
+					OTHER: otherAmt,
+					GTCC:  gtccAmt,
 				},
 			}
 		}
@@ -475,7 +479,7 @@ func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSu
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-
 	expenseSummaryPayload := buildExpenseSummaryPayload(moveDocsExpense)
+
 	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
 }

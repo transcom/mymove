@@ -173,17 +173,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 		transactionError := errors.New("Rollback The transaction")
 
 		if saveAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
-			// // Save reimbursement first
-			// reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
-			// if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
-			// 	responseVErrors.Append(verrs)
-			// 	responseError = errors.Wrap(err, "Error Saving Moving Expense Reimbursement")
-			// 	return transactionError
-			// }
-			// // Make sure the moveDocument has the associated ID
-			// moveDocument.MovingExpenseDocument.ReimbursementID = reimbursement.ID
-			// moveDocument.MovingExpenseDocument.Reimbursement = reimbursement
-
 			// Save expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if verrs, err := db.ValidateAndSave(expenseDocument); verrs.HasAny() || err != nil {
@@ -192,13 +181,6 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				return transactionError
 			}
 		} else if saveAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
-			// // Destroy reimbursement first
-			// reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
-			// if err := db.Destroy(&reimbursement); err != nil {
-			// 	responseError = errors.Wrap(err, "Error Deleting Moving Expense Reimbursement")
-			// 	return transactionError
-			// }
-
 			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if err := db.Destroy(expenseDocument); err != nil {

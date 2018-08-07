@@ -68,6 +68,8 @@ func (m *MovingExpenseDocument) Validate(tx *pop.Connection) (*validate.Errors, 
 	return validate.Validate(
 		&validators.UUIDIsPresent{Field: m.MoveDocumentID, Name: "MoveDocumentID"},
 		&validators.StringIsPresent{Field: string(m.MovingExpenseType), Name: "MovingExpenseType"},
+		&validators.StringIsPresent{Field: string(m.PaymentMethod), Name: "PaymentMethod"},
+		&validators.IntIsGreaterThan{Field: int(m.RequestedAmountCents), Name: "RequestedAmountCents", Compared: 0},
 	), nil
 }
 

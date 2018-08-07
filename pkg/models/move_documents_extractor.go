@@ -20,8 +20,8 @@ type MoveDocumentExtractor struct {
 	PersonallyProcuredMoveID *uuid.UUID         `json:"personally_procured_move_id" db:"personally_procured_move_id"`
 	MoveDocumentType         MoveDocumentType   `json:"move_document_type" db:"move_document_type"`
 	MovingExpenseType        *MovingExpenseType `json:"moving_expense_type" db:"moving_expense_type"`
-	RequestedAmountCents     unit.Cents         `json:"requested_amount_cents" db:"requested_amount_cents"`
-	PaymentMethod            string             `json:"payment_method" db:"payment_method"`
+	RequestedAmountCents     *unit.Cents        `json:"requested_amount_cents" db:"requested_amount_cents"`
+	PaymentMethod            *string            `json:"payment_method" db:"payment_method"`
 	Notes                    *string            `json:"notes" db:"notes"`
 	CreatedAt                time.Time          `json:"created_at" db:"created_at"`
 	UpdatedAt                time.Time          `json:"updated_at" db:"updated_at"`

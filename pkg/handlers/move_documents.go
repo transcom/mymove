@@ -50,6 +50,14 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 	if docExtractor.MovingExpenseType != nil {
 		expenseType = internalmessages.MovingExpenseType(*docExtractor.MovingExpenseType)
 	}
+	var paymentMethod string
+	if docExtractor.PaymentMethod != nil {
+		paymentMethod = string(*docExtractor.PaymentMethod)
+	}
+	var requestedAmt unit.Cents
+	if docExtractor.RequestedAmountCents != nil {
+		requestedAmt = *docExtractor.RequestedAmountCents
+	}
 
 	payload := internalmessages.MoveDocumentPayload{
 		ID:     fmtUUID(docExtractor.ID),
@@ -61,8 +69,8 @@ func payloadForMoveDocumentExtractor(storer storage.FileStorer, docExtractor mod
 		Status:                   internalmessages.MoveDocumentStatus(docExtractor.Status),
 		Notes:                    docExtractor.Notes,
 		MovingExpenseType:        expenseType,
-		RequestedAmountCents:     int64(docExtractor.RequestedAmountCents),
-		PaymentMethod:            docExtractor.PaymentMethod,
+		RequestedAmountCents:     int64(requestedAmt),
+		PaymentMethod:            paymentMethod,
 	}
 
 	return &payload, nil
