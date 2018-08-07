@@ -8,36 +8,48 @@ import (
 	"github.com/gobuffalo/pop"
 
 	"github.com/transcom/mymove/pkg/edi/segment"
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 const delimiter = "~"
 const dateFormat = "20060102"
 const timeFormat = "1504"
+const senderCode = "W28GPR-DPS"   // TODO: update with our own after talking to US Bank
+const receiverCode = "8004171844" // Syncada
 
 // Generate858C generates an EDI X12 858C transaction set
 func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, error) {
 	currentTime := time.Now()
 	isa := edisegment.ISA{
-		AuthorizationInformationQualifier: "00",
-		AuthorizationInformation:          "          ",
-		SecurityInformationQualifier:      "00",
-		SecurityInformation:               "          ",
+		AuthorizationInformationQualifier: "00", // No authorization information
+		AuthorizationInformation:          fmt.Sprintf("%010d", 0),
+		SecurityInformationQualifier:      "00", // No security information
+		SecurityInformation:               fmt.Sprintf("%010d", 0),
 		InterchangeSenderIDQualifier:      "ZZ",
-		InterchangeSenderID:               fmt.Sprintf("%-15v", "W28GPR-DPS"), // TODO: update with our own after talking to US Bank. Must be 15 characters
+		InterchangeSenderID:               fmt.Sprintf("%-15v", senderCode), // Must be 15 characters
 		InterchangeReceiverIDQualifier:    "12",
-		InterchangeReceiverID:             fmt.Sprintf("%-15v", "8004171844"), // Syncada - extra blank spaces are intentional
-		InterchangeDate:                   currentTime.Format(dateFormat),
+		InterchangeReceiverID:             fmt.Sprintf("%-15v", "8004171844"), // Must be 15 characters
+		InterchangeDate:                   currentTime.Format("060102"),
 		InterchangeTime:                   currentTime.Format(timeFormat),
 		InterchangeControlStandards:       "U",
 		InterchangeControlVersionNumber:   "00401",
-		InterchangeControlNumber:          "000000001",
-		AcknowledgementRequested:          "1",
+		InterchangeControlNumber:          1,
+		AcknowledgementRequested:          1,
 		UsageIndicator:                    "T", // T for test, P for production
 		ComponentElementSeparator:         "|",
 	}
-	transaction := ""
+	gs := edisegment.GS{
+		FunctionalIdentifierCode: "SI", // Shipment Information (858)
+		ApplicationSendersCode:   senderCode,
+		ApplicationReceiversCode: receiverCode,
+		Date:                  currentTime.Format(dateFormat),
+		Time:                  currentTime.Format(timeFormat),
+		GroupControlNumber:    1,
+		ResponsibleAgencyCode: "X", // Accredited Standards Committee X12
+		Version:               "004010",
+	}
+	transaction := isa.String(delimiter) + gs.String(delimiter)
+
 	for index, shipment := range shipments {
 		shipment, err := models.FetchShipmentForInvoice(db, shipment.ID)
 		if err != nil {
@@ -49,6 +61,18 @@ func Generate858C(shipments []models.Shipment, db *pop.Connection) (string, erro
 		}
 		transaction += shipment858c
 	}
+
+	ge := edisegment.GE{
+		NumberOfTransactionSetsIncluded: len(shipments),
+		GroupControlNumber:              1,
+	}
+	iea := edisegment.IEA{
+		NumberOfIncludedFunctionalGroups: 1,
+		InterchangeControlNumber:         1,
+	}
+
+	transaction += (ge.String(delimiter) + iea.String(delimiter))
+
 	return transaction, nil
 }
 
@@ -80,6 +104,20 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, er
 		country = *shipment.PickupAddress.Country
 	}
 
+	orders := shipment.Move.Orders
+	ordersNumber := orders.OrdersNumber
+	if ordersNumber == nil {
+		return "", errors.New("Orders is missing orders number")
+	}
+	tac := orders.TAC
+	if tac == nil {
+		return "", errors.New("Orders is missing TAC")
+	}
+	affiliation := orders.ServiceMember.Affiliation
+	if orders.ServiceMember.Affiliation == nil {
+		return "", errors.New("Service member is missing affiliation")
+	}
+
 	transactionNumber := fmt.Sprintf("%04d", sequenceNum)
 
 	segments := []edisegment.Segment{
@@ -104,14 +142,14 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, er
 			ReferenceIdentification:          "TODO:InvoiceNumber",
 		},
 		&edisegment.N9{
-			ReferenceIdentificationQualifier: "PQ", // Payee code
-			ReferenceIdentification:          "TODO:SupplierID",
+			ReferenceIdentificationQualifier: "PQ",       // Payee code
+			ReferenceIdentification:          "ABBV2708", // TODO: add real supplier ID
 		},
 		&edisegment.N9{
 			ReferenceIdentificationQualifier: "OQ", // Order number
-			ReferenceIdentification:          "TODO:OrdersNumber",
-			FreeFormDescription:              "TODO:BranchOfService",
-			Date:                             "TODO:OrdersDate",
+			ReferenceIdentification:          *ordersNumber,
+			FreeFormDescription:              string(*affiliation),
+			Date:                             orders.IssueDate.Format(dateFormat),
 		},
 		// Ship from address
 		&edisegment.N1{
@@ -130,35 +168,13 @@ func generate858CShipment(shipment models.Shipment, sequenceNum int) (string, er
 			LocationQualifier:   "TODO", // CY (county), IP (postal), or RA (rate area)",
 			LocationIdentifier:  "TODO",
 		},
-		// Origin installation
-		&edisegment.N1{
-			EntityIdentifierCode: "RG", // Ship From
-			Name:                 "TODO:GBLOC",
-			IdentificationCodeQualifier: "27", // GBLOC
-			IdentificationCode:          "TODO:GBLOC",
-		},
-		&edisegment.N4{
-			LocationQualifier:  "RA", // Rate area
-			LocationIdentifier: "TODO:RA",
-		},
-		// Destination installation
-		&edisegment.N1{
-			EntityIdentifierCode: "RH", // Ship From
-			Name:                 "TODO:GBLOC",
-			IdentificationCodeQualifier: "27", // GBLOC
-			IdentificationCode:          "TODO:GBLOC",
-		},
-		&edisegment.N4{
-			LocationQualifier:  "RA", // Rate area
-			LocationIdentifier: "TODO:RA",
-		},
 		// Accounting info
 		&edisegment.FA1{
-			AgencyQualifierCode: edisegment.AffiliationToAgency[internalmessages.AffiliationAIRFORCE], // TODO: get correct agency
+			AgencyQualifierCode: edisegment.AffiliationToAgency[*affiliation],
 		},
 		&edisegment.FA2{
-			BreakdownStructureDetailCode: "TA",   // TAC
-			FinancialInformationCode:     "NAL8", // TODO: sample TAC
+			BreakdownStructureDetailCode: "TA", // TAC
+			FinancialInformationCode:     *tac,
 		},
 		&edisegment.L10{
 			Weight:          100.11, // TODO: weight

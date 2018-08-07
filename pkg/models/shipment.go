@@ -122,6 +122,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 			FROM shipments
 			LEFT JOIN shipment_offers ON
 				shipment_offers.shipment_id=shipments.id`
+		sql = `SELECT * FROM shipments`
 	}
 
 	err := dbConnection.RawQuery(sql).All(&shipments)

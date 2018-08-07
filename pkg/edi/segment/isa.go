@@ -42,7 +42,7 @@ func (s *ISA) String(delimiter string) string {
 		s.InterchangeTime,
 		s.InterchangeControlStandards,
 		s.InterchangeControlVersionNumber,
-		strconv.Itoa(s.InterchangeControlNumber),
+		fmt.Sprintf("%09d", s.InterchangeControlNumber),
 		strconv.Itoa(s.AcknowledgementRequested),
 		s.UsageIndicator,
 		s.ComponentElementSeparator,

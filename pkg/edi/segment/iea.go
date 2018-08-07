@@ -17,7 +17,7 @@ func (s *IEA) String(delimiter string) string {
 	elements := []string{
 		"IEA",
 		strconv.Itoa(s.NumberOfIncludedFunctionalGroups),
-		strconv.Itoa(s.InterchangeControlNumber),
+		fmt.Sprintf("%09d", s.InterchangeControlNumber),
 	}
 	return strings.Join(elements, delimiter) + "\n"
 }
