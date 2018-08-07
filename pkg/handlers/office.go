@@ -63,7 +63,7 @@ func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.R
 	}
 
 	// Save move, orders, and PPMs statuses
-	verrs, err := models.SaveMoveDependencies(h.db, session, move)
+	verrs, err := models.SaveMoveStatuses(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}

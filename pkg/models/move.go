@@ -475,20 +475,11 @@ func SaveMoveDependencies(db *pop.Connection, session *auth.Session, move *Move)
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		for _, ppm := range move.PersonallyProcuredMoves {
-			if ppm.Advance != nil {
-				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
-					responseVErrors.Append(verrs)
-					responseError = errors.Wrap(err, "Error Saving Advance")
-					return transactionError
-				}
-			}
-
-			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving PPM")
-				return transactionError
-			}
+		verrs, err := SaveMoveStatuses(db, move)
+		if err != nil {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error saving move statuses")
+			return transactionError
 		}
 
 		// Save Shipment GBLOCs
@@ -509,6 +500,37 @@ func SaveMoveDependencies(db *pop.Connection, session *auth.Session, move *Move)
 			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Shipment")
+				return transactionError
+			}
+		}
+
+		return nil
+
+	})
+
+	return responseVErrors, responseError
+}
+
+// SaveMoveStatuses safely saves a Move status, ppms' advances' statuses, and orders statuses.
+func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+	responseVErrors := validate.NewErrors()
+	var responseError error
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		for _, ppm := range move.PersonallyProcuredMoves {
+			if ppm.Advance != nil {
+				if verrs, err := db.ValidateAndSave(ppm.Advance); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Advance")
+					return transactionError
+				}
+			}
+
+			if verrs, err := db.ValidateAndSave(&ppm); verrs.HasAny() || err != nil {
+				responseVErrors.Append(verrs)
+				responseError = errors.Wrap(err, "Error Saving PPM")
 				return transactionError
 			}
 		}

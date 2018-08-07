@@ -71,7 +71,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	})
 	ppm0.Move.Submit()
 	// Save move and dependencies
-	models.SaveMoveDependencies(db, &ppm0.Move)
+	models.SaveMoveStatuses(db, &ppm0.Move)
 
 	// Service member with a move in progress
 	email = "ppm.in@progre.ss"
@@ -103,7 +103,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	ppm1.Move.Submit()
 	ppm1.Move.Approve()
 	// Save move and dependencies
-	models.SaveMoveDependencies(db, &ppm1.Move)
+	models.SaveMoveStatuses(db, &ppm1.Move)
 
 	// Service member with a move approved, but not in progress
 	email = "ppm@approv.ed"
@@ -135,7 +135,7 @@ func (e e2eBasicScenario) Run(db *pop.Connection) {
 	ppm2.Move.Submit()
 	ppm2.Move.Approve()
 	// Save move and dependencies
-	models.SaveMoveDependencies(db, &ppm2.Move)
+	models.SaveMoveStatuses(db, &ppm2.Move)
 
 	//service member with orders and a move, but no move type selected
 
