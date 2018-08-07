@@ -506,7 +506,7 @@ func SaveMoveDependencies(db *pop.Connection, session *auth.Session, move *Move)
 			shipment.DestinationGBLOC = &destinationGbloc
 			// TODO: Implement sourceGbloc calculation
 
-			if verrs, err := db.ValidateAndSave(shipment); verrs.HasAny() || err != nil {
+			if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
 				responseError = errors.Wrap(err, "Error Saving Shipment")
 				return transactionError
