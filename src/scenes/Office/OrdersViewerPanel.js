@@ -137,8 +137,6 @@ const OrdersViewerDisplay = props => {
             Missing
           </PanelField>
         )}
-
-        <PanelField className="Todo" title="Doc status" />
       </div>
     </React.Fragment>
   );
@@ -208,12 +206,6 @@ const OrdersViewerEdit = props => {
             swagger={schema}
           />
           <SwaggerField title="TAC" fieldName="tac" swagger={schema} />
-          <PanelField
-            className="Todo"
-            title="Doc status"
-            fieldName="orders_status"
-            swagger={schema}
-          />
         </FormSection>
       </div>
     </React.Fragment>

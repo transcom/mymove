@@ -52,11 +52,6 @@ const EstimatesDisplay = props => {
             {...fieldProps}
           />
         )}
-        <PanelField
-          title="Max. storage cost"
-          value="Max. storage cost"
-          className="Todo"
-        />
       </div>
       <div className="editable-panel-column">
         <PanelSwaggerField
@@ -73,11 +68,6 @@ const EstimatesDisplay = props => {
           title="Destination zip code"
           fieldName="destination_postal_code"
           {...fieldProps}
-        />
-        <PanelField
-          title="Distance estimate"
-          value="863 miles"
-          className="Todo"
         />
       </div>
     </React.Fragment>
@@ -126,11 +116,6 @@ const EstimatesEdit = props => {
               swagger={schema}
             />
           )}
-          <SwaggerField
-            title="Max cost for XX days"
-            swagger={schema}
-            className="Todo"
-          />
         </div>
         <div className="editable-panel-column">
           <SwaggerField
@@ -150,12 +135,6 @@ const EstimatesEdit = props => {
             swagger={schema}
             required
           />
-          {/*<SwaggerField
-          title="Distance from origin to destination"
-          fieldName="destination_postal_code"
-          value="863 miles"
-          className="Todo"
-        />*/}
         </div>
       </FormSection>
     </React.Fragment>
