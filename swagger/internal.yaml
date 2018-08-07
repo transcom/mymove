@@ -1405,6 +1405,11 @@ definitions:
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
         readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       source_gbloc:
         type: string
         pattern: '^[A-Z]{4}$'
