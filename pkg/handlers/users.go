@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -41,10 +42,14 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		// Fetch duty station transportation office
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, *serviceMember.DutyStationID)
 		if err != nil {
-			return responseForError(h.logger, err)
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				return responseForError(h.logger, err)
+			}
+		} else {
+			dutyStation.TransportationOffice = transportationOffice
 		}
 		serviceMember.DutyStation = dutyStation
-		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office
@@ -55,7 +60,10 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		}
 		newDutyStationTransportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, orders.NewDutyStationID)
 		if err != nil {
-			return responseForError(h.logger, err)
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				return responseForError(h.logger, err)
+			}
 		}
 		serviceMember.Orders[0] = orders
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
