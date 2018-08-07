@@ -7,8 +7,10 @@ import (
 	"path"
 
 	"github.com/pjdufour-truss/pdfcpu/pkg/api"
+	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/spf13/afero"
 
+	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/testdatagen"
 )
 
@@ -26,6 +28,41 @@ func (suite *PaperworkSuite) sha256ForPath(path string, fs *afero.Afero) (string
 
 	byteArray := hash.Sum(nil)
 	return fmt.Sprintf("%x", byteArray), nil
+}
+
+func (suite *PaperworkSuite) setupOrdersDocument() (*Generator, models.Order) {
+	order := testdatagen.MakeDefaultOrder(suite.db)
+
+	document := testdatagen.MakeDefaultDocument(suite.db)
+
+	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
+	suite.FatalNil(err)
+
+	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
+
+	suite.FatalNil(err)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	suite.FatalNil(err)
+
+	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
+	suite.FatalNil(err)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	suite.FatalNil(err)
+
+	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
+	suite.Nil(err)
+	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
+	suite.Nil(err)
+
+	err = suite.db.Load(&document, "Uploads")
+	suite.FatalNil(err)
+	suite.Equal(3, len(document.Uploads))
+
+	order.UploadedOrders = document
+	order.UploadedOrdersID = document.ID
+	suite.mustSave(&order)
+
+	return generator, order
 }
 
 func (suite *PaperworkSuite) TestPDFFromImages() {
@@ -76,39 +113,26 @@ func (suite *PaperworkSuite) TestPDFFromImages() {
 }
 
 func (suite *PaperworkSuite) TestGenerateUploadsPDF() {
-	order := testdatagen.MakeDefaultOrder(suite.db)
+	generator, order := suite.setupOrdersDocument()
 
-	document := testdatagen.MakeDefaultDocument(suite.db)
-
-	order.UploadedOrders = document
-	order.UploadedOrdersID = document.ID
-	suite.mustSave(&order)
-
-	generator, err := NewGenerator(suite.db, suite.logger, suite.uploader)
-	suite.FatalNil(err)
-
-	file, err := suite.openLocalFile("testdata/orders1.jpg", generator.fs)
-
-	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.FatalNil(err)
-
-	file, err = suite.openLocalFile("testdata/orders1.pdf", generator.fs)
-	suite.FatalNil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.FatalNil(err)
-
-	file, err = suite.openLocalFile("testdata/orders2.jpg", generator.fs)
-	suite.Nil(err)
-	_, _, err = suite.uploader.CreateUpload(&document.ID, document.ServiceMember.UserID, file)
-	suite.Nil(err)
-
-	err = suite.db.Load(&document, "Uploads")
-	suite.FatalNil(err)
-	suite.Equal(3, len(document.Uploads))
-
-	paths, err := generator.ConvertUploadsToPDF(document.Uploads)
+	paths, err := generator.ConvertUploadsToPDF(order.UploadedOrders.Uploads)
 	suite.FatalNil(err)
 
 	suite.Equal(3, len(paths), "wrong number of paths returned")
+}
+
+func (suite *PaperworkSuite) TestCreateMergedPDF() {
+	generator, order := suite.setupOrdersDocument()
+
+	file, err := generator.CreateMergedPDFUpload(order.UploadedOrders.Uploads)
+	suite.FatalNil(err)
+
+	// Read merged file and verify page count
+	ctx, err := api.Read(file.Name(), generator.pdfConfig)
+	suite.FatalNil(err)
+
+	err = pdfcpu.ValidateXRefTable(ctx.XRefTable)
+	suite.FatalNil(err)
+
+	suite.Equal(3, ctx.PageCount)
 }

@@ -38,13 +38,11 @@ type Generator struct {
 
 // NewGenerator creates a new Generator.
 func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) (*Generator, error) {
-	var fs = afero.NewMemMapFs()
-	afs := &afero.Afero{Fs: fs}
+	afs := uploader.Storer.FileSystem()
 
 	pdfConfig := pdfcpu.NewInMemoryConfiguration()
-	pdfConfig.FileSystem = fs
+	pdfConfig.FileSystem = afs.Fs
 
-	// directory, err := ioutil.TempDir("", "generator")
 	directory, err := afs.TempDir("", "generator")
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -66,7 +64,6 @@ type inputFile struct {
 }
 
 func (g *Generator) newTempFile() (afero.File, error) {
-	// outputFile, err := ioutil.TempFile(g.workDir, "temp")
 	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
@@ -113,11 +110,11 @@ func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error
 		}
 
 		download, err := g.uploader.Download(&upload)
-		defer download.Close()
 		if err != nil {
 			g.logger.Error("Downloading file from upload", zap.Error(err))
 			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
+		defer download.Close()
 
 		outputFile, err := g.newTempFile()
 		if err != nil {
@@ -195,6 +192,7 @@ func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	for _, image := range images {
 		pdf.AddPage()
 		file, _ := g.fs.Open(image.Path)
+		// Need to register the image using an afero reader, else it uses default filesystem
 		pdf.RegisterImageReader(image.Path, contentTypeToImageType[image.ContentType], file)
 		opt.ImageType = contentTypeToImageType[image.ContentType]
 		pdf.ImageOptions(image.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")

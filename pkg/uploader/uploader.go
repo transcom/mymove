@@ -22,7 +22,7 @@ var ErrZeroLengthFile = errors.New("File has length of 0")
 type Uploader struct {
 	db     *pop.Connection
 	logger *zap.Logger
-	storer storage.FileStorer
+	Storer storage.FileStorer
 }
 
 // NewUploader creates and returns a new uploader
@@ -30,7 +30,7 @@ func NewUploader(db *pop.Connection, logger *zap.Logger, storer storage.FileStor
 	return &Uploader{
 		db:     db,
 		logger: logger,
-		storer: storer,
+		Storer: storer,
 	}
 }
 
@@ -86,7 +86,7 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 		}
 
 		// Push file to S3
-		if _, err := u.storer.Store(newUpload.StorageKey, file, checksum); err != nil {
+		if _, err := u.Storer.Store(newUpload.StorageKey, file, checksum); err != nil {
 			u.logger.Error("failed to store object", zap.Error(err))
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "failed to store object")
@@ -103,7 +103,7 @@ func (u *Uploader) CreateUpload(documentID *uuid.UUID, userID uuid.UUID, file af
 
 // PresignedURL returns a URL that can be used to access an Upload's file.
 func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
-	url, err := u.storer.PresignedURL(upload.StorageKey, upload.ContentType)
+	url, err := u.Storer.PresignedURL(upload.StorageKey, upload.ContentType)
 	if err != nil {
 		u.logger.Error("failed to get presigned url", zap.Error(err))
 		return "", err
@@ -114,7 +114,7 @@ func (u *Uploader) PresignedURL(upload *models.Upload) (string, error) {
 // DeleteUpload removes an Upload from the database and deletes its file from the
 // storer.
 func (u *Uploader) DeleteUpload(upload *models.Upload) error {
-	if err := u.storer.Delete(upload.StorageKey); err != nil {
+	if err := u.Storer.Delete(upload.StorageKey); err != nil {
 		return err
 	}
 
@@ -129,5 +129,5 @@ func (u *Uploader) DeleteUpload(upload *models.Upload) error {
 //
 // It is the caller's responsibility to delete the tempfile.
 func (u *Uploader) Download(upload *models.Upload) (io.ReadCloser, error) {
-	return u.storer.Fetch(upload.StorageKey)
+	return u.Storer.Fetch(upload.StorageKey)
 }

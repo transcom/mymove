@@ -8,6 +8,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 )
 
@@ -17,12 +18,20 @@ type S3 struct {
 	keyNamespace string
 	logger       *zap.Logger
 	client       *s3.S3
+	fs           *afero.Afero
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
 func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *session.Session) *S3 {
+	var fs = afero.NewMemMapFs()
 	client := s3.New(session)
-	return &S3{bucket, keyNamespace, logger, client}
+	return &S3{
+		bucket:       bucket,
+		keyNamespace: keyNamespace,
+		logger:       logger,
+		client:       client,
+		fs:           &afero.Afero{Fs: fs},
+	}
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
@@ -82,6 +91,11 @@ func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 	}
 
 	return getObjectOutput.Body, nil
+}
+
+// FileSystem returns the underlying afero filesystem
+func (s *S3) FileSystem() *afero.Afero {
+	return s.fs
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.

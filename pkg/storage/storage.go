@@ -12,6 +12,7 @@ import (
 	"net/http"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 )
 
 // StoreResult represents the result of a call to Store().
@@ -23,6 +24,7 @@ type FileStorer interface {
 	Fetch(string) (io.ReadCloser, error)
 	Delete(string) error
 	PresignedURL(string, string) (string, error)
+	FileSystem() *afero.Afero
 }
 
 // ComputeChecksum calculates the MD% checksum for the provided data. It expects that

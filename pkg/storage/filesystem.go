@@ -9,6 +9,7 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 )
 
@@ -18,11 +19,19 @@ type Filesystem struct {
 	root    string
 	webRoot string
 	logger  *zap.Logger
+	fs      *afero.Afero
 }
 
 // NewFilesystem creates a new S3 using the provided AWS session.
 func NewFilesystem(root string, webRoot string, logger *zap.Logger) *Filesystem {
-	return &Filesystem{root, webRoot, logger}
+	var fs = afero.NewMemMapFs()
+
+	return &Filesystem{
+		root:    root,
+		webRoot: webRoot,
+		logger:  logger,
+		fs:      &afero.Afero{Fs: fs},
+	}
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
@@ -78,6 +87,11 @@ func (fs *Filesystem) Fetch(key string) (io.ReadCloser, error) {
 	sourcePath := filepath.Join(fs.root, key)
 	// #nosec
 	return os.Open(sourcePath)
+}
+
+// FileSystem returns the underlying afero filesystem
+func (fs *Filesystem) FileSystem() *afero.Afero {
+	return fs.fs
 }
 
 // NewFilesystemHandler returns an Handler that adds a Content-Type header so that

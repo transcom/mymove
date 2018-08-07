@@ -55,6 +55,11 @@ func (fake *FakeS3Storage) PresignedURL(key string, contentType string) (string,
 	return url, nil
 }
 
+// FileSystem returns the underlying afero filesystem
+func (fake *FakeS3Storage) FileSystem() *afero.Afero {
+	return fake.fs
+}
+
 // NewFakeS3Storage creates a new FakeS3Storage for testing purposes.
 func NewFakeS3Storage(willSucceed bool) *FakeS3Storage {
 	var fs = afero.NewMemMapFs()
