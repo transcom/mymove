@@ -1,0 +1,1 @@
+exec("./apply-secure-migration.sh 20180806181625_add_conselors.sql")
