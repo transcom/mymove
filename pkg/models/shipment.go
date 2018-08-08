@@ -24,11 +24,14 @@ type Shipment struct {
 	ID                           uuid.UUID                `json:"id" db:"id"`
 	TrafficDistributionListID    *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	TrafficDistributionList      *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
+	ServiceMemberID              uuid.UUID                `json:"service_member_id" db:"service_member_id"`
+	ServiceMember                *ServiceMember           `belongs_to:"service_member"`
 	PickupDate                   *time.Time               `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate                 *time.Time               `json:"delivery_date" db:"delivery_date"`
 	CreatedAt                    time.Time                `json:"created_at" db:"created_at"`
 	UpdatedAt                    time.Time                `json:"updated_at" db:"updated_at"`
 	SourceGBLOC                  *string                  `json:"source_gbloc" db:"source_gbloc"`
+	DestinationGBLOC             *string                  `json:"destination_gbloc" db:"destination_gbloc"`
 	Market                       *string                  `json:"market" db:"market"`
 	BookDate                     *time.Time               `json:"book_date" db:"book_date"`
 	RequestedPickupDate          *time.Time               `json:"requested_pickup_date" db:"requested_pickup_date"`

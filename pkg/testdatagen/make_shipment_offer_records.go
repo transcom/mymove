@@ -129,7 +129,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		move := MakeMove(db, moveAssertions)
-		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market, &move)
+		shipment, _ := MakeShipment(db, now, now.Add(oneWeek), now.Add(oneWeek*2), tdl, sourceGBLOC, &market, &move, nil)
 		shipmentList = append(shipmentList, shipment)
 		time.Sleep(100 * time.Millisecond)
 	}

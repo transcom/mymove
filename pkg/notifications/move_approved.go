@@ -42,7 +42,7 @@ func (m MoveApproved) emails() ([]emailContent, error) {
 		return emails, err
 	}
 
-	orders, err := models.FetchOrder(m.db, m.session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(m.db, m.session, move.OrdersID)
 	if err != nil {
 		return emails, err
 	}
