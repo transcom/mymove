@@ -22,6 +22,7 @@ import ExpensesPanel from './Ppm/ExpensesPanel';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
+import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -75,8 +76,12 @@ const PPMTabContent = props => {
 const HHGTabContent = props => {
   return (
     <div className="office-tab">
-      <DatesAndTrackingPanel title="Dates and Tracking" moveId={props.moveId} />
       <RoutingPanel title="Routing" moveId={props.moveId} />
+      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <WeightAndInventoryPanel
+        title="Weight & Inventory"
+        moveId={props.moveId}
+      />
     </div>
   );
 };
