@@ -21,7 +21,7 @@ func (h ShowPPMIncentiveHandler) Handle(params ppmop.ShowPPMIncentiveParams) mid
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
-		return ppmop.NewShowPPMIncentiveUnauthorized()
+		return ppmop.NewShowPPMIncentiveForbidden()
 	}
 	engine := rateengine.NewRateEngine(h.db, h.logger, h.planner)
 

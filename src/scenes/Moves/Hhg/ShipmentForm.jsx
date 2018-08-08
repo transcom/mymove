@@ -8,11 +8,14 @@ import { setCurrentShipment, currentShipment } from 'shared/UI/ducks';
 
 import Alert from 'shared/Alert';
 import { reduxifyWizardForm } from 'shared/WizardPage/Form';
-import ShipmentDatePicker from 'scenes/Moves/Hhg/DatePicker';
-import ShipmentAddress from 'scenes/Moves/Hhg/Address';
+import DatePicker from 'scenes/Moves/Hhg/DatePicker';
+import Address from 'scenes/Moves/Hhg/Address';
 import WeightEstimates from 'scenes/Moves/Hhg/WeightEstimates';
 
-import { createOrUpdateShipment } from 'shared/Entities/modules/shipments';
+import {
+  createOrUpdateShipment,
+  getShipment,
+} from 'shared/Entities/modules/shipments';
 
 import './ShipmentForm.css';
 
@@ -24,10 +27,31 @@ export class ShipmentForm extends Component {
     shipmentError: null,
   };
 
+  componentDidMount() {
+    this.loadShipment();
+  }
+
+  componentDidUpdate(prevProps) {
+    if (
+      get(this.props, 'currentShipment.id') !==
+      get(prevProps, 'currentShipment.id')
+    ) {
+      this.loadShipment();
+    }
+  }
+
+  loadShipment() {
+    const currentID = get(this.props, 'currentShipment.id');
+    if (currentID) {
+      this.props.getShipment(this.props.currentShipment.move_id, currentID);
+    }
+  }
+
   handleSubmit = () => {
     const moveId = this.props.match.params.moveId;
     const shipment = this.props.formValues;
-    const currentShipmentId = get(this, 'props.currentShipment.id');
+    const currentShipmentId = get(this.props, 'currentShipment.id');
+
     return this.props
       .createOrUpdateShipment(moveId, shipment, currentShipmentId)
       .then(data => {
@@ -46,7 +70,7 @@ export class ShipmentForm extends Component {
   };
 
   render() {
-    const { pages, pageKey, error, initialValues } = this.props;
+    const { pages, pageKey, error, initialValues, formValues } = this.props;
 
     const requestedPickupDate = get(this.state, 'requestedPickupDate');
 
@@ -76,13 +100,13 @@ export class ShipmentForm extends Component {
           <div className="usa-grid">
             <h3 className="form-title">Shipment 1 (HHG)</h3>
           </div>
-          <ShipmentDatePicker
+          <DatePicker
             schema={this.props.schema}
             error={error}
-            formValues={this.props.formValues}
+            selectedDay={get(formValues, 'requested_pickup_date', null)}
             setDate={this.setDate}
           />
-          <ShipmentAddress
+          <Address
             schema={this.props.schema}
             error={error}
             formValues={this.props.formValues}
@@ -105,17 +129,18 @@ ShipmentForm.propTypes = {
 
 function mapDispatchToProps(dispatch) {
   return bindActionCreators(
-    { createOrUpdateShipment, setCurrentShipment },
+    { createOrUpdateShipment, setCurrentShipment, getShipment },
     dispatch,
   );
 }
 function mapStateToProps(state) {
+  const shipment = currentShipment(state);
   const props = {
     schema: get(state, 'swagger.spec.definitions.Shipment', {}),
     move: get(state, 'moves.currentMove', {}),
-    initialValues: get(state, 'moves.currentMove.shipments[0]', {}),
     formValues: getFormValues(formName)(state),
-    currentShipment: currentShipment(state) || {},
+    currentShipment: shipment,
+    initialValues: shipment,
   };
   return props;
 }

@@ -184,7 +184,10 @@ export const reduxifyWizardForm = (name, additionalValidations) => {
       additionalValidations,
     );
   }
-  return reduxForm({ form: name, validate: validations })(
-    withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)),
-  );
+  return reduxForm({
+    form: name,
+    validate: validations,
+    enableReinitialize: true,
+    keepDirtyOnReinitialize: true,
+  })(withRouter(connect(null, mapDispatchToProps)(wizardFormPageWithSize)));
 };
