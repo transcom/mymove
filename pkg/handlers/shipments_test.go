@@ -69,13 +69,11 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 
 	suite.Assertions.IsType(&shipmentop.CreateShipmentCreated{}, response)
 	unwrapped := response.(*shipmentop.CreateShipmentCreated)
-	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
 	market := "dHHG"
 	codeOfService := "D"
 
-	suite.Nil(err, "could not count shipments")
-	suite.Equal(1, count)
-
+	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
+	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
 	suite.Equal(&market, unwrapped.Payload.Market)
@@ -91,6 +89,10 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerAllValues() {
 	suite.Equal(swag.Int64(4500), unwrapped.Payload.WeightEstimate)
 	suite.Equal(swag.Int64(325), unwrapped.Payload.ProgearWeightEstimate)
 	suite.Equal(swag.Int64(120), unwrapped.Payload.SpouseProgearWeightEstimate)
+
+	count, err := suite.db.Where("move_id=$1", move.ID).Count(&models.Shipment{})
+	suite.Nil(err, "could not count shipments")
+	suite.Equal(1, count)
 }
 
 func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
@@ -119,6 +121,8 @@ func (suite *HandlerSuite) TestCreateShipmentHandlerEmpty() {
 	suite.Nil(err, "could not count shipments")
 	suite.Equal(1, count)
 
+	suite.Equal(strfmt.UUID(move.ID.String()), unwrapped.Payload.MoveID)
+	suite.Equal(strfmt.UUID(sm.ID.String()), unwrapped.Payload.ServiceMemberID)
 	suite.Equal("DRAFT", unwrapped.Payload.Status)
 	suite.Equal(&market, unwrapped.Payload.Market)
 	suite.Equal(&codeOfService, unwrapped.Payload.CodeOfService)
@@ -156,6 +160,7 @@ func (suite *HandlerSuite) TestPatchShipmentsHandlerHappyPath() {
 		WeightEstimate:               poundPtrFromInt64Ptr(swag.Int64(4500)),
 		ProgearWeightEstimate:        poundPtrFromInt64Ptr(swag.Int64(325)),
 		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(swag.Int64(120)),
+		ServiceMemberID:              sm.ID,
 	}
 	suite.mustSave(&shipment1)
 
@@ -218,6 +223,7 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 		WeightEstimate:               poundPtrFromInt64Ptr(swag.Int64(4500)),
 		ProgearWeightEstimate:        poundPtrFromInt64Ptr(swag.Int64(325)),
 		SpouseProgearWeightEstimate:  poundPtrFromInt64Ptr(swag.Int64(120)),
+		ServiceMemberID:              sm.ID,
 	}
 	suite.mustSave(&shipment1)
 
@@ -249,7 +255,6 @@ func (suite *HandlerSuite) TestPatchShipmentHandlerNoMove() {
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
-
 }
 
 /*
