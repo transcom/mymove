@@ -42,9 +42,7 @@ function renderEntitlements(entitlements, orders) {
           {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
         </PanelField>
       )}
-      <PanelField className="Todo" title="Short-term storage">
-        90 days
-      </PanelField>
+      <PanelField title="Short-term storage">90 days</PanelField>
     </React.Fragment>
   );
 }
