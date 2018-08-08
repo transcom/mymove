@@ -3,25 +3,13 @@ import React, { Component } from 'react';
 import { DayPicker } from 'react-day-picker';
 import 'react-day-picker/lib/style.css';
 
-import { formatSwaggerDate } from 'shared/formatters';
+import { formatSwaggerDate, parseSwaggerDate } from 'shared/formatters';
 import './DatePicker.css';
 
 export class HHGDatePicker extends Component {
-  state = { showInfo: false };
-
-  constructor(props) {
-    super(props);
-    this.handleDayClick = this.handleDayClick.bind(this);
-    this.state = {
-      selectedDay: undefined,
-    };
-  }
-
-  handleDayClick(day) {
-    this.setState({ selectedDay: day });
-    this.setState({ showInfo: true });
+  handleDayClick = day => {
     this.props.setDate(formatSwaggerDate(day));
-  }
+  };
 
   render() {
     return (
@@ -34,12 +22,12 @@ export class HHGDatePicker extends Component {
           <div className="usa-width-one-third">
             <DayPicker
               onDayClick={this.handleDayClick}
-              selectedDays={this.state.selectedDay}
+              selectedDays={parseSwaggerDate(this.props.selectedDay)}
             />
           </div>
 
           <div className="usa-width-two-thirds">
-            {this.state.showInfo && (
+            {this.props.selectedDay && (
               <table className="Todo-phase2">
                 <tbody>
                   <tr>
@@ -83,7 +71,7 @@ export class HHGDatePicker extends Component {
 }
 HHGDatePicker.propTypes = {
   error: PropTypes.object,
-  formValues: PropTypes.object,
+  selectedDay: PropTypes.string,
 };
 
 export default HHGDatePicker;
