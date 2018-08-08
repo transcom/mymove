@@ -108,7 +108,7 @@ func FetchMoveDocument(db *pop.Connection, session *auth.Session, id uuid.UUID) 
 	// Pointer associations are buggy, so we manually load expense document things
 	movingExpenseDocument := MovingExpenseDocument{}
 	moveDoc.MovingExpenseDocument = nil
-	err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager("Reimbursement").First(&movingExpenseDocument)
+	err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
 	if err != nil {
 		if errors.Cause(err).Error() != recordNotFoundErrorString {
 			return nil, err
@@ -151,7 +151,7 @@ func FetchApprovedMovingExpenseDocuments(db *pop.Connection, session *auth.Sessi
 	for i, moveDoc := range moveDocuments {
 		movingExpenseDocument := MovingExpenseDocument{}
 		moveDoc.MovingExpenseDocument = nil
-		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager("Reimbursement").First(&movingExpenseDocument)
+		err = db.Where("move_document_id = $1", moveDoc.ID.String()).Eager().First(&movingExpenseDocument)
 		if err != nil {
 			if errors.Cause(err).Error() != recordNotFoundErrorString {
 				return nil, err
@@ -173,18 +173,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 		transactionError := errors.New("Rollback The transaction")
 
 		if saveAction == MoveDocumentSaveActionSAVEEXPENSEMODEL {
-			// Save reimbursement first
-			reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
-			if verrs, err := db.ValidateAndSave(&reimbursement); verrs.HasAny() || err != nil {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error Saving Moving Expense Reimbursement")
-				return transactionError
-			}
-			// Make sure the moveDocument has the associated ID
-			moveDocument.MovingExpenseDocument.ReimbursementID = reimbursement.ID
-			moveDocument.MovingExpenseDocument.Reimbursement = reimbursement
-
-			// Then save expense document
+			// Save expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if verrs, err := db.ValidateAndSave(expenseDocument); verrs.HasAny() || err != nil {
 				responseVErrors.Append(verrs)
@@ -192,14 +181,7 @@ func SaveMoveDocument(db *pop.Connection, moveDocument *MoveDocument, saveAction
 				return transactionError
 			}
 		} else if saveAction == MoveDocumentSaveActionDELETEEXPENSEMODEL {
-			// Destroy reimbursement first
-			reimbursement := moveDocument.MovingExpenseDocument.Reimbursement
-			if err := db.Destroy(&reimbursement); err != nil {
-				responseError = errors.Wrap(err, "Error Deleting Moving Expense Reimbursement")
-				return transactionError
-			}
-
-			// Then destroy expense document
+			// destroy expense document
 			expenseDocument := moveDocument.MovingExpenseDocument
 			if err := db.Destroy(expenseDocument); err != nil {
 				responseError = errors.Wrap(err, "Error Deleting Moving Expense Document")
