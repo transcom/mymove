@@ -84,7 +84,7 @@ func main() {
 	}
 
 	id := uuid.Must(uuid.FromString(*moveID))
-	outputPath, err := generator.GenerateAdvancePaperwork(id, *build)
+	outputPath, err := paperwork.GenerateAdvancePaperwork(generator, id, *build)
 	if err != nil {
 		log.Fatal(err)
 	}

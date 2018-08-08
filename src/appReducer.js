@@ -55,28 +55,38 @@ const entititesReducer = combineReducers({
   [ORDERS_STATE_KEY]: orders,
 });
 
-export const appReducer = combineReducers({
-  user: userReducer,
+const defaultReducers = {
   loggedInUser: loggedInUserReducer,
-  swagger: swaggerReducer,
-  submittedIssues: issuesReducer,
-  moves: moveReducer,
-  ppm: ppmReducer,
-  serviceMember: serviceMemberReducer,
-  orders: ordersReducer,
-  shipments: shipmentsReducer,
   router: routerReducer,
-  form: formReducer,
-  feedback: feedbackReducer,
-  signedCertification: signedCertificationReducer,
-  upload: documentReducer,
-  review: reviewReducer,
-  office: officeReducer,
-  tsp: tspReducer,
-  transportationOffices: transportationOfficeReducer,
-  ppmIncentive: officePpmReducer,
-  entities: entititesReducer,
+  swagger: swaggerReducer,
   ui: uiReducer,
-});
+  user: userReducer,
+};
+
+export const appReducer = combineReducers(
+  Object.assign({}, defaultReducers, {
+    submittedIssues: issuesReducer,
+    moves: moveReducer,
+    ppm: ppmReducer,
+    serviceMember: serviceMemberReducer,
+    orders: ordersReducer,
+    shipments: shipmentsReducer,
+    form: formReducer,
+    feedback: feedbackReducer,
+    signedCertification: signedCertificationReducer,
+    upload: documentReducer,
+    review: reviewReducer,
+    office: officeReducer,
+    transportationOffices: transportationOfficeReducer,
+    ppmIncentive: officePpmReducer,
+    entities: entititesReducer,
+  }),
+);
+
+export const tspAppReducer = combineReducers(
+  Object.assign({}, defaultReducers, {
+    tsp: tspReducer,
+  }),
+);
 
 export default appReducer;
