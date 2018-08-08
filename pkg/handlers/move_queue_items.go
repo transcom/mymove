@@ -4,6 +4,7 @@ import (
 	"github.com/go-openapi/runtime/middleware"
 	"github.com/go-openapi/swag"
 
+	"github.com/transcom/mymove/pkg/auth"
 	queueop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/queues"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
@@ -34,7 +35,12 @@ type ShowQueueHandler HandlerContext
 
 // Handle retrieves a list of all MoveQueueItems in the system in the moves queue
 func (h ShowQueueHandler) Handle(params queueop.ShowQueueParams) middleware.Responder {
-	// TODO: Check user is authorized to see office queues
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	if !session.IsOfficeUser() {
+		return queueop.NewShowQueueForbidden()
+	}
+
 	lifecycleState := params.QueueType
 
 	MoveQueueItems, err := models.GetMoveQueueItems(h.db, lifecycleState)

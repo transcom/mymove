@@ -9,7 +9,7 @@ import (
 	"github.com/transcom/mymove/pkg/testdatagen/scenario"
 )
 
-func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
+func (suite *HandlerSuite) TestShowPPMIncentiveHandlerForbidden() {
 	if err := scenario.RunRateEngineScenario2(suite.db); err != nil {
 		suite.FailNow("failed to run scenario 2: %+v", err)
 	}
@@ -31,10 +31,7 @@ func (suite *HandlerSuite) TestShowPPMIncentiveHandlerUnauthorised() {
 	context.SetPlanner(route.NewTestingPlanner(1693))
 	showHandler := ShowPPMIncentiveHandler(context)
 	showResponse := showHandler.Handle(params)
-
-	_, succeeded := showResponse.(*ppmop.ShowPPMIncentiveUnauthorized)
-	suite.True(succeeded, "ShowPpmIncentive allowed non-office user to call")
-
+	suite.Assertions.IsType(&ppmop.ShowPPMIncentiveForbidden{}, showResponse)
 }
 
 func (suite *HandlerSuite) TestShowPPMIncentiveHandler() {

@@ -38,6 +38,13 @@ export function formatSwaggerDate(date) {
   return '';
 }
 
+// Parse a date from the format used by Swagger into a Date object
+export function parseSwaggerDate(dateString) {
+  if (dateString) {
+    return moment(dateString, 'YYYY-MM-DD').toDate();
+  }
+}
+
 // Office Formatters
 //
 // The formatters below for the office app, but not the service member app
