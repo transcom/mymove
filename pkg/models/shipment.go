@@ -67,6 +67,7 @@ type ShipmentWithOffer struct {
 	TrafficDistributionListID       *uuid.UUID `db:"traffic_distribution_list_id"`
 	TransportationServiceProviderID *uuid.UUID `db:"transportation_service_provider_id"`
 	SourceGBLOC                     *string    `db:"source_gbloc"`
+	DestinationGBLOC                *string    `db:"destination_gbloc"`
 	Market                          *string    `db:"market"`
 	CodeOfService                   *string    `json:"code_of_service" db:"code_of_service"`
 	Accepted                        *bool      `db:"accepted"`
@@ -92,6 +93,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
 				shipments.source_gbloc,
+				shipments.destination_gbloc,
 				shipments.market,
 				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,
@@ -110,6 +112,7 @@ func FetchShipments(dbConnection *pop.Connection, onlyUnassigned bool) ([]Shipme
 				shipments.book_date,
 				shipments.traffic_distribution_list_id,
 				shipments.source_gbloc,
+				shipments.destination_gbloc,
 				shipments.market,
 				shipments.code_of_service,
 				shipment_offers.transportation_service_provider_id,

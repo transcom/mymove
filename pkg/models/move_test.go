@@ -194,6 +194,8 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	suite.Nil(err)
 	suite.False(verrs.HasAny(), "failed to validate move")
 	shipment.Move = move
+	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	shipment.ServiceMember = serviceMember
 
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
