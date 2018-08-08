@@ -1384,8 +1384,10 @@ definitions:
     title: Dept. indicator
     enum:
       - AIR_FORCE
+      - MARINES
     x-display-value:
       AIR_FORCE: 57 - United States Air Force
+      MARINES: 17 - United States Marines
   Shipment:
     type: object
     properties:
