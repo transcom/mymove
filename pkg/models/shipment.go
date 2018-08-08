@@ -25,6 +25,7 @@ type Shipment struct {
 	TrafficDistributionListID    *uuid.UUID               `json:"traffic_distribution_list_id" db:"traffic_distribution_list_id"`
 	TrafficDistributionList      *TrafficDistributionList `belongs_to:"traffic_distribution_list"`
 	ServiceMemberID              uuid.UUID                `json:"service_member_id" db:"service_member_id"`
+	ServiceMember                *ServiceMember           `belongs_to:"service_member"`
 	PickupDate                   *time.Time               `json:"pickup_date" db:"pickup_date"`
 	DeliveryDate                 *time.Time               `json:"delivery_date" db:"delivery_date"`
 	CreatedAt                    time.Time                `json:"created_at" db:"created_at"`
