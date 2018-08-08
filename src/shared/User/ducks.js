@@ -3,6 +3,7 @@ import * as decode from 'jwt-decode';
 import * as helpers from 'shared/ReduxHelpers';
 import { GetLoggedInUser } from './api.js';
 import { normalize } from 'normalizr';
+import { pick } from 'lodash';
 
 import { serviceMember } from 'shared/Entities/schema';
 import { addEntities } from 'shared/Entities/actions';
@@ -23,7 +24,11 @@ export const loadLoggedInUser = () => {
       .then(response => {
         if (response.service_member) {
           const data = normalize(response.service_member, serviceMember);
-          dispatch(addEntities(data.entities));
+
+          // Only store shipments and addresses in a normalized way. This prevents
+          // data duplication while we're using both Redux approaches.
+          const filtered = pick(data.entities, ['shipments', 'addresses']);
+          dispatch(addEntities(filtered));
         }
         return dispatch(getLoggedInActions.success(response));
       })

@@ -17,6 +17,11 @@ type ApproveMoveHandler HandlerContext
 // Handle ... approves a Move from a request payload
 func (h ApproveMoveHandler) Handle(params officeop.ApproveMoveParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	if !session.IsOfficeUser() {
+		return officeop.NewApproveMoveForbidden()
+	}
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -47,6 +52,10 @@ type CancelMoveHandler HandlerContext
 // Handle ... cancels a Move from a request payload
 func (h CancelMoveHandler) Handle(params officeop.CancelMoveParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return officeop.NewCancelMoveForbidden()
+	}
+
 	// #nosec UUID is pattern matched by swagger and will be ok
 	moveID, _ := uuid.FromString(params.MoveID.String())
 
@@ -90,6 +99,9 @@ type ApprovePPMHandler HandlerContext
 // Handle ... approves a Personally Procured Move from a request payload
 func (h ApprovePPMHandler) Handle(params officeop.ApprovePPMParams) middleware.Responder {
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
+	if !session.IsOfficeUser() {
+		return officeop.NewApprovePPMForbidden()
+	}
 
 	// #nosec UUID is pattern matched by swagger and will be ok
 	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
@@ -130,7 +142,7 @@ func (h ApproveReimbursementHandler) Handle(params officeop.ApproveReimbursement
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsOfficeUser() {
-		return officeop.NewApproveReimbursementUnauthorized()
+		return officeop.NewApproveReimbursementForbidden()
 	}
 
 	// #nosec UUID is pattern matched by swagger and will be ok
