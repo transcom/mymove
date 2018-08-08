@@ -26,7 +26,7 @@ func (h ValidateEntitlementHandler) Handle(params entitlementop.ValidateEntitlem
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
