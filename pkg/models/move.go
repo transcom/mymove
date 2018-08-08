@@ -312,13 +312,6 @@ func (m Move) CreateMovingExpenseDocument(
 			return transactionError
 		}
 
-		// Save the reimbursement to get an ID.
-		// if verrs, err := db.ValidateAndCreate(&reimbursement); verrs.HasAny() || err != nil {
-		// 	responseVErrors.Append(verrs)
-		// 	responseError = errors.Wrap(err, "Error Creating Moving Expense Advance")
-		// 	return transactionError
-		// }
-
 		// Finally, create the MovingExpenseDocument
 		newMovingExpenseDocument = &MovingExpenseDocument{
 			MoveDocumentID:       newMoveDocument.ID,

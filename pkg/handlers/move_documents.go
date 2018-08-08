@@ -146,9 +146,6 @@ func (h UpdateMoveDocumentHandler) Handle(params movedocop.UpdateMoveDocumentPar
 		paymentMethod := payload.PaymentMethod
 		if moveDoc.MovingExpenseDocument == nil {
 			// But we don't have one, so create it to be saved later
-			// reimbursement := models.BuildRequestedReimbursement(
-			// 	reimbursementAmt,
-			// 	reimbursementMethod)
 			moveDoc.MovingExpenseDocument = &models.MovingExpenseDocument{
 				MoveDocumentID:       moveDoc.ID,
 				MoveDocument:         *moveDoc,
