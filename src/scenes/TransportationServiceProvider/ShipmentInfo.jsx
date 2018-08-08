@@ -3,27 +3,68 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { get, capitalize } from 'lodash';
 
+import { getFormValues, reduxForm } from 'redux-form';
 import { NavLink } from 'react-router-dom';
 
 import Alert from 'shared/Alert'; // eslint-disable-line
+import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { withContext } from 'shared/AppContext';
 
-import {
-  loadShipmentDependencies,
-  acceptShipment,
-  rejectShipment,
-} from './ducks';
+import { loadShipmentDependencies, acceptShipment } from './ducks';
 import { formatDate } from 'shared/formatters';
+
+const shipmentAcceptFormName = 'shipment_accept';
+
+let ShipmentAcceptForm = props => {
+  const { schema, setButtonState, acceptFormShipment } = props;
+
+  return (
+    <form onSubmit={acceptFormShipment}>
+      <h3 className="smheading">Origin Shipping Agent</h3>
+      <SwaggerField fieldName="origin_agent_name" swagger={schema} required />
+      <SwaggerField
+        fieldName="origin_agent_phone_number"
+        swagger={schema}
+        required
+      />
+      <SwaggerField fieldName="origin_agent_email" swagger={schema} required />
+
+      <h3 className="smheading">Destination Shipping Agent</h3>
+      <SwaggerField
+        fieldName="destination_agent_name"
+        swagger={schema}
+        required
+      />
+      <SwaggerField
+        fieldName="destination_agent_phone_number"
+        swagger={schema}
+        required
+      />
+      <SwaggerField
+        fieldName="destination_agent_email"
+        swagger={schema}
+        required
+      />
+
+      <div className="usa-grid">
+        <div className="usa-width-one-whole extras options">
+          <a onClick={setButtonState}>Never mind</a>
+        </div>
+        <div className="usa-width-one-whole extras options">
+          <button type="submit">Submit</button>
+        </div>
+      </div>
+    </form>
+  );
+};
+
+ShipmentAcceptForm = reduxForm({
+  form: shipmentAcceptFormName,
+})(ShipmentAcceptForm);
 
 class AcceptPanel extends Component {
   state = {
     displayState: 'Button',
-    'origin-agent-name': '',
-    'origin-agent-phone-number': '',
-    'origin-agent-email': '',
-    'destination-agent-name': '',
-    'destination-agent-phone-number': '',
-    'destination-agent-email': '',
   };
 
   setConfirmState = () => {
@@ -34,11 +75,7 @@ class AcceptPanel extends Component {
     this.setState({ displayState: 'Button' });
   };
 
-  handleChange = event => {
-    this.setState({ [event.target.name]: event.target.value });
-  };
-
-  acceptShipment = event => {
+  acceptFormShipment = event => {
     event.preventDefault();
 
     var originShippingAgent = {
@@ -59,158 +96,16 @@ class AcceptPanel extends Component {
   render() {
     if (this.state.displayState === 'Confirm') {
       return (
-        <div className="cancel-panel">
-          <h2 className="extras usa-heading">Accept Shipment</h2>
-          <div className="extras content">
-            Enter the Origin and Destination Shipping Agent Information
-            <div>
-              <label htmlFor="origin-agent-name">Origin Agent Name</label>
-              <input
-                id="origin-agent-name"
-                name="origin-agent-name"
-                type="text"
-                onChange={this.handleChange}
-              />
-              <label htmlFor="origin-agent-phone-number">
-                Origin Agent Phone
-              </label>
-              <input
-                id="origin-agent-phone-number"
-                name="origin-agent-phone-number"
-                type="text"
-                onChange={this.handleChange}
-              />
-              <label htmlFor="origin-agent-email">Origin Agent Email</label>
-              <input
-                id="origin-agent-email"
-                name="origin-agent-email"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </div>
-            <div>
-              <label htmlFor="destination-agent-name">
-                Destination Agent Name
-              </label>
-              <input
-                id="destination-agent-name"
-                name="destination-agent-name"
-                type="text"
-                onChange={this.handleChange}
-              />
-              <label htmlFor="destination-agent-phone-number">
-                Destination Agent Phone
-              </label>
-              <input
-                id="destination-agent-phone-number"
-                name="destination-agent-phone-number"
-                type="text"
-                onChange={this.handleChange}
-              />
-              <label htmlFor="destination-agent-email">
-                Destination Agent Email
-              </label>
-              <input
-                id="destination-agent-email"
-                name="destination-agent-email"
-                type="text"
-                onChange={this.handleChange}
-              />
-            </div>
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>Never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.acceptShipment}>Submit</button>
-              </div>
-            </div>
-          </div>
-        </div>
+        <ShipmentAcceptForm
+          schema={this.props.schema}
+          setButtonState={this.setButtonState}
+          acceptFormShipment={this.acceptFormShipment}
+        />
       );
     } else if (this.state.displayState === 'Button') {
       return (
         <button className="usa-button-primary" onClick={this.setConfirmState}>
           Accept Shipment
-        </button>
-      );
-    }
-  }
-}
-
-class RejectPanel extends Component {
-  state = {
-    displayState: 'Button',
-    rejectReason: '',
-  };
-
-  setConfirmState = () => {
-    this.setState({ displayState: 'Confirm' });
-  };
-
-  setRejectState = () => {
-    if (this.state.rejectReason !== '') {
-      this.setState({ displayState: 'Reject' });
-    }
-  };
-
-  setButtonState = () => {
-    this.setState({ displayState: 'Button' });
-  };
-
-  handleChange = event => {
-    this.setState({ rejectReason: event.target.value });
-  };
-
-  rejectShipment = event => {
-    event.preventDefault();
-    this.props.rejectShipment(this.state.rejectReason);
-    this.setState({ displayState: 'Button' });
-  };
-
-  render() {
-    if (this.state.displayState === 'Reject') {
-      return (
-        <div className="reject-panel">
-          <h2 className="extras usa-heading">Reject Shipment</h2>
-          <div className="extras content">
-            <Alert type="warning" heading="Rejection Warning">
-              Are you sure you want to reject the entire move? This will affect
-              your quality score.
-            </Alert>
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>No, never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.rejectMove}>Yes, reject shipment</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Confirm') {
-      return (
-        <div className="reject-panel">
-          <h2 className="extras usa-heading">Reject Shipment</h2>
-          <div className="extras content">
-            Why is the shipment being rejected?
-            <textarea required onChange={this.handleChange} />
-            <div className="usa-grid">
-              <div className="usa-width-one-whole extras options">
-                <a onClick={this.setButtonState}>Never mind</a>
-              </div>
-              <div className="usa-width-one-whole extras options">
-                <button onClick={this.setRejectState}>Reject shipment</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      );
-    } else if (this.state.displayState === 'Button') {
-      return (
-        <button className="usa-button-secondary" onClick={this.setConfirmState}>
-          Reject Shipment
         </button>
       );
     }
@@ -228,10 +123,6 @@ class ShipmentInfo extends Component {
       originShippingAgent,
       destinationShippingAgent,
     );
-  };
-
-  rejectShipment = rejectReason => {
-    this.props.rejectShipment(this.props.shipment.id, rejectReason);
   };
 
   render() {
@@ -278,8 +169,10 @@ class ShipmentInfo extends Component {
             </div>
           </div>
           <div className="usa-width-one-third" />
-          <AcceptPanel acceptShipment={this.acceptShipment} />
-          <RejectPanel rejectShipment={this.rejectShipment} />
+          <AcceptPanel
+            acceptShipment={this.acceptShipment}
+            schema={this.props.schemaShipmentAccept}
+          />
         </div>
       </div>
     );
@@ -293,7 +186,13 @@ const mapStateToProps = state => ({
     state,
     'tsp.loadTspDependenciesHasSuccess',
   ),
+  formValues: getFormValues(shipmentAcceptFormName)(state),
   loadTspDependenciesHasError: get(state, 'tsp.loadTspDependenciesHasError'),
+  schemaShipmentAccept: get(
+    state,
+    'swagger.spec.definitions.ShipmentAccept',
+    {},
+  ),
 });
 
 const mapDispatchToProps = dispatch =>
@@ -301,7 +200,6 @@ const mapDispatchToProps = dispatch =>
     {
       loadShipmentDependencies,
       acceptShipment,
-      rejectShipment,
     },
     dispatch,
   );

@@ -49,6 +49,7 @@ const entititesReducer = combineReducers({
 
 const defaultReducers = {
   loggedInUser: loggedInUserReducer,
+  form: formReducer,
   router: routerReducer,
   swagger: swaggerReducer,
   ui: uiReducer,
@@ -63,7 +64,6 @@ export const appReducer = combineReducers(
     serviceMember: serviceMemberReducer,
     orders: ordersReducer,
     shipments: shipmentsReducer,
-    form: formReducer,
     feedback: feedbackReducer,
     signedCertification: signedCertificationReducer,
     upload: documentReducer,

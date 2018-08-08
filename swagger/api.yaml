@@ -433,40 +433,49 @@ definitions:
   ShipmentAccept:
     type: object
     properties:
-      origin_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-      destination_shipping_agent:
-        $ref: '#/definitions/ShippingAgentContact'
-    required:
-      - origin_shipping_agent
-      - destination_shipping_agent
-  ShippingAgentContact:
-    type: object
-    properties:
-      name:
+      origin_agent_name:
         type: string
         example: Speedy Moving and Storage
-      phone_number:
+      origin_agent_phone_number:
         type: string
         format: telephone
         pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
         example: 212-555-1213
-      email:
+      origin_agent_email:
+        type: string
+        format: x-email
+        pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+        description: Email used to contact shipping agent
+        example: jackson_flies@gmail.com
+      destination_agent_name:
+        type: string
+        example: Speedy Moving and Storage
+      destination_agent_phone_number:
+        type: string
+        format: telephone
+        pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
+        example: 212-555-1213
+      destination_agent_email:
         type: string
         format: x-email
         pattern: '^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
         description: Email used to contact shipping agent
         example: jackson_flies@gmail.com
     required:
-      - name
-      - phone_number
-      - email
+      - origin_agent_name
+      - origin_agent_phone_number
+      - origin_agent_email
+      - destination_agent_name
+      - destination_agent_phone_number
+      - destination_agent_email
   ShipmentReject:
     type: object
     properties:
       reason:
         type: string
         example: We are overbooked and did not manage to file blackout dates in a timely fashion.
+    required:
+      - reason
   ShipmentContactDetails:
     type: object
     description: Contact details for customer for Shipment
