@@ -26,6 +26,7 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		ServiceMemberID:              strfmt.UUID(s.ServiceMemberID.String()),
 		SourceGbloc:                  s.SourceGBLOC,
 		Market:                       s.Market,
 		CodeOfService:                s.CodeOfService,
@@ -84,6 +85,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
+		ServiceMemberID:              session.ServiceMemberID,
 		Status:                       "DRAFT",
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
