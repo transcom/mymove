@@ -46,10 +46,9 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				return responseForError(h.logger, err)
 			}
-		} else {
-			dutyStation.TransportationOffice = transportationOffice
 		}
 		serviceMember.DutyStation = dutyStation
+		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office
