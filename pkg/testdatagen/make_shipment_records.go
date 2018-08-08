@@ -30,6 +30,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 
 	pickupAddress := MakeAddress(db, Assertions{})
 	codeOfService := "D"
+	destinationGBLOC := "OHAI"
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		ServiceMemberID:              serviceMember.ID,
@@ -37,6 +38,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 		PickupDate:                   timePointer(pickup),
 		DeliveryDate:                 timePointer(delivery),
 		SourceGBLOC:                  stringPointer(sourceGBLOC),
+		DestinationGBLOC:             stringPointer(destinationGBLOC),
 		Market:                       market,
 		CodeOfService:                &codeOfService,
 		BookDate:                     timePointer(DateInsidePerformancePeriod),

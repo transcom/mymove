@@ -4,7 +4,7 @@
         <name><![CDATA[public.orders]]></name>
         <schema><![CDATA[public]]></schema>
         <location>
-            <x>1031.00</x>
+            <x>1030.00</x>
             <y>3.00</y>
         </location>
         <size>
@@ -118,11 +118,6 @@
             <name><![CDATA[orders_type_detail]]></name>
             <type><![CDATA[CHARACTER VARYING(255)]]></type>
             <uid><![CDATA[249D7CAC-75E8-478D-AB11-EBD0A8968335]]></uid>
-        </SQLField>
-        <SQLField>
-            <name><![CDATA[current_duty_station_id]]></name>
-            <type><![CDATA[uuid]]></type>
-            <uid><![CDATA[7A738122-98DB-4AE3-94B8-8F548466C948]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[orders_number]]></name>
@@ -1624,7 +1619,7 @@
         </location>
         <size>
             <width>440.00</width>
-            <height>560.00</height>
+            <height>580.00</height>
         </size>
         <zorder>14</zorder>
         <SQLField>
@@ -1655,6 +1650,20 @@
             <uid><![CDATA[CA852FF3-6A53-44E6-8AB3-DF72E138D80D]]></uid>
         </SQLField>
         <SQLField>
+            <name><![CDATA[service_member_id]]></name>
+            <type><![CDATA[uuid]]></type>
+            <referencesField>id</referencesField>
+            <referencesTable>public.service_members</referencesTable>
+            <referencesField><![CDATA[id]]></referencesField>
+            <referencesTable><![CDATA[public.service_members]]></referencesTable>
+            <sourceCardinality>0</sourceCardinality>
+            <destinationCardinality>0</destinationCardinality>
+            <referencesFieldUID><![CDATA[7FC11267-B91A-404A-8D03-22C4476DDC33]]></referencesFieldUID>
+            <referencesTableUID><![CDATA[CBB330F3-59D0-43C1-90B1-0AA075782C03]]></referencesTableUID>
+            <uid><![CDATA[B76F4388-BC18-4760-A586-392E3EEFD868]]></uid>
+            <unique><![CDATA[0]]></unique>
+        </SQLField>
+        <SQLField>
             <name><![CDATA[pickup_date]]></name>
             <type><![CDATA[timestamp without time zone]]></type>
             <notNull><![CDATA[0]]></notNull>
@@ -1683,6 +1692,11 @@
             <type><![CDATA[character varying(255)]]></type>
             <notNull><![CDATA[0]]></notNull>
             <uid><![CDATA[D9AE27B2-64D4-463F-9C13-1E32B023EBF6]]></uid>
+        </SQLField>
+        <SQLField>
+            <name><![CDATA[destination_gbloc]]></name>
+            <type><![CDATA[TEXT]]></type>
+            <uid><![CDATA[9A1A60F6-C466-4D9E-9F57-15B24B77326F]]></uid>
         </SQLField>
         <SQLField>
             <name><![CDATA[market]]></name>
@@ -3065,7 +3079,7 @@
         <RightSidebarWidth><![CDATA[1985.000000]]></RightSidebarWidth>
         <sidebarIndex><![CDATA[2]]></sidebarIndex>
         <snapToGrid><![CDATA[0]]></snapToGrid>
-        <SourceSidebarWidth><![CDATA[0.000000]]></SourceSidebarWidth>
+        <SourceSidebarWidth><![CDATA[312.000000]]></SourceSidebarWidth>
         <SQLEditorFileFormatVersion><![CDATA[4]]></SQLEditorFileFormatVersion>
         <uid><![CDATA[2D9326C9-9311-4608-922D-10EEAD4704B1]]></uid>
         <windowHeight><![CDATA[1306.000000]]></windowHeight>
