@@ -1410,12 +1410,14 @@ definitions:
         pattern: '^[A-Z]{4}$'
         example: LHNQ
         title: Channel
+        format: string
         x-nullable: true
         readOnly: true
       destination_gbloc:
         type: string
         pattern: '^[A-Z]{4}$'
         example: LHNQ
+        format: string
         x-nullable: true
         readOnly: true
       market:

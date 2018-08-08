@@ -7,39 +7,35 @@ import { reduxForm, getFormValues, isValid } from 'redux-form';
 import editablePanel from '../editablePanel';
 import { no_op } from 'shared/utils';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
-import { PanelSwaggerField } from 'shared/EditablePanel';
+import {
+  PanelField,
+  PanelSwaggerField,
+  SwaggerValue,
+} from 'shared/EditablePanel';
 
 // TODO: add shipment_type
 // TODO: combine source_gbloc and destination_gbloc values to one value
-// TODO: debug why code_of_service value is not in response (could be datagen needs updating)
 const RoutingPanelDisplay = props => {
+  const fieldProps = {
+    schema: props.shipmentSchema,
+    values: props.shipment,
+  };
   return (
     <div className="editable-panel-column">
+      <PanelField title="Shipment type">HHG</PanelField>
       <PanelSwaggerField
         title="Shipment market"
         fieldName="market"
-        values={{
-          market: props.initialValues.market,
-          source_gbloc: props.initialValues.source_gbloc,
-          code_of_service: props.initialValues.code_of_service,
-        }}
-        schema={props.shipmentSchema}
+        {...fieldProps}
       />
-      <PanelSwaggerField
-        title="Channel"
-        fieldName="source_gbloc"
-        values={{
-          source_gbloc: props.initialValues.source_gbloc,
-        }}
-        schema={props.shipmentSchema}
-      />
+      <PanelField title="Channel">
+        <SwaggerValue fieldName="source_gbloc" {...fieldProps} /> -{' '}
+        <SwaggerValue fieldName="destination_gbloc" {...fieldProps} />
+      </PanelField>
       <PanelSwaggerField
         title="Code of service"
         fieldName="code_of_service"
-        values={{
-          code_of_service: props.initialValues.code_of_service,
-        }}
-        schema={props.shipmentSchema}
+        {...fieldProps}
       />
     </div>
   );
@@ -49,14 +45,16 @@ const RoutingPanelEdit = props => {
   const { shipmentSchema } = props;
   return (
     <div className="editable-panel-column">
+      <PanelField title="Shipment type">HHG</PanelField>
+      <PanelField title="Market">dHHG</PanelField>
       <SwaggerField
-        title="Market"
-        fieldName="market"
+        title="Source GBLOC"
+        fieldName="source_gbloc"
         swagger={shipmentSchema}
         required
       />
       <SwaggerField
-        title="Channel"
+        title="Destination GBLOC"
         fieldName="source_gbloc"
         swagger={shipmentSchema}
         required
@@ -85,9 +83,6 @@ function mapStateToProps(state) {
   let shipment = get(state, 'office.officeMove.shipments.0', {});
 
   return {
-    // reduxForm
-    initialValues: shipment,
-
     // Wrapper
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
     hasError:
