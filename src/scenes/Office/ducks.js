@@ -11,6 +11,7 @@ import {
   ApprovePPM,
   ApproveReimbursement,
   CancelMove,
+  DownloadPPMAttachments,
 } from './api.js';
 
 import { UpdatePpm } from 'scenes/Moves/Ppm/api.js';
@@ -31,6 +32,7 @@ const updatePPMType = 'UPDATE_PPM';
 const approveBasicsType = 'APPROVE_BASICS';
 const approvePPMType = 'APPROVE_PPM';
 const approveReimbursementType = 'APPROVE_REIMBURSEMENT';
+const downloadPPMAttachmentsType = 'DOWNLOAD_ATTACHMENTS';
 const cancelMoveType = 'CANCEL_MOVE';
 const REMOVE_BANNER = 'REMOVE_BANNER';
 
@@ -77,6 +79,10 @@ export const CANCEL_MOVE = ReduxHelpers.generateAsyncActionTypes(
 
 export const APPROVE_REIMBURSEMENT = ReduxHelpers.generateAsyncActionTypes(
   approveReimbursementType,
+);
+
+export const DOWNLOAD_ATTACHMENTS = ReduxHelpers.generateAsyncActionTypes(
+  downloadPPMAttachmentsType,
 );
 
 // MULTIPLE-RESOURCE ACTION TYPES
@@ -153,6 +159,11 @@ export const approvePPM = ReduxHelpers.generateAsyncActionCreator(
 export const approveReimbursement = ReduxHelpers.generateAsyncActionCreator(
   approveReimbursementType,
   ApproveReimbursement,
+);
+
+export const downloadPPMAttachments = ReduxHelpers.generateAsyncActionCreator(
+  downloadPPMAttachmentsType,
+  DownloadPPMAttachments,
 );
 
 export const cancelMove = (moveId, changeReason) => {
