@@ -3072,6 +3072,37 @@ paths:
             $ref: '#/definitions/MovePayload'
         500:
           description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
+    post:
+      summary: Creates PPM attachments PDF
+      description: Creates a PPM attachments PDF
+      operationId: createPPMAttachments
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM to create an attachments PDF for
+      responses:
+        200:
+          description: returns a PPM attachments upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to perform this action
+        422:
+          description: malformed PDF contained in uploads
+        424:
+          description: no files to be processed into attachments PDF
+        500:
+          description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:
     post:
       summary: Approves the PPM

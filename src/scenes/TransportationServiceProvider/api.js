@@ -1,6 +1,6 @@
 import { getPublicClient, checkResponse } from 'shared/api';
 
-// MOVE QUEUE
+// SHIPMENT QUEUE
 export async function RetrieveShipmentsForTSP(queueType) {
   const queueToStatus = {
     new: ['AWARDED'],
@@ -20,5 +20,15 @@ export async function RetrieveShipmentsForTSP(queueType) {
     offset: 1,
   });
   checkResponse(response, 'failed to retrieve moves due to server error');
+  return response.body;
+}
+
+// SHIPMENT
+export async function LoadShipment(shipmentId) {
+  const client = await getPublicClient();
+  const response = await client.apis.shipments.getShipment({
+    shipment_uuid: shipmentId,
+  });
+  checkResponse(response, 'failed to load shipment due to server error');
   return response.body;
 }
