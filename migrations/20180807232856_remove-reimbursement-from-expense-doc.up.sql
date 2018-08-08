@@ -15,11 +15,10 @@ WHERE reimbursements.id = moving_expense_documents.reimbursement_id;
 UPDATE moving_expense_documents
 SET payment_method = 'OTHER'
 WHERE payment_method = 'MIL_PAY'
-AND payment_method = 'OTHER_DD';
+OR payment_method = 'OTHER_DD';
 
 -- Delete soon-to-be orphaned reimbursements
 DELETE FROM reimbursements WHERE id = (SELECT reimbursement_id from moving_expense_documents WHERE moving_expense_documents.reimbursement_id = reimbursements.id);
-
 
 -- Delete reimbursement_id column moving_expense_documents
 ALTER TABLE moving_expense_documents DROP COLUMN reimbursement_id CASCADE;
