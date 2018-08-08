@@ -47,6 +47,10 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 				// The absence of an office shouldn't render the entire request a 404
 				return responseForError(h.logger, err)
 			}
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				return responseForError(h.logger, err)
+			}
 		}
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
@@ -63,6 +67,10 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			if errors.Cause(err) != models.ErrFetchNotFound {
 				// The absence of an office shouldn't render the entire request a 404
+				return responseForError(h.logger, err)
+			}
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
 				return responseForError(h.logger, err)
 			}
 		}
