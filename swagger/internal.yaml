@@ -1411,6 +1411,12 @@ definitions:
         example: LHNQ
         x-nullable: true
         readOnly: true
+      destination_gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: LHNQ
+        x-nullable: true
+        readOnly: true
       market:
         type: string
         x-nullable: true

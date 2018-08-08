@@ -194,7 +194,7 @@ func (suite *HandlerSuite) TestShowMoveWrongUser() {
 
 }
 
-func (suite *HandlerSuite) TestSubmitMoveForApprovalHandler() {
+func (suite *HandlerSuite) TestSubmitPPMMoveForApprovalHandler() {
 	// Given: a set of orders, a move, user and servicemember
 	ppm := testdatagen.MakeDefaultPPM(suite.db)
 	move := ppm.Move
