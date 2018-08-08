@@ -622,6 +622,7 @@ definitions:
       - title
       - move_document_type
   UpdateGenericMoveDocumentPayload:
+    # used by client side code - DO NOT DELETE
     type: object
     properties:
       personally_procured_move_id:
@@ -662,6 +663,7 @@ definitions:
       SHIPMENT_SUMMARY: Shipment summary
       EXPENSE: Expense
   CreateMovingExpenseDocumentPayload:
+    # used by client side code - DO NOT DELETE
     type: object
     properties:
       personally_procured_move_id:
@@ -1407,6 +1409,11 @@ definitions:
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
         readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       source_gbloc:
         type: string
         pattern: '^[A-Z]{4}$'
@@ -2009,7 +2016,7 @@ definitions:
       last_modified_date:
         type: string
         format: date-time
-        example: 2018-04-25 11:25
+        example: 2017-07-21T17:32:28Z
       last_modified_name:
         type: string
         example: Bollinger, Sam

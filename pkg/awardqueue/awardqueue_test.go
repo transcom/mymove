@@ -40,7 +40,7 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil, nil)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
@@ -93,11 +93,11 @@ func (suite *AwardQueueSuite) Test_CheckShipmentDuringBlackOut() {
 
 	blackoutPickupDate := blackoutStartDate.AddDate(0, 0, 1)
 	blackoutDeliverDate := blackoutStartDate.AddDate(0, 0, 5)
-	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, blackoutPickupDate, blackoutPickupDate, blackoutDeliverDate, tdl, sourceGBLOC, &market, nil)
+	blackoutShipment, _ := testdatagen.MakeShipment(suite.db, blackoutPickupDate, blackoutPickupDate, blackoutDeliverDate, tdl, sourceGBLOC, &market, nil, nil)
 
 	pickupDate := blackoutEndDate.AddDate(0, 0, 1)
 	deliverDate := blackoutEndDate.AddDate(0, 0, 2)
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil, nil)
 
 	// Run the Award Queue
 	queue.assignShipments()
@@ -150,8 +150,8 @@ func (suite *AwardQueueSuite) Test_ShipmentWithinBlackoutDates() {
 	testPickupDateAfter := testEndDate.Add(time.Hour * 24 * 5)
 
 	// Two shipments using these pickup dates to provide to ShipmentWithinBlackoutDates
-	testShipmentBetween, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testStartDate, testEndDate, testTDL, sourceGBLOC, &market, nil)
-	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL, sourceGBLOC, &market, nil)
+	testShipmentBetween, _ := testdatagen.MakeShipment(suite.db, testPickupDateBetween, testStartDate, testEndDate, testTDL, sourceGBLOC, &market, nil, nil)
+	testShipmentAfter, _ := testdatagen.MakeShipment(suite.db, testPickupDateAfter, testStartDate, testEndDate, testTDL, sourceGBLOC, &market, nil, nil)
 
 	// One TSP with no blackout dates
 	testTSP2, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
@@ -230,7 +230,7 @@ func (suite *AwardQueueSuite) Test_OfferSingleShipment() {
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliverDate := testdatagen.DateInsidePeakRateCycle
 
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil, nil)
 
 	// Make a TSP to handle it
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
@@ -273,7 +273,7 @@ func (suite *AwardQueueSuite) Test_FailOfferingSingleShipment() {
 	pickupDate := testdatagen.DateInsidePeakRateCycle
 	deliverDate := testdatagen.DateInsidePeakRateCycle
 
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil)
+	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil, nil)
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
@@ -315,7 +315,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsSingleTSP() {
 
 	// Make a few shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market, nil)
+		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market, nil, nil)
 	}
 
 	// Make a TSP in the same TDL to handle these shipments
@@ -358,7 +358,7 @@ func (suite *AwardQueueSuite) TestAssignShipmentsToMultipleTSPs() {
 
 	// Make shipments in this TDL
 	for i := 0; i < shipmentsToMake; i++ {
-		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market, nil)
+		testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliveryDate, tdl, sourceGBLOC, &market, nil, nil)
 	}
 
 	// Make TSPs in the same TDL to handle these shipments
@@ -452,6 +452,7 @@ func (suite *AwardQueueSuite) Test_AssignTSPsToBands() {
 func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 	t := suite.T()
 	queue := NewAwardQueue(suite.db, suite.logger)
+	sm := testdatagen.MakeDefaultServiceMember(suite.db)
 
 	twoMonths, _ := time.ParseDuration("2 months")
 	twoMonthsLater := testdatagen.PerformancePeriodStart.Add(twoMonths)
@@ -487,6 +488,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
 		Status:                    "DEFAULT",
+		ServiceMemberID:           sm.ID,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentPeak)
 	if err != nil {
@@ -521,6 +523,7 @@ func (suite *AwardQueueSuite) Test_AwardTSPsInDifferentRateCycles() {
 		Market:                    &testdatagen.DefaultMarket,
 		MoveID:                    testdatagen.MakeDefaultMove(suite.db).ID,
 		Status:                    "DEFAULT",
+		ServiceMemberID:           sm.ID,
 	}
 	_, err = suite.db.ValidateAndSave(&shipmentNonPeak)
 	if err != nil {
