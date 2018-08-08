@@ -14,7 +14,8 @@ WHERE reimbursements.id = moving_expense_documents.reimbursement_id;
 -- Milpay is not allowed as a requested payment method, so set to 'OTHER'
 UPDATE moving_expense_documents
 SET payment_method = 'OTHER'
-WHERE payment_method = 'MIL_PAY';
+WHERE payment_method = 'MIL_PAY'
+AND payment_method = 'OTHER_DD';
 
 -- Delete soon-to-be orphaned reimbursements
 DELETE FROM reimbursements WHERE id = (SELECT reimbursement_id from moving_expense_documents WHERE moving_expense_documents.reimbursement_id = reimbursements.id);
