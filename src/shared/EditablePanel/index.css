@@ -13,9 +13,12 @@
   vertical-align: top;
 }
 
-.editable-panel-column.subheader {
+.column-subhead{
+  display: block;
+  margin: 0.8em;
+  margin-left: 0;
+  font-size: 0.8em;
   font-weight: bold;
-  font-size: .9em;
 }
 
 .office-tab .editable-panel-header {
