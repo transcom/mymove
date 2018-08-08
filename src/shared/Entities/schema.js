@@ -4,26 +4,9 @@ import { schema } from 'normalizr';
 // User
 export const user = new schema.Entity('users');
 
-// Service Member
-export const serviceMember = new schema.Entity('serviceMembers', {
-  user: user,
-});
-
 // Uploads
 export const upload = new schema.Entity('uploads');
 export const uploads = new schema.Array(upload);
-
-// Documents
-export const documentModel = new schema.Entity('documents', {
-  uploads: uploads,
-  service_member: serviceMember,
-});
-
-// MoveDocuments
-export const moveDocument = new schema.Entity('moveDocuments', {
-  document: documentModel,
-});
-export const moveDocuments = new schema.Array(moveDocument);
 
 // PPMs
 export const personallyProcuredMove = new schema.Entity(
@@ -48,17 +31,40 @@ export const shipments = new schema.Array(shipment);
 // Moves
 export const move = new schema.Entity('moves', {
   personally_procured_moves: personallyProcuredMoves,
+  shipments: shipments,
 });
 export const moves = new schema.Array(move);
 personallyProcuredMove.define({
   move: move,
 });
-moveDocument.define({
-  move: move,
-});
 
 // Orders
 export const order = new schema.Entity('orders', {
-  uploaded_orders: documentModel,
   moves: moves,
+});
+
+export const orders = new schema.Array(order);
+
+// Service Member
+export const serviceMember = new schema.Entity('serviceMembers', {
+  user: user,
+  orders: orders,
+});
+
+// Documents
+export const documentModel = new schema.Entity('documents', {
+  uploads: uploads,
+  service_member: serviceMember,
+});
+order.define({
+  uploaded_orders: documentModel,
+});
+
+// MoveDocuments
+export const moveDocument = new schema.Entity('moveDocuments', {
+  document: documentModel,
+});
+export const moveDocuments = new schema.Array(moveDocument);
+moveDocument.define({
+  move: move,
 });
