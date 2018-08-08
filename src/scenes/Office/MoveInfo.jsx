@@ -18,6 +18,7 @@ import PaymentsPanel from './Ppm/PaymentsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
+import ExpensesPanel from './Ppm/ExpensesPanel';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
 import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
 import RoutingPanel from './Hhg/RoutingPanel';
@@ -63,6 +64,7 @@ const PPMTabContent = props => {
   return (
     <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <ExpensesPanel title="Expenses" />
       <IncentiveCalculator />
       <StorageReimbursementCalculator />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
@@ -266,7 +268,6 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>

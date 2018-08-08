@@ -250,14 +250,16 @@ func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middlewa
 func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 	shipmentPayload := &apimessages.Shipment{
 		ID: *fmtUUID(s.ID),
-		TrafficDistributionListID:    fmtUUID(*s.TrafficDistributionListID),
+		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
 		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
 		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
-		MoveID:                       *fmtUUID(s.MoveID),
+		Move:                         publicPayloadForMoveModel(s.Move),
 		Status:                       apimessages.ShipmentStatus(s.Status),
 		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
 		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),
@@ -317,23 +319,51 @@ func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmen
 type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
+func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentBadRequest()
+	}
+
+	sp := publicPayloadForShipmentModel(*shipment)
+	return publicshipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
 // PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
 type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentAcceptHandler) Handle(p publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
+func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// PublicCreateShipmentRefuseHandler allows a TSP to refuse a particular shipment
-type PublicCreateShipmentRefuseHandler HandlerContext
+// PublicCreateShipmentRejectHandler allows a TSP to refuse a particular shipment
+type PublicCreateShipmentRejectHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentRefuseHandler) Handle(p publicshipmentop.CreateShipmentRefuseParams) middleware.Responder {
+func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.CreateShipmentRejectParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 

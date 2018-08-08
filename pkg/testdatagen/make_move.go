@@ -3,13 +3,11 @@ package testdatagen
 import (
 	"github.com/gobuffalo/pop"
 
-	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 )
 
 // MakeMove creates a single Move and associated set of Orders
 func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
-	var selectedType = internalmessages.SelectedMoveTypePPM
 
 	// Create new Orders if not provided
 	orders := assertions.Order
@@ -17,10 +15,11 @@ func MakeMove(db *pop.Connection, assertions Assertions) models.Move {
 		orders = MakeOrder(db, assertions)
 	}
 
+	selectedMoveType := "PPM"
 	move := models.Move{
 		Orders:           orders,
 		OrdersID:         orders.ID,
-		SelectedMoveType: &selectedType,
+		SelectedMoveType: &selectedMoveType,
 		Status:           models.MoveStatusDRAFT,
 		Locator:          models.GenerateLocator(),
 	}

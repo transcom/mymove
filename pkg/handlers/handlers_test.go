@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"log"
+	"mime/multipart"
 	"net/http"
 	"os"
 	"path"
@@ -17,7 +18,6 @@ import (
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
-	"github.com/transcom/mymove/pkg/uploader"
 )
 
 type HandlerSuite struct {
@@ -139,13 +139,30 @@ func (suite *HandlerSuite) fixture(name string) *runtime.File {
 	}
 
 	fixturePath := path.Join(cwd, fixtureDir, name)
-	file, err := uploader.NewLocalFile(fixturePath)
 
+	// #nosec never comes from user input
+	file, err := os.Open(fixturePath)
 	if err != nil {
-		suite.T().Error(err)
+		suite.logger.Fatal("Error opening fixture file", zap.Error(err))
 	}
-	suite.closeFile(file)
-	return file
+
+	info, err := file.Stat()
+	if err != nil {
+		suite.logger.Fatal("Error accessing fixture stats", zap.Error(err))
+	}
+
+	header := multipart.FileHeader{
+		Filename: info.Name(),
+		Size:     info.Size(),
+	}
+
+	returnFile := &runtime.File{
+		Header: &header,
+		Data:   file,
+	}
+	suite.closeFile(returnFile)
+
+	return returnFile
 }
 
 func (suite *HandlerSuite) AfterTest() {

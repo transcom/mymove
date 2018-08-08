@@ -436,6 +436,38 @@ definitions:
     required:
       - gcc
       - incentive_percentage
+  ExpenseSummaryPayload:
+    type: object
+    properties:
+      categories:
+        type: array
+        items:
+          $ref: '#/definitions/CategoryExpenseSummary'
+      grand_total:
+        type: object
+        properties:
+          payment_method_totals:
+            $ref: '#/definitions/PaymentMethodsTotals'
+          total:
+            type: integer
+  CategoryExpenseSummary:
+    type: object
+    properties:
+      category:
+        $ref: '#/definitions/MovingExpenseType'
+      payment_methods:
+        $ref: '#/definitions/PaymentMethodsTotals'
+      total:
+        type: integer
+  PaymentMethodsTotals:
+    type: object
+    properties:
+      MIL_PAY:
+        type: integer
+      OTHER_DD:
+        type: integer
+      GTCC:
+        type: integer
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -2594,6 +2626,35 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
+    get:
+      summary: Returns an expense summary organized by expense type
+      description: Calculates and returns an expense summary organized by expense type
+      operationId: requestPPMExpenseSummary
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: Successfully calculated expense summary
+          schema:
+            $ref: '#/definitions/ExpenseSummaryPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: personally procured move not found
+        500:
+          description: server error
   /personally_procured_move/{personallyProcuredMoveId}/request_payment:
     post:
       summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
@@ -2610,7 +2671,7 @@ paths:
           description: UUID of the PPM
       responses:
         200:
-          description: Sucesssfully requested payement
+          description: Sucesssfully requested payment
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
         400:
@@ -3005,6 +3066,37 @@ paths:
           description: the move is not in a state to be canceled
           schema:
             $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
+    post:
+      summary: Creates PPM attachments PDF
+      description: Creates a PPM attachments PDF
+      operationId: createPPMAttachments
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM to create an attachments PDF for
+      responses:
+        200:
+          description: returns a PPM attachments upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to perform this action
+        422:
+          description: malformed PDF contained in uploads
+        424:
+          description: no files to be processed into attachments PDF
         500:
           description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:

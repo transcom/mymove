@@ -120,6 +120,7 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 		"NewDutyStation.Address",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
+		"Moves.Shipments",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -132,7 +133,6 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 	if session.IsMyApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
 	}
-
 	return order, nil
 }
 

@@ -1,5 +1,5 @@
 import { createStore, applyMiddleware } from 'redux';
-import appReducer from 'appReducer';
+import { appReducer, tspAppReducer } from 'appReducer';
 import createHistory from 'history/createBrowserHistory';
 import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
@@ -23,8 +23,12 @@ if (isDevelopment && !window.__REDUX_DEVTOOLS_EXTENSION_COMPOSE__) {
 
 const composeEnhancers = composeWithDevTools({});
 
-const store = composeEnhancers(applyMiddleware(...middlewares))(createStore)(
-  appReducer,
-);
+export const store = composeEnhancers(applyMiddleware(...middlewares))(
+  createStore,
+)(appReducer);
+
+export const tspStore = composeEnhancers(applyMiddleware(...middlewares))(
+  createStore,
+)(tspAppReducer);
 
 export default store;
