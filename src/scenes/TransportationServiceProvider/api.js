@@ -33,7 +33,11 @@ export async function LoadShipment(shipmentId) {
   return response.body;
 }
 
-export async function AcceptShipment(shipmentId, originShippingAgent, destinationShippingAgent) {
+export async function AcceptShipment(
+  shipmentId,
+  originShippingAgent,
+  destinationShippingAgent,
+) {
   const client = await getPublicClient();
   const response = await client.apis.shipments.createShipmentAccept({
     shipment_uuid: shipmentId,

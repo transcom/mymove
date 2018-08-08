@@ -35,11 +35,13 @@ export const loadShipment = ReduxHelpers.generateAsyncActionCreator(
   LoadShipment,
 );
 
-export const acceptShipment = (shipmentId, originShippingAgent, destinationShippingAgent) => {
-};
+export const acceptShipment = (
+  shipmentId,
+  originShippingAgent,
+  destinationShippingAgent,
+) => {};
 
-export const rejectShipment = (shipmentId, rejectReason) => {
-};
+export const rejectShipment = (shipmentId, rejectReason) => {};
 
 // MULTIPLE-RESOURCE ACTION CREATORS
 //
