@@ -13,7 +13,7 @@ func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 		user = MakeUser(db, assertions)
 	}
 
-	tsp, _ := MakeTSP(db, RandomSCAC())
+	tsp := MakeDefaultTSP(db)
 
 	tspUser := models.TspUser{
 		UserID: &user.ID,

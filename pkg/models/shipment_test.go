@@ -70,7 +70,7 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 			Market:                  &market,
 		},
 	})
-	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, false)
 
@@ -117,7 +117,7 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 			Market:                  &market,
 		},
 	})
-	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
+	tsp := testdatagen.MakeDefaultTSP(suite.db)
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)
 
