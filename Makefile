@@ -214,6 +214,11 @@ adr_update:
 pre_commit_tests:
 	pre-commit run --all-files
 
+pretty:
+	find src/ -type f -name "*.js" | xargs prettier --write --loglevel warn
+	find src/ -type f -name "*.jsx" | xargs prettier --write --loglevel warn
+	gofmt pkg/ >> /dev/null
+
 clean:
 	rm .*.stamp || true
 	rm -rf ./node_modules
@@ -224,4 +229,4 @@ clean:
 .PHONY: pre-commit deps test client_deps client_build client_run client_test prereqs
 .PHONY: server_deps_update server_generate server_deps server_build server_run_standalone server_run server_run_dev server_build_docker server_run_only_docker server_test
 .PHONY: db_dev_init db_dev_run db_dev_reset db_dev_migrate db_dev_migrate_down db_test_reset
-.PHONY: clean
+.PHONY: clean pretty
