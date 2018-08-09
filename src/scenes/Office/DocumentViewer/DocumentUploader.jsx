@@ -47,8 +47,8 @@ export class DocumentUploader extends Component {
       moveDocumentCreateError: null,
     });
     if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
-      formValues.reimbursement.requested_amount = convertDollarsToCents(
-        formValues.reimbursement.requested_amount,
+      formValues.requested_amount_cents = convertDollarsToCents(
+        formValues.requested_amount_cents,
       );
       this.props
         .createMovingExpenseDocument(
@@ -58,7 +58,8 @@ export class DocumentUploader extends Component {
           formValues.title,
           formValues.moving_expense_type,
           formValues.move_document_type,
-          formValues.reimbursement,
+          formValues.requested_amount_cents,
+          formValues.payment_method,
           formValues.notes,
         )
         .then(() => {
@@ -118,7 +119,6 @@ export class DocumentUploader extends Component {
       handleSubmit,
       moveDocSchema,
       genericMoveDocSchema,
-      reimbursementSchema,
       formValues,
     } = this.props;
     const isExpenseDocument =
@@ -153,10 +153,7 @@ export class DocumentUploader extends Component {
               required
             />
             {isExpenseDocument && (
-              <ExpenseDocumentForm
-                moveDocSchema={moveDocSchema}
-                reimbursementSchema={reimbursementSchema}
-              />
+              <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
             )}
             <SwaggerField
               title="Notes"
@@ -220,11 +217,6 @@ function mapStateToProps(state, props) {
     moveDocSchema: get(
       state,
       'swagger.spec.definitions.MoveDocumentPayload',
-      {},
-    ),
-    reimbursementSchema: get(
-      state,
-      'swagger.spec.definitions.Reimbursement',
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
