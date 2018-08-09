@@ -215,8 +215,7 @@ pre_commit_tests:
 	pre-commit run --all-files
 
 pretty:
-	find src/ -type f -name "*.js" | xargs prettier --write --loglevel warn
-	find src/ -type f -name "*.jsx" | xargs prettier --write --loglevel warn
+	npx prettier --write --loglevel warn "src/**/*.{js,jsx}"
 	gofmt pkg/ >> /dev/null
 
 clean:
