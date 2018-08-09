@@ -51,8 +51,8 @@ describe('The document viewer', function() {
     cy.get('select[name="move_document_type"]').select('Expense');
     cy.get('input[name="title"]').type('expense document');
     cy.get('select[name="moving_expense_type"]').select('Contracted Expense');
-    cy.get('input[name="reimbursement.requested_amount"]').type('12');
-    cy.get('select[name="reimbursement.method_of_receipt"]').select('MilPay');
+    cy.get('input[name="requested_amount_cents"]').type('12');
+    cy.get('select[name="payment_method"]').select('Other account');
 
     cy.get('button.submit').should('be.disabled');
 
@@ -73,12 +73,10 @@ describe('The document viewer', function() {
 
     cy.contains('expense document').click();
     cy.contains('Details').click();
-    cy.contains('MilPay');
+    cy.contains('Other account');
     cy.contains('Edit').click();
 
-    cy
-      .get('select[name="moveDocument.reimbursement.method_of_receipt"]')
-      .select('GTCC');
+    cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
     cy
@@ -138,12 +136,8 @@ describe('The document viewer', function() {
     cy
       .get('select[name="moveDocument.moving_expense_type"]')
       .select('Contracted Expense');
-    cy
-      .get('input[name="moveDocument.reimbursement.requested_amount"]')
-      .type('12');
-    cy
-      .get('select[name="moveDocument.reimbursement.method_of_receipt"]')
-      .select('GTCC');
+    cy.get('input[name="moveDocument.requested_amount_cents"]').type('12');
+    cy.get('select[name="moveDocument.payment_method"]').select('GTCC');
     cy.get('select[name="moveDocument.status"]').select('OK');
 
     cy

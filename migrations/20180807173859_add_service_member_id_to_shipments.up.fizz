@@ -1,0 +1,2 @@
+add_column("shipments", "service_member_id", "uuid", {})
+add_foreign_key("shipments", "service_member_id", {"service_members": ["id"]}, {"name": "shipments_service_member_id_fk"})

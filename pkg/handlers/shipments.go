@@ -26,7 +26,9 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		ServiceMemberID:              strfmt.UUID(s.ServiceMemberID.String()),
 		SourceGbloc:                  s.SourceGBLOC,
+		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
 		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
@@ -84,6 +86,7 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
+		ServiceMemberID:              session.ServiceMemberID,
 		Status:                       "DRAFT",
 		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
@@ -256,6 +259,7 @@ func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
 		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
 		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
 		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc:             apimessages.GBLOC(*s.DestinationGBLOC),
 		Market:                       apimessages.ShipmentMarket(*s.Market),
 		BookDate:                     *fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),

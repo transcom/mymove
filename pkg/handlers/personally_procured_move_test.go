@@ -640,10 +640,6 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 			ServiceMemberID: sm.ID,
 			ServiceMember:   sm,
 		},
-		Reimbursement: models.Reimbursement{
-			RequestedAmount: 100,
-			MethodOfReceipt: models.MethodOfReceiptMILPAY,
-		},
 	}
 
 	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
@@ -666,8 +662,8 @@ func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
 	}
 	// Then: expect the following values to be equal
 	suite.Assertions.Equal(internalmessages.MovingExpenseTypeCONTRACTEDEXPENSE, expenseSummary.Payload.Categories[0].Category)
-	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.Categories[0].PaymentMethods.MILPAY)
-	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.Categories[0].Total)
-	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.GrandTotal.PaymentMethodTotals.MILPAY)
-	suite.Assertions.Equal(int64(2000), expenseSummary.Payload.GrandTotal.Total)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.Categories[0].PaymentMethods.GTCC)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.Categories[0].Total)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.GrandTotal.PaymentMethodTotals.GTCC)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.GrandTotal.Total)
 }

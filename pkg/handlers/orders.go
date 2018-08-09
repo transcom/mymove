@@ -112,7 +112,7 @@ func (h ShowOrdersHandler) Handle(params ordersop.ShowOrdersParams) middleware.R
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 	// #nosec swagger verifies uuid format
 	orderID, _ := uuid.FromString(params.OrdersID.String())
-	order, err := models.FetchOrder(h.db, session, orderID)
+	order, err := models.FetchOrderForUser(h.db, session, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -135,7 +135,7 @@ func (h UpdateOrdersHandler) Handle(params ordersop.UpdateOrdersParams) middlewa
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	order, err := models.FetchOrder(h.db, session, orderID)
+	order, err := models.FetchOrderForUser(h.db, session, orderID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}

@@ -30,19 +30,14 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 	request := httptest.NewRequest("POST", "/fake/path", nil)
 	request = suite.authenticateRequest(request, sm)
 
-	method := internalmessages.MethodOfReceiptMILPAY
-	newReimbursementPayload := internalmessages.CreateReimbursement{
-		MethodOfReceipt: &method,
-		RequestedAmount: fmtInt64(12000),
-	}
-
 	newMovingExpenseDocPayload := internalmessages.CreateMovingExpenseDocumentPayload{
-		UploadIds:         uploadIds,
-		MoveDocumentType:  internalmessages.MoveDocumentTypeOTHER,
-		Title:             fmtString("awesome_document.pdf"),
-		Notes:             fmtString("Some notes here"),
-		MovingExpenseType: internalmessages.MovingExpenseTypeWEIGHINGFEES,
-		Reimbursement:     &newReimbursementPayload,
+		UploadIds:            uploadIds,
+		MoveDocumentType:     internalmessages.MoveDocumentTypeOTHER,
+		Title:                fmtString("awesome_document.pdf"),
+		Notes:                fmtString("Some notes here"),
+		MovingExpenseType:    internalmessages.MovingExpenseTypeWEIGHINGFEES,
+		PaymentMethod:        fmtString("GTCC"),
+		RequestedAmountCents: fmtInt64(2589),
 	}
 
 	newMovingExpenseDocParams := movedocop.CreateMovingExpenseDocumentParams{
@@ -70,9 +65,6 @@ func (suite *HandlerSuite) TestCreateMovingExpenseDocumentHandler() {
 
 	// Check that the status is correct
 	suite.Equal(createdPayload.Status, internalmessages.MoveDocumentStatusAWAITINGREVIEW)
-
-	// Check that the reimbursment has the right status
-	suite.Equal(*createdPayload.Reimbursement.Status, internalmessages.ReimbursementStatusREQUESTED)
 
 	// Next try the wrong user
 	wrongUser := testdatagen.MakeDefaultServiceMember(suite.db)
