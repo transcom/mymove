@@ -1,7 +1,6 @@
 package models_test
 
 import (
-	"fmt"
 	"time"
 
 	"github.com/gobuffalo/uuid"
@@ -186,19 +185,20 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 
 	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
 	serviceMember := testdatagen.MakeDefaultServiceMember(suite.db)
+	serviceMember.DutyStationID = &dutyStation.ID
 	serviceMember.DutyStation = dutyStation
 	suite.mustSave(&serviceMember)
-	fmt.Printf("dutty %v", serviceMember.DutyStation)
 
 	now := time.Now()
-	tdl, _ := testdatagen.MakeTDL(
+	tdl, err := testdatagen.MakeTDL(
 		suite.db,
 		testdatagen.DefaultSrcRateArea,
 		testdatagen.DefaultDstRegion,
 		testdatagen.DefaultCOS)
+	suite.Nil(err)
 	market := "dHHG"
-	sourceGBLOC := "BMLK"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, move, &serviceMember)
+	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "", &market, move, &serviceMember)
+	suite.Nil(err)
 
 	// Associate Shipment with the move it's on.
 	move.Shipments = append(move.Shipments, shipment)
@@ -210,7 +210,11 @@ func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
 	suite.Nil(err)
 	suite.db.Reload(&shipment)
 
-	// Then: Shipment dest. GBLOC will be equal to orders' new duty station's trans. office's GBLOC
+	// Then: Shipment GBLOCs will be equal to:
+	// destination GBLOC: orders' new duty station's transportation office's GBLOC
+	// source GBLOC: service member's current duty station's transportation office's GBLOC
 	destGBLOC := shipment.DestinationGBLOC
+	sourceGBLOC := shipment.SourceGBLOC
 	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *destGBLOC)
+	suite.Assertions.Equal(serviceMember.DutyStation.TransportationOffice.Gbloc, *sourceGBLOC)
 }

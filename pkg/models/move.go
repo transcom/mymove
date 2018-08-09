@@ -1,7 +1,6 @@
 package models
 
 import (
-	"fmt"
 	"strings"
 	"time"
 
@@ -499,8 +498,6 @@ func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, err
 
 			for _, shipment := range move.Shipments {
 				serviceMember, err := FetchServiceMember(db, shipment.ServiceMemberID)
-				fmt.Printf("Service Membmer: %v", serviceMember)
-				fmt.Printf("duty station: %v", serviceMember.DutyStationID)
 				if err != nil {
 					responseError = errors.Wrap(err, "Error fetching service member")
 					return transactionError

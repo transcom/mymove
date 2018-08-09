@@ -34,6 +34,7 @@ func MakeShipment(db *pop.Connection, requestedPickup time.Time,
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		ServiceMemberID:              serviceMember.ID,
+		ServiceMember:                &serviceMember,
 		TrafficDistributionList:      &tdl,
 		PickupDate:                   timePointer(pickup),
 		DeliveryDate:                 timePointer(delivery),
