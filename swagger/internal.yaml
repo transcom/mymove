@@ -92,6 +92,11 @@ definitions:
           format: telephone
           pattern: '^[2-9]\d{2}-\d{3}-\d{4}$'
           example: 212-555-5555
+      gbloc:
+        type: string
+        format: string
+        pattern: '^[A-Z]{4}$'
+        example: JENQ
       latitude:
         type: number
         format: float
@@ -431,6 +436,38 @@ definitions:
     required:
       - gcc
       - incentive_percentage
+  ExpenseSummaryPayload:
+    type: object
+    properties:
+      categories:
+        type: array
+        items:
+          $ref: '#/definitions/CategoryExpenseSummary'
+      grand_total:
+        type: object
+        properties:
+          payment_method_totals:
+            $ref: '#/definitions/PaymentMethodsTotals'
+          total:
+            type: integer
+  CategoryExpenseSummary:
+    type: object
+    properties:
+      category:
+        $ref: '#/definitions/MovingExpenseType'
+      payment_methods:
+        $ref: '#/definitions/PaymentMethodsTotals'
+      total:
+        type: integer
+  PaymentMethodsTotals:
+    type: object
+    properties:
+      MIL_PAY:
+        type: integer
+      OTHER:
+        type: integer
+      GTCC:
+        type: integer
   IndexPersonallyProcuredMovePayload:
     type: array
     items:
@@ -466,6 +503,10 @@ definitions:
         format: date-time
       personally_procured_moves:
         $ref: '#/definitions/IndexPersonallyProcuredMovePayload'
+      shipments:
+        type: array
+        items:
+          $ref: '#/definitions/Shipment'
       cancel_reason:
         type: string
         example: "Change of orders"
@@ -521,6 +562,11 @@ definitions:
         type: string
         format: uuid
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       document:
         $ref: '#/definitions/DocumentPayload'
       title:
@@ -536,6 +582,23 @@ definitions:
         example: This document is good to go!
         x-nullable: true
         title: Notes
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Payment Method
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other account
+          GTCC: GTCC
     required:
       - id
       - move_id
@@ -543,9 +606,14 @@ definitions:
       - title
       - move_document_type
       - status
-  CreateMoveDocumentPayload:
+  CreateGenericMoveDocumentPayload:
     type: object
     properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
       upload_ids:
         type: array
         items:
@@ -557,8 +625,6 @@ definitions:
         example: very_useful_document.pdf
       move_document_type:
         $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
       notes:
         type: string
         example: This document is good to go!
@@ -568,27 +634,6 @@ definitions:
       - upload_ids
       - title
       - move_document_type
-      - status
-  UpdateMoveDocumentPayload:
-    type: object
-    properties:
-      title:
-        type: string
-        example: very_useful_document.pdf
-        title: Document Title
-      move_document_type:
-        $ref: '#/definitions/MoveDocumentType'
-      status:
-        $ref: '#/definitions/MoveDocumentStatus'
-      notes:
-        type: string
-        example: This document is good to go!
-        x-nullable: true
-        title: Notes
-    required:
-      - title
-      - move_document_type
-      - status
   MoveDocumentType:
     type: string
     title: Document Type
@@ -597,11 +642,82 @@ definitions:
       - WEIGHT_TICKET
       - STORAGE_EXPENSE
       - SHIPMENT_SUMMARY
+      - EXPENSE
     x-display-value:
       OTHER: Other document type
       WEIGHT_TICKET: Weight ticket
       STORAGE_EXPENSE: Storage expense receipt
       SHIPMENT_SUMMARY: Shipment summary
+      EXPENSE: Expense
+  CreateMovingExpenseDocumentPayload:
+    type: object
+    properties:
+      personally_procured_move_id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
+        x-nullable: true
+      upload_ids:
+        type: array
+        items:
+          type: string
+          format: uuid
+          example: c56a4180-65aa-42ec-a945-5fd21dec0538
+      title:
+        type: string
+        example: very_useful_document.pdf
+      moving_expense_type:
+        $ref: '#/definitions/MovingExpenseType'
+      move_document_type:
+        $ref: '#/definitions/MoveDocumentType'
+      requested_amount_cents:
+        type: integer
+        format: cents
+        minimum: 1
+        title: Requested Amount
+        description: unit is cents
+      payment_method:
+        type: string
+        title: Method of Payment
+        enum:
+          - OTHER
+          - GTCC
+        x-display-value:
+          OTHER: Other payment method
+          GTCC: GTCC
+      notes:
+        type: string
+        example: This document is good to go!
+        x-nullable: true
+        title: Notes
+    required:
+      - upload_ids
+      - title
+      - move_document_type
+      - moving_expense_type
+      - requested_amount_cents
+      - payment_method
+  MovingExpenseType:
+    type: string
+    title: Moving Expense Type
+    enum:
+      - CONTRACTED_EXPENSE
+      - RENTAL_EQUIPMENT
+      - PACKING_MATERIALS
+      - WEIGHING_FEES
+      - GAS
+      - TOLLS
+      - OIL
+      - OTHER
+    x-display-value:
+      CONTRACTED_EXPENSE: Contracted Expense
+      RENTAL_EQUIPMENT: Rental Equipment
+      PACKING_MATERIALS: Packing Materials
+      WEIGHING_FEES: Weighing Fees
+      GAS: Gas
+      TOLLS: Tolls
+      OIL: Oil
+      OTHER: Other
   MoveDocumentStatus:
     type: string
     title: Document Status
@@ -1260,13 +1376,28 @@ definitions:
         example: d56a4180-65aa-42ec-a945-5fd21dec0538
         x-nullable: true
         readOnly: true
+      service_member_id:
+        type: string
+        format: uuid
+        example: d56a4180-65aa-42ec-a945-5fd21dec0538
+        readOnly: true
       source_gbloc:
         type: string
         pattern: '^[A-Z]{4}$'
         example: LHNQ
         x-nullable: true
         readOnly: true
+      destination_gbloc:
+        type: string
+        pattern: '^[A-Z]{4}$'
+        example: LHNQ
+        x-nullable: true
+        readOnly: true
       market:
+        type: string
+        x-nullable: true
+        readOnly: true
+      code_of_service:
         type: string
         x-nullable: true
         readOnly: true
@@ -1343,24 +1474,29 @@ definitions:
         x-nullable: true
       has_secondary_pickup_address:
         type: boolean
+        title: 'Do you have household goods at any other pickup location?'
       has_delivery_address:
         type: boolean
+        title: 'Do you know your home address at your destination yet?'
       has_partial_sit_delivery_address:
         type: boolean
       weight_estimate:
         type: integer
         minimum: 0
         example: 10000
+        title: Weight
         x-nullable: true
       progear_weight_estimate:
         type: integer
         minimum: 0
         example: 500
+        title: Pro-Gear Weight
         x-nullable: true
       spouse_progear_weight_estimate:
         type: integer
         minimum: 0
         example: 200
+        title: Spouse's Pro-Gear
         x-nullable: true
       created_at:
         type: string
@@ -1371,6 +1507,10 @@ definitions:
   Address:
     type: object
     properties:
+      id:
+        type: string
+        format: uuid
+        example: c56a4180-65aa-42ec-a945-5fd21dec0538
       street_address_1:
         type: string
         example: 123 Main Ave
@@ -1520,7 +1660,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
@@ -1539,7 +1679,7 @@ definitions:
       requested_amount:
         type: integer
         format: cents
-        minimum: 0
+        minimum: 1
         title: Requested Amount
         description: unit is cents
       method_of_receipt:
@@ -1574,8 +1714,8 @@ definitions:
       - OTHER_DD
       - GTCC
     x-display-value:
-      MIL_PAY: Direct deposit to MilPay
-      OTHER_DD: Direct deposit to other account
+      MIL_PAY: MilPay
+      OTHER_DD: Other account
       GTCC: GTCC
   MoveStatus:
     type: string
@@ -1599,16 +1739,16 @@ definitions:
       - DRAFT
       - SUBMITTED
       - APPROVED
-      - IN_PROGRESS
       - COMPLETED
       - CANCELED
+      - PAYMENT_REQUESTED
     x-display-value:
       DRAFT: Draft
       SUBMITTED: Submitted
       APPROVED: Approved
-      IN_PROGRESS: In Progress
       COMPLETED: Completed
       CANCELED: Canceled
+      PAYMENT_REQUESTED: Payment Requested
   OrdersStatus:
     type: string
     title: Move status
@@ -1805,7 +1945,10 @@ definitions:
         example: c56a4180-65aa-42ec-a945-5fd21dec0538
       status:
         type: string
-        example: Booked - Awaiting Review
+        example: APPROVED
+      ppm_status:
+        type: string
+        example: PAYMENT_REQUESTED
       locator:
         type: string
         example: "12432"
@@ -1840,7 +1983,7 @@ definitions:
       last_modified_date:
         type: string
         format: date-time
-        example: 2018-04-25 11:25
+        example: 2017-07-21T17:32:28Z
       last_modified_name:
         type: string
         example: Bollinger, Sam
@@ -1850,6 +1993,7 @@ definitions:
     required:
       - id
       - status
+      - ppm_status
       - locator
       - customer_name
       - edipi
@@ -2380,7 +2524,7 @@ paths:
           schema:
             $ref: '#/definitions/UpdatePersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
@@ -2417,7 +2561,7 @@ paths:
           schema:
             $ref: '#/definitions/PatchPersonallyProcuredMovePayload'
       responses:
-        201:
+        200:
           description: updated instance of personally_procured_move
           schema:
             $ref: '#/definitions/PersonallyProcuredMovePayload'
@@ -2461,6 +2605,64 @@ paths:
           description: request requires user authentication
         403:
           description: user is not authorized
+  /personally_procured_move/{personallyProcuredMoveId}/expense_summary:
+    get:
+      summary: Returns an expense summary organized by expense type
+      description: Calculates and returns an expense summary organized by expense type
+      operationId: requestPPMExpenseSummary
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: Successfully calculated expense summary
+          schema:
+            $ref: '#/definitions/ExpenseSummaryPayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: personally procured move not found
+        500:
+          description: server error
+  /personally_procured_move/{personallyProcuredMoveId}/request_payment:
+    post:
+      summary: Moves the PPM and the move into the PAYMENT_REQUESTED state
+      description: Moves the PPM and the move into the PAYMENT_REQUESTED state
+      operationId: requestPPMPayment
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM
+      responses:
+        200:
+          description: Sucesssfully requested payment
+          schema:
+            $ref: '#/definitions/PersonallyProcuredMovePayload'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: move not found
+        500:
+          description: server error
   /moves/{moveId}/shipment:
     post:
       summary: Creates a new Shipment for the given move
@@ -2521,8 +2723,42 @@ paths:
           schema:
             $ref: '#/definitions/Shipment'
       responses:
-        201:
+        200:
           description: updated Shipment
+          schema:
+            $ref: '#/definitions/Shipment'
+        400:
+          description: invalid request
+        401:
+          description: request requires user authentication
+        403:
+          description: user is not authorized
+        404:
+          description: shipment not found
+        500:
+          description: server error
+    get:
+      summary: Returns a Shipment for the given move
+      description: Returns a Shipment tied to the move ID
+      operationId: getShipment
+      tags:
+        - shipments
+      parameters:
+        - in: path
+          name: moveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move this Shipment is associated with
+        - in: path
+          name: shipmentId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the Shipment being updated
+      responses:
+        200:
+          description: Returns Shipment for hhg move
           schema:
             $ref: '#/definitions/Shipment'
         400:
@@ -2591,13 +2827,13 @@ paths:
           description: move not found
         500:
           description: internal server error
-  /moves/{moveId}/documents:
+  /moves/{moveId}/move_documents:
     get:
       summary: Returns a list of all Move Documents associated with this move
       description: Returns a list of all Move Documents associated with this move
       operationId: indexMoveDocuments
       tags:
-        - moves
+        - move_docs
       parameters:
         - in: path
           name: moveId
@@ -2619,9 +2855,9 @@ paths:
     post:
       summary: Creates a move document
       description: Created a move document with the given information
-      operationId: createMoveDocument
+      operationId: createGenericMoveDocument
       tags:
-        - moves
+        - move_docs
       parameters:
         - name: moveId
           in: path
@@ -2630,10 +2866,10 @@ paths:
           required: true
           description: UUID of the move
         - in: body
-          name: createMoveDocumentPayload
+          name: createGenericMoveDocumentPayload
           required: true
           schema:
-            $ref: '#/definitions/CreateMoveDocumentPayload'
+            $ref: '#/definitions/CreateGenericMoveDocumentPayload'
       responses:
         200:
           description: returns new move document object
@@ -2647,20 +2883,14 @@ paths:
           description: not authorized to modify this move
         500:
           description: server error
-  /moves/{moveId}/documents/{moveDocumentId}:
+  /move_documents/{moveDocumentId}:
     put:
       summary: Updates a move document
       description: Update a move document with the given information
       operationId: updateMoveDocument
       tags:
-        - moves
+        - move_docs
       parameters:
-        - in: path
-          name: moveId
-          type: string
-          format: uuid
-          required: true
-          description: UUID of the move associated with the move document
         - in: path
           name: moveDocumentId
           type: string
@@ -2671,7 +2901,7 @@ paths:
           name: updateMoveDocument
           required: true
           schema:
-            $ref: '#/definitions/UpdateMoveDocumentPayload'
+            $ref: '#/definitions/MoveDocumentPayload'
       responses:
         200:
           description: updated instance of move document
@@ -2687,6 +2917,38 @@ paths:
           description: move document not found
         500:
           description: internal server error
+  /moves/{moveId}/moving_expense_documents:
+    post:
+      summary: Creates a moving expense document
+      description: Created a moving expense document with the given information
+      operationId: createMovingExpenseDocument
+      tags:
+        - move_docs
+      parameters:
+        - name: moveId
+          in: path
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the move
+        - in: body
+          name: createMovingExpenseDocumentPayload
+          required: true
+          schema:
+            $ref: '#/definitions/CreateMovingExpenseDocumentPayload'
+      responses:
+        200:
+          description: returns new moving expense document object
+          schema:
+            $ref: '#/definitions/MoveDocumentPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to modify this move
+        500:
+          description: server error
   /moves/{moveId}/approve:
     post:
       summary: Approves a move to proceed
@@ -2783,6 +3045,37 @@ paths:
           description: the move is not in a state to be canceled
           schema:
             $ref: '#/definitions/MovePayload'
+        500:
+          description: server error
+  /personally_procured_moves/{personallyProcuredMoveId}/create_ppm_attachments:
+    post:
+      summary: Creates PPM attachments PDF
+      description: Creates a PPM attachments PDF
+      operationId: createPPMAttachments
+      tags:
+        - ppm
+      parameters:
+        - in: path
+          name: personallyProcuredMoveId
+          type: string
+          format: uuid
+          required: true
+          description: UUID of the PPM to create an attachments PDF for
+      responses:
+        200:
+          description: returns a PPM attachments upload
+          schema:
+            $ref: '#/definitions/UploadPayload'
+        400:
+          description: invalid request
+        401:
+          description: must be authenticated to use this endpoint
+        403:
+          description: not authorized to perform this action
+        422:
+          description: malformed PDF contained in uploads
+        424:
+          description: no files to be processed into attachments PDF
         500:
           description: server error
   /personally_procured_moves/{personallyProcuredMoveId}/approve:

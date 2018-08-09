@@ -32,7 +32,7 @@ func (suite *ModelSuite) Test_CreateShipmentOffer() {
 	suite.Nil(err, "error making TSP")
 
 	market := "dHHG"
-	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "OHAI", &market)
+	shipment, err := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, "OHAI", &market, nil, nil)
 	suite.Nil(err, "error making Shipment")
 	shipmentOffer, err := CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	suite.Nil(err, "error making ShipmentOffer")

@@ -42,7 +42,7 @@
   version = "v9"
 
 [[projects]]
-  digest = "1:bf2bc458ef98addbce5e62c4887485ce78ca57792f3df15ea0b4d92336c29597"
+  digest = "1:244958cccfab9a2d48000c21e56d991f1818b36c1ef83968c49d089f693d7a1c"
   name = "github.com/aws/aws-sdk-go"
   packages = [
     "aws",
@@ -84,8 +84,8 @@
     "service/sts",
   ]
   pruneopts = ""
-  revision = "bc3f534c19ffdf835e524e11f0f825b3eaf541c3"
-  version = "v1.14.31"
+  revision = "8475c414b1bd58b8cc214873a8854e3a621e67d7"
+  version = "v1.15.0"
 
 [[projects]]
   branch = "master"
@@ -304,7 +304,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:075544c4ed382381e2a09aaaf657e030b8222de395d4a53a8c87ff348c16f758"
+  digest = "1:6dbb41bc23222d8a1e6d73b08ec71bf449b8335699a02ea52768e2a90d714fae"
   name = "github.com/go-swagger/go-swagger"
   packages = [
     "cmd/swagger",
@@ -315,7 +315,7 @@
     "scan",
   ]
   pruneopts = ""
-  revision = "520df0b783544e055aed1a7c015314f43f755d0b"
+  revision = "ae7a7d32f3390510d5d3cf77bc14d03c159fa54d"
 
 [[projects]]
   digest = "1:f23957829bec661c8e4c3cd421383c8270b4e01c93cf2046bb8844532ac0022c"
@@ -345,12 +345,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:4f196bcb7ed59f0e4a1179dfe9f8f8b60a9129f047e9ce787863690602129ca9"
+  digest = "1:629e3ca703b90837c769c39fc68c865b8826d6bcdcba88bec34fbaa69e037450"
   name = "github.com/gobuffalo/packr"
   packages = ["."]
   pruneopts = ""
-  revision = "147bee9cde84aeca6693d1b1aedc595298f24d5b"
-  version = "v1.12.0"
+  revision = "9e76dbe10b00dd1fa8f29cfa4fac72297beb32a4"
+  version = "v1.12.1"
 
 [[projects]]
   digest = "1:3594cbccad02bdc735763cdd6c948822a721d21175b8938a7f6ec99811749e32"
@@ -367,7 +367,7 @@
   version = "v3.7.9"
 
 [[projects]]
-  digest = "1:cf03eb077a344465d32f9775dad3b9f096b46aba4b82ebec0b428bdcd1a1a34d"
+  digest = "1:8a5f033529a58c33353b5c490f5402f69d442666ffe006621ea44fa3507c0e33"
   name = "github.com/gobuffalo/pop"
   packages = [
     ".",
@@ -381,8 +381,8 @@
     "soda/cmd/schema",
   ]
   pruneopts = ""
-  revision = "9936c00d4230dae87d8ac5cf73149d9de7b0e899"
-  version = "v4.6.1"
+  revision = "c0faa0f7edf8c0db4befe9abc41d135003a97d53"
+  version = "v4.6.2"
 
 [[projects]]
   digest = "1:f21175b696b24cd76ceba142217008ddd3857d605998f367a2042b7ea02a86c1"
@@ -432,12 +432,12 @@
   version = "v1.1.0"
 
 [[projects]]
-  digest = "1:a1a1522a8c1fad5675ce8ec9de96f30b898df7c8c229928c35dbd8cf277e6d62"
+  digest = "1:66d63ec7b6035984dced87ad37066e5f4ad277c60234a9d9925537248e983200"
   name = "github.com/gorilla/handlers"
   packages = ["."]
   pruneopts = ""
-  revision = "90663712d74cb411cbef281bc1e08c19d1a76145"
-  version = "v1.3.0"
+  revision = "7e0847f9db758cdebd26c149d0ae9d5d0b9c98ce"
+  version = "v1.4.0"
 
 [[projects]]
   branch = "master"
@@ -457,20 +457,6 @@
   ]
   pruneopts = ""
   revision = "ef8a98b0bbce4a65b5aa4c368430a80ddc533168"
-
-[[projects]]
-  digest = "1:093ef1b141b93f2e943dd1c989bb31c1491491127f1d9395d3531964470c1917"
-  name = "github.com/hhrutter/pdfcpu"
-  packages = [
-    "pkg/api",
-    "pkg/compress/lzw",
-    "pkg/filter",
-    "pkg/log",
-    "pkg/pdfcpu",
-  ]
-  pruneopts = ""
-  revision = "d8343a4c98430531d4b27ecabb176379f6fa2a0b"
-  version = "v0.1.14"
 
 [[projects]]
   digest = "1:302c6eb8e669c997bec516a138b8fc496018faa1ece4c13e445a2749fbe079bb"
@@ -578,7 +564,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:cae156b4a8577896975bcf1d13eedc925f15cf8ff1efc19bbfa7dbf1fba02123"
+  digest = "1:eb019ad32e3680852d8ec92de22b3a1ad82359e68a57a7be2d2c28d12f93cc51"
   name = "github.com/mailru/easyjson"
   packages = [
     "buffer",
@@ -586,7 +572,7 @@
     "jwriter",
   ]
   pruneopts = ""
-  revision = "d5012789d6659eeed305f54c1b1542e7b65829e6"
+  revision = "03f2033d19d5860aef995fe360ac7d395cd8ce65"
 
 [[projects]]
   digest = "1:a42b53da2a960b5f78c07b1b594c301abf454c48c362f7597b4a4e7b0dd65efe"
@@ -702,6 +688,20 @@
   version = "v1.2.0"
 
 [[projects]]
+  branch = "fs"
+  digest = "1:5b968cbe9db51f3d51d7e30cf100a5f6d2f407c6013f4525f1491ea0cc7ebaea"
+  name = "github.com/pjdufour-truss/pdfcpu"
+  packages = [
+    "pkg/api",
+    "pkg/compress/lzw",
+    "pkg/filter",
+    "pkg/log",
+    "pkg/pdfcpu",
+  ]
+  pruneopts = ""
+  revision = "abe08471ef6525706474e93517b0a1a95ab588ab"
+
+[[projects]]
   digest = "1:7365acd48986e205ccb8652cc746f09c8b7876030d53710ea6ef7d0bd0dcd7ca"
   name = "github.com/pkg/errors"
   packages = ["."]
@@ -735,7 +735,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:edb7b4175501bc707e0e12083918551dbfd10fa3dabdc4f0b4b4d54fe4bc978b"
+  digest = "1:eeb1d907eea52bc98d43b2ad13eb8475b020d3bdd3a65d021fe4269e6bda49f7"
   name = "github.com/securego/gosec"
   packages = [
     ".",
@@ -744,7 +744,7 @@
     "rules",
   ]
   pruneopts = ""
-  revision = "2785f7aaf8c5236da2412f85e76351123b21b350"
+  revision = "639987a2958103837efe05b0d487d4a6bf1a9aa0"
 
 [[projects]]
   digest = "1:3e82869db98e04d42a8efcd06a14b113f8c96dd16ff7541bbab684f6e20409f8"
@@ -995,7 +995,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:58d8f8f3ad415b10d2145316519e5b7995b7cf9e663b33a1e9e0c2ddd96c1d58"
+  digest = "1:4ab65de61f6eeee6a03fe2ffc3978230d8500ff81d984680a74bfe43bc8598c9"
   name = "golang.org/x/net"
   packages = [
     "context",
@@ -1006,7 +1006,7 @@
     "netutil",
   ]
   pruneopts = ""
-  revision = "a680a1efc54dd51c040b3b5ce4939ea3cf2ea0d1"
+  revision = "c4299a1a0d8524c11563db160fbf9bddbceadb21"
 
 [[projects]]
   branch = "master"
@@ -1029,11 +1029,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:a8944db88149e7ecbea4b760c625b9ccf455fceae21387bc8890c3589d28b623"
+  digest = "1:cfc5bd16b264cf9960abb45ecc09e4f3c70638d838f0d9c18e39b5b35af45e86"
   name = "golang.org/x/sys"
   packages = ["unix"]
   pruneopts = ""
-  revision = "ac767d655b305d4e9612f5f6e33120b9176c4ad4"
+  revision = "bd9dbc187b6e1dacfdd2722a87e83093c2d7bd6e"
 
 [[projects]]
   digest = "1:af9bfca4298ef7502c52b1459df274eed401a4f5498b900e9a92d28d3d87ac5a"
@@ -1061,7 +1061,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:bb369920f89103d0e82f2bed2cef77030499aff8ad925e9cf05628c46a830404"
+  digest = "1:4eed9c6c9e86cef80d652ca26970b59cd2279f04594e46ba2d22e9c140e1aa52"
   name = "golang.org/x/tools"
   packages = [
     "go/ast/astutil",
@@ -1074,7 +1074,7 @@
     "internal/fastwalk",
   ]
   pruneopts = ""
-  revision = "ded554d0681e0cba3cf074977cdc12e2c0906fe6"
+  revision = "8cc4e8a6f4841aa92a8683fca47bc5d64b58875b"
 
 [[projects]]
   digest = "1:eede11c81b63c8f6fd06ef24ba0a640dc077196ec9b7a58ecde03c82eee2f151"
@@ -1160,17 +1160,18 @@
     "github.com/gobuffalo/validate",
     "github.com/gobuffalo/validate/validators",
     "github.com/golang/lint/golint",
-    "github.com/hhrutter/pdfcpu/pkg/api",
-    "github.com/hhrutter/pdfcpu/pkg/pdfcpu",
     "github.com/imdario/mergo",
     "github.com/jessevdk/go-flags",
     "github.com/jung-kurt/gofpdf",
     "github.com/markbates/goth",
     "github.com/markbates/goth/providers/openidConnect",
     "github.com/namsral/flag",
+    "github.com/pjdufour-truss/pdfcpu/pkg/api",
+    "github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu",
     "github.com/pkg/errors",
     "github.com/securego/gosec/cmd/gosec",
     "github.com/segmentio/chamber",
+    "github.com/spf13/afero",
     "github.com/stretchr/testify/suite",
     "go.uber.org/zap",
     "go.uber.org/zap/zapcore",

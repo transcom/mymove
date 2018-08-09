@@ -2,9 +2,11 @@ form.default {
   padding: 2rem;
 }
 
-h2.instruction-heading {
-  font-weight: normal;
+h3.form-title {
+  font-size: 2rem;
 }
+
+
 
 table th,
 table td {

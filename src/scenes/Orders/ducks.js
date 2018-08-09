@@ -57,6 +57,8 @@ export function createOrders(ordersPayload) {
           dispatch(moveAction.success(newMove));
         })
         .catch(error => dispatch(action.error(error)));
+    } else {
+      return Promise.reject();
     }
   };
 }

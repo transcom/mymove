@@ -12,6 +12,7 @@ import { reduxifyWizardForm } from 'shared/WizardPage/Form';
 import Alert from 'shared/Alert';
 import LoadingPlaceholder from 'shared/LoadingPlaceholder';
 import { formatCents, formatCentsRange, formatNumber } from 'shared/formatters';
+import { convertDollarsToCents } from 'shared/utils';
 import {
   getPpmWeightEstimate,
   createOrUpdatePpm,
@@ -197,11 +198,10 @@ export class PpmWeight extends Component {
     const ppmBody = {
       weight_estimate: this.state.pendingPpmWeight,
     };
-
     if (advanceFormValues.has_requested_advance) {
       ppmBody.has_requested_advance = true;
-      const requestedAmount = Math.round(
-        parseFloat(advanceFormValues.requested_amount) * 100,
+      const requestedAmount = convertDollarsToCents(
+        advanceFormValues.requested_amount,
       );
       ppmBody.advance = {
         requested_amount: requestedAmount,
@@ -210,8 +210,7 @@ export class PpmWeight extends Component {
     } else {
       ppmBody.has_requested_advance = false;
     }
-
-    createOrUpdatePpm(moveId, ppmBody);
+    return createOrUpdatePpm(moveId, ppmBody);
   };
   onWeightSelecting = value => {
     this.setState({
@@ -235,7 +234,6 @@ export class PpmWeight extends Component {
       maxAdvance,
       pages,
       pageKey,
-      hasSubmitSuccess,
       hasLoadSuccess,
       hasEstimateInProgress,
       error,
@@ -272,7 +270,6 @@ export class PpmWeight extends Component {
         handleSubmit={this.handleSubmit}
         pageList={pages}
         pageKey={pageKey}
-        hasSucceeded={hasSubmitSuccess}
         initialValues={advanceInitialValues}
         serverError={error}
         additionalValues={{
@@ -382,7 +379,6 @@ PpmWeight.propTypes = {
     weight: PropTypes.number,
     incentive: PropTypes.string,
   }),
-  hasSubmitSuccess: PropTypes.bool.isRequired,
   hasLoadSuccess: PropTypes.bool.isRequired,
 };
 function mapStateToProps(state) {

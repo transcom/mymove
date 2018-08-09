@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { get } from 'lodash';
 
+import { formatCents } from 'shared/formatters';
+
 import './index.css';
 
 export const PanelField = props => {
@@ -30,6 +32,9 @@ export const SwaggerValue = props => {
   let value = values[fieldName];
   if (swaggerProps.enum) {
     value = swaggerProps['x-display-value'][value];
+  }
+  if (swaggerProps.format === 'cents') {
+    value = formatCents(value);
   }
   /* eslint-enable security/detect-object-injection */
   return <React.Fragment>{value || null}</React.Fragment>;
@@ -111,11 +116,12 @@ export class EditablePanel extends Component {
       <div className={classes}>
         <div className="editable-panel-header">
           <div className="title">{this.props.title}</div>
-          {!this.props.isEditable && (
-            <a className="editable-panel-edit" onClick={this.handleEditClick}>
-              Edit
-            </a>
-          )}
+          {!this.props.isEditable &&
+            this.props.editEnabled && (
+              <a className="editable-panel-edit" onClick={this.handleEditClick}>
+                Edit
+              </a>
+            )}
         </div>
         <div className="editable-panel-content">
           {this.props.children}
@@ -130,8 +136,13 @@ EditablePanel.propTypes = {
   title: PropTypes.string.isRequired,
   children: PropTypes.node.isRequired,
   isEditable: PropTypes.bool.isRequired,
+  editEnabled: PropTypes.bool,
   isValid: PropTypes.bool.isRequired,
   onCancel: PropTypes.func.isRequired,
   onEdit: PropTypes.func.isRequired,
   onSave: PropTypes.func.isRequired,
+};
+
+EditablePanel.defaultProps = {
+  editEnabled: true,
 };

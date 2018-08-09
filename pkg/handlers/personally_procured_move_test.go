@@ -199,7 +199,7 @@ func (suite *HandlerSuite) TestPatchPPMHandler() {
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
-	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
 	suite.Equal(*patchPPMPayload.Size, newSize, "Size should have been updated.")
@@ -220,8 +220,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	weight := swag.Int64(4100)
 
 	moveDate := time.Now()
-	hasSit := swag.Bool(true)
-	daysInStorage := swag.Int64(3)
 
 	pickupPostalCode := swag.String("32168")
 	destinationPostalCode := swag.String("29401")
@@ -232,8 +230,6 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		MoveID:                move.ID,
 		Move:                  move,
 		PlannedMoveDate:       &moveDate,
-		HasSit:                hasSit,
-		DaysInStorage:         daysInStorage,
 		PickupPostalCode:      pickupPostalCode,
 		DestinationPostalCode: destinationPostalCode,
 		Status:                models.PPMStatusDRAFT,
@@ -243,7 +239,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	req := httptest.NewRequest("GET", "/fake/path", nil)
 	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
 
-	payload := internalmessages.PatchPersonallyProcuredMovePayload{
+	payload := &internalmessages.PatchPersonallyProcuredMovePayload{
 		WeightEstimate: weight,
 	}
 
@@ -251,7 +247,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 		HTTPRequest: req,
 		MoveID:      strfmt.UUID(move.ID.String()),
 		PersonallyProcuredMoveID:           strfmt.UUID(ppm1.ID.String()),
-		PatchPersonallyProcuredMovePayload: &payload,
+		PatchPersonallyProcuredMovePayload: payload,
 	}
 
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
@@ -259,7 +255,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	response := handler.Handle(patchPPMParams)
 
 	// assert we got back the 201 response
-	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	okResponse := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	patchPPMPayload := okResponse.Payload
 
 	if patchPPMPayload.WeightEstimate != weight {
@@ -269,9 +265,25 @@ func (suite *HandlerSuite) TestPatchPPMHandlerSetWeightLater() {
 	suite.Assertions.Equal(int64(900), *patchPPMPayload.Mileage)
 	suite.Assertions.Equal(int64(242246), *patchPPMPayload.IncentiveEstimateMin)
 	suite.Assertions.Equal(int64(267746), *patchPPMPayload.IncentiveEstimateMax)
+	suite.Assertions.Nil(patchPPMPayload.EstimatedStorageReimbursement)
+	suite.Assertions.Equal(int64(0), *patchPPMPayload.PlannedSitMax)
+	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
+
+	// Now check that SIT values update when days in storage is set
+	hasSit := swag.Bool(true)
+	daysInStorage := swag.Int64(3)
+	*payload = internalmessages.PatchPersonallyProcuredMovePayload{
+		HasSit:        hasSit,
+		DaysInStorage: daysInStorage,
+	}
+
+	response = handler.Handle(patchPPMParams)
+	// assert we got back the 201 response
+	okResponse = response.(*ppmop.PatchPersonallyProcuredMoveOK)
+	patchPPMPayload = okResponse.Payload
+
 	suite.Assertions.Equal("$32.60", *patchPPMPayload.EstimatedStorageReimbursement)
 	suite.Assertions.Equal(int64(3260), *patchPPMPayload.PlannedSitMax)
-	suite.Assertions.Equal(int64(97785), *patchPPMPayload.SitMax)
 }
 
 func (suite *HandlerSuite) TestPatchPPMHandlerWrongUser() {
@@ -460,7 +472,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	handler := PatchPersonallyProcuredMoveHandler(NewHandlerContext(suite.db, suite.logger))
 	response := handler.Handle(patchPPMParams)
 
-	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -478,7 +490,7 @@ func (suite *HandlerSuite) TestPatchPPMHandlerAdvance() {
 	response = handler.Handle(patchPPMParams)
 
 	// assert we got back the created response
-	updated, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	updated, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
@@ -540,11 +552,118 @@ func (suite *HandlerSuite) TestPatchPPMHandlerEdgeCases() {
 
 	response = handler.Handle(patchPPMParams)
 
-	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveCreated)
+	created, ok := response.(*ppmop.PatchPersonallyProcuredMoveOK)
 	if !ok {
 		t.Fatalf("Request failed: %#v", response)
 	}
 
 	suite.Require().Equal(internalmessages.ReimbursementStatusDRAFT, *created.Payload.Advance.Status, "expected Draft")
 	suite.Require().Equal(initialAmount, *created.Payload.Advance.RequestedAmount, "expected amount to shine through.")
+}
+
+func (suite *HandlerSuite) TestRequestPPMPayment() {
+	t := suite.T()
+
+	initialSize := internalmessages.TShirtSize("S")
+	initialWeight := swag.Int64(1)
+
+	move := testdatagen.MakeDefaultMove(suite.db)
+
+	err := move.Submit()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = move.Approve()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = move.Complete()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+
+	suite.mustSave(&move)
+
+	ppm1 := models.PersonallyProcuredMove{
+		MoveID:         move.ID,
+		Move:           move,
+		Size:           &initialSize,
+		WeightEstimate: initialWeight,
+		Status:         models.PPMStatusDRAFT,
+	}
+	err = ppm1.Submit()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+	err = ppm1.Approve()
+	if err != nil {
+		t.Fatal("Should transition.")
+	}
+
+	suite.mustSave(&ppm1)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, move.Orders.ServiceMember)
+
+	requestPaymentParams := ppmop.RequestPPMPaymentParams{
+		HTTPRequest:              req,
+		PersonallyProcuredMoveID: strfmt.UUID(ppm1.ID.String()),
+	}
+
+	handler := RequestPPMPaymentHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(requestPaymentParams)
+
+	created, ok := response.(*ppmop.RequestPPMPaymentOK)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+
+	suite.Require().Equal(internalmessages.PPMStatusPAYMENTREQUESTED, created.Payload.Status, "expected payment requested")
+
+}
+
+func (suite *HandlerSuite) TestRequestPPMExpenseSummaryHandler() {
+	t := suite.T()
+	// When: There is a move, ppm, move document and 2 expense docs
+	ppm := testdatagen.MakeDefaultPPM(suite.db)
+	sm := ppm.Move.Orders.ServiceMember
+
+	assertions := testdatagen.Assertions{
+		MoveDocument: models.MoveDocument{
+			MoveID: ppm.Move.ID,
+			Move:   ppm.Move,
+			PersonallyProcuredMoveID: &ppm.ID,
+			Status:           "OK",
+			MoveDocumentType: "EXPENSE",
+		},
+		Document: models.Document{
+			ServiceMemberID: sm.ID,
+			ServiceMember:   sm,
+		},
+	}
+
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+	testdatagen.MakeMovingExpenseDocument(suite.db, assertions)
+
+	req := httptest.NewRequest("GET", "/fake/path", nil)
+	req = suite.authenticateRequest(req, sm)
+
+	requestExpenseSumParams := ppmop.RequestPPMExpenseSummaryParams{
+		HTTPRequest:              req,
+		PersonallyProcuredMoveID: strfmt.UUID(ppm.ID.String()),
+	}
+
+	handler := RequestPPMExpenseSummaryHandler(NewHandlerContext(suite.db, suite.logger))
+	response := handler.Handle(requestExpenseSumParams)
+
+	expenseSummary, ok := response.(*ppmop.RequestPPMExpenseSummaryOK)
+	if !ok {
+		t.Fatalf("Request failed: %#v", response)
+	}
+	// Then: expect the following values to be equal
+	suite.Assertions.Equal(internalmessages.MovingExpenseTypeCONTRACTEDEXPENSE, expenseSummary.Payload.Categories[0].Category)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.Categories[0].PaymentMethods.GTCC)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.Categories[0].Total)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.GrandTotal.PaymentMethodTotals.GTCC)
+	suite.Assertions.Equal(int64(5178), expenseSummary.Payload.GrandTotal.Total)
 }

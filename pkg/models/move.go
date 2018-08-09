@@ -11,8 +11,10 @@ import (
 	"github.com/pkg/errors"
 
 	"crypto/sha256"
+
 	"github.com/transcom/mymove/pkg/auth"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
+	"github.com/transcom/mymove/pkg/unit"
 )
 
 // MoveStatus represents the status of an order record's lifecycle
@@ -38,18 +40,19 @@ var locatorLetters = []rune("23456789ABCDEFGHJKLMNPQRSTUVWXYZ")
 
 // Move is an object representing a move
 type Move struct {
-	ID                      uuid.UUID                          `json:"id" db:"id"`
-	Locator                 string                             `json:"locator" db:"locator"`
-	CreatedAt               time.Time                          `json:"created_at" db:"created_at"`
-	UpdatedAt               time.Time                          `json:"updated_at" db:"updated_at"`
-	OrdersID                uuid.UUID                          `json:"orders_id" db:"orders_id"`
-	Orders                  Order                              `belongs_to:"orders"`
-	SelectedMoveType        *internalmessages.SelectedMoveType `json:"selected_move_type" db:"selected_move_type"`
-	PersonallyProcuredMoves PersonallyProcuredMoves            `has_many:"personally_procured_moves" order_by:"created_at desc"`
-	MoveDocuments           MoveDocuments                      `has_many:"move_documents" order_by:"created_at desc"`
-	Status                  MoveStatus                         `json:"status" db:"status"`
-	SignedCertifications    SignedCertifications               `has_many:"signed_certifications" order_by:"created_at desc"`
-	CancelReason            *string                            `json:"cancel_reason" db:"cancel_reason"`
+	ID                      uuid.UUID               `json:"id" db:"id"`
+	Locator                 string                  `json:"locator" db:"locator"`
+	CreatedAt               time.Time               `json:"created_at" db:"created_at"`
+	UpdatedAt               time.Time               `json:"updated_at" db:"updated_at"`
+	OrdersID                uuid.UUID               `json:"orders_id" db:"orders_id"`
+	Orders                  Order                   `belongs_to:"orders"`
+	SelectedMoveType        *string                 `json:"selected_move_type" db:"selected_move_type"`
+	PersonallyProcuredMoves PersonallyProcuredMoves `has_many:"personally_procured_moves" order_by:"created_at desc"`
+	Shipments               Shipments               `has_many:"shipments"`
+	MoveDocuments           MoveDocuments           `has_many:"move_documents" order_by:"created_at desc"`
+	Status                  MoveStatus              `json:"status" db:"status"`
+	SignedCertifications    SignedCertifications    `has_many:"signed_certifications" order_by:"created_at desc"`
+	CancelReason            *string                 `json:"cancel_reason" db:"cancel_reason"`
 }
 
 // Moves is not required by pop and may be deleted
@@ -87,13 +90,13 @@ func (m *Move) Submit() error {
 
 	m.Status = MoveStatusSUBMITTED
 
-	//TODO: update PPM status too
-	// for i, _ := range m.PersonallyProcuredMoves {
-	// 	err := m.PersonallyProcuredMoves[i].Submit()
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// }
+	// Update PPM status too
+	for i := range m.PersonallyProcuredMoves {
+		err := m.PersonallyProcuredMoves[i].Submit()
+		if err != nil {
+			return err
+		}
+	}
 
 	for _, ppm := range m.PersonallyProcuredMoves {
 		if ppm.Advance != nil {
@@ -113,6 +116,16 @@ func (m *Move) Approve() error {
 	}
 
 	m.Status = MoveStatusAPPROVED
+	return nil
+}
+
+// Complete Completes the Move
+func (m *Move) Complete() error {
+	if m.Status != MoveStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	m.Status = MoveStatusCOMPLETED
 	return nil
 }
 
@@ -151,7 +164,7 @@ func (m *Move) Cancel(reason string) error {
 // FetchMove fetches and validates a Move for this User
 func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, error) {
 	var move Move
-	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document").Find(&move, id)
+	err := db.Q().Eager("PersonallyProcuredMoves.Advance", "SignedCertifications", "Orders", "MoveDocuments.Document", "Shipments").Find(&move, id)
 
 	// Eager loading of nested has_many associations is broken
 	for i, moveDoc := range move.MoveDocuments {
@@ -168,7 +181,7 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	}
 
 	// Ensure that the logged-in user is authorized to access this move
-	_, authErr := FetchOrder(db, session, move.OrdersID)
+	_, authErr := FetchOrderForUser(db, session, move.OrdersID)
 	if authErr != nil {
 		return nil, authErr
 	}
@@ -176,12 +189,70 @@ func FetchMove(db *pop.Connection, session *auth.Session, id uuid.UUID) (*Move, 
 	return &move, nil
 }
 
-// CreateMoveDocument creates a move document associated to a move
-func (m Move) CreateMoveDocument(db *pop.Connection,
+func (m Move) createMoveDocumentWithoutTransaction(
+	db *pop.Connection,
 	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
 	moveDocumentType MoveDocumentType,
 	title string,
-	status MoveDocumentStatus,
+	notes *string) (*MoveDocument, *validate.Errors, error) {
+
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	// Make a generic Document
+	newDoc := Document{
+		ServiceMemberID: m.Orders.ServiceMemberID,
+		Uploads:         uploads,
+	}
+	verrs, err := db.ValidateAndCreate(&newDoc)
+	if err != nil || verrs.HasAny() {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating document for move document")
+		return nil, responseVErrors, responseError
+	}
+
+	// Associate uploads to the new document
+	for _, upload := range uploads {
+		upload.DocumentID = &newDoc.ID
+		verrs, err := db.ValidateAndUpdate(&upload)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error updating upload")
+			return nil, responseVErrors, responseError
+		}
+	}
+
+	// Finally create the MoveDocument to tie it to the Move
+	newMoveDocument := &MoveDocument{
+		Move:                     m,
+		MoveID:                   m.ID,
+		Document:                 newDoc,
+		DocumentID:               newDoc.ID,
+		PersonallyProcuredMoveID: personallyProcuredMoveID,
+		MoveDocumentType:         moveDocumentType,
+		Title:                    title,
+		Status:                   MoveDocumentStatusAWAITINGREVIEW,
+		Notes:                    notes,
+	}
+
+	verrs, err = db.ValidateAndCreate(newMoveDocument)
+	if err != nil || verrs.HasAny() {
+		responseVErrors.Append(verrs)
+		responseError = errors.Wrap(err, "Error creating move document")
+		return nil, responseVErrors, responseError
+	}
+
+	return newMoveDocument, responseVErrors, nil
+}
+
+// CreateMoveDocument creates a move document associated to a move & ppm
+func (m Move) CreateMoveDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	moveDocumentType MoveDocumentType,
+	title string,
 	notes *string) (*MoveDocument, *validate.Errors, error) {
 
 	var newMoveDocument *MoveDocument
@@ -191,44 +262,15 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 	db.Transaction(func(db *pop.Connection) error {
 		transactionError := errors.New("Rollback The transaction")
 
-		// Make a generic Document
-		newDoc := Document{
-			ServiceMemberID: m.Orders.ServiceMemberID,
-			Uploads:         uploads,
-		}
-		verrs, err := db.ValidateAndCreate(&newDoc)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating document for move document")
-			return transactionError
-		}
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			moveDocumentType,
+			title,
+			notes)
 
-		// Associate uploads to the new document
-		for _, upload := range uploads {
-			upload.DocumentID = &newDoc.ID
-			verrs, err := db.ValidateAndUpdate(&upload)
-			if err != nil || verrs.HasAny() {
-				responseVErrors.Append(verrs)
-				responseError = errors.Wrap(err, "Error updating upload")
-				return transactionError
-			}
-		}
-
-		// Finally create the MoveDocument to tie it to the Move
-		newMoveDocument = &MoveDocument{
-			Move:             m,
-			MoveID:           m.ID,
-			Document:         newDoc,
-			DocumentID:       newDoc.ID,
-			MoveDocumentType: moveDocumentType,
-			Title:            title,
-			Status:           status,
-			Notes:            notes,
-		}
-		verrs, err = db.ValidateAndCreate(newMoveDocument)
-		if err != nil || verrs.HasAny() {
-			responseVErrors.Append(verrs)
-			responseError = errors.Wrap(err, "Error creating move document")
+		if responseVErrors.HasAny() || responseError != nil {
 			return transactionError
 		}
 
@@ -237,6 +279,60 @@ func (m Move) CreateMoveDocument(db *pop.Connection,
 	})
 
 	return newMoveDocument, responseVErrors, responseError
+}
+
+// CreateMovingExpenseDocument creates a moving expense document associated to a move and move document
+func (m Move) CreateMovingExpenseDocument(
+	db *pop.Connection,
+	uploads Uploads,
+	personallyProcuredMoveID *uuid.UUID,
+	moveDocumentType MoveDocumentType,
+	title string,
+	notes *string,
+	requestedAmountCents unit.Cents,
+	paymentMethod string,
+	movingExpenseType MovingExpenseType) (*MovingExpenseDocument, *validate.Errors, error) {
+
+	var newMovingExpenseDocument *MovingExpenseDocument
+	var responseError error
+	responseVErrors := validate.NewErrors()
+
+	db.Transaction(func(db *pop.Connection) error {
+		transactionError := errors.New("Rollback The transaction")
+
+		var newMoveDocument *MoveDocument
+		newMoveDocument, responseVErrors, responseError = m.createMoveDocumentWithoutTransaction(
+			db,
+			uploads,
+			personallyProcuredMoveID,
+			moveDocumentType,
+			title,
+			notes)
+		if responseVErrors.HasAny() || responseError != nil {
+			return transactionError
+		}
+
+		// Finally, create the MovingExpenseDocument
+		newMovingExpenseDocument = &MovingExpenseDocument{
+			MoveDocumentID:       newMoveDocument.ID,
+			MoveDocument:         *newMoveDocument,
+			MovingExpenseType:    movingExpenseType,
+			RequestedAmountCents: requestedAmountCents,
+			PaymentMethod:        paymentMethod,
+		}
+		verrs, err := db.ValidateAndCreate(newMovingExpenseDocument)
+		if err != nil || verrs.HasAny() {
+			responseVErrors.Append(verrs)
+			responseError = errors.Wrap(err, "Error creating moving expense document")
+			newMovingExpenseDocument = nil
+			return transactionError
+		}
+
+		return nil
+
+	})
+
+	return newMovingExpenseDocument, responseVErrors, responseError
 }
 
 // CreatePPM creates a new PPM associated with this move
@@ -335,12 +431,16 @@ func createNewMove(db *pop.Connection,
 	orders Order,
 	selectedType *internalmessages.SelectedMoveType) (*Move, *validate.Errors, error) {
 
+	var stringSelectedType string
+	if selectedType != nil {
+		stringSelectedType = string(*selectedType)
+	}
 	for i := 0; i < maxLocatorAttempts; i++ {
 		move := Move{
 			Orders:           orders,
 			OrdersID:         orders.ID,
 			Locator:          GenerateLocator(),
-			SelectedMoveType: selectedType,
+			SelectedMoveType: &stringSelectedType,
 			Status:           MoveStatusDRAFT,
 		}
 		verrs, err := db.ValidateAndCreate(&move)
@@ -362,9 +462,9 @@ func createNewMove(db *pop.Connection,
 	return nil, verrs, ErrLocatorGeneration
 }
 
-// SaveMoveStatuses safely saves a Move status and its associated PPMs' Advances' statuses.
-// TODO: Add functionality to save more than just status on these objects
-func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) {
+// SaveMoveDependencies safely saves a Move status, ppms' advances' statuses, orders statuses,
+// and shipment GBLOCs.
+func SaveMoveDependencies(db *pop.Connection, move *Move) (*validate.Errors, error) {
 	responseVErrors := validate.NewErrors()
 	var responseError error
 
@@ -387,6 +487,31 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			}
 		}
 
+		if move.Status == MoveStatusSUBMITTED {
+
+			// Save Shipment GBLOCs
+			orders, err := FetchOrder(db, move.OrdersID)
+			if err != nil {
+				responseError = errors.Wrap(err, "Error fetching orders")
+				return transactionError
+			}
+			for _, shipment := range move.Shipments {
+				destinationGbloc, err := getGbloc(db, orders.NewDutyStationID)
+				if err != nil {
+					responseError = errors.Wrap(err, "Error getting shipment destination GBLOC")
+					return transactionError
+				}
+				shipment.DestinationGBLOC = &destinationGbloc
+				// TODO: Implement sourceGbloc calculation
+
+				if verrs, err := db.ValidateAndSave(&shipment); verrs.HasAny() || err != nil {
+					responseVErrors.Append(verrs)
+					responseError = errors.Wrap(err, "Error Saving Shipment")
+					return transactionError
+				}
+			}
+		}
+
 		if verrs, err := db.ValidateAndSave(&move.Orders); verrs.HasAny() || err != nil {
 			responseVErrors.Append(verrs)
 			responseError = errors.Wrap(err, "Error Saving Orders")
@@ -398,12 +523,18 @@ func SaveMoveStatuses(db *pop.Connection, move *Move) (*validate.Errors, error) 
 			responseError = errors.Wrap(err, "Error Saving Move")
 			return transactionError
 		}
-
 		return nil
-
 	})
 
 	return responseVErrors, responseError
+}
+
+func getGbloc(db *pop.Connection, dutyStationID uuid.UUID) (gbloc string, err error) {
+	transportationOffice, err := FetchDutyStationTransportationOffice(db, dutyStationID)
+	if err != nil {
+		return "", errors.Wrap(err, "could not load transportation office for duty station")
+	}
+	return transportationOffice.Gbloc, nil
 }
 
 // FetchMoveForAdvancePaperwork returns a Move with all of the associations required

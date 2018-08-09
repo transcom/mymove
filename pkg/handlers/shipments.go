@@ -9,6 +9,7 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	shipmentop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/shipments"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	publicshipmentop "github.com/transcom/mymove/pkg/gen/restapi/apioperations/shipments"
@@ -25,8 +26,11 @@ func payloadForShipmentModel(s models.Shipment) *internalmessages.Shipment {
 		ID:     strfmt.UUID(s.ID.String()),
 		MoveID: strfmt.UUID(s.MoveID.String()),
 		TrafficDistributionListID:    fmtUUIDPtr(s.TrafficDistributionListID),
+		ServiceMemberID:              strfmt.UUID(s.ServiceMemberID.String()),
 		SourceGbloc:                  s.SourceGBLOC,
+		DestinationGbloc:             s.DestinationGBLOC,
 		Market:                       s.Market,
+		CodeOfService:                s.CodeOfService,
 		Status:                       s.Status,
 		BookDate:                     fmtDatePtr(s.BookDate),
 		RequestedPickupDate:          fmtDatePtr(s.RequestedPickupDate),
@@ -69,12 +73,22 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 
 	pickupAddress := addressModelFromPayload(payload.PickupAddress)
 	secondaryPickupAddress := addressModelFromPayload(payload.SecondaryPickupAddress)
-	deliveryAddress := addressModelFromPayload(payload.PickupAddress)
+	deliveryAddress := addressModelFromPayload(payload.DeliveryAddress)
 	partialSITDeliveryAddress := addressModelFromPayload(payload.PartialSitDeliveryAddress)
+	market := "dHHG"
+	codeOfService := "D"
+
+	var requestedPickupDate *time.Time
+	if payload.RequestedPickupDate != nil {
+		date := time.Time(*payload.RequestedPickupDate)
+		requestedPickupDate = &date
+	}
 
 	newShipment := models.Shipment{
 		MoveID:                       move.ID,
+		ServiceMemberID:              session.ServiceMemberID,
 		Status:                       "DRAFT",
+		RequestedPickupDate:          requestedPickupDate,
 		EstimatedPackDays:            payload.EstimatedPackDays,
 		EstimatedTransitDays:         payload.EstimatedTransitDays,
 		WeightEstimate:               poundPtrFromInt64Ptr(payload.WeightEstimate),
@@ -87,6 +101,8 @@ func (h CreateShipmentHandler) Handle(params shipmentop.CreateShipmentParams) mi
 		DeliveryAddress:              deliveryAddress,
 		HasPartialSITDeliveryAddress: payload.HasPartialSitDeliveryAddress,
 		PartialSITDeliveryAddress:    partialSITDeliveryAddress,
+		Market:        &market,
+		CodeOfService: &codeOfService,
 	}
 
 	verrs, err := models.SaveShipmentAndAddresses(h.db, &newShipment)
@@ -169,7 +185,7 @@ func patchShipmentWithPayload(shipment *models.Shipment, payload *internalmessag
 	}
 }
 
-// PatchShipmentHandler Patchs a PPM
+// PatchShipmentHandler Patchs an HHG
 type PatchShipmentHandler HandlerContext
 
 // Handle is the handler
@@ -199,7 +215,33 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
 	}
 
 	shipmentPayload := payloadForShipmentModel(*shipment)
-	return shipmentop.NewPatchShipmentCreated().WithPayload(shipmentPayload)
+	return shipmentop.NewPatchShipmentOK().WithPayload(shipmentPayload)
+}
+
+// GetShipmentHandler Returns an HHG
+type GetShipmentHandler HandlerContext
+
+// Handle is the handler
+func (h GetShipmentHandler) Handle(params shipmentop.GetShipmentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	moveID, _ := uuid.FromString(params.MoveID.String())
+	// #nosec UUID is pattern matched by swagger and will be ok
+	shipmentID, _ := uuid.FromString(params.ShipmentID.String())
+
+	shipment, err := models.FetchShipment(h.db, session, shipmentID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	if shipment.MoveID != moveID {
+		h.logger.Info("Move ID for Shipment does not match requested Shipment Move ID", zap.String("requested move_id", moveID.String()), zap.String("actual move_id", shipment.MoveID.String()))
+		return shipmentop.NewGetShipmentBadRequest()
+	}
+
+	shipmentPayload := payloadForShipmentModel(*shipment)
+	return shipmentop.NewGetShipmentOK().WithPayload(shipmentPayload)
 }
 
 /*
@@ -208,35 +250,124 @@ func (h PatchShipmentHandler) Handle(params shipmentop.PatchShipmentParams) midd
  * ------------------------------------------
  */
 
-// PublicIndexShipmentHandler returns a list of shipments
-type PublicIndexShipmentHandler HandlerContext
+func publicPayloadForShipmentModel(s models.Shipment) *apimessages.Shipment {
+	shipmentPayload := &apimessages.Shipment{
+		ID: *fmtUUID(s.ID),
+		TrafficDistributionList:      publicPayloadForTrafficDistributionListModel(s.TrafficDistributionList),
+		PickupDate:                   *fmtDateTimePtr(s.PickupDate),
+		DeliveryDate:                 *fmtDateTimePtr(s.DeliveryDate),
+		CreatedAt:                    strfmt.DateTime(s.CreatedAt),
+		UpdatedAt:                    strfmt.DateTime(s.UpdatedAt),
+		SourceGbloc:                  apimessages.GBLOC(*s.SourceGBLOC),
+		DestinationGbloc:             apimessages.GBLOC(*s.DestinationGBLOC),
+		Market:                       apimessages.ShipmentMarket(*s.Market),
+		BookDate:                     *fmtDatePtr(s.BookDate),
+		RequestedPickupDate:          *fmtDateTimePtr(s.RequestedPickupDate),
+		Move:                         publicPayloadForMoveModel(s.Move),
+		Status:                       apimessages.ShipmentStatus(s.Status),
+		EstimatedPackDays:            fmtInt64(*s.EstimatedPackDays),
+		EstimatedTransitDays:         fmtInt64(*s.EstimatedTransitDays),
+		PickupAddress:                publicPayloadForAddressModel(s.PickupAddress),
+		HasSecondaryPickupAddress:    *fmtBool(s.HasSecondaryPickupAddress),
+		SecondaryPickupAddress:       publicPayloadForAddressModel(s.SecondaryPickupAddress),
+		HasDeliveryAddress:           *fmtBool(s.HasDeliveryAddress),
+		DeliveryAddress:              publicPayloadForAddressModel(s.DeliveryAddress),
+		HasPartialSitDeliveryAddress: *fmtBool(s.HasPartialSITDeliveryAddress),
+		PartialSitDeliveryAddress:    publicPayloadForAddressModel(s.PartialSITDeliveryAddress),
+		WeightEstimate:               fmtInt64(s.WeightEstimate.Int64()),
+		ProgearWeightEstimate:        fmtInt64(s.ProgearWeightEstimate.Int64()),
+		SpouseProgearWeightEstimate:  fmtInt64(s.SpouseProgearWeightEstimate.Int64()),
+	}
+	return shipmentPayload
+}
+
+// PublicIndexShipmentsHandler returns a list of shipments
+type PublicIndexShipmentsHandler HandlerContext
 
 // Handle retrieves a list of all shipments
-func (h PublicIndexShipmentHandler) Handle(p publicshipmentop.IndexShipmentsParams) middleware.Responder {
-	return middleware.NotImplemented("operation .indexShipments has not yet been implemented")
+func (h PublicIndexShipmentsHandler) Handle(params publicshipmentop.IndexShipmentsParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewIndexShipmentsForbidden()
+	}
+
+	shipments, err := models.FetchShipmentsByTSP(h.db, tspUser.TransportationServiceProviderID,
+		params.Status, params.OrderBy, params.Limit, params.Offset)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewIndexShipmentsBadRequest()
+	}
+
+	isp := make(apimessages.IndexShipments, len(shipments))
+	for i, s := range shipments {
+		isp[i] = publicPayloadForShipmentModel(s)
+	}
+	return publicshipmentop.NewIndexShipmentsOK().WithPayload(isp)
 }
 
 // PublicGetShipmentHandler returns a particular shipment
 type PublicGetShipmentHandler HandlerContext
 
 // Handle returns a specified shipment
-func (h PublicGetShipmentHandler) Handle(p publicshipmentop.GetShipmentParams) middleware.Responder {
-	return middleware.NotImplemented("operation .getShipment has not yet been implemented")
+func (h PublicGetShipmentHandler) Handle(params publicshipmentop.GetShipmentParams) middleware.Responder {
+
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	shipmentID, _ := uuid.FromString(params.ShipmentUUID.String())
+
+	// Possible they are coming from the wrong endpoint and thus the session is missing the
+	// TspUserID
+	if session.TspUserID == uuid.Nil {
+		h.logger.Error("Missing TSP User ID")
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	// TODO: (cgilmer 2018_07_25) This is an extra query we don't need to run on every request. Put the
+	// TransportationServiceProviderID into the session object after refactoring the session code to be more readable.
+	// See original commits in https://github.com/transcom/mymove/pull/802
+	tspUser, err := models.FetchTspUserByID(h.db, session.TspUserID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentForbidden()
+	}
+
+	shipment, err := models.FetchShipmentByTSP(h.db, tspUser.TransportationServiceProviderID, shipmentID)
+	if err != nil {
+		h.logger.Error("DB Query", zap.Error(err))
+		return publicshipmentop.NewGetShipmentBadRequest()
+	}
+
+	sp := publicPayloadForShipmentModel(*shipment)
+	return publicshipmentop.NewGetShipmentOK().WithPayload(sp)
 }
 
 // PublicCreateShipmentAcceptHandler allows a TSP to accept a particular shipment
 type PublicCreateShipmentAcceptHandler HandlerContext
 
 // Handle accepts the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentAcceptHandler) Handle(p publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
+func (h PublicCreateShipmentAcceptHandler) Handle(params publicshipmentop.CreateShipmentAcceptParams) middleware.Responder {
 	return middleware.NotImplemented("operation .acceptShipment has not yet been implemented")
 }
 
-// PublicCreateShipmentRefuseHandler allows a TSP to refuse a particular shipment
-type PublicCreateShipmentRefuseHandler HandlerContext
+// PublicCreateShipmentRejectHandler allows a TSP to refuse a particular shipment
+type PublicCreateShipmentRejectHandler HandlerContext
 
 // Handle refuses the shipment - checks that currently logged in user is authorized to act for the TSP assigned the shipment
-func (h PublicCreateShipmentRefuseHandler) Handle(p publicshipmentop.CreateShipmentRefuseParams) middleware.Responder {
+func (h PublicCreateShipmentRejectHandler) Handle(params publicshipmentop.CreateShipmentRejectParams) middleware.Responder {
 	return middleware.NotImplemented("operation .refuseShipment has not yet been implemented")
 }
 

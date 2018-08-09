@@ -53,6 +53,16 @@ func (o *TspUser) ValidateUpdate(tx *pop.Connection) (*validate.Errors, error) {
 	return validate.NewErrors(), nil
 }
 
+// FetchTspUserByID looks for an tsp user with a specific id
+func FetchTspUserByID(tx *pop.Connection, id uuid.UUID) (*TspUser, error) {
+	var user TspUser
+	err := tx.Find(&user, id)
+	if err != nil {
+		return nil, err
+	}
+	return &user, nil
+}
+
 // FetchTspUserByEmail looks for an tsp user with a specific email
 func FetchTspUserByEmail(tx *pop.Connection, email string) (*TspUser, error) {
 	var users TspUsers

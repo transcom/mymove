@@ -24,8 +24,8 @@ const (
 	PPMStatusSUBMITTED PPMStatus = "SUBMITTED"
 	// PPMStatusAPPROVED captures enum value "APPROVED"
 	PPMStatusAPPROVED PPMStatus = "APPROVED"
-	// PPMStatusINPROGRESS captures enum value "IN_PROGRESS"
-	PPMStatusINPROGRESS PPMStatus = "IN_PROGRESS"
+	// PPMStatusPAYMENTREQUESTED captures enum value "PAYMENT_REQUESTED"
+	PPMStatusPAYMENTREQUESTED PPMStatus = "PAYMENT_REQUESTED"
 	// PPMStatusCOMPLETED captures enum value "COMPLETED"
 	PPMStatusCOMPLETED PPMStatus = "COMPLETED"
 	// PPMStatusCANCELED captures enum value "CANCELED"
@@ -85,17 +85,82 @@ func (p *PersonallyProcuredMove) ValidateUpdate(tx *pop.Connection) (*validate.E
 	return validate.NewErrors(), nil
 }
 
-// State Machine
+// State Machinery
 // Avoid calling PersonallyProcuredMove.Status = ... ever. Use these methods to change the state.
 
-// Cancel cancels the PPM
+// Submit marks the PPM request for review
+func (p *PersonallyProcuredMove) Submit() error {
+	if p.Status != PPMStatusDRAFT {
+		return errors.Wrap(ErrInvalidTransition, "Submit")
+	}
+
+	p.Status = PPMStatusSUBMITTED
+	return nil
+}
+
+// Approve approves the PPM to go forward.
+func (p *PersonallyProcuredMove) Approve() error {
+	if p.Status != PPMStatusSUBMITTED {
+		return errors.Wrap(ErrInvalidTransition, "Approve")
+	}
+
+	p.Status = PPMStatusAPPROVED
+	return nil
+}
+
+// RequestPayment requests payment for the PPM
+func (p *PersonallyProcuredMove) RequestPayment() error {
+	if p.Status != PPMStatusAPPROVED {
+		return errors.Wrap(ErrInvalidTransition, "RequestPayment")
+	}
+
+	p.Status = PPMStatusPAYMENTREQUESTED
+	return nil
+}
+
+// Complete marks the PPM as completed
+func (p *PersonallyProcuredMove) Complete() error {
+	if p.Status != PPMStatusPAYMENTREQUESTED {
+		return errors.Wrap(ErrInvalidTransition, "Complete")
+	}
+
+	p.Status = PPMStatusCOMPLETED
+	return nil
+}
+
+// Cancel marks the PPM as Canceled
 func (p *PersonallyProcuredMove) Cancel() error {
+	// The only type of PPM that can't be canceled is one that has been completed?
+	// Maybe you can cancel anything.
 	if p.Status == PPMStatusCOMPLETED || p.Status == PPMStatusCANCELED {
 		return errors.Wrap(ErrInvalidTransition, "Cancel")
 	}
 
 	p.Status = PPMStatusCANCELED
 	return nil
+}
+
+// FetchMoveDocumentsForTypes returns all the linked move documents with the given document types
+func (p *PersonallyProcuredMove) FetchMoveDocumentsForTypes(db *pop.Connection, docTypes []MoveDocumentType) (MoveDocuments, error) {
+	var moveDocs MoveDocuments
+
+	q := db.Where("personally_procured_move_id = ?", p.ID)
+
+	// If we were given doc types, append that WHERE statement
+	if len(docTypes) > 0 {
+		convertedTypes := make([]interface{}, len(docTypes))
+		for i, t := range docTypes {
+			convertedTypes[i] = string(t)
+		}
+		q = q.Where("move_document_type in (?)", convertedTypes...)
+	}
+
+	err := q.Eager("Document.Uploads").All(&moveDocs)
+	if err != nil {
+		return MoveDocuments{}, nil
+	}
+
+	return moveDocs, nil
 }
 
 // FetchPersonallyProcuredMove Fetches and Validates a PPM model

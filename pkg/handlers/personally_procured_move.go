@@ -202,7 +202,7 @@ func patchPPMWithPayload(ppm *models.PersonallyProcuredMove, payload *internalme
 	}
 }
 
-// PatchPersonallyProcuredMoveHandler Patchs a PPM
+// PatchPersonallyProcuredMoveHandler Patches a PPM
 type PatchPersonallyProcuredMoveHandler HandlerContext
 
 // Handle is the handler
@@ -244,7 +244,7 @@ func (h PatchPersonallyProcuredMoveHandler) Handle(params ppmop.PatchPersonallyP
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
-	return ppmop.NewPatchPersonallyProcuredMoveCreated().WithPayload(ppmPayload)
+	return ppmop.NewPatchPersonallyProcuredMoveOK().WithPayload(ppmPayload)
 
 }
 
@@ -263,9 +263,10 @@ func (h PatchPersonallyProcuredMoveHandler) ppmNeedsEstimatesRecalculated(ppm *m
 	destination, destinationChanged, destinationOK := stringForComparison(ppm.DestinationPostalCode, destinationPtr)
 	weight, weightChanged, weightOK := int64ForComparison(ppm.WeightEstimate, weightPtr)
 	date, dateChanged, dateOK := dateForComparison(ppm.PlannedMoveDate, (*time.Time)(datePtr))
-	daysInStorage, daysChanged, daysOK := int64ForComparison(ppm.DaysInStorage, daysPtr)
+	daysInStorage, daysChanged, _ := int64ForComparison(ppm.DaysInStorage, daysPtr)
 
-	valuesOK := originOK && destinationOK && weightOK && dateOK && daysOK
+	// We don't care if daysInStorage is OK, since we just want to meet the minimum bar to recalculate
+	valuesOK := originOK && destinationOK && weightOK && dateOK
 	valuesChanged := originChanged || destinationChanged || weightChanged || dateChanged || daysChanged
 
 	needsUpdate := valuesOK && valuesChanged
@@ -341,7 +342,7 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	if ppm.HasSit != nil && *ppm.HasSit == true {
 		cwtWeight := unit.Pound(*ppm.WeightEstimate).ToCWT()
 		sitZip3 := rateengine.Zip5ToZip3(*ppm.DestinationPostalCode)
-		sitTotal, err := re.SitCharge(cwtWeight, int(*ppm.DaysInStorage), sitZip3, *ppm.PlannedMoveDate, true)
+		sitTotal, err := re.SitCharge(cwtWeight, daysInSIT, sitZip3, *ppm.PlannedMoveDate, true)
 		if err != nil {
 			return err
 		}
@@ -365,4 +366,120 @@ func (h PatchPersonallyProcuredMoveHandler) updateEstimates(ppm *models.Personal
 	ppm.IncentiveEstimateMax = &max
 
 	return nil
+}
+
+// RequestPPMPaymentHandler requests a payment for a PPM
+type RequestPPMPaymentHandler HandlerContext
+
+// Handle is the handler
+func (h RequestPPMPaymentHandler) Handle(params ppmop.RequestPPMPaymentParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	// #nosec UUID is pattern matched by swagger and will be ok
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	ppm, err := models.FetchPersonallyProcuredMove(h.db, session, ppmID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	err = ppm.RequestPayment()
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+
+	verrs, err := models.SavePersonallyProcuredMove(h.db, ppm)
+	if err != nil || verrs.HasAny() {
+		return responseForVErrors(h.logger, verrs, err)
+	}
+
+	ppmPayload, err := payloadForPPMModel(h.storage, *ppm)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	return ppmop.NewRequestPPMPaymentOK().WithPayload(ppmPayload)
+
+}
+
+func buildExpenseSummaryPayload(moveDocsExpense []models.MoveDocument) internalmessages.ExpenseSummaryPayload {
+
+	expenseSummaryPayload := internalmessages.ExpenseSummaryPayload{
+		GrandTotal: &internalmessages.ExpenseSummaryPayloadGrandTotal{
+			PaymentMethodTotals: &internalmessages.PaymentMethodsTotals{},
+		},
+		Categories: []*internalmessages.CategoryExpenseSummary{},
+	}
+
+	if len(moveDocsExpense) < 1 {
+		return expenseSummaryPayload
+	}
+
+	catMap := map[internalmessages.MovingExpenseType]*internalmessages.CategoryExpenseSummary{}
+
+	for _, moveDoc := range moveDocsExpense {
+		// First add up grand totals by payment type and grand total
+		expenseDoc := moveDoc.MovingExpenseDocument
+		amount := expenseDoc.RequestedAmountCents.Int64()
+		methodTotals := expenseSummaryPayload.GrandTotal.PaymentMethodTotals
+		switch expenseDoc.PaymentMethod {
+		case "OTHER":
+			methodTotals.OTHER += amount
+		case "GTCC":
+			methodTotals.GTCC += amount
+		}
+		expenseSummaryPayload.GrandTotal.Total += amount
+
+		// Build categories by expense type
+		expenseType := internalmessages.MovingExpenseType(string(expenseDoc.MovingExpenseType))
+		// Check if expense type exists in catMap - increment values if so
+		if CategoryExpenseSummary, ok := catMap[expenseType]; ok {
+			switch expenseDoc.PaymentMethod {
+			case "OTHER":
+				CategoryExpenseSummary.PaymentMethods.OTHER += amount
+			case "GTCC":
+				CategoryExpenseSummary.PaymentMethods.GTCC += amount
+			}
+			CategoryExpenseSummary.Total += amount
+		} else { // initialize CategoryExpenseSummary
+			var otherAmt, gtccAmt int64
+			switch expenseDoc.PaymentMethod {
+			case "OTHER":
+				otherAmt = amount
+			case "GTCC":
+				gtccAmt = amount
+			}
+			catMap[expenseType] = &internalmessages.CategoryExpenseSummary{
+				Category: expenseType,
+				Total:    amount,
+				PaymentMethods: &internalmessages.PaymentMethodsTotals{
+					OTHER: otherAmt,
+					GTCC:  gtccAmt,
+				},
+			}
+		}
+	}
+	for _, catExpenseSummary := range catMap {
+		expenseSummaryPayload.Categories = append(
+			expenseSummaryPayload.Categories, catExpenseSummary)
+	}
+	return expenseSummaryPayload
+}
+
+// RequestPPMExpenseSummaryHandler requests
+type RequestPPMExpenseSummaryHandler HandlerContext
+
+// Handle is the handler
+func (h RequestPPMExpenseSummaryHandler) Handle(params ppmop.RequestPPMExpenseSummaryParams) middleware.Responder {
+	session := auth.SessionFromRequestContext(params.HTTPRequest)
+
+	ppmID, _ := uuid.FromString(params.PersonallyProcuredMoveID.String())
+
+	// Fetch all approved expense documents for a PPM
+	moveDocsExpense, err := models.FetchApprovedMovingExpenseDocuments(h.db, session, ppmID)
+	if err != nil {
+		return responseForError(h.logger, err)
+	}
+	expenseSummaryPayload := buildExpenseSummaryPayload(moveDocsExpense)
+
+	return ppmop.NewRequestPPMExpenseSummaryOK().WithPayload(&expenseSummaryPayload)
 }

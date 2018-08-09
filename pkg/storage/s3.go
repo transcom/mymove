@@ -2,14 +2,13 @@ package storage
 
 import (
 	"io"
-	"io/ioutil"
-	"os"
 	"path"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 )
 
@@ -19,12 +18,20 @@ type S3 struct {
 	keyNamespace string
 	logger       *zap.Logger
 	client       *s3.S3
+	fs           *afero.Afero
 }
 
 // NewS3 creates a new S3 using the provided AWS session.
 func NewS3(bucket string, keyNamespace string, logger *zap.Logger, session *session.Session) *S3 {
+	var fs = afero.NewMemMapFs()
 	client := s3.New(session)
-	return &S3{bucket, keyNamespace, logger, client}
+	return &S3{
+		bucket:       bucket,
+		keyNamespace: keyNamespace,
+		logger:       logger,
+		client:       client,
+		fs:           &afero.Afero{Fs: fs},
+	}
 }
 
 // Store stores the content from an io.ReadSeeker at the specified key.
@@ -70,7 +77,7 @@ func (s *S3) Delete(key string) error {
 // path to this file is returned.
 //
 // It is the caller's responsibility to cleanup this file.
-func (s *S3) Fetch(key string) (string, error) {
+func (s *S3) Fetch(key string) (io.ReadCloser, error) {
 	namespacedKey := path.Join(s.keyNamespace, key)
 
 	input := &s3.GetObjectInput{
@@ -80,18 +87,15 @@ func (s *S3) Fetch(key string) (string, error) {
 
 	getObjectOutput, err := s.client.GetObject(input)
 	if err != nil {
-		return "", errors.Wrap(err, "get object on S3 failed")
+		return nil, errors.Wrap(err, "get object on S3 failed")
 	}
 
-	outputFile, err := ioutil.TempFile(os.TempDir(), "s3")
-	if err != nil {
-		return "", errors.WithStack(err)
-	}
-	defer outputFile.Close()
+	return getObjectOutput.Body, nil
+}
 
-	io.Copy(outputFile, getObjectOutput.Body)
-
-	return outputFile.Name(), nil
+// FileSystem returns the underlying afero filesystem
+func (s *S3) FileSystem() *afero.Afero {
+	return s.fs
 }
 
 // PresignedURL returns a URL that provides access to a file for 15 minutes.

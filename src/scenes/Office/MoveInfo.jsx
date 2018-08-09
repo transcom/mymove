@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
-import { get, capitalize } from 'lodash';
+import { get, capitalize, isEmpty } from 'lodash';
 
 import { RoutedTabs, NavTab } from 'react-router-tabs';
 import { NavLink, Switch, Redirect, Link } from 'react-router-dom';
@@ -18,7 +18,10 @@ import PaymentsPanel from './Ppm/PaymentsPanel';
 import PPMEstimatesPanel from './Ppm/PPMEstimatesPanel';
 import StorageReimbursementCalculator from './Ppm/StorageReimbursementCalculator';
 import IncentiveCalculator from './Ppm/IncentiveCalculator';
+import ExpensesPanel from './Ppm/ExpensesPanel';
 import DocumentList from 'scenes/Office/DocumentViewer/DocumentList';
+import DatesAndTrackingPanel from './Hhg/DatesAndTrackingPanel';
+import WeightAndInventoryPanel from './Hhg/WeightAndInventoryPanel';
 import { withContext } from 'shared/AppContext';
 
 import {
@@ -45,7 +48,7 @@ import faExternalLinkAlt from '@fortawesome/fontawesome-free-solid/faExternalLin
 
 const BasicsTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <OrdersPanel title="Orders" moveId={props.match.params.moveId} />
       <CustomerInfoPanel
         title="Customer Info"
@@ -59,11 +62,24 @@ const BasicsTabContent = props => {
 
 const PPMTabContent = props => {
   return (
-    <div className="basics">
+    <div className="office-tab">
       <PaymentsPanel title="Payments" moveId={props.match.params.moveId} />
+      <ExpensesPanel title="Expenses" />
       <IncentiveCalculator />
       <StorageReimbursementCalculator />
       <PPMEstimatesPanel title="Estimates" moveId={props.match.params.moveId} />
+    </div>
+  );
+};
+
+const HHGTabContent = props => {
+  return (
+    <div className="office-tab">
+      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <WeightAndInventoryPanel
+        title="Weight & Inventory"
+        moveId={props.moveId}
+      />
     </div>
   );
 };
@@ -199,11 +215,11 @@ class MoveInfo extends Component {
     const move = this.props.officeMove;
     const serviceMember = this.props.officeServiceMember;
     const ppm = this.props.officePPM;
+    const hhg = this.props.officeHHG;
     const { moveDocuments } = this.props;
     const showDocumentViewer = this.props.context.flags.documentViewer;
     let upload = get(this.props, 'officeOrders.uploaded_orders.uploads.0'); // there can be only one
     let check = <FontAwesomeIcon className="icon" icon={faCheck} />;
-
     if (
       !this.props.loadDependenciesHasSuccess &&
       !this.props.loadDependenciesHasError
@@ -255,7 +271,6 @@ class MoveInfo extends Component {
                 )}
               </li>
               <li>Locator# {move.locator}</li>
-              {/*<li className="Todo">KKFA to HAFC</li>*/}
               <li>Move date {formatDate(ppm.planned_move_date)}</li>
             </ul>
           </div>
@@ -271,10 +286,24 @@ class MoveInfo extends Component {
                   {capitalize(move.status)}
                 </span>
               </NavTab>
-              <NavTab to="/ppm">
-                <span className="title">PPM</span>
-                {this.renderPPMTabStatus()}
-              </NavTab>
+              {!isEmpty(ppm) && (
+                <NavTab to="/ppm">
+                  <span className="title">PPM</span>
+                  {this.renderPPMTabStatus()}
+                </NavTab>
+              )}
+              {!isEmpty(hhg) && (
+                <NavTab to="/hhg">
+                  <span className="title">HHG</span>
+                  <span className="status">
+                    <FontAwesomeIcon
+                      className="icon approval-waiting"
+                      icon={faClock}
+                    />
+                    Placeholder Status
+                  </span>
+                </NavTab>
+              )}
             </RoutedTabs>
 
             <div className="tab-content">
@@ -290,10 +319,18 @@ class MoveInfo extends Component {
                   path={`${this.props.match.path}/basics`}
                   component={BasicsTabContent}
                 />
+                !isEmpty(ppm) &&
                 <PrivateRoute
                   path={`${this.props.match.path}/ppm`}
                   component={PPMTabContent}
                 />
+                !isEmpty(hhg) &&
+                <PrivateRoute path={`${this.props.match.path}/hhg`}>
+                  <HHGTabContent
+                    officeHHG={JSON.stringify(this.props.officeHHG)}
+                    moveId={this.props.match.params.moveId}
+                  />
+                </PrivateRoute>
               </Switch>
             </div>
           </div>
@@ -398,6 +435,7 @@ const mapStateToProps = state => ({
   officeServiceMember: get(state, 'office.officeServiceMember', {}),
   officeBackupContacts: get(state, 'office.officeBackupContacts', []),
   officePPM: get(state, 'office.officePPMs.0', {}),
+  officeHHG: get(state, 'office.officeMove.shipments.0', {}),
   ppmAdvance: get(state, 'office.officePPMs.0.advance', {}),
   moveDocuments: selectAllDocumentsForMove(
     state,

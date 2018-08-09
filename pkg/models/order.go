@@ -113,13 +113,14 @@ func (o *Order) Cancel() error {
 	return nil
 }
 
-// FetchOrder returns orders only if it is allowed for the given user to access those orders.
-func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
+// FetchOrderForUser returns orders only if it is allowed for the given user to access those orders.
+func FetchOrderForUser(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order, error) {
 	var order Order
 	err := db.Q().Eager("ServiceMember.User",
 		"NewDutyStation.Address",
 		"UploadedOrders.Uploads",
 		"Moves.PersonallyProcuredMoves",
+		"Moves.Shipments",
 		"Moves.SignedCertifications").Find(&order, id)
 	if err != nil {
 		if errors.Cause(err).Error() == recordNotFoundErrorString {
@@ -131,6 +132,20 @@ func FetchOrder(db *pop.Connection, session *auth.Session, id uuid.UUID) (Order,
 	// TODO: Handle case where more than one user is authorized to modify orders
 	if session.IsMyApp() && order.ServiceMember.ID != session.ServiceMemberID {
 		return Order{}, ErrFetchForbidden
+	}
+	return order, nil
+}
+
+// FetchOrder returns orders
+func FetchOrder(db *pop.Connection, id uuid.UUID) (Order, error) {
+	var order Order
+	err := db.Q().Find(&order, id)
+	if err != nil {
+		if errors.Cause(err).Error() == recordNotFoundErrorString {
+			return Order{}, ErrFetchNotFound
+		}
+		// Otherwise, it's an unexpected err so we return that.
+		return Order{}, err
 	}
 
 	return order, nil

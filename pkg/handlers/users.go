@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"github.com/go-openapi/runtime/middleware"
+	"github.com/pkg/errors"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -15,7 +16,6 @@ type ShowLoggedInUserHandler HandlerContext
 
 // Handle returns the logged in user
 func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) middleware.Responder {
-
 	session := auth.SessionFromRequestContext(params.HTTPRequest)
 
 	if !session.IsServiceMember() {
@@ -38,26 +38,42 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
+		serviceMember.DutyStation = dutyStation
+
 		// Fetch duty station transportation office
 		transportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, *serviceMember.DutyStationID)
 		if err != nil {
-			return responseForError(h.logger, err)
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				// The absence of an office shouldn't render the entire request a 404
+				return responseForError(h.logger, err)
+			}
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				return responseForError(h.logger, err)
+			}
 		}
-		serviceMember.DutyStation = dutyStation
 		serviceMember.DutyStation.TransportationOffice = transportationOffice
 	}
 
 	// Load the latest orders associations and new duty station transport office
 	if len(serviceMember.Orders) > 0 {
-		orders, err := models.FetchOrder(h.db, session, serviceMember.Orders[0].ID)
-		if err != nil {
-			return responseForError(h.logger, err)
-		}
-		newDutyStationTransportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, orders.NewDutyStationID)
+		orders, err := models.FetchOrderForUser(h.db, session, serviceMember.Orders[0].ID)
 		if err != nil {
 			return responseForError(h.logger, err)
 		}
 		serviceMember.Orders[0] = orders
+
+		newDutyStationTransportationOffice, err := models.FetchDutyStationTransportationOffice(h.db, orders.NewDutyStationID)
+		if err != nil {
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				// The absence of an office shouldn't render the entire request a 404
+				return responseForError(h.logger, err)
+			}
+			// We might not have Transportation Office data for a Duty Station, and that's ok
+			if errors.Cause(err) != models.ErrFetchNotFound {
+				return responseForError(h.logger, err)
+			}
+		}
 		serviceMember.Orders[0].NewDutyStation.TransportationOffice = newDutyStationTransportationOffice
 
 		// Load associations on PPM if they exist
@@ -78,5 +94,4 @@ func (h ShowLoggedInUserHandler) Handle(params userop.ShowLoggedInUserParams) mi
 		ServiceMember: payloadForServiceMemberModel(h.storage, serviceMember),
 	}
 	return userop.NewShowLoggedInUserOK().WithPayload(&userPayload)
-
 }

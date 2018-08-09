@@ -1,25 +1,30 @@
-import {get, uniqueId} from 'lodash';
+import { get, uniqueId } from 'lodash';
 import Swagger from 'swagger-client';
 
 import store from 'shared/store';
 
 let client = null;
+let publicClient = null;
 
 window.request = function(label, opName, params) {
   const operation = get(client, 'apis.' + opName);
 
   if (!operation) {
-    throw(new Error(`Operation '${opName}' does not exist!`));
+    throw new Error(`Operation '${opName}' does not exist!`);
   }
 
   const id = uniqueId('req_');
 
-  store.dispatch({type: `@@swagger/${opName}/START`, label, id});
+  store.dispatch({ type: `@@swagger/${opName}/START`, label, id });
 
   return operation(params)
-    .then(payload => store.dispatch({type: `@@swagger/${opName}/SUCCESS`, id, payload}))
-    .catch(error => store.dispatch({type: `@@swagger/${opName}/FAILURE`, id, error}));
-}
+    .then(payload =>
+      store.dispatch({ type: `@@swagger/${opName}/SUCCESS`, id, payload }),
+    )
+    .catch(error =>
+      store.dispatch({ type: `@@swagger/${opName}/FAILURE`, id, error }),
+    );
+};
 
 export async function getClient() {
   if (!client) {
@@ -27,10 +32,17 @@ export async function getClient() {
       url: '/internal/swagger.yaml',
       requestInterceptor: req => {
         console.debug(req);
-      }
+      },
     });
   }
   return client;
+}
+
+export async function getPublicClient() {
+  if (!publicClient) {
+    publicClient = await Swagger('/api/v1/swagger.yaml');
+  }
+  return publicClient;
 }
 
 export function checkResponse(response, errorMessage) {

@@ -1,17 +1,16 @@
 package paperwork
 
 import (
-	"io/ioutil"
-	"os"
+	"io"
 	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/pop"
-	"github.com/gobuffalo/uuid"
-	"github.com/hhrutter/pdfcpu/pkg/api"
-	"github.com/hhrutter/pdfcpu/pkg/pdfcpu"
 	"github.com/jung-kurt/gofpdf"
+	"github.com/pjdufour-truss/pdfcpu/pkg/api"
+	"github.com/pjdufour-truss/pdfcpu/pkg/pdfcpu"
 	"github.com/pkg/errors"
+	"github.com/spf13/afero"
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/models"
@@ -29,24 +28,33 @@ const (
 
 // Generator encapsulates the prerequisites for PDF generation.
 type Generator struct {
-	db       *pop.Connection
-	logger   *zap.Logger
-	uploader *uploader.Uploader
-	workDir  string
+	db        *pop.Connection
+	fs        *afero.Afero
+	logger    *zap.Logger
+	uploader  *uploader.Uploader
+	pdfConfig *pdfcpu.Configuration
+	workDir   string
 }
 
 // NewGenerator creates a new Generator.
 func NewGenerator(db *pop.Connection, logger *zap.Logger, uploader *uploader.Uploader) (*Generator, error) {
-	directory, err := ioutil.TempDir("", "generator")
+	afs := uploader.Storer.FileSystem()
+
+	pdfConfig := pdfcpu.NewInMemoryConfiguration()
+	pdfConfig.FileSystem = afs.Fs
+
+	directory, err := afs.TempDir("", "generator")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 
 	return &Generator{
-		db:       db,
-		logger:   logger,
-		uploader: uploader,
-		workDir:  directory,
+		db:        db,
+		fs:        afs,
+		logger:    logger,
+		uploader:  uploader,
+		pdfConfig: pdfConfig,
+		workDir:   directory,
 	}, nil
 }
 
@@ -55,46 +63,69 @@ type inputFile struct {
 	ContentType string
 }
 
-func (g *Generator) newTempFile() (*os.File, error) {
-	outputFile, err := ioutil.TempFile(g.workDir, "temp")
+func (g *Generator) newTempFile() (afero.File, error) {
+	outputFile, err := g.fs.TempFile(g.workDir, "temp")
 	if err != nil {
 		return nil, errors.WithStack(err)
 	}
 	return outputFile, nil
 }
 
-// GenerateOrderPDF returns a slice of paths to PDF files that represent all files
-// uploaded for Orders.
-func (g *Generator) GenerateOrderPDF(orderID uuid.UUID) ([]string, error) {
-	order, err := models.FetchOrderForPDFConversion(g.db, orderID)
+// CreateMergedPDFUpload converts Uploads to PDF and merges them into a single PDF
+func (g *Generator) CreateMergedPDFUpload(uploads models.Uploads) (afero.File, error) {
+	pdfs, err := g.ConvertUploadsToPDF(uploads)
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "Error while converting uploads")
 	}
 
+	mergedPdf, err := g.MergePDFFiles(pdfs)
+	if err != nil {
+		return nil, errors.Wrap(err, "Error while merging PDFs")
+	}
+
+	return mergedPdf, err
+}
+
+// ConvertUploadsToPDF turns a slice of Uploads into a slice of paths to converted PDF files
+func (g *Generator) ConvertUploadsToPDF(uploads models.Uploads) ([]string, error) {
 	// tempfile paths to be returned
 	pdfs := make([]string, 0)
 
 	// path for each image once downloaded
 	images := make([]inputFile, 0)
 
-	for _, upload := range order.UploadedOrders.Uploads {
+	for _, upload := range uploads {
 		if upload.ContentType == "application/pdf" {
 			if len(images) > 0 {
 				// We want to retain page order and will generate a PDF for images
 				// that have already been encountered before handling this PDF.
-				pdf, err := g.pdfFromImages(images)
+				pdf, err := g.PDFFromImages(images)
 				if err != nil {
-					return nil, err
+					return nil, errors.Wrap(err, "Converting images")
 				}
 				pdfs = append(pdfs, pdf)
 				images = make([]inputFile, 0)
 			}
 		}
 
-		path, err := g.uploader.Download(&upload)
+		download, err := g.uploader.Download(&upload)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Downloading file from upload")
 		}
+		defer download.Close()
+
+		outputFile, err := g.newTempFile()
+		if err != nil {
+			return nil, errors.Wrap(err, "Creating temp file")
+		}
+
+		_, err = io.Copy(outputFile, download)
+		if err != nil {
+			return nil, errors.Wrap(err, "Copying to afero file")
+		}
+
+		path := outputFile.Name()
+
 		if upload.ContentType == "application/pdf" {
 			pdfs = append(pdfs, path)
 		} else {
@@ -102,14 +133,22 @@ func (g *Generator) GenerateOrderPDF(orderID uuid.UUID) ([]string, error) {
 		}
 	}
 
-	// Merge all images in urls into a new PDF
+	// Merge all remaining images in urls into a new PDF
 	if len(images) > 0 {
-		pdf, err := g.pdfFromImages(images)
+		pdf, err := g.PDFFromImages(images)
 		if err != nil {
-			return nil, err
+			return nil, errors.Wrap(err, "Converting remaining images to pdf")
 		}
 		pdfs = append(pdfs, pdf)
 	}
+
+	for _, f := range pdfs {
+		err := api.Validate(f, g.pdfConfig)
+		if err != nil {
+			return nil, errors.Wrap(err, "Validating pdfs")
+		}
+	}
+
 	return pdfs, nil
 }
 
@@ -119,12 +158,12 @@ var contentTypeToImageType = map[string]string{
 	"image/png":  "PNG",
 }
 
-// pdfFromImages returns the path to tempfile PDF containing all images included
+// PDFFromImages returns the path to tempfile PDF containing all images included
 // in urls.
 //
 // The files at those paths will be tempfiles that will need to be cleaned
 // up by the caller.
-func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
+func (g *Generator) PDFFromImages(images []inputFile) (string, error) {
 	horizontalMargin := 0.0
 	topMargin := 0.0
 	bodyWidth := PdfPageWidth - (horizontalMargin * 2)
@@ -146,65 +185,37 @@ func (g *Generator) pdfFromImages(images []inputFile) (string, error) {
 	var opt gofpdf.ImageOptions
 	for _, image := range images {
 		pdf.AddPage()
+		file, _ := g.fs.Open(image.Path)
+		// Need to register the image using an afero reader, else it uses default filesystem
+		pdf.RegisterImageReader(image.Path, contentTypeToImageType[image.ContentType], file)
 		opt.ImageType = contentTypeToImageType[image.ContentType]
 		pdf.ImageOptions(image.Path, horizontalMargin, topMargin, bodyWidth, 0, false, opt, 0, "")
 	}
 
-	if err = pdf.OutputAndClose(outputFile); err != nil {
+	if err = pdf.OutputAndClose(outputFile.(afero.File)); err != nil {
 		return "", errors.Wrap(err, "could not write PDF to outputfile")
 	}
 	return outputFile.Name(), nil
 }
 
-// GenerateAdvancePaperwork generates the advance paperwork for a move.
-// Outputs to a tempfile
-func (g *Generator) GenerateAdvancePaperwork(moveID uuid.UUID, build string) (string, error) {
-	move, err := models.FetchMoveForAdvancePaperwork(g.db, moveID)
-	if err != nil {
-		return "", err
-	}
-
-	summary := NewShipmentSummary(&move)
-	outfile, err := g.newTempFile()
-	if err != nil {
-		return "", err
-	}
-	if err := summary.DrawForm(outfile); err != nil {
-		return "", err
-	}
-	outfile.Close()
-
-	generatedPath := outfile.Name()
-	ordersPaths, err := g.GenerateOrderPDF(move.OrdersID)
-	if err != nil {
-		return "", err
-	}
-
+// MergePDFFiles Merges a slice of paths to PDF files into a single PDF
+func (g *Generator) MergePDFFiles(paths []string) (afero.File, error) {
 	mergedFile, err := g.newTempFile()
 	if err != nil {
-		return "", err
+		return mergedFile, err
 	}
 
-	var inputFiles []string
-	g.logger.Debug("adding orders and shipment summary to packet", zap.Any("inputFiles", inputFiles))
-	inputFiles = append(ordersPaths, generatedPath)
-
-	for _, ppm := range move.PersonallyProcuredMoves {
-		if ppm.Advance != nil && ppm.Advance.MethodOfReceipt == models.MethodOfReceiptOTHERDD {
-			g.logger.Debug("adding direct deposit form to packet", zap.Any("inputFiles", inputFiles))
-			ddFormPath := filepath.Join(build, "/downloads/direct_deposit_form.pdf")
-			inputFiles = append(inputFiles, ddFormPath)
-			break
-		}
+	if err = api.Merge(paths, mergedFile.Name(), g.pdfConfig); err != nil {
+		return mergedFile, err
 	}
 
-	config := pdfcpu.NewDefaultConfiguration()
-	if err = api.Merge(inputFiles, mergedFile.Name(), config); err != nil {
-		return "", err
+	// Reload the file from memstore
+	mergedFile, err = g.fs.Open(mergedFile.Name())
+	if err != nil {
+		return mergedFile, err
 	}
 
-	return mergedFile.Name(), nil
-
+	return mergedFile, nil
 }
 
 // MergeImagesToPDF creates a PDF containing the images at the specified paths.
@@ -224,5 +235,5 @@ func (g *Generator) MergeImagesToPDF(paths []string) (string, error) {
 		})
 	}
 
-	return g.pdfFromImages(images)
+	return g.PDFFromImages(images)
 }

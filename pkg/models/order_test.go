@@ -26,7 +26,7 @@ func (suite *ModelSuite) TestBasicOrderInstantiation() {
 	suite.verifyValidationErrors(order, expErrors)
 }
 
-func (suite *ModelSuite) TestFetchOrder() {
+func (suite *ModelSuite) TestFetchOrderForUser() {
 
 	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
 	serviceMember2 := testdatagen.MakeDefaultServiceMember(suite.db)
@@ -68,7 +68,7 @@ func (suite *ModelSuite) TestFetchOrder() {
 		UserID:          serviceMember1.UserID,
 		ServiceMemberID: serviceMember1.ID,
 	}
-	goodOrder, err := FetchOrder(suite.db, session, order.ID)
+	goodOrder, err := FetchOrderForUser(suite.db, session, order.ID)
 	if suite.NoError(err) {
 		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
 		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
@@ -80,18 +80,64 @@ func (suite *ModelSuite) TestFetchOrder() {
 
 	// Wrong Order ID
 	wrongID, _ := uuid.NewV4()
-	_, err = FetchOrder(suite.db, session, wrongID)
+	_, err = FetchOrderForUser(suite.db, session, wrongID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchNotFound, err)
 	}
 	// User is forbidden from fetching order
 	session.UserID = serviceMember2.UserID
 	session.ServiceMemberID = serviceMember2.ID
-	_, err = FetchOrder(suite.db, session, order.ID)
+	_, err = FetchOrderForUser(suite.db, session, order.ID)
 	if suite.Error(err) {
 		suite.Equal(ErrFetchForbidden, err)
 	}
+}
 
+func (suite *ModelSuite) TestFetchOrderNotForUser() {
+
+	serviceMember1 := testdatagen.MakeDefaultServiceMember(suite.db)
+
+	dutyStation := testdatagen.MakeDefaultDutyStation(suite.db)
+	issueDate := time.Date(2018, time.March, 10, 0, 0, 0, 0, time.UTC)
+	reportByDate := time.Date(2018, time.August, 1, 0, 0, 0, 0, time.UTC)
+	ordersType := internalmessages.OrdersTypePERMANENTCHANGEOFSTATION
+	hasDependents := true
+	spouseHasProGear := true
+	uploadedOrder := Document{
+		ServiceMember:   serviceMember1,
+		ServiceMemberID: serviceMember1.ID,
+	}
+	deptIndicator := testdatagen.DefaultDepartmentIndicator
+	TAC := testdatagen.DefaultTransportationAccountingCode
+	suite.mustSave(&uploadedOrder)
+	order := Order{
+		ServiceMemberID:     serviceMember1.ID,
+		ServiceMember:       serviceMember1,
+		IssueDate:           issueDate,
+		ReportByDate:        reportByDate,
+		OrdersType:          ordersType,
+		HasDependents:       hasDependents,
+		SpouseHasProGear:    spouseHasProGear,
+		NewDutyStationID:    dutyStation.ID,
+		NewDutyStation:      dutyStation,
+		UploadedOrdersID:    uploadedOrder.ID,
+		UploadedOrders:      uploadedOrder,
+		Status:              OrderStatusSUBMITTED,
+		TAC:                 &TAC,
+		DepartmentIndicator: &deptIndicator,
+	}
+	suite.mustSave(&order)
+
+	// No session
+	goodOrder, err := FetchOrder(suite.db, order.ID)
+	if suite.NoError(err) {
+		suite.True(order.IssueDate.Equal(goodOrder.IssueDate))
+		suite.True(order.ReportByDate.Equal(goodOrder.ReportByDate))
+		suite.Equal(order.OrdersType, goodOrder.OrdersType)
+		suite.Equal(order.HasDependents, goodOrder.HasDependents)
+		suite.Equal(order.SpouseHasProGear, goodOrder.SpouseHasProGear)
+		suite.Equal(order.NewDutyStationID, goodOrder.NewDutyStationID)
+	}
 }
 
 func (suite *ModelSuite) TestOrderStateMachine() {

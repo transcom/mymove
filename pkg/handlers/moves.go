@@ -7,12 +7,19 @@ import (
 	"go.uber.org/zap"
 
 	"github.com/transcom/mymove/pkg/auth"
+	"github.com/transcom/mymove/pkg/gen/apimessages"
 	moveop "github.com/transcom/mymove/pkg/gen/internalapi/internaloperations/moves"
 	"github.com/transcom/mymove/pkg/gen/internalmessages"
 	"github.com/transcom/mymove/pkg/models"
 	"github.com/transcom/mymove/pkg/notifications"
 	"github.com/transcom/mymove/pkg/storage"
 )
+
+/*
+ * --------------------------------------------
+ * The code below is for the INTERNAL REST API.
+ * --------------------------------------------
+ */
 
 func payloadForMoveModel(storer storage.FileStorer, order models.Order, move models.Move) (*internalmessages.MovePayload, error) {
 
@@ -25,15 +32,27 @@ func payloadForMoveModel(storer storage.FileStorer, order models.Order, move mod
 		ppmPayloads = append(ppmPayloads, payload)
 	}
 
+	var SelectedMoveType internalmessages.SelectedMoveType
+	if move.SelectedMoveType != nil {
+		SelectedMoveType = internalmessages.SelectedMoveType(*move.SelectedMoveType)
+	}
+
+	var shipmentPayloads []*internalmessages.Shipment
+	for _, shipment := range move.Shipments {
+		payload := payloadForShipmentModel(shipment)
+		shipmentPayloads = append(shipmentPayloads, payload)
+	}
+
 	movePayload := &internalmessages.MovePayload{
 		CreatedAt:               fmtDateTime(move.CreatedAt),
-		SelectedMoveType:        move.SelectedMoveType,
+		SelectedMoveType:        &SelectedMoveType,
 		Locator:                 swag.String(move.Locator),
 		ID:                      fmtUUID(move.ID),
 		UpdatedAt:               fmtDateTime(move.UpdatedAt),
 		PersonallyProcuredMoves: ppmPayloads,
 		OrdersID:                fmtUUID(order.ID),
 		Status:                  internalmessages.MoveStatus(move.Status),
+		Shipments:               shipmentPayloads,
 	}
 	return movePayload, nil
 }
@@ -47,7 +66,7 @@ func (h CreateMoveHandler) Handle(params moveop.CreateMoveParams) middleware.Res
 	/* #nosec UUID is pattern matched by swagger which checks the format */
 	ordersID, _ := uuid.FromString(params.OrdersID.String())
 
-	orders, err := models.FetchOrder(h.db, session, ordersID)
+	orders, err := models.FetchOrderForUser(h.db, session, ordersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -82,7 +101,7 @@ func (h ShowMoveHandler) Handle(params moveop.ShowMoveParams) middleware.Respond
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -109,7 +128,7 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 		return responseForError(h.logger, err)
 	}
 	// Fetch orders for authorized user
-	orders, err := models.FetchOrder(h.db, session, move.OrdersID)
+	orders, err := models.FetchOrderForUser(h.db, session, move.OrdersID)
 	if err != nil {
 		return responseForError(h.logger, err)
 	}
@@ -117,7 +136,11 @@ func (h PatchMoveHandler) Handle(params moveop.PatchMoveParams) middleware.Respo
 	newSelectedMoveType := payload.SelectedMoveType
 
 	if newSelectedMoveType != nil {
-		move.SelectedMoveType = newSelectedMoveType
+		stringSelectedMoveType := ""
+		if newSelectedMoveType != nil {
+			stringSelectedMoveType = string(*newSelectedMoveType)
+			move.SelectedMoveType = &stringSelectedMoveType
+		}
 	}
 
 	verrs, err := h.db.ValidateAndUpdate(move)
@@ -153,7 +176,7 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 	}
 
 	// Transaction to save move and dependencies
-	verrs, err := models.SaveMoveStatuses(h.db, move)
+	verrs, err := models.SaveMoveDependencies(h.db, move)
 	if err != nil || verrs.HasAny() {
 		return responseForVErrors(h.logger, verrs, err)
 	}
@@ -171,4 +194,33 @@ func (h SubmitMoveHandler) Handle(params moveop.SubmitMoveForApprovalParams) mid
 		return responseForError(h.logger, err)
 	}
 	return moveop.NewSubmitMoveForApprovalOK().WithPayload(movePayload)
+}
+
+/*
+ * ------------------------------------------
+ * The code below is for the PUBLIC REST API.
+ * ------------------------------------------
+ */
+
+func publicPayloadForMoveModel(move *models.Move) *apimessages.Move {
+	if move == nil {
+		return nil
+	}
+
+	var SelectedMoveType = apimessages.SelectedMoveTypeHHG
+	if move.SelectedMoveType != nil {
+		SelectedMoveType = apimessages.SelectedMoveType(*move.SelectedMoveType)
+	}
+
+	cancelReason := ""
+	if move.CancelReason != nil {
+		cancelReason = *move.CancelReason
+	}
+	return &apimessages.Move{
+		SelectedMoveType: &SelectedMoveType,
+		OrdersID:         fmtUUID(move.OrdersID),
+		Status:           apimessages.MoveStatus(move.Status),
+		Locator:          swag.String(move.Locator),
+		CancelReason:     swag.String(cancelReason),
+	}
 }

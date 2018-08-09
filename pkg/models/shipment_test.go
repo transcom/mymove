@@ -47,8 +47,8 @@ func (suite *ModelSuite) Test_FetchAllShipments() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, false)
@@ -73,8 +73,8 @@ func (suite *ModelSuite) Test_FetchUnassignedShipments() {
 		testdatagen.DefaultCOS)
 	market := "dHHG"
 	sourceGBLOC := "OHAI"
-	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
-	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market)
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
+	shipment2, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
 	tsp, _ := testdatagen.MakeTSP(suite.db, testdatagen.RandomSCAC())
 	CreateShipmentOffer(suite.db, shipment.ID, tsp.ID, false)
 	shipments, err := FetchShipments(suite.db, true)

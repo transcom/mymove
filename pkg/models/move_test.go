@@ -1,6 +1,8 @@
 package models_test
 
 import (
+	"time"
+
 	"github.com/gobuffalo/uuid"
 
 	"github.com/transcom/mymove/pkg/auth"
@@ -122,8 +124,6 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	suite.Nil(err)
 	suite.False(verrs.HasAny())
 
-	ppm.Status = PPMStatusSUBMITTED // NEVER do this outside of a test.
-
 	// Associate PPM with the move it's on.
 	move.PersonallyProcuredMoves = append(move.PersonallyProcuredMoves, *ppm)
 	err = move.Submit()
@@ -140,7 +140,7 @@ func (suite *ModelSuite) TestCancelMoveCancelsOrdersPPM() {
 	suite.Equal(OrderStatusCANCELED, move.Orders.Status, "expected Canceled")
 }
 
-func (suite *ModelSuite) TestSaveMoveStatusesFail() {
+func (suite *ModelSuite) TestSaveMoveDependenciesFail() {
 	// Given: A move with Orders with unacceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = ""
@@ -152,11 +152,11 @@ func (suite *ModelSuite) TestSaveMoveStatusesFail() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveStatuses(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.db, move)
 	suite.True(verrs.HasAny(), "saving invalid statuses should yield an error")
 }
 
-func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
+func (suite *ModelSuite) TestSaveMoveDependenciesSuccess() {
 	// Given: A move with Orders with acceptable status
 	orders := testdatagen.MakeDefaultOrder(suite.db)
 	orders.Status = OrderStatusSUBMITTED
@@ -168,7 +168,44 @@ func (suite *ModelSuite) TestSaveMoveStatusesSuccess() {
 	suite.False(verrs.HasAny(), "failed to validate move")
 	move.Orders = orders
 
-	verrs, err = SaveMoveStatuses(suite.db, move)
+	verrs, err = SaveMoveDependencies(suite.db, move)
 	suite.False(verrs.HasAny(), "failed to save valid statuses")
 	suite.Nil(err)
+}
+
+func (suite *ModelSuite) TestSaveMoveDependenciesSetsGBLOCSuccess() {
+	// Given: A shipment's move with orders in acceptable status
+	now := time.Now()
+	tdl, _ := testdatagen.MakeTDL(
+		suite.db,
+		testdatagen.DefaultSrcRateArea,
+		testdatagen.DefaultDstRegion,
+		testdatagen.DefaultCOS)
+	market := "dHHG"
+	sourceGBLOC := "BMLK"
+	shipment, _ := testdatagen.MakeShipment(suite.db, now, now, now.AddDate(0, 0, 1), tdl, sourceGBLOC, &market, nil, nil)
+
+	orders := testdatagen.MakeDefaultOrder(suite.db)
+	orders.Status = OrderStatusSUBMITTED
+
+	var selectedType = internalmessages.SelectedMoveTypeCOMBO
+
+	move, verrs, err := orders.CreateNewMove(suite.db, &selectedType)
+	suite.Nil(err)
+	suite.False(verrs.HasAny(), "failed to validate move")
+	shipment.Move = move
+
+	// Associate Shipment with the move it's on.
+	move.Shipments = append(move.Shipments, shipment)
+	move.Orders = orders
+	// And: Move is in SUBMITTED state
+	move.Status = MoveStatusSUBMITTED
+	verrs, err = SaveMoveDependencies(suite.db, move)
+	suite.False(verrs.HasAny(), "failed to save valid statuses")
+	suite.Nil(err)
+	suite.db.Reload(&shipment)
+
+	// Then: Shipment dest. GBLOC will be equal to orders' new duty station's trans. office's GBLOC
+	destGBLOC := shipment.DestinationGBLOC
+	suite.Assertions.Equal(orders.NewDutyStation.TransportationOffice.Gbloc, *destGBLOC)
 }

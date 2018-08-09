@@ -8,8 +8,11 @@ import PropTypes from 'prop-types';
 
 import Alert from 'shared/Alert';
 import { createMoveDocument } from 'shared/Entities/modules/moveDocuments';
+import { createMovingExpenseDocument } from 'shared/Entities/modules/movingExpenseDocuments';
 import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import Uploader from 'shared/Uploader';
+import ExpenseDocumentForm from './ExpenseDocumentForm';
+import { convertDollarsToCents } from 'shared/utils';
 
 import './DocumentUploader.css';
 
@@ -31,29 +34,56 @@ export class DocumentUploader extends Component {
   }
 
   onSubmit() {
-    const { formValues, moveId, reset } = this.props;
+    const { formValues, currentPpm, moveId, reset } = this.props;
     const uploadIds = map(this.state.newUploads, 'id');
     this.setState({
       moveDocumentCreateError: null,
     });
-    this.props
-      .createMoveDocument(
-        moveId,
-        uploadIds,
-        formValues.title,
-        formValues.move_document_type,
-        'AWAITING_REVIEW',
-        formValues.notes,
-      )
-      .then(() => {
-        reset();
-        this.uploader.clearFiles();
-      })
-      .catch(err => {
-        this.setState({
-          moveDocumentCreateError: err,
+    if (get(formValues, 'move_document_type', false) === 'EXPENSE') {
+      formValues.requested_amount_cents = convertDollarsToCents(
+        formValues.requested_amount_cents,
+      );
+      this.props
+        .createMovingExpenseDocument(
+          moveId,
+          currentPpm.id,
+          uploadIds,
+          formValues.title,
+          formValues.moving_expense_type,
+          formValues.move_document_type,
+          formValues.requested_amount_cents,
+          formValues.payment_method,
+          formValues.notes,
+        )
+        .then(() => {
+          reset();
+          this.uploader.clearFiles();
+        })
+        .catch(err => {
+          this.setState({
+            moveDocumentCreateError: err,
+          });
         });
-      });
+    } else {
+      this.props
+        .createMoveDocument(
+          moveId,
+          currentPpm.id,
+          uploadIds,
+          formValues.title,
+          formValues.move_document_type,
+          formValues.notes,
+        )
+        .then(() => {
+          reset();
+          this.uploader.clearFiles();
+        })
+        .catch(err => {
+          this.setState({
+            moveDocumentCreateError: err,
+          });
+        });
+    }
     //todo: we don't want to do this until the details view is working,
     // we may not want to do it at all if users are going to upload several documents at a time
     // .then(response => {
@@ -78,7 +108,14 @@ export class DocumentUploader extends Component {
   }
 
   render() {
-    const { handleSubmit, schema, formValues } = this.props;
+    const {
+      handleSubmit,
+      moveDocSchema,
+      genericMoveDocSchema,
+      formValues,
+    } = this.props;
+    const isExpenseDocument =
+      get(this.props, 'formValues.move_document_type', false) === 'EXPENSE';
     const hasFormFilled = formValues && formValues.move_document_type;
     const hasFiles = this.state.newUploads.length;
     const isValid = hasFormFilled && hasFiles && this.state.uploaderIsIdle;
@@ -96,31 +133,39 @@ export class DocumentUploader extends Component {
         <form onSubmit={handleSubmit(this.onSubmit)}>
           <h3>Upload a new document</h3>
           <SwaggerField
-            title="Title"
-            fieldName="title"
-            swagger={schema}
-            required
-          />
-          <SwaggerField
             title="Document type"
             fieldName="move_document_type"
-            swagger={schema}
+            swagger={genericMoveDocSchema}
             required
           />
-          <SwaggerField title="Notes" fieldName="notes" swagger={schema} />
-          <div>
-            <h4>Attach PDF or image</h4>
-            <p>
-              Upload a PDF or take a picture of each page and upload the images.
-            </p>
-            <div className="uploader-box">
-              <Uploader
-                onRef={ref => (this.uploader = ref)}
-                onChange={this.onChange}
-                onAddFile={this.onAddFile}
-              />
-              <div className="hint">(Each page must be clear and legible)</div>
+          <div className="uploader-box">
+            <SwaggerField
+              title="Document title"
+              fieldName="title"
+              swagger={genericMoveDocSchema}
+              required
+            />
+            {isExpenseDocument && (
+              <ExpenseDocumentForm moveDocSchema={moveDocSchema} />
+            )}
+            <SwaggerField
+              title="Notes"
+              fieldName="notes"
+              swagger={genericMoveDocSchema}
+            />
+            <div>
+              <h4>Attach PDF or image</h4>
+              <p>
+                Upload a PDF or take a picture of each page and upload the
+                images.
+              </p>
             </div>
+            <Uploader
+              onRef={ref => (this.uploader = ref)}
+              onChange={this.onChange}
+              onAddFile={this.onAddFile}
+            />
+            <div className="hint">(Each page must be clear and legible)</div>
           </div>
           <button className="submit" disabled={!isValid}>
             Save
@@ -142,12 +187,19 @@ DocumentUploader.propTypes = {
 function mapStateToProps(state) {
   const props = {
     formValues: getFormValues(moveDocumentFormName)(state),
-    schema: get(
+    genericMoveDocSchema: get(
       state,
-      'swagger.spec.definitions.CreateMoveDocumentPayload',
+      'swagger.spec.definitions.CreateGenericMoveDocumentPayload',
+      {},
+    ),
+    moveDocSchema: get(
+      state,
+      'swagger.spec.definitions.MoveDocumentPayload',
       {},
     ),
     moveDocumentCreateError: state.office.moveDocumentCreateError,
+    currentPpm:
+      get(state.office, 'officePPMs.0') || get(state, 'ppm.currentPpm'),
   };
   return props;
 }
@@ -156,6 +208,7 @@ function mapDispatchToProps(dispatch) {
   return bindActionCreators(
     {
       createMoveDocument,
+      createMovingExpenseDocument,
       push,
     },
     dispatch,

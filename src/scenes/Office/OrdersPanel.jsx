@@ -42,9 +42,7 @@ function renderEntitlements(entitlements, orders) {
           {get(entitlements, 'pro_gear_spouse', '').toLocaleString()} lbs
         </PanelField>
       )}
-      <PanelField className="Todo" title="Short-term storage">
-        90 days
-      </PanelField>
+      <PanelField title="Short-term storage">90 days</PanelField>
     </React.Fragment>
   );
 }
@@ -162,7 +160,11 @@ const OrdersEdit = props => {
 const formName = 'office_move_info_orders';
 
 let OrdersPanel = editablePanel(OrdersDisplay, OrdersEdit);
-OrdersPanel = reduxForm({ form: formName })(OrdersPanel);
+OrdersPanel = reduxForm({
+  form: formName,
+  enableReinitialize: true,
+  keepDirtyOnReinitialize: true,
+})(OrdersPanel);
 
 function mapStateToProps(state) {
   let formValues = getFormValues(formName)(state);

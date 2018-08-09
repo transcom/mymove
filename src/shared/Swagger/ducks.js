@@ -1,6 +1,6 @@
 import * as helpers from 'shared/ReduxHelpers';
-import { GetSpec } from './api';
-import {last, startsWith } from 'lodash';
+import { GetSpec, GetPublicSpec } from './api';
+import { last, startsWith } from 'lodash';
 
 const resource = 'SWAGGER';
 
@@ -8,14 +8,19 @@ export const actionsTypes = helpers.generateAsyncActionTypes(resource);
 
 export const loadSchema = helpers.generateAsyncActionCreator(resource, GetSpec);
 
+export const loadPublicSchema = helpers.generateAsyncActionCreator(
+  resource,
+  GetPublicSpec,
+);
+
 export default helpers.generateAsyncReducer(resource, v => ({ spec: v }));
 
 const initialState = {
-  requests: {}
+  requests: {},
 };
 
 export function requestReducer(state = initialState, action) {
-  if (startsWith(action.type, '@@swagger') {
+  if (startsWith(action.type, '@@swagger')) {
     const parts = action.type.split('/');
     switch (last(parts)) {
       case 'START':

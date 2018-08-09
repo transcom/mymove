@@ -114,6 +114,10 @@ func NewPublicAPIHandler(context HandlerContext) http.Handler {
 	// Documents
 
 	// Shipments
+	publicAPI.ShipmentsIndexShipmentsHandler = PublicIndexShipmentsHandler(context)
+	publicAPI.ShipmentsGetShipmentHandler = PublicGetShipmentHandler(context)
+	publicAPI.ShipmentsCreateShipmentAcceptHandler = PublicCreateShipmentAcceptHandler(context)
+	publicAPI.ShipmentsCreateShipmentRejectHandler = PublicCreateShipmentRejectHandler(context)
 
 	// TSPs
 	publicAPI.TspsIndexTSPsHandler = PublicTspsIndexTSPsHandler(context)
@@ -145,6 +149,9 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.PpmShowPPMEstimateHandler = ShowPPMEstimateHandler(context)
 	internalAPI.PpmShowPPMSitEstimateHandler = ShowPPMSitEstimateHandler(context)
 	internalAPI.PpmShowPPMIncentiveHandler = ShowPPMIncentiveHandler(context)
+	internalAPI.PpmRequestPPMPaymentHandler = RequestPPMPaymentHandler(context)
+	internalAPI.PpmCreatePPMAttachmentsHandler = CreatePersonallyProcuredMoveAttachmentsHandler(context)
+	internalAPI.PpmRequestPPMExpenseSummaryHandler = RequestPPMExpenseSummaryHandler(context)
 
 	internalAPI.DutyStationsSearchDutyStationsHandler = SearchDutyStationsHandler(context)
 
@@ -158,9 +165,12 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 	internalAPI.MovesPatchMoveHandler = PatchMoveHandler(context)
 	internalAPI.MovesShowMoveHandler = ShowMoveHandler(context)
 	internalAPI.MovesSubmitMoveForApprovalHandler = SubmitMoveHandler(context)
-	internalAPI.MovesCreateMoveDocumentHandler = CreateMoveDocumentHandler(context)
-	internalAPI.MovesUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
-	internalAPI.MovesIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
+
+	internalAPI.MoveDocsCreateGenericMoveDocumentHandler = CreateGenericMoveDocumentHandler(context)
+	internalAPI.MoveDocsUpdateMoveDocumentHandler = UpdateMoveDocumentHandler(context)
+	internalAPI.MoveDocsIndexMoveDocumentsHandler = IndexMoveDocumentsHandler(context)
+
+	internalAPI.MoveDocsCreateMovingExpenseDocumentHandler = CreateMovingExpenseDocumentHandler(context)
 
 	internalAPI.ServiceMembersCreateServiceMemberHandler = CreateServiceMemberHandler(context)
 	internalAPI.ServiceMembersPatchServiceMemberHandler = PatchServiceMemberHandler(context)
@@ -182,6 +192,7 @@ func NewInternalAPIHandler(context HandlerContext) http.Handler {
 
 	internalAPI.ShipmentsCreateShipmentHandler = CreateShipmentHandler(context)
 	internalAPI.ShipmentsPatchShipmentHandler = PatchShipmentHandler(context)
+	internalAPI.ShipmentsGetShipmentHandler = GetShipmentHandler(context)
 
 	internalAPI.OfficeApproveMoveHandler = ApproveMoveHandler(context)
 	internalAPI.OfficeApprovePPMHandler = ApprovePPMHandler(context)
