@@ -7,6 +7,7 @@ import { bindActionCreators } from 'redux';
 import { approveReimbursement, downloadPPMAttachments } from '../ducks';
 import { no_op } from 'shared/utils';
 import { formatCents, formatDate } from 'shared/formatters';
+import Alert from 'shared/Alert';
 
 import FontAwesomeIcon from '@fortawesome/react-fontawesome';
 import faCheck from '@fortawesome/fontawesome-free-solid/faCheck';
@@ -15,6 +16,12 @@ import faPlusSquare from '@fortawesome/fontawesome-free-solid/faPlusSquare';
 import faMinusSquare from '@fortawesome/fontawesome-free-solid/faMinusSquare';
 
 import './PaymentsPanel.css';
+
+const attachmentsErrorMessages = {
+  422: 'Encountered an error while trying to create attachments bundle: Document is in the wrong format',
+  424: 'Could not find any receipts for this PPM',
+  500: 'An unexpected error has occurred',
+};
 
 class PaymentsTable extends Component {
   state = {
@@ -36,8 +43,11 @@ class PaymentsTable extends Component {
       if (response.payload) {
         // Taken from https://mathiasbynens.github.io/rel-noopener/
         let win = window.open();
-        win.opener = null;
-        win.location = response.payload.url;
+        // win can be null if a pop-up blocker is used
+        if (win) {
+          win.opener = null;
+          win.location = response.payload.url;
+        }
       }
       this.setState({ disableDownload: false });
     });
@@ -91,6 +101,7 @@ class PaymentsTable extends Component {
   };
 
   render() {
+    const attachmentsError = this.props.attachmentsError;
     const advance = this.props.advance;
     const paperworkIcon = this.state.showPaperwork
       ? faMinusSquare
@@ -180,6 +191,12 @@ class PaymentsTable extends Component {
           </a>
           {this.state.showPaperwork && (
             <Fragment>
+              {attachmentsError && (
+                <Alert type="error" heading="An error occurred">
+                  {attachmentsErrorMessages[attachmentsError.statusCode] ||
+                    'Something went wrong contacting the server.'}
+                </Alert>
+              )}
               <p>
                 Complete the following steps in order to generate and file
                 paperwork for payment:
@@ -245,6 +262,7 @@ const mapStateToProps = state => ({
   advance: get(state, 'office.officePPMs[0].advance', {}),
   hasError: false,
   errorMessage: state.office.error,
+  attachmentsError: get(state, 'office.downloadAttachmentsHasError'),
 });
 
 const mapDispatchToProps = dispatch =>

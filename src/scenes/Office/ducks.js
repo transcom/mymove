@@ -306,6 +306,7 @@ const initialState = {
   ppmHasUpdateSuccess: false,
   loadDependenciesHasError: null,
   loadDependenciesHasSuccess: false,
+  downloadAttachmentsHasError: null,
   moveHasCancelError: false,
   moveHasCancelSuccess: false,
   flashMessage: false,
@@ -634,6 +635,16 @@ export function officeReducer(state = initialState, action) {
         loadDependenciesHasSuccess: false,
         loadDependenciesHasError: true,
         error: action.error.message,
+      });
+
+    // PPM ATTACHMENTS GENERATOR
+    case DOWNLOAD_ATTACHMENTS.start:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: null,
+      });
+    case DOWNLOAD_ATTACHMENTS.failure:
+      return Object.assign({}, state, {
+        downloadAttachmentsHasError: action.error,
       });
     default:
       return state;
