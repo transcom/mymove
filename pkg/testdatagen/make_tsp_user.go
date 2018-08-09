@@ -6,7 +6,7 @@ import (
 	"github.com/transcom/mymove/pkg/models"
 )
 
-// MakeTspUser creates a single office user and associated Transportation Service Provider
+// MakeTspUser creates a single TSP user and associated Transportation Service Provider
 func MakeTspUser(db *pop.Connection, assertions Assertions) models.TspUser {
 	user := assertions.TspUser.User
 	if assertions.TspUser.UserID == nil || isZeroUUID(*assertions.TspUser.UserID) {

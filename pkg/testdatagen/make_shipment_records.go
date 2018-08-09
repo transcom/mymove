@@ -57,6 +57,11 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		pickupAddress = &newPickupAddress
 	}
 
+	status := assertions.Shipment.Status
+	if status == "" {
+		status = "DEFAULT"
+	}
+
 	shipment := models.Shipment{
 		TrafficDistributionListID:    uuidPointer(tdl.ID),
 		TrafficDistributionList:      tdl,
@@ -72,7 +77,7 @@ func MakeShipment(db *pop.Connection, assertions Assertions) models.Shipment {
 		RequestedPickupDate:          timePointer(*requestedPickupDate),
 		MoveID:                       move.ID,
 		Move:                         move,
-		Status:                       "DEFAULT",
+		Status:                       status,
 		EstimatedPackDays:            models.Int64Pointer(2),
 		EstimatedTransitDays:         models.Int64Pointer(3),
 		PickupAddressID:              &pickupAddress.ID,

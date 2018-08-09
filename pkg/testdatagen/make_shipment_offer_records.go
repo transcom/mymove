@@ -103,9 +103,13 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 
 	// Create TSP Users
 	for i := 1; i <= numTspUsers; i++ {
+		email := fmt.Sprintf("leo_spaceman%d@example.com", i)
 		tspUserAssertions := Assertions{
+			User: models.User{
+				LoginGovEmail: email,
+			},
 			TspUser: models.TspUser{
-				Email: fmt.Sprintf("leo_spaceman%d@example.com", i),
+				Email: email,
 			},
 		}
 		tspUser := MakeTspUser(db, tspUserAssertions)
@@ -127,6 +131,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 			SelectedMoveType: &selectedMoveType,
 		},
 	}
+	shipmentStatuses := []string{"DEFAULT", "AWARDED"}
 	for i := 1; i <= numShipments; i++ {
 		now := time.Now()
 		nowPlusOne := now.Add(oneWeek)
@@ -141,6 +146,7 @@ func CreateShipmentOfferData(db *pop.Connection, numTspUsers int, numShipments i
 				SourceGBLOC:             &sourceGBLOC,
 				Market:                  &market,
 				Move:                    &move,
+				Status:                  shipmentStatuses[rand.Intn(len(shipmentStatuses))],
 			},
 		}
 		shipment := MakeShipment(db, shipmentAssertions)
