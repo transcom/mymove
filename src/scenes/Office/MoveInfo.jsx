@@ -76,12 +76,12 @@ const PPMTabContent = props => {
 const HHGTabContent = props => {
   return (
     <div className="office-tab">
-      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
+      <LocationsPanel title="Locations" moveId={props.moveId} />
       <WeightAndInventoryPanel
         title="Weight & Inventory"
         moveId={props.moveId}
       />
-      <LocationsPanel title="Locations" moveId={props.moveId} />
+      <DatesAndTrackingPanel title="Dates & Tracking" moveId={props.moveId} />
     </div>
   );
 };

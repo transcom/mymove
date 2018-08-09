@@ -10,29 +10,53 @@ import { SwaggerField } from 'shared/JsonSchemaForm/JsonSchemaField';
 import { PanelSwaggerField } from 'shared/EditablePanel';
 
 const LocationsDisplay = props => {
+  const fieldProps = {
+    schema: props.shipmentSchema,
+    values: props.shipment,
+  };
   return (
-    <div className="editable-panel-column">
-      <PanelSwaggerField
-        title="Primary"
-        fieldName="pickup_address"
-        values={props.initialValues.shipment.pickup_address}
-        schema={props.shipmentSchema}
-      />
-    </div>
+    <React.Fragment>
+      <div className="editable-panel-column">
+        <span className="column-subhead">Pickup</span>
+        <PanelSwaggerField
+          title="Primary"
+          fieldName="pickup_address"
+          {...fieldProps}
+        />
+      </div>
+      <div className="editable-panel-column">
+        <span className="column-subhead">Delivery</span>
+        <PanelSwaggerField
+          title="Primary"
+          fieldName="delivery_address"
+          {...fieldProps}
+        />
+      </div>
+    </React.Fragment>
   );
 };
 
 const LocationsEdit = props => {
   const { shipmentSchema } = props;
   return (
-    <div className="editable-panel-column">
-      <SwaggerField
-        title="Primary"
-        fieldName="pickup_address"
-        swagger={shipmentSchema}
-        required
-      />
-    </div>
+    <React.Fragment>
+      <div className="editable-panel-column">
+        <SwaggerField
+          title="Primary"
+          fieldName="pickup_address"
+          swagger={shipmentSchema}
+          required
+        />
+      </div>
+      <div className="editable-panel-column">
+        <SwaggerField
+          title="Primary"
+          fieldName="delivery_address"
+          swagger={shipmentSchema}
+          required
+        />
+      </div>
+    </React.Fragment>
   );
 };
 
@@ -49,11 +73,6 @@ LocationsPanel = reduxForm({ form: formName })(LocationsPanel);
 function mapStateToProps(state) {
   let shipment = get(state, 'office.officeMove.shipments.0', {});
   return {
-    // reduxForm
-    initialValues: {
-      shipment: shipment,
-    },
-
     // Wrapper
     shipmentSchema: get(state, 'swagger.spec.definitions.Shipment', {}),
     hasError:
