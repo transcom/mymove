@@ -40,7 +40,16 @@ func (suite *AwardQueueSuite) Test_CheckAllTSPsBlackedOut() {
 	market := testdatagen.DefaultMarket
 	sourceGBLOC := testdatagen.DefaultSrcGBLOC
 
-	shipment, _ := testdatagen.MakeShipment(suite.db, pickupDate, pickupDate, deliverDate, tdl, sourceGBLOC, &market, nil, nil)
+	shipment := MakeShipment(db, Assertions{
+		Shipment: models.Shipment{
+			RequestedPickupDate:     &pickupDate,
+			PickupDate:              &pickupDate,
+			DeliveryDate:            &deliverDate,
+			TrafficDistributionList: &tdl,
+			SourceGBLOC:             &sourceGBLOC,
+			Market:                  &market,
+		},
+	})
 
 	// Create a ShipmentWithOffer to feed the award queue
 	shipmentWithOffer := models.ShipmentWithOffer{
