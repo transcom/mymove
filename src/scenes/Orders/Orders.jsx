@@ -76,6 +76,7 @@ export class Orders extends Component {
           swagger={this.props.schema}
           required
         />
+        <span className="grey">Date your orders were issued.</span>
         <SwaggerField
           fieldName="report_by_date"
           swagger={this.props.schema}
@@ -96,7 +97,11 @@ export class Orders extends Component {
             />
           </Fragment>
         )}
-        <Field name="new_duty_station" component={DutyStationSearchBox} />
+        <Field
+          name="new_duty_station"
+          component={DutyStationSearchBox}
+          title="New duty station"
+        />
       </OrdersWizardForm>
     );
   }
